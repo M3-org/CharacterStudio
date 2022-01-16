@@ -7,8 +7,10 @@ Want to contribute? Please check out the [issues](https://github.com/angellxr/Op
 
 # How To Run
 
-1. Put your templates here:
+Put your templates here:
+
 ![image](https://user-images.githubusercontent.com/18633264/149664320-ace25af5-99f0-4b1e-a9ee-fcf69f8fdcde.png)
+
 NOTE: Until we have added CC0 assets, you will need to provide your own template. Unfortunately, this isn't documented yet.
 
 ```
