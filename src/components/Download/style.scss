@@ -1,0 +1,22 @@
+@import "../../assets/styles/colors";
+
+.download-wrap {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    .downlod-button {
+        padding:0 !important;
+    }
+    .expand-download {
+        background: $NavMainBackgroundColor;
+        cursor: pointer;
+    }
+}
+.nav-item {
+    background-color: #FFFFFF !important;
+    margin-top: 4px !important;
+    &:first-child {
+    margin-top:12px !important;
+    }
+}

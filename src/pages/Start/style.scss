@@ -1,0 +1,61 @@
+@import "../../assets/styles/colors";
+@import "../../assets/styles/mixins";
+
+.start-wrap {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  @include calc-height('100vh','-','64px');
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  a {
+    text-decoration: none;
+  }
+  &:hover {
+    .screen {
+      .content {
+        opacity: 0.4;
+      }
+    }
+  }
+  .screen {
+    position: relative;
+    width: 33.3333%;
+    height: 100%;
+    text-align: center;
+    @include animate-element(all, 0.3s);
+    .content {
+      @include animate-element(all, 0.3s);
+      p {
+        font-weight: 300;
+      }
+      button {
+        margin-top: 16px;
+        background: $BodyMainBackgroundColor;
+      }
+    }
+    &:hover {
+      width: 44%;
+      .content {
+        opacity: 1;
+      }
+    }
+    &::after {
+      content: " ";
+      display: block;
+      height: 100%;
+      width: 1px;
+      background-color: $NavMainBackgroundColor;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    &:last-child {
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

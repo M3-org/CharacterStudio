@@ -1,0 +1,16 @@
+{
+  "scenes": {
+    "name": "default",
+    "OrbitControls": {
+      "minDistance": 1,
+      "maxDistance": 5,
+      "minPolarAngle": 0,
+      "enablePan": false
+    },
+    "grid": {
+        "size": 200,
+        "divisions": 300,
+        "color1": ""
+    }
+  }
+}

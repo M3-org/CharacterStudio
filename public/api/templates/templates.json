@@ -1,0 +1,107 @@
+[
+  {
+    "id": "baller",
+    "name": "Basketball Player",
+    "directory": "/models/templates/baller/",
+    "thumbnail": "thumbnail.png",
+    "file": "3d-model.glb",
+    "format": "gltf/glb",
+    "editor": {
+      "meshes": [
+        {
+          "name": "Hair",
+          "category": "head",
+          "length": 20,
+          "collection": [
+            { "name": "Hair 1", "target": "hair_low_1", "type": "1" },
+            {
+              "name": "Hair 2",
+              "target": "hair_low_2",
+              "type": "2"
+            }
+          ]
+        },
+        {
+          "name": "Beards",
+          "category": "head",
+          "length": 13,
+          "collection": [
+            { "name": "Beard 1", "target": "beard_1", "type": "1" },
+            { "name": "Beard 2", "target": "beard_2", "type": "1" }
+          ]
+        },
+        {
+          "name": "Armbands",
+          "category": "arms",
+          "length": 11,
+          "collection": [
+            { "name": "Armband 1", "target": "Armband_01" },
+            { "name": "Armband 2", "target": "Armband_02" }
+          ]
+        },
+        {
+          "name": "Belts",
+          "category": "torso",
+          "length": 5,
+          "collection": [
+            { "name": "Belt 1", "target": "belt_1" },
+            { "name": "Belt 2", "target": "belt_2" }
+          ]
+        },
+        {
+          "name": "Shorts",
+          "category": "legs",
+          "length": 5,
+          "collection": [
+            { "name": "Shorts 1", "target": "shorts" },
+            { "name": "Shorts 2", "target": "shorts001" }
+          ]
+        },
+        {
+          "name": "Shoes",
+          "category": "legs",
+          "length": 6,
+          "collection": [
+            { "name": "Shoes 1", "target": "shoes_1" },
+            { "name": "Shoes 2", "target": "Shoes_2" }
+          ]
+        }
+      ],
+      "morphs": [],
+      "textures": [
+        {
+          "name": "Body",
+          "category": "body",
+          "length": 1,
+          "collection": [
+            { "name": "Skin Color", "target": "model", "range": [30, 255] }
+          ]
+        },
+        {
+          "name": "Uniforms",
+          "category": "body",
+          "length": 1,
+          "collection": [
+            {
+              "name": "Outfit 1",
+              "texture": {
+                "base": "textures/uniform/1/clothes_low_lambert1_BaseColor.jpg",
+                "normal": "textures/uniform/1/clothes_low_lambert1_Normal.jpg",
+                "rough": "textures/uniform/1/clothes_low_lambert1_Roughness.jpg"
+              }
+            },
+            {
+              "name": "Outfit 2",
+              "texture": {
+                "base": "textures/uniform/2/clothes_low_lambert1_BaseColor.jpg",
+                "normal": "textures/uniform/2/clothes_low_lambert1_Normal.jpg",
+                "rough": "textures/uniform/2/clothes_low_lambert1_Roughness.jpg"
+              }
+            }
+          ]
+        }
+      ],
+      "poses": []
+    }
+  }
+]

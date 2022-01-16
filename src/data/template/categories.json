@@ -1,0 +1,26 @@
+[{
+    "name": "head",
+    "sideIndicator": false,
+    "imgfile": "head.svg"
+},
+{
+    "name": "torso",
+    "sideIndicator": false,
+    "imgfile": "torso.svg"
+},
+{
+    "name": "leg",
+    "sideIndicator": true,
+    "imgfile": "leg.svg"
+},
+{
+    "name": "arm",
+    "sideIndicator": true,
+    "imgfile": "arm.svg"
+},
+{
+    "name": "hand",
+    "sideIndicator": true,
+    "imgfile": "hand.svg"
+}
+]
