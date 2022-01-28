@@ -11,13 +11,13 @@ export const apiService = {
 
 
 async function fetchTemplate(id: any) {
-  const response = await axios.get("/api/templates/templates.json");
+  const response = await axios.get("/templates/templates.json");
   const filtered = response.data.filter((templates: any) => templates.id === id);
   return filtered[0];
 }
 
 async function fetchTemplates() {
-  const response = await axios.get("/api/templates/templates.json");
+  const response = await axios.get("/templates/templates.json");
   return response;
 }
 
