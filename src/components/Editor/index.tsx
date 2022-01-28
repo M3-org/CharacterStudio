@@ -12,7 +12,6 @@ export default function MeshSelector() {
     category
   }: any = useGlobalState();
 
-
   return (
     <div className="mesh-selector-wrap">
       <nav aria-label="main category selector">

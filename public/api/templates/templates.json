@@ -1,8 +1,8 @@
 [
   {
     "id": "baller",
-    "name": "Basketball Player",
-    "directory": "/models/templates/baller/",
+    "name": "Baller",
+    "directory": "/templates/baller/",
     "thumbnail": "thumbnail.png",
     "file": "3d-model.glb",
     "format": "gltf/glb",

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Avatar from "@mui/material/Avatar";
-import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
-
-import "./style.scss";
-
-import { useGlobalState } from "../AuthContextWrap";
-import { apiService } from "../../actions/services";
-import LeftRightSwitch from "./switch";
-import SearchElements from "./search";
+import React, { useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
+import { apiService } from "../../services";
+import { useGlobalState } from "../AuthContextWrap";
 import PoseEditor from "./editor";
+import SearchElements from "./search";
+import "./style.scss";
+import LeftRightSwitch from "./switch";
+
+
 
 interface TabPanelProps {
   children?: React.ReactNode;

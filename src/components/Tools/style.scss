@@ -4,41 +4,23 @@
   position: absolute;
   left: 0px;
   bottom: 0;
-  height: calc(100vh - 65px);
-  width: 372px;
+  height: 100vh;
+  width: 400px;
   color: #efefef;
   border-right: 1px solid $NavMainBackgroundColor;
 
   .tools-navigation-wrap {
     width: 80px;
-    padding: 10px 0 0 0;
     box-sizing: border-box;
     position: absolute !important;
     left: 0;
     top: 0;
-    height: calc(100vh - 65px);
+    height: 100vh;
     border-right: 1px solid $NavMainBackgroundColor;
     z-index: 10;
-    .avatar {
-      background: none;
-      border: 1px solid $NavMainBackgroundColor;
-      padding: 0px;
-      margin: 0 0 0 2px;
-      margin-bottom: 2px;
-      cursor: pointer;
-      color: $NavMainBackgroundColor;
-      &:hover {
-        border: 1px solid $NavMainBackgroundColor2;
-        color: $NavMainBackgroundColor2 !important;
-      }
-      &.active {
-        border: 1px solid $NavMainBackgroundColor2;
-        color: $NavMainBackgroundColor2 !important;
-      }
-    }
   }
   .tools {
-    padding: 22px 16px;
+    padding: 1em;
     width: 293px !important;
     top: 0;
     left: 80px;
@@ -163,67 +145,11 @@
 
 .randomize-button {
   position: absolute !important;
-  top: 90px;
+  top: 20px;
   right: 28px;
   z-index: 100;
 }
 
-.MuiTabs-indicator {
-  height: 10px !important;
-  background: #007cce; /* Old browsers */
-  background: -moz-linear-gradient(
-    top,
-    #0f1321 0%,
-    #0f1321 15%,
-    #0f1321 24%,
-    #0f1321 31%,
-    #007cce 100%
-  ); /* FF3.6-15 */
-  background: -webkit-linear-gradient(
-    top,
-    #0f1321 0%,
-    #0f1321 15%,
-    #0f1321 24%,
-    #0f1321 31%,
-    #007cce 100%
-  ); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(
-    to bottom,
-    #0f1321 0%,
-    #0f1321 15%,
-    #0f1321 24%,
-    #0f1321 31%,
-    #007cce 100%
-  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0f1321', endColorstr='#007cce',GradientType=0 ); /* IE6-9 */
-  display: block !important;
-  overflow: hidden !important;
-  display: block;
-  &::before {
-    width: 0;
-    display: block;
-    height: 0;
-    content: " ";
-    border-style: solid;
-    border-width: 20px 9px 0 0;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    border-color: $BodyMainBackgroundColor transparent transparent transparent;
-  }
-  &::after {
-    width: 0;
-    display: block;
-    height: 0;
-    content: " ";
-    border-style: solid;
-    border-width: 0 9px 20px 0;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    border-color: transparent $BodyMainBackgroundColor transparent transparent;
-  }
-}
 
 .options-tab {
   margin-top: 0;
@@ -254,6 +180,6 @@
 }
 
 .tools-scroll-wrap {
-  height: calc(100vh - 140px) !important;
+  height: calc(100vh) !important;
   width: 100%;
 }

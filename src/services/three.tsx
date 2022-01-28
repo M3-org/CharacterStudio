@@ -176,8 +176,8 @@ async function loadModel(file: any, type: any) {
 async function loadModelRandomized(file: any, type: any, variables: any) {
   if (file && type && variables) {
     const model = loadModel(file, type).then((mod: any) => {
-      variables.shapes.map((shape: any) => {
-        shape.keys.map((key: any) => {
+      variables.shapes?.map((shape: any) => {
+        shape.keys?.map((key: any) => {
           const randomValue = Math.random();
           shape.targets.map((target: any) => {
             var mesh = mod.scene.getObjectByName(target);
@@ -197,7 +197,7 @@ async function loadModelRandomized(file: any, type: any, variables: any) {
 async function randomize(scene: any, info: any) {
   console.log(info);
   if (scene && info) {
-    info.editor.shapes.map((shape: any) => {
+    info.editor?.shapes?.map((shape: any) => {
       shape.keys.map((key: any) => {
         const randomValue = Math.random();
         shape.targets.map((target: any) => {

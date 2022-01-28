@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Menu, { MenuProps } from "@mui/material/Menu";
-import Divider from "@mui/material/Divider";
-import MenuItem from "@mui/material/MenuItem";
-import Avatar from "@mui/material/Avatar";
 import DownloadIcon from "@mui/icons-material/Download";
-import { styled, alpha } from "@mui/material/styles";
+import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-
+import Divider from "@mui/material/Divider";
+import Menu, { MenuProps } from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { alpha, styled } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
+import React from "react";
 import "./style.scss";
+
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu

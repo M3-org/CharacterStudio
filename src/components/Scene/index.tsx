@@ -1,20 +1,14 @@
 /* eslint-disable */
-import React, { useRef, Suspense, useState } from "react";
-import "./style.scss";
-import * as THREE from "three";
-import Slider from "@mui/material/Slider";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import {
   OrbitControls,
-  PerspectiveCamera,
-  useGLTF,
-  Text,
+  PerspectiveCamera
 } from "@react-three/drei";
-
+import { Canvas } from "@react-three/fiber";
+import React from "react";
 import { useGlobalState } from "../GlobalProvider";
 import { TemplateModel, TemplateSnapshotModel } from "./models";
-import { Box } from "@mui/system";
-import { threeService } from "../../actions/services";
+import "./style.scss";
+
 
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
@@ -22,9 +16,9 @@ export default function Scene(props: any) {
   return (
     <div className={`scene-wrap ${wrapClass && wrapClass}`}>
       <Canvas id="scene">
-        <color attach="background" args={["#0f1321"]} />
+        <color attach="background" args={["#aaaaaa"]} />
         <gridHelper
-          args={[200, 100, "#002459", "#002459"]}
+          args={[200, 100, "#cccccc", "#eeeeee"]}
           position={[0, 0, 0]}
         />
         <spotLight

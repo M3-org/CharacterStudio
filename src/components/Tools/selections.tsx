@@ -13,7 +13,7 @@ import FormLabel from "@mui/material/FormLabel";
 import "./style.scss";
 
 import { useGlobalState } from "../GlobalProvider";
-import { apiService } from "../../actions/services";
+import { apiService } from "../../services";
 
 export function MeshSelector() {
   const { categories, category, setCategory }: any = useGlobalState();

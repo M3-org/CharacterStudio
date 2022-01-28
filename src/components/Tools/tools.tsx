@@ -9,7 +9,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import "./style.scss";
 
 import { useGlobalState } from "../GlobalProvider";
-import { threeService } from "../../actions/services";
+import { threeService } from "../../services";
 import { XyzPositionSlider } from "./sliders";
 
 import { MeshSelectorRadio } from "./selections";
@@ -138,15 +138,7 @@ export function TemplateEditorTools(props: any) {
     <>
       <Scrollbars className="tools-scroll-wrap">
         {shapeKeys && shapeKeys.length > 0 && (
-          <Accordion className="options-box">
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Shape Editor</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
+          <React.Fragment>
               {shapeKeys.map((key: any, index) => {
                 console.log(key.name);
                 return (
@@ -157,52 +149,22 @@ export function TemplateEditorTools(props: any) {
                   />
                 );
               })}
-            </AccordionDetails>
-          </Accordion>
+            </React.Fragment>
         )}
         {console.log(meshes)}
         {meshes && scene && meshes.length > 0 && (
-          <Accordion className="options-box">
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Mesh Editor</Typography>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-content">
+          <React.Fragment>
               {meshes.map((mesh: any, index) => {
-                return <MeshSelectorRadio meshes={mesh} index={index} />;
+                return <MeshSelectorRadio meshes={mesh} key={index} index={index} />;
               })}
-            </AccordionDetails>
-          </Accordion>
+            </React.Fragment>
         )}
 
 {textures && scene && textures.length > 0 && (
-          <Accordion className="options-box">
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Texture Editor</Typography>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-content">
               <ChangeColorValueSlider />
-            </AccordionDetails>
-          </Accordion>
         )}
 
         {poses && scene && poses.length > 0 && (
-          <Accordion className="options-box">
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Pose Editor</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
               <Scrollbars className="scroll">
                 {nodes &&
                   Object.keys(nodes).map((keyName, i) => {
@@ -217,8 +179,6 @@ export function TemplateEditorTools(props: any) {
                     }
                   })}
               </Scrollbars>
-            </AccordionDetails>
-          </Accordion>
         )}
       </Scrollbars>
     </>

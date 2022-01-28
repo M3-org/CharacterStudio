@@ -1,10 +1,9 @@
-import { useGLTF } from "@react-three/drei";
 import * as React from "react";
-import { apiService, threeService } from "../../actions/services";
-import { useGlobalState } from "../../components/GlobalProvider";
-import Scene from "../../components/Scene";
-import Tools from "../../components/Tools";
-import RandomizeButton from "../../components/Tools/randomize";
+import { useGlobalState } from "../components/GlobalProvider";
+import Scene from "../components/Scene";
+import Tools from "../components/Tools";
+import RandomizeButton from "../components/Tools/randomize";
+import { apiService, threeService } from "../services";
 
 export default function Template(props: any) {
   const {

@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import { useSwitch, UseSwitchProps } from "@mui/core/SwitchUnstyled";
 import { styled } from "@mui/material/styles";
 import clsx from "clsx";
-import { useSwitch, UseSwitchProps } from "@mui/core/SwitchUnstyled";
+import React from "react";
 import { useGlobalState } from "../AuthContextWrap";
-import { meshService } from "../../actions/services";
 
 const SwitchRoot = styled("span")(`
   display: inline-block;

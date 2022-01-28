@@ -1,11 +1,8 @@
-import * as React from "react";
-import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
-import "./style.scss";
-
+import Typography from "@mui/material/Typography";
+import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
-import { threeService } from "../../actions/services";
-import { Box } from "@mui/system";
+import "./style.scss";
 
 export function XyzPositionSlider(props: any) {
   const { position, name } = props;

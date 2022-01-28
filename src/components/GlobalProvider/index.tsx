@@ -1,7 +1,5 @@
 import * as React from "react";
 import { Route } from "react-router-dom";
-import { useHistory } from "react-router";
-import { apiService } from "../../actions/services";
 
 const GlobalContext = React.createContext({});
 

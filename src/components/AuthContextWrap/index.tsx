@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
-import { apiService, meshService } from "../../actions/services";
+import { apiService, meshService } from "../../services";
 
 
 const GlobalContext = createContext({});
@@ -12,10 +12,8 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
   const [search, setSearch] = useState("");
   // Categories State and Loaded Hooks
   const [categories, setCategories] = useState([]);
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   // Collections State and Loaded Hooks 
   const [collection, setCollection] = useState([]);
-  const [collectionLoaded, setCollectionLoaded] = useState([]);
   // Bones State and Loaded Hooks
   const [bones, setBones] = useState([]);
   const [bonesLoaded, setBonesLoaded] = useState(false);
@@ -51,26 +49,12 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
 
   // Loading Categories
   useEffect(() => {
-    apiService.fetchCaterories("base").then((res: any) => {
-      setCategories(res);
-      setCategoriesLoaded(true);
+    if (!bonesLoaded) {
+    apiService.fetchBones().then((res: any) => {
+      setBones(res);
+      setBonesLoaded(true);
     });
-  }, []);
-
-  // Loading Bones
-  useEffect(() => {
-    if (categoriesLoaded) {
-      console.log("Categories Loaded");
-      apiService.fetchBones().then((res: any) => {
-        setBones(res);
-        setBonesLoaded(true);
-      });
-    }
-  }, [categoriesLoaded]);
-
-  // Initializing Three JS Load
-  useEffect(() => {
-    if (bonesLoaded) {
+  } else {
       console.log("Bones Loaded");
       meshService.initialLoad(bones).then((res: any) => {
         setPose(res);
@@ -78,6 +62,7 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
       });
     }
   }, [bonesLoaded]);
+
   
   // Loading/Updating Mesh Type
   useEffect(() => {
@@ -127,7 +112,7 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
   return (
     <Route
       {...rest}
-      render={(props) => {
+      render={(props: any) => {
         return (
           <GlobalContext.Provider
             value={{

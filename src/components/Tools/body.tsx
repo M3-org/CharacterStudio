@@ -1,12 +1,11 @@
-import * as React from "react";
-import Typography from "@mui/material/Typography";
-import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Box } from "@mui/system";
-import "./style.scss";
-
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
+import "./style.scss";
 import { TemplateEditorTools } from "./tools";
+
 
 interface TabPanelProps {
   children?: React.ReactNode;

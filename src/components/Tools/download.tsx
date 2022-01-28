@@ -1,9 +1,8 @@
-import * as React from "react";
 import { Button } from "@mui/material";
-import { threeService } from "../../actions/services";
+import * as React from "react";
+import { threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
 import "./style.scss";
-import { SnapshotScene } from "../Scene";
 
 export function DownloadTools() {
   const { scene, model, templateInfo }: any = useGlobalState();
