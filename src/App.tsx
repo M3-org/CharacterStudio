@@ -5,9 +5,7 @@ import {
   Switch
 } from "react-router-dom";
 import "./assets/styles/main.scss";
-// Importing Route Component with Global Variables
 import { GPRoute } from "./components/GlobalProvider";
-import CharacterEditor from "./pages/CharacterEditor";
 // Importing Pages
 import Template from "./pages";
 
