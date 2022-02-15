@@ -17,7 +17,8 @@ export default function Template(props: any) {
     setRandomize,
   }: any = useGlobalState();
   React.useEffect(() => {
-    apiService.fetchTemplate(props.match.params.id).then((res) => {
+    console.log("Fetching template")
+    apiService.fetchTemplate((props?.match?.params?.id) ?? 'default').then((res) => {
       setTemplateInfo(res);
     });
   }, [props.match.params.id]);

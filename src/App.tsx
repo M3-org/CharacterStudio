@@ -20,7 +20,7 @@ export default function App() {
           <Switch>
 
             <GPRoute path="/:id" exact component={Template} />
-            <GPRoute path="/" exact component={CharacterEditor} />
+            <GPRoute path="/" exact component={Template} />
 
           </Switch>
         </Router>

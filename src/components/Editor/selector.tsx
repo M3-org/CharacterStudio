@@ -132,7 +132,7 @@ export default function Selector() {
                             "/img/library/" + category.name + "/" + item.img
                           }
                         />
-                        <p>{item.name}</p>
+                        <span>{item.name}</span>
                       </Grid>
                     );
                   })}
@@ -171,7 +171,7 @@ export default function Selector() {
                         "/img/library/" + category.name + "/" + item.img
                       }
                     />
-                    <p>{item.name}</p>
+                    <span>{item.name}</span>
                   </Grid>
                 );
               })}

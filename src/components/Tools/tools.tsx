@@ -1,18 +1,11 @@
-import * as React from "react";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import Typography from "@mui/material/Typography";
 import { Slider } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import * as React from "react";
 import { Scrollbars } from "react-custom-scrollbars";
-import "./style.scss";
-
-import { useGlobalState } from "../GlobalProvider";
 import { threeService } from "../../services";
-import { XyzPositionSlider } from "./sliders";
-
+import { useGlobalState } from "../GlobalProvider";
 import { MeshSelectorRadio } from "./selections";
+import { XyzPositionSlider } from "./sliders";
+import "./style.scss";
 
 function ChangeMorphValueSlider(props: any) {
   const { scene, randomize }: any = useGlobalState();
@@ -37,7 +30,7 @@ function ChangeMorphValueSlider(props: any) {
   }, [props.targets && props.keyName && scene && randomize]);
   return (
     <>
-      <Typography color="#FFFFFF">{props.keyName}</Typography>
+      <span color="#FFFFFF">{props.keyName}</span>
       {currValue && (
         <Slider
           className="slider"
@@ -67,7 +60,7 @@ function ChangeColorValueSlider(props: any) {
   };
   return (
     <>
-      <Typography color="#FFFFFF">Skin Color</Typography>
+      <span color="#FFFFFF">Skin Color</span>
       {currValue && (
         <Slider
           className="slider"
@@ -86,7 +79,7 @@ function ChangeColorValueSlider(props: any) {
 }
 
 export function TemplateEditorTools(props: any) {
-  const { scene, nodes, templateInfo, randomize }: any = useGlobalState();
+  const { scene, nodes, templateInfo }: any = useGlobalState();
   const [shapeKeys, setShapeKeys] = React.useState<any>();
   const [shapeTargets, setShapeTargets] = React.useState<any>();
   const [meshes, setMeshes] = React.useState<any>();
@@ -135,12 +128,10 @@ export function TemplateEditorTools(props: any) {
   };
 
   return (
-    <>
-      <Scrollbars className="tools-scroll-wrap">
+    <React.Fragment>
         {shapeKeys && shapeKeys.length > 0 && (
           <React.Fragment>
               {shapeKeys.map((key: any, index) => {
-                console.log(key.name);
                 return (
                   <ChangeMorphValueSlider
                     key={index}
@@ -180,7 +171,6 @@ export function TemplateEditorTools(props: any) {
                   })}
               </Scrollbars>
         )}
-      </Scrollbars>
-    </>
+    </React.Fragment>
   );
 }
