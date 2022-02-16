@@ -14,5 +14,3 @@ Want to contribute? Please check out the [issues](https://github.com/angellxr/Op
 npm install --legacy-peer-deps
 npm run dev
 ```
-
-NOTE: Until we have added CC0 assets, you will need to provide your own template. Unfortunately, this isn't documented yet.
