@@ -4,8 +4,6 @@ An open source 3D character creator. Create GLBs for anything you need. Customiz
 Code heavily borrowed from and inspired by:
 https://github.com/mrdoob/three.js/tree/master/editor and https://github.com/williamclot/CharacterCreator
 
-An open collaboration between contributors to [AngellXR](https://github.com/angellxr), [Vircadia](https://github.com/vircadia), [XR Foundation](https://github.com/xrfoundation) and [Super Reality](https://github.com/super-reality).
-
 Want to contribute? Please check out the [issues](https://github.com/thenexuscity/OpenCharacterCreator/issues), or submit a pull request.
 
 # How To Run
