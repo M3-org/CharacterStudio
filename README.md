@@ -1,7 +1,7 @@
 # Open Character Creator
-An open source 3D character creator. Create GLBs for anything you need. Customize the traits to fit the needs of your project or community.
+An open, collaborative and evolving character creator project for the open metaverse.
 
-Want to contribute? Please check out the [issues](https://github.com/thenexuscity/OpenCharacterCreator/issues), or submit a pull request.
+Want to contribute? Please check out the [issues](https://github.com/angellxr/OpenCharacterCreator/issues), or submit a pull request.
 
 # How To Run
 ```
