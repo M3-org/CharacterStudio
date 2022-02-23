@@ -3,8 +3,21 @@ An open, collaborative and evolving character creator project for the open metav
 
 Want to contribute? Please check out the [issues](https://github.com/angellxr/OpenCharacterCreator/issues), or submit a pull request.
 
-# How To Run
-```
+# Setup
+```bash
+# Clone the repo and change directory into it
+git clone https://github.com/angellxr/OpenCharacterCreator
+cd OpenCharacterCreator
+
+# Install dependencies with legacy peer deps flag to ignore React errors
 npm install --legacy-peer-deps
 npm run dev
+
+# Or just use yarn
+yarn install
+yarn run dev
 ```
+
+
+### Attributions
+Uses code from the [three.js editor](https://threejs.org/editor/)
