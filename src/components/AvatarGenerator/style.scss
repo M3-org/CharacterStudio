@@ -1,0 +1,50 @@
+.avatar-generator-wrap {
+  background-image: url("../../assets/img/main-bg-overlay.png");
+  background-color: rgba(16, 16, 16, 0.1);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  .logo {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 80px;
+  }
+  .wizard-wrap {
+    padding: 32px 24px;
+    background-color: rgba(16,16,16, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    .selection-avatar {
+        background-color: rgba(16,16,16,0.2);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        display: inline-block;
+        &:hover {
+            border: 2px solid #9c27b0;
+        }
+        &.active {
+            border: 2px solid #9c27b0;
+        }
+    }
+    p {
+        font-size: 12px;
+    }
+    span {
+        color: #efefef;
+    }
+    .button {
+        margin: auto;
+        display: block;
+        margin-top: 32px;
+    }
+    
+  }
+}
