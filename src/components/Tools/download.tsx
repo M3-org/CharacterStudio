@@ -9,6 +9,7 @@ import { contractABI, contractAddress } from "../../contract";
 import Web3Modal from "web3modal";
 import { ethers } from "ethers";
 import { Buffer } from "buffer";
+import * as THREE from "three";
 
 export function DownloadTools() {
   const { scene, model, templateInfo, gl, camera }: any = useGlobalState();
@@ -37,6 +38,7 @@ export function DownloadTools() {
       const file1: any = new Moralis.File(file.name, file);
       await file1.saveIPFS();
       const file1url = file1.ipfs();
+      console.log("file1url", file1url);
       const previewImage: any = new Moralis.File(preview.name, file);
       await previewImage.saveIPFS();
       const previewImageurl = previewImage.ipfs();
@@ -121,8 +123,9 @@ export function DownloadTools() {
   const  renderToPNG = () => {
     const downloadFileName = `CC_Model_${templateInfo.name.replace(" ", "_")}`;
     gl.domElement.getContext('webgl', { preserveDrawingBuffer: true });
-    scene.scale.set(3, 3, 3);
-    scene.position.set(0, -2, 0);
+    const hemisphereLight = new THREE.HemisphereLight(0xf6e86d, 0x404040, 1);
+    scene.add(hemisphereLight);
+    camera.position.set(0,1.8, 0.5)
     gl.render(scene, camera);
     gl.domElement.toBlob(
         function (blob) {
@@ -131,13 +134,11 @@ export function DownloadTools() {
           const reader = new FileReader();
           reader.addEventListener("load", () => {
             setPreviewImage(reader.result);
-            scene.scale.set(1, 1, 1);
-            scene.position.set(0, 0.02, 0);
+            camera.position.set(0,1.5, 5);
+            scene.remove(hemisphereLight);
           });
           reader.readAsDataURL(fileOfBlob);
-        },
-        'image/png',
-        1.0
+        }
     )
 
     gl.domElement.getContext('webgl', { preserveDrawingBuffer: false });
@@ -145,6 +146,7 @@ export function DownloadTools() {
 
   return (
     <div>
+      <img style={{width: "100%"}} src={previewImage} />
       <Button
         onClick={() => downloadModel("gltf/glb")}
         variant="outlined"
