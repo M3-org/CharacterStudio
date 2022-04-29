@@ -1,0 +1,58 @@
+// Border Radius
+
+@mixin border-r($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  -ms-border-radius: $radius;
+  border-radius: $radius;
+}
+
+@mixin border-rtl($radius) {
+  -webkit-border-top-left-radius: $radius;
+  -moz-border-radius-topleft: $radius;
+  border-top-left-radius: $radius;
+}
+
+@mixin border-rtr($radius) {
+  -webkit-border-top-right-radius: $radius;
+  -moz-border-radius-topright: $radius;
+  border-top-right-radius: $radius;
+}
+
+@mixin border-rbl($radius) {
+  -webkit-border-bottom-left-radius: $radius;
+  -moz-border-radius-bottomleft: $radius;
+  border-bottom-left-radius: $radius;
+}
+
+@mixin border-rbr($radius) {
+  -webkit-border-bottom-right-radius: $radius;
+  -moz-border-radius-bottomright: $radius;
+  border-bottom-right-radius: $radius;
+}
+
+// Transition Animation
+
+@mixin animate-element($applyto, $transition) {
+  -webkit-transition: $applyto $transition ease;
+  -moz-transition: $applyto $transition ease;
+  -o-transition: $applyto $transition ease;
+  -ms-transition: $applyto $transition ease;
+  transition: $applyto $transition ease;
+}
+
+// Width
+
+@mixin calc-width($width, $action, $pixels) {
+  width: -webkit-calc(#{$width} #{$action} #{$pixels}) !important;
+  width: -moz-calc(#{$width} #{$action} #{$pixels}) !important;
+  width: calc(#{$width} #{$action} #{$pixels}) !important;
+}
+
+// Height
+
+@mixin calc-height($height, $action, $pixels) {
+  height: -webkit-calc(#{$height} #{$action} #{$pixels});
+  height: -moz-calc(#{$height} #{$action} #{$pixels});
+  height: calc(#{$height} #{$action} #{$pixels});
+}

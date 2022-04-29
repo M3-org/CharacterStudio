@@ -1,0 +1,41 @@
+.scene-wrap {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    right: 0;
+    z-index: 0;
+    .scene-tools {
+        padding:24px; 
+        background: #333333;
+        display: none;
+        position: absolute;
+        top: 0;
+        left: -50px;
+        z-index: 101;
+        .slider {
+            height: 100px !important;
+        }
+    }
+}
+
+.snapshot-scene-wrap {
+    height: 300px !important;
+    width: 300px !important;
+    position: absolute;
+    right: 0;
+    top: 65px;
+    zoom: 0.6;
+    z-index: 0;
+    .scene-tools {
+        padding:24px; 
+        background: #333333;
+        display: none;
+        position: absolute;
+        top: 0;
+        left: -50px;
+        z-index: 101;
+        .slider {
+            height: 100px !important;
+        }
+    }
+}
