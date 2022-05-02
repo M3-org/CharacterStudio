@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as THREE from "three";
-import { useThree } from "@react-three/fiber";
 
 export function BaseModel(props: any) {
   const { nodes, scene }: any = props;
@@ -32,12 +31,7 @@ export function BaseModel(props: any) {
 }
 
 export function TemplateModel(props: any) {
-  const { scene, setGL, setCamera }: any = props;
-  const { gl , camera} = useThree();
-  React.useEffect(()=> {
-    setGL(gl);
-    setCamera(camera);
-  }, [gl, camera])
+  const { scene }: any = props;
   return (
     <mesh position={[0, 0.02, 0]}>
       <primitive object={scene} />

@@ -1,20 +1,8 @@
 .scene-wrap {
     height: 100vh;
     width: 100vw;
-    height: calc(100vh - 65px) !important;
-    width: calc(100vw - 241px) !important;
-    &.base {
-        width: calc(100vw - 321px) !important;
-    }
-    &.template {
-        width: calc(100vw - 373px) !important;
-    }
-    &.generator {
-        width: calc(100vw - 373px) !important;
-    }
     position: absolute;
     right: 0;
-    top: 65px;
     z-index: 0;
     .scene-tools {
         padding:24px; 

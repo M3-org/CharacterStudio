@@ -1,21 +1,24 @@
 /* eslint-disable */
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, useThree } from "@react-three/fiber";
+import {
+  OrbitControls,
+  PerspectiveCamera
+} from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
 import React from "react";
 import { useGlobalState } from "../GlobalProvider";
 import { TemplateModel, TemplateSnapshotModel } from "./models";
 import "./style.scss";
 
+
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
-  const { characterName, modelNodes, scene, randomize, setGL, setCamera }: any = useGlobalState();
-
+  const { characterName, modelNodes, scene, randomize }: any = useGlobalState();
   return (
     <div className={`scene-wrap ${wrapClass && wrapClass}`}>
       <Canvas id="scene">
-        <color attach="background" args={["#aaaaaa"]} />
+        <color attach="background" args={["#202020"]} />
         <gridHelper
-          args={[200, 100, "#cccccc", "#eeeeee"]}
+          args={[200, 100, "#cccccc", "#202020"]}
           position={[0, 0, 0]}
         />
         <spotLight
@@ -59,7 +62,7 @@ export default function Scene(props: any) {
           target={[0, 1, 0]}
         />
         <PerspectiveCamera>
-          <TemplateModel nodes={modelNodes} scene={scene} setGL={setGL} setCamera={setCamera} />
+          <TemplateModel nodes={modelNodes} scene={scene} />
         </PerspectiveCamera>
       </Canvas>
     </div>

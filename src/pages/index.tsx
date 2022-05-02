@@ -1,9 +1,12 @@
 import * as React from "react";
 import { useGlobalState } from "../components/GlobalProvider";
+import logo from "../assets/media/logo-dark.png";
 import Scene from "../components/Scene";
 import Tools from "../components/Tools";
 import RandomizeButton from "../components/Tools/randomize";
 import { apiService, threeService } from "../services";
+import './style.scss';
+import { NavLink } from "react-router-dom";
 
 export default function Template(props: any) {
   const {
@@ -60,8 +63,10 @@ export default function Template(props: any) {
 
   return (
     <React.Fragment>
-      <Tools />
       <RandomizeButton />
+      <NavLink to="/">
+      <img src={logo} alt="" className="logo" />
+      </NavLink>
       <Scene editor="generator" wrapClass="generator" />
     </React.Fragment>
   );

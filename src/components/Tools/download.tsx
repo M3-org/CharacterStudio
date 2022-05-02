@@ -1,6 +1,5 @@
 import { Button } from "@mui/material";
 import * as React from "react";
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
 import "./style.scss";
@@ -12,19 +11,9 @@ import { Buffer } from "buffer";
 import * as THREE from "three";
 
 export function DownloadTools() {
-  const { scene, model, templateInfo, gl, camera }: any = useGlobalState();
-  const [file, setFile] = React.useState(null);
-  const [name, setName] = React.useState("test");
-  const [description, setDescription] = React.useState("test");
-  const [preview, setPreview] = React.useState(null);
-  const [previewImage, setPreviewImage]  = React.useState(null);
+  const { scene, model, templateInfo }: any = useGlobalState();
   const downloadModel = (format: any) => {
-    threeService.download(
-      model,
-      `CC_Model_${templateInfo.name.replace(" ", "_")}`,
-      format,
-      false
-    );
+    threeService.download(model, `CC_Model_${templateInfo.name.replace(" ", "_")}`, format, false);
   };
 
   React.useEffect(() => {
@@ -153,13 +142,6 @@ export function DownloadTools() {
         className="download-button"
       >
         Download GLTF/GLB
-      </Button>
-      <Button
-        onClick={() => generateMintFile()}
-        variant="outlined"
-        className="download-button"
-      >
-        Mint GLTF/GLB
       </Button>
       <Button
         onClick={() => downloadModel("obj")}

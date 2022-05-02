@@ -7,8 +7,6 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   // General State Hooks
   // ---------- //
   // Which character creator/generator is chosen ( base , template , custom )
-  const [gl, setGL] = React.useState<object>(Object);
-  const [camera, setCamera] = React.useState<object>(Object);
   const [generator, setGenerator] = React.useState<any>(0);
   const [navigation, setNavigation] = React.useState<string>("body");
   const [modelLoaded, setModelLoaded] = React.useState<boolean>();
@@ -77,10 +75,6 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               nodes,
               setNodes,
               scene,
-              gl,
-              setGL,
-              camera,
-              setCamera,
               setScene,
               materials,
               setMaterials,
