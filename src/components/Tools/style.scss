@@ -151,20 +151,6 @@
   }
 }
 
-.randomize-button {
-  position: absolute !important;
-  top: 20px;
-  right: 28px;
-  z-index: 100;
-  img {
-    height: 40px;
-  }
-  .spin {
-    animation: rotation 1s infinite linear;
-  }
-}
-
-
 .options-tab {
   margin-top: 0;
   color: $NavMainBackgroundColor2 !important;
