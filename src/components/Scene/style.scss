@@ -45,16 +45,16 @@
     top: 0;
     background-color: #111111;
     .scene-tools {
-      padding: 24px;
-      background-color: #202020;
-      display: none;
-      position: absolute;
-      top: 0;
-      left: -50px;
-      z-index: 101;
-      .slider {
-        height: 100px !important;
-      }
+        padding:24px; 
+        background: #161616;
+        display: none;
+        position: absolute;
+        top: 0;
+        left: -50px;
+        z-index: 101;
+        .slider {
+            height: 100px !important;
+        }
     }
   }
 }
