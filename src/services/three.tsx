@@ -4,6 +4,8 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { VRMLoader } from "three/examples/jsm/loaders/VRMLoader";
+import { Buffer } from "buffer";
+import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 
 export const threeService = {
@@ -17,11 +19,47 @@ export const threeService = {
   download,
   getMesh,
   setMaterialColor,
-  getObjectValue
+  getObjectValue,
+  saveScreenShotByElementId,
 };
 
+async function getBlobFromElement(snapShotElement) {
+  return await html2canvas(snapShotElement).then(async function (canvas) {
+    var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+    const base64Data = Buffer.from(
+      dataURL.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+    const blob = new Blob([base64Data], { type: "image/jpeg" });
+    console.log("BLOB: ", blob);
+    return blob;
+  });
+}
+
+async function saveScreenShotByElementId(id: string) {
+  let snapShotElement = document.getElementById(id);
+  setTimeout(() => {
+    setTimeout(() => {
+      getBlobFromElement(snapShotElement).then((screenshot) => {
+        const link = document.createElement("a");
+        link.style.display = "none";
+        document.body.appendChild(link);
+        function save(blob, filename) {
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          link.click();
+        }
+        function saveArrayBuffer(buffer) {
+          save(new Blob([buffer], { type: "image/json" }), "screenshot.jpg");
+        }
+        saveArrayBuffer(screenshot);
+      });
+    }, 600);
+  }, 600);
+}
+
 async function getObjectValue(target: any, scene: any, value: any) {
-  if(target && scene) {
+  if (target && scene) {
     const object = scene.getObjectByName(target);
     return object.material.color;
   }
@@ -29,7 +67,7 @@ async function getObjectValue(target: any, scene: any, value: any) {
 
 function createTextCanvas(text) {
   var canvas = document.createElement("canvas");
-  var context:any = canvas.getContext("2d");
+  var context: any = canvas.getContext("2d");
 
   context.font = 11 + "px Arial";
 
@@ -47,7 +85,6 @@ function createTextCanvas(text) {
   context.clientHeight = 560;
   context.background = "#FFFFFF";
 
-
   var texture = new THREE.Texture(canvas);
   texture.needsUpdate = true;
   texture.flipY = false;
@@ -55,29 +92,28 @@ function createTextCanvas(text) {
 }
 
 const addTextNew = (scene: any) => {
-    const shirt = scene.getObjectByName("futbolka");
-    const mesh = scene.getObjectByName("number");
-    const random = ("0" + Math.floor(Math.random() * 99)).slice(-2);
-    if(!mesh) {
-      const mesh = shirt.clone();
-      const material = new THREE.MeshBasicMaterial({
-        map: createTextCanvas(random),
-        transparent: true,
-      });
-      mesh.material = material;
-      mesh.material.transparent = true;
-      mesh.name = "number";
-      scene.add(mesh);
-    } else {
-      const material = new THREE.MeshBasicMaterial({
-        map: createTextCanvas(random),
-        transparent: true,
-      });
-      mesh.material = material;
-      mesh.material.transparent = true;
-    }
-
-  };
+  const shirt = scene.getObjectByName("futbolka");
+  const mesh = scene.getObjectByName("number");
+  const random = ("0" + Math.floor(Math.random() * 99)).slice(-2);
+  if (!mesh) {
+    const mesh = shirt.clone();
+    const material = new THREE.MeshBasicMaterial({
+      map: createTextCanvas(random),
+      transparent: true,
+    });
+    mesh.material = material;
+    mesh.material.transparent = true;
+    mesh.name = "number";
+    scene.add(mesh);
+  } else {
+    const material = new THREE.MeshBasicMaterial({
+      map: createTextCanvas(random),
+      transparent: true,
+    });
+    mesh.material = material;
+    mesh.material.transparent = true;
+  }
+};
 
 async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
@@ -85,57 +121,64 @@ async function getMesh(name: any, scene: any) {
 }
 
 async function setMaterialColor(scene: any, value: any, target: any) {
-  if(scene && value) {
-  const object = scene.getObjectByName(target);
-  const randColor = value;
-  const skinShade = new THREE.Color(`rgb(${randColor},${randColor},${randColor})`);
-  object.material.color.set(skinShade);
+  if (scene && value) {
+    const object = scene.getObjectByName(target);
+    const randColor = value;
+    const skinShade = new THREE.Color(
+      `rgb(${randColor},${randColor},${randColor})`
+    );
+    object.material.color.set(skinShade);
   }
 }
 
 async function randomizeMeshes(scene: any, info: any) {
-
   const object = scene.getObjectByName("model");
   const randColor = Math.floor(Math.random() * 255) + 30;
-  const skinShade = new THREE.Color(`rgb(${randColor},${randColor},${randColor})`);
+  const skinShade = new THREE.Color(
+    `rgb(${randColor},${randColor},${randColor})`
+  );
   object.material.color.set(skinShade);
 
   const shirt = scene.getObjectByName("futbolka");
   const short = scene.getObjectByName("shorts001");
   //const belt = scene.getObjectByName("belt_3");
 
-  console.log("OLD",shirt.material);
+  console.log("OLD", shirt.material);
 
-  let randItem = info.editor.textures[1].collection[Math.floor(Math.random() * info.editor.textures[1].collection.length)];
+  let randItem =
+    info.editor.textures[1].collection[
+      Math.floor(Math.random() * info.editor.textures[1].collection.length)
+    ];
   let directory = info.directory;
   var loader = new THREE.TextureLoader();
-  loader.load( directory + randItem.texture.base , function ( texture ) {
+  loader.load(directory + randItem.texture.base, function (texture) {
     texture.needsUpdate = true;
     texture.flipY = false;
     shirt.material.map = texture;
     short.material.map = texture;
     //addTextNew(scene);
     //belt.material.map = texture;
-  } );
-  loader.load( directory + randItem.texture.normal , function ( texture ) {
+  });
+  loader.load(directory + randItem.texture.normal, function (texture) {
     texture.needsUpdate = true;
     texture.flipY = false;
     shirt.material.normalMap = texture;
     short.material.normalMap = texture;
     //addTextNew(scene);
     //belt.material.map = texture;
-  } );
-  loader.load( directory + randItem.texture.rough , function ( texture ) {
+  });
+  loader.load(directory + randItem.texture.rough, function (texture) {
     texture.needsUpdate = true;
     texture.flipY = false;
     shirt.material.roughnessMap = texture;
     short.material.roughnessMap = texture;
     //addTextNew(scene);
     //belt.material.map = texture;
-  } );
+  });
 
   info.editor.meshes.map((mesh: any) => {
-    let randItem = mesh.collection[Math.floor(Math.random() * mesh.collection.length)];
+    let randItem =
+      mesh.collection[Math.floor(Math.random() * mesh.collection.length)];
     mesh.collection.map((items: any) => {
       if (items?.name) {
         if (items?.target !== randItem?.target) {

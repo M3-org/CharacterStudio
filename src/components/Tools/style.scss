@@ -1,5 +1,14 @@
 @import "../../assets/styles/colors";
 
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
 .tools-wrap {
   position: absolute;
   left: 0px;
@@ -8,7 +17,6 @@
   width: 400px;
   color: #efefef;
   border-right: 1px solid $NavMainBackgroundColor;
-
   .tools-navigation-wrap {
     width: 80px;
     box-sizing: border-box;
@@ -148,6 +156,12 @@
   top: 20px;
   right: 28px;
   z-index: 100;
+  img {
+    height: 40px;
+  }
+  .spin {
+    animation: rotation 1s infinite linear;
+  }
 }
 
 
