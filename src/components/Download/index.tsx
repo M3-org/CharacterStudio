@@ -1,66 +1,43 @@
 import DownloadIcon from "@mui/icons-material/Download";
+import { Modal, Typography } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import Menu, { MenuProps } from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { alpha, styled } from "@mui/material/styles";
-import TextField from "@mui/material/TextField";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { TemplateModel } from "../Scene/models";
+import { Box } from "@mui/system";
 import React from "react";
 import "./style.scss";
+import { useGlobalState } from "../GlobalProvider";
+import { threeService } from "../../services";
+import CloseIcon from '@mui/icons-material/Close';
 
-
-const StyledMenu = styled((props: MenuProps) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right",
-    }}
-    transformOrigin={{
-      vertical: "top",
-      horizontal: "right",
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  "& .MuiPaper-root": {
-    borderRadius: 6,
-    marginTop: theme.spacing(1),
-    minWidth: 180,
-    color:
-      theme.palette.mode === "light"
-        ? "rgb(55, 65, 81)"
-        : theme.palette.grey[300],
-    boxShadow:
-      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-    "& .MuiMenu-list": {
-      padding: "4px 0",
-    },
-    "& .MuiMenuItem-root": {
-      "& .MuiSvgIcon-root": {
-        fontSize: 18,
-        color: theme.palette.text.secondary,
-        marginRight: theme.spacing(1.5),
-      },
-      "&:active": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
-        ),
-      },
-    },
-  },
-}));
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
 
 export default function DownloadCharacter() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const { modelNodes, scene, downloadPopup, setDownloadPopup }: any = useGlobalState();
+  const saveScreenshot = async (id:string) => {
+    threeService.saveScreenShotByElementId(id).then(() => {});
+  };
+  const handleOpen = () => {
+    setDownloadPopup(true);
   };
   const handleClose = () => {
-    setAnchorEl(null);
+    setDownloadPopup(false);
   };
   return (
     <div className="download-wrap">
@@ -69,33 +46,82 @@ export default function DownloadCharacter() {
         className="download-button"
         aria-controls="download-menu"
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
+        aria-expanded={downloadPopup ? "true" : undefined}
+        onClick={handleOpen}
       >
         <Avatar className="expand-download">
           <DownloadIcon />
         </Avatar>
       </Button>
-      <StyledMenu
-        id="download-menu"
-        anchorEl={anchorEl}
-        open={open}
+      <Modal
+        open={downloadPopup}
         onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
       >
-        <MenuItem className="nav-item">
-          <TextField size="small" label="First Name" />
-        </MenuItem>
-        <MenuItem className="nav-item">
-          <TextField size="small" label="Last Name" />
-        </MenuItem>
-        <Divider sx={{ my: 0.5 }} />
-        <MenuItem>
-          <DownloadIcon /> Download GLTF
-        </MenuItem>
-      </StyledMenu>
+        <Box sx={{ ...style, border: 0 }}>
+        <Button onClick={handleClose} className="close-popup"><CloseIcon /></Button>
+          <Typography>Download</Typography>
+          <Button onClick={() => saveScreenshot('screenshop-canvas-wrap')}>Screenshot</Button>
+        <div
+        id="screenshop-canvas-wrap"
+        className={`canvas-wrap`}
+        style={{ height: 2080, width: 2080, zoom: 0.2, background: "#111111" }}
+      >
+        <Canvas
+          className="canvas"
+          id="screenshot-scene"
+          gl={{ preserveDrawingBuffer: true }}
+        >
+          <spotLight
+            // ref={ref}
+            intensity={1}
+            position={[0, 3.5, 2]}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            castShadow
+          />
+          <spotLight
+            // ref={ref}
+            intensity={0.2}
+            position={[-5, 2.5, 4]}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            // castShadow
+          />
+          <spotLight
+            // ref={ref}
+            intensity={0.2}
+            position={[5, 2.5, 4]}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            // castShadow
+          />
+          <spotLight
+            // ref={ref}
+            intensity={0.3}
+            position={[0, -2, -8]}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            castShadow
+          />
+          <OrbitControls
+            minDistance={1}
+            maxDistance={2}
+            minPolarAngle={0}
+            maxPolarAngle={Math.PI / 2 - 0.1}
+            enablePan={false}
+            target={[0, 1, 0]}
+          />
+          <PerspectiveCamera>
+            {downloadPopup && (
+            <TemplateModel nodes={modelNodes} scene={scene} />
+            )}
+          </PerspectiveCamera>
+        </Canvas>
+      </div>
+        </Box>
+      </Modal>
     </div>
   );
 }
