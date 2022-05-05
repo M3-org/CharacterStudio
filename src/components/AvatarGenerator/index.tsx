@@ -7,12 +7,14 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { Avatar, Button, Grid, Stack, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
+import { useGlobalState } from "../GlobalProvider";
 
 const steps = ["Category", "Gender", "Start"];
 
 function AvatarGenerator() {
   const [step, setStep] = React.useState<number>(0);
-  const [category, setCategory] = React.useState<number>(0);
+  const { avatarCategory, setAvatarCategory }: any = useGlobalState();
+  // const [category, setCategory] = React.useState<number>(0);
   const [gender, setGender] = React.useState<number>(0);
   return (
     <header className="avatar-generator-wrap">
@@ -39,12 +41,12 @@ function AvatarGenerator() {
                 <Typography mb={1}>I AM A DOM</Typography>
                 <Avatar
                   className={
-                    category && category === 1
+                    avatarCategory && avatarCategory === 1
                       ? "selection-avatar active"
                       : "selection-avatar"
                   }
                   src="/whip.png"
-                  onClick={() => setCategory(1)}
+                  onClick={() => setAvatarCategory(1)}
                   sx={{ width: 120, height: 120 }}
                 />
                 <Typography mt={1}>1/5000 REMAINING</Typography>
@@ -53,12 +55,12 @@ function AvatarGenerator() {
                 <Typography mb={1}>I AM A SUB</Typography>
                 <Avatar
                   className={
-                    category && category === 2
+                    avatarCategory && avatarCategory === 2
                       ? "selection-avatar active"
                       : "selection-avatar"
                   }
                   src="/handcufs.png"
-                  onClick={() => setCategory(2)}
+                  onClick={() => setAvatarCategory(2)}
                   sx={{ width: 120, height: 120 }}
                 />
                 <Typography mt={1}>99/5000 REMAINING</Typography>
@@ -66,7 +68,7 @@ function AvatarGenerator() {
             </Grid>
             <Button
               className="button"
-              disabled={category ? false : true}
+              disabled={avatarCategory ? false : true}
               variant="contained"
               onClick={() => setStep(step + 1)}
             >
