@@ -14,6 +14,8 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { useGlobalState } from "../GlobalProvider";
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import { apiService } from "../../services/api";
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -28,13 +30,13 @@ const style = {
   px: 4,
   pb: 3,
 };
-const API_URL = "http://34.214.42.55:8081";
+const API_URL = "http://localhost:8081";
+// const API_URL = "http://34.214.42.55:8081";
 
 export default function ConnectMint() {
   const { ethereum } = window;
   const { activate, deactivate, library, account } = useWeb3React();
-  const { avatarCategory, setAvatarCategory, setNavigation }: any = useGlobalState();
-
+  const { avatarCategory, setAvatarCategory, setDownloadPopup, scene, model, templateInfo }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
   });
@@ -42,6 +44,7 @@ export default function ConnectMint() {
   const [connected, setConnected] = useState(false)
   const [alertTitle, setAlertTitle] = useState("")
   const [showAlert, setShowAlert] = useState(false)
+  const [file, setFile] = useState(null);
   const connectWallet = async () => {
     try {
       await activate(injected);
@@ -52,6 +55,12 @@ export default function ConnectMint() {
   useEffect(() => {
     account ? setConnected(true) : setConnected(false)
   },[account])
+
+  useEffect(() => {
+    if (file) {
+      mintAvatar();
+    }
+  }, [file]);
   const disConnectWallet = async () => {
     try {
       deactivate();
@@ -90,46 +99,109 @@ export default function ConnectMint() {
     }
   }
 
+  const generateMintFile = async () => {
+    function save(blob, filename) {
+      const fileOfBlob = new File([blob], filename);
+      setFile(fileOfBlob);
+    }
+
+    function saveString(text, filename) {
+      save(new Blob([text], { type: "text/plain" }), filename);
+    }
+
+    function saveArrayBuffer(buffer, filename) {
+      save(new Blob([buffer], { type: "application/octet-stream" }), filename);
+    }
+
+    const downloadFileName = `CC_Model_${templateInfo.name.replace(" ", "_")}`;
+    const exporter = new GLTFExporter();
+    const options = {
+      trs: false,
+      onlyVisible: false,
+      truncateDrawRange: true,
+      binary: true,
+      forcePowerOfTwoTextures: false,
+      maxTextureSize: 1024 || Infinity,
+    };
+    exporter.parse(
+      model.scene,
+      function (result) {
+        if (result instanceof ArrayBuffer) {
+          saveArrayBuffer(result, `${downloadFileName}.glb`);
+        } else {
+          const output = JSON.stringify(result, null, 2);
+          saveString(output, `${downloadFileName}.gltf`);
+        }
+      },
+      options
+    );
+  };
+
   const mintAvatar = async () => {
+    //////////////////////////// upload part //////////////////////
+      const formData = new FormData();
+      formData.append("profile", file);
+      // setLoading(true);
+      console.log("FILE", file.name);
+      const fileurl: any = await apiService.saveFileToPinata(formData);
+      alert(`file uploaded to pinata, IpfsHash = ${fileurl.IpfsHash}`);
+      console.log("UPLOADED TO PINATA, Upload Result", fileurl);
+
+      // const metadata = {
+      //   name: "preview.name",
+      //   description: "some description",
+      //   image: "fileurl.IpfsHash",
+      //   animation_url: "fileurl",
+      // };
+
+      // const fileMetaDataUrl: any = await apiService.saveMetaDataToPinata(
+      //   metadata
+      // );
+      // // setLoading(false);
+      // alert(
+      //   `file meta data uploaded to pinata, IpfsHash = ${fileMetaDataUrl.IpfsHash}`
+      // );
+    //////////////////////////////////////////////////////
+    // console.log("file", file)
     // setNavigation("download")
     // alert(avatarCategory) // avatarCategory : 1 - Dom , 2 - Sub
-    const signer = new ethers.providers.Web3Provider(
-      ethereum
-    ).getSigner();
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      signer
-    );
-    const responseUser = await axios.get(
-      `${API_URL}/get-signature?address=${account}`
-    );
-    const metadataurl = "https://gateway.pinata.cloud/ipfs/QmWAqBtsn9XcwmTM1oz9pomSW5xVCaFMCRKbZvhJ1Kreia"
-    if (responseUser.data.signature) {
-      let amountInEther = "0.05";
-      try {
-        console.log("www")
-        const options = { value: ethers.utils.parseEther(amountInEther), from: account };
-        let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
-        const res = await contract.mintWhiteList( breedtype, metadataurl, responseUser.data.signature, options) // breedtype, tokenuri, signature
-        alertModal("Whitelist Mint Success");
-      } catch (error) {
-        console.log(error);
-        alertModal(error.message);
-      }
-    } else {
-        let amountInEther = "0.069";
-        try {
-          console.log("ddd")
-          const options = { value: ethers.utils.parseEther(amountInEther), from: account };
-          let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
-          await contract.mintNormal( breedtype, metadataurl, options) // breedtype, tokenuri, signature
-          alertModal("Public Mint Success");
-        } catch (error) {
-          console.log(error)
-          alertModal(error.message);
-        }
-    }
+    // const signer = new ethers.providers.Web3Provider(
+    //   ethereum
+    // ).getSigner();
+    // const contract = new ethers.Contract(
+    //   contractAddress,
+    //   contractABI,
+    //   signer
+    // );
+    // const responseUser = await axios.get(
+    //   `${API_URL}/get-signature?address=${account}`
+    // );
+    // const metadataurl = "https://gateway.pinata.cloud/ipfs/QmWAqBtsn9XcwmTM1oz9pomSW5xVCaFMCRKbZvhJ1Kreia"
+    // if (responseUser.data.signature) {
+    //   let amountInEther = "0.05";
+    //   try {
+    //     console.log("www")
+    //     const options = { value: ethers.utils.parseEther(amountInEther), from: account };
+    //     let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
+    //     const res = await contract.mintWhiteList( breedtype, metadataurl, responseUser.data.signature, options) // breedtype, tokenuri, signature
+    //     alertModal("Whitelist Mint Success");
+    //   } catch (error) {
+    //     console.log(error);
+    //     alertModal(error.message);
+    //   }
+    // } else {
+    //     let amountInEther = "0.069";
+    //     try {
+    //       console.log("ddd")
+    //       const options = { value: ethers.utils.parseEther(amountInEther), from: account };
+    //       let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
+    //       await contract.mintNormal( breedtype, metadataurl, options) // breedtype, tokenuri, signature
+    //       alertModal("Public Mint Success");
+    //     } catch (error) {
+    //       console.log(error)
+    //       alertModal(error.message);
+    //     }
+    // }
     return false;
   }
 
@@ -147,7 +219,7 @@ export default function ConnectMint() {
                           <Button variant="contained" startIcon={<AddTaskIcon />} onClick={sendWhitelist} >
                             Whitelist
                           </Button>
-                          <Button variant="contained" startIcon={<GavelIcon />} onClick={mintAvatar} >
+                          <Button variant="contained" startIcon={<GavelIcon />} onClick={generateMintFile} >
                             Mint
                           </Button>
                           <p>{account ? account.slice(0,13) + "..." : ""}</p>
