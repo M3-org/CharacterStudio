@@ -70,7 +70,6 @@ export default function ConnectMint() {
 
   const [glb, setGLB] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
-  const [metadata, setMetadata] = useState(null);
 
   const connectWallet = async () => {
     try {
