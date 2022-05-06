@@ -143,18 +143,13 @@ export default function ConnectMint() {
     /// ---------- glb or .png -------------- ////////////////
     const formData = new FormData();
     formData.append("profile", glb);
-    // setLoading(true);
     console.log("FILE", "test.glb");
     const glburl: any = await apiService.saveFileToPinata(formData);
-    // alert(`file uploaded to pinata, IpfsHash = ${fileurl.IpfsHash}`);
-    console.log("UPLOADED TO PINATA, Upload Result", glburl);
-    /// ---------- .jpg (screemshot) -------------- ////////////////
+    /// ---------- .jpg (screenshot) -------------- ////////////////
     const jpgformData = new FormData();
     jpgformData.append("profile", screenshot);
-    // setLoading(true);
     console.log("FILE", "test1.jpg");
     const jpgurl: any = await apiService.saveFileToPinata(jpgformData);
-    // alert(`file uploaded to pinata, IpfsHash = ${fileurl.IpfsHash}`);
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
@@ -168,10 +163,6 @@ export default function ConnectMint() {
       metadata
     );
     console.log(MetaDataUrl);
-    // setLoading(false);
-    // alert(
-    //   `file meta data uploaded to pinata, IpfsHash = ${MetaDataUrl.data.IpfsHash}`
-    // );
     //////////////////////////////////////////////////////
     // alert(avatarCategory) // avatarCategory : 1 - Dom , 2 - Sub
     const signer = new ethers.providers.Web3Provider(
@@ -193,9 +184,11 @@ export default function ConnectMint() {
         const options = { value: ethers.utils.parseEther(amountInEther), from: account };
         let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
         const res = await contract.mintWhiteList( breedtype, "ipfs://" + MetaDataUrl.data.IpfsHash, responseUser.data.signature, options) // breedtype, tokenuri, signature
+        handleCloseMintPopup();
         alertModal("Whitelist Mint Success");
       } catch (error) {
         console.log(error);
+        handleCloseMintPopup();
         alertModal(error.message);
       }
     } else {
@@ -205,9 +198,11 @@ export default function ConnectMint() {
           const options = { value: ethers.utils.parseEther(amountInEther), from: account };
           let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
           await contract.mintNormal( breedtype, "ipfs://" + MetaDataUrl.data.IpfsHash, options) // breedtype, tokenuri, signature
+          handleCloseMintPopup();
           alertModal("Public Mint Success");
         } catch (error) {
           console.log(error)
+          handleCloseMintPopup();
           alertModal(error.message);
         }
     }
