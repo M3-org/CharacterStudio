@@ -9,6 +9,29 @@
         margin-bottom: 3%;
     }
 }
+.title-icon {
+    display: inline-block !important;
+    margin-top: 0px;
+    vertical-align: sub;
+    font-size: 24px !important;
+    color: #efefef;
+
+}
+.mint-model-button {
+    width: 104% !important;
+    font-size: 12px !important;
+    margin-top: 16px !important;
+}
+.close-popup {
+    position: absolute !important;
+    right: 0px;
+    top: 8px;
+    background: none !important;
+    color: #999999 !important;
+    &:hover {
+        color: #EFEFEF !important;
+    }
+}
 #alertTitle {
     margin: 0 37vw;
     position: absolute;

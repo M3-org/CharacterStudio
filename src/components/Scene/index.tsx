@@ -12,10 +12,11 @@ import Divider from "@mui/material/Divider";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
+import Editor from "./editor";
 
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
-  const { modelNodes, scene, downloadPopup }: any = useGlobalState();
+  const { modelNodes, scene, downloadPopup, mintPopup }: any = useGlobalState();
   return (
     <div className="scene-wrap">
       <div
@@ -66,72 +67,13 @@ export default function Scene(props: any) {
             target={[0, 1, 0]}
           />
           <PerspectiveCamera>
-          {!downloadPopup && (
+          {!downloadPopup && !mintPopup && (
             <TemplateModel nodes={modelNodes} scene={scene} />
           )}
           </PerspectiveCamera>
         </Canvas>
       </div>
-      <div className="editor-wrap">
-        <Stack
-          direction="row"
-          divider={<Divider orientation="vertical" flexItem />}
-          spacing={2}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Skin Tone
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Hair
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Face
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Tops
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Arms
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Neck
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Bottoms
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Shoes
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Legs
-          </div>
-          <div className="selector-button">
-            <Avatar className="icon" />
-            <br />
-            Accessories
-          </div>
-        </Stack>
-      </div>
+      <Editor />
     </div>
   );
 }

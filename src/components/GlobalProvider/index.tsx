@@ -30,10 +30,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [pose, setPose] = React.useState(undefined);
   const [poseSelected, setPoseSelected] = React.useState("default");
   // Selected category State Hook
-  const [category, setCategory] = React.useState({
-    name: "head",
-    sideIndicator: false,
-  });
+  const [category, setCategory] = React.useState("color");
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
 
   const [model, setModel] = React.useState<object>(Object);
@@ -46,6 +43,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [templateInfo, setTemplateInfo] = React.useState<object>();
   const [randomize, setRandomize] = React.useState<boolean>(false);
   const [downloadPopup, setDownloadPopup] = React.useState<boolean>(false);
+  const [mintPopup, setMintPopup] = React.useState<boolean>(false);
   // Select AvatarGenerator 
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   return (
@@ -89,6 +87,8 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setRandomize,
               downloadPopup,
               setDownloadPopup,
+              mintPopup,
+              setMintPopup,
               // ----- Avatar Selete Category ---- //
               avatarCategory,
               setAvatarCategory

@@ -1,12 +1,12 @@
 import React, { Suspense } from "react";
 import { BrowserView, MobileView } from "react-device-detect";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material";
 import "./assets/styles/main.scss";
 import AvatarGenerator from "./components/AvatarGenerator";
 import { GPRoute } from "./components/GlobalProvider";
 // Importing Pages
 import Template from "./pages";
-import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme({
   palette: {
