@@ -9,6 +9,9 @@ import { NavLink } from "react-router-dom";
 import DownloadCharacter from "../components/Download";
 import ConnectMint from "../components/ConnectMint";
 
+import { Web3ReactProvider } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+
 export default function Template(props: any) {
   const {
     setScene,
@@ -19,6 +22,13 @@ export default function Template(props: any) {
     randomize,
     setRandomize,
   }: any = useGlobalState();
+
+  function getLibrary(provider: any): Web3Provider {
+    const library = new Web3Provider(provider)
+    library.pollingInterval = 12000
+    return library
+  }
+
   React.useEffect(() => {
     apiService
       .fetchTemplate(props?.match?.params?.id ?? "default")
@@ -70,7 +80,9 @@ export default function Template(props: any) {
     <React.Fragment>
       <RandomizeButton />
       <DownloadCharacter />
-      <ConnectMint />
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <ConnectMint />
+      </Web3ReactProvider>
       <NavLink to="/">
         <img src={logo} alt="" className="logo" />
       </NavLink>

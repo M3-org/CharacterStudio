@@ -207,7 +207,6 @@ async function loadModel(file: any, type: any) {
   if (type && type === "vrm" && file) {
     const loader = new VRMLoader();
     return loader.loadAsync(file).then((model) => {
-      //console.log("AAAAAAAA",model);
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
       });

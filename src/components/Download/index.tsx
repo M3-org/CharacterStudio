@@ -39,6 +39,7 @@ export default function DownloadCharacter() {
   const handleClose = () => {
     setDownloadPopup(false);
   };
+
   return (
     <div className="download-wrap">
       <Button
