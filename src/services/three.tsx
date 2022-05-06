@@ -21,9 +21,29 @@ export const threeService = {
   setMaterialColor,
   getObjectValue,
   saveScreenShotByElementId,
+  getScreenShotByElementId,
+  getModelFromScene
 };
 
-async function getBlobFromElement(snapShotElement) {
+
+async function getModelFromScene(scene: any, format: any) {
+  if (format && format === 'gltf/glb') {
+    const exporter = new GLTFExporter()
+    var options = {
+      trs: false,
+      onlyVisible: true,
+      truncateDrawRange: true,
+      binary: true,
+      forcePowerOfTwoTextures: false,
+      maxTextureSize: 1024 || Infinity
+    }
+    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, options))
+    return new Blob([glb], { type: 'model/gltf-binary' })
+  }
+}
+
+async function getScreenShotByElementId(id) {
+  let snapShotElement = document.getElementById(id);
   return await html2canvas(snapShotElement).then(async function (canvas) {
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
@@ -37,10 +57,9 @@ async function getBlobFromElement(snapShotElement) {
 }
 
 async function saveScreenShotByElementId(id: string) {
-  let snapShotElement = document.getElementById(id);
   setTimeout(() => {
     setTimeout(() => {
-      getBlobFromElement(snapShotElement).then((screenshot) => {
+      getScreenShotByElementId(id).then((screenshot) => {
         const link = document.createElement("a");
         link.style.display = "none";
         document.body.appendChild(link);
@@ -207,7 +226,6 @@ async function loadModel(file: any, type: any) {
   if (type && type === "vrm" && file) {
     const loader = new VRMLoader();
     return loader.loadAsync(file).then((model) => {
-      //console.log("AAAAAAAA",model);
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
       });

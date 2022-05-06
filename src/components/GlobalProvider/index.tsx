@@ -43,7 +43,9 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [templateInfo, setTemplateInfo] = React.useState<object>();
   const [randomize, setRandomize] = React.useState<boolean>(false);
   const [downloadPopup, setDownloadPopup] = React.useState<boolean>(false);
-
+  const [mintPopup, setMintPopup] = React.useState<boolean>(false);
+  // Select AvatarGenerator 
+  const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   return (
     <Route
       {...rest}
@@ -84,7 +86,12 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               randomize,
               setRandomize,
               downloadPopup,
-              setDownloadPopup
+              setDownloadPopup,
+              mintPopup,
+              setMintPopup,
+              // ----- Avatar Selete Category ---- //
+              avatarCategory,
+              setAvatarCategory
             }}
           >
             <Component {...props} />

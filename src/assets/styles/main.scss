@@ -16,6 +16,9 @@ html {
     background-color: rgba(16, 16, 16, 0.1);
   }
 }
+* {
+  outline: none;
+}
 
 #canvas {
   height: 100vh;

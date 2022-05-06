@@ -16,7 +16,7 @@ import Editor from "./editor";
 
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
-  const { modelNodes, scene, downloadPopup }: any = useGlobalState();
+  const { modelNodes, scene, downloadPopup, mintPopup }: any = useGlobalState();
   return (
     <div className="scene-wrap">
       <div
@@ -67,7 +67,7 @@ export default function Scene(props: any) {
             target={[0, 1, 0]}
           />
           <PerspectiveCamera>
-          {!downloadPopup && (
+          {!downloadPopup && !mintPopup && (
             <TemplateModel nodes={modelNodes} scene={scene} />
           )}
           </PerspectiveCamera>
