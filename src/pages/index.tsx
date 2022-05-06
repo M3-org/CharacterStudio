@@ -2,11 +2,12 @@ import * as React from "react";
 import { useGlobalState } from "../components/GlobalProvider";
 import logo from "../assets/media/logo-dark.png";
 import Scene from "../components/Scene";
-import RandomizeButton from "../components/Tools/randomize";
+import RandomizeButton from "../components/Randomize";
 import { apiService, threeService } from "../services";
 import "./style.scss";
 import { NavLink } from "react-router-dom";
 import DownloadCharacter from "../components/Download";
+import ConnectMint from "../components/ConnectMint";
 
 export default function Template(props: any) {
   const {
@@ -69,6 +70,7 @@ export default function Template(props: any) {
     <React.Fragment>
       <RandomizeButton />
       <DownloadCharacter />
+      <ConnectMint />
       <NavLink to="/">
         <img src={logo} alt="" className="logo" />
       </NavLink>

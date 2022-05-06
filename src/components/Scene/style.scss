@@ -28,9 +28,23 @@
       text-align: center;
       font-size: 12px;
       min-width: 60px;
+      cursor: pointer;
+      &:hover {
+        .icon {
+        background-color: #de2a5e;
+        }
+      }
+      &.active {
+        .icon {
+        background-color: #de2a5e;
+        }
+      }
     }
     .icon {
       display: inline-block;
+      width: 40px;
+      height: 40px;
+      padding: 2px;
     }
   }
   .canvas {

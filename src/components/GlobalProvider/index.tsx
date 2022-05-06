@@ -30,10 +30,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [pose, setPose] = React.useState(undefined);
   const [poseSelected, setPoseSelected] = React.useState("default");
   // Selected category State Hook
-  const [category, setCategory] = React.useState({
-    name: "head",
-    sideIndicator: false,
-  });
+  const [category, setCategory] = React.useState("color");
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
 
   const [model, setModel] = React.useState<object>(Object);
