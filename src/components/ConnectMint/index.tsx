@@ -139,6 +139,7 @@ export default function ConnectMint() {
 
   const mintAvatar = async () => {
     //////////////////////////// upload part //////////////////////
+     /// ---------- glb or .png -------------- ////////////////
       const formData = new FormData();
       formData.append("profile", file);
       // setLoading(true);
@@ -146,20 +147,21 @@ export default function ConnectMint() {
       const fileurl: any = await apiService.saveFileToPinata(formData);
       alert(`file uploaded to pinata, IpfsHash = ${fileurl.IpfsHash}`);
       console.log("UPLOADED TO PINATA, Upload Result", fileurl);
-
+     /// ---------- metadata ------------- /////////////////
       // const metadata = {
-      //   name: "preview.name",
+      //   name: "preview.name2",
       //   description: "some description",
-      //   image: "fileurl.IpfsHash",
-      //   animation_url: "fileurl",
+      //   image: "https://gateway.pinata.cloud/ipfs/QmekA4Fg1dxpfQnC5TnDNKKgmh6ywtUisGZkRh9PNtD222",
+      //   animation_url: "https://gateway.pinata.cloud/ipfs/QmekA4Fg1dxpfQnC5TnDNKKgmh6ywtUisGZkRh9PNtD222",
       // };
 
       // const fileMetaDataUrl: any = await apiService.saveMetaDataToPinata(
       //   metadata
       // );
+      // console.log(fileMetaDataUrl);
       // // setLoading(false);
       // alert(
-      //   `file meta data uploaded to pinata, IpfsHash = ${fileMetaDataUrl.IpfsHash}`
+      //   `file meta data uploaded to pinata, IpfsHash = ${fileMetaDataUrl.data.IpfsHash}`
       // );
     //////////////////////////////////////////////////////
     // console.log("file", file)
