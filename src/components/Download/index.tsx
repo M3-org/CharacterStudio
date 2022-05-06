@@ -63,9 +63,9 @@ export default function DownloadCharacter() {
         <Box sx={{ ...style, border: 0 }}>
         <Button onClick={handleClose} className="close-popup"><CloseIcon /></Button>
           <Typography>Download</Typography>
-          <Button onClick={() => saveScreenshot('screenshop-canvas-wrap')}>Screenshot</Button>
+          <Button onClick={() => saveScreenshot('screenshot-canvas-wrap')}>Screenshot</Button>
         <div
-        id="screenshop-canvas-wrap"
+        id="screenshot-canvas-wrap"
         className={`canvas-wrap`}
         style={{ height: 2080, width: 2080, zoom: 0.2, background: "#111111" }}
       >
