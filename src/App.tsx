@@ -5,8 +5,6 @@ import { ThemeProvider, createTheme } from "@mui/material";
 import "./assets/styles/main.scss";
 import AvatarGenerator from "./components/AvatarGenerator";
 import { GPRoute } from "./components/GlobalProvider";
-// Importing Pages
-import Template from "./pages";
 
 const theme = createTheme({
   palette: {
@@ -26,8 +24,6 @@ export default function App() {
             <Router>
               <Switch>
                 <GPRoute path="/" exact component={AvatarGenerator} />
-                <GPRoute path="/template/:id" exact component={Template} />
-                <GPRoute path="/template" exact component={Template} />
               </Switch>
             </Router>
           </div>

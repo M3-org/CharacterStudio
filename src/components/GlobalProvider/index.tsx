@@ -44,8 +44,24 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [randomize, setRandomize] = React.useState<boolean>(false);
   const [downloadPopup, setDownloadPopup] = React.useState<boolean>(false);
   const [mintPopup, setMintPopup] = React.useState<boolean>(false);
-  // Select AvatarGenerator 
+
+  // MINT INFORMATION HOOKs
+
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
+  const [gender, setGender] = React.useState<number>(0);
+
+  const [ totalToBeMintedDom , setTotalToBeMintedDom ] = React.useState<number>(5000);
+  const [ totalMintedDom , setTotalMintedDom ] = React.useState<number>(0);
+  const [ totalToBeMintedSub , setTotalToBeMintedSub ] = React.useState<number>(5000);
+  const [ totalMintedSub , setTotalMintedSub ] = React.useState<number>(0);
+
+  const [ allowedToMint , setAllowedToMint ] = React.useState<number>(0);
+
+  const [ mintPrice , setMintPrice ] = React.useState<number>(0.5);
+  const [ mintPricePublic , setMintPricePublic ] = React.useState<number>(0.65);
+
+
+
   return (
     <Route
       {...rest}
@@ -60,6 +76,20 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setNavigation,
               modelLoaded,
               setModelLoaded,
+              totalToBeMintedDom,
+              setTotalToBeMintedDom,
+              totalMintedDom,
+              setTotalMintedDom,
+              totalMintedSub,
+              setTotalMintedSub,
+              totalToBeMintedSub,
+              setTotalToBeMintedSub,
+              allowedToMint,
+              setAllowedToMint,
+              mintPrice,
+              setMintPrice,
+              mintPricePublic,
+              setMintPricePublic,
               // ----- Navigation Categories / State Hooks ----- //
               categories,
               setCategories,
@@ -91,7 +121,9 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setMintPopup,
               // ----- Avatar Selete Category ---- //
               avatarCategory,
-              setAvatarCategory
+              setAvatarCategory,
+              gender,
+              setGender
             }}
           >
             <Component {...props} />
