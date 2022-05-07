@@ -42,7 +42,6 @@ function AvatarGenerator() {
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
     const domMintedToken = await contract._currentIndex(BigNumber.from(0).toNumber())
     const subMintedToken = await contract._currentIndex(BigNumber.from(1).toNumber())
-    // console.log("aaa", parseInt(MintedToken))
     setTotalMintedDom(5001 - parseInt(domMintedToken))
     setTotalMintedSub(10001 - parseInt(subMintedToken))
   }

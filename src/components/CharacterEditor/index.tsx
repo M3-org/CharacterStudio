@@ -38,7 +38,6 @@ export default function CharacterEditor(props: any) {
   }, [props?.match?.params?.id]);
 
   React.useEffect(() => {
-    // console.log("Template Information Response: ", templateInfo);
     if (
       templateInfo?.directory &&
       templateInfo?.file &&
