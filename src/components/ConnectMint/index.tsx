@@ -131,6 +131,7 @@ export default function ConnectMint() {
   };
 
   const generateMintFiles = async () => {
+    setMintLoading(true);
     threeService
       .getScreenShotByElementId("mint-screenshot-canvas-wrap")
       .then((screenshot) => {
@@ -146,17 +147,14 @@ export default function ConnectMint() {
   };
 
   const mintAvatar = async () => {
-    setMintLoading(true);
     //////////////////////////// upload part //////////////////////
-    /// ---------- glb or .png -------------- ////////////////
+    /// ---------- glb -------------- ////////////////
     const formData = new FormData();
     formData.append("profile", glb);
-    console.log("FILE", "test.glb");
     const glburl: any = await apiService.saveFileToPinata(formData);
     /// ---------- .jpg (screenshot) -------------- ////////////////
     const jpgformData = new FormData();
     jpgformData.append("profile", screenshot);
-    console.log("FILE", "test1.jpg");
     const jpgurl: any = await apiService.saveFileToPinata(jpgformData);
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
@@ -181,7 +179,7 @@ export default function ConnectMint() {
       let amountInEther = mintPrice;
       setIsPricePublic(1);
       try {
-        console.log("www");
+        console.log("whitelist");
         const options = {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
@@ -207,7 +205,7 @@ export default function ConnectMint() {
       let amountInEther = mintPricePublic;
       setIsPricePublic(0);
       try {
-        console.log("ddd");
+        console.log("public");
         const options = {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
@@ -219,7 +217,7 @@ export default function ConnectMint() {
           breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           options
-        ); // breedtype, tokenuri, signature
+        ); // breedtype, tokenuri
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Public Mint Success");
