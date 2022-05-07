@@ -57,8 +57,8 @@ export const GPRoute = ({ component: Component, ...rest }) => {
 
   const [ allowedToMint , setAllowedToMint ] = React.useState<number>(0);
 
-  const [ mintPrice , setMintPrice ] = React.useState<number>(0.5);
-  const [ mintPricePublic , setMintPricePublic ] = React.useState<number>(0.65);
+  const [ mintPrice , setMintPrice ] = React.useState<number>(0.05);
+  const [ mintPricePublic , setMintPricePublic ] = React.useState<number>(0.069);
 
 
 

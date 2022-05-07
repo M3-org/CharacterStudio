@@ -131,6 +131,7 @@ export default function ConnectMint() {
   };
 
   const generateMintFiles = async () => {
+    setMintLoading(true);
     threeService
       .getScreenShotByElementId("mint-screenshot-canvas-wrap")
       .then((screenshot) => {
@@ -146,7 +147,6 @@ export default function ConnectMint() {
   };
 
   const mintAvatar = async () => {
-    setMintLoading(true);
     //////////////////////////// upload part //////////////////////
     /// ---------- glb or .png -------------- ////////////////
     const formData = new FormData();
@@ -181,7 +181,7 @@ export default function ConnectMint() {
       let amountInEther = mintPrice;
       setIsPricePublic(1);
       try {
-        console.log("www");
+        console.log("whitelist");
         const options = {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
@@ -207,7 +207,7 @@ export default function ConnectMint() {
       let amountInEther = mintPricePublic;
       setIsPricePublic(0);
       try {
-        console.log("ddd");
+        console.log("public");
         const options = {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
@@ -219,7 +219,7 @@ export default function ConnectMint() {
           breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           options
-        ); // breedtype, tokenuri, signature
+        ); // breedtype, tokenuri
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Public Mint Success");

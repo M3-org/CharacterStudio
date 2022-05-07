@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import logo from "../../assets/media/logo-dark.png";
 import "./style.scss";
 import Box from "@mui/material/Box";
@@ -9,6 +9,8 @@ import { Avatar, Button, Grid, Stack, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import { useGlobalState } from "../GlobalProvider";
 import CharacterEditor from "../CharacterEditor";
+import { ethers, BigNumber } from "ethers";
+import { contractAddress, contractABI } from "../../library/contract";
 
 const steps = ["Category", "Gender", "Start"];
 
@@ -18,7 +20,9 @@ function AvatarGenerator() {
     avatarCategory,
     setAvatarCategory,
     totalMintedDom,
+    setTotalMintedDom,
     totalMintedSub,
+    setTotalMintedSub,
     totalToBeMintedDom,
     totalToBeMintedSub,
     mintPrice,
@@ -27,6 +31,22 @@ function AvatarGenerator() {
     setGender
   }: any = useGlobalState();
   const [editAvatar, setEditAvatar] = React.useState<number>(0);
+  const { ethereum }: any = window;
+
+  useEffect(() => {
+    getMintedToken();
+  });
+
+  const getMintedToken = async () => {
+    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    const domMintedToken = await contract._currentIndex(BigNumber.from(0).toNumber())
+    const subMintedToken = await contract._currentIndex(BigNumber.from(1).toNumber())
+    // console.log("aaa", parseInt(MintedToken))
+    setTotalMintedDom(5001 - parseInt(domMintedToken))
+    setTotalMintedSub(10001 - parseInt(subMintedToken))
+  }
+
   if (editAvatar) {
     return <CharacterEditor />;
   } else {
