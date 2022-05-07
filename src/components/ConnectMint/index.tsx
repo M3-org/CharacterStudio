@@ -148,15 +148,13 @@ export default function ConnectMint() {
 
   const mintAvatar = async () => {
     //////////////////////////// upload part //////////////////////
-    /// ---------- glb or .png -------------- ////////////////
+    /// ---------- glb -------------- ////////////////
     const formData = new FormData();
     formData.append("profile", glb);
-    console.log("FILE", "test.glb");
     const glburl: any = await apiService.saveFileToPinata(formData);
     /// ---------- .jpg (screenshot) -------------- ////////////////
     const jpgformData = new FormData();
     jpgformData.append("profile", screenshot);
-    console.log("FILE", "test1.jpg");
     const jpgurl: any = await apiService.saveFileToPinata(jpgformData);
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
