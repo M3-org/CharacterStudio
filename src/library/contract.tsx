@@ -1,5 +1,5 @@
 export const contractAddress: any =
-  "0x76A8BFdFb16bB64949B96Ad66E3500b4E5113D87";
+  "0x5c00497459Eb307E6097E648F46a199A7cDb5949";
 export const contractABI: any[] = [
     {
         "inputs": [],
@@ -99,6 +99,25 @@ export const contractABI: any[] = [
         ],
         "name": "Transfer",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "_currentIndex",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [

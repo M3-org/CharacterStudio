@@ -40,22 +40,25 @@ const style = {
   px: 4,
   pb: 3,
 };
-const API_URL = "http://localhost:8081";
-// const API_URL = "http://34.214.42.55:8081";
+// const API_URL = "http://localhost:8081";
+const API_URL = "http://34.214.42.55:8081";
 
 export default function ConnectMint() {
   const { ethereum }: any = window;
   const { activate, deactivate, library, account } = useWeb3React();
   const {
     avatarCategory,
-    setAvatarCategory,
-    setDownloadPopup,
     modelNodes,
     mintPopup,
     setMintPopup,
     scene,
-    model,
-    templateInfo,
+    mintPrice,
+    mintPricePublic,
+    totalMintedDom,
+    totalMintedSub,
+    gender,
+    totalToBeMintedDom,
+    totalToBeMintedSub,
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
@@ -64,13 +67,14 @@ export default function ConnectMint() {
   const [connected, setConnected] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [file, setFile] = useState(null);
+
+  const [isPricePublic, setIsPricePublic] = useState(0);
+  const [mintLoading, setMintLoading] = useState(false);
 
   // NEW FILE STATE HOOKS
 
   const [glb, setGLB] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
-  const [metadata, setMetadata] = useState(null);
 
   const connectWallet = async () => {
     try {
@@ -84,10 +88,10 @@ export default function ConnectMint() {
   }, [account]);
 
   useEffect(() => {
-    if (file) {
+    if (glb && screenshot) {
       mintAvatar();
     }
-  }, [file]);
+  }, [glb, screenshot]);
   const disConnectWallet = async () => {
     try {
       deactivate();
@@ -127,6 +131,7 @@ export default function ConnectMint() {
   };
 
   const generateMintFiles = async () => {
+    setMintLoading(true);
     threeService
       .getScreenShotByElementId("mint-screenshot-canvas-wrap")
       .then((screenshot) => {
@@ -143,71 +148,85 @@ export default function ConnectMint() {
 
   const mintAvatar = async () => {
     //////////////////////////// upload part //////////////////////
-    /// ---------- glb or .png -------------- ////////////////
+    /// ---------- glb -------------- ////////////////
     const formData = new FormData();
-    formData.append("profile", file);
-    // setLoading(true);
-    console.log("FILE", file.name);
-    const fileurl: any = await apiService.saveFileToPinata(formData);
-    alert(`file uploaded to pinata, IpfsHash = ${fileurl.IpfsHash}`);
-    console.log("UPLOADED TO PINATA, Upload Result", fileurl);
+    formData.append("profile", glb);
+    const glburl: any = await apiService.saveFileToPinata(formData);
+    /// ---------- .jpg (screenshot) -------------- ////////////////
+    const jpgformData = new FormData();
+    jpgformData.append("profile", screenshot);
+    const jpgurl: any = await apiService.saveFileToPinata(jpgformData);
+    console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
-    // const metadata = {
-    //   name: "preview.name2",
-    //   description: "some description",
-    //   image: "https://gateway.pinata.cloud/ipfs/QmekA4Fg1dxpfQnC5TnDNKKgmh6ywtUisGZkRh9PNtD222",
-    //   animation_url: "https://gateway.pinata.cloud/ipfs/QmekA4Fg1dxpfQnC5TnDNKKgmh6ywtUisGZkRh9PNtD222",
-    // };
+    const metadata = {
+      name: "No Limit 3D Avatar NFT",
+      description: "No Limit 3D Avatar NFT",
+      image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
+      animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
+    };
 
-    // const fileMetaDataUrl: any = await apiService.saveMetaDataToPinata(
-    //   metadata
-    // );
-    // console.log(fileMetaDataUrl);
-    // // setLoading(false);
-    // alert(
-    //   `file meta data uploaded to pinata, IpfsHash = ${fileMetaDataUrl.data.IpfsHash}`
-    // );
+    const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
+    console.log(MetaDataUrl);
     //////////////////////////////////////////////////////
-    // console.log("file", file)
-    // setNavigation("download")
     // alert(avatarCategory) // avatarCategory : 1 - Dom , 2 - Sub
-    // const signer = new ethers.providers.Web3Provider(
-    //   ethereum
-    // ).getSigner();
-    // const contract = new ethers.Contract(
-    //   contractAddress,
-    //   contractABI,
-    //   signer
-    // );
-    // const responseUser = await axios.get(
-    //   `${API_URL}/get-signature?address=${account}`
-    // );
-    // const metadataurl = "https://gateway.pinata.cloud/ipfs/QmWAqBtsn9XcwmTM1oz9pomSW5xVCaFMCRKbZvhJ1Kreia"
-    // if (responseUser.data.signature) {
-    //   let amountInEther = "0.05";
-    //   try {
-    //     console.log("www")
-    //     const options = { value: ethers.utils.parseEther(amountInEther), from: account };
-    //     let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
-    //     const res = await contract.mintWhiteList( breedtype, metadataurl, responseUser.data.signature, options) // breedtype, tokenuri, signature
-    //     alertModal("Whitelist Mint Success");
-    //   } catch (error) {
-    //     console.log(error);
-    //     alertModal(error.message);
-    //   }
-    // } else {
-    //     let amountInEther = "0.069";
-    //     try {
-    //       console.log("ddd")
-    //       const options = { value: ethers.utils.parseEther(amountInEther), from: account };
-    //       let breedtype = BigNumber.from(avatarCategory ? avatarCategory- 1 : 1).toNumber();
-    //       await contract.mintNormal( breedtype, metadataurl, options) // breedtype, tokenuri, signature
-    //       alertModal("Public Mint Success");
-    //     } catch (error) {
-    //       console.log(error)
-    //       alertModal(error.message);
-    //     }
-    // }
+    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    const responseUser = await axios.get(
+      `${API_URL}/get-signature?address=${account}`
+    );
+
+    if (responseUser.data.signature) {
+      let amountInEther = mintPrice;
+      setIsPricePublic(1);
+      try {
+        console.log("whitelist");
+        const options = {
+          value: ethers.utils.parseEther(amountInEther),
+          from: account,
+        };
+        let breedtype = BigNumber.from(
+          avatarCategory ? avatarCategory - 1 : 1
+        ).toNumber();
+        const res = await contract.mintWhiteList(
+          breedtype,
+          "ipfs://" + MetaDataUrl.data.IpfsHash,
+          responseUser.data.signature,
+          options
+        ); // breedtype, tokenuri, signature
+        setMintLoading(false);
+        handleCloseMintPopup();
+        alertModal("Whitelist Mint Success");
+      } catch (error) {
+        console.log(error);
+        handleCloseMintPopup();
+        alertModal(error.message);
+      }
+    } else {
+      let amountInEther = mintPricePublic;
+      setIsPricePublic(0);
+      try {
+        console.log("public");
+        const options = {
+          value: ethers.utils.parseEther(amountInEther),
+          from: account,
+        };
+        let breedtype = BigNumber.from(
+          avatarCategory ? avatarCategory - 1 : 1
+        ).toNumber();
+        await contract.mintNormal(
+          breedtype,
+          "ipfs://" + MetaDataUrl.data.IpfsHash,
+          options
+        ); // breedtype, tokenuri
+        setMintLoading(false);
+        handleCloseMintPopup();
+        alertModal("Public Mint Success");
+      } catch (error) {
+        console.log(error);
+        handleCloseMintPopup();
+        alertModal(error.message);
+      }
+    }
     return false;
   };
 
@@ -262,6 +281,11 @@ export default function ConnectMint() {
           aria-describedby="child-modal-description"
         >
           <Box sx={{ ...style, border: 0 }}>
+            {mintLoading && (
+              <Box className="mint-loading">
+                <Typography className="vh-centered">Minting Model</Typography>
+              </Box>
+            )}
             <Button onClick={handleCloseMintPopup} className="close-popup">
               <CloseIcon />
             </Button>
@@ -335,7 +359,25 @@ export default function ConnectMint() {
               className="mint-model-button"
               onClick={generateMintFiles}
             >
-              MINT Model | Price: .069 ETH | 56/5000 Remaining
+              {isPricePublic ? (
+                <React.Fragment>
+                  MINT {gender - 1 ? "Female" : "Male"}{" "}
+                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Whitelist
+                  Price: {mintPrice} ETH |
+                  {avatarCategory ? totalMintedSub : totalMintedDom}/
+                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}{" "}
+                  Remaining
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  MINT {gender - 1 ? "Female" : "Male"}{" "}
+                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Public
+                  Price: {mintPricePublic} ETH |{" "}
+                  {avatarCategory ? totalMintedSub : totalMintedDom}/
+                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}
+                  Remaining
+                </React.Fragment>
+              )}
             </Button>
           </Box>
         </Modal>
