@@ -19,12 +19,7 @@ function AvatarGenerator() {
   const {
     avatarCategory,
     setAvatarCategory,
-    totalMintedDom,
-    setTotalMintedDom,
-    totalMintedSub,
-    setTotalMintedSub,
-    totalToBeMintedDom,
-    totalToBeMintedSub,
+    setTotalMinted,
     mintPrice,
     mintPricePublic,
     gender,
@@ -38,12 +33,16 @@ function AvatarGenerator() {
   });
 
   const getMintedToken = async () => {
-    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+    // const signer = new ethers.providers.Web3Provider(ethereum).getSigner("0xB565D3A7Bcf568f231726585e0b84f9E2a3722dB");
+    // const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    await provider.send('eth_requestAccounts', []); // <- this promps user to connect metamask
+    const signer = provider.getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const domMintedToken = await contract._currentIndex(BigNumber.from(0).toNumber())
-    const subMintedToken = await contract._currentIndex(BigNumber.from(1).toNumber())
-    setTotalMintedDom(5001 - parseInt(domMintedToken))
-    setTotalMintedSub(10001 - parseInt(subMintedToken))
+
+    const MintedToken = await contract.totalSupply()
+    setTotalMinted(parseInt(MintedToken))
   }
 
   if (editAvatar) {
