@@ -1,5 +1,5 @@
 export const contractAddress: any =
-  "0x5c00497459Eb307E6097E648F46a199A7cDb5949";
+  "0x29f0180c8641331a89a09F545301cF176a134B0c";
 export const contractABI: any[] = [
     {
         "inputs": [],
@@ -99,25 +99,6 @@ export const contractABI: any[] = [
         ],
         "name": "Transfer",
         "type": "event"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "_currentIndex",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
     },
     {
         "inputs": [
@@ -255,11 +236,6 @@ export const contractABI: any[] = [
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "breedType",
-                "type": "uint256"
-            },
-            {
                 "internalType": "string",
                 "name": "_tokenURI",
                 "type": "string"
@@ -272,11 +248,6 @@ export const contractABI: any[] = [
     },
     {
         "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "breedType",
-                "type": "uint256"
-            },
             {
                 "internalType": "string",
                 "name": "_tokenURI",
@@ -295,11 +266,6 @@ export const contractABI: any[] = [
     },
     {
         "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "breedType",
-                "type": "uint256"
-            },
             {
                 "internalType": "string",
                 "name": "_tokenURI",
