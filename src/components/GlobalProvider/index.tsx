@@ -50,12 +50,8 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   const [gender, setGender] = React.useState<number>(0);
 
-  const [ totalToBeMintedDom , setTotalToBeMintedDom ] = React.useState<number>(5000);
-  const [ totalMintedDom , setTotalMintedDom ] = React.useState<number>(0);
-  const [ totalToBeMintedSub , setTotalToBeMintedSub ] = React.useState<number>(5000);
-  const [ totalMintedSub , setTotalMintedSub ] = React.useState<number>(0);
-
-  const [ allowedToMint , setAllowedToMint ] = React.useState<number>(0);
+  const [ totalToBeMinted , setTotalToBeMinted ] = React.useState<number>(10000);
+  const [ totalMinted , setTotalMinted ] = React.useState<number>(0);
 
   const [ mintPrice , setMintPrice ] = React.useState<number>(0.05);
   const [ mintPricePublic , setMintPricePublic ] = React.useState<number>(0.069);
@@ -76,16 +72,10 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setNavigation,
               modelLoaded,
               setModelLoaded,
-              totalToBeMintedDom,
-              setTotalToBeMintedDom,
-              totalMintedDom,
-              setTotalMintedDom,
-              totalMintedSub,
-              setTotalMintedSub,
-              totalToBeMintedSub,
-              setTotalToBeMintedSub,
-              allowedToMint,
-              setAllowedToMint,
+              totalToBeMinted,
+              setTotalToBeMinted,
+              totalMinted,
+              setTotalMinted,
               mintPrice,
               setMintPrice,
               mintPricePublic,

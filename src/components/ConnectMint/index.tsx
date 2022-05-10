@@ -54,11 +54,9 @@ export default function ConnectMint() {
     scene,
     mintPrice,
     mintPricePublic,
-    totalMintedDom,
-    totalMintedSub,
     gender,
-    totalToBeMintedDom,
-    totalToBeMintedSub,
+    totalToBeMinted,
+    totalMinted
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
@@ -159,11 +157,22 @@ export default function ConnectMint() {
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
-      name: "No Limit 3D Avatar NFT",
-      description: "No Limit 3D Avatar NFT",
+      name: "Dark Nexus Avatar",
+      description: "Custom avatars created by the community for the Dark Nexus, an adult metaverse which will let you explore your deepest desires in a way you never could before. The only limit is your imagination.",
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
+      attributes: [
+        {
+          trait_type: "Gender",
+          value: gender === 1 ? "Male" : "Female"
+        },
+        {
+          trait_type: "Body Type",
+          value: avatarCategory === 1 ? "Muscular" : "Thin"
+        }
+      ]
     };
+    
 
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);
@@ -361,21 +370,13 @@ export default function ConnectMint() {
             >
               {isPricePublic ? (
                 <React.Fragment>
-                  MINT {gender - 1 ? "Female" : "Male"}{" "}
-                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Whitelist
-                  Price: {mintPrice} ETH |
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
-                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}{" "}
-                  Remaining
+                  MINT Model <br /> Whitelist
+                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  MINT {gender - 1 ? "Female" : "Male"}{" "}
-                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Public
-                  Price: {mintPricePublic} ETH |{" "}
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
-                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}
-                  Remaining
+                  MINT Model <br /> Public
+                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
               )}
             </Button>
