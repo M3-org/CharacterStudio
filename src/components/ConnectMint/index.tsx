@@ -367,7 +367,7 @@ export default function ConnectMint() {
               ) : (
                 <React.Fragment>
                   MINT Model <br /> Public
-                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
+                  Price: {mintPricePublic} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
               )}
             </Button>
