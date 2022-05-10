@@ -54,8 +54,7 @@ export default function ConnectMint() {
     scene,
     mintPrice,
     mintPricePublic,
-    totalMintedDom,
-    totalMintedSub,
+    totalMinted,
     gender,
     totalToBeMintedDom,
     totalToBeMintedSub,
@@ -168,7 +167,6 @@ export default function ConnectMint() {
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);
     //////////////////////////////////////////////////////
-    // alert(avatarCategory) // avatarCategory : 1 - Dom , 2 - Sub
     const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
     const responseUser = await axios.get(
@@ -184,15 +182,11 @@ export default function ConnectMint() {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
         };
-        let breedtype = BigNumber.from(
-          avatarCategory ? avatarCategory - 1 : 1
-        ).toNumber();
         const res = await contract.mintWhiteList(
-          breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           responseUser.data.signature,
           options
-        ); // breedtype, tokenuri, signature
+        ); // tokenuri, signature
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Whitelist Mint Success");
@@ -210,14 +204,10 @@ export default function ConnectMint() {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
         };
-        let breedtype = BigNumber.from(
-          avatarCategory ? avatarCategory - 1 : 1
-        ).toNumber();
         await contract.mintNormal(
-          breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           options
-        ); // breedtype, tokenuri
+        ); // tokenuri
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Public Mint Success");
@@ -364,7 +354,8 @@ export default function ConnectMint() {
                   MINT {gender - 1 ? "Female" : "Male"}{" "}
                   {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Whitelist
                   Price: {mintPrice} ETH |
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
+                  {/* {avatarCategory ? totalMintedSub : totalMintedDom}/ */}
+                  {totalMinted}/
                   {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}{" "}
                   Remaining
                 </React.Fragment>
@@ -373,7 +364,8 @@ export default function ConnectMint() {
                   MINT {gender - 1 ? "Female" : "Male"}{" "}
                   {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Public
                   Price: {mintPricePublic} ETH |{" "}
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
+                  {/* {avatarCategory ? totalMintedSub : totalMintedDom}/ */}
+                  {totalMinted}/
                   {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}
                   Remaining
                 </React.Fragment>
