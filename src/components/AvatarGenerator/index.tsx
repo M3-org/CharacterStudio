@@ -20,8 +20,6 @@ function AvatarGenerator() {
     avatarCategory,
     setAvatarCategory,
     setTotalMinted,
-    totalToBeMintedDom,
-    totalToBeMintedSub,
     mintPrice,
     mintPricePublic,
     gender,
