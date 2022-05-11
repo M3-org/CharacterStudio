@@ -13,6 +13,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 import Editor from "./editor";
+import Selector from "./selector";
 
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
@@ -73,7 +74,10 @@ export default function Scene(props: any) {
           </PerspectiveCamera>
         </Canvas>
       </div>
-      <Editor />
+      <div>
+        <Selector />
+        <Editor />
+      </div>
     </div>
   );
 }
