@@ -2,10 +2,12 @@
   width: 100vw;
   height: 100vh;
   position: relative;
+
   .quick-actions {
     top: 24px;
     z-index: 10;
   }
+
   .loading {
     position: fixed;
     height: 100% !important;
@@ -15,6 +17,7 @@
     z-index: 1000000;
     background: #111111;
   }
+
   .editor-wrap {
     position: absolute;
     left: 0;
@@ -23,23 +26,27 @@
     background-color: #111111;
     border-top: 1px solid #303030;
     padding: 14px 0;
+
     .selector-button {
       color: #999999;
       text-align: center;
       font-size: 12px;
       min-width: 60px;
       cursor: pointer;
+
       &:hover {
         .icon {
-        background-color: #de2a5e;
+          background-color: #de2a5e;
         }
       }
+
       &.active {
         .icon {
-        background-color: #de2a5e;
+          background-color: #de2a5e;
         }
       }
     }
+
     .icon {
       display: inline-block;
       width: 40px;
@@ -47,10 +54,12 @@
       padding: 2px;
     }
   }
+
   .canvas {
     height: 100%;
     width: 100%;
   }
+
   .canvas-wrap {
     height: 100vh;
     width: 100vw;
@@ -58,17 +67,57 @@
     z-index: 0;
     top: 0;
     background-color: #111111;
+
     .scene-tools {
-        padding:24px; 
-        background: #161616;
-        display: none;
-        position: absolute;
-        top: 0;
-        left: -50px;
-        z-index: 101;
-        .slider {
-            height: 100px !important;
+      padding: 24px;
+      background: #161616;
+      display: none;
+      position: absolute;
+      top: 0;
+      left: -50px;
+      z-index: 101;
+
+      .slider {
+        height: 100px !important;
+      }
+    }
+  }
+
+  .selector-container {
+    position: absolute;
+    left: 0;
+    bottom: 93px;
+    width: 100vw;
+    background-color: #111111;
+    border-top: 1px solid #303030;
+    padding: 14px 0;
+
+    .selector-button {
+      color: #999999;
+      text-align: center;
+      font-size: 12px;
+      min-width: 60px;
+      cursor: pointer;
+
+      &:hover {
+        .icon {
+          filter: grayscale(0%);
         }
+      }
+
+      &.active {
+        .icon {
+          filter: grayscale(0%);
+        }
+      }
+    }
+
+    .icon {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      padding: 2px;
+      filter: grayscale(100%);
     }
   }
 }
@@ -81,6 +130,7 @@
   top: 65px;
   zoom: 0.6;
   z-index: 0;
+
   .scene-tools {
     padding: 24px;
     background: #333333;
@@ -89,6 +139,7 @@
     top: 0;
     left: -50px;
     z-index: 101;
+
     .slider {
       height: 100px !important;
     }

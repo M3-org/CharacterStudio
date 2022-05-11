@@ -3,7 +3,6 @@ import * as THREE from "three";
 
 export function BaseModel(props: any) {
   const { nodes, scene }: any = props;
-  console.log(nodes);
   const models =
     nodes &&
     Object.keys(nodes).map((keyName, i) => {
@@ -31,7 +30,7 @@ export function BaseModel(props: any) {
 }
 
 export function TemplateModel(props: any) {
-  const { scene }: any = props;
+  const { scene, nodes }: any = props;
   return (
     <mesh position={[0, 0.02, 0]}>
       <primitive object={scene} />
