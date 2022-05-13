@@ -4,8 +4,8 @@
     "name": "Default",
     "directory": "/templates/denise/",
     "thumbnail": "thumbnail.png",
-    "file": "3d-model.glb",
-    "format": "gltf/glb",
+    "file": "Male_Muscular.vrm",
+    "format": "vrm",
     "editor": {
       "meshes": [
         {
