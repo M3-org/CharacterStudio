@@ -1,6 +1,6 @@
 [
     {
-        "trait": "Color",
+        "trait": "color",
         "type": "color",
         "collection": [
             {
@@ -30,15 +30,17 @@
         ]
     },
     {
-        "trait": "Hair",
+        "trait": "hair",
         "type": "mesh",
         "collection": [
             {
+                "id": "h1",
                 "name": "Hair 1",
                 "directory": "/1/Hair.vrm",
                 "thumbnail": "/1/Hair/Isometric.png"
             },
             {
+                "id": "h2",
                 "name": "Hair 2",
                 "directory": "/2/Hair.vrm",
                 "thumbnail": "/2/Hair/Isometric.png"
@@ -46,19 +48,134 @@
         ]
     },
     {
-        "trait": "Face",
+        "trait": "face",
         "type": "mesh",
         "collection": [
             {
+                "id": "f1",
                 "name": "Face 1",
-                "directory": "/1/Face.vrm",
-                "thumbnail": "/1/Face/Isometric.png"
+                "directory": "/1/Head.vrm",
+                "thumbnail": "/1/Head/Isometric.png"
             },
             {
+                "id": "f2",
                 "name": "Face 2",
-                "directory": "/2/Face.vrm",
-                "thumbnail": "/2/Face/Isometric.png"
+                "directory": "/2/Head.vrm",
+                "thumbnail": "/2/Head/Isometric.png"
             }
         ]
+    },
+    {
+        "trait": "tops",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "st1",
+                "name": "Shirt 1",
+                "directory": "/1/Shirt.vrm",
+                "thumbnail": "/1/Shirt/Isometric.png"
+            },
+            {
+                "id": "st2",
+                "name": "Shirt 2",
+                "directory": "/2/Shirt.vrm",
+                "thumbnail": "/2/Shirt/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "arms",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "a1",
+                "name": "Arm 1",
+                "directory": "/1/Arm.vrm",
+                "thumbnail": "/1/Arm/Isometric.png"
+            },
+            {
+                "id": "a2",
+                "name": "Arm 2",
+                "directory": "/2/Arm.vrm",
+                "thumbnail": "/2/Arm/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "neck",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "c1",
+                "name": "Choker 1",
+                "directory": "/1/Choker.vrm",
+                "thumbnail": "/1/Choker/Isometric.png"
+            },
+            {
+                "id": "c2",
+                "name": "Choker 2",
+                "directory": "/2/Choker.vrm",
+                "thumbnail": "/2/Choker/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "bottoms",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "b1",
+                "name": "Bottoms 1",
+                "directory": "/1/Bottoms.vrm",
+                "thumbnail": "/1/Bottoms/Isometric.png"
+            },
+            {
+                "id": "b2",
+                "name": "Bottoms 2",
+                "directory": "/2/Bottoms.vrm",
+                "thumbnail": "/2/Bottoms/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "shoes",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "s1",
+                "name": "Shoes 1",
+                "directory": "/1/Shoes.vrm",
+                "thumbnail": "/1/Shoes/Isometric.png"
+            },
+            {
+                "id": "s2",
+                "name": "Shoes 2",
+                "directory": "/2/Shoes.vrm",
+                "thumbnail": "/2/Shoes/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "legs",
+        "type": "mesh",
+        "collection": [
+            {
+                "id": "l1",
+                "name": "Legs 1",
+                "directory": "/1/Legs.vrm",
+                "thumbnail": "/1/Legs/Isometric.png"
+            },
+            {
+                "id": "l2",
+                "name": "Legs 2",
+                "directory": "/2/Legs.vrm",
+                "thumbnail": "/2/Legs/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "accessories",
+        "type": "mesh",
+        "collection": []
     }
 ]

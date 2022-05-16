@@ -101,23 +101,26 @@
 
       &:hover {
         .icon {
-          filter: grayscale(0%);
+          border: 2px solid #de2a5e;
         }
       }
 
       &.active {
         .icon {
-          filter: grayscale(0%);
+          border: 2px solid #de2a5e;
         }
       }
     }
 
     .icon {
       display: inline-block;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
+      line-height: 54px !important;
+      color: #999999;
+      background-color: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0);
       padding: 2px;
-      filter: grayscale(100%);
     }
   }
 }
