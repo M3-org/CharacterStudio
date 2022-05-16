@@ -54,9 +54,9 @@ export default function ConnectMint() {
     scene,
     mintPrice,
     mintPricePublic,
+    totalMinted,
     gender,
-    totalToBeMinted,
-    totalMinted
+    totalToBeMinted
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
