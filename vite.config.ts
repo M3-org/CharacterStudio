@@ -10,4 +10,7 @@ export default defineConfig({
   resolve: {
   },
   plugins: [reactRefresh()],
+  define: {
+    "global": {},
+  },
 });

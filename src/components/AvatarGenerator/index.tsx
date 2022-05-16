@@ -12,6 +12,8 @@ import CharacterEditor from "../CharacterEditor";
 import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 
+import templates from "../../data/base_models.json";
+
 const steps = ["Category", "Gender", "Start"];
 
 function AvatarGenerator() {
@@ -23,13 +25,15 @@ function AvatarGenerator() {
     mintPrice,
     mintPricePublic,
     gender,
-    setGender
+    setGender,
+    template,
+    setTemplate,
   }: any = useGlobalState();
   const [editAvatar, setEditAvatar] = React.useState<number>(0);
   const { ethereum }: any = window;
 
   useEffect(() => {
-    getMintedToken();
+    //getMintedToken();
   });
 
   const getMintedToken = async () => {
@@ -37,13 +41,13 @@ function AvatarGenerator() {
     // const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     const provider = new ethers.providers.Web3Provider(ethereum);
-    await provider.send('eth_requestAccounts', []); // <- this promps user to connect metamask
+    await provider.send("eth_requestAccounts", []); // <- this promps user to connect metamask
     const signer = provider.getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-    const MintedToken = await contract.totalSupply()
-    setTotalMinted(parseInt(MintedToken))
-  }
+    const MintedToken = await contract.totalSupply();
+    setTotalMinted(parseInt(MintedToken));
+  };
 
   if (editAvatar) {
     return <CharacterEditor />;
@@ -60,105 +64,39 @@ function AvatarGenerator() {
             Public Mint Price: {mintPricePublic} ETH | WL Mint Price:{" "}
             {mintPrice} ETH
           </Typography>
-          <Stepper activeStep={step} alternativeLabel>
-            {steps.map((label) => (
-              <Step key={label} color="secondary">
-                <StepLabel></StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-          {step === 0 && (
-           
-           <div className="step-content">
-           <Grid container spacing={2} style={{ textAlign: "center" }}>
-             <Grid xs={6}>
-               <Typography mb={1}>MALE AVATAR</Typography>
-               <Avatar
-                 className={
-                   gender && gender === 1
-                     ? "selection-avatar active"
-                     : "selection-avatar"
-                 }
-                 src="/male.png"
-                 onClick={() => setGender(1)}
-                 sx={{ width: 120, height: 120 }}
-               />
-             </Grid>
-             <Grid xs={6}>
-               <Typography mb={1}>FEMALE AVATAR</Typography>
-               <Avatar
-                 className={
-                   gender && gender === 2
-                     ? "selection-avatar active"
-                     : "selection-avatar"
-                 }
-                 src="/female.png"
-                 onClick={() => setGender(2)}
-                 sx={{ width: 120, height: 120 }}
-               />
-             </Grid>
-           </Grid>
-           <Button
-             className="button"
-             disabled={gender ? false : true}
-             variant="contained"
-             onClick={() => setStep(step + 1)}
-           >
-             Continue
-           </Button>
-         </div>
-          )}
-          {step === 1 && (
-             <div className="step-content">
-             <Grid container spacing={2} style={{ textAlign: "center" }}>
-               <Grid xs={6}>
-                 <Typography mb={1}>MUSCULAR</Typography>
-                 <Avatar
-                   className={
-                     avatarCategory && avatarCategory === 1
-                       ? "selection-avatar active"
-                       : "selection-avatar"
-                   }
-                   src="/whip.png"
-                   onClick={() => setAvatarCategory(1)}
-                   sx={{ width: 120, height: 120 }}
-                 />
-               </Grid>
-               <Grid xs={6}>
-                 <Typography mb={1}>THIN</Typography>
-                 <Avatar
-                   className={
-                     avatarCategory && avatarCategory === 2
-                       ? "selection-avatar active"
-                       : "selection-avatar"
-                   }
-                   src="/handcufs.png"
-                   onClick={() => setAvatarCategory(2)}
-                   sx={{ width: 120, height: 120 }}
-                 />
-               </Grid>
-             </Grid>
-             <Button
-               className="button"
-               disabled={avatarCategory ? false : true}
-               variant="contained"
-               onClick={() => setStep(step + 1)}
-             >
-               Continue
-             </Button>
-           </div>
-          )}
-          {step === 2 && (
-            <div className="step-content">
-              <Typography variant="h5" align="center" mb={1}>
-                That's it, start customizing your avatar!
-              </Typography>
-              <Typography align="center">Press "Start" to begin.</Typography>
-                <Button className="button" variant="contained" onClick={() => setEditAvatar(1)}>
-                  Start
-                </Button>
-            </div>
-          )}
+          <Typography align="center" variant="h6" mb={2}>
+            Select a Template To Start
+          </Typography>
+          <div className="step-content">
+            <Grid container spacing={2} style={{ textAlign: "center" }}>
+              {templates &&
+                templates.length > 0 &&
+                templates.map((temp) => {
+                  return (
+                    <Grid xs={3}>
+                      <Typography mb={1}>{temp?.name}</Typography>
+                      <Avatar
+                        className={
+                          template && template === temp?.id
+                            ? "selection-avatar active"
+                            : "selection-avatar"
+                        }
+                        src={temp?.thumbnail}
+                        onClick={() => setTemplate(temp?.id)}
+                      />
+                    </Grid>
+                  );
+                })}
+            </Grid>
+            <Button
+              className="button"
+              variant="contained"
+              onClick={() => setEditAvatar(1)}
+              disabled={!template && true}
+            >
+              Start
+            </Button>
+          </div>
         </div>
       </header>
     );

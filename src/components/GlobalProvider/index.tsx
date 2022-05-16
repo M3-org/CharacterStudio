@@ -50,6 +50,10 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   const [gender, setGender] = React.useState<number>(0);
 
+  const [template, setTemplate] = React.useState<number>(0);
+
+  const [loadingModelProgress, setLoadingModelProgress] = React.useState<number>(0);
+
   const [ totalToBeMinted , setTotalToBeMinted ] = React.useState<number>(10000);
   const [ totalMinted , setTotalMinted ] = React.useState<number>(0);
 
@@ -100,7 +104,11 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setMaterials,
               animations,
               setAnimations,
+              loadingModelProgress,
+              setLoadingModelProgress,
               // ----- Template State Hooks ----- //
+              template,
+              setTemplate,
               templateInfo,
               setTemplateInfo,
               randomize,
@@ -109,7 +117,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setDownloadPopup,
               mintPopup,
               setMintPopup,
-              // ----- Avatar Selete Category ---- //
+              // ----- Avatar Select Category ---- //
               avatarCategory,
               setAvatarCategory,
               gender,

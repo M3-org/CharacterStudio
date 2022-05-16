@@ -1,0 +1,64 @@
+[
+    {
+        "trait": "Color",
+        "type": "color",
+        "collection": [
+            {
+                "name": "Light",
+                "code": ""
+            },
+            {
+                "name": "Normal",
+                "code": ""
+            },
+            {
+                "name": "Tan",
+                "code": ""
+            },
+            {
+                "name": "Brown",
+                "code": ""
+            },
+            {
+                "name": "Dark",
+                "code": ""
+            },
+            {
+                "name": "Very Dark",
+                "code": ""
+            }
+        ]
+    },
+    {
+        "trait": "Hair",
+        "type": "mesh",
+        "collection": [
+            {
+                "name": "Hair 1",
+                "directory": "/1/Hair.vrm",
+                "thumbnail": "/1/Hair/Isometric.png"
+            },
+            {
+                "name": "Hair 2",
+                "directory": "/2/Hair.vrm",
+                "thumbnail": "/2/Hair/Isometric.png"
+            }
+        ]
+    },
+    {
+        "trait": "Face",
+        "type": "mesh",
+        "collection": [
+            {
+                "name": "Face 1",
+                "directory": "/1/Face.vrm",
+                "thumbnail": "/1/Face/Isometric.png"
+            },
+            {
+                "name": "Face 2",
+                "directory": "/2/Face.vrm",
+                "thumbnail": "/2/Face/Isometric.png"
+            }
+        ]
+    }
+]
