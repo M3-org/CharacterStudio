@@ -1,6 +1,6 @@
 [
     {
-        "trait": "color",
+        "trait": "skin",
         "type": "color",
         "collection": [
             {
@@ -55,13 +55,13 @@
                 "id": "f1",
                 "name": "Face 1",
                 "directory": "/1/Head.vrm",
-                "thumbnail": "/1/Head/Isometric.png"
+                "thumbnail": "/2/Head/Isometric.png"
             },
             {
                 "id": "f2",
                 "name": "Face 2",
                 "directory": "/2/Head.vrm",
-                "thumbnail": "/2/Head/Isometric.png"
+                "thumbnail": "/1/Head/Isometric.png"
             }
         ]
     },
