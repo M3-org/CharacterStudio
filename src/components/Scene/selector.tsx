@@ -5,13 +5,40 @@ import { useGlobalState } from "../GlobalProvider";
 import Divider from "@mui/material/Divider";
 import { Avatar } from "@mui/material";
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import "./style.scss";
 
 export default function Selector() {
-  const { category, scene, templateInfo }: any = useGlobalState();
+  const {
+    category,
+    scene,
+    templateInfo,
+    skin,
+    setSkin,
+    hair,
+    setHair,
+    face,
+    setFace,
+    tops,
+    setTops,
+    arms,
+    setArms,
+    neck,
+    setNeck,
+    bottoms,
+    setBottoms,
+    shoes,
+    setShoes,
+    legs,
+    setLegs,
+    accessories,
+    setAccessories,
+  }: any = useGlobalState();
   const [selectValue, setSelectValue] = useState("0");
 
   const [collection, setCollection] = useState([]);
+  const [traitName, setTraitName] = useState('');
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     threeService.setMaterialColor(scene, value, "Bra001_2");
@@ -23,14 +50,114 @@ export default function Selector() {
         console.log(traits);
         if (traits) {
           setCollection(traits?.collection);
+          setTraitName(traits?.trait)
         }
       });
     }
   }, [category]);
 
-  const selectTrait = (id: any) => {
-    setSelectValue(id);
-  }
+  const selectTrait = (trait: any) => {
+    if (scene) {
+      const loader = new GLTFLoader();
+      loader
+        .loadAsync(
+          `${templateInfo?.traitsDirectory}${trait?.directory}`,
+          (e) => {
+            console.log((e.loaded * 100) / e.total);
+          }
+        )
+        .then((model) => {
+          if (scene) {
+            model.scene.scale.z = -1;
+            scene.add(model.scene);
+            console.log(trait);
+            if (traitName === "hair") {
+              console.log("HAIR");
+              setHair({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (hair) {
+                scene.remove(hair.model);
+              }
+            }
+            if (traitName === "face") {
+              setFace({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (face) {
+                scene.remove(face.model);
+              }
+            }
+            if (traitName === "tops") {
+              setTops({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (tops) {
+                scene.remove(tops.model);
+              }
+            }
+            if (traitName === "arms") {
+              setArms({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (arms) {
+                scene.remove(arms.model);
+              }
+            }
+            if (traitName === "neck") {
+              setNeck({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (neck) {
+                scene.remove(neck.model);
+              }
+            }
+            if (traitName === "bottoms") {
+              setBottoms({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (bottoms) {
+                scene.remove(bottoms.model);
+              }
+            }
+            if (traitName === "shoes") {
+              setShoes({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (shoes) {
+                scene.remove(shoes.model);
+              }
+            }
+            if (traitName === "legs") {
+              setLegs({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (legs) {
+                scene.remove(legs.model);
+              }
+            }
+            if (traitName === "accessories") {
+              setAccessories({
+                traitInfo: trait,
+                model: model.scene,
+              });
+              if (accessories) {
+                scene.remove(accessories.model);
+              }
+            }
+          }
+        });
+    }
+    setSelectValue(trait?.id);
+  };
 
   return (
     <div className="selector-container">
@@ -54,7 +181,9 @@ export default function Selector() {
         ) : (
           <React.Fragment>
             <div
-              className={`selector-button ${selectValue === "0" ? "active" : ""}`}
+              className={`selector-button ${
+                selectValue === "0" ? "active" : ""
+              }`}
               onClick={() => selectTrait("0")}
             >
               <Avatar className="icon">
@@ -68,7 +197,7 @@ export default function Selector() {
                     className={`selector-button ${
                       selectValue === item?.id ? "active" : ""
                     }`}
-                    onClick={() => selectTrait(item?.id)}
+                    onClick={() => selectTrait(item)}
                   >
                     <Avatar
                       className="icon"

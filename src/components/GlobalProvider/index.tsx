@@ -60,6 +60,17 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [ mintPrice , setMintPrice ] = React.useState<string>("0.05");
   const [ mintPricePublic , setMintPricePublic ] = React.useState<string>("0.069");
 
+  const [ skin , setSkin ] = React.useState<any>();
+  const [ hair , setHair ] = React.useState<any>();
+  const [ face , setFace ] = React.useState<any>();
+  const [ tops , setTops ] = React.useState<any>();
+  const [ arms , setArms ] = React.useState<any>();
+  const [ neck , setNeck ] = React.useState<any>();
+  const [ bottoms , setBottoms ] = React.useState<any>();
+  const [ shoes , setShoes ] = React.useState<any>();
+  const [ legs , setLegs ] = React.useState<any>();
+  const [ accessories , setAccessories ] = React.useState<any>();
+
 
 
   return (
@@ -69,6 +80,27 @@ export const GPRoute = ({ component: Component, ...rest }) => {
         return (
           <GlobalContext.Provider
             value={{
+              // ----- Selected Traits Hooks -------- //
+              skin,
+              setSkin,
+              hair,
+              setHair,
+              face,
+              setFace,
+              tops,
+              setTops,
+              arms,
+              setArms,
+              neck,
+              setNeck,
+              bottoms,
+              setBottoms,
+              shoes,
+              setShoes,
+              legs,
+              setLegs,
+              accessories,
+              setAccessories,
               // ----- General Use State Hooks ------ //
               generator,
               setGenerator,
