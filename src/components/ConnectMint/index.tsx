@@ -204,7 +204,8 @@ export default function ConnectMint() {
       } catch (error) {
         console.log(error);
         handleCloseMintPopup();
-        alertModal(error.message);
+        // alertModal(error.message);
+        alertModal("Whitelist Mint Failed");
       }
     } else {
       let amountInEther = mintPricePublic;
@@ -225,7 +226,8 @@ export default function ConnectMint() {
       } catch (error) {
         console.log(error);
         handleCloseMintPopup();
-        alertModal(error.message);
+        // alertModal(error.message);
+        alertModal("Public Mint Failed");
       }
     }
     return false;
