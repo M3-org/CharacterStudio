@@ -43,6 +43,8 @@ export default function Selector() {
   const [loadingTrait, setLoadingTrait] = useState(null);
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false);
 
+  const [noTrait, setNoTrait] = useState(true);
+
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     threeService.setMaterialColor(scene, value, "Bra001_2");
   };
@@ -61,7 +63,56 @@ export default function Selector() {
 
   const selectTrait = (trait: any) => {
     if (scene) {
+      if(trait === "0") {
+        setNoTrait(true);
+        if (traitName === "hair") {
+          if (hair) {
+            scene.remove(hair.model);
+          }
+        }
+        if (traitName === "face") {
+          if (face) {
+            scene.remove(face.model);
+          }
+        }
+        if (traitName === "tops") {
+          if (tops) {
+            scene.remove(tops.model);
+          }
+        }
+        if (traitName === "arms") {
+          if (arms) {
+            scene.remove(arms.model);
+          }
+        }
+        if (traitName === "neck") {
+          if (neck) {
+            scene.remove(neck.model);
+          }
+        }
+        if (traitName === "bottoms") {
+          if (bottoms) {
+            scene.remove(bottoms.model);
+          }
+        }
+        if (traitName === "shoes") {
+          if (shoes) {
+            scene.remove(shoes.model);
+          }
+        }
+        if (traitName === "legs") {
+          if (legs) {
+            scene.remove(legs.model);
+          }
+        }
+        if (traitName === "accessories") {
+          if (accessories) {
+            scene.remove(accessories.model);
+          }
+        }
+      } else {
       setLoadingTraitOverlay(true);
+      setNoTrait(false);
       const loader = new GLTFLoader();
       loader
         .loadAsync(
@@ -162,6 +213,7 @@ export default function Selector() {
             setLoadingTraitOverlay(false);
           }
         });
+      }
     }
     setSelectValue(trait?.id);
   };
@@ -189,7 +241,7 @@ export default function Selector() {
           <React.Fragment>
             <div
               className={`selector-button ${
-                selectValue === "0" ? "active" : ""
+                noTrait ? "active" : ""
               }`}
               onClick={() => selectTrait("0")}
             >
@@ -201,7 +253,7 @@ export default function Selector() {
               collection.map((item: any) => {
                 return (
                   <div
-                    className={`selector-button ${
+                    className={`selector-button coll-${traitName} ${
                       selectValue === item?.id ? "active" : ""
                     }`}
                     onClick={() => selectTrait(item)}
@@ -210,7 +262,7 @@ export default function Selector() {
                       className="icon"
                       src={`${templateInfo?.thubnailsDirectory}${item?.thumbnail}`}
                     />
-                    {selectValue === item?.id && loadingTrait && (
+                    {selectValue === item?.id && loadingTrait > 0 && (
                       <Typography className="loading-trait">
                         {loadingTrait}%
                       </Typography>
@@ -221,10 +273,10 @@ export default function Selector() {
             <div style={{ visibility: "hidden" }}>
               <Avatar className="icon" />
             </div>
-            {loadingTraitOverlay ? <div className="loading-trait-overlay" /> : null}
           </React.Fragment>
         )}
       </Stack>
+      <div className={loadingTraitOverlay ? "loading-trait-overlay show" : "loading-trait-overlay"} />
     </div>
   );
 }
