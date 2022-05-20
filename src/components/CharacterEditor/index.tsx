@@ -75,21 +75,6 @@ export default function CharacterEditor(props: any) {
     }
   }, [templateInfo?.file]);
 
-  React.useEffect(() => {
-    if (scene) {
-      const loader = new GLTFLoader();
-      loader
-        .loadAsync("https://nolimitcrypto.s3.us-west-2.amazonaws.com/female_muscular_traits/Female_Muscular_1/Female_Muscular_1_Choker.vrm", (e) => {
-          console.log(e.loaded*100/e.total);
-        })
-        .then((model) => {
-          if(scene) {
-            console.log(model.scene)
-            scene.add( model.scene );
-          }
-        });
-    }
-  }, [scene]);
 
   React.useEffect(() => {
     if (scene?.children && templateInfo?.editor && randomize) {
