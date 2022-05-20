@@ -88,16 +88,22 @@
     left: 0;
     bottom: 93px;
     width: 100vw;
+    box-sizing: border-box;
+    overflow-y: scroll;
     background-color: #111111;
     border-top: 1px solid #303030;
-    padding: 14px 0;
+    padding: 14px 24px !important;
 
     .selector-button {
       color: #999999;
       text-align: center;
       font-size: 12px;
-      min-width: 60px;
+      min-width: 48px;
       cursor: pointer;
+
+      &:last-child {
+        margin-right: 52px !important;
+      }
 
       &:hover {
         .icon {

@@ -164,8 +164,8 @@ export default function Selector() {
       <Stack
         direction="row"
         spacing={2}
-        justifyContent="center"
-        alignItems="center"
+        justifyContent="left"
+        alignItems="left"
         divider={<Divider orientation="vertical" flexItem />}
       >
         {category === "color" ? (

@@ -5,8 +5,8 @@
     "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Muscular.glb",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Muscular.png",
     "format": "gltf/glb",
-    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/male_muscular_traits",
-    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/trait_thubnails"
+    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/male_muscular",
+    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/thubnails"
   },
   {
     "id": "2",
@@ -14,8 +14,8 @@
     "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Thin.glb",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Thin.png",
     "format": "gltf/glb",
-    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/male_thin_traits",
-    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/trait_thubnails"
+    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/male_thin",
+    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/thubnails"
   },
   {
     "id": "3",
@@ -23,8 +23,8 @@
     "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Muscular.glb",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Muscular.png",
     "format": "gltf/glb",
-    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/female_muscular_traits",
-    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/trait_thubnails"
+    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/female_muscular",
+    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/thubnails"
   },
   {
     "id": "4",
@@ -32,7 +32,7 @@
     "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Thin.glb",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Thin.png",
     "format": "gltf/glb",
-    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/female_thin_traits",
-    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/traits/trait_thubnails"
+    "traitsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/female_thin",
+    "thubnailsDirectory": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/model_traits/thubnails"
   }
 ]

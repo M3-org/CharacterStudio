@@ -34,16 +34,142 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "h1",
+                "id": "uid-h1",
                 "name": "Hair 1",
-                "directory": "/1/Hair.vrm",
-                "thumbnail": "/1/Hair/Isometric.png"
+                "directory": "/hair/Hair_1.vrm",
+                "thumbnail": "/hair/Hair_1/Isometric.png"
             },
             {
-                "id": "h2",
+                "id": "uid-h2",
                 "name": "Hair 2",
-                "directory": "/2/Hair.vrm",
-                "thumbnail": "/2/Hair/Isometric.png"
+                "directory": "/hair/Hair_2.vrm",
+                "thumbnail": "/hair/Hair_2/Isometric.png"
+            },
+            {
+                "id": "uid-h14",
+                "name": "Hair 14",
+                "directory": "/hair/Hair_14.vrm",
+                "thumbnail": "/hair/Hair_14/Isometric.png"
+            },
+            {
+                "id": "uid-h15",
+                "name": "Hair 15",
+                "directory": "/hair/Hair_15.vrm",
+                "thumbnail": "/hair/Hair_15/Isometric.png"
+            },
+            {
+                "id": "uid-h16",
+                "name": "Hair 16",
+                "directory": "/hair/Hair_16.vrm",
+                "thumbnail": "/hair/Hair_16/Isometric.png"
+            },
+            {
+                "id": "uid-h17",
+                "name": "Hair 17",
+                "directory": "/hair/Hair_17.vrm",
+                "thumbnail": "/hair/Hair_17/Isometric.png"
+            },
+            {
+                "id": "uid-h18",
+                "name": "Hair 18",
+                "directory": "/hair/Hair_18.vrm",
+                "thumbnail": "/hair/Hair_18/Isometric.png"
+            },
+            {
+                "id": "uid-h19",
+                "name": "Hair 19",
+                "directory": "/hair/Hair_19.vrm",
+                "thumbnail": "/hair/Hair_19/Isometric.png"
+            },
+            {
+                "id": "uid-h20",
+                "name": "Hair 20",
+                "directory": "/hair/Hair_20.vrm",
+                "thumbnail": "/hair/Hair_20/Isometric.png"
+            },
+            {
+                "id": "uid-h21",
+                "name": "Hair 21",
+                "directory": "/hair/Hair_21.vrm",
+                "thumbnail": "/hair/Hair_21/Isometric.png"
+            },
+            {
+                "id": "uid-h22",
+                "name": "Hair 22",
+                "directory": "/hair/Hair_22.vrm",
+                "thumbnail": "/hair/Hair_22/Isometric.png"
+            },
+            {
+                "id": "uid-h23",
+                "name": "Hair 23",
+                "directory": "/hair/Hair_23.vrm",
+                "thumbnail": "/hair/Hair_23/Isometric.png"
+            },
+            {
+                "id": "uid-h24",
+                "name": "Hair 24",
+                "directory": "/hair/Hair_24.vrm",
+                "thumbnail": "/hair/Hair_24/Isometric.png"
+            },
+            {
+                "id": "uid-h25",
+                "name": "Hair 25",
+                "directory": "/hair/Hair_25.vrm",
+                "thumbnail": "/hair/Hair_25/Isometric.png"
+            },
+            {
+                "id": "uid-h26",
+                "name": "Hair 26",
+                "directory": "/hair/Hair_26.vrm",
+                "thumbnail": "/hair/Hair_26/Isometric.png"
+            },
+            {
+                "id": "uid-h27",
+                "name": "Hair 27",
+                "directory": "/hair/Hair_27.vrm",
+                "thumbnail": "/hair/Hair_27/Isometric.png"
+            },
+            {
+                "id": "uid-h28",
+                "name": "Hair 28",
+                "directory": "/hair/Hair_28.vrm",
+                "thumbnail": "/hair/Hair_28/Isometric.png"
+            },
+            {
+                "id": "uid-h29",
+                "name": "Hair 29",
+                "directory": "/hair/Hair_29.vrm",
+                "thumbnail": "/hair/Hair_29/Isometric.png"
+            },
+            {
+                "id": "uid-h30",
+                "name": "Hair 30",
+                "directory": "/hair/Hair_30.vrm",
+                "thumbnail": "/hair/Hair_30/Isometric.png"
+            },
+            {
+                "id": "uid-h31",
+                "name": "Hair 31",
+                "directory": "/hair/Hair_31.vrm",
+                "thumbnail": "/hair/Hair_31/Isometric.png"
+            },
+            {
+                "id": "uid-h32",
+                "name": "Hair 32",
+                "directory": "/hair/Hair_32.vrm",
+                "thumbnail": "/hair/Hair_32/Isometric.png"
+            },
+            {
+                "id": "uid-h33",
+                "name": "Hair 33",
+                "directory": "/hair/Hair_33.vrm",
+                "thumbnail": "/hair/Hair_33/Isometric.png"
+            },
+            {
+                "id": "uid-h34",
+                "name": "Hair 34",
+                "directory": "/hair/Hair_34.vrm",
+                "thumbnail": "/hair/Hair_34/Isometric.png"
             }
         ]
     },
@@ -52,16 +178,142 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "f1",
+                "id": "uid-f1",
                 "name": "Face 1",
-                "directory": "/1/Head.vrm",
-                "thumbnail": "/2/Head/Isometric.png"
+                "directory": "/face/Face_1.vrm",
+                "thumbnail": "/face/Face_1/Isometric.png"
             },
             {
-                "id": "f2",
+                "id": "uid-f2",
                 "name": "Face 2",
-                "directory": "/2/Head.vrm",
-                "thumbnail": "/1/Head/Isometric.png"
+                "directory": "/face/Face_2.vrm",
+                "thumbnail": "/face/Face_2/Isometric.png"
+            },
+            {
+                "id": "uid-f14",
+                "name": "Face 14",
+                "directory": "/face/Face_14.vrm",
+                "thumbnail": "/face/Face_14/Isometric.png"
+            },
+            {
+                "id": "uid-f15",
+                "name": "Face 15",
+                "directory": "/face/Face_15.vrm",
+                "thumbnail": "/face/Face_15/Isometric.png"
+            },
+            {
+                "id": "uid-f16",
+                "name": "Face 16",
+                "directory": "/face/Face_16.vrm",
+                "thumbnail": "/face/Face_16/Isometric.png"
+            },
+            {
+                "id": "uid-f17",
+                "name": "Face 17",
+                "directory": "/face/Face_17.vrm",
+                "thumbnail": "/face/Face_17/Isometric.png"
+            },
+            {
+                "id": "uid-f18",
+                "name": "Face 18",
+                "directory": "/face/Face_18.vrm",
+                "thumbnail": "/face/Face_18/Isometric.png"
+            },
+            {
+                "id": "uid-f19",
+                "name": "Face 19",
+                "directory": "/face/Face_19.vrm",
+                "thumbnail": "/face/Face_19/Isometric.png"
+            },
+            {
+                "id": "uid-f20",
+                "name": "Face 20",
+                "directory": "/face/Face_20.vrm",
+                "thumbnail": "/face/Face_20/Isometric.png"
+            },
+            {
+                "id": "uid-f21",
+                "name": "Face 21",
+                "directory": "/face/Face_21.vrm",
+                "thumbnail": "/face/Face_21/Isometric.png"
+            },
+            {
+                "id": "uid-f22",
+                "name": "Face 22",
+                "directory": "/face/Face_22.vrm",
+                "thumbnail": "/face/Face_22/Isometric.png"
+            },
+            {
+                "id": "uid-f23",
+                "name": "Face 23",
+                "directory": "/face/Face_23.vrm",
+                "thumbnail": "/face/Face_23/Isometric.png"
+            },
+            {
+                "id": "uid-f24",
+                "name": "Face 24",
+                "directory": "/face/Face_24.vrm",
+                "thumbnail": "/face/Face_24/Isometric.png"
+            },
+            {
+                "id": "uid-f25",
+                "name": "Face 25",
+                "directory": "/face/Face_25.vrm",
+                "thumbnail": "/face/Face_25/Isometric.png"
+            },
+            {
+                "id": "uid-f26",
+                "name": "Face 26",
+                "directory": "/face/Face_26.vrm",
+                "thumbnail": "/face/Face_26/Isometric.png"
+            },
+            {
+                "id": "uid-f27",
+                "name": "Face 27",
+                "directory": "/face/Face_27.vrm",
+                "thumbnail": "/face/Face_27/Isometric.png"
+            },
+            {
+                "id": "uid-f28",
+                "name": "Face 28",
+                "directory": "/face/Face_28.vrm",
+                "thumbnail": "/face/Face_28/Isometric.png"
+            },
+            {
+                "id": "uid-f29",
+                "name": "Face 29",
+                "directory": "/face/Face_29.vrm",
+                "thumbnail": "/face/Face_29/Isometric.png"
+            },
+            {
+                "id": "uid-f30",
+                "name": "Face 30",
+                "directory": "/face/Face_30.vrm",
+                "thumbnail": "/face/Face_30/Isometric.png"
+            },
+            {
+                "id": "uid-f31",
+                "name": "Face 31",
+                "directory": "/face/Face_31.vrm",
+                "thumbnail": "/face/Face_31/Isometric.png"
+            },
+            {
+                "id": "uid-f32",
+                "name": "Face 32",
+                "directory": "/face/Face_32.vrm",
+                "thumbnail": "/face/Face_32/Isometric.png"
+            },
+            {
+                "id": "uid-f33",
+                "name": "Face 33",
+                "directory": "/face/Face_33.vrm",
+                "thumbnail": "/face/Face_33/Isometric.png"
+            },
+            {
+                "id": "uid-f34",
+                "name": "Face 34",
+                "directory": "/face/Face_34.vrm",
+                "thumbnail": "/face/Face_34/Isometric.png"
             }
         ]
     },
@@ -70,16 +322,142 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "st1",
-                "name": "Shirt 1",
-                "directory": "/1/Shirt.vrm",
-                "thumbnail": "/1/Shirt/Isometric.png"
+                "id": "uid-t1",
+                "name": "Tops 1",
+                "directory": "/tops/Tops_1.vrm",
+                "thumbnail": "/tops/Tops_1/Isometric.png"
             },
             {
-                "id": "st2",
-                "name": "Shirt 2",
-                "directory": "/2/Shirt.vrm",
-                "thumbnail": "/2/Shirt/Isometric.png"
+                "id": "uid-t2",
+                "name": "Tops 2",
+                "directory": "/tops/Tops_2.vrm",
+                "thumbnail": "/tops/Tops_2/Isometric.png"
+            },
+            {
+                "id": "uid-t14",
+                "name": "Tops 14",
+                "directory": "/tops/Tops_14.vrm",
+                "thumbnail": "/tops/Tops_14/Isometric.png"
+            },
+            {
+                "id": "uid-t15",
+                "name": "Tops 15",
+                "directory": "/tops/Tops_15.vrm",
+                "thumbnail": "/tops/Tops_15/Isometric.png"
+            },
+            {
+                "id": "uid-t16",
+                "name": "Tops 16",
+                "directory": "/tops/Tops_16.vrm",
+                "thumbnail": "/tops/Tops_16/Isometric.png"
+            },
+            {
+                "id": "uid-t17",
+                "name": "Tops 17",
+                "directory": "/tops/Tops_17.vrm",
+                "thumbnail": "/tops/Tops_17/Isometric.png"
+            },
+            {
+                "id": "uid-t18",
+                "name": "Tops 18",
+                "directory": "/tops/Tops_18.vrm",
+                "thumbnail": "/tops/Tops_18/Isometric.png"
+            },
+            {
+                "id": "uid-t19",
+                "name": "Tops 19",
+                "directory": "/tops/Tops_19.vrm",
+                "thumbnail": "/tops/Tops_19/Isometric.png"
+            },
+            {
+                "id": "uid-t20",
+                "name": "Tops 20",
+                "directory": "/tops/Tops_20.vrm",
+                "thumbnail": "/tops/Tops_20/Isometric.png"
+            },
+            {
+                "id": "uid-t21",
+                "name": "Tops 21",
+                "directory": "/tops/Tops_21.vrm",
+                "thumbnail": "/tops/Tops_21/Isometric.png"
+            },
+            {
+                "id": "uid-t22",
+                "name": "Tops 22",
+                "directory": "/tops/Tops_22.vrm",
+                "thumbnail": "/tops/Tops_22/Isometric.png"
+            },
+            {
+                "id": "uid-t23",
+                "name": "Tops 23",
+                "directory": "/tops/Tops_23.vrm",
+                "thumbnail": "/tops/Tops_23/Isometric.png"
+            },
+            {
+                "id": "uid-t24",
+                "name": "Tops 24",
+                "directory": "/tops/Tops_24.vrm",
+                "thumbnail": "/tops/Tops_24/Isometric.png"
+            },
+            {
+                "id": "uid-t25",
+                "name": "Tops 25",
+                "directory": "/tops/Tops_25.vrm",
+                "thumbnail": "/tops/Tops_25/Isometric.png"
+            },
+            {
+                "id": "uid-t26",
+                "name": "Tops 26",
+                "directory": "/tops/Tops_26.vrm",
+                "thumbnail": "/tops/Tops_26/Isometric.png"
+            },
+            {
+                "id": "uid-t27",
+                "name": "Tops 27",
+                "directory": "/tops/Tops_27.vrm",
+                "thumbnail": "/tops/Tops_27/Isometric.png"
+            },
+            {
+                "id": "uid-t28",
+                "name": "Tops 28",
+                "directory": "/tops/Tops_28.vrm",
+                "thumbnail": "/tops/Tops_28/Isometric.png"
+            },
+            {
+                "id": "uid-t29",
+                "name": "Tops 29",
+                "directory": "/tops/Tops_29.vrm",
+                "thumbnail": "/tops/Tops_29/Isometric.png"
+            },
+            {
+                "id": "uid-t30",
+                "name": "Tops 30",
+                "directory": "/tops/Tops_30.vrm",
+                "thumbnail": "/tops/Tops_30/Isometric.png"
+            },
+            {
+                "id": "uid-t31",
+                "name": "Tops 31",
+                "directory": "/tops/Tops_31.vrm",
+                "thumbnail": "/tops/Tops_31/Isometric.png"
+            },
+            {
+                "id": "uid-t32",
+                "name": "Tops 32",
+                "directory": "/tops/Tops_32.vrm",
+                "thumbnail": "/tops/Tops_32/Isometric.png"
+            },
+            {
+                "id": "uid-t33",
+                "name": "Tops 33",
+                "directory": "/tops/Tops_33.vrm",
+                "thumbnail": "/tops/Tops_33/Isometric.png"
+            },
+            {
+                "id": "uid-t34",
+                "name": "Tops 34",
+                "directory": "/tops/Tops_34.vrm",
+                "thumbnail": "/tops/Tops_34/Isometric.png"
             }
         ]
     },
@@ -88,16 +466,28 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "a1",
-                "name": "Arm 1",
-                "directory": "/1/Arm.vrm",
-                "thumbnail": "/1/Arm/Isometric.png"
+                "id": "uid-a1",
+                "name": "Arms 1",
+                "directory": "/arms/Arms_1.vrm",
+                "thumbnail": "/arms/Arms_1/Isometric.png"
             },
             {
-                "id": "a2",
-                "name": "Arm 2",
-                "directory": "/2/Arm.vrm",
-                "thumbnail": "/2/Arm/Isometric.png"
+                "id": "uid-a2",
+                "name": "Arms 2",
+                "directory": "/arms/Arms_2.vrm",
+                "thumbnail": "/arms/Arms_2/Isometric.png"
+            },
+            {
+                "id": "uid-a21",
+                "name": "Arms 21",
+                "directory": "/arms/Arms_21.vrm",
+                "thumbnail": "/arms/Arms_21/Isometric.png"
+            },
+            {
+                "id": "uid-a22",
+                "name": "Arms 22",
+                "directory": "/arms/Arms_22.vrm",
+                "thumbnail": "/arms/Arms_22/Isometric.png"
             }
         ]
     },
@@ -106,17 +496,30 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "c1",
-                "name": "Choker 1",
-                "directory": "/1/Choker.vrm",
-                "thumbnail": "/1/Choker/Isometric.png"
+                "id": "uid-n1",
+                "name": "Neck 1",
+                "directory": "/neck/Neck_1.vrm",
+                "thumbnail": "/neck/Neck_1/Isometric.png"
             },
             {
-                "id": "c2",
-                "name": "Choker 2",
-                "directory": "/2/Choker.vrm",
-                "thumbnail": "/2/Choker/Isometric.png"
+                "id": "uid-n2",
+                "name": "Neck 2",
+                "directory": "/neck/Neck_2.vrm",
+                "thumbnail": "/neck/Neck_2/Isometric.png"
+            },
+            {
+                "id": "uid-n14",
+                "name": "Neck 14",
+                "directory": "/neck/Neck_14.vrm",
+                "thumbnail": "/neck/Neck_14/Isometric.png"
+            },
+            {
+                "id": "uid-n15",
+                "name": "Neck 15",
+                "directory": "/neck/Neck_15.vrm",
+                "thumbnail": "/neck/Neck_15/Isometric.png"
             }
+
         ]
     },
     {
@@ -124,16 +527,58 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "b1",
+                "id": "uid-b1",
                 "name": "Bottoms 1",
-                "directory": "/1/Bottoms.vrm",
-                "thumbnail": "/1/Bottoms/Isometric.png"
+                "directory": "/bottoms/Bottoms_1.vrm",
+                "thumbnail": "/bottoms/Bottoms_1/Isometric.png"
             },
             {
-                "id": "b2",
+                "id": "uid-b2",
                 "name": "Bottoms 2",
-                "directory": "/2/Bottoms.vrm",
-                "thumbnail": "/2/Bottoms/Isometric.png"
+                "directory": "/bottoms/Bottoms_2.vrm",
+                "thumbnail": "/bottoms/Bottoms_2/Isometric.png"
+            },
+            {
+                "id": "uid-b14",
+                "name": "Bottoms 14",
+                "directory": "/bottoms/Bottoms_14.vrm",
+                "thumbnail": "/bottoms/Bottoms_14/Isometric.png"
+            },
+            {
+                "id": "uid-b16",
+                "name": "Bottoms 16",
+                "directory": "/bottoms/Bottoms_16.vrm",
+                "thumbnail": "/bottoms/Bottoms_16/Isometric.png"
+            },
+            {
+                "id": "uid-b17",
+                "name": "Bottoms 17",
+                "directory": "/bottoms/Bottoms_17.vrm",
+                "thumbnail": "/bottoms/Bottoms_17/Isometric.png"
+            },
+            {
+                "id": "uid-b18",
+                "name": "Bottoms 18",
+                "directory": "/bottoms/Bottoms_18.vrm",
+                "thumbnail": "/bottoms/Bottoms_18/Isometric.png"
+            },
+            {
+                "id": "uid-b19",
+                "name": "Bottoms 19",
+                "directory": "/bottoms/Bottoms_19.vrm",
+                "thumbnail": "/bottoms/Bottoms_19/Isometric.png"
+            },
+            {
+                "id": "uid-b22",
+                "name": "Bottoms 22",
+                "directory": "/bottoms/Bottoms_22.vrm",
+                "thumbnail": "/bottoms/Bottoms_22/Isometric.png"
+            },
+            {
+                "id": "uid-b31",
+                "name": "Bottoms 31",
+                "directory": "/bottoms/Bottoms_31.vrm",
+                "thumbnail": "/bottoms/Bottoms_31/Isometric.png"
             }
         ]
     },
@@ -142,16 +587,142 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "s1",
+                "id": "uid-s1",
                 "name": "Shoes 1",
-                "directory": "/1/Shoes.vrm",
-                "thumbnail": "/1/Shoes/Isometric.png"
+                "directory": "/shoes/Shoes_1.vrm",
+                "thumbnail": "/shoes/Shoes_1/Isometric.png"
             },
             {
-                "id": "s2",
+                "id": "uid-s2",
                 "name": "Shoes 2",
-                "directory": "/2/Shoes.vrm",
-                "thumbnail": "/2/Shoes/Isometric.png"
+                "directory": "/shoes/Shoes_2.vrm",
+                "thumbnail": "/shoes/Shoes_2/Isometric.png"
+            },
+            {
+                "id": "uid-s14",
+                "name": "Shoes 14",
+                "directory": "/shoes/Shoes_14.vrm",
+                "thumbnail": "/shoes/Shoes_14/Isometric.png"
+            },
+            {
+                "id": "uid-s15",
+                "name": "Shoes 15",
+                "directory": "/shoes/Shoes_15.vrm",
+                "thumbnail": "/shoes/Shoes_15/Isometric.png"
+            },
+            {
+                "id": "uid-s16",
+                "name": "Shoes 16",
+                "directory": "/shoes/Shoes_16.vrm",
+                "thumbnail": "/shoes/Shoes_16/Isometric.png"
+            },
+            {
+                "id": "uid-s17",
+                "name": "Shoes 17",
+                "directory": "/shoes/Shoes_17.vrm",
+                "thumbnail": "/shoes/Shoes_17/Isometric.png"
+            },
+            {
+                "id": "uid-s18",
+                "name": "Shoes 18",
+                "directory": "/shoes/Shoes_18.vrm",
+                "thumbnail": "/shoes/Shoes_18/Isometric.png"
+            },
+            {
+                "id": "uid-s19",
+                "name": "Shoes 19",
+                "directory": "/shoes/Shoes_19.vrm",
+                "thumbnail": "/shoes/Shoes_19/Isometric.png"
+            },
+            {
+                "id": "uid-s20",
+                "name": "Shoes 20",
+                "directory": "/shoes/Shoes_20.vrm",
+                "thumbnail": "/shoes/Shoes_20/Isometric.png"
+            },
+            {
+                "id": "uid-s21",
+                "name": "Shoes 21",
+                "directory": "/shoes/Shoes_21.vrm",
+                "thumbnail": "/shoes/Shoes_21/Isometric.png"
+            },
+            {
+                "id": "uid-s22",
+                "name": "Shoes 22",
+                "directory": "/shoes/Shoes_22.vrm",
+                "thumbnail": "/shoes/Shoes_22/Isometric.png"
+            },
+            {
+                "id": "uid-s23",
+                "name": "Shoes 23",
+                "directory": "/shoes/Shoes_23.vrm",
+                "thumbnail": "/shoes/Shoes_23/Isometric.png"
+            },
+            {
+                "id": "uid-s24",
+                "name": "Shoes 24",
+                "directory": "/shoes/Shoes_24.vrm",
+                "thumbnail": "/shoes/Shoes_24/Isometric.png"
+            },
+            {
+                "id": "uid-s25",
+                "name": "Shoes 25",
+                "directory": "/shoes/Shoes_25.vrm",
+                "thumbnail": "/shoes/Shoes_25/Isometric.png"
+            },
+            {
+                "id": "uid-s26",
+                "name": "Shoes 26",
+                "directory": "/shoes/Shoes_26.vrm",
+                "thumbnail": "/shoes/Shoes_26/Isometric.png"
+            },
+            {
+                "id": "uid-s27",
+                "name": "Shoes 27",
+                "directory": "/shoes/Shoes_27.vrm",
+                "thumbnail": "/shoes/Shoes_27/Isometric.png"
+            },
+            {
+                "id": "uid-s28",
+                "name": "Shoes 28",
+                "directory": "/shoes/Shoes_28.vrm",
+                "thumbnail": "/shoes/Shoes_28/Isometric.png"
+            },
+            {
+                "id": "uid-s29",
+                "name": "Shoes 29",
+                "directory": "/shoes/Shoes_29.vrm",
+                "thumbnail": "/shoes/Shoes_29/Isometric.png"
+            },
+            {
+                "id": "uid-s30",
+                "name": "Shoes 30",
+                "directory": "/shoes/Shoes_30.vrm",
+                "thumbnail": "/shoes/Shoes_30/Isometric.png"
+            },
+            {
+                "id": "uid-s31",
+                "name": "Shoes 31",
+                "directory": "/shoes/Shoes_31.vrm",
+                "thumbnail": "/shoes/Shoes_31/Isometric.png"
+            },
+            {
+                "id": "uid-s32",
+                "name": "Shoes 32",
+                "directory": "/shoes/Shoes_32.vrm",
+                "thumbnail": "/shoes/Shoes_32/Isometric.png"
+            },
+            {
+                "id": "uid-s33",
+                "name": "Shoes 33",
+                "directory": "/shoes/Shoes_33.vrm",
+                "thumbnail": "/shoes/Shoes_33/Isometric.png"
+            },
+            {
+                "id": "uid-s34",
+                "name": "Shoes 34",
+                "directory": "/shoes/Shoes_34.vrm",
+                "thumbnail": "/shoes/Shoes_34/Isometric.png"
             }
         ]
     },
@@ -160,22 +731,89 @@
         "type": "mesh",
         "collection": [
             {
-                "id": "l1",
+                "id": "uid-l1",
                 "name": "Legs 1",
-                "directory": "/1/Legs.vrm",
-                "thumbnail": "/1/Legs/Isometric.png"
+                "directory": "/legs/Legs_1.vrm",
+                "thumbnail": "/legs/Legs_1/Isometric.png"
             },
             {
-                "id": "l2",
+                "id": "uid-l2",
                 "name": "Legs 2",
-                "directory": "/2/Legs.vrm",
-                "thumbnail": "/2/Legs/Isometric.png"
+                "directory": "/legs/Legs_2.vrm",
+                "thumbnail": "/legs/Legs_2/Isometric.png"
+            },
+            {
+                "id": "uid-l14",
+                "name": "Legs 14",
+                "directory": "/legs/Legs_14.vrm",
+                "thumbnail": "/legs/Legs_14/Isometric.png"
+            },
+            {
+                "id": "uid-l15",
+                "name": "Legs 15",
+                "directory": "/legs/Legs_15.vrm",
+                "thumbnail": "/legs/Legs_15/Isometric.png"
+            },
+            {
+                "id": "uid-l16",
+                "name": "Legs 16",
+                "directory": "/legs/Legs_16.vrm",
+                "thumbnail": "/legs/Legs_16/Isometric.png"
+            },
+            {
+                "id": "uid-l20",
+                "name": "Legs 20",
+                "directory": "/legs/Legs_20.vrm",
+                "thumbnail": "/legs/Legs_20/Isometric.png"
+            },
+            {
+                "id": "uid-l21",
+                "name": "Legs 21",
+                "directory": "/legs/Legs_21.vrm",
+                "thumbnail": "/legs/Legs_21/Isometric.png"
+            },
+            {
+                "id": "uid-l23",
+                "name": "Legs 23",
+                "directory": "/legs/Legs_23.vrm",
+                "thumbnail": "/legs/Legs_23/Isometric.png"
+            },
+            {
+                "id": "uid-l27",
+                "name": "Legs 27",
+                "directory": "/legs/Legs_27.vrm",
+                "thumbnail": "/legs/Legs_27/Isometric.png"
+            },
+            {
+                "id": "uid-l28",
+                "name": "Legs 28",
+                "directory": "/legs/Legs_28.vrm",
+                "thumbnail": "/legs/Legs_28/Isometric.png"
+            },
+            {
+                "id": "uid-l29",
+                "name": "Legs 29",
+                "directory": "/legs/Legs_29.vrm",
+                "thumbnail": "/legs/Legs_29/Isometric.png"
+            },
+            {
+                "id": "uid-l32",
+                "name": "Legs 32",
+                "directory": "/legs/Legs_32.vrm",
+                "thumbnail": "/legs/Legs_32/Isometric.png"
             }
         ]
     },
     {
         "trait": "accessories",
         "type": "mesh",
-        "collection": []
+        "collection": [
+            {
+                "id": "uid-a17",
+                "name": "Accessories 17",
+                "directory": "/accessories/Accessories_17.vrm",
+                "thumbnail": "/accessories/Accessories_17/Isometric.png"
+            }
+        ]
     }
 ]
