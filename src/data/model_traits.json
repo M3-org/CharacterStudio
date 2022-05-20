@@ -394,12 +394,6 @@
                 "thumbnail": "/tops/Tops_23/Isometric.png"
             },
             {
-                "id": "uid-t24",
-                "name": "Tops 24",
-                "directory": "/tops/Tops_24.vrm",
-                "thumbnail": "/tops/Tops_24/Isometric.png"
-            },
-            {
                 "id": "uid-t25",
                 "name": "Tops 25",
                 "directory": "/tops/Tops_25.vrm",
