@@ -1,4 +1,4 @@
-import { Slider, Stack } from "@mui/material";
+import { Slider, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { apiService, threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
@@ -38,7 +38,10 @@ export default function Selector() {
   const [selectValue, setSelectValue] = useState("0");
 
   const [collection, setCollection] = useState([]);
-  const [traitName, setTraitName] = useState('');
+  const [traitName, setTraitName] = useState("");
+
+  const [loadingTrait, setLoadingTrait] = useState(null);
+  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false);
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     threeService.setMaterialColor(scene, value, "Bra001_2");
@@ -50,7 +53,7 @@ export default function Selector() {
         console.log(traits);
         if (traits) {
           setCollection(traits?.collection);
-          setTraitName(traits?.trait)
+          setTraitName(traits?.trait);
         }
       });
     }
@@ -58,12 +61,14 @@ export default function Selector() {
 
   const selectTrait = (trait: any) => {
     if (scene) {
+      setLoadingTraitOverlay(true);
       const loader = new GLTFLoader();
       loader
         .loadAsync(
           `${templateInfo?.traitsDirectory}${trait?.directory}`,
           (e) => {
             console.log((e.loaded * 100) / e.total);
+            setLoadingTrait(Math.round((e.loaded * 100) / e.total));
           }
         )
         .then((model) => {
@@ -153,6 +158,8 @@ export default function Selector() {
                 scene.remove(accessories.model);
               }
             }
+            setLoadingTrait(null);
+            setLoadingTraitOverlay(false);
           }
         });
     }
@@ -203,9 +210,18 @@ export default function Selector() {
                       className="icon"
                       src={`${templateInfo?.thubnailsDirectory}${item?.thumbnail}`}
                     />
+                    {selectValue === item?.id && loadingTrait && (
+                      <Typography className="loading-trait">
+                        {loadingTrait}%
+                      </Typography>
+                    )}
                   </div>
                 );
               })}
+            <div style={{ visibility: "hidden" }}>
+              <Avatar className="icon" />
+            </div>
+            {loadingTraitOverlay ? <div className="loading-trait-overlay" /> : null}
           </React.Fragment>
         )}
       </Stack>

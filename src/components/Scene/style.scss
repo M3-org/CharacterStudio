@@ -92,7 +92,29 @@
     overflow-y: scroll;
     background-color: #111111;
     border-top: 1px solid #303030;
-    padding: 14px 24px !important;
+    padding: 14px 0px 14px 32px !important;
+
+    .loading-trait {
+      height: 52px;
+      width: 52px;
+      text-align: center;
+      line-height: 52px;
+      background-color: rgba(16,16,16,0.6);
+      z-index: 2;
+      position: absolute;
+      color: #efefef;
+      left: 0;
+      top: 0;
+    }
+
+    .loading-trait-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(16,16,16,0.8);
+    }
 
     .selector-button {
       color: #999999;
@@ -100,6 +122,7 @@
       font-size: 12px;
       min-width: 48px;
       cursor: pointer;
+      position: relative;
 
       &:last-child {
         margin-right: 52px !important;
@@ -112,6 +135,7 @@
       }
 
       &.active {
+        z-index: 5;
         .icon {
           border: 2px solid #de2a5e;
         }
