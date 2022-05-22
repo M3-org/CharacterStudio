@@ -56,7 +56,16 @@ export default function ConnectMint() {
     mintPricePublic,
     totalMinted,
     gender,
-    totalToBeMinted
+    totalToBeMinted,
+    hair,
+    face,
+    tops,
+    arms,
+    neck,
+    bottoms,
+    shoes,
+    legs,
+    accessories
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
@@ -85,7 +94,7 @@ export default function ConnectMint() {
     account ? setConnected(true) : setConnected(false);
   }, [account]);
 
-  useEffect(() => {
+  useEffect(() => { 
     if (glb && screenshot) {
       mintAvatar();
     }
@@ -169,10 +178,45 @@ export default function ConnectMint() {
         {
           trait_type: "Body Type",
           value: avatarCategory === 1 ? "Muscular" : "Thin"
+        },
+        {
+          trait_type: "Hair",
+          value: hair?.traitInfo ? hair?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Face",
+          value: face?.traitInfo ? face?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Neck",
+          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Tops",
+          value: tops?.traitInfo ? tops?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Arms",
+          value: arms?.traitInfo ? arms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Legs",
+          value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Bottoms",
+          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Shoes",
+          value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Accessories",
+          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
         }
       ]
     };
-    
 
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);

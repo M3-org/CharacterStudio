@@ -71,9 +71,9 @@ function AvatarGenerator() {
             <Grid container spacing={2} style={{ textAlign: "center" }}>
               {templates &&
                 templates.length > 0 &&
-                templates.map((temp) => {
+                templates.map((temp, index) => {
                   return (
-                    <Grid xs={3}>
+                    <Grid xs={3} key={index}>
                       <Typography mb={1}>{temp?.name}</Typography>
                       <Avatar
                         className={
