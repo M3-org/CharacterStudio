@@ -60,10 +60,8 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [ face , setFace ] = React.useState<any>();
   const [ tops , setTops ] = React.useState<any>();
   const [ arms , setArms ] = React.useState<any>();
-  const [ neck , setNeck ] = React.useState<any>();
   const [ shoes , setShoes ] = React.useState<any>();
   const [ legs , setLegs ] = React.useState<any>();
-  const [ accessories , setAccessories ] = React.useState<any>();
 
   return (
     <Route
@@ -81,14 +79,10 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setTops,
               arms,
               setArms,
-              neck,
-              setNeck,
               shoes,
               setShoes,
               legs,
               setLegs,
-              accessories,
-              setAccessories,
               // ----- General Use State Hooks ------ //
               generator,
               setGenerator,
