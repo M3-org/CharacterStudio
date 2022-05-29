@@ -517,66 +517,6 @@
         ]
     },
     {
-        "trait": "bottoms",
-        "type": "mesh",
-        "collection": [
-            {
-                "id": "uid-b1",
-                "name": "Bottoms 1",
-                "directory": "/bottoms/Bottoms_1.vrm",
-                "thumbnail": "/bottoms/Bottoms_1/Isometric.png"
-            },
-            {
-                "id": "uid-b2",
-                "name": "Bottoms 2",
-                "directory": "/bottoms/Bottoms_2.vrm",
-                "thumbnail": "/bottoms/Bottoms_2/Isometric.png"
-            },
-            {
-                "id": "uid-b14",
-                "name": "Bottoms 14",
-                "directory": "/bottoms/Bottoms_14.vrm",
-                "thumbnail": "/bottoms/Bottoms_14/Isometric.png"
-            },
-            {
-                "id": "uid-b16",
-                "name": "Bottoms 16",
-                "directory": "/bottoms/Bottoms_16.vrm",
-                "thumbnail": "/bottoms/Bottoms_16/Isometric.png"
-            },
-            {
-                "id": "uid-b17",
-                "name": "Bottoms 17",
-                "directory": "/bottoms/Bottoms_17.vrm",
-                "thumbnail": "/bottoms/Bottoms_17/Isometric.png"
-            },
-            {
-                "id": "uid-b18",
-                "name": "Bottoms 18",
-                "directory": "/bottoms/Bottoms_18.vrm",
-                "thumbnail": "/bottoms/Bottoms_18/Isometric.png"
-            },
-            {
-                "id": "uid-b19",
-                "name": "Bottoms 19",
-                "directory": "/bottoms/Bottoms_19.vrm",
-                "thumbnail": "/bottoms/Bottoms_19/Isometric.png"
-            },
-            {
-                "id": "uid-b22",
-                "name": "Bottoms 22",
-                "directory": "/bottoms/Bottoms_22.vrm",
-                "thumbnail": "/bottoms/Bottoms_22/Isometric.png"
-            },
-            {
-                "id": "uid-b31",
-                "name": "Bottoms 31",
-                "directory": "/bottoms/Bottoms_31.vrm",
-                "thumbnail": "/bottoms/Bottoms_31/Isometric.png"
-            }
-        ]
-    },
-    {
         "trait": "shoes",
         "type": "mesh",
         "collection": [

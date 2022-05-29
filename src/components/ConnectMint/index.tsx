@@ -63,7 +63,6 @@ export default function ConnectMint() {
     tops,
     arms,
     neck,
-    bottoms,
     shoes,
     legs,
     accessories
@@ -189,10 +188,6 @@ export default function ConnectMint() {
           value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
         },
         {
-          trait_type: "Bottoms",
-          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
-        },
-        {
           trait_type: "Shoes",
           value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
         },
@@ -250,10 +245,6 @@ export default function ConnectMint() {
         {
           trait_type: "Legs",
           value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
-        },
-        {
-          trait_type: "Bottoms",
-          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
         },
         {
           trait_type: "Shoes",

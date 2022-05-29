@@ -13,8 +13,6 @@ export default function Selector() {
     category,
     scene,
     templateInfo,
-    skin,
-    setSkin,
     hair,
     setHair,
     face,
@@ -25,8 +23,6 @@ export default function Selector() {
     setArms,
     neck,
     setNeck,
-    bottoms,
-    setBottoms,
     shoes,
     setShoes,
     legs,
@@ -87,11 +83,6 @@ export default function Selector() {
         if (traitName === "neck") {
           if (neck) {
             scene.remove(neck.model);
-          }
-        }
-        if (traitName === "bottoms") {
-          if (bottoms) {
-            scene.remove(bottoms.model);
           }
         }
         if (traitName === "shoes") {
@@ -173,15 +164,6 @@ export default function Selector() {
               });
               if (neck) {
                 scene.remove(neck.model);
-              }
-            }
-            if (traitName === "bottoms") {
-              setBottoms({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (bottoms) {
-                scene.remove(bottoms.model);
               }
             }
             if (traitName === "shoes") {
