@@ -65,9 +65,11 @@ export default function Scene(props: any) {
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 1, 0]}
+            target={[0, 1.6, 0]}
           />
-          <PerspectiveCamera>
+          <PerspectiveCamera
+            near={0.00001}
+          >
           {!downloadPopup && !mintPopup && (
             <TemplateModel nodes={modelNodes} scene={scene} />
           )}

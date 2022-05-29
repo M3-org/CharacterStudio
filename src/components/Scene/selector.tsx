@@ -126,6 +126,7 @@ export default function Selector() {
           if (scene) {
             model.scene.scale.z = -1;
             scene.add(model.scene);
+            model.scene.frustumCulled = false;
             console.log(trait);
             if (traitName === "hair") {
               console.log("HAIR");

@@ -52,6 +52,9 @@ export default function CharacterEditor(props: any) {
           setLoadingModelProgress(e.loaded*100/e.total);
         })
         .then((model) => {
+          model.scene.traverse(o => {
+            o.frustumCulled = false;
+          })
           setLoadingModel(false);
           console.log(model.scene)
           setScene(model.scene);
