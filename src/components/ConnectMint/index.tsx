@@ -26,6 +26,7 @@ import { TemplateModel } from "../Scene/models";
 import { Box } from "@mui/system";
 import "./style.scss";
 import { threeService } from "../../services";
+import { PlugWallet } from '../PlugWallet';
 
 const style = {
   position: "absolute" as "absolute",
@@ -266,9 +267,21 @@ export default function ConnectMint() {
     setMintPopup(false);
   };
 
+  const handleConnect = (principalId) => {
+    console.log("Logged in with principalId", principalId)
+  }
+
+  const handleFail = (error) => {
+    console.log("Failed to login with Plug", error)
+  }
+
   return (
     <>
       <div className="connect-mint-wrap">
+        <PlugWallet
+          onConnect={handleConnect}
+          onFail={handleFail}
+        />
         {!connected ? (
           <Button
             variant="contained"
