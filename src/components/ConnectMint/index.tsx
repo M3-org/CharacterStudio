@@ -76,7 +76,6 @@ export default function ConnectMint() {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-  const [isPricePublic, setIsPricePublic] = useState(0);
   const [mintLoading, setMintLoading] = useState(false);
 
   // NEW FILE STATE HOOKS
@@ -118,26 +117,6 @@ export default function ConnectMint() {
     }, 4000);
   };
 
-  const sendWhitelist = async () => {
-    try {
-      const message = ethers.utils.solidityKeccak256(
-        ["address", "address"],
-        [contractAddress, account]
-      );
-      const arrayifyMessage = ethers.utils.arrayify(message);
-      const flatSignature = await library
-        .getSigner()
-        .signMessage(arrayifyMessage);
-      const response = await axios.post(`${API_URL}/new-request`, {
-        signature: flatSignature,
-        address: account,
-      });
-      alertModal(response.data.msg);
-    } catch (ex) {
-      console.log(ex);
-    }
-  };
-
   const generateMintFiles = async () => {
     setMintLoading(true);
     threeService
@@ -167,8 +146,8 @@ export default function ConnectMint() {
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
-      name: "Dark Nexus Avatar",
-      description: "Custom avatars created by the community for the Dark Nexus, an adult metaverse which will let you explore your deepest desires in a way you never could before. The only limit is your imagination.",
+      name: "Atlas Avatar",
+      description: "Custom avatars created by the community for the Atlas Foundation.",
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
       attributes: [
@@ -230,30 +209,27 @@ export default function ConnectMint() {
     console.log("response", responseUser);
     if (responseUser.data.signature) {
       let amountInEther = mintPrice;
-      setIsPricePublic(1);
       try {
-        console.log("whitelist");
         const options = {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
         };
-        const res = await contract.mintWhiteList(
+        const res = await contract.mint(
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           responseUser.data.signature,
           options
         ); // tokenuri, signature
         setMintLoading(false);
         handleCloseMintPopup();
-        alertModal("Whitelist Mint Success");
+        alertModal("Mint Success");
       } catch (error) {
         console.log(error);
         handleCloseMintPopup();
         // alertModal(error.message);
-        alertModal("Whitelist Mint Failed");
+        alertModal("Mint Failed");
       }
     } else {
       let amountInEther = mintPricePublic;
-      setIsPricePublic(0);
       try {
         console.log("public");
         const options = {
@@ -303,20 +279,13 @@ export default function ConnectMint() {
           </Button>
         ) : (
           <>
-            <Button
+            {/* <Button
               variant="contained"
               startIcon={<ClearIcon />}
               onClick={disConnectWallet}
             >
               Disconnect
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddTaskIcon />}
-              onClick={sendWhitelist}
-            >
-              Whitelist
-            </Button>
+            </Button> */}
             <Button
               variant="contained"
               startIcon={<GavelIcon />}
@@ -412,17 +381,10 @@ export default function ConnectMint() {
               className="mint-model-button"
               onClick={generateMintFiles}
             >
-              {isPricePublic ? (
                 <React.Fragment>
-                  MINT Model <br /> Whitelist
+                  MINT Model
                   Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  MINT Model <br /> Public
-                  Price: {mintPricePublic} ETH | {totalMinted}/{totalToBeMinted} Remaining
-                </React.Fragment>
-              )}
             </Button>
           </Box>
         </Modal>
