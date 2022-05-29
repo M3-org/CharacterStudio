@@ -1,6 +1,8 @@
 import axios from "axios";
 
 import bones from "../library/bones.json";
+import templates from "../data/base_models.json";
+import modelTraits from '../data/model_traits.json';
 
 export const apiService = {
   fetchBones,
@@ -8,15 +10,20 @@ export const apiService = {
   fetchTemplate,
   fetchTemplates,
   saveFileToPinata,
-  saveMetaDataToPinata
+  saveMetaDataToPinata,
+  fetchTraitsByCategory
 };
 
 const BASE_URI_DEV = "http://localhost:8081";
 const BASE_URI_PROD = "http://34.214.42.55:8081";
 
+async function fetchTraitsByCategory(name: any) {
+  const filtered = modelTraits.filter((trait: any) => trait.trait === name);
+  return filtered[0];
+}
+
 async function fetchTemplate(id: any) {
-  const response = await axios.get("/templates/templates.json");
-  const filtered = response.data.filter((templates: any) => templates.id === id);
+  const filtered = templates.filter((templates: any) => templates.id === id);
   return filtered[0];
 }
 

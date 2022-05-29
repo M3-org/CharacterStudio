@@ -54,11 +54,19 @@ export default function ConnectMint() {
     scene,
     mintPrice,
     mintPricePublic,
-    totalMintedDom,
-    totalMintedSub,
+    totalMinted,
+    setTotalMinted,
     gender,
-    totalToBeMintedDom,
-    totalToBeMintedSub,
+    totalToBeMinted,
+    hair,
+    face,
+    tops,
+    arms,
+    neck,
+    bottoms,
+    shoes,
+    legs,
+    accessories
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
@@ -87,7 +95,7 @@ export default function ConnectMint() {
     account ? setConnected(true) : setConnected(false);
   }, [account]);
 
-  useEffect(() => {
+  useEffect(() => { 
     if (glb && screenshot) {
       mintAvatar();
     }
@@ -107,7 +115,7 @@ export default function ConnectMint() {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 2000);
+    }, 4000);
   };
 
   const sendWhitelist = async () => {
@@ -159,22 +167,67 @@ export default function ConnectMint() {
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
-      name: "No Limit 3D Avatar NFT",
-      description: "No Limit 3D Avatar NFT",
+      name: "Dark Nexus Avatar",
+      description: "Custom avatars created by the community for the Dark Nexus, an adult metaverse which will let you explore your deepest desires in a way you never could before. The only limit is your imagination.",
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
+      attributes: [
+        {
+          trait_type: "Gender",
+          value: gender === 1 ? "Male" : "Female"
+        },
+        {
+          trait_type: "Body Type",
+          value: avatarCategory === 1 ? "Muscular" : "Thin"
+        },
+        {
+          trait_type: "Hair",
+          value: hair?.traitInfo ? hair?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Face",
+          value: face?.traitInfo ? face?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Neck",
+          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Tops",
+          value: tops?.traitInfo ? tops?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Arms",
+          value: arms?.traitInfo ? arms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Legs",
+          value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Bottoms",
+          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Shoes",
+          value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Accessories",
+          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
+        }
+      ]
     };
 
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);
     //////////////////////////////////////////////////////
-    // alert(avatarCategory) // avatarCategory : 1 - Dom , 2 - Sub
     const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
     const responseUser = await axios.get(
       `${API_URL}/get-signature?address=${account}`
     );
-
+    console.log("response", responseUser);
     if (responseUser.data.signature) {
       let amountInEther = mintPrice;
       setIsPricePublic(1);
@@ -184,22 +237,19 @@ export default function ConnectMint() {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
         };
-        let breedtype = BigNumber.from(
-          avatarCategory ? avatarCategory - 1 : 1
-        ).toNumber();
         const res = await contract.mintWhiteList(
-          breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           responseUser.data.signature,
           options
-        ); // breedtype, tokenuri, signature
+        ); // tokenuri, signature
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Whitelist Mint Success");
       } catch (error) {
         console.log(error);
         handleCloseMintPopup();
-        alertModal(error.message);
+        // alertModal(error.message);
+        alertModal("Whitelist Mint Failed");
       }
     } else {
       let amountInEther = mintPricePublic;
@@ -210,28 +260,31 @@ export default function ConnectMint() {
           value: ethers.utils.parseEther(amountInEther),
           from: account,
         };
-        let breedtype = BigNumber.from(
-          avatarCategory ? avatarCategory - 1 : 1
-        ).toNumber();
         await contract.mintNormal(
-          breedtype,
           "ipfs://" + MetaDataUrl.data.IpfsHash,
           options
-        ); // breedtype, tokenuri
+        ); // tokenuri
         setMintLoading(false);
         handleCloseMintPopup();
         alertModal("Public Mint Success");
       } catch (error) {
         console.log(error);
         handleCloseMintPopup();
-        alertModal(error.message);
+        // alertModal(error.message);
+        alertModal("Public Mint Failed");
       }
     }
     return false;
   };
 
-  const handleOpenMintPopup = () => {
+  const handleOpenMintPopup = async () => {
     setMintPopup(true);
+
+    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    const MintedToken = await contract.totalSupply();
+    setTotalMinted(parseInt(MintedToken));
+
   };
   const handleCloseMintPopup = () => {
     setMintPopup(false);
@@ -361,21 +414,13 @@ export default function ConnectMint() {
             >
               {isPricePublic ? (
                 <React.Fragment>
-                  MINT {gender - 1 ? "Female" : "Male"}{" "}
-                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Whitelist
-                  Price: {mintPrice} ETH |
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
-                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}{" "}
-                  Remaining
+                  MINT Model <br /> Whitelist
+                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  MINT {gender - 1 ? "Female" : "Male"}{" "}
-                  {avatarCategory - 1 ? "SUB" : "DOM"} Model <br /> Public
-                  Price: {mintPricePublic} ETH |{" "}
-                  {avatarCategory ? totalMintedSub : totalMintedDom}/
-                  {avatarCategory ? totalToBeMintedSub : totalToBeMintedDom}
-                  Remaining
+                  MINT Model <br /> Public
+                  Price: {mintPricePublic} ETH | {totalMinted}/{totalToBeMinted} Remaining
                 </React.Fragment>
               )}
             </Button>

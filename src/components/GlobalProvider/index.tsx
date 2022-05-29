@@ -50,15 +50,26 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   const [gender, setGender] = React.useState<number>(0);
 
-  const [ totalToBeMintedDom , setTotalToBeMintedDom ] = React.useState<number>(5000);
-  const [ totalMintedDom , setTotalMintedDom ] = React.useState<number>(0);
-  const [ totalToBeMintedSub , setTotalToBeMintedSub ] = React.useState<number>(5000);
-  const [ totalMintedSub , setTotalMintedSub ] = React.useState<number>(0);
+  const [template, setTemplate] = React.useState<number>(0);
 
-  const [ allowedToMint , setAllowedToMint ] = React.useState<number>(0);
+  const [loadingModelProgress, setLoadingModelProgress] = React.useState<number>(0);
 
-  const [ mintPrice , setMintPrice ] = React.useState<number>(0.05);
-  const [ mintPricePublic , setMintPricePublic ] = React.useState<number>(0.069);
+  const [ totalToBeMinted , setTotalToBeMinted ] = React.useState<number>(10000);
+  const [ totalMinted , setTotalMinted ] = React.useState<number>(0);
+
+  const [ mintPrice , setMintPrice ] = React.useState<string>("0.05");
+  const [ mintPricePublic , setMintPricePublic ] = React.useState<string>("0.069");
+
+  const [ skin , setSkin ] = React.useState<any>();
+  const [ hair , setHair ] = React.useState<any>();
+  const [ face , setFace ] = React.useState<any>();
+  const [ tops , setTops ] = React.useState<any>();
+  const [ arms , setArms ] = React.useState<any>();
+  const [ neck , setNeck ] = React.useState<any>();
+  const [ bottoms , setBottoms ] = React.useState<any>();
+  const [ shoes , setShoes ] = React.useState<any>();
+  const [ legs , setLegs ] = React.useState<any>();
+  const [ accessories , setAccessories ] = React.useState<any>();
 
 
 
@@ -69,6 +80,27 @@ export const GPRoute = ({ component: Component, ...rest }) => {
         return (
           <GlobalContext.Provider
             value={{
+              // ----- Selected Traits Hooks -------- //
+              skin,
+              setSkin,
+              hair,
+              setHair,
+              face,
+              setFace,
+              tops,
+              setTops,
+              arms,
+              setArms,
+              neck,
+              setNeck,
+              bottoms,
+              setBottoms,
+              shoes,
+              setShoes,
+              legs,
+              setLegs,
+              accessories,
+              setAccessories,
               // ----- General Use State Hooks ------ //
               generator,
               setGenerator,
@@ -76,16 +108,10 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setNavigation,
               modelLoaded,
               setModelLoaded,
-              totalToBeMintedDom,
-              setTotalToBeMintedDom,
-              totalMintedDom,
-              setTotalMintedDom,
-              totalMintedSub,
-              setTotalMintedSub,
-              totalToBeMintedSub,
-              setTotalToBeMintedSub,
-              allowedToMint,
-              setAllowedToMint,
+              totalToBeMinted,
+              setTotalToBeMinted,
+              totalMinted,
+              setTotalMinted,
               mintPrice,
               setMintPrice,
               mintPricePublic,
@@ -110,7 +136,11 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setMaterials,
               animations,
               setAnimations,
+              loadingModelProgress,
+              setLoadingModelProgress,
               // ----- Template State Hooks ----- //
+              template,
+              setTemplate,
               templateInfo,
               setTemplateInfo,
               randomize,
@@ -119,7 +149,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setDownloadPopup,
               mintPopup,
               setMintPopup,
-              // ----- Avatar Selete Category ---- //
+              // ----- Avatar Select Category ---- //
               avatarCategory,
               setAvatarCategory,
               gender,

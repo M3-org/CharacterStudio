@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { VRMLoader } from "three/examples/jsm/loaders/VRMLoader";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
@@ -218,7 +218,9 @@ async function loadModel(file: any, type: any) {
     const dracoLoader = new DRACOLoader();
     //dracoLoader.setDecoderPath("../node_modules/three/examples/js/libs/draco/");
     //loader.setDRACOLoader(dracoLoader);
-    return loader.loadAsync(file).then((model) => {
+    return loader.loadAsync(file, (e) => {
+      console.log(e.loaded)
+    }).then((model) => {
       return model;
     });
   }
