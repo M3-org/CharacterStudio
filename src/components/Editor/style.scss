@@ -1,0 +1,178 @@
+@import "../../assets/styles/colors";
+
+.mesh-selector-wrap {
+  position: absolute;
+  width: 320px;
+  height: 100vh;
+  left: 0;
+  bottom: 0;
+  background-color: none;
+  border-right: 1px solid $NavMainBackgroundColor;
+  .categories-wrap {
+    width: 80px;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    border-right: 1px solid $NavMainBackgroundColor;
+    z-index: 10;
+    .mesh-nav-item {
+      width: 100%;
+      border-bottom: 1px solid $NavMainBackgroundColor;
+      box-sizing: border-box;
+      padding: 12px 18px;
+      cursor: pointer;
+      position: relative;
+      .icon {
+        opacity: 0.3;
+      }
+      svg {
+        fill: $NavMainActiveColor;
+        height: 8px;
+        position: absolute;
+        display: none !important;
+        &.angle-top {
+          top: -8px;
+          right: 0;
+        }
+        &.angle-bottom {
+          bottom: -8px;
+          right: 0;
+        }
+      }
+      &:first-child {
+        .angle-top {
+          display: none;
+        }
+      }
+      &.active {
+        background-color: $NavMainHoverColor !important;
+        z-index: 1;
+        .icon {
+          opacity: 0.9;
+        }
+        svg {
+          display: block;
+        }
+      }
+      &:hover {
+        background-color: $NavMainHoverColor;
+      }
+    }
+  }
+  .tabs {
+    button {
+      width: 50%;
+      color: #efefef;
+    }
+  }
+  .selector-wrap {
+    width: 240px;
+    height: 100%;
+    padding: 108px 0 0 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: $NavMainActiveColor;
+    box-sizing: border-box;
+    .selection-list {
+      padding: 16px 16px !important;
+    }
+    .scroll {
+      height: calc(100vh - 120px) !important;
+      &.poses {
+        height: calc(100vh - 160px) !important;
+      }
+    }
+    .title-wrap {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1;
+      padding: 15px 0 0 0;
+      border-bottom: 1px solid $NavMainBackgroundColor;
+      background: $BodyMainBackgroundColor;
+      .search-wrap {
+        width: 100%;
+        border-top: 1px solid $NavMainBackgroundColor;
+        padding: 0;
+        position: relative;
+        .search-icon {
+          position: absolute;
+          left: 16px;
+          top: 8px;
+          color: $NavMainBackgroundColor;
+        }
+        input {
+          width: 100%;
+          height: 40px;
+          background: none;
+          border: none;
+          outline: none;
+          color: #efefef;
+          padding: 0 8px 0 48px;
+        }
+      }
+    }
+    h2 {
+      text-transform: capitalize;
+      color: #efefef;
+      padding: 0 0 0 2px;
+      margin: 6px 0 19px 0;
+      font-size: 18px;
+    }
+    .selection-preview {
+      text-align: center;
+      cursor: pointer;
+      p {
+        font-size: 12px;
+        color: #dddddd;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 8px;
+      }
+      .avatar {
+        background-color: $NavMainBackgroundColor;
+        display: inline-block;
+        border: 2px solid transparent;
+        height: 60px;
+        width: 60px;
+        padding: 12px;
+      }
+      &.active {
+        .avatar {
+          border: 2px solid $MeshSelectionBorderColor;
+        }
+      }
+    }
+  }
+  .pose-editor-wrap {
+    padding: 0 12px 0 8px;
+    box-sizing: border-box;
+    .pose-wrap {
+      margin-bottom: 16px;
+      h4 {
+        font-size: 16px;
+        color: #efefef;
+        margin-bottom: 4px;
+      }
+      .slider {
+        margin-left: 24px;
+        height: 28px;
+        position: relative;
+        .geo {
+          position: absolute;
+          left: -24px;
+          font-size: 14px;
+          top: 4px;
+          color: #efefef;
+          font-weight: 100;
+        }
+      }
+    }
+  }
+}
