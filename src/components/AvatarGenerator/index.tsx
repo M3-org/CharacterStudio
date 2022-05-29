@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import logo from "../../assets/media/logo-dark.png";
 import "./style.scss";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
@@ -51,7 +50,6 @@ function AvatarGenerator() {
   } else {
     return (
       <header className="avatar-generator-wrap">
-        <img src={logo} alt="" className="logo" />
         <div className="vh-centered wizard-wrap">
           <Typography variant="h5" align="center" mb={1}>
             MINT YOUR METAVERSE AVATAR

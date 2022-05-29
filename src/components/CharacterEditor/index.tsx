@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
-import logo from "../../assets/media/logo-dark.png";
 import Scene from "../Scene";
 import RandomizeButton from "../Randomize";
 import { apiService, threeService } from "../../services";
@@ -82,9 +81,6 @@ export default function CharacterEditor(props: any) {
       <Web3ReactProvider getLibrary={getLibrary}>
         <ConnectMint />
       </Web3ReactProvider>
-      <NavLink to="/">
-        <img src={logo} alt="" className="logo" />
-      </NavLink>
       <Scene editor="generator" wrapClass="generator" />
     </React.Fragment>
   );
