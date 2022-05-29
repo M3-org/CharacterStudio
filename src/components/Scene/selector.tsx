@@ -1,12 +1,11 @@
-import { Slider, Stack, Typography } from "@mui/material";
+import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
+import { Avatar, Slider, Stack, Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import { VRM } from "@pixiv/three-vrm";
 import React, { useState } from "react";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { apiService, threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
-import Divider from "@mui/material/Divider";
-import { Avatar } from "@mui/material";
-import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import "./style.scss";
 
 export default function Selector() {
@@ -14,8 +13,6 @@ export default function Selector() {
     category,
     scene,
     templateInfo,
-    skin,
-    setSkin,
     hair,
     setHair,
     face,
@@ -26,8 +23,6 @@ export default function Selector() {
     setArms,
     neck,
     setNeck,
-    bottoms,
-    setBottoms,
     shoes,
     setShoes,
     legs,
@@ -88,11 +83,6 @@ export default function Selector() {
         if (traitName === "neck") {
           if (neck) {
             scene.remove(neck.model);
-          }
-        }
-        if (traitName === "bottoms") {
-          if (bottoms) {
-            scene.remove(bottoms.model);
           }
         }
         if (traitName === "shoes") {
@@ -174,15 +164,6 @@ export default function Selector() {
               });
               if (neck) {
                 scene.remove(neck.model);
-              }
-            }
-            if (traitName === "bottoms") {
-              setBottoms({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (bottoms) {
-                scene.remove(bottoms.model);
               }
             }
             if (traitName === "shoes") {

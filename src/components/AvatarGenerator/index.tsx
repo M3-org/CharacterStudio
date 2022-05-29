@@ -12,18 +12,12 @@ import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 
 
-const steps = ["Category", "Gender", "Start"];
-
 function AvatarGenerator() {
   const [step, setStep] = React.useState<number>(0);
   const {
-    avatarCategory,
-    setAvatarCategory,
     setTotalMinted,
     mintPrice,
     mintPricePublic,
-    gender,
-    setGender,
     template,
     setTemplate,
   }: any = useGlobalState();

@@ -59,11 +59,6 @@ export default function Editor(props: any) {
           <br />
           Neck
         </div>
-        <div onClick={() => setCategory('bottoms')} className={ category && category === "bottoms" ? "selector-button active" : "selector-button" }>
-          <Avatar className="icon" src={pantsIcon} />
-          <br />
-          Bottoms
-        </div>
         <div onClick={() => setCategory('shoes')} className={ category && category === "shoes" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={shoesIcon} />
           <br />
