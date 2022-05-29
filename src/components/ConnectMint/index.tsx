@@ -7,7 +7,7 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 import GavelIcon from "@mui/icons-material/Gavel";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
-import axios from "axios";
+import axios from "axios";mintAvatarToEthereum
 import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 import Alert from "@mui/material/Alert";
@@ -79,7 +79,7 @@ export default function ConnectMint() {
 
   const [mintLoading, setMintLoading] = useState(false);
 
-  // NEW FILE STATE HOOKS
+  const [principalId, setPrincipalId] = useState(false);
 
   const [glb, setGLB] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
@@ -97,7 +97,11 @@ export default function ConnectMint() {
 
   useEffect(() => { 
     if (glb && screenshot) {
-      mintAvatar();
+      if(import.meta.env.VITE_APP_USE_IC){
+        mintAvatarToIC();
+      } else {
+        mintAvatarToEthereum();
+      }
     }
   }, [glb, screenshot]);
   const disConnectWallet = async () => {
@@ -134,7 +138,92 @@ export default function ConnectMint() {
       });
   };
 
-  const mintAvatar = async () => {
+  const mintAvatarToIC = async () => {
+
+    try {
+      await window.ic.plug.requestConnect();
+    } catch {
+      console.error("Failed to connect to Plug")
+    }
+
+    //////////////////////////// upload part //////////////////////
+    /// ---------- glb -------------- ////////////////
+    const formData = new FormData();
+    formData.append("profile", glb);
+
+    // TODO: Upload static static assets to canister
+    
+
+    const glburl: any // = await apiService.saveFileToPinata(formData);
+    const jpgformData = new FormData();
+    jpgformData.append("profile", screenshot);
+    const jpgurl: any // = await apiService.saveFileToPinata(jpgformData);
+
+    const imageUrl
+    const animationUrl
+
+    const metadata = {
+      name: "Atlas Avatar",
+      description: "Custom avatars created by the community for the Atlas Foundation.",
+      image: imageUrl,
+      animation_url: animationUrl,
+      attributes: [
+        {
+          trait_type: "Gender",
+          value: gender === 1 ? "Male" : "Female"
+        },
+        {
+          trait_type: "Body Type",
+          value: avatarCategory === 1 ? "Muscular" : "Thin"
+        },
+        {
+          trait_type: "Hair",
+          value: hair?.traitInfo ? hair?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Face",
+          value: face?.traitInfo ? face?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Neck",
+          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Tops",
+          value: tops?.traitInfo ? tops?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Arms",
+          value: arms?.traitInfo ? arms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Legs",
+          value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Bottoms",
+          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Shoes",
+          value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Accessories",
+          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
+        }
+      ]
+    }
+
+    // TODO: mint with metadata
+   
+    setMintLoading(false);
+    handleCloseMintPopup();
+    alertModal("Public Mint Success");
+
+  };
+
+  const mintAvatarToEthereum = async () => {
     //////////////////////////// upload part //////////////////////
     /// ---------- glb -------------- ////////////////
     const formData = new FormData();
@@ -201,55 +290,25 @@ export default function ConnectMint() {
 
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);
-    //////////////////////////////////////////////////////
-    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const responseUser = await axios.get(
-      `${API_URL}/get-signature?address=${account}`
-    );
-    console.log("response", responseUser);
-    if (responseUser.data.signature) {
-      let amountInEther = mintPrice;
-      try {
-        const options = {
-          value: ethers.utils.parseEther(amountInEther),
-          from: account,
-        };
-        const res = await contract.mint(
-          "ipfs://" + MetaDataUrl.data.IpfsHash,
-          responseUser.data.signature,
-          options
-        ); // tokenuri, signature
-        setMintLoading(false);
-        handleCloseMintPopup();
-        alertModal("Mint Success");
-      } catch (error) {
-        console.log(error);
-        handleCloseMintPopup();
-        // alertModal(error.message);
-        alertModal("Mint Failed");
-      }
-    } else {
-      let amountInEther = mintPricePublic;
-      try {
-        console.log("public");
-        const options = {
-          value: ethers.utils.parseEther(amountInEther),
-          from: account,
-        };
-        await contract.mintNormal(
-          "ipfs://" + MetaDataUrl.data.IpfsHash,
-          options
-        ); // tokenuri
-        setMintLoading(false);
-        handleCloseMintPopup();
-        alertModal("Public Mint Success");
-      } catch (error) {
-        console.log(error);
-        handleCloseMintPopup();
-        // alertModal(error.message);
-        alertModal("Public Mint Failed");
-      }
+    let amountInEther = mintPricePublic;
+    try {
+      console.log("public");
+      const options = {
+        value: ethers.utils.parseEther(amountInEther),
+        from: account,
+      };
+      await contract.mintNormal(
+        "ipfs://" + MetaDataUrl.data.IpfsHash,
+        options
+      ); // tokenuri
+      setMintLoading(false);
+      handleCloseMintPopup();
+      alertModal("Public Mint Success");
+    } catch (error) {
+      console.log(error);
+      handleCloseMintPopup();
+      // alertModal(error.message);
+      alertModal("Public Mint Failed");
     }
     return false;
   };
@@ -268,11 +327,12 @@ export default function ConnectMint() {
   };
 
   const handleConnect = (principalId) => {
-    console.log("Logged in with principalId", principalId)
+    console.log("Logged in with principalId", principalId);
+    setPrincipalId(principalId);
   }
 
   const handleFail = (error) => {
-    console.log("Failed to login with Plug", error)
+    console.log("Failed to login with Plug", error);
   }
 
   return (
