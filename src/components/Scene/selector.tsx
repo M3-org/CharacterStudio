@@ -21,14 +21,10 @@ export default function Selector() {
     setTops,
     arms,
     setArms,
-    neck,
-    setNeck,
     shoes,
     setShoes,
     legs,
     setLegs,
-    accessories,
-    setAccessories,
   }: any = useGlobalState();
   const [selectValue, setSelectValue] = useState("0");
 
@@ -80,11 +76,6 @@ export default function Selector() {
             scene.remove(arms.model);
           }
         }
-        if (traitName === "neck") {
-          if (neck) {
-            scene.remove(neck.model);
-          }
-        }
         if (traitName === "shoes") {
           if (shoes) {
             scene.remove(shoes.model);
@@ -93,11 +84,6 @@ export default function Selector() {
         if (traitName === "legs") {
           if (legs) {
             scene.remove(legs.model);
-          }
-        }
-        if (traitName === "accessories") {
-          if (accessories) {
-            scene.remove(accessories.model);
           }
         }
       } else {
@@ -157,15 +143,6 @@ export default function Selector() {
                 scene.remove(arms.model);
               }
             }
-            if (traitName === "neck") {
-              setNeck({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (neck) {
-                scene.remove(neck.model);
-              }
-            }
             if (traitName === "shoes") {
               setShoes({
                 traitInfo: trait,
@@ -182,15 +159,6 @@ export default function Selector() {
               });
               if (legs) {
                 scene.remove(legs.model);
-              }
-            }
-            if (traitName === "accessories") {
-              setAccessories({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (accessories) {
-                scene.remove(accessories.model);
               }
             }
             setLoadingTrait(null);

@@ -5,11 +5,8 @@ import { useGlobalState } from "../GlobalProvider";
 import "./style.scss";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import accessoriesIcon from '../../assets/media/accessories.png';
 import legsIcon from '../../assets/media/legs.png';
 import shoesIcon from '../../assets/media/shoes.png';
-import pantsIcon from '../../assets/media/pants.png';
-import neckIcon from '../../assets/media/neck.png';
 import armsIcon from '../../assets/media/arms.png';
 import shirtIcon from '../../assets/media/shirt.png';
 import faceIcon from '../../assets/media/face.png';
@@ -54,11 +51,6 @@ export default function Editor(props: any) {
           <br />
           Arms
         </div>
-        <div onClick={() => setCategory('neck')} className={ category && category === "neck" ? "selector-button active" : "selector-button" }>
-          <Avatar className="icon" src={neckIcon} />
-          <br />
-          Neck
-        </div>
         <div onClick={() => setCategory('shoes')} className={ category && category === "shoes" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={shoesIcon} />
           <br />
@@ -68,11 +60,6 @@ export default function Editor(props: any) {
           <Avatar className="icon" src={legsIcon} />
           <br />
           Legs
-        </div>
-        <div onClick={() => setCategory('accessories')} className={ category && category === "accessories" ? "selector-button active" : "selector-button" }>
-          <Avatar className="icon" src={accessoriesIcon} /> 
-          <br />
-          Accessories
         </div>
       </Stack>
     </div>

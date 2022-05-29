@@ -62,10 +62,8 @@ export default function ConnectMint() {
     face,
     tops,
     arms,
-    neck,
     shoes,
     legs,
-    accessories
   }: any = useGlobalState();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42, 97],
@@ -158,8 +156,8 @@ export default function ConnectMint() {
     const animationUrl = null
 
     const metadata = {
-      name: "Atlas Avatar",
-      description: "Custom avatars created by the community for the Atlas Foundation.",
+      name: "Avatars",
+      description: "Custom avatars.",
       image: imageUrl,
       animation_url: animationUrl,
       attributes: [
@@ -170,10 +168,6 @@ export default function ConnectMint() {
         {
           trait_type: "Face",
           value: face?.traitInfo ? face?.traitInfo?.name : "None"
-        },
-        {
-          trait_type: "Neck",
-          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
         },
         {
           trait_type: "Tops",
@@ -190,10 +184,6 @@ export default function ConnectMint() {
         {
           trait_type: "Shoes",
           value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
-        },
-        {
-          trait_type: "Accessories",
-          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
         }
       ]
     }
@@ -231,10 +221,6 @@ export default function ConnectMint() {
           value: face?.traitInfo ? face?.traitInfo?.name : "None"
         },
         {
-          trait_type: "Neck",
-          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
-        },
-        {
           trait_type: "Tops",
           value: tops?.traitInfo ? tops?.traitInfo?.name : "None"
         },
@@ -249,10 +235,6 @@ export default function ConnectMint() {
         {
           trait_type: "Shoes",
           value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
-        },
-        {
-          trait_type: "Accessories",
-          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
         }
       ]
     };
