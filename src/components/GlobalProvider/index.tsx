@@ -41,7 +41,6 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [animations, setAnimations] = React.useState<object>(Object);
   // States Hooks used in template editor //
   const [templateInfo, setTemplateInfo] = React.useState<object>();
-  const [randomize, setRandomize] = React.useState<boolean>(false);
   const [downloadPopup, setDownloadPopup] = React.useState<boolean>(false);
   const [mintPopup, setMintPopup] = React.useState<boolean>(false);
 
@@ -143,8 +142,6 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               setTemplate,
               templateInfo,
               setTemplateInfo,
-              randomize,
-              setRandomize,
               downloadPopup,
               setDownloadPopup,
               mintPopup,

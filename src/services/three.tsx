@@ -10,9 +10,6 @@ import { VRM } from "@pixiv/three-vrm";
 
 export const threeService = {
   loadModel,
-  loadModelRandomized,
-  randomize,
-  randomizeMeshes,
   updatePose,
   updateMorphValue,
   getMorphValue,
@@ -150,68 +147,6 @@ async function setMaterialColor(scene: any, value: any, target: any) {
   }
 }
 
-async function randomizeMeshes(scene: any, info: any) {
-  const object = scene.getObjectByName("model");
-  const randColor = Math.floor(Math.random() * 255) + 30;
-  const skinShade = new THREE.Color(
-    `rgb(${randColor},${randColor},${randColor})`
-  );
-  object.material.color.set(skinShade);
-
-  const shirt = scene.getObjectByName("futbolka");
-  const short = scene.getObjectByName("shorts001");
-  //const belt = scene.getObjectByName("belt_3");
-
-  console.log("OLD", shirt.material);
-
-  let randItem =
-    info.editor.textures[1].collection[
-      Math.floor(Math.random() * info.editor.textures[1].collection.length)
-    ];
-  let directory = info.directory;
-  var loader = new THREE.TextureLoader();
-  loader.load(directory + randItem.texture.base, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.map = texture;
-    short.material.map = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-  loader.load(directory + randItem.texture.normal, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.normalMap = texture;
-    short.material.normalMap = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-  loader.load(directory + randItem.texture.rough, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.roughnessMap = texture;
-    short.material.roughnessMap = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-
-  info.editor.meshes.map((mesh: any) => {
-    let randItem =
-      mesh.collection[Math.floor(Math.random() * mesh.collection.length)];
-    mesh.collection.map((items: any) => {
-      if (items?.name) {
-        if (items?.target !== randItem?.target) {
-          const object = scene.getObjectByName(items.target);
-          object.visible = false;
-        } else {
-          const object = scene.getObjectByName(items.target);
-          object.visible = true;
-        }
-      }
-    });
-  });
-}
-
 async function loadModel(file: any, type: any) {
   if (type && type === "gltf/glb" && file) {
     const loader = new GLTFLoader();
@@ -232,45 +167,6 @@ async function loadModel(file: any, type: any) {
         console.log("VRM Model: ", vrm);
       });
       return model;
-    });
-  }
-}
-
-async function loadModelRandomized(file: any, type: any, variables: any) {
-  if (file && type && variables) {
-    const model = loadModel(file, type).then((mod: any) => {
-      variables.shapes?.map((shape: any) => {
-        shape.keys?.map((key: any) => {
-          const randomValue = Math.random();
-          shape.targets.map((target: any) => {
-            var mesh = mod.scene.getObjectByName(target);
-            const index = mesh.morphTargetDictionary[key.name];
-            if (index !== undefined) {
-              mesh.morphTargetInfluences[index] = randomValue;
-            }
-          });
-        });
-      });
-      return mod;
-    });
-    return Promise.all([model]);
-  }
-}
-
-async function randomize(scene: any, info: any) {
-  console.log(info);
-  if (scene && info) {
-    info.editor?.shapes?.map((shape: any) => {
-      shape.keys.map((key: any) => {
-        const randomValue = Math.random();
-        shape.targets.map((target: any) => {
-          var mesh = scene.getObjectByName(target);
-          const index = mesh.morphTargetDictionary[key.name];
-          if (index !== undefined) {
-            mesh.morphTargetInfluences[index] = randomValue;
-          }
-        });
-      });
     });
   }
 }

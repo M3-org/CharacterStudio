@@ -1,18 +1,14 @@
 import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
 import Scene from "../Scene";
-import RandomizeButton from "../Randomize";
-import { apiService, threeService } from "../../services";
+import { apiService } from "../../services";
 import "./style.scss";
-import { NavLink } from "react-router-dom";
 import DownloadCharacter from "../Download";
 import ConnectMint from "../ConnectMint";
-import * as THREE from "three";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import { awsService } from "../../services/aws";
 import LoadingOverlayCircularStatic from "../LoadingOverlays";
 
 export default function CharacterEditor(props: any) {
@@ -22,8 +18,6 @@ export default function CharacterEditor(props: any) {
     setModel,
     setTemplateInfo,
     templateInfo,
-    randomize,
-    setRandomize,
     template,
     setLoadingModelProgress
   }: any = useGlobalState();
@@ -77,20 +71,9 @@ export default function CharacterEditor(props: any) {
     }
   }, [templateInfo?.file]);
 
-
-  React.useEffect(() => {
-    if (scene?.children && templateInfo?.editor && randomize) {
-      console.log("Randomized!!!");
-      //threeService.randomizeMeshes(scene, templateInfo).then(() => {
-      //setRandomize(false);
-      //});
-    }
-  }, [randomize]);
-
   return (
     <React.Fragment>
       {loadingModel && <LoadingOverlayCircularStatic />}
-      <RandomizeButton />
       <DownloadCharacter />
       <Web3ReactProvider getLibrary={getLibrary}>
         <ConnectMint />
