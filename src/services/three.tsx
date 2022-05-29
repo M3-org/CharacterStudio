@@ -3,16 +3,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
-import { VRMLoader } from "three/examples/jsm/loaders/VRMLoader";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 
 export const threeService = {
   loadModel,
-  loadModelRandomized,
-  randomize,
-  randomizeMeshes,
   updatePose,
   updateMorphValue,
   getMorphValue,
@@ -110,30 +106,6 @@ function createTextCanvas(text) {
   return texture;
 }
 
-const addTextNew = (scene: any) => {
-  const shirt = scene.getObjectByName("futbolka");
-  const mesh = scene.getObjectByName("number");
-  const random = ("0" + Math.floor(Math.random() * 99)).slice(-2);
-  if (!mesh) {
-    const mesh = shirt.clone();
-    const material = new THREE.MeshBasicMaterial({
-      map: createTextCanvas(random),
-      transparent: true,
-    });
-    mesh.material = material;
-    mesh.material.transparent = true;
-    mesh.name = "number";
-    scene.add(mesh);
-  } else {
-    const material = new THREE.MeshBasicMaterial({
-      map: createTextCanvas(random),
-      transparent: true,
-    });
-    mesh.material = material;
-    mesh.material.transparent = true;
-  }
-};
-
 async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
@@ -150,69 +122,8 @@ async function setMaterialColor(scene: any, value: any, target: any) {
   }
 }
 
-async function randomizeMeshes(scene: any, info: any) {
-  const object = scene.getObjectByName("model");
-  const randColor = Math.floor(Math.random() * 255) + 30;
-  const skinShade = new THREE.Color(
-    `rgb(${randColor},${randColor},${randColor})`
-  );
-  object.material.color.set(skinShade);
-
-  const shirt = scene.getObjectByName("futbolka");
-  const short = scene.getObjectByName("shorts001");
-  //const belt = scene.getObjectByName("belt_3");
-
-  console.log("OLD", shirt.material);
-
-  let randItem =
-    info.editor.textures[1].collection[
-      Math.floor(Math.random() * info.editor.textures[1].collection.length)
-    ];
-  let directory = info.directory;
-  var loader = new THREE.TextureLoader();
-  loader.load(directory + randItem.texture.base, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.map = texture;
-    short.material.map = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-  loader.load(directory + randItem.texture.normal, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.normalMap = texture;
-    short.material.normalMap = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-  loader.load(directory + randItem.texture.rough, function (texture) {
-    texture.needsUpdate = true;
-    texture.flipY = false;
-    shirt.material.roughnessMap = texture;
-    short.material.roughnessMap = texture;
-    //addTextNew(scene);
-    //belt.material.map = texture;
-  });
-
-  info.editor.meshes.map((mesh: any) => {
-    let randItem =
-      mesh.collection[Math.floor(Math.random() * mesh.collection.length)];
-    mesh.collection.map((items: any) => {
-      if (items?.name) {
-        if (items?.target !== randItem?.target) {
-          const object = scene.getObjectByName(items.target);
-          object.visible = false;
-        } else {
-          const object = scene.getObjectByName(items.target);
-          object.visible = true;
-        }
-      }
-    });
-  });
-}
-
 async function loadModel(file: any, type: any) {
+  return;
   if (type && type === "gltf/glb" && file) {
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
@@ -220,57 +131,20 @@ async function loadModel(file: any, type: any) {
     //loader.setDRACOLoader(dracoLoader);
     return loader.loadAsync(file, (e) => {
       console.log(e.loaded)
-    }).then((model) => {
+    }).then((gltf) => {
+      VRM.from( gltf ).then( ( model ) => {
       return model;
+      });
     });
   }
 
   if (type && type === "vrm" && file) {
-    const loader = new VRMLoader();
+    const loader = new GLTFLoader();
     return loader.loadAsync(file).then((model) => {
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
       });
       return model;
-    });
-  }
-}
-
-async function loadModelRandomized(file: any, type: any, variables: any) {
-  if (file && type && variables) {
-    const model = loadModel(file, type).then((mod: any) => {
-      variables.shapes?.map((shape: any) => {
-        shape.keys?.map((key: any) => {
-          const randomValue = Math.random();
-          shape.targets.map((target: any) => {
-            var mesh = mod.scene.getObjectByName(target);
-            const index = mesh.morphTargetDictionary[key.name];
-            if (index !== undefined) {
-              mesh.morphTargetInfluences[index] = randomValue;
-            }
-          });
-        });
-      });
-      return mod;
-    });
-    return Promise.all([model]);
-  }
-}
-
-async function randomize(scene: any, info: any) {
-  console.log(info);
-  if (scene && info) {
-    info.editor?.shapes?.map((shape: any) => {
-      shape.keys.map((key: any) => {
-        const randomValue = Math.random();
-        shape.targets.map((target: any) => {
-          var mesh = scene.getObjectByName(target);
-          const index = mesh.morphTargetDictionary[key.name];
-          if (index !== undefined) {
-            mesh.morphTargetInfluences[index] = randomValue;
-          }
-        });
-      });
     });
   }
 }
@@ -382,7 +256,7 @@ async function download(
     console.log("VRM ModelAAAAAA: ", model);
     VRM.from(model).then((vrm) => {
       console.log("VRM Model: ", vrm);
-      //saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
   }
 }

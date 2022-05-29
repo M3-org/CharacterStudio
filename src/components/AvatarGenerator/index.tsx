@@ -11,7 +11,6 @@ import CharacterEditor from "../CharacterEditor";
 import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 
-import templates from "../../data/base_models.json";
 
 const steps = ["Category", "Gender", "Start"];
 
@@ -66,26 +65,7 @@ function AvatarGenerator() {
             Select a Template To Start
           </Typography>
           <div className="step-content">
-            <Grid container spacing={2} style={{ textAlign: "center" }}>
-              {templates &&
-                templates.length > 0 &&
-                templates.map((temp, index) => {
-                  return (
-                    <Grid xs={3} key={index}>
-                      <Typography mb={1}>{temp?.name}</Typography>
-                      <Avatar
-                        className={
-                          template && template === temp?.id
-                            ? "selection-avatar active"
-                            : "selection-avatar"
-                        }
-                        src={temp?.thumbnail}
-                        onClick={() => setTemplate(temp?.id)}
-                      />
-                    </Grid>
-                  );
-                })}
-            </Grid>
+
             <Button
               className="button"
               variant="contained"

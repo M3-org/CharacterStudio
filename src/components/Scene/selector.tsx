@@ -114,6 +114,7 @@ export default function Selector() {
       setLoadingTraitOverlay(true);
       setNoTrait(false);
       const loader = new GLTFLoader();
+
       loader
         .loadAsync(
           `${templateInfo?.traitsDirectory}${trait?.directory}`,
@@ -122,16 +123,18 @@ export default function Selector() {
             setLoadingTrait(Math.round((e.loaded * 100) / e.total));
           }
         )
-        .then((model) => {
+        .then((gltf) => {
+          VRM.from( gltf ).then( ( vrm ) => {
           if (scene) {
-            model.scene.scale.z = -1;
-            scene.add(model.scene);
+            vrm.scene.scale.z = -1;
+            scene.add(vrm.scene);
+            vrm.scene.frustumCulled = false;
             console.log(trait);
             if (traitName === "hair") {
               console.log("HAIR");
               setHair({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (hair) {
                 scene.remove(hair.model);
@@ -140,7 +143,7 @@ export default function Selector() {
             if (traitName === "face") {
               setFace({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (face) {
                 scene.remove(face.model);
@@ -149,7 +152,7 @@ export default function Selector() {
             if (traitName === "tops") {
               setTops({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (tops) {
                 scene.remove(tops.model);
@@ -158,7 +161,7 @@ export default function Selector() {
             if (traitName === "arms") {
               setArms({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (arms) {
                 scene.remove(arms.model);
@@ -167,7 +170,7 @@ export default function Selector() {
             if (traitName === "neck") {
               setNeck({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (neck) {
                 scene.remove(neck.model);
@@ -176,7 +179,7 @@ export default function Selector() {
             if (traitName === "bottoms") {
               setBottoms({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (bottoms) {
                 scene.remove(bottoms.model);
@@ -185,7 +188,7 @@ export default function Selector() {
             if (traitName === "shoes") {
               setShoes({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (shoes) {
                 scene.remove(shoes.model);
@@ -194,7 +197,7 @@ export default function Selector() {
             if (traitName === "legs") {
               setLegs({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (legs) {
                 scene.remove(legs.model);
@@ -203,7 +206,7 @@ export default function Selector() {
             if (traitName === "accessories") {
               setAccessories({
                 traitInfo: trait,
-                model: model.scene,
+                model: vrm.scene,
               });
               if (accessories) {
                 scene.remove(accessories.model);
@@ -213,6 +216,7 @@ export default function Selector() {
             setLoadingTraitOverlay(false);
           }
         });
+      });
       }
     }
     setSelectValue(trait?.id);

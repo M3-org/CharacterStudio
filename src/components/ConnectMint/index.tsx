@@ -26,6 +26,7 @@ import { TemplateModel } from "../Scene/models";
 import { Box } from "@mui/system";
 import "./style.scss";
 import { threeService } from "../../services";
+import { PlugWallet } from '../PlugWallet';
 
 const style = {
   position: "absolute" as "absolute",
@@ -44,6 +45,7 @@ const style = {
 const API_URL = "http://34.214.42.55:8081";
 
 export default function ConnectMint() {
+  console.log("import.meta.env.VITE_APP_USE_ETHEREUM is", import.meta.env.VITE_APP_USE_ETHEREUM)
   const { ethereum }: any = window;
   const { activate, deactivate, library, account } = useWeb3React();
   const {
@@ -76,10 +78,9 @@ export default function ConnectMint() {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-  const [isPricePublic, setIsPricePublic] = useState(0);
   const [mintLoading, setMintLoading] = useState(false);
 
-  // NEW FILE STATE HOOKS
+  const [principalId, setPrincipalId] = useState(false);
 
   const [glb, setGLB] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
@@ -97,7 +98,11 @@ export default function ConnectMint() {
 
   useEffect(() => { 
     if (glb && screenshot) {
-      mintAvatar();
+      if(import.meta.env.VITE_APP_USE_IC){
+        mintAvatarToIC();
+      } else {
+        mintAvatarToEthereum();
+      }
     }
   }, [glb, screenshot]);
   const disConnectWallet = async () => {
@@ -118,26 +123,6 @@ export default function ConnectMint() {
     }, 4000);
   };
 
-  const sendWhitelist = async () => {
-    try {
-      const message = ethers.utils.solidityKeccak256(
-        ["address", "address"],
-        [contractAddress, account]
-      );
-      const arrayifyMessage = ethers.utils.arrayify(message);
-      const flatSignature = await library
-        .getSigner()
-        .signMessage(arrayifyMessage);
-      const response = await axios.post(`${API_URL}/new-request`, {
-        signature: flatSignature,
-        address: account,
-      });
-      alertModal(response.data.msg);
-    } catch (ex) {
-      console.log(ex);
-    }
-  };
-
   const generateMintFiles = async () => {
     setMintLoading(true);
     threeService
@@ -154,7 +139,87 @@ export default function ConnectMint() {
       });
   };
 
-  const mintAvatar = async () => {
+  const mintAvatarToIC = async () => {
+    try {
+      await window.ic.plug.requestConnect();
+    } catch {
+      console.error("Failed to connect to Plug")
+    }
+
+    //////////////////////////// upload part //////////////////////
+    /// ---------- glb -------------- ////////////////
+    const formData = new FormData();
+    formData.append("profile", glb);
+
+    // TODO: Upload static static assets to canister
+    const glburl: any = null // = await apiService.saveFileToPinata(formData);
+    const jpgformData = new FormData();
+    jpgformData.append("profile", screenshot);
+    const jpgurl: any = null // = await apiService.saveFileToPinata(jpgformData);
+
+    const imageUrl = null
+    const animationUrl = null
+
+    const metadata = {
+      name: "Atlas Avatar",
+      description: "Custom avatars created by the community for the Atlas Foundation.",
+      image: imageUrl,
+      animation_url: animationUrl,
+      attributes: [
+        {
+          trait_type: "Gender",
+          value: gender === 1 ? "Male" : "Female"
+        },
+        {
+          trait_type: "Body Type",
+          value: avatarCategory === 1 ? "Muscular" : "Thin"
+        },
+        {
+          trait_type: "Hair",
+          value: hair?.traitInfo ? hair?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Face",
+          value: face?.traitInfo ? face?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Neck",
+          value: neck?.traitInfo ? neck?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Tops",
+          value: tops?.traitInfo ? tops?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Arms",
+          value: arms?.traitInfo ? arms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Legs",
+          value: legs?.traitInfo ? legs?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Bottoms",
+          value: bottoms?.traitInfo ? bottoms?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Shoes",
+          value: shoes?.traitInfo ? shoes?.traitInfo?.name : "None"
+        },
+        {
+          trait_type: "Accessories",
+          value: accessories?.traitInfo ? accessories?.traitInfo?.name : "None"
+        }
+      ]
+    }
+
+    // TODO: mint with metadata
+    setMintLoading(false);
+    handleCloseMintPopup();
+    alertModal("Public Mint Success");
+  };
+
+  const mintAvatarToEthereum = async () => {
     //////////////////////////// upload part //////////////////////
     /// ---------- glb -------------- ////////////////
     const formData = new FormData();
@@ -167,8 +232,8 @@ export default function ConnectMint() {
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
-      name: "Dark Nexus Avatar",
-      description: "Custom avatars created by the community for the Dark Nexus, an adult metaverse which will let you explore your deepest desires in a way you never could before. The only limit is your imagination.",
+      name: "Atlas Avatar",
+      description: "Custom avatars created by the community for the Atlas Foundation.",
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
       attributes: [
@@ -221,58 +286,25 @@ export default function ConnectMint() {
 
     const MetaDataUrl: any = await apiService.saveMetaDataToPinata(metadata);
     console.log(MetaDataUrl);
-    //////////////////////////////////////////////////////
-    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const responseUser = await axios.get(
-      `${API_URL}/get-signature?address=${account}`
-    );
-    console.log("response", responseUser);
-    if (responseUser.data.signature) {
-      let amountInEther = mintPrice;
-      setIsPricePublic(1);
-      try {
-        console.log("whitelist");
-        const options = {
-          value: ethers.utils.parseEther(amountInEther),
-          from: account,
-        };
-        const res = await contract.mintWhiteList(
-          "ipfs://" + MetaDataUrl.data.IpfsHash,
-          responseUser.data.signature,
-          options
-        ); // tokenuri, signature
-        setMintLoading(false);
-        handleCloseMintPopup();
-        alertModal("Whitelist Mint Success");
-      } catch (error) {
-        console.log(error);
-        handleCloseMintPopup();
-        // alertModal(error.message);
-        alertModal("Whitelist Mint Failed");
-      }
-    } else {
-      let amountInEther = mintPricePublic;
-      setIsPricePublic(0);
-      try {
-        console.log("public");
-        const options = {
-          value: ethers.utils.parseEther(amountInEther),
-          from: account,
-        };
-        await contract.mintNormal(
-          "ipfs://" + MetaDataUrl.data.IpfsHash,
-          options
-        ); // tokenuri
-        setMintLoading(false);
-        handleCloseMintPopup();
-        alertModal("Public Mint Success");
-      } catch (error) {
-        console.log(error);
-        handleCloseMintPopup();
-        // alertModal(error.message);
-        alertModal("Public Mint Failed");
-      }
+    let amountInEther = mintPricePublic;
+    try {
+      console.log("public");
+      const options = {
+        value: ethers.utils.parseEther(amountInEther),
+        from: account,
+      };
+      await contract.mintNormal(
+        "ipfs://" + MetaDataUrl.data.IpfsHash,
+        options
+      ); // tokenuri
+      setMintLoading(false);
+      handleCloseMintPopup();
+      alertModal("Public Mint Success");
+    } catch (error) {
+      console.log(error);
+      handleCloseMintPopup();
+      // alertModal(error.message);
+      alertModal("Public Mint Failed");
     }
     return false;
   };
@@ -280,20 +312,38 @@ export default function ConnectMint() {
   const handleOpenMintPopup = async () => {
     setMintPopup(true);
 
-    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const MintedToken = await contract.totalSupply();
-    setTotalMinted(parseInt(MintedToken));
+    // ethereum
+    if(account){
+      const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const MintedToken = await contract.totalSupply();
+      setTotalMinted(parseInt(MintedToken));
+    }
+
 
   };
   const handleCloseMintPopup = () => {
     setMintPopup(false);
   };
 
+  const handleConnect = (principalId) => {
+    console.log("Logged in with principalId", principalId);
+    setPrincipalId(principalId);
+    setConnected(true);
+  }
+
+  const handleFail = (error) => {
+    console.log("Failed to login with Plug", error);
+  }
+
   return (
     <>
       <div className="connect-mint-wrap">
-        {!connected ? (
+        <PlugWallet
+          onConnect={handleConnect}
+          onFail={handleFail}
+        />
+        {import.meta.env.VITE_APP_USE_ETHEREUM === "true" && !connected &&
           <Button
             variant="contained"
             startIcon={<AccountBalanceWalletIcon />}
@@ -301,22 +351,10 @@ export default function ConnectMint() {
           >
             Connect
           </Button>
-        ) : (
-          <>
-            <Button
-              variant="contained"
-              startIcon={<ClearIcon />}
-              onClick={disConnectWallet}
-            >
-              Disconnect
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddTaskIcon />}
-              onClick={sendWhitelist}
-            >
-              Whitelist
-            </Button>
+        }
+        
+        {connected &&
+            <React.Fragment>
             <Button
               variant="contained"
               startIcon={<GavelIcon />}
@@ -324,9 +362,8 @@ export default function ConnectMint() {
             >
               Mint
             </Button>
-            <p>{account ? account.slice(0, 13) + "..." : ""}</p>
-          </>
-        )}
+            </React.Fragment>
+        }
         <Modal
           open={mintPopup}
           onClose={handleCloseMintPopup}
@@ -343,7 +380,7 @@ export default function ConnectMint() {
               <CloseIcon />
             </Button>
             <Typography variant="h6" style={{ marginTop: "-4px" }}>
-              <GavelIcon className="title-icon" /> Mint Model
+              <GavelIcon className="title-icon" /> Mint Avatar
             </Typography>
             <div
               id="mint-screenshot-canvas-wrap"
@@ -393,14 +430,17 @@ export default function ConnectMint() {
                   castShadow
                 />
                 <OrbitControls
-                  minDistance={1.6}
-                  maxDistance={1.6}
+                  minDistance={1}
+                  maxDistance={1}
                   minPolarAngle={0}
                   maxPolarAngle={Math.PI / 2 - 0.1}
                   enablePan={false}
-                  target={[0, 1, 0]}
+                  target={[0, 1.5, 0]}
                 />
-                <PerspectiveCamera>
+                <PerspectiveCamera
+                  near={0.0001}
+                  fov={25}
+                >
                   {mintPopup && (
                     <TemplateModel nodes={modelNodes} scene={scene} />
                   )}
@@ -412,17 +452,10 @@ export default function ConnectMint() {
               className="mint-model-button"
               onClick={generateMintFiles}
             >
-              {isPricePublic ? (
                 <React.Fragment>
-                  MINT Model <br /> Whitelist
-                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
+                  MINT
+                  {/* {totalMinted}/{totalToBeMinted} Remaining */}
                 </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  MINT Model <br /> Public
-                  Price: {mintPricePublic} ETH | {totalMinted}/{totalToBeMinted} Remaining
-                </React.Fragment>
-              )}
             </Button>
           </Box>
         </Modal>

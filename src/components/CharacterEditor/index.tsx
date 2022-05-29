@@ -1,19 +1,16 @@
 import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
 import Scene from "../Scene";
-import RandomizeButton from "../Randomize";
-import { apiService, threeService } from "../../services";
+import { apiService } from "../../services";
 import "./style.scss";
-import { NavLink } from "react-router-dom";
 import DownloadCharacter from "../Download";
 import ConnectMint from "../ConnectMint";
-import * as THREE from "three";
 import { Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import { awsService } from "../../services/aws";
 import LoadingOverlayCircularStatic from "../LoadingOverlays";
+import { VRM, VRMSchema } from "@pixiv/three-vrm";
 
 export default function CharacterEditor(props: any) {
   const {
@@ -22,8 +19,6 @@ export default function CharacterEditor(props: any) {
     setModel,
     setTemplateInfo,
     templateInfo,
-    randomize,
-    setRandomize,
     template,
     setLoadingModelProgress
   }: any = useGlobalState();
@@ -37,7 +32,7 @@ export default function CharacterEditor(props: any) {
   }
 
   React.useEffect(() => {
-    apiService.fetchTemplate(template ?? "default").then((res) => {
+    apiService.fetchTemplate(template).then((res) => {
       setTemplateInfo(res);
     });
   }, [template]);
@@ -46,17 +41,24 @@ export default function CharacterEditor(props: any) {
     if (templateInfo?.file && templateInfo?.format) {
       setLoadingModel(true);
       const loader = new GLTFLoader();
+      
       const dracoLoader = new DRACOLoader();
       loader
         .loadAsync(templateInfo?.file, (e) => {
           setLoadingModelProgress(e.loaded*100/e.total);
         })
-        .then((model) => {
+        .then((gltf) => {
+          VRM.from( gltf ).then( ( vrm ) => {
+          vrm.scene.traverse(o => {
+            o.frustumCulled = false;
+          })
+          vrm.humanoid.getBoneNode( VRMSchema.HumanoidBoneName.Hips ).rotation.y = Math.PI;
           setLoadingModel(false);
-          console.log(model.scene)
-          setScene(model.scene);
-          setModel(model);
+          console.log(vrm.scene)
+          setScene(vrm.scene);
+          setModel(vrm);
         });
+      } );
       /*
       threeService
         .loadModel(
@@ -74,21 +76,10 @@ export default function CharacterEditor(props: any) {
     }
   }, [templateInfo?.file]);
 
-
-  React.useEffect(() => {
-    if (scene?.children && templateInfo?.editor && randomize) {
-      console.log("Randomized!!!");
-      //threeService.randomizeMeshes(scene, templateInfo).then(() => {
-      //setRandomize(false);
-      //});
-    }
-  }, [randomize]);
-
   return (
     <React.Fragment>
       {loadingModel && <LoadingOverlayCircularStatic />}
-      <RandomizeButton />
-      <DownloadCharacter />
+      {/* <DownloadCharacter /> */}
       <Web3ReactProvider getLibrary={getLibrary}>
         <ConnectMint />
       </Web3ReactProvider>
