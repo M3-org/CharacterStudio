@@ -312,7 +312,7 @@ export default function ConnectMint() {
               <CloseIcon />
             </Button>
             <Typography variant="h6" style={{ marginTop: "-4px" }}>
-              <GavelIcon className="title-icon" /> Mint Model
+              <GavelIcon className="title-icon" /> Mint Avatar
             </Typography>
             <div
               id="mint-screenshot-canvas-wrap"
@@ -362,14 +362,17 @@ export default function ConnectMint() {
                   castShadow
                 />
                 <OrbitControls
-                  minDistance={1.6}
-                  maxDistance={1.6}
+                  minDistance={1}
+                  maxDistance={1}
                   minPolarAngle={0}
                   maxPolarAngle={Math.PI / 2 - 0.1}
                   enablePan={false}
-                  target={[0, 1, 0]}
+                  target={[0, 1.5, 0]}
                 />
-                <PerspectiveCamera>
+                <PerspectiveCamera
+                  near={0.0001}
+                  fov={25}
+                >
                   {mintPopup && (
                     <TemplateModel nodes={modelNodes} scene={scene} />
                   )}

@@ -60,15 +60,16 @@ export default function Scene(props: any) {
             castShadow
           />
           <OrbitControls
-            minDistance={1}
+            minDistance={.5}
             maxDistance={2}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 1.6, 0]}
+            target={[0, 1.4, 0]}
           />
           <PerspectiveCamera
             near={0.00001}
+            fov={25}
           >
           {!downloadPopup && !mintPopup && (
             <TemplateModel nodes={modelNodes} scene={scene} />
