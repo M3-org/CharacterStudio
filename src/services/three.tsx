@@ -3,21 +3,9 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
-import { VRMLoader } from "three/examples/jsm/loaders/VRMLoader";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
-
-// import Exporter from 'three-gltf-exporter';
-import VRMExporter from "../library/vrm-exporter";
-
-import { WebIO } from '@gltf-transform/core';
-import { KHRONOS_EXTENSIONS, DracoMeshCompression } from '@gltf-transform/extensions';
-import { weld } from '@gltf-transform/functions';
-
-
-import DracoEncoderModule from "../library/draco/draco_encoder";
-import DracoDecoderModule from "../library/draco/draco_decoder";
 
 export const threeService = {
   loadModel,
@@ -135,6 +123,7 @@ async function setMaterialColor(scene: any, value: any, target: any) {
 }
 
 async function loadModel(file: any, type: any) {
+  return;
   if (type && type === "gltf/glb" && file) {
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
@@ -142,13 +131,15 @@ async function loadModel(file: any, type: any) {
     //loader.setDRACOLoader(dracoLoader);
     return loader.loadAsync(file, (e) => {
       console.log(e.loaded)
-    }).then((model) => {
+    }).then((gltf) => {
+      VRM.from( gltf ).then( ( model ) => {
       return model;
+      });
     });
   }
 
   if (type && type === "vrm" && file) {
-    const loader = new VRMLoader();
+    const loader = new GLTFLoader();
     return loader.loadAsync(file).then((model) => {
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
@@ -235,14 +226,6 @@ async function download(
   }`;
 
   if (format && format === "gltf/glb") {
-
-    const io = new WebIO()
-    .registerExtensions( KHRONOS_EXTENSIONS )
-    .registerDependencies( {
-      'draco3d.encoder': await new DracoEncoderModule(),
-      'draco3d.decoder': await new DracoDecoderModule(),
-    } );
-
     const exporter = new GLTFExporter();
     var options = {
       trs: false,
@@ -254,28 +237,9 @@ async function download(
     };
     exporter.parse(
       model.scene,
-      async function (result) {
+      function (result) {
         if (result instanceof ArrayBuffer) {
           console.log(result);
-          var document;
-          result = new Uint8Array(result);
-          await io.readBinary( result ).then(res => {
-            document = res;
-          }).catch(err => {
-            console.log(err)
-          });
-          
-          await document.transform(
-            weld(),
-        );
-          document.createExtension( DracoMeshCompression )
-            .setRequired( true )
-            .setEncoderOptions( {
-              method: DracoMeshCompression.EncoderMethod.EDGEBREAKER
-            } );
-
-          result = await io.writeBinary( document );//it returns arraybuffer
-
           saveArrayBuffer(result, `${downloadFileName}.glb`);
         } else {
           var output = JSON.stringify(result, null, 2);
@@ -288,31 +252,11 @@ async function download(
     const exporter = new OBJExporter();
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
-    var vrmModel;
     model.userData.gltfExtensions = { VRM: {} };
-    await VRM.from(model).then((vrm) => {
-      model.scene = vrm.scene;
-      vrmModel = vrm;
+    console.log("VRM ModelAAAAAA: ", model);
+    VRM.from(model).then((vrm) => {
+      console.log("VRM Model: ", vrm);
+      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
-
-    const exporter = new VRMExporter();
-    var options = {
-      trs: false,
-      onlyVisible: true,
-      truncateDrawRange: true,
-      binary: true,
-      forcePowerOfTwoTextures: false,
-      maxTextureSize: 1024 || Infinity,
-    };
-    exporter.parse(
-      model.scene,
-      vrmModel.vrmExt,
-      model,
-      async function (result) {
-         saveArrayBuffer(result, `${downloadFileName}.vrm`);
-      },
-      options
-    );
-
   }
 }

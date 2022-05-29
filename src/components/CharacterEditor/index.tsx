@@ -10,6 +10,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import LoadingOverlayCircularStatic from "../LoadingOverlays";
+import { VRM, VRMSchema } from "@pixiv/three-vrm";
 
 export default function CharacterEditor(props: any) {
   const {
@@ -40,20 +41,24 @@ export default function CharacterEditor(props: any) {
     if (templateInfo?.file && templateInfo?.format) {
       setLoadingModel(true);
       const loader = new GLTFLoader();
+      
       const dracoLoader = new DRACOLoader();
       loader
         .loadAsync(templateInfo?.file, (e) => {
           setLoadingModelProgress(e.loaded*100/e.total);
         })
-        .then((model) => {
-          model.scene.traverse(o => {
+        .then((gltf) => {
+          VRM.from( gltf ).then( ( vrm ) => {
+          vrm.scene.traverse(o => {
             o.frustumCulled = false;
           })
+          vrm.humanoid.getBoneNode( VRMSchema.HumanoidBoneName.Hips ).rotation.y = Math.PI;
           setLoadingModel(false);
-          console.log(model.scene)
-          setScene(model.scene);
-          setModel(model);
+          console.log(vrm.scene)
+          setScene(vrm.scene);
+          setModel(vrm);
         });
+      } );
       /*
       threeService
         .loadModel(
