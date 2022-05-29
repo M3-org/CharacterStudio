@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Avatar, Button, Typography } from "@mui/material";
+import { Avatar, Button, Grid, Typography } from "@mui/material";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import * as React from "react";
@@ -7,6 +7,9 @@ import { threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
 import { TemplateModel } from "./models";
 import "./style.scss";
+
+import templates from "../../data/base_models.json";
+
 
 import Divider from "@mui/material/Divider";
 import Paper from "@mui/material/Paper";
@@ -17,7 +20,8 @@ import Selector from "./selector";
 
 export default function Scene(props: any) {
   const { editor, wrapClass }: any = props;
-  const { modelNodes, scene, downloadPopup, mintPopup }: any = useGlobalState();
+  const { modelNodes, scene, downloadPopup, mintPopup, template, setTemplate }: any = useGlobalState();
+
   return (
     <div className="scene-wrap">
       <div
@@ -80,6 +84,27 @@ export default function Scene(props: any) {
       <div>
         <Selector />
         <Editor />
+              {templates &&
+                templates.length > 0 &&
+                templates.map((temp, index) => {
+                  return (
+                    <Grid xs={3} key={index}>
+                      <Typography mb={1}>{temp?.name}</Typography>
+                      <Avatar
+                        className={
+                          template && template === temp?.id
+                            ? "selection-avatar active"
+                            : "selection-avatar"
+                        }
+                        src={temp?.thumbnail}
+                        onClick={() => {
+                          console.log("setting template, temp is", temp);
+                          setTemplate(temp?.id)
+                        }}
+                      />
+                    </Grid>
+                  );
+                })}
       </div>
     </div>
   );

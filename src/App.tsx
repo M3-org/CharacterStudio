@@ -1,9 +1,9 @@
+import { createTheme, ThemeProvider } from "@mui/material";
 import React, { Suspense } from "react";
 import { BrowserView, MobileView } from "react-device-detect";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material";
 import "./assets/styles/main.scss";
-import AvatarGenerator from "./components/AvatarGenerator";
+import CharacterEditor from "./components/CharacterEditor";
 import { GPRoute } from "./components/GlobalProvider";
 
 const theme = createTheme({
@@ -23,7 +23,7 @@ export default function App() {
           <div className="main-wrap">
             <Router>
               <Switch>
-                <GPRoute path="/" exact component={AvatarGenerator} />
+                <GPRoute path="/" exact component={CharacterEditor} />
               </Switch>
             </Router>
           </div>

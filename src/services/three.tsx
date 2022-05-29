@@ -107,30 +107,6 @@ function createTextCanvas(text) {
   return texture;
 }
 
-const addTextNew = (scene: any) => {
-  const shirt = scene.getObjectByName("futbolka");
-  const mesh = scene.getObjectByName("number");
-  const random = ("0" + Math.floor(Math.random() * 99)).slice(-2);
-  if (!mesh) {
-    const mesh = shirt.clone();
-    const material = new THREE.MeshBasicMaterial({
-      map: createTextCanvas(random),
-      transparent: true,
-    });
-    mesh.material = material;
-    mesh.material.transparent = true;
-    mesh.name = "number";
-    scene.add(mesh);
-  } else {
-    const material = new THREE.MeshBasicMaterial({
-      map: createTextCanvas(random),
-      transparent: true,
-    });
-    mesh.material = material;
-    mesh.material.transparent = true;
-  }
-};
-
 async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;

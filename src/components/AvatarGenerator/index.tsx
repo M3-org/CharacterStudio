@@ -66,26 +66,7 @@ function AvatarGenerator() {
             Select a Template To Start
           </Typography>
           <div className="step-content">
-            <Grid container spacing={2} style={{ textAlign: "center" }}>
-              {templates &&
-                templates.length > 0 &&
-                templates.map((temp, index) => {
-                  return (
-                    <Grid xs={3} key={index}>
-                      <Typography mb={1}>{temp?.name}</Typography>
-                      <Avatar
-                        className={
-                          template && template === temp?.id
-                            ? "selection-avatar active"
-                            : "selection-avatar"
-                        }
-                        src={temp?.thumbnail}
-                        onClick={() => setTemplate(temp?.id)}
-                      />
-                    </Grid>
-                  );
-                })}
-            </Grid>
+
             <Button
               className="button"
               variant="contained"
