@@ -2,7 +2,7 @@
   {
     "id": "1",
     "name": "Muscular Male",
-    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Muscular.glb",
+    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Muscular.vrm",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Muscular.png",
     "format": "gltf/glb",
     "bodyTargets": [
@@ -19,7 +19,7 @@
   {
     "id": "2",
     "name": "Thin Male",
-    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Thin.glb",
+    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Thin.vrm",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Male_Thin.png",
     "format": "gltf/glb",
     "bodyTargets": [
@@ -36,7 +36,7 @@
   {
     "id": "3",
     "name": "Muscular Female",
-    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Muscular.glb",
+    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Muscular.vrm",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Muscular.png",
     "format": "gltf/glb",
     "bodyTargets": [
@@ -53,7 +53,7 @@
   {
     "id": "4",
     "name": "Thin Female",
-    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Thin.glb",
+    "file": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Thin.vrm",
     "thumbnail": "https://nolimitcrypto.s3.us-west-2.amazonaws.com/base_models_compressed/Female_Thin.png",
     "format": "gltf/glb",
     "bodyTargets": [

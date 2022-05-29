@@ -140,7 +140,6 @@ export default function ConnectMint() {
   };
 
   const mintAvatarToIC = async () => {
-
     try {
       await window.ic.plug.requestConnect();
     } catch {
@@ -153,8 +152,6 @@ export default function ConnectMint() {
     formData.append("profile", glb);
 
     // TODO: Upload static static assets to canister
-    
-
     const glburl: any = null // = await apiService.saveFileToPinata(formData);
     const jpgformData = new FormData();
     jpgformData.append("profile", screenshot);
@@ -217,11 +214,9 @@ export default function ConnectMint() {
     }
 
     // TODO: mint with metadata
-   
     setMintLoading(false);
     handleCloseMintPopup();
     alertModal("Public Mint Success");
-
   };
 
   const mintAvatarToEthereum = async () => {
@@ -317,10 +312,14 @@ export default function ConnectMint() {
   const handleOpenMintPopup = async () => {
     setMintPopup(true);
 
-    const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const MintedToken = await contract.totalSupply();
-    setTotalMinted(parseInt(MintedToken));
+    // ethereum
+    if(account){
+      const signer = new ethers.providers.Web3Provider(ethereum).getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const MintedToken = await contract.totalSupply();
+      setTotalMinted(parseInt(MintedToken));
+    }
+
 
   };
   const handleCloseMintPopup = () => {
@@ -330,6 +329,7 @@ export default function ConnectMint() {
   const handleConnect = (principalId) => {
     console.log("Logged in with principalId", principalId);
     setPrincipalId(principalId);
+    setConnected(true);
   }
 
   const handleFail = (error) => {
@@ -343,7 +343,7 @@ export default function ConnectMint() {
           onConnect={handleConnect}
           onFail={handleFail}
         />
-        {import.meta.env.VITE_APP_USE_ETHEREUM !== "true" ? <></> : !connected ? (
+        {import.meta.env.VITE_APP_USE_ETHEREUM === "true" && !connected &&
           <Button
             variant="contained"
             startIcon={<AccountBalanceWalletIcon />}
@@ -351,7 +351,9 @@ export default function ConnectMint() {
           >
             Connect
           </Button>
-        ) : (
+        }
+        
+        {connected &&
             <React.Fragment>
             <Button
               variant="contained"
@@ -360,9 +362,8 @@ export default function ConnectMint() {
             >
               Mint
             </Button>
-            <p>{account ? account.slice(0, 13) + "..." : ""}</p>
             </React.Fragment>
-        )}
+        }
         <Modal
           open={mintPopup}
           onClose={handleCloseMintPopup}
@@ -452,8 +453,8 @@ export default function ConnectMint() {
               onClick={generateMintFiles}
             >
                 <React.Fragment>
-                  MINT Model
-                  Price: {mintPrice} ETH | {totalMinted}/{totalToBeMinted} Remaining
+                  MINT
+                  {/* {totalMinted}/{totalToBeMinted} Remaining */}
                 </React.Fragment>
             </Button>
           </Box>
