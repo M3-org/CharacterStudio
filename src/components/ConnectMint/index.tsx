@@ -49,7 +49,6 @@ export default function ConnectMint() {
   const { ethereum }: any = window;
   const { activate, deactivate, library, account } = useWeb3React();
   const {
-    avatarCategory,
     modelNodes,
     mintPopup,
     setMintPopup,
@@ -58,7 +57,6 @@ export default function ConnectMint() {
     mintPricePublic,
     totalMinted,
     setTotalMinted,
-    gender,
     totalToBeMinted,
     hair,
     face,
@@ -167,14 +165,6 @@ export default function ConnectMint() {
       animation_url: animationUrl,
       attributes: [
         {
-          trait_type: "Gender",
-          value: gender === 1 ? "Male" : "Female"
-        },
-        {
-          trait_type: "Body Type",
-          value: avatarCategory === 1 ? "Muscular" : "Thin"
-        },
-        {
           trait_type: "Hair",
           value: hair?.traitInfo ? hair?.traitInfo?.name : "None"
         },
@@ -237,14 +227,6 @@ export default function ConnectMint() {
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
       attributes: [
-        {
-          trait_type: "Gender",
-          value: gender === 1 ? "Male" : "Female"
-        },
-        {
-          trait_type: "Body Type",
-          value: avatarCategory === 1 ? "Muscular" : "Thin"
-        },
         {
           trait_type: "Hair",
           value: hair?.traitInfo ? hair?.traitInfo?.name : "None"

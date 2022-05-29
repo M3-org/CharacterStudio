@@ -1,12 +1,11 @@
-import { Slider, Stack, Typography } from "@mui/material";
+import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
+import { Avatar, Slider, Stack, Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import { VRM } from "@pixiv/three-vrm";
 import React, { useState } from "react";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { apiService, threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
-import Divider from "@mui/material/Divider";
-import { Avatar } from "@mui/material";
-import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import "./style.scss";
 
 export default function Selector() {

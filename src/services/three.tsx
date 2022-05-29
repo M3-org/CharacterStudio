@@ -123,7 +123,6 @@ async function setMaterialColor(scene: any, value: any, target: any) {
 }
 
 async function loadModel(file: any, type: any) {
-  return;
   if (type && type === "gltf/glb" && file) {
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
