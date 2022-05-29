@@ -8,11 +8,9 @@ html {
   font-family: "Nunito", sans-serif;
   color: #efefef;
   font-weight: 300;
-  background-image: url('../../assets/media/main-bg.jpg');
   background-position: center;
   background-size: cover;
   .main-wrap {
-    background-image: url("../../assets/media/main-bg-overlay.png");
     background-color: rgba(16, 16, 16, 0.1);
   }
 }
