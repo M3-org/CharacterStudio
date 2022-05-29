@@ -88,7 +88,7 @@ export default function Scene(props: any) {
                 templates.length > 0 &&
                 templates.map((temp, index) => {
                   return (
-                    <Grid xs={3} key={index}>
+                    <Grid key={index}>
                       <Typography mb={1}>{temp?.name}</Typography>
                       <Avatar
                         className={
@@ -99,7 +99,7 @@ export default function Scene(props: any) {
                         src={temp?.thumbnail}
                         onClick={() => {
                           console.log("setting template, temp is", temp);
-                          setTemplate(temp?.id)
+                          setTemplate(temp?.id);
                         }}
                       />
                     </Grid>

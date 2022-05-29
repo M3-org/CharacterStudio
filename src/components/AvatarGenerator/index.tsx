@@ -11,7 +11,6 @@ import CharacterEditor from "../CharacterEditor";
 import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 
-import templates from "../../data/base_models.json";
 
 const steps = ["Category", "Gender", "Start"];
 

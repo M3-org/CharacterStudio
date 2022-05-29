@@ -31,7 +31,7 @@ export default function CharacterEditor(props: any) {
   }
 
   React.useEffect(() => {
-    apiService.fetchTemplate(template ?? "default").then((res) => {
+    apiService.fetchTemplate(template).then((res) => {
       setTemplateInfo(res);
     });
   }, [template]);

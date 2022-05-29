@@ -7,7 +7,7 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 import GavelIcon from "@mui/icons-material/Gavel";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
-import axios from "axios";mintAvatarToEthereum
+import axios from "axios";
 import { ethers, BigNumber } from "ethers";
 import { contractAddress, contractABI } from "../../library/contract";
 import Alert from "@mui/material/Alert";
@@ -45,6 +45,7 @@ const style = {
 const API_URL = "http://34.214.42.55:8081";
 
 export default function ConnectMint() {
+  console.log("import.meta.env.VITE_APP_USE_ETHEREUM is", import.meta.env.VITE_APP_USE_ETHEREUM)
   const { ethereum }: any = window;
   const { activate, deactivate, library, account } = useWeb3React();
   const {
@@ -154,13 +155,13 @@ export default function ConnectMint() {
     // TODO: Upload static static assets to canister
     
 
-    const glburl: any // = await apiService.saveFileToPinata(formData);
+    const glburl: any = null // = await apiService.saveFileToPinata(formData);
     const jpgformData = new FormData();
     jpgformData.append("profile", screenshot);
-    const jpgurl: any // = await apiService.saveFileToPinata(jpgformData);
+    const jpgurl: any = null // = await apiService.saveFileToPinata(jpgformData);
 
-    const imageUrl
-    const animationUrl
+    const imageUrl = null
+    const animationUrl = null
 
     const metadata = {
       name: "Atlas Avatar",
@@ -342,7 +343,7 @@ export default function ConnectMint() {
           onConnect={handleConnect}
           onFail={handleFail}
         />
-        {!connected ? (
+        {import.meta.env.VITE_APP_USE_ETHEREUM !== "true" ? <></> : !connected ? (
           <Button
             variant="contained"
             startIcon={<AccountBalanceWalletIcon />}
@@ -351,14 +352,7 @@ export default function ConnectMint() {
             Connect
           </Button>
         ) : (
-          <>
-            {/* <Button
-              variant="contained"
-              startIcon={<ClearIcon />}
-              onClick={disConnectWallet}
-            >
-              Disconnect
-            </Button> */}
+            <React.Fragment>
             <Button
               variant="contained"
               startIcon={<GavelIcon />}
@@ -367,7 +361,7 @@ export default function ConnectMint() {
               Mint
             </Button>
             <p>{account ? account.slice(0, 13) + "..." : ""}</p>
-          </>
+            </React.Fragment>
         )}
         <Modal
           open={mintPopup}

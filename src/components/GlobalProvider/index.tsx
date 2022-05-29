@@ -49,7 +49,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [avatarCategory, setAvatarCategory] = React.useState<number>(0);
   const [gender, setGender] = React.useState<number>(0);
 
-  const [template, setTemplate] = React.useState<number>(0);
+  const [template, setTemplate] = React.useState<number>(1);
 
   const [loadingModelProgress, setLoadingModelProgress] = React.useState<number>(0);
 

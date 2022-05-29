@@ -4,5 +4,5 @@ dist
 dist-ssr
 *.local
 templates/baller
-.env
+.env.local
 .dfx
