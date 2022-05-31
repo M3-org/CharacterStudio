@@ -30,31 +30,16 @@ export default function Editor(props: any) {
         justifyContent="center"
         alignItems="center"
       >
-      {templates &&
-        templates.length > 0 &&
-        templates.map((temp, index) => {
-          return (
-            <Grid key={index}>
-              <Typography mb={1}>{temp?.name}</Typography>
-              <Avatar
-                className={
-                  template && template === temp?.id
-                    ? "selection-avatar active"
-                    : "selection-avatar"
-                }
-                src={temp?.thumbnail}
-                onClick={() => {
-                  console.log("setting template, temp is", temp);
-                  setTemplate(temp?.id);
-                }}
-              />
-            </Grid>
-          );
-        })}
+
         <div onClick={() => setCategory('color')} className={ category && category === "color" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={colorIcon} />
           <br />
           Skin Tone
+        </div>
+        <div onClick={() => setCategory('body')} className={ category && category === "body" ? "selector-button active" : "selector-button" }>
+          <Avatar className="icon" src={faceIcon} />
+          <br />
+          Body
         </div>
         <div onClick={() => setCategory('hair')} className={ category && category === "hair" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={hairIcon} />

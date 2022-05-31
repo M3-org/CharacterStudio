@@ -57,6 +57,7 @@ export const GPRoute = ({ component: Component, ...rest }) => {
   const [ mintPricePublic , setMintPricePublic ] = React.useState<string>("0.069");
 
   const [ hair , setHair ] = React.useState<any>();
+  const [ body , setBody ] = React.useState<any>();
   const [ face , setFace ] = React.useState<any>();
   const [ tops , setTops ] = React.useState<any>();
   const [ arms , setArms ] = React.useState<any>();
@@ -73,6 +74,8 @@ export const GPRoute = ({ component: Component, ...rest }) => {
               // ----- Selected Traits Hooks -------- //
               hair,
               setHair,
+              body,
+              setBody,
               face,
               setFace,
               tops,

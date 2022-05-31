@@ -6,13 +6,13 @@ import React, { useState } from "react";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { apiService, threeService } from "../../services";
 import { useGlobalState } from "../GlobalProvider";
+import templates from "../../data/base_models.json";
 import "./style.scss";
 
 export default function Selector() {
   const {
     category,
     scene,
-    templateInfo,
     hair,
     setHair,
     face,
@@ -25,11 +25,16 @@ export default function Selector() {
     setShoes,
     legs,
     setLegs,
+    setTemplate,
+    template,
+    setTemplateInfo,
+    templateInfo
   }: any = useGlobalState();
   const [selectValue, setSelectValue] = useState("0");
-
+  
   const [collection, setCollection] = useState([]);
   const [traitName, setTraitName] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   const [loadingTrait, setLoadingTrait] = useState(null);
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false);
@@ -39,20 +44,37 @@ export default function Selector() {
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     threeService.setMaterialColor(scene, value, "Bra001_2");
   };
+   
 
   React.useEffect(() => {
     if (category) {
+      if(category === "body"){
+        for(const template of templates && templates){
+          setCollection(templates);
+          setTraitName('body');
+        }
+      }
       apiService.fetchTraitsByCategory(category).then((traits) => {
-        console.log(traits);
         if (traits) {
           setCollection(traits?.collection);
           setTraitName(traits?.trait);
         }
-      });
+      });        
+
     }
   }, [category]);
 
+  const setTempInfo = (id) => {
+    apiService.fetchTemplate(id).then((res) => {
+      setTemplateInfo(res);
+    });
+  }
+
   const selectTrait = (trait: any) => {
+    if(trait.bodyTargets){
+      setTemplate(trait?.id);
+    }
+
     if (scene) {
       if(trait === "0") {
         setNoTrait(true);
@@ -87,85 +109,88 @@ export default function Selector() {
           }
         }
       } else {
-      setLoadingTraitOverlay(true);
-      setNoTrait(false);
-      const loader = new GLTFLoader();
-
-      loader
-        .loadAsync(
-          `${templateInfo?.traitsDirectory}${trait?.directory}`,
-          (e) => {
-            console.log((e.loaded * 100) / e.total);
-            setLoadingTrait(Math.round((e.loaded * 100) / e.total));
-          }
-        )
-        .then((gltf) => {
-          VRM.from( gltf ).then( ( vrm ) => {
-          if (scene) {
-            vrm.scene.scale.z = -1;
-            scene.add(vrm.scene);
-            vrm.scene.frustumCulled = false;
-            console.log(trait);
-            if (traitName === "hair") {
-              console.log("HAIR");
-              setHair({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (hair) {
-                scene.remove(hair.model);
+        if(trait.bodyTargets){
+          setTemplate(trait?.id);
+        }else{
+          setLoadingTraitOverlay(true);
+          setNoTrait(false);
+          const loader = new GLTFLoader();
+          loader
+            .loadAsync(
+              `${templateInfo?.traitsDirectory}${trait?.directory}`,
+              (e) => {
+                console.log((e.loaded * 100) / e.total);
+                setLoadingTrait(Math.round((e.loaded * 100) / e.total));
               }
-            }
-            if (traitName === "face") {
-              setFace({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (face) {
-                scene.remove(face.model);
+            )
+            .then((gltf) => {
+              VRM.from( gltf ).then( ( vrm ) => {
+              if (scene) {
+                vrm.scene.scale.z = -1;
+                scene.add(vrm.scene);
+                vrm.scene.frustumCulled = false;
+                console.log(trait);
+                if (traitName === "hair") {
+                  console.log("HAIR");
+                  setHair({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (hair) {
+                    scene.remove(hair.model);
+                  }
+                }
+                if (traitName === "face") {
+                  setFace({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (face) {
+                    scene.remove(face.model);
+                  }
+                }
+                if (traitName === "tops") {
+                  setTops({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (tops) {
+                    scene.remove(tops.model);
+                  }
+                }
+                if (traitName === "arms") {
+                  setArms({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (arms) {
+                    scene.remove(arms.model);
+                  }
+                }
+                if (traitName === "shoes") {
+                  setShoes({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (shoes) {
+                    scene.remove(shoes.model);
+                  }
+                }
+                if (traitName === "legs") {
+                  setLegs({
+                    traitInfo: trait,
+                    model: vrm.scene,
+                  });
+                  if (legs) {
+                    scene.remove(legs.model);
+                  }
+                }
+                setLoadingTrait(null);
+                setLoadingTraitOverlay(false);
               }
-            }
-            if (traitName === "tops") {
-              setTops({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (tops) {
-                scene.remove(tops.model);
-              }
-            }
-            if (traitName === "arms") {
-              setArms({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (arms) {
-                scene.remove(arms.model);
-              }
-            }
-            if (traitName === "shoes") {
-              setShoes({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (shoes) {
-                scene.remove(shoes.model);
-              }
-            }
-            if (traitName === "legs") {
-              setLegs({
-                traitInfo: trait,
-                model: vrm.scene,
-              });
-              if (legs) {
-                scene.remove(legs.model);
-              }
-            }
-            setLoadingTrait(null);
-            setLoadingTraitOverlay(false);
-          }
-        });
-      });
+            });
+          });
+        }
       }
     }
     setSelectValue(trait?.id);
@@ -203,17 +228,22 @@ export default function Selector() {
               </Avatar>
             </div>
             {collection &&
-              collection.map((item: any) => {
+              collection.map((item: any, index) => {
                 return (
-                  <div
+                  <div key = {index}
                     className={`selector-button coll-${traitName} ${
                       selectValue === item?.id ? "active" : ""
                     }`}
-                    onClick={() => selectTrait(item)}
+                    onClick={() => {
+                      selectTrait(item);
+                      if(category === 'body'){
+                        setTempInfo(item.id)
+                      }
+                    }}
                   >
                     <Avatar
                       className="icon"
-                      src={`${templateInfo?.thubnailsDirectory}${item?.thumbnail}`}
+                      src={item.thubnailsDirectory ? item.thumbnail : `${templateInfo?.thubnailsDirectory}${item?.thumbnail}`}
                     />
                     {selectValue === item?.id && loadingTrait > 0 && (
                       <Typography className="loading-trait">
