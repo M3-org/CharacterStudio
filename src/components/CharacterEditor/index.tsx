@@ -31,11 +31,12 @@ export default function CharacterEditor(props: any) {
     return library;
   }
 
-  React.useEffect(() => {
-    apiService.fetchTemplate(template).then((res) => {
-      setTemplateInfo(res);
-    });
-  }, [template]);
+  // React.useEffect(() => {
+  //   apiService.fetchTemplate(template).then((res) => {
+  //     setTemplateInfo(res);
+  //   });
+  //   console.log(templateInfo)
+  // }, [template]);
 
   React.useEffect(() => {
     if (templateInfo?.file && templateInfo?.format) {

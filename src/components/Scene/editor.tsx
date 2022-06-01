@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Avatar } from "@mui/material";
+import { Avatar, Button, Grid, Typography } from "@mui/material";
 import * as React from "react";
 import { useGlobalState } from "../GlobalProvider";
 import "./style.scss";
@@ -12,11 +12,15 @@ import shirtIcon from '../../assets/media/shirt.png';
 import faceIcon from '../../assets/media/face.png';
 import hairIcon from '../../assets/media/hair.png';
 import colorIcon from '../../assets/media/color.png';
+import templates from "../../data/base_models.json";
+
 
 
 export default function Editor(props: any) {
   const { editor, wrapClass }: any = props;
   const { category, setCategory }: any = useGlobalState();
+  const { modelNodes, scene, downloadPopup, mintPopup, template, setTemplate }: any = useGlobalState();
+
   return (
     <div className="editor-wrap">
       <Stack
@@ -26,10 +30,16 @@ export default function Editor(props: any) {
         justifyContent="center"
         alignItems="center"
       >
+
         <div onClick={() => setCategory('color')} className={ category && category === "color" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={colorIcon} />
           <br />
           Skin Tone
+        </div>
+        <div onClick={() => setCategory('body')} className={ category && category === "body" ? "selector-button active" : "selector-button" }>
+          <Avatar className="icon" src={faceIcon} />
+          <br />
+          Body
         </div>
         <div onClick={() => setCategory('hair')} className={ category && category === "hair" ? "selector-button active" : "selector-button" }>
           <Avatar className="icon" src={hairIcon} />

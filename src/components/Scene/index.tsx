@@ -84,27 +84,6 @@ export default function Scene(props: any) {
       <div>
         <Selector />
         <Editor />
-              {templates &&
-                templates.length > 0 &&
-                templates.map((temp, index) => {
-                  return (
-                    <Grid key={index}>
-                      <Typography mb={1}>{temp?.name}</Typography>
-                      <Avatar
-                        className={
-                          template && template === temp?.id
-                            ? "selection-avatar active"
-                            : "selection-avatar"
-                        }
-                        src={temp?.thumbnail}
-                        onClick={() => {
-                          console.log("setting template, temp is", temp);
-                          setTemplate(temp?.id);
-                        }}
-                      />
-                    </Grid>
-                  );
-                })}
       </div>
     </div>
   );
