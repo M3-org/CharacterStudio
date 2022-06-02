@@ -246,6 +246,7 @@ export default function Selector() {
                       selectValue === item?.id ? "active" : ""
                     }`}
                     onClick={() => {
+                      selectTrait(item);
                       if(category === 'body'){
                         setLoaded(true);
                         setTempInfo(item.id);
