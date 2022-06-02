@@ -40,6 +40,7 @@ export default function Selector() {
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false);
 
   const [noTrait, setNoTrait] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     threeService.setMaterialColor(scene, value, "Bra001_2");
@@ -64,12 +65,22 @@ export default function Selector() {
     }
   }, [category]);
 
+
+  React.useEffect(() => {
+
+    async function _get() {
+      if(!loaded){
+        setTempInfo('1');
+      }
+    }
+    _get()
+  }, [loaded, templateInfo ? Object.keys(templateInfo).length : templateInfo]);
+
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
       setTemplateInfo(res);
     });
   }
-
   const selectTrait = (trait: any) => {
     if(trait.bodyTargets){
       setTemplate(trait?.id);
@@ -235,9 +246,9 @@ export default function Selector() {
                       selectValue === item?.id ? "active" : ""
                     }`}
                     onClick={() => {
-                      selectTrait(item);
                       if(category === 'body'){
-                        setTempInfo(item.id)
+                        setLoaded(true);
+                        setTempInfo(item.id);
                       }
                     }}
                   >
