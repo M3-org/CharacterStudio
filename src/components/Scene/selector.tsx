@@ -67,14 +67,33 @@ export default function Selector() {
 
 
   React.useEffect(() => {
-
     async function _get() {
+      const categories = [
+        'hair',
+        'tops',
+        'legs',
+        'shoes'
+      ]
       if(!loaded){
-        setTempInfo('1');
+        setTempInfo('2');
+        if (scene && templateInfo) {
+          for(const category of categories){
+            apiService.fetchTraitsByCategory(category).then((traits) => {
+              if (traits) {
+               selectTrait(traits?.collection[0])
+              }
+            }); 
+          }
+        }
       }
     }
-    _get()
-  }, [loaded, templateInfo ? Object.keys(templateInfo).length : templateInfo]);
+    _get();
+  }, [loaded, scene, templateInfo ? Object.keys(templateInfo).length : templateInfo]);
+
+
+  React.useEffect (() => {
+
+  }, [loaded, collection ? Object.keys(collection).length : collection])
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
@@ -246,11 +265,11 @@ export default function Selector() {
                       selectValue === item?.id ? "active" : ""
                     }`}
                     onClick={() => {
-                      selectTrait(item);
                       if(category === 'body'){
                         setLoaded(true);
                         setTempInfo(item.id);
                       }
+                      selectTrait(item);
                     }}
                   >
                     <Avatar
