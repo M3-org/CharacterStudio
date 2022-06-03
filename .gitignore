@@ -6,3 +6,5 @@ dist-ssr
 templates/baller
 .env.local
 .dfx
+yarn.lock
+package-lock.json
