@@ -1,7 +1,7 @@
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
 import { Avatar, Slider, Stack, Typography } from "@mui/material";
 import Divider from "@mui/material/Divider";
-import { VRM } from "@pixiv/three-vrm";
+import { VRM, VRMSchema } from "@pixiv/three-vrm";
 import React, { useState } from "react";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { apiService, threeService } from "../../services";
@@ -48,6 +48,7 @@ export default function Selector() {
    
 
   React.useEffect(() => {
+    if(!scene) return;
     if (category) {
       if(category === "body"){
         for(const template of templates && templates){
@@ -63,10 +64,11 @@ export default function Selector() {
       });        
 
     }
-  }, [category]);
+  }, [category, scene]);
 
 
   React.useEffect(() => {
+    if(!scene) return;
     async function _get() {
       const categories = [
         'hair',
@@ -89,11 +91,6 @@ export default function Selector() {
     }
     _get();
   }, [loaded, scene, templateInfo ? Object.keys(templateInfo).length : templateInfo]);
-
-
-  React.useEffect (() => {
-
-  }, [loaded, collection ? Object.keys(collection).length : collection])
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
@@ -154,10 +151,33 @@ export default function Selector() {
               }
             )
             .then((gltf) => {
-              VRM.from( gltf ).then( ( vrm ) => {
-              if (scene) {
-                vrm.scene.scale.z = -1;
+              VRM.from( gltf ).then( async( vrm ) => {
+                // vrm.scene.scale.z = -1;
+                console.log("scene.add", scene.add)
+                // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
+                // await until scene is not null
+                await new Promise<void>((resolve) => {
+                  // if scene, resolve immediately
+                  if (scene && scene.add) {
+                    resolve();
+                  } else {
+                    // if scene is null, wait for it to be set
+                    const interval = setInterval(() => {
+                      if (scene && scene.add) {
+                        clearInterval(interval);
+                        resolve();
+                      }
+                    }, 100);
+                  }
+                });
+
+
+
+
+
+
                 scene.add(vrm.scene);
+                vrm.humanoid.getBoneNode( VRMSchema.HumanoidBoneName.Hips ).rotation.y = Math.PI;
                 vrm.scene.frustumCulled = false;
                 console.log(trait);
                 if (traitName === "hair") {
@@ -217,7 +237,7 @@ export default function Selector() {
                 }
                 setLoadingTrait(null);
                 setLoadingTraitOverlay(false);
-              }
+              
             });
           });
         }

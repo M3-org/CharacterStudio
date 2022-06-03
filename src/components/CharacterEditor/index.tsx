@@ -60,20 +60,6 @@ export default function CharacterEditor(props: any) {
           setModel(vrm);
         });
       } );
-      /*
-      threeService
-        .loadModel(
-          templateInfo?.file,
-          templateInfo?.format
-        )
-        .then((model: any) => {
-          if (model.scene) {
-            console.log(model.scene);
-            setScene(model.scene);
-            setModel(model);
-          }
-        });
-        */
     }
   }, [templateInfo?.file]);
 

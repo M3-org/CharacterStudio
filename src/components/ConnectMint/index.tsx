@@ -294,10 +294,12 @@ export default function ConnectMint() {
   return (
     <>
       <div className="connect-mint-wrap">
-        <PlugWallet
+        {import.meta.env.VITE_APP_USE_IC === "true" && (
+          <PlugWallet
           onConnect={handleConnect}
           onFail={handleFail}
-        />
+          />)
+        }
         {import.meta.env.VITE_APP_USE_ETHEREUM === "true" && !connected &&
           <Button
             variant="contained"
