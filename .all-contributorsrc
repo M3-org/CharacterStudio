@@ -6,13 +6,25 @@
   "commit": false,
   "contributors": [
     {
+      "login": "lalalune",
+      "name": "m00n",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18633264?v=4",
+      "profile": "https://github.com/lalalune",
+      "contributions": [ "code" ]
+    },
+    {
+      "login": "mavisakalayan",
+      "name": "Hayk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55106546?v=4",
+      "profile": "https://github.com/mavisakalayan",
+      "contributions": [ "code", "design" ]
+    },
+    {
       "login": "fire",
       "name": "K. S. Ernest (iFire) Lee",
       "avatar_url": "https://avatars.githubusercontent.com/u/32321?v=4",
       "profile": "https://github.com/fire",
-      "contributions": [
-        "ideas"
-      ]
+      "contributions": [ "ideas", "research" ]
     }
   ],
   "contributorsPerLine": 7,
