@@ -251,7 +251,8 @@ async function download(
     const exporter = new OBJExporter();
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
-    model.userData.gltfExtensions = { VRM: {} };
+    // model.userData = model.userData ?? {}
+    // model.userData.gltfExtensions = { VRM: {} };
     console.log("VRM ModelAAAAAA: ", model);
     VRM.from(model).then((vrm) => {
       console.log("VRM Model: ", vrm);

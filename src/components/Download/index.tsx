@@ -29,9 +29,12 @@ const style = {
 export default function DownloadCharacter() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { modelNodes, scene, downloadPopup, setDownloadPopup }: any = useGlobalState();
+  const { modelNodes, scene, templateInfo, model, downloadPopup, setDownloadPopup }: any = useGlobalState();
   const saveScreenshot = async (id:string) => {
     threeService.saveScreenShotByElementId(id).then(() => {});
+  };
+  const downloadModel = (format: any) => {
+    threeService.download(model, `CC_Model_${templateInfo.name.replace(" ", "_")}`, format, false);
   };
   const handleOpen = () => {
     setDownloadPopup(true);
@@ -62,7 +65,8 @@ export default function DownloadCharacter() {
       >
         <Box sx={{ ...style, border: 0 }}>
         <Button onClick={handleClose} className="close-popup"><CloseIcon /></Button>
-          <Typography>Download</Typography>
+        <Button onClick={() => downloadModel('vrm')}>Download VRM</Button>
+        <Button onClick={() => downloadModel('gltf/glb')}>Download GLB</Button>
           <Button onClick={() => saveScreenshot('screenshot-canvas-wrap')}>Screenshot</Button>
         <div
         id="screenshot-canvas-wrap"

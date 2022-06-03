@@ -66,7 +66,7 @@ export default function CharacterEditor(props: any) {
   return (
     <React.Fragment>
       {loadingModel && <LoadingOverlayCircularStatic />}
-      {/* <DownloadCharacter /> */}
+      <DownloadCharacter />
       <Web3ReactProvider getLibrary={getLibrary}>
         <ConnectMint />
       </Web3ReactProvider>
