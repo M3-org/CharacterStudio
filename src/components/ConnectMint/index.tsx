@@ -156,8 +156,8 @@ export default function ConnectMint() {
     const animationUrl = null
 
     const metadata = {
-      name: "Avatars",
-      description: "Custom avatars.",
+      name: import.meta.env.VITE_ASSET_NAME ?? "Avatars",
+      description: import.meta.env.VITE_ASSET_DESCRIPTION ??"Custom avatars.",
       image: imageUrl,
       animation_url: animationUrl,
       attributes: [
@@ -207,8 +207,8 @@ export default function ConnectMint() {
     console.log("UPLOADED TO PINATA, Upload Result", jpgurl);
     /// ---------- metadata ------------- /////////////////
     const metadata = {
-      name: "Atlas Avatar",
-      description: "Custom avatars created by the community for the Atlas Foundation.",
+      name: import.meta.env.VITE_ASSET_NAME ?? "Avatars",
+      description: import.meta.env.VITE_ASSET_DESCRIPTION ?? "Custom avatars.",
       image: "https://gateway.pinata.cloud/ipfs/" + jpgurl.IpfsHash,
       animation_url: "https://gateway.pinata.cloud/ipfs/" + glburl.IpfsHash,
       attributes: [
