@@ -78,12 +78,12 @@ export default function Selector() {
         'shoes'
       ]
       if(!loaded){
-        setTempInfo('1');
+        setTempInfo('2');
         if (scene && templateInfo) {
           for(const category of categories){
             apiService.fetchTraitsByCategory(category).then((traits) => {
               if (traits) {
-               selectTrait(traits?.collection[2])
+               selectTrait(traits?.collection[0])
               }
             }); 
           }
