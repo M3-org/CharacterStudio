@@ -43,10 +43,11 @@ export default function Selector() {
   const [loaded, setLoaded] = useState(false);
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
-    threeService.setMaterialColor(scene, value, "Bra001_2");
+    for(const bodyTarget of templateInfo.bodyTargets){
+      threeService.setMaterialColor(scene, value, bodyTarget);
+    }
   };
    
-
   React.useEffect(() => {
     if(!scene) return;
     if (category) {
