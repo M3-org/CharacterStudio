@@ -43,10 +43,11 @@ export default function Selector() {
   const [loaded, setLoaded] = useState(false);
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
-    threeService.setMaterialColor(scene, value, "Bra001_2");
+    for(const bodyTarget of templateInfo.bodyTargets){
+      threeService.setMaterialColor(scene, value, bodyTarget);
+    }
   };
    
-
   React.useEffect(() => {
     if(!scene) return;
     if (category) {
@@ -77,12 +78,12 @@ export default function Selector() {
         'shoes'
       ]
       if(!loaded){
-        setTempInfo('2');
+        setTempInfo('1');
         if (scene && templateInfo) {
           for(const category of categories){
             apiService.fetchTraitsByCategory(category).then((traits) => {
               if (traits) {
-               selectTrait(traits?.collection[0])
+               selectTrait(traits?.collection[2])
               }
             }); 
           }
