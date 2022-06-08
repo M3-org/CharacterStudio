@@ -42,6 +42,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "cp-daniel-mccoy",
+      "name": "Daniel McCoy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/86984714?v=4",
+      "profile": "http://cipherproxy.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
