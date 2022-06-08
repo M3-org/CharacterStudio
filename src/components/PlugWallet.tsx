@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react"
+import React, { useRef } from "react"
 import '../assets/plugWallet.css';
+import { Mint } from './Mint';
 
 export function PlugWallet({onConnect, onFail}) {
 
@@ -91,11 +92,10 @@ export function PlugWallet({onConnect, onFail}) {
               <p ref={balanceModal} style={{color: 'rgba(0,255,0,0.5'}}>{currentBalance} {tokenName}</p>
             </div>
           </div>
-          {/* <div className="menuDivider" /> */}
-          {/* <div className='menuBody'>
-            <p>Settings</p>
-            <p>Check Status</p>
-          </div> */}
+          <div className="menuDivider" />
+          <div className='menuBody'>
+            <Mint />
+          </div>
         </div>
       </div>
     </>
