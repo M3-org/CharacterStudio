@@ -12,8 +12,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'dist/src/index.js'),
-      name: 'charactercreator',
-      fileName: (format) => `charactercreator.${format}.js`
+      name: 'avatar-creator',
+      fileName: (format) => `avatar-creator.${format}.js`
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

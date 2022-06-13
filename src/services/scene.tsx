@@ -220,7 +220,7 @@ async function download(
 
   // Specifying the name of the downloadable model
   const downloadFileName = `${
-    fileName && fileName !== "" ? fileName : "CharacterCreatorModel"
+    fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`;
 
   if (format && format === "gltf/glb") {
