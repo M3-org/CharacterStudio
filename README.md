@@ -10,7 +10,7 @@ Want to contribute? Please check out the [issues](https://github.com/AtlasFounda
 
 # Quick Start (library)
 ```bash
-npm install avatar-maker
+npm install avatarcreator
 ```
 
 # Quick Start
