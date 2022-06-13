@@ -28,20 +28,6 @@ yarn install
 yarn run dev
 ```
 
-# Web3 Integration
-AvatarCreator offers a couple of web3 options (disabled by default).
-
-You can enable Ethereum + Pinata or Internet Computer support by enabling the flags in .env
-
-For Internet Computer support you will need to install dfx and run "dfx deploy" after installing node_modules but before running npm run dev. You can get more information on setting dfx up [here](https://internetcomputer.org/docs/current/developer-docs/ic-overview)
-
-The TL;DR is
-```
-sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
-npm install
-dfx deploy
-```
-
 ### Attributions
 Originally based on the [three.js editor](https://threejs.org/editor/)
 
