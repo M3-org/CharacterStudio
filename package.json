@@ -1,11 +1,11 @@
 {
-  "name": "avatar-creator",
-  "version": "0.0.2",
+  "name": "avatarcreator",
+  "version": "0.0.1",
   "files": [
     "dist"
   ],
-  "main": "./dist/avatar-creator.umd.js",
-  "module": "./dist/avatar-creator.es.js",
+  "main": "./dist/avatarcreator.umd.js",
+  "module": "./dist/avatarcreator.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
