@@ -6,6 +6,7 @@ import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
+// import VRMExporter from "../library/VRM/vrm-exporter";
 export const sceneService = {
   loadModel,
   updatePose,
@@ -258,5 +259,31 @@ async function download(
     exporter.parse(model, (vrm : ArrayBuffer) => {
       saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
     });
+
+    // let vrmModel;
+    // model.scene.userData.gltfExtensions = { VRM: {} };
+    // await VRM.from(model).then((vrm) => {
+    //   model.scene = vrm.scene;
+    // });
+    // vrmModel = model;
+
+    // const options = {
+    //   trs: false,
+    //   onlyVisible: true,
+    //   truncateDrawRange: true,
+    //   binary: true,
+    //   forcePowerOfTwoTextures: false,
+    //   maxTextureSize: 1024 || Infinity,
+    // };
+
+    // exporter.parse(
+    //   model.scene,
+    //   vrmModel.vrmExt,
+    //   model,
+    //   async function (result) {
+    //     //  saveArrayBuffer(result, `${downloadFileName}.vrm`);
+    //   },
+    //   options
+    // );
   }
 }

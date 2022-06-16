@@ -56,26 +56,6 @@ type VRMMaterial = MeshBasicMaterial | MeshStandardMaterial | MToonMaterial;
 
 export default class VRMExporter {
   parse(vrm: VRM, onDone: (buffer: ArrayBuffer) => void): void {
-    const [outputData, bufferViews] = this.convertOutputData(vrm);
-
-    const jsonChunk = new GlbChunk(
-      parseString2Binary(JSON.stringify(outputData, undefined, 2)),
-      CHUNK_TYPE_JSON
-    );
-    const binaryChunk = new GlbChunk(
-      concatBinary(bufferViews.map((buf) => buf.buffer)),
-      CHUNK_TYPE_BIN
-    );
-    const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
-    const header = concatBinary([
-      parseString2Binary("glTF"),
-      parseNumber2Binary(GLTF_VERSION, 4),
-      parseNumber2Binary(fileData.byteLength + HEADER_SIZE, 4),
-    ]);
-    onDone(concatBinary([header, fileData]));
-  }
-
-  private convertOutputData(vrm: VRM): [OutputVRM, Array<BufferView>] {
     const scene = vrm.scene;
     const humanoid = vrm.humanoid;
     const vrmMeta = vrm.meta;
@@ -243,40 +223,41 @@ export default class VRMExporter {
 
       // TODO: とりあえずundefiendは例外スロー
       if (!mesh.morphTargetDictionary) {
-       console.error(mesh.name + " morphTargetDictionary is null");
-      }else{
-        const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
-        if (mesh.geometry.userData.targetNames) {
-          mesh.geometry.userData.targetNames.forEach((targetName) => {
-            const morphIndex = morphIndexPair.filter(
-              (pair) => pair[0] === targetName
-            )[0][1];
-            const morphAttribute = mesh.geometry.morphAttributes;
-            meshDatas.push(
-              new MeshData(
-                morphAttribute.position[morphIndex],
-                WEBGL_CONST.FLOAT,
-                MeshDataType.BLEND_POSITION,
-                AccessorsType.VEC3,
-                mesh.name,
-                BLENDSHAPE_PREFIX + targetName
-              )
-            );
-            meshDatas.push(
-              new MeshData(
-                morphAttribute.normal[morphIndex],
-                WEBGL_CONST.FLOAT,
-                MeshDataType.BLEND_NORMAL,
-                AccessorsType.VEC3,
-                mesh.name,
-                BLENDSHAPE_PREFIX + targetName
-              )
-            );
-          });
-        }
+        mesh.morphTargetDictionary = {};
+        mesh.morphTargetInfluences = [];
+        mesh.geometry.morphAttributes = {};
+        mesh.updateMorphTargets();
+        // throw new Error(mesh.name + " morphTargetDictionary is null");
       }
-
-
+      const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
+      if (mesh.geometry.userData.targetNames) {
+        mesh.geometry.userData.targetNames.forEach((targetName, index) => {
+          const morphIndex = morphIndexPair.filter(
+            (pair) => pair[0] === index.toString()
+          )[0][1];
+          const morphAttribute = mesh.geometry.morphAttributes;
+          meshDatas.push(
+            new MeshData(
+              morphAttribute.position[morphIndex],
+              WEBGL_CONST.FLOAT,
+              MeshDataType.BLEND_POSITION,
+              AccessorsType.VEC3,
+              mesh.name,
+              BLENDSHAPE_PREFIX + targetName
+            )
+          );
+          meshDatas.push(
+            new MeshData(
+              morphAttribute.normal[morphIndex],
+              WEBGL_CONST.FLOAT,
+              MeshDataType.BLEND_NORMAL,
+              AccessorsType.VEC3,
+              mesh.name,
+              BLENDSHAPE_PREFIX + targetName
+            )
+          );
+        });
+      }
     });
 
     // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
@@ -333,6 +314,8 @@ export default class VRMExporter {
     });
 
     // secondary
+    console.log('aaaaaaaaaaaaaaaa', lookAt.firstPerson);
+
     const secondaryRootNode = scene.children.filter(
       (child) => child.name === "secondary"
     )[0];
@@ -453,9 +436,7 @@ export default class VRMExporter {
         mesh: outputMeshes
           .map((mesh) => mesh.name)
           .indexOf(
-            annotation.mesh.children.length > 0
-              ? annotation.mesh.children[0].name
-              : annotation.mesh.name
+               annotation.primitives[0].name
           ), // TODO: とりあえず対応
       })),
     };
@@ -574,6 +555,7 @@ export default class VRMExporter {
       extensionsUsed: [
         "KHR_materials_unlit", // TODO:
         "KHR_texture_transform", // TODO:
+        "VRMC_materials_mtoon",
         "VRM",
       ],
       images: outputImages,
@@ -587,7 +569,21 @@ export default class VRMExporter {
       textures: outputTextures,
     };
 
-    return [outputData, bufferViews];
+    const jsonChunk = new GlbChunk(
+      parseString2Binary(JSON.stringify(outputData, undefined, 2)),
+      "JSON"
+    );
+    const binaryChunk = new GlbChunk(
+      concatBinary(bufferViews.map((buf) => buf.buffer)),
+      "BIN\x00"
+    );
+    const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
+    const header = concatBinary([
+      parseString2Binary("glTF"),
+      parseNumber2Binary(2, 4),
+      parseNumber2Binary(fileData.byteLength + 12, 4),
+    ]);
+    onDone(concatBinary([header, fileData]));
   }
 }
 
@@ -1017,7 +1013,7 @@ const toOutputTextures = (
   outputImages: Array<OutputImage>
 ): Array<OutputTexture> => {
   return outputImages.map((_, index) => ({
-    sampler: index, // TODO: 全パターンでindexなのか不明
+    sampler: 0, // TODO: 全パターンでindexなのか不明
     source: index, // TODO: 全パターンでindexなのか不明
   }));
 };
@@ -1027,6 +1023,7 @@ const toOutputScenes = (
   outputNodes: Array<OutputNode>
 ): Array<OutputScene> => {
   const nodeNames = outputNodes.map((node) => node.name);
+  console.log(nodeNames)
   return [
     {
       nodes: scene.children
@@ -1034,7 +1031,8 @@ const toOutputScenes = (
           (child) =>
             child.type === VRMObjectType.Object3D ||
             child.type === VRMObjectType.SkinnedMesh ||
-            child.type === VRMObjectType.Group
+            child.type === VRMObjectType.Group ||
+            child.type === VRMObjectType.Bone
         )
         .map((x) => nodeNames.indexOf(x.name)),
     },
