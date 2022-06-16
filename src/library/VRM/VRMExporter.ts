@@ -314,8 +314,6 @@ export default class VRMExporter {
     });
 
     // secondary
-    console.log('aaaaaaaaaaaaaaaa', lookAt.firstPerson);
-
     const secondaryRootNode = scene.children.filter(
       (child) => child.name === "secondary"
     )[0];
@@ -819,10 +817,10 @@ const toOutputMeshes = (
         ? object.children.map((child) => child as VRMSkinnedMesh)
         : [object as VRMSkinnedMesh];
     return {
-      extras: {
-        targetNames: mesh.geometry.userData.targetNames,
-      },
-      name: mesh.name, // TODO: なんか違う名前になっている
+      // extras: {
+      //   targetNames: mesh.geometry.userData.targetNames,
+      // },
+      name: object.name, // TODO: なんか違う名前になっている
       primitives: subMeshes.map((subMesh) => {
         const meshTypes = meshDatas.map((data) =>
           data.meshName === mesh.name ? data.type : null
@@ -1023,7 +1021,6 @@ const toOutputScenes = (
   outputNodes: Array<OutputNode>
 ): Array<OutputScene> => {
   const nodeNames = outputNodes.map((node) => node.name);
-  console.log(nodeNames)
   return [
     {
       nodes: scene.children

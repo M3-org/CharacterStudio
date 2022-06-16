@@ -82,9 +82,9 @@ export interface OutputBaseTexture {
 }
 
 export interface OutputMesh {
-  extras: {
-    targetNames: Array<string>;
-  };
+  // extras: {
+  //   targetNames: Array<string>;
+  // };
   name: string;
   primitives: Array<OutputPrimitive>;
 }
