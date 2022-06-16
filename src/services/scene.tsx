@@ -5,7 +5,8 @@ import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
-
+import VRMExporter from "../library/VRM/VRMExporter";
+// import VRMExporter from "../library/VRM/vrm-exporter";
 export const sceneService = {
   loadModel,
   updatePose,
@@ -217,6 +218,9 @@ async function download(
   function saveArrayBuffer(buffer, filename) {
     save(new Blob([buffer], { type: "application/octet-stream" }), filename);
   }
+  function saveArrayBufferVRM(vrm, filename) {
+    save(new Blob([vrm], { type: "octet/stream" }), filename);
+  }
 
   // Specifying the name of the downloadable model
   const downloadFileName = `${
@@ -250,12 +254,9 @@ async function download(
     const exporter = new OBJExporter();
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
-    // model.userData = model.userData ?? {}
-    // model.userData.gltfExtensions = { VRM: {} };
-    console.log("VRM ModelAAAAAA: ", model);
-    VRM.from(model).then((vrm) => {
-      console.log("VRM Model: ", vrm);
-      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+    const exporter = new VRMExporter();
+    exporter.parse(model, (vrm : ArrayBuffer) => {
+      saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
     });
   }
 }
