@@ -14,18 +14,20 @@ export default function Scene(props: any) {
     mintPopup,
     category,
     setCategory,
-    hair,
-    setHair,
-    face,
-    setFace,
-    tops,
-    setTops,
-    arms,
-    setArms,
-    shoes,
-    setShoes,
-    legs,
-    setLegs,
+    avatar,
+    setAvatar,
+    // hair,
+    // setHair,
+    // face,
+    // setFace,
+    // tops,
+    // setTops,
+    // arms,
+    // setArms,
+    // shoes,
+    // setShoes,
+    // legs,
+    // setLegs,
     setTemplate,
     template,
     setTemplateInfo,
@@ -106,18 +108,20 @@ export default function Scene(props: any) {
           templates={templates}
           category={category}
           scene={scene}
-          hair={hair}
-          setHair={setHair}
-          face={face}
-          setFace={setFace}
-          tops={tops}
-          setTops={setTops}
-          arms={arms}
-          setArms={setArms}
-          shoes={shoes}
-          setShoes={setShoes}
-          legs={legs}
-          setLegs={setLegs}
+          avatar = {avatar}
+          setAvatar={setAvatar}
+          // hair={hair}
+          // setHair={setHair}
+          // face={face}
+          // setFace={setFace}
+          // tops={tops}
+          // setTops={setTops}
+          // arms={arms}
+          // setArms={setArms}
+          // shoes={shoes}
+          // setShoes={setShoes}
+          // legs={legs}
+          // setLegs={setLegs}
           setTemplate={setTemplate}
           template={template}
           setTemplateInfo={setTemplateInfo}

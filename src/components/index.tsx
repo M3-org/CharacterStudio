@@ -6,6 +6,20 @@ import DownloadCharacter from "./Download"
 import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import Scene from "./Scene"
 
+
+
+
+interface Avatar{
+  hair:{},
+  face:{},
+  tops:{},
+  arms:{},
+  shoes:{},
+  legs:{}
+}
+
+
+
 export default function CharacterEditor(props: any) {
   // State Hooks For Character Editor ( Base ) //
   // ---------- //
@@ -35,13 +49,14 @@ export default function CharacterEditor(props: any) {
   const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
   const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
-  const [hair, setHair] = useState<any>()
-  const [face, setFace] = useState<any>()
-  const [tops, setTops] = useState<any>()
-  const [arms, setArms] = useState<any>()
-  const [shoes, setShoes] = useState<any>()
-  const [legs, setLegs] = useState<any>()
-
+  const [ avatar,setAvatar] = useState<Avatar>({
+    hair:{},
+    face:{},
+    tops:{},
+    arms:{},
+    shoes:{},
+    legs:{}
+  })
   const [loadingModel, setLoadingModel] = useState<boolean>(false)
 
   const defaultTheme = createTheme({
@@ -102,18 +117,20 @@ export default function CharacterEditor(props: any) {
               mintPopup={mintPopup}
               category={category}
               setCategory={setCategory}
-              hair={hair}
-              setHair={setHair}
-              face={face}
-              setFace={setFace}
-              tops={tops}
-              setTops={setTops}
-              arms={arms}
-              setArms={setArms}
-              shoes={shoes}
-              setShoes={setShoes}
-              legs={legs}
-              setLegs={setLegs}
+              avatar = {avatar}
+              setAvatar={setAvatar}
+              // hair={hair}
+              // setHair={setHair}
+              // face={face}
+              // setFace={setFace}
+              // tops={tops}
+              // setTops={setTops}
+              // arms={arms}
+              // setArms={setArms}
+              // shoes={shoes}
+              // setShoes={setShoes}
+              // legs={legs}
+              // setLegs={setLegs}
               setTemplate={setTemplate}
               template={template}
               setTemplateInfo={setTemplateInfo}
