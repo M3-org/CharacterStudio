@@ -1,10 +1,10 @@
-import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
-import { Avatar, Slider, Stack, Typography } from "@mui/material";
-import Divider from "@mui/material/Divider";
-import { VRM, VRMSchema } from "@pixiv/three-vrm";
-import React, { useState } from "react";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { apiService, sceneService } from "../services";
+import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"
+import { Avatar, Slider, Stack, Typography } from "@mui/material"
+import Divider from "@mui/material/Divider"
+import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import React, { useState } from "react"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { apiService, sceneService } from "../services"
 
 export default function Selector(props) {
   const {
@@ -26,25 +26,24 @@ export default function Selector(props) {
     setTemplate,
     template,
     setTemplateInfo,
-    templateInfo
-  }: any = props;
-  const [selectValue, setSelectValue] = useState("0");
+    templateInfo,
+  }: any = props
+  const [selectValue, setSelectValue] = useState("0")
 
-  const [collection, setCollection] = useState([]);
-  const [traitName, setTraitName] = useState("");
-  
+  const [collection, setCollection] = useState([])
+  const [traitName, setTraitName] = useState("")
 
-  const [loadingTrait, setLoadingTrait] = useState(null);
-  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false);
+  const [loadingTrait, setLoadingTrait] = useState(null)
+  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
 
-  const [noTrait, setNoTrait] = useState(true);
-  const [loaded, setLoaded] = useState(false);
+  const [noTrait, setNoTrait] = useState(true)
+  const [loaded, setLoaded] = useState(false)
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
     for (const bodyTarget of templateInfo.bodyTargets) {
-      sceneService.setMaterialColor(scene, value, bodyTarget);
+      sceneService.setMaterialColor(scene, value, bodyTarget)
     }
-  };
+  }
 
   const selectorContainer = {
     position: "absolute" as "absolute",
@@ -67,7 +66,7 @@ export default function Selector(props) {
     position: "absolute" as "absolute",
     color: "#efefef",
     left: "0",
-    top: "0"
+    top: "0",
   }
 
   const selectorButton = {
@@ -77,7 +76,6 @@ export default function Selector(props) {
     minWidth: "60px",
     cursor: "pointer" as "pointer",
   }
-
 
   // loading-trait-overlay
   const loadingTraitOverlayStyle = {
@@ -90,107 +88,104 @@ export default function Selector(props) {
   }
 
   React.useEffect(() => {
-    if (!scene) return;
+    if (!scene) return
     if (category) {
       if (category === "body") {
         for (const template of templates && templates) {
-          setCollection(templates);
-          setTraitName('body');
+          setCollection(templates)
+          setTraitName("body")
         }
       }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
-          setCollection(traits?.collection);
-          setTraitName(traits?.trait);
+          setCollection(traits?.collection)
+          setTraitName(traits?.trait)
         }
-      });
-
+      })
     }
-  }, [category, scene]);
-
+  }, [category, scene])
 
   React.useEffect(() => {
-    if (!scene) return;
+    if (!scene) return
     async function _get() {
-      const categories = [
-        'hair',
-        'tops',
-        'legs',
-        'shoes'
-      ]
+      const categories = ["hair", "tops", "legs", "shoes"]
       if (!loaded) {
-        setTempInfo('2');
+        setTempInfo("2")
         if (scene && templateInfo) {
           for (const category of categories) {
             apiService.fetchTraitsByCategory(category).then((traits) => {
               if (traits) {
                 selectTrait(traits?.collection[0])
               }
-            });
+            })
           }
         }
       }
     }
-    _get();
-  }, [loaded, scene, templateInfo ? Object.keys(templateInfo).length : templateInfo]);
+    _get()
+  }, [
+    loaded,
+    scene,
+    templateInfo ? Object.keys(templateInfo).length : templateInfo,
+  ])
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
-      setTemplateInfo(res);
-    });
+      setTemplateInfo(res)
+    })
   }
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
-      setTemplate(trait?.id);
+      setTemplate(trait?.id)
     }
 
     if (scene) {
       if (trait === "0") {
-        setNoTrait(true);
+        setNoTrait(true)
         if (traitName === "hair") {
           if (hair) {
-            scene.remove(hair.model);
+            scene.remove(hair.model)
           }
         }
         if (traitName === "face") {
           if (face) {
-            scene.remove(face.model);
+            scene.remove(face.model)
           }
         }
         if (traitName === "tops") {
           if (tops) {
-            scene.remove(tops.model);
+            scene.remove(tops.model)
           }
         }
         if (traitName === "arms") {
           if (arms) {
-            scene.remove(arms.model);
+            scene.remove(arms.model)
           }
         }
         if (traitName === "shoes") {
           if (shoes) {
-            scene.remove(shoes.model);
+            scene.remove(shoes.model)
           }
         }
         if (traitName === "legs") {
           if (legs) {
-            scene.remove(legs.model);
+            scene.remove(legs.model)
           }
         }
       } else {
         if (trait.bodyTargets) {
-          setTemplate(trait?.id);
+          setTemplate(trait?.id)
         } else {
-          setLoadingTraitOverlay(true);
-          setNoTrait(false);
-          const loader = new GLTFLoader();
+          setLoadingTraitOverlay(true)
+          setNoTrait(false)
+          const loader = new GLTFLoader()
           loader
             .loadAsync(
               `${templateInfo.traitsDirectory}${trait?.directory}`,
               (e) => {
                 // console.log((e.loaded * 100) / e.total);
-                setLoadingTrait(Math.round((e.loaded * 100) / e.total));
-              }
+                setLoadingTrait(Math.round((e.loaded * 100) / e.total))
+              },
             )
             .then((gltf) => {
               VRM.from(gltf).then(async (vrm) => {
@@ -201,96 +196,92 @@ export default function Selector(props) {
                 await new Promise<void>((resolve) => {
                   // if scene, resolve immediately
                   if (scene && scene.add) {
-                    resolve();
+                    resolve()
                   } else {
                     // if scene is null, wait for it to be set
                     const interval = setInterval(() => {
                       if (scene && scene.add) {
-                        clearInterval(interval);
-                        resolve();
+                        clearInterval(interval)
+                        resolve()
                       }
-                    }, 100);
+                    }, 100)
                   }
-                });
+                })
 
-
-
-
-
-
-                scene.add(vrm.scene);
-                vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Hips).rotation.y = Math.PI;
-                vrm.scene.frustumCulled = false;
+                scene.add(vrm.scene)
+                vrm.humanoid.getBoneNode(
+                  VRMSchema.HumanoidBoneName.Hips,
+                ).rotation.y = Math.PI
+                vrm.scene.frustumCulled = false
                 // console.log(trait);
                 if (traitName === "hair") {
-                  console.log("HAIR");
+                  console.log("HAIR")
                   setHair({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (hair) {
-                    scene.remove(hair.model);
+                    scene.remove(hair.model)
                   }
                 }
                 if (traitName === "face") {
                   setFace({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (face) {
-                    scene.remove(face.model);
+                    scene.remove(face.model)
                   }
                 }
                 if (traitName === "tops") {
                   setTops({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (tops) {
-                    scene.remove(tops.model);
+                    scene.remove(tops.model)
                   }
                 }
                 if (traitName === "arms") {
                   setArms({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (arms) {
-                    scene.remove(arms.model);
+                    scene.remove(arms.model)
                   }
                 }
                 if (traitName === "shoes") {
                   setShoes({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (shoes) {
-                    scene.remove(shoes.model);
+                    scene.remove(shoes.model)
                   }
                 }
                 if (traitName === "legs") {
                   setLegs({
                     traitInfo: trait,
                     model: vrm.scene,
-                  });
+                  })
                   if (legs) {
-                    scene.remove(legs.model);
+                    scene.remove(legs.model)
                   }
                 }
-                setLoadingTrait(null);
-                setLoadingTraitOverlay(false);
-
-              });
-            });
+                setLoadingTrait(null)
+                setLoadingTraitOverlay(false)
+              })
+            })
         }
       }
     }
-    setSelectValue(trait?.id);
-  };
+    setSelectValue(trait?.id)
+  }
 
   return (
     <div className="selector-container" style={selectorContainer}>
-      {templateInfo?.traitsDirectory &&
+      {templateInfo?.traitsDirectory && (
         <Stack
           direction="row"
           spacing={2}
@@ -312,8 +303,7 @@ export default function Selector(props) {
             <React.Fragment>
               <div
                 style={selectorButton}
-                className={`selector-button ${noTrait ? "active" : ""
-                  }`}
+                className={`selector-button ${noTrait ? "active" : ""}`}
                 onClick={() => selectTrait("0")}
               >
                 <Avatar className="icon">
@@ -323,29 +313,38 @@ export default function Selector(props) {
               {collection &&
                 collection.map((item: any, index) => {
                   return (
-                    <div key={index}
+                    <div
+                      key={index}
                       style={selectorButton}
-                      className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                        }`}
+                      className={`selector-button coll-${traitName} ${
+                        selectValue === item?.id ? "active" : ""
+                      }`}
                       onClick={() => {
-                        if (category === 'body') {
-                          setLoaded(true);
-                          setTempInfo(item.id);
+                        if (category === "body") {
+                          setLoaded(true)
+                          setTempInfo(item.id)
                         }
-                        selectTrait(item);
+                        selectTrait(item)
                       }}
                     >
                       <Avatar
                         className="icon"
-                        src={item.thubnailsDirectory ? item.thumbnail : `${templateInfo?.thubnailsDirectory}${item?.thumbnail}`}
+                        src={
+                          item.thubnailsDirectory
+                            ? item.thumbnail
+                            : `${templateInfo?.thubnailsDirectory}${item?.thumbnail}`
+                        }
                       />
                       {selectValue === item?.id && loadingTrait > 0 && (
-                        <Typography className="loading-trait" style={loadingTraitStyle}>
+                        <Typography
+                          className="loading-trait"
+                          style={loadingTraitStyle}
+                        >
                           {loadingTrait}%
                         </Typography>
                       )}
                     </div>
-                  );
+                  )
                 })}
               <div style={{ visibility: "hidden" }}>
                 <Avatar className="icon" />
@@ -353,8 +352,17 @@ export default function Selector(props) {
             </React.Fragment>
           )}
         </Stack>
-      }
-      <div className={loadingTraitOverlay ? "loading-trait-overlay show" : "loading-trait-overlay"} style={loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }} />
+      )}
+      <div
+        className={
+          loadingTraitOverlay
+            ? "loading-trait-overlay show"
+            : "loading-trait-overlay"
+        }
+        style={
+          loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
+        }
+      />
     </div>
-  );
+  )
 }
