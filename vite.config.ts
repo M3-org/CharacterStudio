@@ -10,6 +10,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react(), reactRefresh(), dts({insertTypesEntry: true})],
   build: {
+    assetsInlineLimit: 65536,
     lib: {
       entry: path.resolve(__dirname, 'dist/src/index.js'),
       name: 'avatarcreator',
@@ -27,5 +28,6 @@ export default defineConfig({
         }
       }
     }
-  }
+  },
+  assetsInclude: ['**/*.png']
 })
