@@ -6,7 +6,7 @@ import {sceneService} from "./services";
 
 import { createTheme } from "@mui/material";
 
-export const defaultTheme = createTheme({
+const defaultTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
@@ -15,7 +15,7 @@ export const defaultTheme = createTheme({
   },
 });
 
-export default {
+export {
     CharacterEditor,
     sceneService,
     defaultTheme

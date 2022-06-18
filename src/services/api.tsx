@@ -1,5 +1,3 @@
-import axios from "axios";
-
 import bones from "../library/bones.json";
 import templates from "../data/base_models.json";
 import modelTraits from '../data/model_traits.json';
@@ -10,8 +8,6 @@ export const apiService = {
   fetchTemplate,
   fetchTraitsByCategory
 };
-
-const BASE_URI_PROD = "http://34.214.42.55:8081";
 
 async function fetchTraitsByCategory(name: any) {
   const filtered = modelTraits.filter((trait: any) => trait.trait === name);
