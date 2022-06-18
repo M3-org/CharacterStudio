@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import CharacterEditor from "./components";
 import { createTheme } from "@mui/material";
-import defaultTemplates from "./data/base_models.json";
+import defaultTemplates from "./data/base_models";
 
 const defaultTheme = createTheme({
   palette: {

@@ -1,4 +1,4 @@
-[   
+export default [   
     {
         "name": "Hip",
         "bone": "Torso_Hip"

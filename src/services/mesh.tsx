@@ -1,9 +1,6 @@
-import axios from "axios";
-
 export const meshService = {
-  initialLoad,
   setMeshType,
-  setPose,
+  // setPose,
   setStand,
   updateMesh,
   getMeshType,
@@ -11,29 +8,22 @@ export const meshService = {
   getBoneRotation,
 };
 
-async function initialLoad(bones) {
-  await axios.get("models/poses/default.json").then((res) => {
-    (window as any).loadDefaultMeshes(bones, res.data);
-    return res.data;
-  });
-}
-
 async function setMeshType(meshType: any) {
   if (meshType) {
     (window as any).selectedMesh(meshType);
   }
 }
 
-async function setPose(selection: any, bones: any) {
-  if (selection) {
-    let poseData: any;
-    await axios.get("models/poses/" + selection.file + ".json").then((res) => {
-      poseData = res.data;
-      (window as any).loadPose(poseData, bones);
-      return poseData;
-    });
-  }
-}
+// async function setPose(selection: any, bones: any) {
+//   if (selection) {
+//     let poseData: any;
+//     await axios.get("models/poses/" + selection.file + ".json").then((res) => {
+//       poseData = res.data;
+//       (window as any).loadPose(poseData, bones);
+//       return poseData;
+//     });
+//   }
+// }
 
 async function setStand(selection: any) {
   if (selection) {

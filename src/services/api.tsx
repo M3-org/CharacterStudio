@@ -1,6 +1,6 @@
-import bones from "../library/bones.json";
-import templates from "../data/base_models.json";
-import modelTraits from '../data/model_traits.json';
+import bones from "../library/bones";
+import templates from "../data/base_models";
+import modelTraits from '../data/model_traits';
 
 export const apiService = {
   fetchBones,

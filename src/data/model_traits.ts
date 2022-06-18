@@ -1,4 +1,4 @@
-[
+export default [
     {
         "trait": "skin",
         "type": "color",

@@ -83,7 +83,7 @@ export default function Selector(props) {
     if (!scene) return
     if (category) {
       if (category === "body") {
-        for (const template of templates && templates) {
+        for (const template of templates) {
           setCollection(templates)
           setTraitName("body")
         }
