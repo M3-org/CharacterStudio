@@ -1,6 +1,6 @@
 {
   "name": "avatarcreator",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "files": [
     "dist",
     "src"
@@ -21,7 +21,6 @@
     "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.6.3",
-    "@mui/styles": "^5.6.2",
     "@pixiv/three-vrm": "^0.6.7",
     "@react-three/drei": "^7.12.5",
     "@react-three/fiber": "^7.0.7",

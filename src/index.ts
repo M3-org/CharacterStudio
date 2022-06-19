@@ -1,6 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-
 import CharacterEditor from "./components";
 import {sceneService} from "./services";
 

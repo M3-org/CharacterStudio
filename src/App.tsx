@@ -1,8 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import CharacterEditor from "./components";
 import { createTheme } from "@mui/material";
 import defaultTemplates from "./data/base_models";
+
+import React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 
 const defaultTheme = createTheme({
   palette: {
@@ -13,10 +14,12 @@ const defaultTheme = createTheme({
   },
 });
 
-function ExampleApp() {
+function App() {
   return (
     <CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
   );
 }
-ReactDOM.render(<ExampleApp />, document.getElementById('root'));
 
+const container = document.getElementById('root');
+const root = ReactDOMClient.createRoot(container);
+root.render(<App />);

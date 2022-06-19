@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 65536,
     lib: {
-      entry: path.resolve(__dirname, 'dist/src/index.js'),
+      entry: path.resolve('./src/index.ts'),
       name: 'avatarcreator',
       fileName: (format) => `avatarcreator.${format}.js`
     },
