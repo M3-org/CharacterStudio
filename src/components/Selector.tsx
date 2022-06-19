@@ -104,13 +104,13 @@ export default function Selector(props) {
       if (!loaded) {
         setTempInfo("2")
         if (scene && templateInfo) {
-          for (const category of categories) {
-            apiService.fetchTraitsByCategory(category).then((traits) => {
-              if (traits) {
-                selectTrait(traits?.collection[0])
-              }
-            })
-          }
+          // for (const category of categories) {
+          //   apiService.fetchTraitsByCategory(category).then((traits) => {
+          //     if (traits) {
+          //       selectTrait(traits?.collection[0])
+          //     }
+          //   })
+          // }
         }
       }
     }

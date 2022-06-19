@@ -3,7 +3,6 @@ node_modules
 dist
 dist-ssr
 *.local
-templates/baller
 .env.local
 .dfx
 yarn.lock

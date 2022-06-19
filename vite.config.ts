@@ -1,5 +1,4 @@
 import { defineConfig } from "vite"
-import reactRefresh from "@vitejs/plugin-react-refresh"
 import path from "path"
 import dts from 'vite-plugin-dts';
 import react from '@vitejs/plugin-react';
@@ -8,7 +7,7 @@ import react from '@vitejs/plugin-react';
 // See guide on how to configure Vite at:
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), reactRefresh(), dts({insertTypesEntry: true})],
+  plugins: [react(), dts({insertTypesEntry: true})],
   build: {
     assetsInlineLimit: 65536,
     lib: {
@@ -19,7 +18,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['react'],
+      external: ['react', 'react-dom'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
@@ -28,6 +27,5 @@ export default defineConfig({
         }
       }
     }
-  },
-  assetsInclude: ['**/*.png']
+  }
 })

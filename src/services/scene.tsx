@@ -33,7 +33,7 @@ async function getModelFromScene(scene: any, format: any) {
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     }
-    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, options))
+    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model"), options))
     return new Blob([glb], { type: 'model/gltf-binary' })
   }
 }
@@ -235,7 +235,7 @@ async function download(
       truncateDrawRange: true,
       binary: true,
       forcePowerOfTwoTextures: false,
-      maxTextureSize: 1024 || Infinity,
+      maxTextureSize: 1024 || Infinity
     };
     exporter.parse(
       model.scene,
@@ -248,6 +248,7 @@ async function download(
           saveString(output, `${downloadFileName}.gltf`);
         }
       },
+      (error) => { console.error("Error parsing")},
       options
     );
   } else if (format && format === "obj") {

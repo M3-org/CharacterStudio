@@ -1,14 +1,16 @@
+import React from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from "@mui/icons-material/Download";
 import { Modal } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei/core/OrbitControls";
+import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
-import React from "react";
 import { sceneService } from "../services";
 import { TemplateModel } from "./Models";
+
 
 const style = {
   position: 'absolute' as 'absolute',
