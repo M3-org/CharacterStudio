@@ -1,10 +1,11 @@
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"
-import { Avatar, Slider, Stack, Typography } from "@mui/material"
+import { Avatar, Stack, Typography } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
+import Skin from "./Skin"
 
 export default function Selector(props) {
   const {
@@ -30,6 +31,8 @@ export default function Selector(props) {
   const [loaded, setLoaded] = useState(false)
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
+    console.log(value);
+    
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
     }
@@ -300,14 +303,10 @@ export default function Selector(props) {
           divider={<Divider orientation="vertical" flexItem />}
         >
           {category === "color" ? (
-            <Slider
-              defaultValue={255}
-              valueLabelDisplay="off"
-              step={1}
-              max={255}
-              min={0}
-              onChange={handleChangeSkin}
-              sx={{ width: "50%", margin: "30px 0" }}
+           
+            <Skin
+            scene={scene}
+            templateInfo={templateInfo}
             />
           ) : (
             <React.Fragment>
