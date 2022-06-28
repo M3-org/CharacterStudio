@@ -55,8 +55,8 @@ const HEADER_SIZE = 12;
 type VRMMaterial = MeshBasicMaterial | MeshStandardMaterial | MToonMaterial;
 
 export default class VRMExporter {
-  parse(vrm: VRM, onDone: (buffer: ArrayBuffer) => void): void {
-    const scene = vrm.scene;
+  parse(vrm: VRM, avatar : any, onDone: (buffer: ArrayBuffer) => void): void {
+    const scene = avatar;
     const humanoid = vrm.humanoid;
     const vrmMeta = vrm.meta;
     const materials = vrm.materials;

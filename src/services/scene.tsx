@@ -239,7 +239,6 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-
     const avatar = await combine({ avatar: model.scene });
 
     exporter.parse(
@@ -270,17 +269,21 @@ async function download(
       if(child.name == "secondary") secondary = child;
     })
    
-    // var avatarGroup = new THREE.Group();
-    // const clone = cloneIntoAvatar(model.scene);
-
     const avatar = await combine({ avatar: model.scene });
-
-    exporter.parse(model, (vrm : ArrayBuffer) => {
-      saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
-    });
-  }
+    
+    var scene = model.scene;
+    var clonedSecondary;
+    scene.traverse((child) =>{
+        if(child.name == 'secondary'){
+          clonedSecondary = child.clone();
+        }
+      })
+      avatar.add(clonedSecondary);
+      exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
+        saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
+      });
+    }
 }
-
 
 function addNonDuplicateAnimationClips(clone, scene) {
   const clipsToAdd = [];
@@ -299,47 +302,14 @@ function addNonDuplicateAnimationClips(clone, scene) {
   }
 }
 
-function cloneIntoAvatar(avatarGroup) {
-  const clonedScene = new THREE.Group();
-  clonedScene.name = "Scene";
-
-  // Combine the root "Scene" nodes
-  const scenes = avatarGroup.children
-    .map((o) => {
-      return findChildByName(o, "Scene");
-    })
-    .filter((o) => !!o);
-    console.log(scenes)
-  for (const scene of scenes) {
-    addNonDuplicateAnimationClips(clonedScene, scene);
+function ensureHubsComponents(userData) {
+  if (!userData.gltfExtensions) {
+    userData.gltfExtensions = {};
   }
-  // Combine the "AvatarRoot" nodes
-  const avatarRoots = avatarGroup.children
-    .map((o) => {
-      return findChildByName(o, "cc_BaseRoot");
-    })
-    .filter((o) => !!o);
-
-  const clonedAvatarRoot = avatarRoots[0].clone(false);
-  for (const avatarRoot of avatarRoots) {
-    clonedAvatarRoot.userData = combineHubsComponents(clonedAvatarRoot.userData, avatarRoot.userData);
+  if (!userData.gltfExtensions.MOZ_hubs_components) {
+    userData.gltfExtensions.MOZ_hubs_components = {};
   }
-
-  // Clone skinned meshes, bind them to a new skeleton
-  const clonedSkinnedMeshes = findChildrenByType(avatarGroup, "SkinnedMesh").map((o) => {
-    return o.clone(false);
-  });
-  const clonedSkeleton = cloneSkeleton(clonedSkinnedMeshes[0]);
-  for (const skinnedMesh of clonedSkinnedMeshes) {
-    skinnedMesh.bind(clonedSkeleton);
-  }
-  // Combine clones
-  clonedScene.add(clonedAvatarRoot);
-  clonedAvatarRoot.add(clonedSkeleton.bones[0]); // Assume bones[0] is root bone
-  for (const skinnedMesh of clonedSkinnedMeshes) {
-    clonedAvatarRoot.add(skinnedMesh);
-  }
-  return clonedScene;
+  return userData;
 }
 
 export function combineHubsComponents(a, b) {
@@ -355,17 +325,6 @@ export function combineHubsComponents(a, b) {
   return a;
 }
 
-function ensureHubsComponents(userData) {
-  if (!userData.gltfExtensions) {
-    userData.gltfExtensions = {};
-  }
-  if (!userData.gltfExtensions.MOZ_hubs_components) {
-    userData.gltfExtensions.MOZ_hubs_components = {};
-  }
-  return userData;
-}
-
-
 export function cloneSkeleton(skinnedMesh) {
   skinnedMesh.skeleton.pose();
 
@@ -376,8 +335,6 @@ export function cloneSkeleton(skinnedMesh) {
     boneClones.set(bone, clone);
   }
 
-  // Preserve original bone structure
-  // Assume bones[0] is root bone
   skinnedMesh.skeleton.bones[0].traverse((o) => {
     if (o.type !== "Bone") return;
     const clone = boneClones.get(o);
@@ -385,6 +342,5 @@ export function cloneSkeleton(skinnedMesh) {
       clone.add(boneClones.get(child));
     }
   });
-
   return new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
 }
