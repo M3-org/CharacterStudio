@@ -57,7 +57,7 @@ export async function combine({ avatar }) {
   const meshes = findChildrenByType(avatar, "SkinnedMesh").filter((mesh) => !meshesToExclude.includes(mesh));
 
   const { textures, uvs } = await createTextureAtlas({ meshes });
-  meshes.forEach((mesh) => remapUVs({ mesh, uvs: uvs.get(mesh) }));
+  // meshes.forEach((mesh) => remapUVs({ mesh, uvs: uvs.get(mesh) }));
 
   meshes.forEach((mesh) => removeBakedMorphs(mesh, bakeMorphs(mesh)));
 
