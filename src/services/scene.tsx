@@ -260,29 +260,23 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    var boneRoot;
-    var secondary;
-    model.scene.traverse((child) =>{
-      if(child.isBone && child.name == "CC_Base_BoneRoot") {
-        boneRoot = child;
-      }
-      if(child.name == "secondary") secondary = child;
-    })
-   
-    const avatar = await combine({ avatar: model.scene });
+    const clonedScene = model.scene.clone();
+
+    const avatar = await combine({ avatar: clonedScene });
     
     var scene = model.scene;
     var clonedSecondary;
     scene.traverse((child) =>{
-        if(child.name == 'secondary'){
-          clonedSecondary = child.clone();
-        }
-      })
-      avatar.add(clonedSecondary);
-      exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
-        saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
-      });
-    }
+      if(child.name == 'secondary'){
+        clonedSecondary = child.clone();
+      }
+    })
+
+    avatar.add(clonedSecondary);
+    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
+      saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
+    });
+  }
 }
 
 function addNonDuplicateAnimationClips(clone, scene) {
