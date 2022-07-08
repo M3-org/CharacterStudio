@@ -7,22 +7,32 @@ import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
 // import VRMExporter from "../library/VRM/vrm-exporter";
-export const sceneService = {
-  loadModel,
-  updatePose,
-  updateMorphValue,
-  getMorphValue,
-  download,
-  getMesh,
-  setMaterialColor,
-  getObjectValue,
-  saveScreenShotByElementId,
-  getScreenShot,
-  getScreenShotByElementId,
-  getModelFromScene
-};
 
-async function getModelFromScene(scene: any, format: any) {
+
+
+
+let scene = null;
+let traits = {};
+let model = null;
+
+const setScene = (newScene: any) => {
+  scene = newScene;
+}
+
+
+const setModel = (newModel: any) => {
+  model = newModel;
+}
+
+
+const setTraits = (newTraits: any) => {
+  traits = newTraits;
+}
+
+const getTraits = () => traits;
+
+
+async function getModelFromScene(format: any) {
   if (format && format === 'gltf/glb') {
     const exporter = new GLTFExporter()
     var options = {
@@ -35,6 +45,12 @@ async function getModelFromScene(scene: any, format: any) {
     }
     const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model"), options))
     return new Blob([glb], { type: 'model/gltf-binary' })
+  } else if (format && format === 'vrm') {
+    const exporter = new VRMExporter();
+    const vrm: any = await new Promise((resolve) => exporter.parse(scene, resolve))
+    return new Blob([vrm], { type: 'model/gltf-binary' })
+  } else {
+    return console.error("Invalid format");
   }
 }
 async function getScreenShot() {
@@ -259,3 +275,27 @@ async function download(
     });
   }
 }
+
+
+
+
+
+
+export const sceneService = {
+  loadModel,
+  updatePose,
+  updateMorphValue,
+  getMorphValue,
+  download,
+  getMesh,
+  setMaterialColor,
+  getObjectValue,
+  saveScreenShotByElementId,
+  getScreenShot,
+  getScreenShotByElementId,
+  getModelFromScene,
+  getTraits,
+  setTraits,
+  setScene,
+  setModel
+};
