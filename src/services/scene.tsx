@@ -32,8 +32,8 @@ const setTraits = (newTraits: any) => {
 const getTraits = () => traits;
 
 
-async function getModelFromScene(format: any) {
-  if (format && format === 'gltf/glb') {
+async function getModelFromScene(format = 'glb') {
+  if (format && format === 'glb') {
     const exporter = new GLTFExporter()
     var options = {
       trs: false,
@@ -43,7 +43,8 @@ async function getModelFromScene(format: any) {
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     }
-    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model"), options))
+    console.log("Scene is", scene);
+    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model", error), options))
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
