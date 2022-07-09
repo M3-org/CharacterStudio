@@ -1,5 +1,6 @@
 import CharacterEditor from "./components";
 import {sceneService} from "./services";
+import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 
 import { createTheme } from "@mui/material";
 
@@ -13,7 +14,8 @@ const defaultTheme = createTheme({
 });
 
 export {
-    CharacterEditor,
-    sceneService,
-    defaultTheme
+  CharacterEditor,
+  sceneService,
+  defaultTheme,
+  LoadingOverlayCircularStatic,
 }
