@@ -100,6 +100,13 @@ export default function Selector(props) {
     }
   }, [category, scene])
 
+
+  React.useEffect(() => {
+    if(scene){
+      sceneService.setScene(scene);
+    }
+  }, [scene])
+
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
