@@ -4,6 +4,7 @@ import React, { Suspense, useState, useEffect, Fragment } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import DownloadCharacter from "./Download"
 import LoadingOverlayCircularStatic from "./LoadingOverlay"
+import { sceneService } from "../services"
 import Scene from "./Scene"
 
 interface Avatar{
@@ -62,7 +63,16 @@ export default function CharacterEditor(props: any) {
       },
     },
   })
+  useEffect(() => {
+    if(avatar){
+      sceneService.setTraits(avatar);
+    }
+  }, [avatar])
 
+  useEffect(() => {
+    if(model)
+    sceneService.setModel(model);
+  }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
       setLoadingModel(true)
