@@ -10,7 +10,6 @@ import VRMExporter from "../library/VRM/VRMExporter";
 
 
 
-
 let scene = null;
 let traits = {};
 let model = null;
@@ -55,7 +54,7 @@ async function getModelFromScene(format = 'glb') {
   }
 }
 async function getScreenShot() {
-  return await getScreenShotByElementId("mint-screenshot-canvas-wrap")
+  return await getScreenShotByElementId("editor-scene")
 }
 
 async function getScreenShotByElementId(id) {
