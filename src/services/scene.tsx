@@ -6,6 +6,10 @@ import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
+
+import { findChildrenByType, findChildByName, describeObject3D } from "../library/utils";
+import { combine } from "../library/mesh-combination";
+
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 
@@ -29,7 +33,6 @@ const setTraits = (newTraits: any) => {
 }
 
 const getTraits = () => traits;
-
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
@@ -236,7 +239,7 @@ async function download(
     save(new Blob([vrm], { type: "octet/stream" }), filename);
   }
 
-  // Specifying the name of the downloadable model
+    // Specifying the name of the downloadable model
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`;
@@ -251,8 +254,10 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
+    const avatar = await combine({ avatar: model.scene });
+
     exporter.parse(
-      model.scene,
+      avatar,
       function (result) {
         if (result instanceof ArrayBuffer) {
           console.log(result);
@@ -270,12 +275,84 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    exporter.parse(model, (vrm : ArrayBuffer) => {
+    const clonedScene = model.scene.clone();
+
+    const avatar = await combine({ avatar: clonedScene });
+    
+    var scene = model.scene;
+    var clonedSecondary;
+    scene.traverse((child) =>{
+      if(child.name == 'secondary'){
+        clonedSecondary = child.clone();
+      }
+    })
+
+    avatar.add(clonedSecondary);
+    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
       saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
     });
   }
 }
 
+function addNonDuplicateAnimationClips(clone, scene) {
+  const clipsToAdd = [];
+
+  for (const clip of scene.animations) {
+    const index = clone.animations.findIndex((clonedAnimation) => {
+      return clonedAnimation.name === clip.name;
+    });
+    if (index === -1) {
+      clipsToAdd.push(clip);
+    }
+  }
+
+  for (const clip of clipsToAdd) {
+    clone.animations.push(clip);
+  }
+}
+
+function ensureHubsComponents(userData) {
+  if (!userData.gltfExtensions) {
+    userData.gltfExtensions = {};
+  }
+  if (!userData.gltfExtensions.MOZ_hubs_components) {
+    userData.gltfExtensions.MOZ_hubs_components = {};
+  }
+  return userData;
+}
+
+export function combineHubsComponents(a, b) {
+  ensureHubsComponents(a);
+  ensureHubsComponents(b);
+  if (a.gltfExtensions.MOZ_hubs_components)
+    // TODO: Deep merge
+    a.gltfExtensions.MOZ_hubs_components = Object.assign(
+      a.gltfExtensions.MOZ_hubs_components,
+      b.gltfExtensions.MOZ_hubs_components
+    );
+
+  return a;
+}
+
+export function cloneSkeleton(skinnedMesh) {
+  skinnedMesh.skeleton.pose();
+
+  const boneClones = new Map();
+
+  for (const bone of skinnedMesh.skeleton.bones) {
+    const clone = bone.clone(false);
+    boneClones.set(bone, clone);
+  }
+
+  skinnedMesh.skeleton.bones[0].traverse((o) => {
+    if (o.type !== "Bone") return;
+    const clone = boneClones.get(o);
+    for (const child of o.children) {
+      clone.add(boneClones.get(child));
+    }
+  });
+  return new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+}
 
 
 
