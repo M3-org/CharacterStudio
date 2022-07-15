@@ -14,7 +14,6 @@ import { combine } from "../library/mesh-combination";
 
 
 
-
 let scene = null;
 let traits = {};
 let model = null;
