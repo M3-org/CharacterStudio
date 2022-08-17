@@ -1,11 +1,10 @@
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"
-import { Avatar, Stack, Typography } from "@mui/material"
+import { Avatar, Slider, Stack, Typography } from "@mui/material"
 import Divider from "@mui/material/Divider"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
-import Skin from "./Skin"
+import { startAnimation } from "../library/animations/animation"
 
 export default function Selector(props) {
   const {
@@ -31,8 +30,6 @@ export default function Selector(props) {
   const [loaded, setLoaded] = useState(false)
 
   const handleChangeSkin = (event: Event, value: number | number[]) => {
-    console.log(value);
-    
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
     }
@@ -85,11 +82,9 @@ export default function Selector(props) {
   React.useEffect(() => {
     if (!scene) return
     if (category) {
-      if (category === "body") {
-        for (const template of templates) {
-          setCollection(templates)
-          setTraitName("body")
-        }
+      if (category === "gender") {
+        setCollection(templates)
+        setTraitName("gender")
       }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
@@ -110,18 +105,8 @@ export default function Selector(props) {
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
-      const categories = ["hair", "tops", "legs", "shoes"]
       if (!loaded) {
-        setTempInfo("2")
-        if (scene && templateInfo) {
-          // for (const category of categories) {
-          //   apiService.fetchTraitsByCategory(category).then((traits) => {
-          //     if (traits) {
-          //       selectTrait(traits?.collection[0])
-          //     }
-          //   })
-          // }
-        }
+        setTempInfo("1")
       }
     }
     _get()
@@ -144,35 +129,8 @@ export default function Selector(props) {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
-        if (traitName === "hair") {
-          if (avatar.hair) {
-            scene.remove(avatar.hair.model)
-          }
-        }
-        if (traitName === "face") {
-          if (avatar.face) {
-            scene.remove(avatar.face.model)
-          }
-        }
-        if (traitName === "tops") {
-          if (avatar.tops) {
-            scene.remove(avatar.tops.model)
-          }
-        }
-        if (traitName === "arms") {
-          if (avatar.arms) {
-            scene.remove(avatar.arms.model)
-          }
-        }
-        if (traitName === "shoes") {
-          if (avatar.shoes) {
-            scene.remove(avatar.shoes.model)
-          }
-        }
-        if (traitName === "legs") {
-          if (avatar.legs) {
-            scene.remove(avatar.legs.model)
-          }
+        if (avatar[traitName] && avatar[traitName].model) {
+          scene.remove(avatar[traitName].model)
         }
       } else {
         if (trait.bodyTargets) {
@@ -189,8 +147,9 @@ export default function Selector(props) {
                 setLoadingTrait(Math.round((e.loaded * 100) / e.total))
               },
             )
-            .then((gltf) => {
-              VRM.from(gltf).then(async (vrm) => {
+            .then(async (gltf) => {
+              const vrm = gltf
+              // VRM.from(gltf).then(async (vrm) => {
                 // vrm.scene.scale.z = -1;
                 // console.log("scene.add", scene.add)
                 // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
@@ -211,88 +170,28 @@ export default function Selector(props) {
                 })
 
                 scene.add(vrm.scene)
-                vrm.humanoid.getBoneNode(
-                  VRMSchema.HumanoidBoneName.Hips,
-                ).rotation.y = Math.PI
+                // vrm.humanoid.getBoneNode(
+                //   VRMSchema.HumanoidBoneName.Hips,
+                // ).rotation.y = Math.PI
                 vrm.scene.frustumCulled = false
                 // console.log(trait);
-                if (traitName === "hair") {
-                  console.log("HAIR")
+                if (avatar[traitName]) {
                   setAvatar({
                     ...avatar,
-                    hair: {
+                    [traitName]: {
                       traitInfo: trait,
                       model: vrm.scene,
                     }
                   })
-                  if (avatar.hair) {
-                    scene.remove(avatar.hair.model)
-                  }
-                }
-                if (traitName === "face") {
-                  setAvatar({
-                    ...avatar,
-                    face: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar.face) {
-                    scene.remove(avatar.face.model)
-                  }
-                }
-                if (traitName === "tops") {
-                  setAvatar({
-                    ...avatar,
-                    tops: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar.tops) {
-                    scene.remove(avatar.tops.model)
-                  }
-                }
-                if (traitName === "arms") {
-                  setAvatar({
-                    ...avatar,
-                    arms: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar.arms) {
-                    scene.remove(avatar.arms.model)
-                  }
-                }
-                if (traitName === "shoes") {
-                  setAvatar({
-                    ...avatar,
-                    shoes: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar.shoes) {
-                    scene.remove(avatar.shoes.model)
-                  }
-                }
-                if (traitName === "legs") {
-                  setAvatar({
-                    ...avatar,
-                    legs: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar.legs) {
-                    scene.remove(avatar.legs.model)
+                  if (avatar[traitName].model) {
+                    scene.remove(avatar[traitName].model)
                   }
                 }
                 setLoadingTrait(null)
                 setLoadingTraitOverlay(false)
+                startAnimation(vrm)
               })
-            })
+            // })
         }
       }
     }
@@ -311,10 +210,15 @@ export default function Selector(props) {
         >
           {category === "color" ? (
            
-            <Skin
-            scene={scene}
-            templateInfo={templateInfo}
-            />
+           <Slider
+            defaultValue={255}
+            valueLabelDisplay="off"
+            step={1}
+            max={255}
+            min={0}
+            onChange={handleChangeSkin}
+            sx={{ width: "50%", margin: "30px 0" }}
+          />
           ) : (
             <React.Fragment>
               <div
@@ -335,7 +239,7 @@ export default function Selector(props) {
                       className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
                         }`}
                       onClick={() => {
-                        if (category === "body") {
+                        if (category === "gender") {
                           setLoaded(true)
                           setTempInfo(item.id)
                         }

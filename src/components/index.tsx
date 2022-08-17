@@ -1,19 +1,23 @@
 import { createTheme, ThemeProvider } from "@mui/material"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import React, { Suspense, useState, useEffect, Fragment } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import DownloadCharacter from "./Download"
 import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
+import { startAnimation } from "../library/animations/animation"
 import Scene from "./Scene"
 
 interface Avatar{
-  hair:{},
-  face:{},
-  tops:{},
-  arms:{},
-  shoes:{},
-  legs:{}
+  body:{},
+  chest:{},
+  head:{},
+  neck:{},
+  hand:{},
+  ring:{},
+  waist:{},
+  weapon:{},
+  legs:{},
+  foot:{}
 }
 
 export default function CharacterEditor(props: any) {
@@ -46,12 +50,16 @@ export default function CharacterEditor(props: any) {
   const [template, setTemplate] = useState<number>(1)
   const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
-    hair:{},
-    face:{},
-    tops:{},
-    arms:{},
-    shoes:{},
-    legs:{}
+    body:{},
+    chest:{},
+    head:{},
+    neck:{},
+    hand:{},
+    ring:{},
+    waist:{},
+    weapon:{},
+    legs:{},
+    foot:{}
   })
   const [loadingModel, setLoadingModel] = useState<boolean>(false)
 
@@ -82,17 +90,19 @@ export default function CharacterEditor(props: any) {
           setLoadingModelProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
-          VRM.from(gltf).then((vrm) => {
+          const vrm = gltf
+          // VRM.from(gltf).then((vrm) => {
             vrm.scene.traverse((o) => {
               o.frustumCulled = false
             })
-            vrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Hips,
-            ).rotation.y = Math.PI
+            // vrm.humanoid.getBoneNode(
+            //   VRMSchema.HumanoidBoneName.Hips,
+            // ).rotation.y = Math.PI
             setLoadingModel(false)
             setScene(vrm.scene)
             setModel(vrm)
-          })
+          // })
+          startAnimation(vrm)
         })
     }
   }, [templateInfo.file])
