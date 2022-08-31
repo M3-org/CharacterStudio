@@ -7,3 +7,6 @@ dist-ssr
 .dfx
 yarn.lock
 package-lock.json
+loot-assets
+animations
+models

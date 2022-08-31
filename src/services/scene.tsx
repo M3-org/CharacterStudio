@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import { GLTFExporter } from '../library/GLTFExporter.js';
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
@@ -17,6 +17,7 @@ import { combine } from "../library/mesh-combination";
 let scene = null;
 let traits = {};
 let model = null;
+const atlasSize = 4096;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -36,17 +37,25 @@ const getTraits = () => traits;
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
-    const exporter = new GLTFExporter()
-    var options = {
-      trs: false,
-      onlyVisible: true,
-      truncateDrawRange: true,
-      binary: true,
-      forcePowerOfTwoTextures: false,
-      maxTextureSize: 1024 || Infinity
-    }
-    console.log("Scene is", scene);
-    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model", error), options))
+    // const exporter = new GLTFExporter()
+    // var options = {
+    //   trs: false,
+    //   onlyVisible: true,
+    //   truncateDrawRange: true,
+    //   binary: true,
+    //   forcePowerOfTwoTextures: false,
+    //   maxTextureSize: 1024 || Infinity
+    // }
+    // console.log("Scene is", scene);
+    // const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model", error), options))
+    // return new Blob([glb], { type: 'model/gltf-binary' })
+
+    const exporter = new GLTFExporter();
+    const combinedAvatar = await combine({ avatar: scene, atlasSize });
+    console.log('combinedAvatar');
+    const glb: any = await new Promise((resolve) => {
+      exporter.parse(combinedAvatar, resolve, (error) => console.error("Error getting model", error), { binary: true, animations: combinedAvatar.animations });
+    })
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -252,31 +261,44 @@ async function download(
   }`;
 
   if (format && format === "gltf/glb") {
-    const exporter = new GLTFExporter();
-    var options = {
-      trs: false,
-      onlyVisible: false,
-      truncateDrawRange: true,
-      binary: true,
-      forcePowerOfTwoTextures: false,
-      maxTextureSize: 1024 || Infinity
-    };
-    const avatar = await combine({ avatar: model.scene });
+    // const exporter = new GLTFExporter();
+    // var options = {
+    //   trs: false,
+    //   onlyVisible: false,
+    //   truncateDrawRange: true,
+    //   binary: true,
+    //   forcePowerOfTwoTextures: false,
+    //   maxTextureSize: 1024 || Infinity
+    // };
+    // const avatar = await combine({ avatar: model.scene });
 
-    exporter.parse(
-      avatar,
-      function (result) {
-        if (result instanceof ArrayBuffer) {
-          console.log(result);
-          saveArrayBuffer(result, `${downloadFileName}.glb`);
-        } else {
-          var output = JSON.stringify(result, null, 2);
-          saveString(output, `${downloadFileName}.gltf`);
-        }
-      },
-      (error) => { console.error("Error parsing")},
-      options
-    );
+    // exporter.parse(
+    //   avatar,
+    //   function (result) {
+    //     if (result instanceof ArrayBuffer) {
+    //       console.log(result);
+    //       saveArrayBuffer(result, `${downloadFileName}.glb`);
+    //     } else {
+    //       var output = JSON.stringify(result, null, 2);
+    //       saveString(output, `${downloadFileName}.gltf`);
+    //     }
+    //   },
+    //   (error) => { console.error("Error parsing")},
+    //   options
+    // );
+
+    const exporter = new GLTFExporter();
+    const combinedAvatar = await combine({ avatar: model.scene, atlasSize });
+    console.log('combinedAvatar');
+    const glb: any = await new Promise((resolve) => {
+      exporter.parse(combinedAvatar, resolve, (error) => console.error("Error getting model", error), { binary: true, animations: combinedAvatar.animations });
+    })
+    if (glb instanceof ArrayBuffer) {
+      saveArrayBuffer(glb, `${downloadFileName}.glb`);
+    } else {
+      var output = JSON.stringify(glb, null, 2);
+      saveString(output, `${downloadFileName}.gltf`);
+    }
   } else if (format && format === "obj") {
     const exporter = new OBJExporter();
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);

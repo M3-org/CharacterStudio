@@ -1,6 +1,6 @@
 export default {
-  debugGLTF: false,
-  debugCanvases: false,
+  debugGLTF: true,
+  debugCanvases: true,
   disableDownload: false,
-  debugExports: false,
+  debugExports: true,
 }
