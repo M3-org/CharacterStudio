@@ -1,0 +1,1495 @@
+@import "./mixins.module.scss";
+@import "./variables.module.scss";
+
+.primary {
+    background: $PurpleButtonColor;
+}
+.primaryForeground {
+    color: $PrimaryGreenColor;
+}
+
+.apiRefresh {
+    &:hover {
+        cursor: pointer;
+        color: white;
+        background-color: dimgray;
+        border-radius: 100px;
+    }
+}
+
+.settingContainer {
+    position: fixed;
+    bottom: 20px;
+    width: 100vw;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+
+    .materialIconBlock {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 4em;
+
+        svg{
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 500px) {
+            width: 40px;
+        }
+
+        outline: none !important;
+    }
+
+    .iconContainer {
+        display: inline-flex;
+        margin: auto;
+
+        .materialIconBlock {
+            padding: 1em;
+            opacity: 0.8;
+            margin-right: 5px;
+            border-radius: 50%;
+            background-color: $PurpleButtonColor;
+
+            @media (max-width: 500px) {
+                padding: 8px;
+            }
+
+            svg{
+                color: white;
+            }
+
+            &:hover {
+                opacity: 1;
+                cursor: pointer;
+            }
+
+            &:last-child {
+                margin-right: 0px;
+            }
+        }
+
+        .materialIconBlock.activeMenu {
+            color: #A8A8FF;
+        }
+    }
+
+    .avatarPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 0 20px;
+
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+        width: 140px;
+        right: 100px;
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+
+        &>.avatarContainer{ margin-top: 40px; }
+        &>.controlContainer{ margin-bottom: 10px; }
+
+        .avatarContainer{
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: auto;
+
+            .avatarPreviewWrapper{
+                width: 90px;
+                height: 90px;
+                cursor: pointer;
+                margin: 5px;
+                flex-grow: 0;
+                background: white;
+                box-shadow: 0px 2px 18px 0px #11111159;
+                position: relative;
+
+                .avatarPreview{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 10px;
+                }
+
+                &.activeAvatar {
+                    @include active-avatar();
+                }
+
+                &.selectedAvatar {
+                    @include selected-avatar();
+                }
+            }
+        }
+
+        .controlContainer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+
+            .actionBlock {
+                position: absolute;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                left: 0;
+                padding: 0 20px;
+                top: 10px;
+            }
+        }
+
+        .iconBlock {
+            @include icon-block-styling();
+        }
+
+        @media screen and (min-width: 768px) {
+            width: 320px;
+            &>.avatarContainer{ margin-top: 25px; }
+
+            .avatarContainer {
+                .avatarPreviewWrapper {
+                    width: 130px;
+                    height: 130px;
+                }
+            }
+
+            .controlContainer {
+                .actionBlock {
+                    position: initial;
+                    width: 140px;
+                }
+            }
+        }
+    }
+
+    .avatarUploadPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 0 30px;
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+        width: 360px;
+        z-index: 1400;
+
+        .avatarHeaderBlock {
+            margin: 30px 0 20px 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            .iconBlock { display: inline-block; color: white; }
+            h2 { font-size: 18px; color: white; font-weight: bold; display: inline-block; vertical-align: middle; margin-left: 10px;}
+        }
+        .controlContainer {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
+            button {
+                height: 35px;
+                background: $PurpleButtonColor;
+                padding: 0;
+                border: none;
+                color: white;
+                flex-grow: 1;
+                border-radius: 3px;
+                font-size: 14px;
+                &>svg { font-size: 18px; margin-left: 5px; }
+            }
+
+            button + button { margin-left: 5px; }
+            button[disabled] { background: grey; opacity: 1 !important; }
+            .browseBtn { &>svg { transform: rotate(180deg); } }
+            .uploadBtn { background: $SelectedGreenColor; }
+            button:hover, button:focus { outline: none; opacity: 0.8; }
+            .selectBtns {
+                display: flex;
+                margin-bottom: 8px;
+            }
+        }
+        .stage {
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            .legendContainer {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+
+                &>svg {
+                    opacity: 0.5;
+                    &:hover {
+                        opacity: 0.75;
+                    }
+                }
+                .legend {
+                    position: absolute;
+                    padding: 10px;
+                    background: rgb(0, 0, 0, 0.75);
+                    border-radius: 5px;
+                    top: 30px;
+                    right: 5px;
+                    width: 130px;
+                    color: #c8c8c8;
+                    font-size: 12px;
+                    display: none;
+
+                    span { margin-left: 5px; }
+                    .shiftKey { background: #c8c8c8; color: rgb(0, 0, 0, 0.75); padding: 2px 4px; border-radius: 4px; font-weight: bold; margin: 0 5px 0 0; }
+                    svg { font-size: 18px; margin-right: 5px; }
+                    &>div + div { margin-top: 10px; }
+                }
+
+                &:hover { .legend { display: block; } }
+            }
+        }
+
+        .thumbnailContainer {
+            display: flex;
+            width: 100%;
+            margin-top: 8px;
+
+            .thumbnailPreview {
+                max-width: 100px;
+                margin: auto;
+            }
+        }
+
+        .selectLabelContainer {
+            display: flex;
+            justify-content: space-around;
+
+            .avatarSelectLabel,
+            .thumbnailSelectLabel {
+                margin: 20px 0 8px 0;
+                font-size: 15px;
+                color: white;
+            }
+        }
+
+        .avatarNameContainer {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 8px;
+
+            .avatarNameInput {
+                color: white;
+                border-color: white;
+                background: transparent;
+                input { 
+                    padding: 5px;
+                    font-size: 14px;
+                    color: white;
+                    border-color: white;
+                    &::selection {
+                        background-color: transparent;
+                    } 
+                }
+                :global(.MuiFormLabel-root) { color: white; }
+                :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) { border-color: white !important; }
+            }
+        }
+
+        .iconBlock {
+            @include icon-block-styling();
+        }
+
+        @media (max-width: 400px) {
+            padding: 0 15px;
+            width: 330px;
+            .avatarHeaderBlock { margin-top: 15px; }
+            .controlContainer { margin-bottom: 15px; }
+        }
+    }
+}
+
+.menuPanel {
+    padding: 0 30px;
+    border-radius: 20px;
+    opacity: 0.9;
+    border: 1px solid rgb(110, 110, 110);
+    width: calc(100% - 50px);
+    // left: 50%;
+    // transform: translateX(-50%);
+    box-shadow: 16px 16px 32px 0px #11111159;
+    color: black;
+    max-height: calc(100vh - 175px);
+    overflow: auto;
+    touch-action: auto;
+    backdrop-filter: blur(50px);
+
+    * { touch-action: auto; }
+
+    &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel, &>.locationPanel { margin: 30px 0; }
+
+    .profilePanel {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+
+        .closeButton {
+            position: fixed;
+            right: 8px;
+            top: 8px;
+
+            &:hover {
+                cursor: pointer;
+                color: red;
+            }
+        }
+
+        .profileBlock {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            
+            .avatarBlock {
+                width: 80px;
+                height: 80px;
+                box-shadow: 0px 2px 18px 0px #11111159;
+                border-radius: 50%;
+                background: white;
+                position: relative;
+                flex-shrink: 0;
+                flex-grow: 0;
+    
+                img { width: 100%; height: 100%; display: block; border-radius: 10px; border-radius: 50%;}
+                .avatarBtn {
+                    position: absolute;
+                    width: 30px;
+                    height: 30px;
+                    bottom: -10px;
+                    right: -10px;
+                    margin: 0;
+                    min-width: 30px;
+                    border-radius: 50%;
+                    color: white;
+                    background: $PurpleButtonColor;
+                    box-shadow: 2px 2px 10px gray;
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    &:hover, &:focus {
+                        width: 40px;
+                        height: 40px;
+                        bottom: -15px;
+                        right: -15px;
+                    }
+
+                    svg {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+            }
+
+            .headerBlock {
+                display: flex;
+                flex-direction:column;
+                flex-wrap: wrap;
+                width: calc(100% - 110px);
+                align-content: center;
+                .panelHeader {
+                    font-size: 14px;
+                    font-weight: bold;
+                    margin: 0;
+                    color: white;
+                }
+                .inputBlock {
+                    display: flex;
+                    width: 100%;
+                    align-items: flex-end;
+                    .usernameInput {
+                        width: 100%;
+                        background: transparent;
+                        input { font-size: 18px; color: white; border-color: white; }
+                        :global(.MuiFormLabel-root) { color: white; }
+                        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) { border-color: white !important; }
+                    }
+
+                    .materialIconBlock {
+                        @include material-icon-block-styling();
+                    }
+                }
+                h2 {
+                    font-family: 'Roboto';
+                    font-size: 14px;
+                    text-align: left;
+                    opacity: 0.8;
+                    color: white;
+                    margin: 5px 0 !important;
+                    span { text-transform: capitalize; font-weight: 700; }
+
+                    &.showUserId {
+                        &:hover {
+                            color: black;
+                            cursor: pointer;
+                        }
+                    }
+                }
+                h4 {
+                    margin-top: 4px;
+                    text-align: left;
+                    color: white;
+
+                    .logout {
+                        max-width: 50px;
+
+                        &:hover {
+                            opacity: 0.8;
+                            cursor: pointer;
+                            color: black;
+                        }
+                    }
+                }
+            }
+        }
+
+        .emailPhoneSection {
+            margin-top: 20px;
+            .panelHeader {
+                font-size: 14px;
+                font-weight: bold;
+                margin: 0;
+                color: white;
+            }
+            .emailField {
+                margin-top: 10px;
+                margin-bottom: 20px;
+                width: 100%;
+                color: white;
+                background: transparent;
+                input { color: white; border-color: white;}
+                :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) { border-color: white; }
+                .materialIconBlock {
+                    @include material-icon-block-styling();
+                }
+            }
+        }
+
+        .walletSection {
+            text-align: center;
+
+            .textBlock {
+                color: #FFFFFF;
+                font-size: 14px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+                cursor: initial;
+            }
+
+            .walletBtn {
+                height: 35px;
+                font-size: 14px;
+                width: 250px;
+                max-width: 100%;
+                background: $PurpleButtonColor;
+                color: #FFFFFF;
+                border-radius: 20px;
+                margin: 15px 0 20px;
+
+                &:hover { opacity: 0.8; }
+            }
+        }
+
+        .socialBlock {
+            .socialContainer {
+                display: flex;
+                justify-content: space-evenly;
+                margin: 20px 0;
+
+                a { color: #000; outline: none !important; }
+                &>a:hover svg, &>a:focus svg{ opacity: 0.8; }
+                svg {
+                    height: 30px;
+                    width: 30px;
+                    flex-shrink: 0.9;
+                    margin: 0 5px;
+                    cursor: pointer;
+                    opacity: 1;
+                }
+            }
+
+            .textBlock {
+                font-size: 14px;
+                color: #FFFFFF;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+                cursor: initial;
+            }
+
+            .smallTextBlock {
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+                cursor: initial;
+            }
+        }
+    }
+
+    .settingPanel {
+        .settingSection {
+            color: #FFFFFF;
+            position: relative;
+            &+.settingSection {
+                margin-top: 25px;
+            }
+        }
+        .row {
+            display: flex;
+            align-items: center;
+
+            &+.flexWrap { flex-wrap: wrap; }
+            &+.row { margin-top: 5px; }
+
+            .checkboxBlock {
+                margin: 4px 20px 0 0;
+
+                :global(.MuiCheckbox-root) {
+                    padding: 0;
+                    color: $PrimaryGreenColor;
+                    margin-right: 10px;
+
+                    svg { font-size: 24px; }
+                    span { font-size: 14px; }
+                }
+                :global(.MuiIconButton-colorSecondary) {
+                    &:hover { background: none; }
+                }
+            }
+
+            .materialIconBlock {
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+                svg { color: $PrimaryGreenColor; }
+            }
+
+            .settingLabel {
+                margin-left: 10px;
+                font-size: 14px;
+                width: 100px;
+                display: inline-block;
+                flex-shrink: 0;
+                font-family: Roboto;
+            }
+
+            :global(.MuiSlider-root) {
+                &.slider {
+                    color: $PrimaryGreenColor;
+                    margin: 0 10px;
+                }
+                :global(.MuiSlider-thumb) {
+                    background: $PrimaryGreenColor;
+                    border: $PrimaryGreenColor;
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+        }
+        .automatic {
+            position: absolute;
+            top: -8px;
+            right: 0;
+
+            .checkboxBlock {
+                margin: 0 -2px 0 0;
+                :global(.MuiCheckbox-root) {
+                    margin-left: 10px;
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+
+    .sharePanel {
+        position: relative;;
+        .panelHeader {
+            font-size: 18px;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+        .shareLink {
+            font-size: 16px;
+            color: #454D9A;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: auto;
+            margin-bottom: 20px;
+            width: 100%;
+            height: 24px !important;
+            border: none;
+            background: transparent;
+            scrollbar-width: none; /* IE */
+            resize: none;
+            outline: none !important;
+            -ms-overflow-style: none; /* Firefox */
+            &::-webkit-scrollbar {
+                display: none;  /* Safari and Chrome */
+            }
+        }
+        .sendInviteContainer { 
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin: 20px auto 10px;
+            justify-content: center;
+            .sendInvite {
+                width: 125px;
+                height: 35px;
+                background: $PurpleButtonColor;
+                &:hover { opacity: 0.8; }
+            }
+        }
+        h5 { 
+            color: #FFFFFF; 
+            margin-top: 10px; 
+            font-size: 14px; 
+            font-weight: normal; 
+        }
+        .copyField {
+            margin-top: 10px;
+            width: 100%;
+            color: #FFFFFF;
+            input {
+                color: #FFFFFF;
+                border-color: #FFFFFF;
+            }
+            :global(.MuiOutlinedInput-root) { fieldset { border-color: #FFFFFF;  } }
+            :global(.MuiInputAdornment-root) { color: #FFFFFF; cursor: pointer; &:hover { opacity: 0.8; } }
+        }
+        .emailField {
+            margin-top: 30px;
+            width: 100%;
+            color: #FFFFFF;
+            input {
+                color: #FFFFFF;
+                border-color: #FFFFFF;
+            }
+            :global(.MuiOutlinedInput-root) { fieldset { border-color: #FFFFFF;  } }
+            :global(.MuiInputAdornment-root) { color: #FFFFFF; cursor: pointer; &:hover { opacity: 0.8; } }
+        }
+        .shareBtnContainer {
+            margin-top: 15px;
+            text-align: center;
+            .shareBtn {
+                width: 100px;
+                height: 35px;
+                background: $PurpleButtonColor;
+                color: "#fff";
+                &:hover { opacity: 0.8; }
+            }
+        }
+    }
+
+    .locationPanel {
+        .control { margin-top: 10px; display: flex; }
+        .newLocation { width: 90px; background: $PurpleButtonColor; margin: 0; height: 40px; flex-shrink: 0; }
+        .searchbox {
+            margin: 0;
+            margin-right: 10px;
+            width: 100%;
+            flex-shrink: 1;
+            background: white;
+            border-radius: 4px;
+            input, svg { color: #444; }
+            border-color: #444;
+            &:focus-within {
+                svg { color: $PurpleButtonColor; }
+            }
+        }
+        .tableContainer {
+            width: 100%;
+            overflow: auto;
+        }
+        .locationTable {
+            margin-top: 10px;
+            .tableHead {
+                background: $PurpleButtonColor;
+                color: white;
+            }
+            .tablebody {
+                .tableRow:hover { background: #d5d5f2; cursor: pointer; }
+                .tableRow:focus { background: #9696fa; }
+                .tableCell {
+                    color: #444;
+                    border: none;
+                    box-sizing: border-box;
+                }
+            }
+        }
+        .tablePagination {
+            color: #444;
+            button { background: transparent; }
+            button:hover { background: $PurpleButtonColor; color: white; }
+        }
+        .formControl {
+            width: 100%;
+            margin-top: 15px;
+            label {
+                position: initial;
+                display: block;
+                transform: none;
+                margin-bottom: 5px;
+                color: #666;
+                font-size: 0.8rem;
+            }
+            .checkbox {
+                padding: 0 9px;
+                svg { color: #666; }
+                &:global(.Mui-checked) svg { color: $PurpleButtonColor; }
+                &:hover { background: transparent; }
+                input:focus + svg { opacity: 0.7; }
+            }
+            &:hover {
+                :global(.MuiOutlinedInput-notchedOutline) {
+                    border: solid 1px #444;
+                }
+            }
+            &:hover {
+                .checkbox { opacity: 0.7; }
+            }
+        }
+        .textbox input, .selectbox :global(.MuiSelect-selectMenu){
+            color: #444;
+            background: #f4f4f4;
+        }
+        .deleteBtnContainer {
+            position: absolute;
+            top: 20px;
+            right: 22px;
+            .deletebtn {
+                width: 50px;
+                height: 20px;
+                color: rgb(241, 57, 57);
+                background: transparent;
+                &:disabled { color: grey; }
+                &::before {
+                    content: '';
+                    position: absolute;;
+                    width: 0px;
+                    height: 0px;
+                    border-radius: 25px;
+                    background: rgb(241, 57, 57);
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    z-index: -1;
+                }
+                &:hover, &:focus {
+                    color: #fff;
+                    &::before {
+                        width: 50px;
+                        height: 50px;
+                    }
+                }
+            }
+        }
+        .backbtn {
+            width: 25px;
+            height: 25px;
+            border-radius: 20px;
+            background: transparent;
+            color: $PurpleButtonColor;
+            margin: 0;
+            min-width: 0;
+            margin-right: 10px;
+            &::before {
+                content: '';
+                position: absolute;;
+                width: 0px;
+                height: 0px;
+                border-radius: 25px;
+                background: $PurpleButtonColor;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                z-index: -1;
+            }
+            &:hover, &:focus {
+                color: #fff;
+                &::before {
+                    width: 35px;
+                    height: 35px;
+                }
+            }
+        }
+        .savebtn {
+            color: white;
+            background: $PurpleButtonColor;
+            height: 35px;
+            width: 150px;
+            margin-top: 25px;
+            &:hover { opacity: 0.8; }
+        }
+        .deleteDialogContainer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .dialog {
+                background: white;
+                width: 300px;
+                border-radius: 4px;
+                padding: 25px;
+                box-shadow: 2px 2px 10px 2px #80808082;
+
+                h2 { margin-top: 0; justify-content: center; color: #444; }
+
+                .btnContainer{
+                    display: flex;
+                    flex-direction: row;
+                    button {
+                        padding: 0;
+                        width: 100px;
+                        height: 35px;
+                        margin: 20px 10px;
+                        background: $PurpleButtonColor;
+                        font-size: 0.8rem;
+                        &.yesbtn { background: rgb(241, 57, 57); }
+                    }
+                    button:hover, button:focus { opacity: 0.8; }
+                }
+            }
+        }
+    }
+
+    @media screen and (max-width: 500px) {
+        .profileBlock { justify-content: center !important; }
+        .headerBlock { width: 100% !important; margin-top: 30px; }
+    }
+
+    @media screen and (min-width: 768px) { width: 400px; height: 400px; }
+}
+
+.avatarPanel {
+    @include panel-popup-container-styling();
+
+    &>.avatarContainer{ margin-top: 40px; }
+    &>.controlContainer{ margin-bottom: 10px; }
+
+    .avatarContainer{
+        display: flex;
+        align-items: flex-start;
+        margin: auto;
+        flex-wrap: wrap;
+        height: auto;
+
+        .avatarPreviewWrapper{
+            width: 90px;
+            height: 90px;
+            cursor: pointer;
+            margin: 5px;
+            flex-grow: 0;
+            background: white;
+            box-shadow: 0px 2px 18px 0px #11111159;
+            position: relative;
+            overflow: visible;
+
+            .avatarPreview{
+                width: 100%;
+                height: 100%;
+                border-radius: 10px;
+            }
+
+            &.activeAvatar {
+                @include active-avatar();
+            }
+
+            &.selectedAvatar {
+                @include selected-avatar();
+            }
+
+            .deleteBlock {
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                bottom: -5px;
+                right: -5px;
+                border: none;
+                border-radius: 50%;
+                background: $PurpleButtonColor;
+                box-shadow: 2px 2px 10px gray;
+                color: white;
+                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                &:not(:disabled):hover, &:not(:disabled):focus {
+                    width: 35px;
+                    height: 35px;
+                    bottom: -5px;
+                    right: -5px;
+                }
+                svg { font-size: 18px; }
+                &:disabled { background: grey; cursor: default; }
+            }
+            .confirmationBlock {
+                position: absolute;
+                bottom: 8px;
+                width: 125%;
+                background: #fff;
+                border-radius: 5px;
+                color: grey;
+                text-align: center;
+                left: 50%;
+                transform: translateX(-50%);
+                box-shadow: 2px 2px 10px gray;
+
+                p { margin: 5px; font-size: 13px; }
+                button {
+                    background: transparent;
+                    color: #e81515;
+                    border: none;
+                    padding: 5px;
+                    width: 50%;
+                    &:last-child { color: $PurpleButtonColor; }
+                    svg { font-size: 20px; }
+                }
+                @media (min-width: 769px){
+                    width: 80%;
+                }
+            }
+        }
+    }
+
+    .controlContainer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+
+        .actionBlock {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            left: 0;
+            padding: 0 20px;
+            top: 10px;
+        }
+    }
+
+    .iconBlock {
+        @include icon-block-styling();
+    }
+
+    @media screen and (min-width: 768px) {
+        width: 330px;
+        &>.avatarContainer{ margin-top: 25px; width: 280px; }
+
+        .avatarContainer {
+            .avatarPreviewWrapper {
+                width: 130px;
+                height: 130px;
+            }
+        }
+
+        .controlContainer {
+            .actionBlock {
+                position: initial;
+                width: 140px;
+            }
+        }
+    }
+}
+
+.avatarUploadPanel {
+    @include panel-popup-container-styling();
+
+    .avatarHeaderBlock {
+        margin: 30px 0 20px 0;
+        .iconBlock { display: inline-block; color: $PurpleButtonColor; background: transparent; }
+        h2 { font-size: 18px; font-weight: bold; display: inline-block; vertical-align: middle; margin-left: 10px;}
+    }
+    .controlContainer {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 30px;
+        button {
+            height: 35px;
+            background: $PurpleButtonColor;
+            padding: 0;
+            border: none;
+            color: white;
+            flex-grow: 1;
+            border-radius: 3px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &>svg { font-size: 18px; margin-left: 5px; }
+        }
+
+        button + button { margin-left: 5px; }
+        button[disabled] { background: grey; opacity: 1 !important; }
+        .browseBtn { &>svg { transform: rotate(180deg); } }
+        .uploadBtn { background: $SelectedGreenColor; }
+        button:hover, button:focus { outline: none; opacity: 0.8; }
+        .selectBtns {
+            display: flex;
+            margin-bottom: 8px;
+        }
+    }
+    .stage {
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+        .legendContainer {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+
+            &>svg {
+                opacity: 0.5;
+                &:hover {
+                    opacity: 0.75;
+                }
+            }
+            .legend {
+                position: absolute;
+                padding: 10px;
+                background: rgb(0, 0, 0, 0.75);
+                border-radius: 5px;
+                top: 30px;
+                right: 5px;
+                width: 130px;
+                color: #c8c8c8;
+                font-size: 12px;
+                display: none;
+
+                span { margin-left: 5px; }
+                .shiftKey { background: #c8c8c8; color: rgb(0, 0, 0, 0.75); padding: 2px 4px; border-radius: 4px; font-weight: bold; margin: 0 5px 0 0; }
+                svg { font-size: 18px; margin-right: 5px; vertical-align: middle; }
+                &>div + div { margin-top: 10px; }
+            }
+
+            &:hover { .legend { display: block; } }
+        }
+    }
+
+    .thumbnailContainer {
+        display: flex;
+        width: 100%;
+        margin-top: 8px;
+
+        .thumbnailPreview {
+            max-width: 100px;
+            margin: auto;
+        }
+    }
+
+    .selectLabelContainer {
+        display: flex;
+        justify-content: space-around;
+
+        .avatarSelectLabel,
+        .thumbnailSelectLabel {
+            margin: 20px 3px 8px 0;
+            font-size: 15px;
+            color: $PurpleButtonColor;
+
+            &.avatarSelectError,
+            &.thumbnailSelectError {
+                color: red;
+            }
+        }
+    }
+
+    .avatarNameContainer {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 8px;
+    }
+
+    .iconBlock {
+        @include icon-block-styling();
+    }
+
+    @media (max-width: 400px) {
+        padding: 0 15px;
+        width: 330px;
+        .avatarHeaderBlock { margin-top: 15px; }
+        .controlContainer { margin-bottom: 15px; }
+    }
+}
+
+.ReadyPlayerPanel {
+    @include panel-popup-container-styling();
+    
+    .controlContainer {
+        display: flex;
+        justify-content: space-between;
+
+        .actionBlock {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            left: 0;
+            padding: 0 20px;
+            top: 10px;
+        }
+    }
+
+    .iconBlock {
+        @include icon-block-styling();
+    }
+
+    iframe{
+        width: 100%;
+        height: 100%;
+        min-height: 450px;      
+    }
+
+    .centerProgress{
+        position: fixed;
+        left: 50%;
+        top: 50%;
+    }
+
+    @media screen and (max-width: 500px) {
+        .profileBlock { justify-content: center !important; }
+        .headerBlock { width: 100% !important; margin-top: 30px; }
+    }
+
+    @media screen and (min-width: 768px) { width: 600px; min-height: 208px; }
+}
+
+
+.selectOptionContainer ul {
+    background: white;
+    li { color: #444; }
+}
+
+.hideView{
+    display:none;
+}
+
+.avatarMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+
+    .actionBlock {
+        left: -30px;
+        position: relative;
+        display: grid;
+        grid-gap: 2px;
+        grid-template-columns: 1fr 1fr 1fr;
+
+        @media (max-width: 500px) {
+            left: 0;
+        }
+
+        button {
+            color: white;
+            display: flex;
+            padding: 3px 5px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background-color: $PurpleButtonColor;
+            border: none;
+            border-radius: 3px;
+        }
+    }
+
+    .itemContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        border: solid 100px rgb(51 51 110 / 50%);
+        border-bottom-color: transparent;
+        opacity:0.9;
+        position:relative;
+        width:361.4px !important;
+        height:361.4px !important;
+        border-width: 70px !important;
+        left: -30px;
+
+        @media (max-width: 500px) {
+            left: 0;
+        }
+
+        @media (max-width: 360px) {
+            left: 0;
+            width:300px !important;
+            height:300px !important;
+            border-width: 60px !important;
+        }
+
+        .menuItemBlock {
+            position: relative;
+        }
+
+        .menuItem {
+            border-radius: 50%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+            background-color: white;
+            cursor: pointer;
+
+            &:hover { transform: scale(1.2); }
+            img {
+                display: block;
+                width: 100%;
+            }
+
+            .iconBlock {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                cursor: pointer;
+                border-radius: 50%;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                background-color: $PurpleButtonColor;
+
+                svg {
+                    color: white;
+                    font-size: 20px;
+                }
+            }
+
+            &.selectedAvatar {
+                border: solid 2px $SelectedGreenColor;
+            }
+
+            &.activeAvatar {
+                border: solid 2px $PurpleButtonColor;
+            }
+        }
+    }
+}
+
+.itemContainerPrev {
+    content: "";
+    width: 40px;
+    height: 70px;
+    position: absolute;
+    left: 2px;
+    top: 192.7px;
+    background-color: rgb(51 51 110 / 50%);
+    transform: rotate(45deg);
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    opacity: 1;
+
+    .iconBlock {
+        position: relative;
+        color: white;
+        border: none;
+        padding: 0;
+        background-color: transparent;
+        top: 18px;
+        right: 3px;
+        transform: rotate(-45deg);
+
+        @media (max-width: 360px) {
+            top: 13px;
+        }
+
+        svg {
+            position: relative;
+            z-index: 1;
+            font-size: 30px;
+        }
+
+        &:hover {
+            color: #fff;
+        }
+
+        &.disabled {
+            color: grey;
+            cursor: initial;
+
+            &::before { content: none !important; }
+        }
+    }
+
+    @media (max-width: 360px) {
+        width: 40px;
+        height: 60px;
+        position: absolute;
+        left: -1px;
+        top: 159px;
+    }
+}
+
+.itemContainerNext {
+    content: "";
+    width: 40px;
+    height: 70px;
+    position: absolute;
+    right: 2px;
+    top: 192.7px;
+    background-color: rgb(51 51 110 / 50%);
+    transform: rotate(135deg);
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    opacity: 1;
+
+    .iconBlock {
+        position: relative;
+        color: white;
+        border: none;
+        padding: 0;
+        background-color: transparent;
+        top: 18px;
+        right: 3px;
+        background-color: transparent;
+        transform: rotate(225deg);
+
+        @media (max-width: 360px) {
+            top: 13px;
+        }
+
+        svg {
+            position: relative;
+            z-index: 1;
+            font-size: 30px;
+        }
+
+        &:hover {
+            color: #fff;
+        }
+
+        &.disabled {
+            color: grey;
+            cursor: initial;
+
+            &::before { content: none !important; }
+        }
+    }
+
+    @media (max-width: 360px) {
+        width: 40px;
+        height: 60px;
+        position: absolute;
+        right: -1px;
+        top: 159px;
+    }
+}
+
+
+.emoteMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+
+    .itemContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        border: solid 100px rgb(51 51 110 / 50%);
+        border-bottom-color: transparent;
+        opacity:0.9;
+        position:relative;
+        width:361.4px !important;
+        height:361.4px !important;
+        border-width: 70px !important;
+        left: -30px;
+
+        @media (max-width: 500px) {
+            left: 0;
+        }
+
+        @media (max-width: 360px) {
+            left: 0;
+            width:300px !important;
+            height:300px !important;
+            border-width: 60px !important;
+        }
+
+        .menuItemBlock {
+            position: relative;
+        }
+
+        .menuItem {
+            border-radius: 50%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+            background-color: transparent;
+
+            &:hover { 
+                img {
+                    opacity: 1;
+                } 
+            }
+
+            img {
+                opacity: 0.8;
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+}
+
+@keyframes cssmarquee {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.cssMarquee {
+    overflow: hidden;
+    position: relative;
+    max-width: 90%;
+    height: 22px;
+
+    p {
+        margin: 0;
+        text-align: center;
+        transform: translateX(-100%);
+        animation: cssmarquee 5s linear infinite;
+        line-height: 25px;
+    }
+}
