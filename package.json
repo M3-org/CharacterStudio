@@ -17,6 +17,8 @@
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto"
   },
   "dependencies": {
+    "@dfinity/candid": "^0.13.2",
+    "@dfinity/principal": "^0.13.2",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.5.1",
@@ -25,13 +27,19 @@
     "@pixiv/three-vrm": "0.6.11",
     "@react-three/drei": "^7.12.5",
     "@react-three/fiber": "^7.0.7",
+    "@speigg/hookstate": "^3.0.13-stable-state",
+    "axios": "^0.27.2",
     "buffer": "^6.0.3",
     "canvas": "^2.9.3",
+    "ethers": "^5.7.0",
     "html2canvas": "^1.4.1",
     "jest-environment-jsdom": "^28.1.3",
+    "js-sha256": "^0.9.0",
     "jsdom": "^20.0.0",
+    "moralis": "^2.2.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "react-moralis": "^1.4.1",
     "three": "^0.137.0"
   },
   "devDependencies": {

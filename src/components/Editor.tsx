@@ -211,7 +211,7 @@ export default function Editor(props: any) {
       </Stack>
       {isModal && (
         <div style={inventoryModal}>
-          <Inventory />{" "}
+          <Inventory />
         </div>
       )}
     </div>
