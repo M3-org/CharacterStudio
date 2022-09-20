@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.connect-mint-wrap {
+    position: absolute;
+    right: 5px;
+    top: 28px;
+    width: 145px;
+    z-index: 10;
+    button {
+        width: 100%;
+        margin-bottom: 3%;
+    }
+}
+.title-icon {
+    display: inline-block !important;
+    margin-top: 0px;
+    vertical-align: sub;
+    font-size: 24px !important;
+    color: #efefef;
+
+}
+.mint-model-button {
+    width: 104% !important;
+    font-size: 12px !important;
+    margin-top: 16px !important;
+}
+.close-popup {
+    position: absolute !important;
+    right: 0px;
+    top: 8px;
+    background: none !important;
+    color: #999999 !important;
+    &:hover {
+        color: #EFEFEF !important;
+    }
+}
+#alertTitle {
+    margin: 0 37vw;
+    position: absolute;
+    top: 18px;
+    z-index: 20;
+    width: 25%;
+}
+
+.mint-loading {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(16,16,16,0.8);
+    z-index: 100;
+}

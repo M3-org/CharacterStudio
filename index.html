@@ -8,7 +8,17 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- import style.css -->
+    <script>
+      var global = global || window;
+
+</script>
+<script type="module">
+import { Buffer } from 'buffer';
+
+// @ts-ignore
+window.Buffer = Buffer;
+
+</script>
     <link rel="stylesheet" href="/public/style.css" />
     <script type="module" src="/src/App.tsx"></script>
   </body>

@@ -1,3 +1,4 @@
+import React, { useState } from "react"
 import { Stack } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
@@ -62,9 +63,9 @@ const MainComponent = (props: any) => {
           data-type={`item`}
         >
           <div className={`${classes.inventoryInsideContent}`}>
-              <img className={`${classes.inventoryItemPreview}`} src="./face.png" alt="nft" />
+              <img className={`${classes.inventoryItemPreview}`} src={`data:image/svg+xml;utf8,${value.data}`} />
             <div>
-              <span>Game</span>
+              <span>{value.name}</span>
             </div>
           </div>
         </div>

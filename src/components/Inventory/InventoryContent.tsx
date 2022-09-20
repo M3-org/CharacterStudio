@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography"
 import makeStyles from "@mui/styles/makeStyles"
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material"
-import {  useState } from "react"
+import React, { useState } from "react"
 import {
   Box,
   IconButton,
@@ -10,21 +10,6 @@ import {
 
 import ItemSlot from "./Slot"
 import DragAndDropAPI from "./DragAndDropAPI"
-
-const initialItems = [
-  { slot: 0 },
-  { slot: 1 },
-  { slot: 2 },
-  { slot: 3 },
-  { slot: 4 },
-  { slot: 5 },
-  { slot: 6 },
-  { slot: 7 },
-  { slot: 8 },
-  { slot: 9 },
-  { slot: 11 },
-  { slot: 14 },
-]
 
 const useStyles = makeStyles({
   root1: {
@@ -119,8 +104,7 @@ const useStyles = makeStyles({
 
 const inventoryLimit = 9
 
-const InventoryContent = () => {
-  // const history = useHistory()
+const InventoryContent = ({nftImage}) => {
   const classes = useStyles()
   const [state, setState] = useState({
     url: "",
@@ -133,9 +117,9 @@ const InventoryContent = () => {
     currentPage: 1,
   })
 
-  const totalPage = Math.ceil(initialItems?.length / inventoryLimit)
+  const totalPage = Math.ceil(nftImage?.length / inventoryLimit)
 
-  const [items, setItems] = useState([...initialItems])
+  const [items, setItems] = useState([...nftImage])
   const [draggingSlotId, setDraggingSlot] = useState(null)
   const getItemDataInSlot = (slot) => items.find((item) => item.slot === slot)
 
@@ -214,13 +198,12 @@ const InventoryContent = () => {
     for (let i = startIndex; i < endIndex; i++) res.push(i)
     return res
   }
-
+  
   return (
     <Box
       sx={{ p: 2 }}
       className={`${classes.root} ${classes.contents} invenContentPanel`}
     >
-      {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack
         direction="row"
         justifyContent="space-between"

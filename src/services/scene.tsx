@@ -1,33 +1,30 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { GLTFExporter } from '../library/GLTFExporter.js';
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
-
-import { findChildrenByType, findChildByName, describeObject3D } from "../library/utils";
-import { combine } from "../library/mesh-combination";
-
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
-
+function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
 let scene = null;
-let traits = {};
+
 let model = null;
-const atlasSize = 4096;
-
-const setScene = (newScene: any) => {
-  scene = newScene;
-}
-
 
 const setModel = (newModel: any) => {
   model = newModel;
 }
 
+const setScene = (newScene: any) => {
+  scene = newScene;
+}
+
+const getScene = () => scene;
+
+let traits = {};
 
 const setTraits = (newTraits: any) => {
   traits = newTraits;
@@ -37,25 +34,17 @@ const getTraits = () => traits;
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
-    // const exporter = new GLTFExporter()
-    // var options = {
-    //   trs: false,
-    //   onlyVisible: true,
-    //   truncateDrawRange: true,
-    //   binary: true,
-    //   forcePowerOfTwoTextures: false,
-    //   maxTextureSize: 1024 || Infinity
-    // }
-    // console.log("Scene is", scene);
-    // const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model", error), options))
-    // return new Blob([glb], { type: 'model/gltf-binary' })
-
-    const exporter = new GLTFExporter();
-    const combinedAvatar = await combine({ avatar: scene, atlasSize });
-    console.log('combinedAvatar');
-    const glb: any = await new Promise((resolve) => {
-      exporter.parse(combinedAvatar, resolve, (error) => console.error("Error getting model", error), { binary: true, animations: combinedAvatar.animations });
-    })
+    const exporter = new GLTFExporter()
+    var options = {
+      trs: false,
+      onlyVisible: true,
+      truncateDrawRange: true,
+      binary: true,
+      forcePowerOfTwoTextures: false,
+      maxTextureSize: 1024 || Infinity
+    }
+    console.log("Scene is", scene);
+    const glb: any = await new Promise((resolve) => exporter.parse(scene, resolve, (error) => console.error("Error getting model", error), options))
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -65,6 +54,7 @@ async function getModelFromScene(format = 'glb') {
     return console.error("Invalid format");
   }
 }
+
 async function getScreenShot() {
   return await getScreenShotByElementId("editor-scene")
 }
@@ -78,7 +68,6 @@ async function getScreenShotByElementId(id) {
       "base64"
     );
     const blob = new Blob([base64Data], { type: "image/jpeg" });
-    console.log("BLOB: ", blob);
     return blob;
   });
 }
@@ -111,32 +100,6 @@ async function getObjectValue(target: any, scene: any, value: any) {
   }
 }
 
-function createTextCanvas(text) {
-  var canvas = document.createElement("canvas");
-  var context: any = canvas.getContext("2d");
-
-  context.font = 11 + "px Arial";
-
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillStyle = "#a22813";
-  context.font = 18 + "px  Arial";
-  context.miterLimit = 5;
-  context.lineWidth = 3;
-  context.strokeStyle = "white";
-  context.strokeText(text, 45, 130);
-  context.fillStyle = "red";
-  context.fillText(text, 45, 130);
-  context.clientWidth = 560;
-  context.clientHeight = 560;
-  context.background = "#FFFFFF";
-
-  var texture = new THREE.Texture(canvas);
-  texture.needsUpdate = true;
-  texture.flipY = false;
-  return texture;
-}
-
 async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
@@ -149,17 +112,12 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     const skinShade = new THREE.Color(
       `rgb(${randColor},${randColor},${randColor})`
     );
-    if (object.material[0]) {
-      object.material[0].color.set(skinShade);
-    } else {
-      object.material.color.set(skinShade);
-    }
-    
+    object.material[0].color.set(skinShade);
   }
 }
 
 async function loadModel(file: any, type: any) {
-  if (type && type === "gltf/glb" && file) {
+  if (type && type === "glb" && file) {
     const loader = new GLTFLoader();
     return loader.loadAsync(file, (e) => {
       console.log(e.loaded)
@@ -249,143 +207,48 @@ async function download(
   }
 
   function saveArrayBuffer(buffer, filename) {
-    save(new Blob([buffer], { type: "application/octet-stream" }), filename);
-  }
-  function saveArrayBufferVRM(vrm, filename) {
-    save(new Blob([vrm], { type: "octet/stream" }), filename);
+    save(getArrayBuffer(buffer), filename);
   }
 
-    // Specifying the name of the downloadable model
+  // Specifying the name of the downloadable model
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`;
 
-  if (format && format === "gltf/glb") {
-    // const exporter = new GLTFExporter();
-    // var options = {
-    //   trs: false,
-    //   onlyVisible: false,
-    //   truncateDrawRange: true,
-    //   binary: true,
-    //   forcePowerOfTwoTextures: false,
-    //   maxTextureSize: 1024 || Infinity
-    // };
-    // const avatar = await combine({ avatar: model.scene });
-
-    // exporter.parse(
-    //   avatar,
-    //   function (result) {
-    //     if (result instanceof ArrayBuffer) {
-    //       console.log(result);
-    //       saveArrayBuffer(result, `${downloadFileName}.glb`);
-    //     } else {
-    //       var output = JSON.stringify(result, null, 2);
-    //       saveString(output, `${downloadFileName}.gltf`);
-    //     }
-    //   },
-    //   (error) => { console.error("Error parsing")},
-    //   options
-    // );
-
+  if (format && format === "glb") {
     const exporter = new GLTFExporter();
-    const combinedAvatar = await combine({ avatar: model.scene, atlasSize });
-    console.log('combinedAvatar');
-    const glb: any = await new Promise((resolve) => {
-      exporter.parse(combinedAvatar, resolve, (error) => console.error("Error getting model", error), { binary: true, animations: combinedAvatar.animations });
-    })
-    if (glb instanceof ArrayBuffer) {
-      saveArrayBuffer(glb, `${downloadFileName}.glb`);
-    } else {
-      var output = JSON.stringify(glb, null, 2);
-      saveString(output, `${downloadFileName}.gltf`);
-    }
+    var options = {
+      trs: false,
+      onlyVisible: false,
+      truncateDrawRange: true,
+      binary: true,
+      forcePowerOfTwoTextures: false,
+      maxTextureSize: 1024 || Infinity
+    };
+    exporter.parse(
+      model.scene,
+      function (result) {
+        if (result instanceof ArrayBuffer) {
+          console.log(result);
+          saveArrayBuffer(result, `${downloadFileName}.glb`);
+        } else {
+          var output = JSON.stringify(result, null, 2);
+          saveString(output, `${downloadFileName}.gltf`);
+        }
+      },
+      (error) => { console.error("Error parsing", error)},
+      options
+    );
   } else if (format && format === "obj") {
     const exporter = new OBJExporter();
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    const clonedScene = model.scene.clone();
-
-    const avatar = await combine({ avatar: clonedScene });
-    
-    var scene = model.scene;
-    var clonedSecondary;
-    scene.traverse((child) =>{
-      if(child.name == 'secondary'){
-        clonedSecondary = child.clone();
-      }
-    })
-
-    avatar.add(clonedSecondary);
-    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
-      saveArrayBufferVRM(vrm, `${downloadFileName}.vrm`);
+    exporter.parse(model, (vrm : ArrayBuffer) => {
+      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
   }
 }
-
-function addNonDuplicateAnimationClips(clone, scene) {
-  const clipsToAdd = [];
-
-  for (const clip of scene.animations) {
-    const index = clone.animations.findIndex((clonedAnimation) => {
-      return clonedAnimation.name === clip.name;
-    });
-    if (index === -1) {
-      clipsToAdd.push(clip);
-    }
-  }
-
-  for (const clip of clipsToAdd) {
-    clone.animations.push(clip);
-  }
-}
-
-function ensureHubsComponents(userData) {
-  if (!userData.gltfExtensions) {
-    userData.gltfExtensions = {};
-  }
-  if (!userData.gltfExtensions.MOZ_hubs_components) {
-    userData.gltfExtensions.MOZ_hubs_components = {};
-  }
-  return userData;
-}
-
-export function combineHubsComponents(a, b) {
-  ensureHubsComponents(a);
-  ensureHubsComponents(b);
-  if (a.gltfExtensions.MOZ_hubs_components)
-    // TODO: Deep merge
-    a.gltfExtensions.MOZ_hubs_components = Object.assign(
-      a.gltfExtensions.MOZ_hubs_components,
-      b.gltfExtensions.MOZ_hubs_components
-    );
-
-  return a;
-}
-
-export function cloneSkeleton(skinnedMesh) {
-  skinnedMesh.skeleton.pose();
-
-  const boneClones = new Map();
-
-  for (const bone of skinnedMesh.skeleton.bones) {
-    const clone = bone.clone(false);
-    boneClones.set(bone, clone);
-  }
-
-  skinnedMesh.skeleton.bones[0].traverse((o) => {
-    if (o.type !== "Bone") return;
-    const clone = boneClones.get(o);
-    for (const child of o.children) {
-      clone.add(boneClones.get(child));
-    }
-  });
-  return new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
-}
-
-
-
-
 
 export const sceneService = {
   loadModel,
@@ -400,8 +263,9 @@ export const sceneService = {
   getScreenShot,
   getScreenShotByElementId,
   getModelFromScene,
+  setScene,
+  getScene,
   getTraits,
   setTraits,
-  setScene,
   setModel
 };
