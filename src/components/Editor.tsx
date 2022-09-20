@@ -3,8 +3,6 @@ import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
 
-import Inventory from "./Inventory"
-
 export default function Editor(props: any) {
   const { category, setCategory }: any = props
   const [isModal, setModal] = useState(false)
@@ -28,24 +26,6 @@ export default function Editor(props: any) {
     width: "40px",
     height: "40px",
     padding: "2px",
-  }
-
-  const inventoryButton = {
-    paddingLeft: "120px",
-    color: "#999999",
-    cursor: "pointer",
-    zIndex: 10,
-  }
-
-  const inventoryModal = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-    width: "100%",
-    top: 0,
-    position: "fixed",
-    zIndex: 5,
   }
 
   const setShowModal = () => {
@@ -201,19 +181,7 @@ export default function Editor(props: any) {
           <br />
           Foot
         </div>
-        <div
-          className=""
-          onClick={() => setShowModal()}
-          style={inventoryButton}
-        >
-          Inventory
-        </div>
       </Stack>
-      {isModal && (
-        <div style={inventoryModal}>
-          <Inventory />
-        </div>
-      )}
     </div>
   )
 }

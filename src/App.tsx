@@ -5,11 +5,6 @@ import CharacterEditor from "./components"
 import { createTheme, Alert, IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
-import { PlugWallet } from './ic/PlugWallet';
-import { Mint } from "./ic/Mint";
-
-import "./ic/style.scss";
-
 const defaultTheme = createTheme({
   palette: {
     mode: "dark",
@@ -34,18 +29,8 @@ function App() {
   }
 
   return (
-    <>
+    <React.Fragment>
       <CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
-      <div className="connect-mint-wrap">
-        <PlugWallet onConnect={handleConnect} onFail={handleFail}>
-          <Mint
-            onSuccess={(callback) => {
-              setShowAlert(true)
-              setAlertTitle("Mint Successful. View here: " + callback)
-            }}
-          />
-        </PlugWallet>
-      </div>
       {showAlert && (
         <Alert
           id="alertTitle"
@@ -68,7 +53,7 @@ function App() {
           {alertTitle}
         </Alert>
       )}
-    </>
+    </React.Fragment>
   )
 }
 

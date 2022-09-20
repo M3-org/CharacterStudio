@@ -80,7 +80,7 @@ export default function Selector(props) {
   }
 
   React.useEffect(() => {
-    if (!scene) return
+    if (!scene || !templateInfo) return
     if (category) {
       if (category === "gender") {
         setCollection(templates)
@@ -88,12 +88,14 @@ export default function Selector(props) {
       }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
+          console.log('traits are', traits)
+          console.log('templateInof is', templateInfo)
           setCollection(traits?.collection)
           setTraitName(traits?.trait)
         }
       })
     }
-  }, [category, scene])
+  }, [category, scene, templateInfo])
 
 
   React.useEffect(() => {
@@ -249,9 +251,9 @@ export default function Selector(props) {
                       <Avatar
                         className="icon"
                         src={
-                          item.thubnailsDirectory
+                          item.thumbnailsDirectory
                             ? item.thumbnail
-                            : `${templateInfo?.thubnailsDirectory}${item?.thumbnail}`
+                            : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
                         }
                       />
                       {selectValue === item?.id && loadingTrait > 0 && (
