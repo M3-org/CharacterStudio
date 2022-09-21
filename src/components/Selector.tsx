@@ -108,7 +108,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        setTempInfo("1")
+        setTempInfo("2")
       }
     }
     _get()

@@ -5,6 +5,8 @@ import CharacterEditor from "./components"
 import { createTheme, Alert, IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
+import Landing from "./components/Landing";
+import '.././src/styles/landing.scss'
 const defaultTheme = createTheme({
   palette: {
     mode: "dark",
@@ -30,7 +32,8 @@ function App() {
 
   return (
     <React.Fragment>
-      <CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
+      <Landing></Landing>
+      {/* <CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
       {showAlert && (
         <Alert
           id="alertTitle"
@@ -52,7 +55,7 @@ function App() {
         >
           {alertTitle}
         </Alert>
-      )}
+      )} */}
     </React.Fragment>
   )
 }
