@@ -1,0 +1,18 @@
+.download {
+    position : absolute;
+    width : 168px;
+    height : 55px;
+    top : 37px;
+    right : 44px;
+    border : solid 1px white;
+    font-family : Inter;
+    color : white;
+    display : flex;
+    justify-content : center;
+    align-Items : center;
+    &:hover {
+        background-color: white;
+        color : black ;
+        border-color : white;
+    }
+}

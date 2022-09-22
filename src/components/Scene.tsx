@@ -5,6 +5,7 @@ import React from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
+import '../styles/scene.scss'
 
 export default function Scene(props: any) {
   const { 
@@ -92,6 +93,14 @@ export default function Scene(props: any) {
           </PerspectiveCamera>
         </Canvas>
       </div>
+      <img style={{
+        position : "absolute",
+        height : "45px",
+        width : "154px",
+        marginTop : "33px",
+        marginLeft :"41px"
+      }} src={"/logo.png"}/>
+      <div className="download" ><span>DOWNLOAD</span></div>
       <div>
         <Selector
           templates={templates}
