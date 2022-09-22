@@ -5,6 +5,7 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
+import Skin from "./Skin"
 
 export default function Selector(props) {
   const {
@@ -28,12 +29,6 @@ export default function Selector(props) {
 
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
-
-  const handleChangeSkin = (event: Event, value: number | number[]) => {
-    for (const bodyTarget of templateInfo.bodyTargets) {
-      sceneService.setMaterialColor(scene, value, bodyTarget)
-    }
-  }
 
   const selectorContainer = {
     position: "absolute" as "absolute",
@@ -211,16 +206,10 @@ export default function Selector(props) {
           divider={<Divider orientation="vertical" flexItem />}
         >
           {category === "color" ? (
-           
-           <Slider
-            defaultValue={255}
-            valueLabelDisplay="off"
-            step={1}
-            max={255}
-            min={0}
-            onChange={handleChangeSkin}
-            sx={{ width: "50%", margin: "30px 0" }}
-          />
+            <Skin
+              scene={scene}
+              templateInfo={templateInfo}
+            />
           ) : (
             <React.Fragment>
               <div
