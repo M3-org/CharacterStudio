@@ -1,9 +1,5 @@
-.download {
-    position : absolute;
-    width : 168px;
+.but {
     height : 55px;
-    top : 37px;
-    right : 44px;
     border : solid 1px white;
     font-family : Inter;
     color : white;
@@ -15,4 +11,16 @@
         color : black ;
         border-color : white;
     }
+}
+.download {
+    width : 168px;
+}
+.glb {
+    width : 106px;
+}
+.fbx {
+    width : 106px;
+}
+.vrm {
+    width : 106px;
 }

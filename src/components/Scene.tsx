@@ -6,6 +6,7 @@ import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
 import '../styles/scene.scss'
+import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 
 export default function Scene(props: any) {
   const { 
@@ -100,7 +101,18 @@ export default function Scene(props: any) {
         marginTop : "33px",
         marginLeft :"41px"
       }} src={"/logo.png"}/>
-      <div className="download" ><span>DOWNLOAD</span></div>
+      <div style={{
+        display:"flex",
+        top : "37px",
+        right : "44px",
+        position : "absolute",
+        gap :'20px'
+      }}>
+        <div className="vrm but" ><span>VRM</span></div>
+        <div className="fbx but" ><span>FBX</span></div>
+        <div className="glb but" ><span>GLB</span></div>
+        <div className="download but" ><span>DOWNLOAD</span></div>
+      </div>
       <div>
         <Selector
           templates={templates}
