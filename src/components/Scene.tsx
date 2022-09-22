@@ -1,14 +1,25 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
 import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
+import { sceneService } from "../services";
+
 
 export default function Scene(props: any) {
+
+  const [showType, setShowType] = useState(false);
+  const [model, setModel] = useState<object>(Object);
+
+  useEffect(() => {
+    if(model)
+      sceneService.setModel(model);
+  }, [model])
+
   const { 
     wrapClass,
     templates,
@@ -31,6 +42,13 @@ export default function Scene(props: any) {
       zIndex: "0",
       top: "0",
       backgroundColor: "#111111"
+    }
+    const handleDownload = () =>{
+     showType ? setShowType(false) : setShowType(true);
+    }
+
+    const downLoad = (format : any) => {
+      sceneService.download(model, `CC_Model`, format, false);
     }
 
   return (
@@ -108,10 +126,13 @@ export default function Scene(props: any) {
         position : "absolute",
         gap :'20px'
       }}>
-        <div className="vrm but" ><span>VRM</span></div>
-        <div className="fbx but" ><span>FBX</span></div>
-        <div className="glb but" ><span>GLB</span></div>
-        <div className="download but" ><span>DOWNLOAD</span></div>
+        {showType && <>
+            <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
+            <div className="modeltype but" onClick={() => downLoad('fbx')} ><span>FBX</span></div>
+            <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
+          </>
+        }
+        <div className="download but" onClick={handleDownload}><span>DOWNLOAD</span></div>
       </div>
       <div>
         <Selector
