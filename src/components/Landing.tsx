@@ -1,6 +1,8 @@
 import { textAlign } from "@mui/system";
 
-export default function Landing(){
+export default function Landing({
+    onSetModel
+    }){
     return <div style = {{
         background : `url("/background.png") no-repeat center center fixed`,
         height : "100vh",
@@ -58,6 +60,7 @@ export default function Landing(){
                 }}>
                     <img
                         src={"/hunter.png"} 
+                        onClick = {() => onSetModel(1)}
                     ></img>
                     <span 
                         style={{
@@ -72,6 +75,7 @@ export default function Landing(){
                 }}>
                     <img
                         src={"/neuro.png"} 
+                        onClick = {() => onSetModel(2)}
                     ></img>
                     <span 
                         style={{
@@ -85,6 +89,7 @@ export default function Landing(){
                     gap : "20px"
                 }}>
                     <img
+                        onClick = {() => onSetModel(3)}
                         src={"/nachi.png"} 
                     ></img>
                     <span 
@@ -100,6 +105,7 @@ export default function Landing(){
                     gap : "20px"
                 }}>
                     <img
+                        onClick = {() => onSetModel(4)}
                         src={"/hotwolf.png"} 
                     ></img>
                     <span 
@@ -114,6 +120,7 @@ export default function Landing(){
                     gap : "20px"
                 }}>
                     <img
+                        onClick = {() => onSetModel(5)}
                         src={"/anata.png"} 
                     ></img>
                     <span 
@@ -128,6 +135,7 @@ export default function Landing(){
                     gap : "20px"
                 }}>
                     <img
+                        onClick = {() => onSetModel(6)}
                         src={"/clonex.png"} 
                     ></img>
                     <span 
