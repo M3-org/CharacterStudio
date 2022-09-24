@@ -14,6 +14,15 @@ export default function Scene(props: any) {
 
   const [showType, setShowType] = useState(false);
   const [model, setModel] = useState<object>(Object);
+  const [randomFlag, setRandomFlag] = useState(-1);
+ 
+  const random = () => {
+    if(randomFlag == -1){
+      setRandomFlag(0);
+    }else{
+      setRandomFlag(1-randomFlag)
+    }
+  }
 
   useEffect(() => {
     if(model)
@@ -145,8 +154,9 @@ export default function Scene(props: any) {
           template={template}
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
+          randomFlag={randomFlag}
         />
-        <Editor category={category} setCategory={setCategory} />
+        <Editor random = {random} category={category} setCategory={setCategory} />
       </div>
     </div>
   );
