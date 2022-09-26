@@ -115,7 +115,7 @@ export default function Selector(props) {
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
 
-  React.useEffect( () => {
+  React.useEffect( async () => {
     if(randomFlag === -1) return;
     
     let lists = apiService.fetchCategoryList();
@@ -124,28 +124,37 @@ export default function Selector(props) {
       let traitName = props[0];
       scene.remove(avatar[traitName].model);
     })
-    var result;
-    lists.map((list) => {
-      apiService.fetchTraitsByCategory(list).then(
-      async (traits) => {
+
+    // lists.map((list) => {
+    //   apiService.fetchTraitsByCategory(list).then(
+    //    (traits) => {
+    //     if (traits) {
+    //       let collection = traits.collection;
+    //       ranItem = collection[Math.floor(Math.random()*collection.length)];
+    //       itemLoader(ranItem,traits);
+    //     }
+    //   })
+    // });
+    
+    let buffer={};
+    for(let i=0; i < lists.length ; i++){
+     await apiService.fetchTraitsByCategory(lists[i]).then(
+       async (traits) => {
         if (traits) {
-          // setCollection(traits?.collection)
-          // setTraitName(traits?.trait)
           let collection = traits.collection;
           ranItem = collection[Math.floor(Math.random()*collection.length)];
-          itemLoader(ranItem);
+          var temp = await itemLoader(ranItem,traits);
+          buffer = {...buffer,...temp};
+          if(i == lists.length-1)
+          setAvatar({
+            ...avatar,
+            ...buffer
+          })          
         }
       })
-    })
-
-   scene.children.map((group) => {
-        console.log(group)
-    })
+    }
 
   }, [randomFlag])
-
-
-  const test = () => {}  
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
@@ -176,9 +185,10 @@ export default function Selector(props) {
     setSelectValue(trait?.id)
   }
 
-const itemLoader =  (item) => {
+const itemLoader =  async(item, traits = null) => {
  const loader =  new GLTFLoader()
- loader
+ var vrm;
+ await loader
   .loadAsync(
     `${templateInfo.traitsDirectory}${item?.directory}`,
     (e) => {
@@ -187,7 +197,7 @@ const itemLoader =  (item) => {
     },
   )
   .then( (gltf) => {
-    const vrm = gltf
+     vrm = gltf
     // VRM.from(gltf).then(async (vrm) => {
       // vrm.scene.scale.z = -1;
       // console.log("scene.add", scene.add)
@@ -229,6 +239,12 @@ const itemLoader =  (item) => {
     setLoadingTraitOverlay(false)
     startAnimation(vrm)
   })
+    return {
+        [traits?.trait]: {
+          traitInfo: item,
+          model: vrm.scene,
+        }
+      }
 }
   return (
     <div className="selector-container" style={selectorContainer}>
