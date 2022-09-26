@@ -124,17 +124,6 @@ export default function Selector(props) {
       let traitName = props[0];
       scene.remove(avatar[traitName].model);
     })
-
-    // lists.map((list) => {
-    //   apiService.fetchTraitsByCategory(list).then(
-    //    (traits) => {
-    //     if (traits) {
-    //       let collection = traits.collection;
-    //       ranItem = collection[Math.floor(Math.random()*collection.length)];
-    //       itemLoader(ranItem,traits);
-    //     }
-    //   })
-    // });
     
     let buffer={};
     for(let i=0; i < lists.length ; i++){
