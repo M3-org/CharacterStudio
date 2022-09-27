@@ -13,7 +13,6 @@ import { sceneService } from "../services";
 export default function Scene(props: any) {
 
   const [showType, setShowType] = useState(false);
-  const [model, setModel] = useState<object>(Object);
   const [randomFlag, setRandomFlag] = useState(-1);
  
   const random = () => {
@@ -23,11 +22,6 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
-
-  useEffect(() => {
-    if(model)
-      sceneService.setModel(model);
-  }, [model])
 
   const { 
     wrapClass,
@@ -42,7 +36,8 @@ export default function Scene(props: any) {
     setTemplate,
     template,
     setTemplateInfo,
-    templateInfo }: any = props;
+    templateInfo,
+    model }: any = props;
 
     const canvasWrap = {
       height: "100vh",

@@ -106,7 +106,7 @@ export default function CharacterEditor(props: any) {
         })
     }
   }, [templateInfo.file])
-
+ 
   return (
     <Suspense fallback="loading...">
       <ThemeProvider theme={theme ?? defaultTheme}>
@@ -138,6 +138,7 @@ export default function CharacterEditor(props: any) {
               template={template}
               setTemplateInfo={setTemplateInfo}
               templateInfo={templateInfo}
+              model={model}
             />
           </Fragment>
         )}
