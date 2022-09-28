@@ -1,5 +1,5 @@
 {
-  "name": "avatarcreator",
+  "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
   "scripts": {
     "dev": "vite",
