@@ -5,6 +5,7 @@ import DownloadCharacter from "./Download"
 import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
+import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 
 interface Avatar{
@@ -83,6 +84,7 @@ export default function CharacterEditor(props: any) {
   }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
+
       setLoadingModel(true)
       const loader = new GLTFLoader()
       loader
@@ -90,8 +92,8 @@ export default function CharacterEditor(props: any) {
           setLoadingModelProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
-          const vrm = gltf
-          // VRM.from(gltf).then((vrm) => {
+          // const vrm = gltf
+          VRM.from(gltf).then((vrm) => {
             vrm.scene.traverse((o) => {
               o.frustumCulled = false
             })
@@ -101,7 +103,7 @@ export default function CharacterEditor(props: any) {
             setLoadingModel(false)
             setScene(vrm.scene)
             setModel(vrm)
-          // })
+          })
           startAnimation(vrm)
         })
     }

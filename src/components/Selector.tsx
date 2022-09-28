@@ -5,6 +5,7 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
+// import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 
 export default function Selector(props) {
@@ -188,7 +189,7 @@ const itemLoader =  async(item, traits = null) => {
   .then( (gltf) => {
      vrm = gltf
     // VRM.from(gltf).then(async (vrm) => {
-      // vrm.scene.scale.z = -1;
+      vrm.scene.scale.z = -1;
       // console.log("scene.add", scene.add)
       // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
       // await until scene is not null
@@ -228,12 +229,13 @@ const itemLoader =  async(item, traits = null) => {
     setLoadingTraitOverlay(false)
     startAnimation(vrm)
   })
-    return {
-        [traits?.trait]: {
-          traitInfo: item,
-          model: vrm.scene,
-        }
+  return {
+      [traits?.trait]: {
+        traitInfo: item,
+        model: vrm.scene,
       }
+    }
+  // });
 }
   return (
     <div className="selector-container" style={selectorContainer}>
