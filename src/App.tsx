@@ -5,6 +5,8 @@ import CharacterEditor from "./components"
 import { createTheme, Alert, IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
+import Landing from "./components/Landing";
+import '.././src/styles/landing.scss'
 const defaultTheme = createTheme({
   palette: {
     mode: "dark",
@@ -17,6 +19,7 @@ const defaultTheme = createTheme({
 function App() {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [modelClass, setModelClass] = useState<number>(0)
 
   const handleConnect = (principalId) => {
     console.log("Logged in with principalId", principalId);
@@ -30,29 +33,38 @@ function App() {
 
   return (
     <React.Fragment>
-      <CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
-      {showAlert && (
-        <Alert
-          id="alertTitle"
-          variant="filled"
-          severity="success"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setShowAlert(false)
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
+      {
+        !modelClass ? 
+        <Landing 
+          onSetModel = {
+            (value) => setModelClass(value)
           }
-          sx={{ mb: 2 }}
-        >
-          {alertTitle}
-        </Alert>
-      )}
+        /> : 
+        (<><CharacterEditor templates={defaultTemplates} theme={defaultTheme} />
+          {showAlert && (
+            <Alert
+              id="alertTitle"
+              variant="filled"
+              severity="success"
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setShowAlert(false)
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+              sx={{ mb: 2 }}
+            >
+              {alertTitle}
+            </Alert>
+          )}</>
+        )
+      }
     </React.Fragment>
   )
 }

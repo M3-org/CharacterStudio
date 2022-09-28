@@ -1,12 +1,28 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
+import '../styles/scene.scss'
+import { position } from "html2canvas/dist/types/css/property-descriptors/position";
+import { sceneService } from "../services";
+
 
 export default function Scene(props: any) {
+
+  const [showType, setShowType] = useState(false);
+  const [randomFlag, setRandomFlag] = useState(-1);
+ 
+  const random = () => {
+    if(randomFlag == -1){
+      setRandomFlag(0);
+    }else{
+      setRandomFlag(1-randomFlag)
+    }
+  }
+
   const { 
     wrapClass,
     templates,
@@ -20,7 +36,8 @@ export default function Scene(props: any) {
     setTemplate,
     template,
     setTemplateInfo,
-    templateInfo }: any = props;
+    templateInfo,
+    model }: any = props;
 
     const canvasWrap = {
       height: "100vh",
@@ -29,6 +46,13 @@ export default function Scene(props: any) {
       zIndex: "0",
       top: "0",
       backgroundColor: "#111111"
+    }
+    const handleDownload = () =>{
+     showType ? setShowType(false) : setShowType(true);
+    }
+
+    const downLoad = (format : any) => {
+      sceneService.download(model, `CC_Model`, format, false);
     }
 
   return (
@@ -92,6 +116,28 @@ export default function Scene(props: any) {
           </PerspectiveCamera>
         </Canvas>
       </div>
+      <img style={{
+        position : "absolute",
+        height : "45px",
+        width : "154px",
+        marginTop : "33px",
+        marginLeft :"41px"
+      }} src={"/logo.png"}/>
+      <div style={{
+        display:"flex",
+        top : "37px",
+        right : "44px",
+        position : "absolute",
+        gap :'20px'
+      }}>
+        {showType && <>
+            <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
+            <div className="modeltype but" onClick={() => downLoad('fbx')} ><span>FBX</span></div>
+            <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
+          </>
+        }
+        <div className="download but" onClick={handleDownload}><span>DOWNLOAD</span></div>
+      </div>
       <div>
         <Selector
           templates={templates}
@@ -103,8 +149,9 @@ export default function Scene(props: any) {
           template={template}
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
+          randomFlag={randomFlag}
         />
-        <Editor category={category} setCategory={setCategory} />
+        <Editor random = {random} category={category} setCategory={setCategory} />
       </div>
     </div>
   );

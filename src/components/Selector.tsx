@@ -5,6 +5,7 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
+import Skin from "./Skin"
 
 export default function Selector(props) {
   const {
@@ -17,7 +18,9 @@ export default function Selector(props) {
     template,
     setTemplateInfo,
     templateInfo,
+    randomFlag
   }: any = props
+
   const [selectValue, setSelectValue] = useState("0")
 
   const [collection, setCollection] = useState([])
@@ -28,12 +31,6 @@ export default function Selector(props) {
 
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
-
-  const handleChangeSkin = (event: Event, value: number | number[]) => {
-    for (const bodyTarget of templateInfo.bodyTargets) {
-      sceneService.setMaterialColor(scene, value, bodyTarget)
-    }
-  }
 
   const selectorContainer = {
     position: "absolute" as "absolute",
@@ -103,12 +100,12 @@ export default function Selector(props) {
       sceneService.setScene(scene);
     }
   }, [scene])
-
+  
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        setTempInfo("1")
+        setTempInfo("2")
       }
     }
     _get()
@@ -117,6 +114,36 @@ export default function Selector(props) {
     scene,
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
+
+  React.useEffect( async () => {
+    if(randomFlag === -1) return;
+    
+    let lists = apiService.fetchCategoryList();
+    let ranItem;
+    Object.entries(avatar).map((props : any) => {
+      let traitName = props[0];
+      scene.remove(avatar[traitName].model);
+    })
+    
+    let buffer={};
+    for(let i=0; i < lists.length ; i++){
+     await apiService.fetchTraitsByCategory(lists[i]).then(
+       async (traits) => {
+        if (traits) {
+          let collection = traits.collection;
+          ranItem = collection[Math.floor(Math.random()*collection.length)];
+          var temp = await itemLoader(ranItem,traits);
+          buffer = {...buffer,...temp};
+          if(i == lists.length-1)
+          setAvatar({
+            ...avatar,
+            ...buffer
+          })          
+        }
+      })
+    }
+
+  }, [randomFlag])
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(id).then((res) => {
@@ -140,66 +167,74 @@ export default function Selector(props) {
         } else {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
-          const loader = new GLTFLoader()
-          loader
-            .loadAsync(
-              `${templateInfo.traitsDirectory}${trait?.directory}`,
-              (e) => {
-                // console.log((e.loaded * 100) / e.total);
-                setLoadingTrait(Math.round((e.loaded * 100) / e.total))
-              },
-            )
-            .then(async (gltf) => {
-              const vrm = gltf
-              // VRM.from(gltf).then(async (vrm) => {
-                // vrm.scene.scale.z = -1;
-                // console.log("scene.add", scene.add)
-                // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
-                // await until scene is not null
-                await new Promise<void>((resolve) => {
-                  // if scene, resolve immediately
-                  if (scene && scene.add) {
-                    resolve()
-                  } else {
-                    // if scene is null, wait for it to be set
-                    const interval = setInterval(() => {
-                      if (scene && scene.add) {
-                        clearInterval(interval)
-                        resolve()
-                      }
-                    }, 100)
-                  }
-                })
-
-                scene.add(vrm.scene)
-                // vrm.humanoid.getBoneNode(
-                //   VRMSchema.HumanoidBoneName.Hips,
-                // ).rotation.y = Math.PI
-                vrm.scene.frustumCulled = false
-                // console.log(trait);
-                if (avatar[traitName]) {
-                  setAvatar({
-                    ...avatar,
-                    [traitName]: {
-                      traitInfo: trait,
-                      model: vrm.scene,
-                    }
-                  })
-                  if (avatar[traitName].model) {
-                    scene.remove(avatar[traitName].model)
-                  }
-                }
-                setLoadingTrait(null)
-                setLoadingTraitOverlay(false)
-                startAnimation(vrm)
-              })
-            // })
+          itemLoader(trait)
         }
       }
     }
     setSelectValue(trait?.id)
   }
 
+const itemLoader =  async(item, traits = null) => {
+ const loader =  new GLTFLoader()
+ var vrm;
+ await loader
+  .loadAsync(
+    `${templateInfo.traitsDirectory}${item?.directory}`,
+    (e) => {
+      // console.log((e.loaded * 100) / e.total);
+      setLoadingTrait(Math.round((e.loaded * 100) / e.total))
+    },
+  )
+  .then( (gltf) => {
+     vrm = gltf
+    // VRM.from(gltf).then(async (vrm) => {
+      // vrm.scene.scale.z = -1;
+      // console.log("scene.add", scene.add)
+      // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
+      // await until scene is not null
+    new Promise<void>( (resolve) => {
+    // if scene, resolve immediately
+    if (scene && scene.add) {
+       resolve()
+    } else {
+        // if scene is null, wait for it to be set
+        const interval = setInterval(() => {
+          if (scene && scene.add) {
+            clearInterval(interval)
+            resolve()
+          }
+        }, 100)
+      }
+    })
+
+    scene.add(vrm.scene)
+      // vrm.humanoid.getBoneNode(
+      //   VRMSchema.HumanoidBoneName.Hips,
+      // ).rotation.y = Math.PI
+    vrm.scene.frustumCulled = false
+    if (avatar[traitName]) {
+      setAvatar({
+        ...avatar,
+        [traitName]: {
+          traitInfo: item,
+          model: vrm.scene,
+        }
+      })
+      if (avatar[traitName].model) {
+        scene.remove(avatar[traitName].model)
+      }
+    }
+    setLoadingTrait(null)
+    setLoadingTraitOverlay(false)
+    startAnimation(vrm)
+  })
+    return {
+        [traits?.trait]: {
+          traitInfo: item,
+          model: vrm.scene,
+        }
+      }
+}
   return (
     <div className="selector-container" style={selectorContainer}>
       {templateInfo?.traitsDirectory && (
@@ -211,16 +246,10 @@ export default function Selector(props) {
           divider={<Divider orientation="vertical" flexItem />}
         >
           {category === "color" ? (
-           
-           <Slider
-            defaultValue={255}
-            valueLabelDisplay="off"
-            step={1}
-            max={255}
-            min={0}
-            onChange={handleChangeSkin}
-            sx={{ width: "50%", margin: "30px 0" }}
-          />
+            <Skin
+              scene={scene}
+              templateInfo={templateInfo}
+            />
           ) : (
             <React.Fragment>
               <div
@@ -264,7 +293,7 @@ export default function Selector(props) {
                           {loadingTrait}%
                         </Typography>
                       )}
-                    </div>
+                    </div>                                                         
                   )
                 })}
               <div style={{ visibility: "hidden" }}>
@@ -285,5 +314,6 @@ export default function Selector(props) {
         }
       />
     </div>
+
   )
 }

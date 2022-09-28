@@ -109,10 +109,8 @@ async function setMaterialColor(scene: any, value: any, target: any) {
   if (scene && value) {
     const object = scene.getObjectByName(target);
     const randColor = value;
-    const skinShade = new THREE.Color(
-      `rgb(${randColor},${randColor},${randColor})`
-    );
-    object.material[0].color.set(skinShade);
+    const skinShade = new THREE.Color(randColor);
+    object.material.color.set(skinShade);
   }
 }
 

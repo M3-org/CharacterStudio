@@ -32,6 +32,10 @@ export default function Editor(props: any) {
     setModal(!isModal)
   }
 
+  const handleRandom = () => {
+    props.random();
+  }
+
   return (
     <div
       style={{
@@ -181,6 +185,19 @@ export default function Editor(props: any) {
           <br />
           Foot
         </div>
+        <div
+          onClick={() => handleRandom()}
+          style={
+            category && category === "random"
+              ? {...selectorButton, right : "50px", position : "absolute"}
+              : {...selectorButtonActive, right : "50px",  position : "absolute"}
+          }
+        >
+          <Avatar style={selectorButtonIcon} src={"/dice.svg"} />
+          <br />
+           Randomize
+        </div>
+        {/* <RandomizeButton /> */}
       </Stack>
     </div>
   )

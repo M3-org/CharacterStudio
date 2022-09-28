@@ -6,11 +6,23 @@ export const apiService = {
   fetchBones,
   filterElements,
   fetchTemplate,
-  fetchTraitsByCategory
+  fetchTraitsByCategory,
+  fetchCategoryList
 };
 
 let modelTraits = []
 let fetchedTemplate
+
+function fetchCategoryList () { //need to update 
+  const categoryList = [
+    "chest",
+    "head",
+    "neck",
+    "legs",
+    "foot"
+  ]
+  return categoryList;
+} 
 
 async function fetchTraitsByCategory(name: any) {
   const filtered = modelTraits.filter((trait: any) => trait.trait === name);

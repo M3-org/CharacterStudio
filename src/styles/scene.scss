@@ -1,0 +1,20 @@
+.but {
+    height : 55px;
+    border : solid 1px white;
+    font-family : Inter;
+    color : white;
+    display : flex;
+    justify-content : center;
+    align-Items : center;
+    &:hover {
+        background-color: white;
+        color : black ;
+        border-color : white;
+    }
+}
+.download {
+    width : 168px;
+}
+.modeltype {
+    width : 106px;
+}
