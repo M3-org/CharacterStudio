@@ -242,7 +242,7 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    exporter.parse(model, (vrm : ArrayBuffer) => {
+    exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
       saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
   }
