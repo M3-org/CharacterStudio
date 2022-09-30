@@ -1,8 +1,12 @@
 import { display } from "html2canvas/dist/types/css/property-descriptors/display"
 import React from "react"
 import { sceneService } from "../services"
+import { RgbColorPicker  } from "react-colorful";
+import { useEffect, useState, useRef } from "react"
 
 function Skin({ scene, templateInfo }) {
+  const [color, setColor] = useState("#aabbcc");
+  const [colorPicker, setColorPick] = useState(false);
   const container = {
     display: "flex",
     justifyContent: "center",
@@ -23,6 +27,10 @@ function Skin({ scene, templateInfo }) {
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
     }
+  }
+  const handleColorPick = (color :any) => {
+    const col = "rgb(" + color.r + ', ' + color.g + ', ' + color.b + ")";
+    handleChangeSkin(col)
   }
   return (
     <div style={{ ...container }}>
@@ -103,6 +111,17 @@ function Skin({ scene, templateInfo }) {
         }}
         onClick={() => handleChangeSkin("rgb(100, 69, 49)")}
       ></button>
+      <button
+        style={{
+          ...btn,
+          backgroundColor: "rgb(255, 0, 0)",
+        }}
+        onClick={() => setColorPick(!colorPicker)}
+      >
+      </button>
+      <>
+      {!!colorPicker && <RgbColorPicker style = {{position:'absolute', zIndex : "99999"}} color={color} onChange={setColor} onClick={handleColorPick(color) } />}
+      </>
     </div>
   )
 }
