@@ -1,5 +1,6 @@
 import { BufferAttribute, } from "three";
 import { createCanvas } from "canvas";
+import { ConnectingAirportsOutlined } from "@mui/icons-material";
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
         allowedUserName: vrmMeta.allowedUserName,
@@ -77,7 +78,7 @@ export default class VRMExporter {
         }
         // TODO: name基準で重複除外 これでいいのか？
         const uniqueMaterials = materials
-            .filter((material, index, self) => self.findIndex((e) => e.name === material.name) === index)
+            .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
             .map((material) => material);
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
         const icon = vrmMeta.texture
@@ -146,11 +147,12 @@ export default class VRMExporter {
             const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
             if (mesh.geometry.userData.targetNames) {
                 mesh.geometry.userData.targetNames.forEach((targetName, index) => {
+                    console.log(morphIndexPair);
                     const morphIndex = morphIndexPair.filter((pair) => pair[0] === index.toString())[0][1];
                     const morphAttribute = mesh.geometry.morphAttributes;
                     meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
                     meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
-                });
+                }); 
             }
         });
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
@@ -309,7 +311,9 @@ export default class VRMExporter {
             upperArmTwist: humanoid.humanDescription.upperArmTwist,
             upperLegTwist: humanoid.humanDescription.upperLegTwist,
         };
-        const materialProperties = materials.map((material) => material.userData.vrmMaterialProperties);
+        const materialProperties = uniqueMaterials.map((material) => 
+            material.userData.vrmMaterialProperties
+        );
         const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
         const bufferViews = [];
@@ -385,6 +389,7 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
