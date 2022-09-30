@@ -27,13 +27,7 @@ export default [
     "format": "vrm",
     "bodyTargets": [
       "Body",
-      "Mesh",
-      "Mesh_1",
-      "Mesh_2",
-      "Mesh_3",
-      "Mesh_4",
-      "Mesh_5",
-      "Mesh_6",
+      "Facebaked(copy)_1"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/",
