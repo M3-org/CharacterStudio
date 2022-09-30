@@ -7,12 +7,7 @@ export default [
     "format": "vrm",
     "bodyTargets": [
       "Body",
-      "Mesh001",
-      "Mesh001_1",
-      "Mesh001_2",
-      "Mesh001_3",
-      "Mesh001_4",
-      "Mesh001_5",
+      "Headbaked(copy)"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/",
