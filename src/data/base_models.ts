@@ -2,9 +2,9 @@ export default [
   {
     "id": "1",
     "name": "Female",
-    "file": "./models/humanFemale.glb",
+    "file": "./models/femaleBasev0blender.vrm",
     "thumbnail": "/body.png",
-    "format": "glb",
+    "format": "vrm",
     "bodyTargets": [
       "Body",
       "Mesh001",
@@ -17,14 +17,14 @@ export default [
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/lootFemale.json",
-    "animationPath": "./animations/animationFemale.glb"
+    "animationPath": "./animations/vrmanim.glb"
   },
   {
     "id": "2",
     "name": "Male",
-    "file": "./models/HumanMale.glb",
+    "file": "./models/maleBasev0blender.vrm",
     "thumbnail": "/body.png",
-    "format": "glb",
+    "format": "vrm",
     "bodyTargets": [
       "Body",
       "Mesh",
@@ -38,6 +38,6 @@ export default [
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/lootMale.json",
-    "animationPath": "./animations/animationMale.glb"
+    "animationPath": "./animations/vrmanim.glb"
   }
 ]

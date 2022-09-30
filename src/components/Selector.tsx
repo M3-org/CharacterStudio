@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
-// import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 
 export default function Selector(props) {
@@ -174,7 +174,13 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-
+const renameVRMBones = (vrm) =>{
+  for (let bone in VRMSchema.HumanoidBoneName) {
+    let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+    if (bn != null)
+        bn.name = VRMSchema.HumanoidBoneName[bone];
+  } 
+}
 const itemLoader =  async(item, traits = null) => {
  const loader =  new GLTFLoader()
  var vrm;
@@ -189,10 +195,10 @@ const itemLoader =  async(item, traits = null) => {
   .then( (gltf) => {
      vrm = gltf
     // VRM.from(gltf).then(async (vrm) => {
-      vrm.scene.scale.z = -1;
-      // console.log("scene.add", scene.add)
-      // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
-      // await until scene is not null
+    // vrm.scene.scale.z = -1;
+    // console.log("scene.add", scene.add)
+    // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
+    // await until scene is not null
     new Promise<void>( (resolve) => {
     // if scene, resolve immediately
     if (scene && scene.add) {
@@ -206,6 +212,16 @@ const itemLoader =  async(item, traits = null) => {
           }
         }, 100)
       }
+    })
+    VRM.from(gltf).then((vrm2) => {
+      vrm2.scene.traverse((o) => {
+        o.frustumCulled = false
+      })
+      //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
+      renameVRMBones(vrm2);
+      setLoadingTrait(null)
+      setLoadingTraitOverlay(false)
+      startAnimation(vrm2)
     })
 
     scene.add(vrm.scene)
@@ -225,9 +241,6 @@ const itemLoader =  async(item, traits = null) => {
         scene.remove(avatar[traitName].model)
       }
     }
-    setLoadingTrait(null)
-    setLoadingTraitOverlay(false)
-    startAnimation(vrm)
   })
   return {
       [traits?.trait]: {

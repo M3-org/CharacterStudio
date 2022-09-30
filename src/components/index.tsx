@@ -78,6 +78,15 @@ export default function CharacterEditor(props: any) {
     }
   }, [avatar])
 
+  
+  const renameVRMBones = (vrm) =>{
+    for (let bone in VRMSchema.HumanoidBoneName) {
+      let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+      if (bn != null)
+         bn.name = VRMSchema.HumanoidBoneName[bone];
+    } 
+  }
+
   useEffect(() => {
     if(model)
     sceneService.setModel(model);
@@ -92,19 +101,19 @@ export default function CharacterEditor(props: any) {
           setLoadingModelProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
-          // const vrm = gltf
+          
           VRM.from(gltf).then((vrm) => {
+            renameVRMBones(vrm);
             vrm.scene.traverse((o) => {
               o.frustumCulled = false
             })
-            // vrm.humanoid.getBoneNode(
-            //   VRMSchema.HumanoidBoneName.Hips,
-            // ).rotation.y = Math.PI
+            vrm.scene.rotation.set(Math.PI, 0, Math.PI)
             setLoadingModel(false)
             setScene(vrm.scene)
             setModel(vrm)
+            startAnimation(vrm)
           })
-          startAnimation(vrm)
+          
         })
     }
   }, [templateInfo.file])
