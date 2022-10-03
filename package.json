@@ -1,5 +1,5 @@
 {
-  "name": "avatarcreator",
+  "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
   "scripts": {
     "dev": "vite",
@@ -49,7 +49,6 @@
     "eslint": "^7.32.0",
     "prettier": "^2.3.2",
     "typescript": "^4.6.3",
-    "vite": "^2.4.4",
-    "vite-plugin-dts": "^1.2.0"
+    "vite": "^2.4.4"
   }
 }
