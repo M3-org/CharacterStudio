@@ -8,141 +8,139 @@ export default function Landing({
         height : "100vh",
         backgroundSize : 'cover',
         display : 'flex',
-        justifyContent : "center",
+        flexDirection : 'column',
         alignItems : 'center'
     }
     }>
-        <div style={{
-            backgroundColor : 'black',
-            width : '916px',
-            height : '895px',
-            display : 'flex',
-            alignItems : "center",
-            flexDirection : "column"
-        }}>
+       <div style={{
+        background : 'radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%)',
+        width : '1377px',
+        top : '0px',
+        display : 'flex',
+        flexDirection : "column"
+       }}>     
             <img 
                 src={"/logo.png"} 
                 style = {{
-                    width : '345px',
-                    height : '100px',
-                    marginTop : "56px"
+                    width: '505.7px',
+                    height: '148.83px',
+                    display: 'inline-block',
+                    margin: '41px auto auto'
                 }}
             />
             <div style={{
-                color : "white",
-                fontFamily : 'Inter',
+                color : "#61E5F9",
+                fontFamily : 'Proxima',
                 fontStyle : "normal",
-                fontWeight : "400",
-                fontSize : "32px",
-                lineHeight : "39px",
+                fontWeight : "800",
+                fontSize : "40px",
+                lineHeight : "49px",
                 textAlign : "center",
-                marginTop : "49px"
-            }} >
-                <div>CREAT YOUR METAVERSE AVATAR</div>
+                marginTop : '12px'
+            }} >Character Studio</div>
+        </div>
+        <div style={{
+            color : "white",
+            fontFamily : 'Proxima',
+            fontStyle : "normal",
+            fontWeight : "400",
+            fontSize : "32px",
+            lineHeight : "39px",
+            textAlign : "center",
+            marginTop : '80px'
+        }} >
+            <div style={{
+                lineHeight : "49px",
+                fontWeight : '800',
+                fontSize : '40px'
+            }}>PICK A CLASS
                 <div style={{
-                    marginTop : "59px",
-                    lineHeight : "38.73px"
-                }}>PICK A CLASS <br/>   You'll be able to customzie in a moment </div>
+                    fontStyle: 'normal',
+                    fontWeight: '400',
+                    fontSize: '30px',
+                    lineHeight: '37px'
+                    }}> You'll be able to customzie in a moment 
+                </div>
+            </div>
+        </div>
+        <div 
+            className="imgs"
+            style={{
+                display : 'flex',
+                gap: '50px',
+                marginTop: '30px',
+            }}
+        >
+            <div style={{
+                background: 'rgba(38, 38, 38, 0.25)',
+                border: '2px solid #525073',
+                backdropFilter: 'blur(22.5px)',
+                width : '450px',
+                height : '600px',
+                display : 'flex',
+                flexDirection : 'column',
+                alignItems : 'center',
+                boxSizing : 'borde-box',
+                transform: 'skewX(-15deg)',
+                borderRadius : '10px'
+            }}>
+                <span style={{
+                  width : "238px",
+                  height : "49px",
+                  fontFamily : "Proxima",
+                  fontStyle : "normal",
+                  fontWeight : "800",
+                  fontSize : "40px",
+                  lineHeight : '49px',
+                  color : "#61E5F9",
+                  display : 'inline-block',
+                  transform : 'skewX(15deg)',
+                  marginTop: '40px'
+                }}>Drophunter</span>
+                <img
+                    src={'/drophunter.png'}
+                    style={{
+                        position: 'absolute',
+                        bottom: '0px',
+                        transform : 'skewX(15deg)',
+                    }}
+                />
             </div>
             <div style={{
-                gridTemplateColumns : "repeat(3, 1fr)",
-                columnGap : "61px",
-                display : "grid",
-                rowGap : "20px",
-                marginTop : "20px",
-                fontFamily : 'Inter'
+                background: 'rgba(38, 38, 38, 0.25)',
+                border: '2px solid #525073',
+                backdropFilter: 'blur(22.5px)',
+                width : '450px',
+                display : 'flex',
+                flexDirection : 'column',
+                alignItems : 'center',
+                height : '600px',
+                boxSizing : 'borde-box',
+                transform: 'skewX(-15deg)',
+                borderRadius : '10px',
+                overflow : 'hidden'
             }}>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        src={"/hunter.png"} 
-                        onClick = {() => onSetModel(1)}
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Drop Hunter</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        src={"/neuro.png"} 
-                        onClick = {() => onSetModel(2)}
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Neurohacker</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(3)}
-                        src={"/nachi.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Nachi</span>
-                </div>
- 
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(4)}
-                        src={"/hotwolf.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Hotwolf</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(5)}
-                        src={"/anata.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Anata(holders only)</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(6)}
-                        src={"/clonex.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Clonex(holders only)</span>
-                </div>
+                <span style={{
+                  width : "238px",
+                  height : "49px",
+                  fontFamily : "Proxima",
+                  fontStyle : "normal",
+                  fontWeight : "800",
+                  fontSize : "40px",
+                  lineHeight : '49px',
+                  color : "#61E5F9",
+                  display : 'inline-block',
+                  transform : 'skewX(15deg)',
+                  marginTop: '40px'
+                }}>Neurohacker</span>
+                <img
+                    src={'/neurohacker.png'}
+                    style={{
+                        position: 'absolute',
+                        bottom: '0px',
+                        transform : 'skewX(15deg)',
+                    }}
+                />
             </div>
         </div>
     </div>
