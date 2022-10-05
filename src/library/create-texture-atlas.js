@@ -186,7 +186,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
         texture.flipY = false;
         return [name, texture];
     })));
-    console.log('finished')
+    //console.log('finished')
     return { bakeObjects, textures, uvs };
 };
 export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => {
@@ -199,11 +199,14 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
       // for each mesh in meshes
       meshes.forEach((mesh) => {
         const material = mesh.material;
+        
         // use the vrmData of the first material, and call it atlas if it exists
         if (vrmData == null){
           vrmData = getMaterialVRMData(material);
-          if (vrmData != null)
+          if (vrmData != null){
             vrmData.name = "atlas";
+
+          }
         }
         // check if bakeObjects as any objects that contain the material property with value of mesh.material
         let bakeObject = bakeObjects.find((bakeObject) => bakeObject.material === material);
@@ -224,8 +227,8 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
         }
       });
   
-      console.log('bakeObjects')
-      console.log(bakeObjects);
+      //console.log('bakeObjects')
+      //console.log(bakeObjects);
   
       const contexts = Object.fromEntries(
         IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX })])
@@ -316,7 +319,7 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
   
           // iterate through imageToMaterialMapping[name] and find the first image that is not null
           let image = getTextureImage(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-          console.log('name', name, 'image', image);
+          //console.log('name', name, 'image', image);
           if (image) {
             context.drawImage(image, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
           } else {
@@ -329,7 +332,7 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
           }
         });
   
-        console.log('mesh is', mesh)
+        //console.log('mesh is', mesh)
   
         const geometry = mesh.geometry
   
@@ -354,11 +357,11 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
         // meshBufferGeometry is a THREE.BufferGeometry
         const meshBufferGeometry = mesh.geometry;
         
-        console.log('meshBufferGeometry' , meshBufferGeometry)
+        //console.log('meshBufferGeometry' , meshBufferGeometry)
         // for each triangle in meshBufferGeometry, find the uv coordinates of the triangle's vertices
-        console.log('meshBufferGeometry.attributes.uv', meshBufferGeometry.attributes.uv)
+        //console.log('meshBufferGeometry.attributes.uv', meshBufferGeometry.attributes.uv)
         // start by iterating over the indices of the triangle vertices
-        console.log(meshBufferGeometry.index)
+        //console.log(meshBufferGeometry.index)
         // const arr = meshBufferGeometry.index.array ?? meshBufferGeometry.index;
         // for (let i = 0; i < arr.length; i += 3) {
         //   // get the indices of the triangle's vertices
@@ -396,6 +399,5 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => 
           })
         )
       );
-  
       return { bakeObjects, textures, uvs, vrmData };
   };

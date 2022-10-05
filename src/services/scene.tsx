@@ -231,14 +231,11 @@ async function download(
     };
     //combine here
     const avatar = await combine({ avatar: model.scene.clone(), atlasSize });
-    console.log("downloads");
-    console.log(avatar);
 
     exporter.parse(
       model.scene,
       function (result) {
         if (result instanceof ArrayBuffer) {
-          console.log(result);
           saveArrayBuffer(result, `${downloadFileName}.glb`);
         } else {
           var output = JSON.stringify(result, null, 2);
@@ -264,13 +261,11 @@ async function download(
       }
     })
 
-
     avatar.add(clonedSecondary);
     // change material array to the single atlas material
     model.materials = [avatar.userData.atlasMaterial];
     exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
       saveArrayBuffer(vrm, `${downloadFileName}_combined.vrm`);
-      console.log(vrm);
     });
     // exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
     //   saveArrayBuffer(vrm, `${downloadFileName}_full.vrm`);

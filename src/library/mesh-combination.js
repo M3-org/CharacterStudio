@@ -82,7 +82,7 @@ export async function combine({ avatar, atlasSize = 4096 }) {
         metalnessMap: textures["orm"],
     });
     material.userData.vrmMaterialProperties = vrmData;
-    console.warn(material.userData.vrmMaterialProperties)
+    //material.userData.vrmMaterialProperties._Color = new THREE.Color(1,1,1)
     // material.metalness = 1;
     const mesh = new THREE.SkinnedMesh(geometry, material);
     mesh.name = "CombinedMesh";

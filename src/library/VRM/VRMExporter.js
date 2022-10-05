@@ -80,10 +80,7 @@ export default class VRMExporter {
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
             .map((material) => material);
-        
-            console.log(avatar);
-            console.log(vrm)
-            console.log(materials)
+
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
         const icon = vrmMeta.texture
             ? { name: "icon", imageBitmap: vrmMeta.texture.image }
@@ -393,7 +390,6 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
