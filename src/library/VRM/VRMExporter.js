@@ -80,6 +80,10 @@ export default class VRMExporter {
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
             .map((material) => material);
+        
+            console.log(avatar);
+            console.log(vrm)
+            console.log(materials)
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
         const icon = vrmMeta.texture
             ? { name: "icon", imageBitmap: vrmMeta.texture.image }

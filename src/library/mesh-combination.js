@@ -42,9 +42,18 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     // const meshesToExclude = findChildrenByType(avatar, "SkinnedMesh").filter(
     //   (mesh) => mesh.material.transparent || hasHubsComponent(mesh, "uv-scroll")
     // );
-    const { bakeObjects, textures, uvs } = await createTextureAtlas({ atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh") });
+    const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+
+    if (vrmData != null)
+        vrmData.textureProperties = {_MainTex:0, _ShadeTexture:0}
+        
     // bakeObjects.forEach((bakeObject) => remapUVs({ mesh: bakeObject.mesh, uvs: uvs.get(bakeObject.mesh) }));
     // bakeObjects.forEach((bakeObject) => removeBakedMorphs(bakeObject.mesh, bakeMorphs(bakeObject.mesh)));
+    
+    
+    //atlas texture is now being created
+    
+    
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
@@ -72,6 +81,8 @@ export async function combine({ avatar, atlasSize = 4096 }) {
         roughnessMap: textures["orm"],
         metalnessMap: textures["orm"],
     });
+    material.userData.vrmMaterialProperties = vrmData;
+    console.warn(material.userData.vrmMaterialProperties)
     // material.metalness = 1;
     const mesh = new THREE.SkinnedMesh(geometry, material);
     mesh.name = "CombinedMesh";
@@ -94,5 +105,8 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     // clones.forEach((clone) => {
     //   group.add(clone);
     // });
+
+    // save material as property to get it later
+    group.userData.atlasMaterial = material;
     return group;
 }

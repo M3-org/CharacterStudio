@@ -11,7 +11,13 @@ function createContext({ width, height }) {
     return context;
 }
 function getTextureImage(material, textureName) {
+    // material can come in arrays or single values, in case of ccoming in array take the first one
+    material = material.length == null ? material : material[0];
     return material[textureName] && material[textureName].image;
+}
+function getMaterialVRMData(material){
+  material = material.length == null ? material : material[0];
+  return material.userData?.vrmMaterialProperties;
 }
 function lerp(t, min, max, newMin, newMax) {
     const progress = (t - min) / (max - min);
@@ -183,14 +189,22 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
     console.log('finished')
     return { bakeObjects, textures, uvs };
 };
-export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096 }) => {
+export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096}) => {
     const ATLAS_SIZE_PX = atlasSize;
     const IMAGE_NAMES = ["diffuse", "normal", "orm"];
   
       const bakeObjects = [];
+      // save if there is vrm data
+      let vrmData = null;
       // for each mesh in meshes
       meshes.forEach((mesh) => {
         const material = mesh.material;
+        // use the vrmData of the first material, and call it atlas if it exists
+        if (vrmData == null){
+          vrmData = getMaterialVRMData(material);
+          if (vrmData != null)
+            vrmData.name = "atlas";
+        }
         // check if bakeObjects as any objects that contain the material property with value of mesh.material
         let bakeObject = bakeObjects.find((bakeObject) => bakeObject.material === material);
         if (!bakeObject) bakeObjects.push({ material, mesh });
@@ -306,8 +320,10 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096 }) =>
           if (image) {
             context.drawImage(image, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
           } else {
-            context.fillStyle = name === 'diffuse' ? `#${material.color.clone().getHexString()}` : name === 'normal' ? '#8080ff' : name === 'orm' ?
-              `#${(new THREE.Color(material.aoMapIntensity, material.roughness, material.metalness)).getHexString()}` : '#7F7F7F';
+            const mat = material.length == null ? material : material[0];
+            const color = mat.color instanceof THREE.Color ? mat.color : mat.uniforms.color.value;
+            context.fillStyle = name === 'diffuse' ? `#${color.getHexString()}` : name === 'normal' ? '#8080ff' : name === 'orm' ?
+              `#${(new THREE.Color(mat.aoMapIntensity, mat.roughness, mat.metalness)).getHexString()}` : '#7F7F7F';
   
             context.fillRect(min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
           }
@@ -381,5 +397,5 @@ export const createTextureAtlasBrowser = async ({ meshes, atlasSize = 4096 }) =>
         )
       );
   
-      return { bakeObjects, textures, uvs };
+      return { bakeObjects, textures, uvs, vrmData };
   };

@@ -6,6 +6,8 @@ import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
+
+import { combine } from "../library/mesh-combination";
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -134,6 +136,7 @@ async function loadModel(file: any, type: any) {
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
       });
+      
       return model;
     });
   }
@@ -189,7 +192,8 @@ async function download(
   model: any,
   fileName: any,
   format: any,
-  screenshot: any
+  screenshot: any,
+  atlasSize:number = 4096
 ) {
   // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
   // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
@@ -225,6 +229,11 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
+    //combine here
+    const avatar = await combine({ avatar: model.scene.clone(), atlasSize });
+    console.log("downloads");
+    console.log(avatar);
+
     exporter.parse(
       model.scene,
       function (result) {
@@ -244,9 +253,28 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
-      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+
+    const clonedScene = model.scene.clone();
+    const avatar = await combine({ avatar: clonedScene, atlasSize });  
+    var scene = model.scene;
+    var clonedSecondary;
+    scene.traverse((child) =>{
+      if(child.name == 'secondary'){
+        clonedSecondary = child.clone();  
+      }
+    })
+
+
+    avatar.add(clonedSecondary);
+    // change material array to the single atlas material
+    model.materials = [avatar.userData.atlasMaterial];
+    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
+      saveArrayBuffer(vrm, `${downloadFileName}_combined.vrm`);
+      console.log(vrm);
     });
+    // exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
+    //   saveArrayBuffer(vrm, `${downloadFileName}_full.vrm`);
+    // });
   }
 }
 
