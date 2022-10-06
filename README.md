@@ -21,3 +21,5 @@ npm run dev
 yarn install
 yarn run dev
 ```
+# Known Issues
+Does not support multimaterials for download.
