@@ -3,7 +3,6 @@ import { textAlign } from "@mui/system";
 import React, { useState } from 'react';
 import { useSpring, animated } from 'react-spring'
 
-
 export default function Landing({
     onSetModel
     }){
@@ -20,29 +19,31 @@ export default function Landing({
 
 
     const handleClick = (type)=> {
-        setCardAnimation.start({
-          from: {
-            opacity : 1,
-            x: 0,
-          },
-          to: {
-            opacity : 0,
-            x: window.innerWidth,
-          }
-        })
+        setTimeout (() => {
+            setCardAnimation.start({
+              from: {
+                opacity : 1,
+                x: 0,
+              },
+              to: {
+                opacity : 0,
+                x: window.innerWidth,
+              }
+            })
 
-        setTitleAnimation.start({
-          from: {
-            y: 0,
-          },
-          to: {
-            y: -window.innerHeight,
-          }
-        })
+            setTitleAnimation.start({
+              from: {
+                y: 0,
+              },
+              to: {
+                y: -window.innerHeight,
+              }
+            })
+        }, 1000)
 
         setTimeout(()=> {
             onSetModel(type)
-        }, 1000)
+        }, 2000)
     }
     return <div style = {{
         background : `url("/background.png") no-repeat center center fixed`,
