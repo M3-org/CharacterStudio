@@ -10,7 +10,7 @@ npm install avatarcreator
 # Quick Start
 ```bash
 # Clone the repo and change directory into it
-git clone https://github.com/AtlasFoundation/AvatarCreator
+git clone https://github.com/webaverse-studios/CharacterCreator
 cd AvatarCreator
 
 # Install dependencies with legacy peer deps flag to ignore React errors
@@ -21,3 +21,5 @@ npm run dev
 yarn install
 yarn run dev
 ```
+# Known Issues
+Does not support multimaterials for download.
