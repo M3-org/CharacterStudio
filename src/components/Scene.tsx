@@ -135,6 +135,7 @@ export default function Scene(props: any) {
           </>
         }
         <div className="download but" onClick={handleDownload}></div>
+        <div className="wallet but" ></div>
       </div>
       <div>
         <Selector
