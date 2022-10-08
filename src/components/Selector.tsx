@@ -41,7 +41,11 @@ export default function Selector(props) {
     padding: "14px 0px 14px 32px !important",
     background: 'rgba(56, 64, 78, 0.1)',
     backdropFilter: 'blur(22.5px)',
-    borderBottom: "2px solid rgb(58, 116, 132)"
+    borderBottom: "2px solid rgb(58, 116, 132)",
+    transform: 'perspective(400px) rotateY(5deg)',
+    borderRadius : "10px",
+    display: 'flex',
+    flexDirection: 'column'
   }
   const selectorContainerPos = {
     position: "absolute" as "absolute",
@@ -64,8 +68,9 @@ export default function Selector(props) {
     top: "0",
   }
 
-  const traitStyle = {
-    width: '100%',
+  const traitsImgStyle = {
+    maxWidth : "auto",
+    height : '100%'
   }
 
   const selectorButton = {
@@ -91,22 +96,6 @@ export default function Selector(props) {
     height: "100%,",
     backgroundColor: "rgba(16,16,16,0.8)",
   }
-  const okButton = {
-      width: '241px',
-      height: '66px',
-      background: 'rgba(81, 90, 116, 0.25)',
-      border:'2px solid #434B58',
-      borderRadius: '78px',
-      fontFamily: 'Proxima Nova',
-      fontStyle: 'normal',
-      fontWeight: '400',
-      fontSize: '25px',
-      lineHeight: '91.3%',
-      display:"flex",
-      justifyContent:"center",
-      alignItems  :"center",
-      marginTop :"27px"
-    }
 
   React.useEffect(() => {
     if (!scene || !templateInfo) return
@@ -309,77 +298,85 @@ const itemLoader =  async(item, traits = null) => {
             top : '0px',
           }}/>
         </div>
-        {templateInfo?.traitsDirectory && (
-          <Stack
-            // spacing={2}
-            justifyContent="inherit"
-            alignItems="left"
-            divider={<Divider orientation="vertical" flexItem />}
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 3,
-              p: 3
-            }}
-          >
-            {category === "color" ? (
-              <Skin
-                scene={scene}
-                templateInfo={templateInfo}
-              />
-            ) : (
-              <React.Fragment>
-                <div
-                  style={selectorButton}
-                  className={`selector-button ${noTrait ? "active" : ""}`}
-                  onClick={() => selectTrait("0")}
-                >
-                  <Avatar className="icon">
-                    <DoNotDisturbIcon />
-                  </Avatar>
-                </div>
-                {collection &&
-                  collection.map((item: any, index) => {
-                    return (
-                      <div
-                        key={index}
-                        style={selectorButton}
-                        className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                          }`}
-                        onClick={() => {
-                          if (category === "gender") {
-                            setLoaded(true)
-                            setTempInfo(item.id)
-                          }
-                          selectTrait(item)
-                        }}
-                      >
-                        <Avatar
-                          className="icon"
-                          src={
-                            item.thumbnailsDirectory
-                              ? item.thumbnail
-                              : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                          }
-                        />
-                        {selectValue === item?.id && loadingTrait > 0 && (
-                          <Typography
-                            className="loading-trait"
-                            style={loadingTraitStyle}
-                          >
-                            {loadingTrait}%
-                          </Typography>
-                        )}
-                      </div>                                                         
-                    )
-                  })}
-                <div style={{ visibility: "hidden" }}>
-                  <Avatar className="icon" />
-                </div>
-              </React.Fragment>
-            )}
-          </Stack>
-        )}
+        <div style={{
+              overflowY : "auto",
+              flex : "1",
+              height : "30%",
+              WebkitMaskImage:"-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))"
+            }}>
+          {templateInfo?.traitsDirectory && (
+            <Stack
+              // spacing={2}
+              justifyContent="inherit"
+              alignItems="left"
+              divider={<Divider orientation="vertical" flexItem />}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 3,
+                p: 3,
+              }}
+            >
+              {category === "color" ? (
+                <Skin
+                  scene={scene}
+                  templateInfo={templateInfo}
+                />
+              ) : (
+                <React.Fragment>
+                  <div
+                    style={selectorButton}
+                    className={`selector-button ${noTrait ? "active" : ""}`}
+                    onClick={() => selectTrait("0")}
+                  >
+                    <Avatar className="icon">
+                      <DoNotDisturbIcon />
+                    </Avatar>
+                  </div>
+                  {collection &&
+                    collection.map((item: any, index) => {
+                      return (
+                        <div
+                          key={index}
+                          style={selectorButton}
+                          className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
+                            }`}
+                          onClick={() => {
+                            if (category === "gender") {
+                              setLoaded(true)
+                              setTempInfo(item.id)
+                            }
+                            selectTrait(item)
+                          }}
+                        >
+                          <img style={traitsImgStyle}
+                            className="icon"
+                            src={
+                              item.thumbnailsDirectory
+                                ? item.thumbnail
+                                : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
+                            }
+                          />
+                          {selectValue === item?.id && loadingTrait > 0 && (
+                            <Typography
+                              className="loading-trait"
+                              style={loadingTraitStyle}
+                            >
+                              {loadingTrait}%
+                            </Typography>
+                          )}
+                        </div>                                                         
+                      )
+                    })}
+                  <div style={{ visibility: "hidden" }}>
+                    <Avatar className="icon" />
+                  </div>
+                </React.Fragment>
+              )}
+            </Stack>
+          )}
+        </div>
         <div
           className={
             loadingTraitOverlay
@@ -390,15 +387,6 @@ const itemLoader =  async(item, traits = null) => {
             loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
           }
         />
-      </div>
-      <div style = {{
-        display: 'flex',
-        gap: '48px'
-      }}>
-        <div style={okButton}>Cancel
-        </div>
-        <div style={okButton}>Apply
-        </div>
       </div>
     </div>
   )
