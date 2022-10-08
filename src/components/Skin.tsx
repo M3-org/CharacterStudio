@@ -69,104 +69,21 @@ function Skin({ scene, templateInfo }) {
         marginTop: '40px',
       }}
     >
-    {colorArray.map((row) => {
-      return row.map((col) => 
+    {colorArray.map((row, i) => {
+      return row.map((col, k) => 
         (
           <div 
             style={{
               ...btn,
               backgroundColor: col,
             }}  onClick={() => handleChangeSkin(col)}>
-           {(checked == col) && <img src={'Vector.png'} />}
+           {(checked == col) && <img src={'Vector.png'} 
+           key={i*row.length + k}
+           />}
           </div>
         )
       )
     })}
-      {/*<button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(255, 207, 161)",
-        }}
-        onClick={() => handleChangeSkin("rgb(255, 207, 161)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(255, 199, 153)",
-        }}
-        onClick={() => handleChangeSkin("rgb(255, 199, 153)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(255, 191, 145)",
-        }}
-        onClick={() => handleChangeSkin("rgb(255, 191, 145)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(255, 183, 137)",
-        }}
-        onClick={() => handleChangeSkin("rgb(255, 183, 137)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(247, 175, 129)",
-        }}
-        onClick={() => handleChangeSkin("rgb(247, 175, 129)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(231, 159, 113)",
-        }}
-        onClick={() => handleChangeSkin("rgb(231, 159, 113)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(187, 129, 91)",
-        }}
-        onClick={() => handleChangeSkin("rgb(187, 129, 91)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(165, 114, 81)",
-        }}
-        onClick={() => handleChangeSkin("rgb(165, 114, 81)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(144, 99, 70)",
-        }}
-        onClick={() => handleChangeSkin("rgb(144, 99, 70)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(122, 84, 59)",
-        }}
-        onClick={() => handleChangeSkin("rgb(122, 84, 59)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(100, 69, 49)",
-        }}
-        onClick={() => handleChangeSkin("rgb(100, 69, 49)")}
-      ></button>
-      <button
-        style={{
-          ...btn,
-          backgroundColor: "rgb(255, 0, 0)",
-        }}
-        onClick={() => setColorPick(!colorPicker)}
-      >
-      </button>*/}
       <>
       {!!colorPicker && <RgbColorPicker style = {{position:'absolute', zIndex : "99999"}} color={color} onChange={setColor} onClick={handleColorPick(color) } />}
       </>
