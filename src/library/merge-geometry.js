@@ -236,6 +236,12 @@ function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, me
     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 }
 export function mergeGeometry({ meshes }) {
+    let uvcount = 0;
+    meshes.forEach(mesh => {
+        uvcount += mesh.geometry.attributes.uv.count;
+        console.log(mesh.geometry.attributes)
+    });
+    console.log(uvcount)
     const source = {
         meshes,
         attributes: new Map(meshes.map((m) => [m, m.geometry.attributes])),
@@ -253,6 +259,7 @@ export function mergeGeometry({ meshes }) {
         animations: {}
     };
     dest.attributes = mergeSourceAttributes({ sourceAttributes: source.attributes });
+    console.log(dest.attributes)
     const destMorphTargetDictionary = mergeSourceMorphTargetDictionaries({
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
     });
@@ -278,5 +285,6 @@ export function mergeGeometry({ meshes }) {
     //   destMorphTargetDictionary,
     // });
     dest.animations = {};
+    console.warn(dest)
     return { source, dest };
 }

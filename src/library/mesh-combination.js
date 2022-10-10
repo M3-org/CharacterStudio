@@ -39,20 +39,10 @@ function removeBakedMorphs(mesh, bakedMorphIndices) {
     });
 }
 export async function combine({ avatar, atlasSize = 4096 }) {
-    // const meshesToExclude = findChildrenByType(avatar, "SkinnedMesh").filter(
-    //   (mesh) => mesh.material.transparent || hasHubsComponent(mesh, "uv-scroll")
-    // );
     const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
-
     if (vrmData != null)
         vrmData.textureProperties = {_MainTex:0, _ShadeTexture:0}
         
-    // bakeObjects.forEach((bakeObject) => remapUVs({ mesh: bakeObject.mesh, uvs: uvs.get(bakeObject.mesh) }));
-    // bakeObjects.forEach((bakeObject) => removeBakedMorphs(bakeObject.mesh, bakeMorphs(bakeObject.mesh)));
-    
-    
-    //atlas texture is now being created
-    
     
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
     meshes.forEach((mesh) => {
@@ -74,14 +64,19 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     geometry.morphAttributes = dest.morphAttributes;
     geometry.morphTargetsRelative = true;
     geometry.setIndex(dest.index);
+    console.log(textures)
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
-        normalMap: textures["normal"],
-        aoMap: textures["orm"],
-        roughnessMap: textures["orm"],
-        metalnessMap: textures["orm"],
+        // normalMap: textures["uniformColor"]
+        // normalMap: textures["normal"],
+        // aoMap: textures["orm"],
+        // roughnessMap: textures["orm"],
+        // metalnessMap: textures["orm"],
     });
+    console.log(material);
     material.userData.vrmMaterialProperties = vrmData;
+    console.log(vrmData)
+    console.log(textures.uniformColor.image);
     //material.userData.vrmMaterialProperties._Color = new THREE.Color(1,1,1)
     // material.metalness = 1;
     const mesh = new THREE.SkinnedMesh(geometry, material);
@@ -107,6 +102,7 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     // });
 
     // save material as property to get it later
+    material.userData.shadeTexture = textures["uniformColor"];
     group.userData.atlasMaterial = material;
     return group;
 }

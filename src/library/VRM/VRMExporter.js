@@ -85,13 +85,24 @@ export default class VRMExporter {
         const icon = vrmMeta.texture
             ? { name: "icon", imageBitmap: vrmMeta.texture.image }
             : null; // TODO: ない場合もある
-        const images = uniqueMaterials
+        const mainImages = uniqueMaterials
             .filter((material) => material.map)
             .map((material) => {
             if (!material.map)
                 throw new Error(material.name + " map is null");
             return { name: material.name, imageBitmap: material.map.image };
         }); // TODO: 画像がないMaterialもある
+        const shadeImages = uniqueMaterials
+            .filter((material) => material.userData.shadeTexture)
+            .map((material) => {
+            if (!material.userData.shadeTexture)
+                throw new Error(material.userData.shadeTexture + " map is null");
+            return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
+        }); // TODO: 画像がないMaterialもある\
+
+        const images = mainImages.concat(shadeImages);
+        console.log(images)
+
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
