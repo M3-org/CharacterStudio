@@ -30,7 +30,6 @@ export default function Landing({
                 x: window.innerWidth,
               }
             })
-
             setTitleAnimation.start({
               from: {
                 y: 0,
@@ -40,10 +39,7 @@ export default function Landing({
               }
             })
         }, 1000)
-
-        setTimeout(()=> {
-            onSetModel(type)
-        }, 2000)
+        onSetModel(type)
     }
     return <div style = {{
         background : `url("/background.png") no-repeat center center fixed`,

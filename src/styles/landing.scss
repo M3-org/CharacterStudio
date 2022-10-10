@@ -34,7 +34,7 @@
         animation-fill-mode: both;
         .inner {
             border: 2px solid #525073;
-            transition: 4s;
+            transition: .5s;
             background: rgba(38, 38, 38, 0.25);
             backdrop-filter: blur(22.5px);
             width : 450px;
@@ -69,7 +69,7 @@
               position: absolute;
               
               transition: left 
-                2500ms
+                300ms
                 ease-in-out
             }
 
@@ -98,7 +98,7 @@
             .inner {
                 backdrop-filter: blur(10px);
                 background-color: rgba(255,255,255, 0.1);
-                transition: 0.5s;
+                transition: 0.2s;
             }
         }
 }
