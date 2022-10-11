@@ -101,7 +101,6 @@ export default class VRMExporter {
         }); // TODO: 画像がないMaterialもある\
 
         const images = mainImages.concat(shadeImages);
-        console.log(images)
 
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);

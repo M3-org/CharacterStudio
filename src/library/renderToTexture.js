@@ -11,7 +11,6 @@ let material, quad, renderer;
 let rtTexture;
 
 function initialize(width = 1024, height = 1024){
-    //if (container != null)
     container = document.createElement("div");
 
     sceneRTT  = new THREE.Scene();
@@ -31,16 +30,11 @@ function initialize(width = 1024, height = 1024){
         opacity: 1,
 
         color:new THREE.Color(1,1,1),
-        //map:rtTexture
     });
-    console.warn(material.color)
 
     const plane = new THREE.PlaneGeometry(width, height);
     quad = new THREE.Mesh(plane, material);
     sceneRTT.add(quad);
-
-    //quad.lookAt(cameraRTT.position);
-    //cameraRTT.lookAt(quad);
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( 1 );
@@ -70,25 +64,23 @@ function SetContainerSize(width,height){
     }
 }
 
-export function RenderTexture (texture, color, width, height){
+export function RenderTexture (texture, multiplyColor, clearColor, width, height){
 
     SetContainerSize(width,height);
-
+    
     material.map = texture;
-    material.color = color;
-    renderer.setClearColor( color, 1 );
-    //quad.scale.set(1000,1000,1000);
+    material.color = multiplyColor;
+    renderer.setClearColor( clearColor, 1 );
 
     renderer.setRenderTarget( rtTexture );
     renderer.clear();
     renderer.render( sceneRTT, cameraRTT );
-
     
     return rtTexture;
 }
 
-export function GetImageData(texture, color, width, height){
-    const rt = RenderTexture(texture, color, width, height);
+export function GetRenderTextureImageData(texture, multiplyColor, clearColor, width, height){
+    const rt = RenderTexture(texture, multiplyColor, clearColor, width, height);
 
     let buffer = new Uint8ClampedArray( rt.width * rt.height * 4 )
     renderer.readRenderTargetPixels(rt,0,0,width,height,buffer );

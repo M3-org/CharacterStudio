@@ -250,7 +250,7 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-
+    console.log("working...")
     const clonedScene = model.scene.clone();
     const avatar = await combine({ avatar: clonedScene, atlasSize });  
     var scene = model.scene;
@@ -265,11 +265,9 @@ async function download(
     // change material array to the single atlas material
     model.materials = [avatar.userData.atlasMaterial];
     exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
-      saveArrayBuffer(vrm, `${downloadFileName}_combined.vrm`);
+      saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
-    // exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
-    //   saveArrayBuffer(vrm, `${downloadFileName}_full.vrm`);
-    // });
+    console.log("finished")
   }
 }
 

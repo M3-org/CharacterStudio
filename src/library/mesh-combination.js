@@ -64,21 +64,11 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     geometry.morphAttributes = dest.morphAttributes;
     geometry.morphTargetsRelative = true;
     geometry.setIndex(dest.index);
-    console.log(textures)
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
-        // normalMap: textures["uniformColor"]
-        // normalMap: textures["normal"],
-        // aoMap: textures["orm"],
-        // roughnessMap: textures["orm"],
-        // metalnessMap: textures["orm"],
     });
-    console.log(material);
+    
     material.userData.vrmMaterialProperties = vrmData;
-    console.log(vrmData)
-    console.log(textures.uniformColor.image);
-    //material.userData.vrmMaterialProperties._Color = new THREE.Color(1,1,1)
-    // material.metalness = 1;
     const mesh = new THREE.SkinnedMesh(geometry, material);
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
