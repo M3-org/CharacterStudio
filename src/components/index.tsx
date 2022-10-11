@@ -44,8 +44,9 @@ export default function CharacterEditor(props: any) {
   const [model, setModel] = useState<object>(Object)
 
   const [scene, setScene] = useState<object>(Object)
+  
   // States Hooks used in template editor //
-  const [templateInfo, setTemplateInfo] = useState({ file: null, format: null })
+  const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
 
   const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
@@ -86,6 +87,19 @@ export default function CharacterEditor(props: any) {
          bn.name = VRMSchema.HumanoidBoneName[bone];
     } 
   }
+  // const getSkinColor = (model) =>{
+  //     if (model) {
+  //       console.log(templateInfo);
+  //       for (const bodyTarget of templateInfo.bodyTargets) {
+  //         const object = model.getObjectByName(bodyTarget);
+  //         if (object != null){
+  //           if (object.material.uniforms != null){
+  //             sceneService.setSkinColor(object.material.uniforms.color.value);
+  //           }
+  //         }
+  //     }
+  //   }
+  // }
 
   useEffect(() => {
     if(model)
@@ -93,7 +107,6 @@ export default function CharacterEditor(props: any) {
   }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-
       setLoadingModel(true)
       const loader = new GLTFLoader()
       loader
@@ -107,9 +120,11 @@ export default function CharacterEditor(props: any) {
             vrm.scene.traverse((o) => {
               o.frustumCulled = false
             })
+            
             vrm.scene.rotation.set(Math.PI, 0, Math.PI)
             setLoadingModel(false)
             setScene(vrm.scene)
+            sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
             setModel(vrm)
             startAnimation(vrm)
           })

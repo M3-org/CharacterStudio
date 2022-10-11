@@ -29,14 +29,15 @@ function lerp(t, min, max, newMin, newMax) {
     return newMin + progress * (newMax - newMin);
 }
 
-export const createTextureAtlas = async ({ meshes, atlasSize = 4096 }) => {
+export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096 }) => {
     // detect whether we are in node or the browser
     const isNode = typeof window === 'undefined';
     // if we are in node, call createTextureAtlasNode
     if (isNode) {
       return await createTextureAtlasNode({ meshes, atlasSize });
     } else {
-      return await createTextureAtlasBrowser({backColor:new THREE.Color(1,1,1),meshes,atlasSize});
+      console.log(transparentColor)
+      return await createTextureAtlasBrowser({backColor:transparentColor,meshes,atlasSize});
       //return await createTextureAtlasBrowser({ meshes, atlasSize });
     }
 };

@@ -23,9 +23,11 @@ function Skin({ scene, templateInfo }) {
     cursor: "pointer",
     border: "1px solid rgb(90, 93, 121)",
   }
+
   const handleChangeSkin = (value: string) => {
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
+      sceneService.setSkinColor(value)
     }
   }
   const handleColorPick = (color :any) => {

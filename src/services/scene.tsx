@@ -16,6 +16,8 @@ let scene = null;
 
 let model = null;
 
+let skinColor = new THREE.Color(1,1,1);
+
 const setModel = (newModel: any) => {
   model = newModel;
 }
@@ -23,7 +25,6 @@ const setModel = (newModel: any) => {
 const setScene = (newScene: any) => {
   scene = newScene;
 }
-
 const getScene = () => scene;
 
 let traits = {};
@@ -106,9 +107,23 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
-
+async function getSkinColor(scene: any, targets: any){
+  if (scene) {
+    for (const target of targets) {
+      const object = scene.getObjectByName(target);
+      if (object != null){
+        const mat = object.material.length ? object.material[0]:object.material;
+        if (mat.uniforms != null){
+          setSkinColor(mat.uniforms.color.value);
+          break;
+        }
+      }
+    }
+  }
+}
 async function setMaterialColor(scene: any, value: any, target: any) {
   if (scene && value) {
+    console.log(scene)
     const object = scene.getObjectByName(target);
     if (object != null){
       const randColor = value;
@@ -116,6 +131,10 @@ async function setMaterialColor(scene: any, value: any, target: any) {
       object.material[0].uniforms.color.value.set(skinShade)
     }
   }
+}
+function setSkinColor(color:any){
+  console.log(":asd")
+  skinColor = new THREE.Color(color)
 }
 
 async function loadModel(file: any, type: any) {
@@ -230,7 +249,7 @@ async function download(
       maxTextureSize: 1024 || Infinity
     };
     //combine here
-    const avatar = await combine({ avatar: model.scene.clone(), atlasSize });
+    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
 
     exporter.parse(
       model.scene,
@@ -252,7 +271,7 @@ async function download(
     const exporter = new VRMExporter();
     console.log("working...")
     const clonedScene = model.scene.clone();
-    const avatar = await combine({ avatar: clonedScene, atlasSize });  
+    const avatar = await combine({transparentColor:skinColor, avatar: clonedScene, atlasSize });  
     var scene = model.scene;
     var clonedSecondary;
     scene.traverse((child) =>{
@@ -288,5 +307,7 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setModel
+  setModel,
+  setSkinColor,
+  getSkinColor
 };

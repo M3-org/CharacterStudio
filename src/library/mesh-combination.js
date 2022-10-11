@@ -38,8 +38,8 @@ function removeBakedMorphs(mesh, bakedMorphIndices) {
         delete mesh.morphTargetDictionary[morphName];
     });
 }
-export async function combine({ avatar, atlasSize = 4096 }) {
-    const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
+    const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     if (vrmData != null)
         vrmData.textureProperties = {_MainTex:0, _ShadeTexture:0}
         
