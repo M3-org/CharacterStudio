@@ -52,7 +52,8 @@ export default function Editor(props: any) {
         padding: "14px 0",
         backdropFilter: 'blur(22.5px)',
         boxSizing : 'border-box',
-        transform: 'perspective(400px) rotateY(5deg)'
+        transform: 'perspective(400px) rotateY(5deg)',
+        userSelect : 'none'
       }}
     >
       <Stack

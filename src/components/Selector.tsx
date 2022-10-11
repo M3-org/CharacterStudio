@@ -290,7 +290,8 @@ const itemLoader =  async(item, traits = null) => {
             fontSize: '35px',
             lineHeight: '91.3%',
             color: '#FFFFFF',
-            paddingLeft : "46px"
+            paddingLeft : "46px",
+            userSelect : "none"
           }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
           <img src={iconPath} style={{
             width: '100px',
@@ -302,8 +303,9 @@ const itemLoader =  async(item, traits = null) => {
               overflowY : "auto",
               flex : "1",
               height : "30%",
-              WebkitMaskImage:"-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
-              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))"
+              top : "70%",
+              WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
             }}>
           {templateInfo?.traitsDirectory && (
             <Stack
@@ -377,6 +379,12 @@ const itemLoader =  async(item, traits = null) => {
             </Stack>
           )}
         </div>
+     {/*   <div style={{
+          width: "100%",
+          height : '100px',
+          border : "1px solid red",
+          
+        }}></div>*/}
         <div
           className={
             loadingTraitOverlay
