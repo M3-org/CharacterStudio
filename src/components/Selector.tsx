@@ -284,7 +284,7 @@ const itemLoader =  async(item, traits = null) => {
         }}>
           <span style={{
             display : 'inline-block',
-            fontFamily: 'Proxima Nova',
+            fontFamily: 'Proxima',
             fontStyle: 'normal',
             fontWeight: '800',
             fontSize: '35px',
