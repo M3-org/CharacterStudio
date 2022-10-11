@@ -22,7 +22,7 @@ export default [
     "format": "vrm",
     "bodyTargets": [
       "Body",
-      "Facebaked(copy)_1"
+      "Head002"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/",

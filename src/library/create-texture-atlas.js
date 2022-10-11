@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createCanvas, createImageData } from 'canvas';
 import { mergeGeometry } from "./merge-geometry.js";
-import { GetRenderTextureImageData } from "./renderToTexture.js";
+import { RenderTextureImageData } from "./renderToTexture.js";
 import debugConfig from "./debug-config.js";
 
 function createContext({ width, height }) {
@@ -325,7 +325,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
 
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTextue(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-      const imgData = GetRenderTextureImageData(texture,multiplyColor,clearColor,ATLAS_SIZE_PX,ATLAS_SIZE_PX);
+      const imgData = RenderTextureImageData(texture,multiplyColor,clearColor,ATLAS_SIZE_PX,ATLAS_SIZE_PX);
 
       createImageBitmap(imgData)
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));

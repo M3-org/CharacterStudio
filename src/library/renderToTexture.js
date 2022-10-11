@@ -28,7 +28,6 @@ function initialize(width = 1024, height = 1024){
         side:THREE.DoubleSide,
         transparent:true,
         opacity: 1,
-
         color:new THREE.Color(1,1,1),
     });
 
@@ -69,8 +68,8 @@ export function RenderTexture (texture, multiplyColor, clearColor, width, height
     SetContainerSize(width,height);
     
     material.map = texture;
-    material.color = multiplyColor;
-    renderer.setClearColor( clearColor, 1 );
+    material.color = multiplyColor.clone().convertLinearToSRGB();
+    renderer.setClearColor( clearColor.clone().convertLinearToSRGB(), 1 );
 
     renderer.setRenderTarget( rtTexture );
     renderer.clear();
@@ -79,7 +78,7 @@ export function RenderTexture (texture, multiplyColor, clearColor, width, height
     return rtTexture;
 }
 
-export function GetRenderTextureImageData(texture, multiplyColor, clearColor, width, height){
+export function RenderTextureImageData(texture, multiplyColor, clearColor, width, height){
     const rt = RenderTexture(texture, multiplyColor, clearColor, width, height);
 
     let buffer = new Uint8ClampedArray( rt.width * rt.height * 4 )
