@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createCanvas, createImageData } from 'canvas';
 import { mergeGeometry } from "./merge-geometry.js";
-import { RenderTextureImageData } from "./renderToTexture.js";
+import { RenderTextureImageData } from "./render-to-texture.js";
 import debugConfig from "./debug-config.js";
 
 function createContext({ width, height }) {
