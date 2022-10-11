@@ -36,7 +36,6 @@ export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize =
     if (isNode) {
       return await createTextureAtlasNode({ meshes, atlasSize });
     } else {
-      console.log(transparentColor)
       return await createTextureAtlasBrowser({backColor:transparentColor,meshes,atlasSize});
       //return await createTextureAtlasBrowser({ meshes, atlasSize });
     }
