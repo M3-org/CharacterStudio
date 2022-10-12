@@ -8,5 +8,3 @@ dist-ssr
 yarn.lock
 package-lock.json
 loot-assets
-animations
-models
