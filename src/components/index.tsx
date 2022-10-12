@@ -87,19 +87,6 @@ export default function CharacterEditor(props: any) {
          bn.name = VRMSchema.HumanoidBoneName[bone];
     } 
   }
-  // const getSkinColor = (model) =>{
-  //     if (model) {
-  //       console.log(templateInfo);
-  //       for (const bodyTarget of templateInfo.bodyTargets) {
-  //         const object = model.getObjectByName(bodyTarget);
-  //         if (object != null){
-  //           if (object.material.uniforms != null){
-  //             sceneService.setSkinColor(object.material.uniforms.color.value);
-  //           }
-  //         }
-  //     }
-  //   }
-  // }
 
   useEffect(() => {
     if(model)

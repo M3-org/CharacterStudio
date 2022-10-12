@@ -181,6 +181,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   // save material color from here
   // for each mesh in meshes
   meshes.forEach((mesh) => {
+    mesh = mesh.clone();
     const material = mesh.material.length ==  null ? mesh.material : mesh.material[0];
     
     // use the vrmData of the first material, and call it atlas if it exists
