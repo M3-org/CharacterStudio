@@ -64,7 +64,12 @@ export default function Scene(props: any) {
       <div
         id="canvas-wrap"
         className={`canvas-wrap ${wrapClass && wrapClass}`}
-        style={{ ...canvasWrap, height: window.innerHeight - 89 }}
+        style={{ ...canvasWrap,
+            background : 'url(./mainBackground.png)',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover'
+          }}
       >
         <Canvas
           className="canvas"
@@ -116,13 +121,6 @@ export default function Scene(props: any) {
           </PerspectiveCamera>
         </Canvas>
       </div>
-      <img style={{
-        position : "absolute",
-        height : "45px",
-        width : "154px",
-        marginTop : "33px",
-        marginLeft :"41px"
-      }} src={"/logo.png"}/>
       <div style={{
         display:"flex",
         top : "37px",
@@ -136,7 +134,8 @@ export default function Scene(props: any) {
             <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
           </>
         }
-        <div className="download but" onClick={handleDownload}><span>DOWNLOAD</span></div>
+        <div className="download but" onClick={handleDownload}></div>
+        <div className="wallet but" ></div>
       </div>
       <div>
         <Selector

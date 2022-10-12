@@ -1,149 +1,118 @@
+
 import { textAlign } from "@mui/system";
+import React, { useState } from 'react';
+import { useSpring, animated } from 'react-spring'
 
 export default function Landing({
     onSetModel
     }){
+
+    const [clicked, setClicked] = useState(false);
+
+    const [cardAnimation, setCardAnimation] = useSpring(() => ({
+     from: { x: 0, opacity : 1 },
+    }))
+
+    const [titleAnimation, setTitleAnimation] = useSpring(() => ({
+     from: { y: 0 },
+    }))
+
+
+    const handleClick = (type)=> {
+        setTimeout (() => {
+            setCardAnimation.start({
+              from: {
+                opacity : 1,
+                x: 0,
+              },
+              to: {
+                opacity : 0,
+                x: window.innerWidth,
+              }
+            })
+            setTitleAnimation.start({
+              from: {
+                y: 0,
+              },
+              to: {
+                y: -window.innerHeight,
+              }
+            })
+        }, 1000)
+        onSetModel(type)
+    }
     return <div style = {{
         background : `url("/background.png") no-repeat center center fixed`,
         height : "100vh",
         backgroundSize : 'cover',
         display : 'flex',
-        justifyContent : "center",
-        alignItems : 'center'
+        flexDirection : 'column',
+        alignItems : 'center',
+        overflow : 'hidden'
     }
     }>
-        <div style={{
-            backgroundColor : 'black',
-            width : '916px',
-            height : '895px',
-            display : 'flex',
-            alignItems : "center",
-            flexDirection : "column"
-        }}>
-            <img 
-                src={"/logo.png"} 
-                style = {{
-                    width : '345px',
-                    height : '100px',
-                    marginTop : "56px"
-                }}
-            />
-            <div style={{
-                color : "white",
-                fontFamily : 'Inter',
-                fontStyle : "normal",
-                fontWeight : "400",
-                fontSize : "32px",
-                lineHeight : "39px",
-                textAlign : "center",
-                marginTop : "49px"
-            }} >
-                <div>CREAT YOUR METAVERSE AVATAR</div>
-                <div style={{
-                    marginTop : "59px",
-                    lineHeight : "38.73px"
-                }}>PICK A CLASS <br/>   You'll be able to customzie in a moment </div>
+        <animated.div style = {{...titleAnimation}}>
+               <div className="topBanner" style={{
+               }} >     
+                    <img 
+                        src={"/logo.png"} 
+                        style = {{
+                            width: '505.7px',
+                            height: '148.83px',
+                            display: 'inline-block',
+                            margin: '41px auto auto'
+                        }}
+                    />
+                    <div className='studio' >Character Studio</div>
+                </div>
+                <div className="subTitle" >
+                    <div style={{
+                        lineHeight : "49px",
+                        fontWeight : '800',
+                        fontSize : '40px'
+                    }}>PICK A CLASS
+                        <div style={{
+                            fontStyle: 'normal',
+                            fontWeight: '400',
+                            fontSize: '30px',
+                            lineHeight: '37px'
+                            }}> You'll be able to customzie in a moment 
+                        </div>
+                    </div>
+                </div>
+        </animated.div>
+
+        <animated.div 
+            className="imgs"
+            style={{
+                display : 'flex',
+                gap: '50px',
+                marginTop: '30px',
+                  ...cardAnimation,
+            }}
+        >
+            <div className='characterGroup' 
+             onClick = {() => handleClick(1)}>
+             <div className="inner">
+                <span className='characterTitle' >Drophunter</span>
+                <img
+                    src={'/drophunter.png'}
+                    className = 'characterImage'
+                />
             </div>
-            <div style={{
-                gridTemplateColumns : "repeat(3, 1fr)",
-                columnGap : "61px",
-                display : "grid",
-                rowGap : "20px",
-                marginTop : "20px",
-                fontFamily : 'Inter'
-            }}>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        src={"/hunter.png"} 
-                        onClick = {() => onSetModel(1)}
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Drop Hunter</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        src={"/neuro.png"} 
-                        onClick = {() => onSetModel(2)}
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Neurohacker</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(3)}
-                        src={"/nachi.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Nachi</span>
-                </div>
- 
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(4)}
-                        src={"/hotwolf.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Hotwolf</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(5)}
-                        src={"/anata.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Anata(holders only)</span>
-                </div>
-                <div style={{
-                    display : "flex",
-                    flexDirection : "column",
-                    alignItems : "center",
-                    gap : "20px"
-                }}>
-                    <img
-                        onClick = {() => onSetModel(6)}
-                        src={"/clonex.png"} 
-                    ></img>
-                    <span 
-                        style={{
-                            color : "white"
-                        }}>Clonex(holders only)</span>
+            </div>
+            <div className='characterGroup'  
+                onClick = {() => handleClick(2)}>
+                <div className="inner">
+                <span className='characterTitle'>Neurohacker</span>
+                <img
+                    src={'/neurohacker.png'}
+                    className = 'characterImage'
+                />
                 </div>
             </div>
-        </div>
+        </animated.div>
     </div>
 }
+
+

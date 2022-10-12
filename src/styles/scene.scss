@@ -1,20 +1,42 @@
 .but {
     height : 55px;
     border : solid 1px white;
+
+    width: 74px;
+    height: 74px;
+    border: 1px solid #38404E;
+    backdrop-filter: blur(22.5px);
+    border-radius: 5px;
+    box-sizing: border-box;
+
+
     font-family : Inter;
     color : white;
     display : flex;
     justify-content : center;
     align-Items : center;
+    transition : .2s;
+    opacity : 0.5;
     &:hover {
-        background-color: white;
-        color : black ;
+        backdrop-filter: blur(1.5px);
         border-color : white;
+        opacity : 1.0;
+
     }
 }
 .download {
-    width : 168px;
+    background : url('./download.svg') center center no-repeat;
+    width: 74px;
+    height: 74px;
+    border: 1px solid #38404E;
+    backdrop-filter: blur(22.5px);
+    border-radius: 5px;
+    box-sizing: border-box;
+    opacity : 0.8;
 }
 .modeltype {
     width : 106px;
+}
+.wallet {
+    background : url('./connectWallet.svg') center center no-repeat;
 }
