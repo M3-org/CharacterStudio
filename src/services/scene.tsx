@@ -248,6 +248,7 @@ async function download(
     };
     //combine here
     const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
+    
 
     exporter.parse(
       model.scene,
