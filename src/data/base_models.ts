@@ -3,7 +3,7 @@ export default [
     "id": "1",
     "name": "Female",
     "file": "./models/femaleBasev0blender.vrm",
-    "thumbnail": "/body.png",
+    "thumbnail": "/female-body-1.png",
     "format": "vrm",
     "bodyTargets": [
       "Body",
@@ -18,7 +18,7 @@ export default [
     "id": "2",
     "name": "Male",
     "file": "./models/maleBasev0blender.vrm",
-    "thumbnail": "/body.png",
+    "thumbnail": "/male-body-1.png",
     "format": "vrm",
     "bodyTargets": [
       "Body",
