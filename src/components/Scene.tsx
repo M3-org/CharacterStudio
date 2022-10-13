@@ -130,7 +130,6 @@ export default function Scene(props: any) {
       }}>
         {showType && <>
             <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
-            <div className="modeltype but" onClick={() => downLoad('fbx')} ><span>FBX</span></div>
             <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
           </>
         }

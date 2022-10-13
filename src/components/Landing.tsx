@@ -60,7 +60,8 @@ export default function Landing({
                             width: '505.7px',
                             height: '148.83px',
                             display: 'inline-block',
-                            margin: '41px auto auto'
+                            margin: '41px auto auto',
+                            userSelect : "none"
                         }}
                     />
                     <div className='studio' >Character Studio</div>
@@ -69,7 +70,8 @@ export default function Landing({
                     <div style={{
                         lineHeight : "49px",
                         fontWeight : '800',
-                        fontSize : '40px'
+                        fontSize : '40px',
+                        userSelect : "none"
                     }}>PICK A CLASS
                         <div style={{
                             fontStyle: 'normal',
@@ -87,6 +89,7 @@ export default function Landing({
             style={{
                 display : 'flex',
                 gap: '50px',
+                userSelect : "none",                        
                 marginTop: '30px',
                   ...cardAnimation,
             }}

@@ -45,7 +45,8 @@ export default function Selector(props) {
     transform: 'perspective(400px) rotateY(5deg)',
     borderRadius : "10px",
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    userSelect : 'none'
   }
   const selectorContainerPos = {
     position: "absolute" as "absolute",

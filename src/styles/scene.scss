@@ -17,6 +17,7 @@
     align-Items : center;
     transition : .2s;
     opacity : 0.5;
+    user-select : none;
     &:hover {
         backdrop-filter: blur(1.5px);
         border-color : white;
@@ -33,6 +34,7 @@
     border-radius: 5px;
     box-sizing: border-box;
     opacity : 0.8;
+    user-select : none;
 }
 .modeltype {
     width : 106px;
