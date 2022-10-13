@@ -62,9 +62,6 @@ export default function DownloadCharacter({ scene, templateInfo, model, download
         aria-expanded={downloadPopup ? "true" : undefined}
         onClick={handleOpen}
       >
-        <Avatar>
-          <DownloadIcon />
-        </Avatar>
       </Button>
       <Modal
         open={downloadPopup}
