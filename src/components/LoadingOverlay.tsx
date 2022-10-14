@@ -2,10 +2,13 @@ import React from "react";
 import CircularProgress, {CircularProgressProps} from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Lottie from "lottie-react";
+import lottie from '../data/lottie.json'
 
 function CircularProgressWithLabel(props : CircularProgressProps & {
     value : number
 }) {
+
     return (
         <Box sx={
         {
@@ -43,12 +46,10 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             {/*<CircularProgress/>*/}
             <Box sx={
                 {
-                  
                     // position: "absolute",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "start",
-                    
                     width: "237px",
                     height: '14px',
                     border : "2px solid  #645D8D",
@@ -78,6 +79,10 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
                 </Box>
             </Box>
         </Box>
+    <Lottie style =  {{
+        zIndex : "-999",
+        position:'absolute'
+    }} animationData={lottie} loop={true} />
     <div style = {{
         bottom : '0',
         position : "absolute",
