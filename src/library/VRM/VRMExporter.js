@@ -80,17 +80,28 @@ export default class VRMExporter {
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
             .map((material) => material);
+
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
         const icon = vrmMeta.texture
             ? { name: "icon", imageBitmap: vrmMeta.texture.image }
             : null; // TODO: ない場合もある
-        const images = uniqueMaterials
+        const mainImages = uniqueMaterials
             .filter((material) => material.map)
             .map((material) => {
             if (!material.map)
                 throw new Error(material.name + " map is null");
             return { name: material.name, imageBitmap: material.map.image };
         }); // TODO: 画像がないMaterialもある
+        const shadeImages = uniqueMaterials
+            .filter((material) => material.userData.shadeTexture)
+            .map((material) => {
+            if (!material.userData.shadeTexture)
+                throw new Error(material.userData.shadeTexture + " map is null");
+            return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
+        }); // TODO: 画像がないMaterialもある\
+
+        const images = mainImages.concat(shadeImages);
+
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -389,7 +400,6 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);

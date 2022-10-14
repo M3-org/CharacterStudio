@@ -7,6 +7,8 @@ import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
+import '../styles/font.scss'
+import { Margin } from "@mui/icons-material"
 
 export default function Selector(props) {
   const {
@@ -32,17 +34,27 @@ export default function Selector(props) {
 
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
-
+  
+  const iconPath = "icons-gradient/" + category + ".svg";
   const selectorContainer = {
-    position: "absolute" as "absolute",
-    height: "5rem",
-    left: "0",
-    bottom: "93px",
-    width: "100vw",
+    height: "614px",
     boxSizing: "border-box" as "border-box",
-    backgroundColor: "#111111",
-    borderTop: "1px solid #303030",
     padding: "14px 0px 14px 32px !important",
+    background: 'rgba(56, 64, 78, 0.1)',
+    backdropFilter: 'blur(22.5px)',
+    borderBottom: "2px solid rgb(58, 116, 132)",
+    transform: 'perspective(400px) rotateY(5deg)',
+    borderRadius : "10px",
+    display: 'flex',
+    flexDirection: 'column',
+    userSelect : 'none'
+  }
+  const selectorContainerPos = {
+    position: "absolute" as "absolute",
+    left: "215px",
+    bottom: "93px",
+    width: "528px",
+    top: '164px',
   }
 
   const loadingTraitStyle = {
@@ -58,13 +70,32 @@ export default function Selector(props) {
     top: "0",
   }
 
-  const selectorButton = {
-    color: "#999999",
+  const traitsImgStyle = {
+    maxWidth : "auto",
+    height : '90%',
+    margin:"auto"
+  }
+  const traitsCancelStyle = {
+    maxWidth : "auto",
+    height : '60%',
     textAlign: "center" as "center",
-    fontSize: "12px",
-    minWidth: "60px",
-    margin: "20px 0",
+    margin:"auto"
+  }
+
+  const selectorButton = {
+    // color: "#999999",
+    // textAlign: "center" as "center",
+    // fontSize: "12px",
+    // minWidth: "60px",
+    // margin: "20px 0",
+    display: "flex",
+    justifyContent: "center" as "center",
     cursor: "pointer" as "pointer",
+    width: '100%',
+    height: category !== "gender" ? ('134px'):('200px'),
+    background: "rgba(81, 90, 116, 0.2)",
+    backdropFilter: "blur(22.5px)",
+    borderRadius: "5px",
   }
 
   // loading-trait-overlay
@@ -251,84 +282,133 @@ const itemLoader =  async(item, traits = null) => {
   // });
 }
   return (
-    <div className="selector-container" style={selectorContainer}>
-      {templateInfo?.traitsDirectory && (
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="left"
-          alignItems="left"
-          divider={<Divider orientation="vertical" flexItem />}
-        >
-          {category === "color" ? (
-            <Skin
-              scene={scene}
-              templateInfo={templateInfo}
-            />
-          ) : (
-            <React.Fragment>
-              <div
-                style={selectorButton}
-                className={`selector-button ${noTrait ? "active" : ""}`}
-                onClick={() => selectTrait("0")}
-              >
-                <Avatar className="icon">
-                  <DoNotDisturbIcon />
-                </Avatar>
-              </div>
-              {collection &&
-                collection.map((item: any, index) => {
-                  return (
-                    <div
-                      key={index}
-                      style={selectorButton}
-                      className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                        }`}
-                      onClick={() => {
-                        if (category === "gender") {
-                          setLoaded(true)
-                          setTempInfo(item.id)
-                        }
-                        selectTrait(item)
-                      }}
-                    >
-                      <Avatar
-                        className="icon"
-                        src={
-                          item.thumbnailsDirectory
-                            ? item.thumbnail
-                            : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                        }
-                      />
-                      {selectValue === item?.id && loadingTrait > 0 && (
-                        <Typography
-                          className="loading-trait"
-                          style={loadingTraitStyle}
+    <div style={selectorContainerPos} >
+      <div className="selector-container" style={selectorContainer}>
+        <div className="selector-container-header" style={{
+          height : "73px",
+          borderBottom : "2px solid #3A7484",
+          position : 'relative',
+          display : 'flex',
+          alignItems: 'center',
+          overflow : 'hidden',
+          justifyContent : "space-between",
+        }}>
+          <span style={{
+            display : 'inline-block',
+            fontFamily: 'Proxima',
+            fontStyle: 'normal',
+            fontWeight: '800',
+            fontSize: '35px',
+            lineHeight: '91.3%',
+            color: '#FFFFFF',
+            paddingLeft : "46px",
+            userSelect : "none"
+          }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+          <img src={iconPath} style={{
+            width: '100px',
+            right : '0px',
+            top : '0px',
+          }}/>
+        </div>
+        <div style={{
+              overflowY : "auto",
+              flex : "1",
+              height : "30%",
+              top : "70%",
+              WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
+            }}>
+          {templateInfo?.traitsDirectory && (
+            <Stack
+              // spacing={2}
+              justifyContent="inherit"
+              alignItems="left"
+              divider={<Divider orientation="vertical" flexItem />}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
+                gap: 3,
+                p: 3,
+              }}
+            >
+              {category === "color" ? (
+                <Skin
+                  scene={scene}
+                  templateInfo={templateInfo}
+                />
+              ) : (
+                <React.Fragment>
+                  
+                  {category !== "gender" ?(<div
+                    style={selectorButton}
+                    className={`selector-button ${noTrait ? "active" : ""}`}
+                    onClick={() => selectTrait("0")}
+                  >
+                    <img style={traitsCancelStyle}
+                            className="icon"
+                            src="cancel-1.png"
+                          />
+                  </div>):("")}
+                  {collection &&
+                    collection.map((item: any, index) => {
+                      return (
+                        <div
+                          key={index}
+                          style={selectorButton}
+                          className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
+                            }`}
+                          onClick={() => {
+                            if (category === "gender") {
+                              setLoaded(true)
+                              setTempInfo(item.id)
+                            }
+                            selectTrait(item)
+                          }}
                         >
-                          {loadingTrait}%
-                        </Typography>
-                      )}
-                    </div>                                                         
-                  )
-                })}
-              <div style={{ visibility: "hidden" }}>
-                <Avatar className="icon" />
-              </div>
-            </React.Fragment>
+                          <img style={traitsImgStyle}
+                            className="icon"
+                            src={
+                              item.thumbnailsDirectory
+                                ? item.thumbnail
+                                : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
+                            }
+                          />
+                          {selectValue === item?.id && loadingTrait > 0 && (
+                            <Typography
+                              className="loading-trait"
+                              style={loadingTraitStyle}
+                            >
+                              {loadingTrait}%
+                            </Typography>
+                          )}
+                        </div>                                                         
+                      )
+                    })}
+                  <div style={{ visibility: "hidden" }}>
+                    <Avatar className="icon" />
+                  </div>
+                </React.Fragment>
+              )}
+            </Stack>
           )}
-        </Stack>
-      )}
-      <div
-        className={
-          loadingTraitOverlay
-            ? "loading-trait-overlay show"
-            : "loading-trait-overlay"
-        }
-        style={
-          loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
-        }
-      />
+        </div>
+     {/*   <div style={{
+          width: "100%",
+          height : '100px',
+          border : "1px solid red",
+          
+        }}></div>*/}
+        <div
+          className={
+            loadingTraitOverlay
+              ? "loading-trait-overlay show"
+              : "loading-trait-overlay"
+          }
+          style={
+            loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
+          }
+        />
+      </div>
     </div>
-
   )
 }

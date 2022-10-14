@@ -38,13 +38,12 @@ function removeBakedMorphs(mesh, bakedMorphIndices) {
         delete mesh.morphTargetDictionary[morphName];
     });
 }
-export async function combine({ avatar, atlasSize = 4096 }) {
-    // const meshesToExclude = findChildrenByType(avatar, "SkinnedMesh").filter(
-    //   (mesh) => mesh.material.transparent || hasHubsComponent(mesh, "uv-scroll")
-    // );
-    const { bakeObjects, textures, uvs } = await createTextureAtlas({ atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh") });
-    // bakeObjects.forEach((bakeObject) => remapUVs({ mesh: bakeObject.mesh, uvs: uvs.get(bakeObject.mesh) }));
-    // bakeObjects.forEach((bakeObject) => removeBakedMorphs(bakeObject.mesh, bakeMorphs(bakeObject.mesh)));
+export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
+    const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+    if (vrmData != null)
+        vrmData.textureProperties = {_MainTex:0, _ShadeTexture:0}
+        
+    
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
@@ -67,12 +66,9 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     geometry.setIndex(dest.index);
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
-        normalMap: textures["normal"],
-        aoMap: textures["orm"],
-        roughnessMap: textures["orm"],
-        metalnessMap: textures["orm"],
     });
-    // material.metalness = 1;
+    
+    material.userData.vrmMaterialProperties = vrmData;
     const mesh = new THREE.SkinnedMesh(geometry, material);
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
@@ -94,5 +90,9 @@ export async function combine({ avatar, atlasSize = 4096 }) {
     // clones.forEach((clone) => {
     //   group.add(clone);
     // });
+
+    // save material as property to get it later
+    material.userData.shadeTexture = textures["uniformColor"];
+    group.userData.atlasMaterial = material;
     return group;
 }

@@ -12,6 +12,7 @@ export default function Editor(props: any) {
     fontSize: "12px",
     minWidth: "60px",
     cursor: "pointer",
+    opacity : "1"
   }
 
   const selectorButtonActive = {
@@ -19,12 +20,14 @@ export default function Editor(props: any) {
     fontSize: "12px",
     minWidth: "60px",
     cursor: "pointer",
+    opacity : "0.2"
+
   }
 
   const selectorButtonIcon = {
     display: "inline-block",
     width: "40px",
-    height: "40px",
+    height: "56px",
     padding: "2px",
   }
 
@@ -40,33 +43,31 @@ export default function Editor(props: any) {
     <div
       style={{
         position: "absolute",
-        left: "0",
-        bottom: "0",
-        width: "100vw",
-        backgroundColor: "#111111",
-        borderTop: "1px solid #303030",
+        left: "50px",
+        top: "10%",
+        width: "100px",
+        backgroundColor: "rgba(23, 22, 31, 0.35)",
+        border: "1px solid #38404E",
+        borderRadius : '5px',
         padding: "14px 0",
+        backdropFilter: 'blur(22.5px)',
+        boxSizing : 'border-box',
+        transform: 'perspective(400px) rotateY(5deg)',
+        userSelect : 'none'
       }}
     >
       <Stack
-        direction="row"
+        direction="column"
         divider={<Divider orientation="vertical" flexItem />}
-        spacing={2}
+        spacing={1}
         justifyContent="center"
         alignItems="center"
       >
         <div
-          onClick={() => setCategory("color")}
-          style={
-            category && category === "color"
-              ? selectorButton
-              : selectorButtonActive
-          }
         >
-          <Avatar style={selectorButtonIcon} src={"/color.png"} />
-          <br />
-          Skin Tone
+          <Avatar style={selectorButtonIcon} src={"/traits/webaMark 1.png"} />
         </div>
+
         <div
           onClick={() => setCategory("gender")}
           style={
@@ -75,33 +76,17 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/body.png"} />
-          <br />
-          Gender
+          <Avatar style={selectorButtonIcon} src={"/traits/body.png"} />
         </div>
         <div
-          onClick={() => setCategory("body")}
+          onClick={() => setCategory("color")}
           style={
-            category && category === "body"
+            category && category === "color"
               ? selectorButton
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/shirt.png"} />
-          <br />
-          Body
-        </div>
-        <div
-          onClick={() => setCategory("chest")}
-          style={
-            category && category === "chest"
-              ? selectorButton
-              : selectorButtonActive
-          }
-        >
-          <Avatar style={selectorButtonIcon} src={"/shirt.png"} />
-          <br />
-          Chest
+          <Avatar style={selectorButtonIcon} src={"/traits/skin-color.png"} />
         </div>
         <div
           onClick={() => setCategory("head")}
@@ -111,9 +96,18 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/face.png"} />
-          <br />
-          Head
+          <Avatar style={selectorButtonIcon} src={"/traits/hairStyle.png"} />
+        </div>
+
+        <div
+          onClick={() => setCategory("chest")}
+          style={
+            category && category === "chest"
+              ? selectorButton
+              : selectorButtonActive
+          }
+        >
+          <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
         </div>
         <div
           onClick={() => setCategory("neck")}
@@ -123,44 +117,8 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/neck.png"} />
-          <br />
-          Neck
+          <Avatar style={selectorButtonIcon} src={"/traits/neck.png"} />
         </div>
-        <div
-          onClick={() => setCategory("hand")}
-          style={
-            category && category === "hand"
-              ? selectorButton
-              : selectorButtonActive
-          }
-        >
-          <Avatar style={selectorButtonIcon} src={"/arms.png"} />
-          <br />
-          Hand
-        </div>
-        {/* <div onClick={() => setCategory('ring')} style={ category && category === "ring" ? selectorButton : selectorButtonActive } >
-          <Avatar style={selectorButtonIcon}  src={'/arms.png'}  />
-          <br />
-          Ring
-        </div> */}
-        <div
-          onClick={() => setCategory("waist")}
-          style={
-            category && category === "waist"
-              ? selectorButton
-              : selectorButtonActive
-          }
-        >
-          <Avatar style={selectorButtonIcon} src={"/pants.png"} />
-          <br />
-          Waist
-        </div>
-        {/* <div onClick={() => setCategory('weapon')} style={ category && category === "weapon" ? selectorButton : selectorButtonActive } >
-          <Avatar style={selectorButtonIcon}  src={'/arms.png'} />
-          <br />
-          Weapon
-        </div> */}
         <div
           onClick={() => setCategory("legs")}
           style={
@@ -169,9 +127,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/legs.png"} />
-          <br />
-          Legs
+          <Avatar style={selectorButtonIcon} src={"/traits/legs.png"} />
         </div>
         <div
           onClick={() => setCategory("foot")}
@@ -181,23 +137,18 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/shoes.png"} />
-          <br />
-          Foot
+          <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
         </div>
         <div
           onClick={() => handleRandom()}
           style={
             category && category === "random"
-              ? {...selectorButton, right : "50px", position : "absolute"}
-              : {...selectorButtonActive, right : "50px",  position : "absolute"}
+              ? selectorButton
+              : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/dice.svg"} />
-          <br />
-           Randomize
+          <Avatar style={selectorButtonIcon} src={"/traits/shuffle.png"} />
         </div>
-        {/* <RandomizeButton /> */}
       </Stack>
     </div>
   )

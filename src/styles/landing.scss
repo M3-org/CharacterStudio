@@ -1,4 +1,150 @@
+.topBanner {
+    background : radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%);
+    width : 1377px;
+    top : 0px;
+    display : flex;
+    flex-direction : column;
+    animation: fadeIn 1s ease-in both;
+    user-selector : none;
+    .studio { 
+        color : #61E5F9;
+        font-family : 'Proxima';
+        font-style : normal;
+        font-weight : 800;
+        font-size : 40px;
+        line-height : 49px;
+        text-align : center;
+        margin-top : 12px;
+    }
+}
+.subTitle{
+    color : white;
+    font-family : Proxima;
+    font-style : normal;
+    font-weight : 400;
+    font-size : 32px;
+    line-height : 39px;
+    text-align : center;
+    margin-top : 80px;
+    animation: fadeIn 1s ease-in both;
+    user-selector : none;
+}
+.characterGroup {
+        animation-name : fadeleft;
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out; 
+        animation-fill-mode: both;
+        user-selector : none;
+        .inner {
+            border: 2px solid #525073;
+            transition: .5s;
+            background: rgba(38, 38, 38, 0.25);
+            backdrop-filter: blur(22.5px);
+            width : 450px;
+            display : flex;
+            flex-direction : column;
+            align-items : center;
+            height : 600px;
+            box-sizing : border-box;
+            border-radius : 10px;
+            overflow : hidden;
+            transform: skewX(-15deg) !important;
+
+            &:hover{
+                alpha : 1;
+                border : 2px solid #61E5F9;
+                transform: translateY(-25%);
+                &::before {
+                 left: 250%;
+                }
+            }
+            &::before{
+              content: '';
+              background: rgba(255,255,255, 0.1);
+              backdrop-filter: blur(3px);
+              width: 100%;
+              height: 100%;
+              top: 0%;
+              left: -250%;
+              
+              transform: skew(-65deg);
+              
+              position: absolute;
+              
+              transition: left 
+                300ms
+                ease-in-out
+            }
+
+            .characterImage {
+                position: absolute;
+                bottom: 0px;
+                transform : skewX(15deg);
+                z-index: -999;
+            }
+            .characterTitle {
+                width : 238px;
+                height : 49px;
+                font-family : Proxima;
+                font-style : normal;
+                font-weight : 800;
+                font-size : 40px;
+                line-height : 49px;
+                color : #61E5F9;
+                display : inline-block;
+                transform : skewX(15deg);
+                margin-Top: 40px;
+            }
+        }
+
+        &:hover {
+            .inner {
+                backdrop-filter: blur(10px);
+                background-color: rgba(255,255,255, 0.1);
+                transition: 0.2s;
+            }
+        }
+}
+
 @font-face {
-    font-family: 'Inter';
-    src: url('./font/Inter/Inter-Regular.ttf');
+    font-family: 'Proxima';
+    src: url('./font/Proxima/Proxima.otf')  format("opentype");
   }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -50%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeleft {
+    from {
+        opacity: 0;
+        transform: translate3d(-100%, 0, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeRight {
+    from {
+        opacity: 1;
+        transform: skewX(-15deg);
+        transform: translate3d(0%, 0, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(1005, 0, 0);
+        transform: skewX(-15deg);
+    }
+}
+
+
+

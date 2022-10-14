@@ -6,6 +6,8 @@ import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
+
+import { combine } from "../library/mesh-combination";
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -14,6 +16,8 @@ let scene = null;
 
 let model = null;
 
+let skinColor = new THREE.Color(1,1,1);
+
 const setModel = (newModel: any) => {
   model = newModel;
 }
@@ -21,7 +25,6 @@ const setModel = (newModel: any) => {
 const setScene = (newScene: any) => {
   scene = newScene;
 }
-
 const getScene = () => scene;
 
 let traits = {};
@@ -104,7 +107,20 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
-
+async function getSkinColor(scene: any, targets: any){
+  if (scene) {
+    for (const target of targets) {
+      const object = scene.getObjectByName(target);
+      if (object != null){
+        const mat = object.material.length ? object.material[0]:object.material;
+        if (mat.uniforms != null){
+          setSkinColor(mat.uniforms.color.value);
+          break;
+        }
+      }
+    }
+  }
+}
 async function setMaterialColor(scene: any, value: any, target: any) {
   if (scene && value) {
     const object = scene.getObjectByName(target);
@@ -114,6 +130,9 @@ async function setMaterialColor(scene: any, value: any, target: any) {
       object.material[0].uniforms.color.value.set(skinShade)
     }
   }
+}
+function setSkinColor(color:any){
+  skinColor = new THREE.Color(color)
 }
 
 async function loadModel(file: any, type: any) {
@@ -134,6 +153,7 @@ async function loadModel(file: any, type: any) {
       VRM.from(model).then((vrm) => {
         console.log("VRM Model: ", vrm);
       });
+      
       return model;
     });
   }
@@ -189,7 +209,8 @@ async function download(
   model: any,
   fileName: any,
   format: any,
-  screenshot: any
+  screenshot: any,
+  atlasSize:number = 4096
 ) {
   // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
   // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
@@ -225,11 +246,14 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
+    //combine here
+    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
+    
+
     exporter.parse(
       model.scene,
       function (result) {
         if (result instanceof ArrayBuffer) {
-          console.log(result);
           saveArrayBuffer(result, `${downloadFileName}.glb`);
         } else {
           var output = JSON.stringify(result, null, 2);
@@ -244,9 +268,24 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    exporter.parse(model, model.scene, (vrm : ArrayBuffer) => {
+    console.log("working...")
+    const clonedScene = model.scene.clone();
+    const avatar = await combine({transparentColor:skinColor, avatar: clonedScene, atlasSize });  
+    var scene = model.scene;
+    var clonedSecondary;
+    scene.traverse((child) =>{
+      if(child.name == 'secondary'){
+        clonedSecondary = child.clone();  
+      }
+    })
+
+    avatar.add(clonedSecondary);
+    // change material array to the single atlas material
+    model.materials = [avatar.userData.atlasMaterial];
+    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
       saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
+    console.log("finished")
   }
 }
 
@@ -267,5 +306,7 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setModel
+  setModel,
+  setSkinColor,
+  getSkinColor
 };
