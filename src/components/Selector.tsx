@@ -8,6 +8,7 @@ import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
+import { Margin } from "@mui/icons-material"
 
 export default function Selector(props) {
   const {
@@ -71,7 +72,14 @@ export default function Selector(props) {
 
   const traitsImgStyle = {
     maxWidth : "auto",
-    height : '100%'
+    height : '90%',
+    margin:"auto"
+  }
+  const traitsCancelStyle = {
+    maxWidth : "auto",
+    height : '60%',
+    textAlign: "center" as "center",
+    margin:"auto"
   }
 
   const selectorButton = {
@@ -80,9 +88,11 @@ export default function Selector(props) {
     // fontSize: "12px",
     // minWidth: "60px",
     // margin: "20px 0",
+    display: "flex",
+    justifyContent: "center" as "center",
     cursor: "pointer" as "pointer",
     width: '100%',
-    height: '134px',
+    height: category !== "gender" ? ('134px'):('200px'),
     background: "rgba(81, 90, 116, 0.2)",
     backdropFilter: "blur(22.5px)",
     borderRadius: "5px",
@@ -316,7 +326,7 @@ const itemLoader =  async(item, traits = null) => {
               divider={<Divider orientation="vertical" flexItem />}
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
                 gap: 3,
                 p: 3,
               }}
@@ -328,6 +338,17 @@ const itemLoader =  async(item, traits = null) => {
                 />
               ) : (
                 <React.Fragment>
+                  
+                  {category !== "gender" ?(<div
+                    style={selectorButton}
+                    className={`selector-button ${noTrait ? "active" : ""}`}
+                    onClick={() => selectTrait("0")}
+                  >
+                    <img style={traitsCancelStyle}
+                            className="icon"
+                            src="cancel-1.png"
+                          />
+                  </div>):("")}
                   {collection &&
                     collection.map((item: any, index) => {
                       return (
