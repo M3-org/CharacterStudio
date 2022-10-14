@@ -328,15 +328,6 @@ const itemLoader =  async(item, traits = null) => {
                 />
               ) : (
                 <React.Fragment>
-                  <div
-                    style={selectorButton}
-                    className={`selector-button ${noTrait ? "active" : ""}`}
-                    onClick={() => selectTrait("0")}
-                  >
-                    <Avatar className="icon">
-                      <DoNotDisturbIcon />
-                    </Avatar>
-                  </div>
                   {collection &&
                     collection.map((item: any, index) => {
                       return (
