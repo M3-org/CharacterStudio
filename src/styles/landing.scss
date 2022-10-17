@@ -6,15 +6,21 @@
     flex-direction : column;
     animation: fadeIn 1s ease-in both;
     user-selector : none;
+
+    img {
+        width: 400vh * 0.118;
+        height: 148.83vh * 0.118;
+    }
+
     .studio { 
         color : #61E5F9;
         font-family : 'Proxima';
-        font-style : normal;
+        font-style : normal; 
         font-weight : 800;
-        font-size : 40px;
-        line-height : 49px;
+        font-size : 30vh * 0.118;
+        line-height : 49vh * 0.118;
         text-align : center;
-        margin-top : 12px;
+        margin-top : 12vh * 0.118;
     }
 }
 .subTitle{
@@ -22,12 +28,17 @@
     font-family : Proxima;
     font-style : normal;
     font-weight : 400;
-    font-size : 32px;
-    line-height : 39px;
+    font-size : 30vh * 0.118;
+    line-height : 49vh * 0.118;
     text-align : center;
-    margin-top : 80px;
+    margin-top : 20vh * 0.118;
     animation: fadeIn 1s ease-in both;
     user-selector : none;
+
+    &-desc {
+        font-size : 20vh * 0.118;
+        line-height : 37vh * 0.118;
+    }
 }
 .characterGroup {
         animation-name : fadeleft;
@@ -40,15 +51,19 @@
             transition: .5s;
             background: rgba(38, 38, 38, 0.25);
             backdrop-filter: blur(22.5px);
-            width : 450px;
+            width : 300vh * 0.118;
             display : flex;
             flex-direction : column;
             align-items : center;
-            height : 600px;
+            height : 400vh * 0.118;
             box-sizing : border-box;
             border-radius : 10px;
             overflow : hidden;
             transform: skewX(-15deg) !important;
+
+            img {
+                height: 380vh * 0.118;
+            }
 
             &:hover{
                 alpha : 1;
@@ -83,17 +98,16 @@
                 z-index: -999;
             }
             .characterTitle {
-                width : 238px;
-                height : 49px;
+                height : 49vh * 0.118;
                 font-family : Proxima;
                 font-style : normal;
                 font-weight : 800;
-                font-size : 40px;
-                line-height : 49px;
+                font-size : 28vh * 0.118;
+                line-height : 28vh * 0.118;
                 color : #61E5F9;
                 display : inline-block;
                 transform : skewX(15deg);
-                margin-Top: 40px;
+                margin-Top: 40vh * 0.118;
             }
         }
 
@@ -110,7 +124,7 @@
     font-family: 'Proxima';
     src: url('./font/Proxima/Proxima.otf')  format("opentype");
   }
-
+ 
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -145,6 +159,3 @@
         transform: skewX(-15deg);
     }
 }
-
-
-
