@@ -57,8 +57,6 @@ export default function Landing({
                     <img 
                         src={"/logo.png"} 
                         style = {{
-                            width: '505.7px',
-                            height: '148.83px',
                             display: 'inline-block',
                             margin: '41px auto auto',
                             userSelect : "none"
@@ -68,17 +66,16 @@ export default function Landing({
                 </div>
                 <div className="subTitle" >
                     <div style={{
-                        lineHeight : "49px",
-                        fontWeight : '800',
-                        fontSize : '40px',
+                        fontWeight : '1200',
                         userSelect : "none"
-                    }}>PICK A CLASS
-                        <div style={{
-                            fontStyle: 'normal',
-                            fontWeight: '400',
-                            fontSize: '30px',
-                            lineHeight: '37px'
-                            }}> You'll be able to customzie in a moment 
+                    }}>Pick a Class
+                        <div 
+                            style={{
+                                fontStyle: 'normal',
+                                fontWeight: '400',
+                            }}
+                            className="subTitle-desc"
+                        > You'll be able to customzie in a moment 
                         </div>
                     </div>
                 </div>
@@ -117,5 +114,3 @@ export default function Landing({
         </animated.div>
     </div>
 }
-
-
