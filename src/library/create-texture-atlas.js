@@ -42,7 +42,6 @@ export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize =
 };
 
 export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
-  //console.log()
     const ATLAS_SIZE_PX = atlasSize;
     const IMAGE_NAMES = ["diffuse"];
     const bakeObjects = [];
@@ -179,8 +178,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   // save if there is vrm data
   let vrmData = null;
   // save material color from here
-  // for each mesh in meshes
   meshes.forEach((mesh) => {
+    //console.log(mesh.geometry.attributes.uv)
     mesh = mesh.clone();
     const material = mesh.material.length ==  null ? mesh.material : mesh.material[0];
     
@@ -333,19 +332,21 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       }
     );
 
-    //console.log('mesh is', mesh)
+    const geometry = mesh.geometry.clone();
+    mesh.geometry = geometry;
 
-    const geometry = mesh.geometry
-
-    const uv = geometry.attributes.uv;
+    const uv = geometry.attributes.uv.clone();
+    geometry.attributes.uv = uv;
+    
     if (uv) {
-      for (let i = 0; i < uv.array.length; i += 2) {
+      for (let i = 0; i < geometry.attributes.uv.array.length; i += 2) {
         uv.array[i] = lerp(uv.array[i], 0, 1, min.x, max.x);
         uv.array[i + 1] = lerp(uv.array[i + 1], 0, 1, min.y, max.y);
-        //uv.array[i] = lerp(uv.array[i], 0, 1, 0, 0.25);
-        //uv.array[i + 1] = lerp(uv.array[i + 1], 0, 1, 0, 0.25);
       }
     }
+    //geometry.setAttribute( 'uv', uv.array);
+    //geometry.attributes.uv = 
+    //mesh.geom
     const uv2 = geometry.attributes.uv2;
     if (uv2) {
       for (let i = 0; i < uv2.array.length; i += 2) {
