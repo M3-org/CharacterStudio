@@ -114,5 +114,3 @@ export default function Landing({
         </animated.div>
     </div>
 }
-
-
