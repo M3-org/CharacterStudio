@@ -67,7 +67,11 @@ export default function Editor(props: any) {
         >
           <Avatar style={selectorButtonIcon} src={"/traits/webaMark 1.png"} />
         </div>
-
+        <div style = {{
+          border : "1px solid #3A7484",
+          width  : "98%",
+          opacity : "0.5"
+        }}></div>
         <div
           onClick={() => setCategory("gender")}
           style={
@@ -110,14 +114,14 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
         </div>
         <div
-          onClick={() => setCategory("neck")}
+          onClick={() => setCategory("accessories")}
           style={
-            category && category === "neck"
+            category && category === "accessories"
               ? selectorButton
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/neck.png"} />
+          <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
         </div>
         <div
           onClick={() => setCategory("legs")}
@@ -139,6 +143,11 @@ export default function Editor(props: any) {
         >
           <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
         </div>
+        <div style = {{
+          border : "1px solid #3A7484",
+          width  : "98%",
+          opacity : "0.5"
+        }}></div>
         <div
           onClick={() => handleRandom()}
           style={

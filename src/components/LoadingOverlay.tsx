@@ -27,7 +27,7 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         }
     }>
         <span style={{
-            fontFamily: 'Proxima Nova',
+            fontFamily: 'Proxima',
             fontStyle: 'normal',
             fontWeight: '400',
             fontSize: '18px',

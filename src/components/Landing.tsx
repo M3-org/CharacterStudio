@@ -75,7 +75,7 @@ export default function Landing({
                                 fontWeight: '400',
                             }}
                             className="subTitle-desc"
-                        > You'll be able to customzie in a moment 
+                        > You'll be able to customize in a moment 
                         </div>
                     </div>
                 </div>
