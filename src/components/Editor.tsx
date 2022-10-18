@@ -114,14 +114,14 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
         </div>
         <div
-          onClick={() => setCategory("neck")}
+          onClick={() => setCategory("accessories")}
           style={
-            category && category === "neck"
+            category && category === "accessories"
               ? selectorButton
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/neck.png"} />
+          <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
         </div>
         <div
           onClick={() => setCategory("legs")}
