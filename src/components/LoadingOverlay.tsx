@@ -11,7 +11,9 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
 
     return (
         <Box sx={
-        {
+        {   
+            background : "url(/loadingBack.png) no-repeat center center fixed",
+            backgroundSize : 'cover',
             position: "absolute",
             zIndex: 1000,
             width: "100vw",
@@ -81,7 +83,8 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         </Box>
     <Lottie style =  {{
         zIndex : "-999",
-        position:'absolute'
+        position:'absolute',
+        height : "80vh",
     }} animationData={lottie} loop={true} />
     <div style = {{
         bottom : '0',
@@ -94,8 +97,8 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
 
         }}/>
         <div style = {{
-            height : "300px",
-            width  : "1377px",
+            height : "20vh",
+            width  : "100vw",
             background : "radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%)",
             display : "flex",
             flexDirection : "column",
