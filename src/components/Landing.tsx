@@ -16,6 +16,8 @@ export default function Landing({
      from: { x: 0, opacity : 1 },
     }))
 
+    const [backgroundAnimation, setBackgroundAnimation] = useState(false)
+
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
      from: { y: 0 },
     }))
@@ -28,37 +30,38 @@ export default function Landing({
     }, [])
 
     const handleClick = (type)=> {
-        setTimeout (() => {
-            setCardAnimation.start({
-              from: {
-                opacity : 1,
-                x: 0,
-              },
-              to: {
-                opacity : 0,
-                x: window.innerWidth,
-              }
-            })
-            setTitleAnimation.start({
-              from: {
-                y: 0,
-              },
-              to: {
-                y: -window.innerHeight,
-              }
-            })
+        setCardAnimation.start({
+          from: {
+            opacity : 1,
+            x: 0,
+          },
+          to: {
+            opacity : 0,
+            x: window.innerWidth,
+          }
+        })
+        setTitleAnimation.start({
+          from: {
+            y: 0,
+          },
+          to: {
+            y: -window.innerHeight,
+          }
+        })
+        setBackgroundAnimation(true)
+        setTimeout(() => {
+            onSetModel(type)    
         }, 1000)
-        onSetModel(type)
     }
     return !isLoading ? (
-        <div style = {{
-                background : `url("/background.png") no-repeat center center fixed`,
-                height : "100vh",
+        <div 
+            style = {{
+                height: '100vh',
                 backgroundSize : 'cover',
                 display : 'flex',
                 flexDirection : 'column',
                 alignItems : 'center',
-                overflow : 'hidden'
+                overflow : 'hidden',
             }
             }>
                 <animated.div style = {{...titleAnimation}}>

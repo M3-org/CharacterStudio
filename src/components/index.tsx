@@ -37,7 +37,7 @@ export default function CharacterEditor(props: any) {
   // const [animations, setAnimations] = useState<object>(Object);
   // const [body, setBody] = useState<any>();
 
-  const { theme, templates, mintPopup } = props
+  const { theme, templates, mintPopup, setLoading } = props
   // Selected category State Hook
   const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
@@ -94,11 +94,11 @@ export default function CharacterEditor(props: any) {
   }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-      setLoadingModel(true)
+      
       const loader = new GLTFLoader()
       loader
         .loadAsync(templateInfo.file, (e) => {
-          setLoadingModelProgress((e.loaded * 100) / e.total)
+          props.setLoadingProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
           
@@ -109,7 +109,7 @@ export default function CharacterEditor(props: any) {
             })
             
             vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-            setLoadingModel(false)
+            setLoading(false)
             setScene(vrm.scene)
             sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
             setModel(vrm)
@@ -125,11 +125,6 @@ export default function CharacterEditor(props: any) {
       <ThemeProvider theme={theme ?? defaultTheme}>
         {templateInfo && (
           <Fragment>
-            {loadingModel && (
-              <LoadingOverlayCircularStatic
-                loadingModelProgress={loadingModelProgress}
-              />
-            )}
             <DownloadCharacter
               scene={scene}
               templateInfo={templateInfo}
@@ -152,7 +147,7 @@ export default function CharacterEditor(props: any) {
               setTemplateInfo={setTemplateInfo}
               templateInfo={templateInfo}
               model={model}
-            />
+            />  
           </Fragment>
         )}
       </ThemeProvider>

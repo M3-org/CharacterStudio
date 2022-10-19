@@ -2,6 +2,7 @@ import React from "react";
 import CircularProgress, {CircularProgressProps} from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { useSpring, animated } from 'react-spring'
 import Lottie from "lottie-react";
 import lottie from '../data/lottie.json'
 
@@ -9,11 +10,15 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
     value : number
 }) {
 
+    const [loadingAnimation, setLoadingAnimation] = useSpring(() => ({
+     from: { y: 100, opacity : 0 },
+     to: { y: 0, opacity : 1 },
+    }))
+
     return (
+    <animated.div style = {{...loadingAnimation}}>
         <Box sx={
         {   
-            background : "url(/loadingBack.png) no-repeat center center fixed",
-            backgroundSize : 'cover',
             position: "absolute",
             zIndex: 1000,
             width: "100vw",
@@ -24,7 +29,6 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             flexDirection :"column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "rgba(16,16,16,0.9)",
             userSelect : "none"
         }
     }>
@@ -109,6 +113,7 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         </div>
     </div>
     </Box>
+    </animated.div>
     );
 }
 
