@@ -97,8 +97,9 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         <img src="/webaMark.svg"  style={{
             position : "absolute",
             left: "50%",
-            transform: "translate(-50%, -20%)"
-
+            transform: "translate(-50%, -20%)",
+            bottom : "0",
+            height : "100%"
         }}/>
         <div style = {{
             height : "20vh",
@@ -107,7 +108,6 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             display : "flex",
             flexDirection : "column",
             transform: "rotate(-180deg)",
-            width : "1377px",
             bottom : "0",
         }}>
         </div>

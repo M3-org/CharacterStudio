@@ -103,8 +103,10 @@ function App() {
                 templates={defaultTemplates} 
                 theme={defaultTheme} 
                 setLoading={(value) => {
-                  setLoading(false)
-                  setEnd(true)
+                  setTimeout (() => {
+                    setLoading(false)
+                    setEnd(true)
+                  }, 1000)
                 }} 
                 setLoadingProgress = {setLoadingProgress}
               />
