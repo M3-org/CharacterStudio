@@ -7,6 +7,8 @@ import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Scene from "./Scene"
+import { useSpring, animated } from 'react-spring'
+
 
 interface Avatar{
   body:{},
@@ -88,6 +90,12 @@ export default function CharacterEditor(props: any) {
     } 
   }
 
+  const animatedStyle = useSpring({
+    from: { opacity: "0", backgroundColor : "red" },
+    to: { opacity: "1" },
+    config: { duration: "2500" }
+  })
+
   useEffect(() => {
     if(model)
     sceneService.setModel(model);
@@ -119,7 +127,7 @@ export default function CharacterEditor(props: any) {
         })
     }
   }, [templateInfo.file])
- 
+ scene
   return (
     <Suspense fallback="loading...">
       <ThemeProvider theme={theme ?? defaultTheme}>
@@ -132,22 +140,24 @@ export default function CharacterEditor(props: any) {
               downloadPopup={downloadPopup}
               setDownloadPopup={setDownloadPopup}
             />
-            <Scene
-              wrapClass="generator"
-              templates={templates}
-              scene={scene}
-              downloadPopup={downloadPopup}
-              mintPopup={mintPopup}
-              category={category}
-              setCategory={setCategory}
-              avatar = {avatar}
-              setAvatar={setAvatar}
-              setTemplate={setTemplate}
-              template={template}
-              setTemplateInfo={setTemplateInfo}
-              templateInfo={templateInfo}
-              model={model}
-            />  
+            <animated.div style={animatedStyle} >
+              <Scene
+                wrapClass="generator"
+                templates={templates}
+                scene={scene}
+                downloadPopup={downloadPopup}
+                mintPopup={mintPopup}
+                category={category}
+                setCategory={setCategory}
+                avatar = {avatar}
+                setAvatar={setAvatar}
+                setTemplate={setTemplate}
+                template={template}
+                setTemplateInfo={setTemplateInfo}
+                templateInfo={templateInfo}
+                model={model}
+              />  
+            </animated.div>
           </Fragment>
         )}
       </ThemeProvider>
