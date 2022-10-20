@@ -7,6 +7,8 @@ import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Scene from "./Scene"
+import { useSpring, animated } from 'react-spring'
+
 
 interface Avatar{
   body:{},
@@ -37,7 +39,7 @@ export default function CharacterEditor(props: any) {
   // const [animations, setAnimations] = useState<object>(Object);
   // const [body, setBody] = useState<any>();
 
-  const { theme, templates, mintPopup } = props
+  const { theme, templates, mintPopup, setLoading } = props
   // Selected category State Hook
   const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
@@ -88,17 +90,23 @@ export default function CharacterEditor(props: any) {
     } 
   }
 
+  const animatedStyle = useSpring({
+    from: { opacity: "0", backgroundColor : "red" },
+    to: { opacity: "1" },
+    config: { duration: "2500" }
+  })
+
   useEffect(() => {
     if(model)
     sceneService.setModel(model);
   }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-      setLoadingModel(true)
+      
       const loader = new GLTFLoader()
       loader
         .loadAsync(templateInfo.file, (e) => {
-          setLoadingModelProgress((e.loaded * 100) / e.total)
+          props.setLoadingProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
           
@@ -109,7 +117,7 @@ export default function CharacterEditor(props: any) {
             })
             
             vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-            setLoadingModel(false)
+            setLoading(false)
             setScene(vrm.scene)
             sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
             setModel(vrm)
@@ -119,17 +127,12 @@ export default function CharacterEditor(props: any) {
         })
     }
   }, [templateInfo.file])
- 
+ scene
   return (
     <Suspense fallback="loading...">
       <ThemeProvider theme={theme ?? defaultTheme}>
         {templateInfo && (
           <Fragment>
-            {loadingModel && (
-              <LoadingOverlayCircularStatic
-                loadingModelProgress={loadingModelProgress}
-              />
-            )}
             <DownloadCharacter
               scene={scene}
               templateInfo={templateInfo}
@@ -137,22 +140,24 @@ export default function CharacterEditor(props: any) {
               downloadPopup={downloadPopup}
               setDownloadPopup={setDownloadPopup}
             />
-            <Scene
-              wrapClass="generator"
-              templates={templates}
-              scene={scene}
-              downloadPopup={downloadPopup}
-              mintPopup={mintPopup}
-              category={category}
-              setCategory={setCategory}
-              avatar = {avatar}
-              setAvatar={setAvatar}
-              setTemplate={setTemplate}
-              template={template}
-              setTemplateInfo={setTemplateInfo}
-              templateInfo={templateInfo}
-              model={model}
-            />
+            <animated.div style={animatedStyle} >
+              <Scene
+                wrapClass="generator"
+                templates={templates}
+                scene={scene}
+                downloadPopup={downloadPopup}
+                mintPopup={mintPopup}
+                category={category}
+                setCategory={setCategory}
+                avatar = {avatar}
+                setAvatar={setAvatar}
+                setTemplate={setTemplate}
+                template={template}
+                setTemplateInfo={setTemplateInfo}
+                templateInfo={templateInfo}
+                model={model}
+              />  
+            </animated.div>
           </Fragment>
         )}
       </ThemeProvider>

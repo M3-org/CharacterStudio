@@ -12,7 +12,10 @@ export default function Editor(props: any) {
     fontSize: "12px",
     minWidth: "60px",
     cursor: "pointer",
-    opacity : "1"
+    opacity : "1",
+    borderRight : "4px solid #61E5F9",
+    textAlign : "center",
+    width : "100%"
   }
 
   const selectorButtonActive = {
@@ -20,15 +23,16 @@ export default function Editor(props: any) {
     fontSize: "12px",
     minWidth: "60px",
     cursor: "pointer",
-    opacity : "0.2"
-
+    opacity : "0.2",
+    width : "100%",
+    textAlign : "center"
   }
 
   const selectorButtonIcon = {
     display: "inline-block",
     width: "40px",
     height: "56px",
-    padding: "2px",
+    padding: "2px"
   }
 
   const setShowModal = () => {
@@ -143,11 +147,6 @@ export default function Editor(props: any) {
         >
           <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
         </div>
-        <div style = {{
-          border : "1px solid #3A7484",
-          width  : "98%",
-          opacity : "0.5"
-        }}></div>
         <div
           onClick={() => handleRandom()}
           style={

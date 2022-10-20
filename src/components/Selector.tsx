@@ -98,6 +98,17 @@ export default function Selector(props) {
     borderRadius: "5px",
   }
 
+  const selectorButtonActive = { 
+    display: "flex",
+    justifyContent: "center" as "center",
+    cursor: "pointer" as "pointer",
+    width: '100%',
+    height: category !== "gender" ? ('134px'):('200px'),
+    background: "rgba(81, 90, 116, 0.2)",
+    backdropFilter: "blur(22.5px)",
+    borderRadius: "5px",
+    borderBottom  : "4px solid #61E5F9"
+  }
   // loading-trait-overlay
   const loadingTraitOverlayStyle = {
     position: "fixed" as "fixed",
@@ -108,6 +119,15 @@ export default function Selector(props) {
     backgroundColor: "rgba(16,16,16,0.8)",
   }
 
+  const tickStyle = {
+    width: "20%",
+    position: "absolute",
+    right : "-15px",
+    top : "-15px"
+  }
+  const tickStyleInActive = {
+    display : 'none'
+  }
   React.useEffect(() => {
     if (!scene || !templateInfo) return
     if (category) {
@@ -340,7 +360,7 @@ const itemLoader =  async(item, traits = null) => {
                 <React.Fragment>
                   
                   {category !== "gender" ?(<div
-                    style={selectorButton}
+                    style={noTrait ? selectorButtonActive : selectorButton }
                     className={`selector-button ${noTrait ? "active" : ""}`}
                     onClick={() => selectTrait("0")}
                   >
@@ -354,7 +374,7 @@ const itemLoader =  async(item, traits = null) => {
                       return (
                         <div
                           key={index}
-                          style={selectorButton}
+                          style={selectValue === item?.id ? selectorButtonActive : selectorButton }
                           className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
                             }`}
                           onClick={() => {
@@ -373,6 +393,9 @@ const itemLoader =  async(item, traits = null) => {
                                 : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
                             }
                           />
+                          <img src='/tick.svg'
+                            style = {selectValue === item?.id ? tickStyle : tickStyleInActive}
+                          />
                           {selectValue === item?.id && loadingTrait > 0 && (
                             <Typography
                               className="loading-trait"
@@ -381,7 +404,7 @@ const itemLoader =  async(item, traits = null) => {
                               {loadingTrait}%
                             </Typography>
                           )}
-                        </div>                                                         
+                        </div>
                       )
                     })}
                   <div style={{ visibility: "hidden" }}>
