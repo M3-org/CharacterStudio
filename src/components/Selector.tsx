@@ -21,9 +21,9 @@ export default function Selector(props) {
     template,
     setTemplateInfo,
     templateInfo,
-    randomFlag
+    randomFlag,
+    camera
   }: any = props
-
   const [selectValue, setSelectValue] = useState("0")
 
   const [collection, setCollection] = useState([])
@@ -269,13 +269,17 @@ const itemLoader =  async(item, traits = null) => {
         o.frustumCulled = false
       })
       //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
+      
       renameVRMBones(vrm2);
+      startAnimation(vrm2);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      startAnimation(vrm2)
+      setTimeout(()=>{scene.add(vrm.scene)},50);
+      
+      
     })
 
-    scene.add(vrm.scene)
+    
       // vrm.humanoid.getBoneNode(
       //   VRMSchema.HumanoidBoneName.Hips,
       // ).rotation.y = Math.PI
@@ -289,7 +293,9 @@ const itemLoader =  async(item, traits = null) => {
         }
       })
       if (avatar[traitName].model) {
-        scene.remove(avatar[traitName].model)
+        setTimeout(() => {
+          scene.remove(avatar[traitName].model)
+        },60);
       }
     }
   })

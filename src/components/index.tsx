@@ -90,11 +90,16 @@ export default function CharacterEditor(props: any) {
     } 
   }
 
-  const animatedStyle = useSpring({
-    from: { opacity: "0", backgroundColor : "red" },
-    to: { opacity: "1" },
-    config: { duration: "2500" }
-  })
+
+  // const animatedStyle = useSpring({
+  //   from: { opacity: "0"},
+  //   to: { opacity: "1" },
+  //   config: { duration: "250000" }
+  // })
+  const animatedStyle = {
+    backgroundColor: "rgba(16,16,16,0.6)",
+    color: "#efefef"
+  }
 
   useEffect(() => {
     if(model)
@@ -118,10 +123,12 @@ export default function CharacterEditor(props: any) {
             
             vrm.scene.rotation.set(Math.PI, 0, Math.PI)
             setLoading(false)
-            setScene(vrm.scene)
-            sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-            setModel(vrm)
             startAnimation(vrm)
+            setTimeout(()=>{
+              setScene(vrm.scene)
+              sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+              setModel(vrm)
+            },50);
           })
           
         })
