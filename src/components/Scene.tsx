@@ -8,6 +8,7 @@ import Selector from "./Selector";
 import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 import { sceneService } from "../services";
+import gsap from 'gsap';
 
 
 export default function Scene(props: any) {
@@ -37,7 +38,8 @@ export default function Scene(props: any) {
     template,
     setTemplateInfo,
     templateInfo,
-    model }: any = props;
+    model,
+    camera }: any = props;
 
     const canvasWrap = {
       height: "100vh",
@@ -54,7 +56,10 @@ export default function Scene(props: any) {
     const downLoad = (format : any) => {
       sceneService.download(model, `CC_Model`, format, false);
     }
+    const moveCamera = () => {
 
+    }
+  
   return (
     <div style={{
       width: "100vw",
@@ -75,10 +80,10 @@ export default function Scene(props: any) {
           className="canvas"
           id="editor-scene"
         >
-          <gridHelper
+          {/* <gridHelper
             args={[50, 25, "#101010", "#101010"]}
             position={[0, 0, 0]}
-          />
+          /> */}
           <spotLight
             intensity={1}
             position={[0, 3.5, 2]}
@@ -105,16 +110,25 @@ export default function Scene(props: any) {
             shadow-mapSize-height={2048}
             castShadow
           />
-          <OrbitControls
+          {/* <OrbitControls
             minDistance={1}
             maxDistance={3}
             minPolarAngle={0.0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 1, 0]}
-          />
+            target={[0, 0.5, 0]}
+          /> */}
           <PerspectiveCamera
+            
+            aspect={1200 / 600}
+            //radius={(1200 + 600) / 4}
+            //fov={100}
+            position={[0.3, -0.9, 3.6]}
+            onUpdate={self => self.updateProjectionMatrix()}
+            
           >
+            {console.log(PerspectiveCamera)}
+            {camera && <cameraHelper args={camera} />}
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
@@ -148,6 +162,7 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
+          camera={camera}
         />
         <Editor random = {random} category={category} setCategory={setCategory} />
       </div>
