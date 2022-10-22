@@ -132,6 +132,7 @@ export default function Selector(props) {
     if (!scene || !templateInfo) return
     if (category) {
       if (category === "gender") {
+        console.log(templates)
         setCollection(templates)
         setTraitName("gender")
       }
@@ -157,7 +158,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        setTempInfo("2")
+        setTempInfo(templates[0].id)
       }
     }
     _get()
@@ -198,7 +199,7 @@ export default function Selector(props) {
   }, [randomFlag])
 
   const setTempInfo = (id) => {
-    apiService.fetchTemplate(id).then((res) => {
+    apiService.fetchTemplate(templates, id).then((res) => {
       setTemplateInfo(res)
     })
   }
@@ -386,6 +387,7 @@ const itemLoader =  async(item, traits = null) => {
                           onClick={() => {
                             if (category === "gender") {
                               setLoaded(true)
+                              console.log(item.id)
                               setTempInfo(item.id)
                             }
                             selectTrait(item)

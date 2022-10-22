@@ -100,13 +100,14 @@ function App() {
             }}
           >
             <CharacterEditor 
-                templates={defaultTemplates} 
+            //modelClass
+                templates={defaultTemplates[modelClass-1].gender} 
                 theme={defaultTheme} 
                 setLoading={(value) => {
                   setTimeout (() => {
                     setLoading(false)
                     setEnd(true)
-                  }, 1000)
+                  }, 100)
                 }} 
                 setLoadingProgress = {setLoadingProgress}
               />

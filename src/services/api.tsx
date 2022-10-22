@@ -1,6 +1,6 @@
 import bones from "../library/bones";
 import { loadAnimation } from "../library/animations/animation"
-import templates from "../data/base_models";
+//import templates from "../data/base_models";
 
 export const apiService = {
   fetchBones,
@@ -29,8 +29,9 @@ async function fetchTraitsByCategory(name: any) {
   return filtered[0];
 }
 
-async function fetchTemplate(id: any) {
-  const filtered = templates.filter((templates: any) => templates.id === id);
+async function fetchTemplate(template:any,id: any) {
+  //console.log(template.indexOf(id));
+  const filtered = template.filter((templates: any) => templates.id === id);
   if (fetchedTemplate != id) {
     if (filtered[0] && filtered[0].traitsJsonPath) await fetchTraits(filtered[0].traitsJsonPath)
     if (filtered[0] && filtered[0].animationPath) await loadAnimation(filtered[0].animationPath)
@@ -38,6 +39,7 @@ async function fetchTemplate(id: any) {
   fetchedTemplate = id
   return filtered[0];
 }
+
 
 async function fetchTraits(path: any) {
   modelTraits = await (await fetch(path)).json()
