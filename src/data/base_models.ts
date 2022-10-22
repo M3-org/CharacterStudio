@@ -12,8 +12,8 @@ export default [
         "Headbaked(copy)"
       ],
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
-      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
-      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/female/loot.json",
+      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
+      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/female/loot.json",
       "animationPath": "./animations/vrmanim.glb"
     },
     {
@@ -27,9 +27,9 @@ export default [
         "Head002"
       ],
       
-      "traitsDirectory": "https://megitmelotsqui.github.io/loot-assets/neurohacker/male/",
-      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
-      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/male/loot.json",
+      "traitsDirectory": "https://megitmelotsqui.github.io/loot-assets/drophunter/male/",
+      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
+      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
       "animationPath": "./animations/vrmanim.glb"
     }  
   ]},
