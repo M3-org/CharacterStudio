@@ -27,7 +27,7 @@ export default [
         "Head002"
       ],
       
-      "traitsDirectory": "https://megitmelotsqui.github.io/loot-assets/drophunter/male/",
+      "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
       "animationPath": "./animations/vrmanim.glb"
