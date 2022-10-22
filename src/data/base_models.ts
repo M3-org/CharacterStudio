@@ -42,8 +42,12 @@ export default [
       "thumbnail": "/female-body-1.png",
       "format": "vrm",
       "bodyTargets": [
-          "Body_Female",
-          "Head_female"
+        "Body_Female",
+        "Head_femalebaked",
+        "Head_femalebaked_1",
+        "Head_femalebaked_2",
+        "Head_femalebaked_3",
+        "Head_femalebaked_4"
       ],
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -57,8 +61,10 @@ export default [
       "thumbnail": "/male-body-1.png",
       "format": "vrm",
       "bodyTargets": [
-          "Body",
-          "Face_Male"
+        "Body",
+        "Face_Malebaked",
+        "Face_Malebaked_1",
+        "Face_Malebaked_2"
       ],
       
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
