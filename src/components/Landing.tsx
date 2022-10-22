@@ -51,7 +51,7 @@ export default function Landing({
         setBackgroundAnimation(true)
         setTimeout(() => {
             onSetModel(type)    
-        }, 1000)
+        }, 500)
     }
     return !isLoading ? (
         <div 
