@@ -156,7 +156,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        await setTempInfo("2")
+        await setTempInfo(templates[0].id)
       }
     }
     _get()
@@ -200,7 +200,8 @@ export default function Selector(props) {
   }, [randomFlag])
 
   const setTempInfo = (id) => {
-    apiService.fetchTemplate(id).then((res) => {
+    apiService.fetchTemplate(templates, id).then((res) => {
+      console.log(res)
       setTemplateInfo(res)
     })
   }
