@@ -2,9 +2,10 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
+import gsap from 'gsap';
 
 export default function Editor(props: any) {
-  const { category, setCategory }: any = props
+  const { category, setCategory, camera }: any = props
   const [isModal, setModal] = useState(false)
 
   const selectorButton = {
@@ -43,6 +44,50 @@ export default function Editor(props: any) {
     props.random();
   }
 
+  // calus should be based on characters, add in json
+  const camBodyView = () => {
+    gsap.to(camera.position,{
+      y:-0.9,
+      z:3.6,
+      duration: 1,
+      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+  }
+  const camHeadView = ()=>{
+    gsap.to(camera.position,{
+      y:-1.5,
+      z:4.4,
+      duration: 1,
+      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+  }
+  const camChestView = () => {
+    gsap.to(camera.position,{
+      y:-1.2,
+      z:4.4,
+      duration: 1,
+      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+  }
+  const camBottomView = ()=>{
+    gsap.to(camera.position,{
+      y:-0.6,
+      z:4,
+      duration: 1,
+      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+  }
+  const camFootView = ()=>{
+    gsap.to(camera.position,{
+      y:-0.4,
+      z:4.3,
+      duration: 1,
+      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+  }
+  
+
+
   return (
     <div
       style={{
@@ -77,7 +122,11 @@ export default function Editor(props: any) {
           opacity : "0.5"
         }}></div>
         <div
-          onClick={() => setCategory("gender")}
+          onClick={() => {
+            setCategory("gender")
+            camBodyView()
+          }
+          }
           style={
             category && category === "gender"
               ? selectorButton
@@ -87,7 +136,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/body.png"} />
         </div>
         <div
-          onClick={() => setCategory("color")}
+          onClick={() => {
+            setCategory("color")
+            camBodyView();
+          }}
           style={
             category && category === "color"
               ? selectorButton
@@ -97,7 +149,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/skin-color.png"} />
         </div>
         <div
-          onClick={() => setCategory("head")}
+          onClick={() => {
+            setCategory("head")
+            camHeadView();
+          }}
           style={
             category && category === "head"
               ? selectorButton
@@ -108,7 +163,10 @@ export default function Editor(props: any) {
         </div>
 
         <div
-          onClick={() => setCategory("chest")}
+          onClick={() => {
+            setCategory("chest")
+            camBodyView();
+          }}
           style={
             category && category === "chest"
               ? selectorButton
@@ -118,7 +176,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
         </div>
         <div
-          onClick={() => setCategory("accessories")}
+          onClick={() => {
+            setCategory("accessories")
+            camBodyView()
+          }}
           style={
             category && category === "accessories"
               ? selectorButton
@@ -128,7 +189,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
         </div>
         <div
-          onClick={() => setCategory("legs")}
+          onClick={() => {
+            setCategory("legs")
+            camBottomView();
+          }}
           style={
             category && category === "legs"
               ? selectorButton
@@ -138,7 +202,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/legs.png"} />
         </div>
         <div
-          onClick={() => setCategory("foot")}
+          onClick={() => {
+            setCategory("foot")
+            camFootView();
+          }}
           style={
             category && category === "foot"
               ? selectorButton

@@ -8,13 +8,13 @@ import Selector from "./Selector";
 import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 import { sceneService } from "../services";
-import gsap from 'gsap';
 
 
 export default function Scene(props: any) {
 
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
+  const [camera, setCamera] = useState<object>(Object);
  
   const random = () => {
     if(randomFlag == -1){
@@ -23,7 +23,6 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
-
   const { 
     wrapClass,
     templates,
@@ -38,8 +37,7 @@ export default function Scene(props: any) {
     template,
     setTemplateInfo,
     templateInfo,
-    model,
-    camera }: any = props;
+    model }: any = props;
 
     const canvasWrap = {
       height: "100vh",
@@ -118,17 +116,16 @@ export default function Scene(props: any) {
             enablePan={false}
             target={[0, 0.5, 0]}
           /> */}
-          <PerspectiveCamera
-            
+          <PerspectiveCamera 
+            ref ={setCamera}
             aspect={1200 / 600}
-            //radius={(1200 + 600) / 4}
-            //fov={100}
+            radius={(1200 + 600) / 4}
+            fov={100}
             position={[0.3, -0.9, 3.6]}
             onUpdate={self => self.updateProjectionMatrix()}
             
           >
-            {console.log(PerspectiveCamera)}
-            {camera && <cameraHelper args={camera} />}
+            {/* {camera && <div camera={camera} />} */}
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
@@ -162,9 +159,13 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
-          camera={camera}
         />
-        <Editor random = {random} category={category} setCategory={setCategory} />
+        <Editor 
+          camera = {camera}
+          random = {random} 
+          category={category} 
+          setCategory={setCategory} 
+          />
       </div>
     </div>
   );
