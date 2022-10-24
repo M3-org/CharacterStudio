@@ -22,7 +22,6 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
-    camera
   }: any = props
   const [selectValue, setSelectValue] = useState("0")
 

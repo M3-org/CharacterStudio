@@ -16,6 +16,7 @@ export default function Scene(props: any) {
 
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
+  const [camera, setCamera] = useState<object>(Object);
  
   const random = () => {
     if(randomFlag == -1){
@@ -24,7 +25,6 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
-
   const { 
     wrapClass,
     templates,
@@ -39,8 +39,7 @@ export default function Scene(props: any) {
     template,
     setTemplateInfo,
     templateInfo,
-    model,
-    camera }: any = props;
+    model }: any = props;
 
     const canvasWrap = {
       height: "100vh",
@@ -78,6 +77,11 @@ export default function Scene(props: any) {
           }}
       >
         <Canvas
+          style = {{
+            width: "calc(100% - 700px)",
+            position: "absolute",
+            right: "100px"
+          }}
           className="canvas"
           id="editor-scene"
         >
@@ -117,19 +121,20 @@ export default function Scene(props: any) {
            {/* <OrbitControls
             minDistance={1}
             maxDistance={3}
-            minPolarAngle={0.0}
+            minPolarAngle={Math.PI / 2 - 0.11}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 0.5, 0]}
-          />  */}
-          <PerspectiveCamera
+            target={[0, 0, 1.5]}
+          /> */}
+          <PerspectiveCamera 
+            ref ={setCamera}
             aspect={1200 / 600}
-            //radius={(1200 + 600) / 4}
-            //fov={100}
-            position={[0.3, -0.9, 1.6]}
+            radius={(1200 + 600) / 4}
+            fov={100}
+            position={[0, -0.9, 3.5]}
+            rotation = {[0,0.5,0]}
             onUpdate={self => self.updateProjectionMatrix()}
           >
-            {camera && <cameraHelper args={camera} />}
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
@@ -178,9 +183,14 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
-          camera={camera}
         />
-        <Editor random = {random} category={category} setCategory={setCategory} />
+        <Editor 
+          camera = {camera}
+          templateInfo={templateInfo}
+          random = {random} 
+          category={category} 
+          setCategory={setCategory} 
+          />
       </div>
     </div>
   );
