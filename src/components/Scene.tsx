@@ -75,6 +75,11 @@ export default function Scene(props: any) {
           }}
       >
         <Canvas
+          style = {{
+            width: "calc(100% - 700px)",
+            position: "absolute",
+            right: "100px"
+          }}
           className="canvas"
           id="editor-scene"
         >
@@ -109,23 +114,25 @@ export default function Scene(props: any) {
             castShadow
           />
           {/* <OrbitControls
+            ref = {setControl}
             minDistance={1}
             maxDistance={3}
-            minPolarAngle={0.0}
+            minPolarAngle={Math.PI / 2 - 0.11}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 0.5, 0]}
+            enabled = {false}
+            target={[0, 0, 1.5]}
           /> */}
           <PerspectiveCamera 
             ref ={setCamera}
             aspect={1200 / 600}
             radius={(1200 + 600) / 4}
             fov={100}
-            position={[0.3, -0.9, 3.6]}
+            position={[0, -0.9, 3.5]}
+            rotation = {[0,0.5,0]}
             onUpdate={self => self.updateProjectionMatrix()}
             
           >
-            {/* {camera && <div camera={camera} />} */}
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
@@ -162,6 +169,7 @@ export default function Scene(props: any) {
         />
         <Editor 
           camera = {camera}
+          templateInfo={templateInfo}
           random = {random} 
           category={category} 
           setCategory={setCategory} 

@@ -16,7 +16,6 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
     }))
 
     return (
-    <animated.div style = {{...loadingAnimation}}>
         <Box sx={
         {   
             position: "absolute",
@@ -29,9 +28,10 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             flexDirection :"column",
             alignItems: "center",
             justifyContent: "center",
-            userSelect : "none"
+            userSelect : "none",
+            overflow: "hidden"
         }
-    }>
+        }>
         <span style={{
             fontFamily: 'Proxima',
             fontStyle: 'normal',
@@ -42,49 +42,51 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             color: '#FFFFFF',
         }}
         >Loading your avatar</span>
-        <Box sx={
-                {
-                    position: "relative",
-                    display: "inline-flex"
-                }
-            }
-            className="vh-centered">
-            {/*<CircularProgress/>*/}
+        <animated.div style = {{...loadingAnimation}}>
             <Box sx={
-                {
-                    // position: "absolute",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "start",
-                    width: "237px",
-                    height: '14px',
-                    border : "2px solid  #645D8D",
-                    borderRadius : "10px"
+                    {
+                        position: "relative",
+                        display: "inline-flex"
+                    }
                 }
-            }>
-               <Box sx={
+                className="vh-centered">
+                {/*<CircularProgress/>*/}
+                <Box sx={
                     {
                         // position: "absolute",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        width: Math.round(props.value * 2.31),
-                        height: '6px',
-                        backgroundColor: "#FFFFFF",
-                        borderRadius : "10px",
-                        transition : " width 1s",
-                        margin : "10px"
+                        justifyContent: "start",
+                        width: "237px",
+                        height: '14px',
+                        border : "2px solid  #645D8D",
+                        borderRadius : "10px"
                     }
                 }>
-{/*                      <Typography variant="caption" component="div" color="text.secondary">
+                <Box sx={
                         {
-                        `${
-                            Math.round(props.value)
-                        }%`
-                    }</Typography>*/}
+                            // position: "absolute",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: Math.round(props.value * 2.31),
+                            height: '6px',
+                            backgroundColor: "#FFFFFF",
+                            borderRadius : "10px",
+                            transition : " width 1s",
+                            margin : "10px"
+                        }
+                    }>
+    {/*                      <Typography variant="caption" component="div" color="text.secondary">
+                            {
+                            `${
+                                Math.round(props.value)
+                            }%`
+                        }</Typography>*/}
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </animated.div>
     <Lottie style =  {{
         zIndex : "-999",
         position:'absolute',
@@ -94,13 +96,15 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         bottom : '0',
         position : "absolute",
     }}>
+        <animated.div style = {{...loadingAnimation}}>
         <img src="/webaMark.svg"  style={{
             position : "absolute",
             left: "50%",
-            transform: "translate(-50%, -20%)",
-            bottom : "0",
-            height : "100%"
+            transform: "translate(-50%, 30%)",
+            bottom : "-10vh",
+            height : "20vh",
         }}/>
+        </animated.div>
         <div style = {{
             height : "20vh",
             width  : "100vw",
@@ -113,7 +117,6 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         </div>
     </div>
     </Box>
-    </animated.div>
     );
 }
 

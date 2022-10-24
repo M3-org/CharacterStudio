@@ -5,9 +5,8 @@ import React, { useEffect, useState, useRef } from "react"
 import gsap from 'gsap';
 
 export default function Editor(props: any) {
-  const { category, setCategory, camera }: any = props
+  const { camera, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
-
   const selectorButton = {
     color: "#999999",
     fontSize: "12px",
@@ -44,45 +43,69 @@ export default function Editor(props: any) {
     props.random();
   }
 
-  // calus should be based on characters, add in json
-  const camBodyView = () => {
-    gsap.to(camera.position,{
-      y:-0.9,
-      z:3.6,
-      duration: 1,
-      //onUpdate: () => {camera.lookAt(0,0,0)}
-    })
+
+  const moveCamera = (value:string) => {
+    if (templateInfo.cameraPosition){
+      if (templateInfo.cameraPosition[value]){
+        gsap.to(camera.position,{
+          x:templateInfo.cameraPosition[value][0],
+          y:templateInfo.cameraPosition[value][1],
+          z:templateInfo.cameraPosition[value][2],
+          duration: 1,
+        })
+        gsap.to(camera.rotation,{
+          y:0.4,
+          duration: 1,
+        })
+      }
+    }
   }
+
   const camHeadView = ()=>{
     gsap.to(camera.position,{
       y:-1.5,
-      z:4.4,
+      z:4.2,
       duration: 1,
-      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
     })
   }
+
   const camChestView = () => {
     gsap.to(camera.position,{
       y:-1.2,
       z:4.4,
       duration: 1,
-      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
     })
   }
+
   const camBottomView = ()=>{
     gsap.to(camera.position,{
       y:-0.6,
       z:4,
       duration: 1,
-      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
     })
   }
+
   const camFootView = ()=>{
     gsap.to(camera.position,{
       y:-0.4,
       z:4.3,
       duration: 1,
-      //onUpdate: () => {camera.lookAt(0,0,0)}
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
     })
   }
   
@@ -124,7 +147,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("gender")
-            camBodyView()
+            moveCamera("full")
           }
           }
           style={
@@ -138,7 +161,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("color")
-            camBodyView();
+            moveCamera("full")
           }}
           style={
             category && category === "color"
@@ -151,7 +174,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("head")
-            camHeadView();
+            moveCamera("head")
           }}
           style={
             category && category === "head"
@@ -165,7 +188,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("chest")
-            camBodyView();
+            moveCamera("full")
           }}
           style={
             category && category === "chest"
@@ -178,7 +201,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("accessories")
-            camBodyView()
+            moveCamera("full")
           }}
           style={
             category && category === "accessories"
@@ -191,7 +214,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("legs")
-            camBottomView();
+            moveCamera("legs")
           }}
           style={
             category && category === "legs"
@@ -204,7 +227,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("foot")
-            camFootView();
+            moveCamera("foot")
           }}
           style={
             category && category === "foot"
