@@ -8,8 +8,8 @@ export default [
       "thumbnail": "/female-body-1.png",
       "format": "vrm",
       "bodyTargets": [
-        "Body_Female",
-        "Head_female"
+        "Body",
+        "Headbaked(copy)"
       ],
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
@@ -24,7 +24,7 @@ export default [
       "format": "vrm",
       "bodyTargets": [
         "Body",
-        "Face_Male"
+        "Head002"
       ],
       
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
@@ -40,14 +40,10 @@ export default [
       "name": "Female",
       "file": "./models/f_neurohacker.vrm",
       "thumbnail": "/female-body-1.png",
-      "format": "vrm",
+      "format": "vgitrm",
       "bodyTargets": [
-        "Body_Female",
-        "Head_femalebaked",
-        "Head_femalebaked_1",
-        "Head_femalebaked_2",
-        "Head_femalebaked_3",
-        "Head_femalebaked_4"
+          "Body_Female",
+          "Head_female"
       ],
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -61,10 +57,8 @@ export default [
       "thumbnail": "/male-body-1.png",
       "format": "vrm",
       "bodyTargets": [
-        "Body",
-        "Face_Malebaked",
-        "Face_Malebaked_1",
-        "Face_Malebaked_2"
+          "Body",
+          "Face_Male"
       ],
       
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
