@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import ReactDOM from "react-dom"
+import ReactDOM from "react-dom/client";
 
 import CharacterEditor from "./components"
 import { createTheme, Alert, IconButton } from "@mui/material"
@@ -100,14 +100,13 @@ function App() {
             }}
           >
             <CharacterEditor 
-            //modelClass
-                templates={defaultTemplates[modelClass-1].gender} 
+                templates={defaultTemplates} 
                 theme={defaultTheme} 
                 setLoading={(value) => {
                   setTimeout (() => {
                     setLoading(false)
                     setEnd(true)
-                  }, 100)
+                  }, 1000)
                 }} 
                 setLoadingProgress = {setLoadingProgress}
               />
@@ -140,9 +139,10 @@ function App() {
   )
 }
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById("root"),
-)
+  </React.StrictMode>
+);
