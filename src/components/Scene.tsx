@@ -9,6 +9,7 @@ import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 import { sceneService } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
+import { MeshBasicMaterial } from "three";
 
 
 
@@ -70,10 +71,10 @@ export default function Scene(props: any) {
         id="canvas-wrap"
         className={`canvas-wrap ${wrapClass && wrapClass}`}
         style={{ ...canvasWrap,
-            // background : 'url(./mainBackground.png)',
-            // backgroundPosition: 'center',
-            // backgroundRepeat: 'no-repeat',
-            // backgroundSize: 'cover'
+            background : 'url(./mainBackground.png)',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover'
           }}
       >
         <Canvas
@@ -85,47 +86,16 @@ export default function Scene(props: any) {
           className="canvas"
           id="editor-scene"
         >
-           <gridHelper
+           {/* <gridHelper
             args={[50, 25, "#101010", "#101010"]}
             position={[0, 0, 0]}
-          /> 
-          <spotLight
-            intensity={1}
-            position={[0, 3.5, 2]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            castShadow
-          />
-          <spotLight
-            intensity={0.2}
-            position={[-5, 2.5, 4]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-          />
-          <spotLight
-            intensity={0.2}
-            position={[5, 2.5, 4]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-          />
-          <spotLight
-            intensity={0.3}
-            position={[0, -2, -8]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            castShadow
-          />
+          />  */}
+          {/* <ambientLight
+            intensity={2}
+          /> */}
           <directionalLight castShadow intensity={2} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
             <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={-20} />
           </directionalLight>
-           {/* <OrbitControls
-            minDistance={1}
-            maxDistance={3}
-            minPolarAngle={Math.PI / 2 - 0.11}
-            maxPolarAngle={Math.PI / 2 - 0.1}
-            enablePan={false}
-            target={[0, 0, 1.5]}
-          /> */}
           <PerspectiveCamera 
             ref ={setCamera}
             aspect={1200 / 600}
@@ -138,17 +108,28 @@ export default function Scene(props: any) {
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
+          {/* <mesh position={[0, 0.099, 0]} rotation={[0, 0, 0]}>
+            <cylinderGeometry args  = {[0.4, 0.4,0.2,64]} />
+            <meshBasicMaterial
+              attach="material"
+              color="#9FB6CD"
+              side={1}
+              visible={true}
+            />
+          </mesh> */}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[3, 3]} />
+            <circleGeometry args={[0.3,64]} />
             <MeshReflectorMaterial
               blur={[400, 400]}
-              resolution={2048}
+              resolution={1024}
               mixBlur={0.8}
-              mixStrength={20}
+              mixStrength={10}
               depthScale={1}
               minDepthThreshold={0.85}
-              color="#151515"
-              metalness={0.6}
+              color="#303030"
+              //color="#49343e"
+              metalness={0}
+              
               roughness={1}
             />
           </mesh>

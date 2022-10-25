@@ -100,7 +100,7 @@ function App() {
             }}
           >
             <CharacterEditor 
-                templates={defaultTemplates} 
+                templates={defaultTemplates[modelClass-1].gender} 
                 theme={defaultTheme} 
                 setLoading={(value) => {
                   setTimeout (() => {
