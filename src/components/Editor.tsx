@@ -4,17 +4,7 @@ import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
 import gsap from "gsap";
 
-import bodyIcon from "/src/ui/traits/body.png";
-import skinIcon from "/src/ui/traits/skin-color.png";
-import markIcon from "/src/ui/traits/webaMark 1.png";
-import hairIcon from "/src/ui/traits/hairStyle.png";
-import torsoIcon from "/src/ui/traits/torso.png";
-import accessoriesIcon from "/src/ui/traits/accessories.png";
-import legsIcon from "/src/ui/traits/legs.png";
-import shoesIcon from "/src/ui/traits/shoes.png";
-import shuffleIcon from "/src/ui/traits/shuffle.png";
-
-
+const traitsPath = "/src/ui/traits/";
 
 export default function Editor(props: any) {
   const { camera, templateInfo, category, setCategory  }: any = props
@@ -99,7 +89,7 @@ export default function Editor(props: any) {
       >
         <div
         >
-          <Avatar style={selectorButtonIcon} src={markIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath+"webaMark 1.png"} />
         </div>
         <div style = {{
           border : "1px solid #3A7484",
@@ -119,7 +109,7 @@ export default function Editor(props: any) {
           }
         >
           
-          <Avatar style={selectorButtonIcon} src={bodyIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath+"body.png"} />
         </div>
         <div
           onClick={() => {
@@ -132,7 +122,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={skinIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath+"skin-color.png"} />
         </div>
         <div
           onClick={() => {
@@ -145,7 +135,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={hairIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "hairStyle.png" } />
         </div>
 
         <div
@@ -159,7 +149,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={torsoIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "torso.png"} />
         </div>
         <div
           onClick={() => {
@@ -172,7 +162,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={accessoriesIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "accessories.png"} />
         </div>
         <div
           onClick={() => {
@@ -185,7 +175,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={legsIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "legs.png"} />
         </div>
         <div
           onClick={() => {
@@ -198,7 +188,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={shoesIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "shoes.png"} />
         </div>
         <div
           onClick={() => {
@@ -211,7 +201,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={shuffleIcon} />
+          <Avatar style={selectorButtonIcon} src={traitsPath + "shuffle.png"} />
         </div>
       </Stack>
     </div>
