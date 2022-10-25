@@ -122,15 +122,6 @@ export default function Scene(props: any) {
             {!downloadPopup && !mintPopup && (
               <TemplateModel scene={scene} />
             )}
-          {/* <mesh position={[0, 0.099, 0]} rotation={[0, 0, 0]}>
-            <cylinderGeometry args  = {[0.4, 0.4,0.2,64]} />
-            <meshBasicMaterial
-              attach="material"
-              color="#9FB6CD"
-              side={1}
-              visible={true}
-            />
-          </mesh> */}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[0.3,64]} />
             <MeshReflectorMaterial
