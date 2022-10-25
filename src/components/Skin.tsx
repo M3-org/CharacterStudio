@@ -3,6 +3,7 @@ import React from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useEffect, useState, useRef } from "react"
+import skinSelector from '../ui/skinSelector/Vector.png'
 
 function Skin({ scene, templateInfo }) {
   const [color, setColor] = useState("#aabbcc");
@@ -86,7 +87,7 @@ function Skin({ scene, templateInfo }) {
               ...btn,
               backgroundColor: col,
             }}  onClick={() => handleChangeSkin(col)}>
-           {(checked == col) && <img src={'Vector.png'} 
+           {(checked == col) && <img src={skinSelector} 
            key={i*row.length + k}
            />}
           </div>
