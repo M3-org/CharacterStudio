@@ -82,7 +82,7 @@ export default [
       ],
       "cameraPosition":{
         "full": [0,-0.9,3.5],
-        "head": [0,-1.5,4.2],
+        "head": [0,-1.2,4.2],
         "chest": [0,-1.2,4.4],
         "legs": [0,-0.6,4],
         "foot": [0,-0.4,4.3]
