@@ -18,6 +18,7 @@ export default function Scene(props: any) {
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
+  const [controls, setControls] = useState<object>(Object);
  
   const random = () => {
     if(randomFlag == -1){
@@ -26,6 +27,8 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
+  const h =0.65;
+  const d = 1.1;
   const { 
     wrapClass,
     templates,
@@ -90,19 +93,30 @@ export default function Scene(props: any) {
             args={[50, 25, "#101010", "#101010"]}
             position={[0, 0, 0]}
           />  */}
-          {/* <ambientLight
-            intensity={2}
-          /> */}
+          <ambientLight
+            color={"blue"}
+            intensity={1}
+          />
           <directionalLight castShadow intensity={2} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
             <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={-20} />
           </directionalLight>
+          <OrbitControls
+            ref = {setControls}
+            minDistance={1.5}
+            maxDistance={1.5}
+            minPolarAngle={Math.PI / 2 - 0.11}
+            maxPolarAngle={Math.PI / 2 - 0.1}
+            enablePan={false}
+            enableDamping={true}
+            target={[0, 0.9, 0]}
+          />
           <PerspectiveCamera 
             ref ={setCamera}
             aspect={1200 / 600}
             radius={(1200 + 600) / 4}
             fov={100}
-            position={[0, -0.9, 3.5]}
-            rotation = {[0,0.5,0]}
+            //position={[0, 0, 0]}
+            // rotation = {[0,0.5,0]}
             onUpdate={self => self.updateProjectionMatrix()}
           >
             {!downloadPopup && !mintPopup && (
@@ -167,6 +181,7 @@ export default function Scene(props: any) {
         />
         <Editor 
           camera = {camera}
+          controls = {controls}
           templateInfo={templateInfo}
           random = {random} 
           category={category} 

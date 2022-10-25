@@ -7,7 +7,7 @@ import gsap from "gsap";
 const traitsPath = "/src/ui/traits/";
 
 export default function Editor(props: any) {
-  const { camera, templateInfo, category, setCategory  }: any = props
+  const { camera, controls, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
   const selectorButton = {
     color: "#999999",
@@ -45,18 +45,16 @@ export default function Editor(props: any) {
     props.random();
   }
 
-
   const moveCamera = (value:string) => {
-    if (templateInfo.cameraPosition){
-      if (templateInfo.cameraPosition[value]){
-        gsap.to(camera.position,{
-          x:templateInfo.cameraPosition[value][0],
-          y:templateInfo.cameraPosition[value][1],
-          z:templateInfo.cameraPosition[value][2],
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
           duration: 1,
         })
-        gsap.to(camera.rotation,{
-          y:0.4,
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
           duration: 1,
         })
       }
@@ -141,7 +139,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             setCategory("chest")
-            moveCamera("full")
+            moveCamera("chest")
           }}
           style={
             category && category === "chest"
