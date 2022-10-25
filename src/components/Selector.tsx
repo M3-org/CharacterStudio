@@ -4,6 +4,7 @@ import Divider from "@mui/material/Divider"
 import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
+import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
@@ -11,6 +12,8 @@ import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
 import cancel from '../ui/selector/cancel.png'
 import tick from '../ui/selector/tick.svg'
+import sectionClick from "../sound/section_click.wav"
+
 
 export default function Selector(props) {
   const {
@@ -36,6 +39,11 @@ export default function Selector(props) {
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
   
+  const [play] = useSound(
+    sectionClick,
+    { volume: 1.0 }
+  );
+
   const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
   const selectorContainer = {
     height: "614px",
@@ -383,7 +391,10 @@ const getActiveStatus = (item) => {
                   {category !== "gender" ?(<div
                     style={noTrait ? selectorButtonActive : selectorButton }
                     className={`selector-button ${noTrait ? "active" : ""}`}
-                    onClick={() => selectTrait("0")}
+                    onClick={() => {
+                      selectTrait("0");
+                      play();
+                    }}
                   >
                     <img style={traitsCancelStyle}
                             className="icon"
@@ -405,6 +416,7 @@ const getActiveStatus = (item) => {
                               setLoaded(true)
                               setTempInfo(item.id)
                             }
+                            play()
                             selectTrait(item)
                           }}
                         >

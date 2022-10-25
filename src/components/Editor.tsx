@@ -2,6 +2,7 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
+import useSound from 'use-sound';
 import gsap from 'gsap';
 import accessories from "../ui/traits/accessories.png"
 import body from "../ui/traits/body.png"
@@ -14,6 +15,7 @@ import shuffle from "../ui/traits/shuffle.png"
 import skinColor from "../ui/traits/skin-color.png"
 import torso from "../ui/traits/torso.png"
 import webaMark from "../ui/traits/webaMark.png"
+import optionClick from "../sound/option_click.wav"
 
 
 export default function Editor(props: any) {
@@ -55,6 +57,10 @@ export default function Editor(props: any) {
     props.random();
   }
 
+  const [play] = useSound(
+    optionClick,
+    { volume: 1.0 }
+  );
 
   const moveCamera = (value:string) => {
     if (templateInfo.cameraPosition){
@@ -160,6 +166,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("gender")
             moveCamera("full")
+            play();
           }
           }
           style={
@@ -174,6 +181,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("color")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "color"
@@ -187,6 +195,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("head")
             moveCamera("head")
+            play();
           }}
           style={
             category && category === "head"
@@ -201,6 +210,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("chest")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "chest"
@@ -214,6 +224,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("accessories")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "accessories"
@@ -227,6 +238,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("legs")
             moveCamera("legs")
+            play();
           }}
           style={
             category && category === "legs"
@@ -240,6 +252,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("foot")
             moveCamera("foot")
+            play();
           }}
           style={
             category && category === "foot"
@@ -250,7 +263,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={shoes} />
         </div>
         <div
-          onClick={() => handleRandom()}
+          onClick={() => {
+            handleRandom()
+            play();
+          }}
           style={
             category && category === "random"
               ? selectorButton
