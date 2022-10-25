@@ -411,8 +411,6 @@ const getActiveStatus = (item) => {
                             selectTrait(item)
                           }}
                         >
-                          
-                          {item?.id}
                           <img style={traitsImgStyle}
                             className="icon"
                             src={
