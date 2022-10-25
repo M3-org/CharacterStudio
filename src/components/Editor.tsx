@@ -2,11 +2,11 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
+import gsap from 'gsap';
 
 export default function Editor(props: any) {
-  const { category, setCategory }: any = props
+  const { camera, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
-
   const selectorButton = {
     color: "#999999",
     fontSize: "12px",
@@ -43,6 +43,74 @@ export default function Editor(props: any) {
     props.random();
   }
 
+
+  const moveCamera = (value:string) => {
+    if (templateInfo.cameraPosition){
+      if (templateInfo.cameraPosition[value]){
+        gsap.to(camera.position,{
+          x:templateInfo.cameraPosition[value][0],
+          y:templateInfo.cameraPosition[value][1],
+          z:templateInfo.cameraPosition[value][2],
+          duration: 1,
+        })
+        gsap.to(camera.rotation,{
+          y:0.4,
+          duration: 1,
+        })
+      }
+    }
+  }
+
+  const camHeadView = ()=>{
+    gsap.to(camera.position,{
+      y:-1.5,
+      z:4.2,
+      duration: 1,
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
+    })
+  }
+
+  const camChestView = () => {
+    gsap.to(camera.position,{
+      y:-1.2,
+      z:4.4,
+      duration: 1,
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
+    })
+  }
+
+  const camBottomView = ()=>{
+    gsap.to(camera.position,{
+      y:-0.6,
+      z:4,
+      duration: 1,
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
+    })
+  }
+
+  const camFootView = ()=>{
+    gsap.to(camera.position,{
+      y:-0.4,
+      z:4.3,
+      duration: 1,
+    })
+    gsap.to(camera.rotation,{
+      y:0.4,
+      duration: 1,
+    })
+  }
+  
+
+
   return (
     <div
       style={{
@@ -77,7 +145,11 @@ export default function Editor(props: any) {
           opacity : "0.5"
         }}></div>
         <div
-          onClick={() => setCategory("gender")}
+          onClick={() => {
+            setCategory("gender")
+            moveCamera("full")
+          }
+          }
           style={
             category && category === "gender"
               ? selectorButton
@@ -87,7 +159,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/body.png"} />
         </div>
         <div
-          onClick={() => setCategory("color")}
+          onClick={() => {
+            setCategory("color")
+            moveCamera("full")
+          }}
           style={
             category && category === "color"
               ? selectorButton
@@ -97,7 +172,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/skin-color.png"} />
         </div>
         <div
-          onClick={() => setCategory("head")}
+          onClick={() => {
+            setCategory("head")
+            moveCamera("head")
+          }}
           style={
             category && category === "head"
               ? selectorButton
@@ -108,7 +186,10 @@ export default function Editor(props: any) {
         </div>
 
         <div
-          onClick={() => setCategory("chest")}
+          onClick={() => {
+            setCategory("chest")
+            moveCamera("full")
+          }}
           style={
             category && category === "chest"
               ? selectorButton
@@ -118,7 +199,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
         </div>
         <div
-          onClick={() => setCategory("accessories")}
+          onClick={() => {
+            setCategory("accessories")
+            moveCamera("full")
+          }}
           style={
             category && category === "accessories"
               ? selectorButton
@@ -128,7 +212,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
         </div>
         <div
-          onClick={() => setCategory("legs")}
+          onClick={() => {
+            setCategory("legs")
+            moveCamera("legs")
+          }}
           style={
             category && category === "legs"
               ? selectorButton
@@ -138,7 +225,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/legs.png"} />
         </div>
         <div
-          onClick={() => setCategory("foot")}
+          onClick={() => {
+            setCategory("foot")
+            moveCamera("foot")
+          }}
           style={
             category && category === "foot"
               ? selectorButton

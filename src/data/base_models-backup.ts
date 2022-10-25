@@ -11,13 +11,7 @@ export default [
         "Body",
         "Headbaked(copy)"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.2,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
-      },
+      
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/female/loot.json",
@@ -33,13 +27,7 @@ export default [
         "Body",
         "Head002"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.3,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
-      },
+      
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
@@ -56,15 +44,8 @@ export default [
       "format": "vgitrm",
       "bodyTargets": [
           "Body_Female",
-          "Head_femalebaked"
+          "Head_female"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.35,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
-      },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/female/loot.json",
@@ -78,15 +59,9 @@ export default [
       "format": "vrm",
       "bodyTargets": [
           "Body",
-          "Face_Malebaked"
+          "Face_Male"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.2,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
-      },
+      
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/male/loot.json",

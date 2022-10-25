@@ -22,7 +22,6 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
-    camera
   }: any = props
   const [selectValue, setSelectValue] = useState("0")
 
@@ -132,7 +131,6 @@ export default function Selector(props) {
     if (!scene || !templateInfo) return
     if (category) {
       if (category === "gender") {
-        console.log(templates)
         setCollection(templates)
         setTraitName("gender")
       }
@@ -158,7 +156,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        setTempInfo(templates[0].id)
+        await setTempInfo(templates[0].id)
       }
     }
     _get()
@@ -168,38 +166,42 @@ export default function Selector(props) {
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
 
-  React.useEffect( async () => {
-    if(randomFlag === -1) return;
-    
-    let lists = apiService.fetchCategoryList();
-    let ranItem;
-    Object.entries(avatar).map((props : any) => {
-      let traitName = props[0];
-      scene.remove(avatar[traitName].model);
-    })
-    
-    let buffer={};
-    for(let i=0; i < lists.length ; i++){
-     await apiService.fetchTraitsByCategory(lists[i]).then(
-       async (traits) => {
-        if (traits) {
-          let collection = traits.collection;
-          ranItem = collection[Math.floor(Math.random()*collection.length)];
-          var temp = await itemLoader(ranItem,traits);
-          buffer = {...buffer,...temp};
-          if(i == lists.length-1)
-          setAvatar({
-            ...avatar,
-            ...buffer
-          })          
-        }
+  React.useEffect(  () => {
+    (async ()=>{
+
+      if(randomFlag === -1) return;
+      
+      let lists = apiService.fetchCategoryList();
+      let ranItem;
+      Object.entries(avatar).map((props : any) => {
+        let traitName = props[0];
+        scene.remove(avatar[traitName].model);
       })
-    }
+      
+      let buffer={};
+      for(let i=0; i < lists.length ; i++){
+       await apiService.fetchTraitsByCategory(lists[i]).then(
+         async (traits) => {
+          if (traits) {
+            let collection = traits.collection;
+            ranItem = collection[Math.floor(Math.random()*collection.length)];
+            var temp = await itemLoader(ranItem,traits);
+            buffer = {...buffer,...temp};
+            if(i == lists.length-1)
+            setAvatar({
+              ...avatar,
+              ...buffer
+            })          
+          }
+        })
+      }
+    })()
 
   }, [randomFlag])
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(templates, id).then((res) => {
+      console.log(res)
       setTemplateInfo(res)
     })
   }
@@ -387,7 +389,6 @@ const itemLoader =  async(item, traits = null) => {
                           onClick={() => {
                             if (category === "gender") {
                               setLoaded(true)
-                              console.log(item.id)
                               setTempInfo(item.id)
                             }
                             selectTrait(item)
