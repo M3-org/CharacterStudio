@@ -2,7 +2,19 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
-import gsap from 'gsap';
+import gsap from "gsap";
+
+import bodyIcon from "/src/ui/traits/body.png";
+import skinIcon from "/src/ui/traits/skin-color.png";
+import markIcon from "/src/ui/traits/webaMark 1.png";
+import hairIcon from "/src/ui/traits/hairStyle.png";
+import torsoIcon from "/src/ui/traits/torso.png";
+import accessoriesIcon from "/src/ui/traits/accessories.png";
+import legsIcon from "/src/ui/traits/legs.png";
+import shoesIcon from "/src/ui/traits/shoes.png";
+import shuffleIcon from "/src/ui/traits/shuffle.png";
+
+
 
 export default function Editor(props: any) {
   const { camera, templateInfo, category, setCategory  }: any = props
@@ -61,56 +73,6 @@ export default function Editor(props: any) {
     }
   }
 
-  const camHeadView = ()=>{
-    gsap.to(camera.position,{
-      y:-1.5,
-      z:4.2,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camChestView = () => {
-    gsap.to(camera.position,{
-      y:-1.2,
-      z:4.4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camBottomView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.6,
-      z:4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camFootView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.4,
-      z:4.3,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-  
-
-
   return (
     <div
       style={{
@@ -137,7 +99,7 @@ export default function Editor(props: any) {
       >
         <div
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/webaMark 1.png"} />
+          <Avatar style={selectorButtonIcon} src={markIcon} />
         </div>
         <div style = {{
           border : "1px solid #3A7484",
@@ -156,7 +118,8 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/body.png"} />
+          
+          <Avatar style={selectorButtonIcon} src={bodyIcon} />
         </div>
         <div
           onClick={() => {
@@ -169,7 +132,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/skin-color.png"} />
+          <Avatar style={selectorButtonIcon} src={skinIcon} />
         </div>
         <div
           onClick={() => {
@@ -182,7 +145,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/hairStyle.png"} />
+          <Avatar style={selectorButtonIcon} src={hairIcon} />
         </div>
 
         <div
@@ -196,7 +159,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
+          <Avatar style={selectorButtonIcon} src={torsoIcon} />
         </div>
         <div
           onClick={() => {
@@ -209,7 +172,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
+          <Avatar style={selectorButtonIcon} src={accessoriesIcon} />
         </div>
         <div
           onClick={() => {
@@ -222,7 +185,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/legs.png"} />
+          <Avatar style={selectorButtonIcon} src={legsIcon} />
         </div>
         <div
           onClick={() => {
@@ -235,7 +198,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
+          <Avatar style={selectorButtonIcon} src={shoesIcon} />
         </div>
         <div
           onClick={() => {
@@ -248,7 +211,7 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/shuffle.png"} />
+          <Avatar style={selectorButtonIcon} src={shuffleIcon} />
         </div>
       </Stack>
     </div>
