@@ -137,7 +137,7 @@ export default function CharacterEditor(props: any) {
         })
     }
   }, [templateInfo.file])
- scene
+ 
   return (
     <Suspense fallback="loading...">
       <ThemeProvider theme={theme ?? defaultTheme}>
