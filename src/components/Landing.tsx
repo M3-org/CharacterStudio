@@ -3,6 +3,9 @@ import { textAlign } from "@mui/system";
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import { Triangle } from 'react-loader-spinner'
+import dropHunter from '../ui/landing/drophunter.png'
+import neuroHacker from '../ui/landing/neurohacker.png'
+import logo from '../ui/landing/logo.png'
 
 export default function Landing({
     onSetModel
@@ -68,7 +71,7 @@ export default function Landing({
                        <div className="topBanner" style={{
                        }} >     
                             <img 
-                                src={"/logo.png"} 
+                                src={logo} 
                                 style = {{
                                     display: 'inline-block',
                                     margin: '41px auto auto',
@@ -109,7 +112,7 @@ export default function Landing({
                      <div className="inner">
                         <span className='characterTitle' >Drophunter</span>
                         <img
-                            src={'/drophunter.png'}
+                            src={dropHunter}
                             className = 'characterImage'
                         />
                     </div>
@@ -119,7 +122,7 @@ export default function Landing({
                         <div className="inner">
                         <span className='characterTitle'>Neurohacker</span>
                         <img
-                            src={'/neurohacker.png'}
+                            src={neuroHacker}
                             className = 'characterImage'
                         />
                         </div>

@@ -10,6 +10,7 @@ import { position } from "html2canvas/dist/types/css/property-descriptors/positi
 import { sceneService } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { MeshBasicMaterial } from "three";
+import mainBackground from "../ui/mainBackground.png"
 
 
 
@@ -71,7 +72,7 @@ export default function Scene(props: any) {
         id="canvas-wrap"
         className={`canvas-wrap ${wrapClass && wrapClass}`}
         style={{ ...canvasWrap,
-            background : 'url(./mainBackground.png)',
+            background : mainBackground,
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover'

@@ -8,6 +8,7 @@ import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import '.././src/styles/landing.scss'
+import backgroundImg from '../src/ui/background.png'
 const defaultTheme = createTheme({
   palette: {
     mode: "dark",
@@ -55,7 +56,10 @@ function App() {
         <div 
           className='backgroundImg'
           style = {{
-              background : `url("/background.png") no-repeat center center fixed`,
+              backgroundImage : `url(${backgroundImg})`,
+              backgroundAttachment : 'fixed',
+              backgroundRepeat : "no-repeat",
+              backgroundPosition : "center center",
               height: '100vh',
               width: '100vw',
               backgroundSize : 'cover',

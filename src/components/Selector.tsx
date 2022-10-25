@@ -9,6 +9,8 @@ import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
+import cancel from '../ui/selector/cancel.png'
+import tick from '../ui/selector/tick.svg'
 
 export default function Selector(props) {
   const {
@@ -34,7 +36,7 @@ export default function Selector(props) {
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
   
-  const iconPath = "icons-gradient/" + category + ".svg";
+  const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
   const selectorContainer = {
     height: "614px",
     boxSizing: "border-box" as "border-box",
@@ -385,7 +387,7 @@ const getActiveStatus = (item) => {
                   >
                     <img style={traitsCancelStyle}
                             className="icon"
-                            src="cancel-1.png"
+                            src={cancel}
                           />
                   </div>):("")}
                   {collection &&
@@ -414,7 +416,7 @@ const getActiveStatus = (item) => {
                                 : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
                             }
                           />
-                          <img src='/tick.svg'
+                          <img src={tick}
                             style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
                           />
                           {selectValue === item?.id && loadingTrait > 0 && (
