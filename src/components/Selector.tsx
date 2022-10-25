@@ -55,7 +55,6 @@ export default function Selector(props) {
     width: "528px",
     top: '164px',
   }
-  console.log("avatar", avatar)
   const loadingTraitStyle = {
     height: "52px",
     width: "52px",
@@ -136,8 +135,6 @@ export default function Selector(props) {
       }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
-          console.log('traits are', traits)
-          console.log('templateInof is', templateInfo)
           setCollection(traits?.collection)
           setTraitName(traits?.trait)
         }
@@ -203,7 +200,6 @@ export default function Selector(props) {
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(templates, id).then((res) => {
-      console.log(res)
       setTemplateInfo(res)
     })
   }
@@ -407,7 +403,6 @@ const getActiveStatus = (item) => {
                               setLoaded(true)
                               setTempInfo(item.id)
                             }
-                            console.log('###', category, item)
                             selectTrait(item)
                           }}
                         >
