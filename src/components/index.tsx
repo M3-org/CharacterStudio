@@ -91,15 +91,15 @@ export default function CharacterEditor(props: any) {
   }
 
 
-  // const animatedStyle = useSpring({
-  //   from: { opacity: "0"},
-  //   to: { opacity: "1" },
-  //   config: { duration: "250000" }
-  // })
-  const animatedStyle = {
-    backgroundColor: "rgba(16,16,16,0.6)",
-    color: "#efefef"
-  }
+  const animatedStyle = useSpring({
+    from: { opacity: "0"},
+    to: { opacity: "1" },
+    config: { duration: "2500" }
+  })
+  // const animatedStyle = {
+  //   backgroundColor: "rgba(16,16,16,0.6)",
+  //   color: "#efefef"
+  // }
 
   useEffect(() => {
     if(model)
@@ -111,42 +111,38 @@ export default function CharacterEditor(props: any) {
       const loader = new GLTFLoader()
       loader
         .loadAsync(templateInfo.file, (e) => {
+          
           props.setLoadingProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
-          
-          VRM.from(gltf).then((vrm) => {
-            renameVRMBones(vrm);
-            vrm.scene.traverse((o) => {
-              o.frustumCulled = false
+          // yield before placing avatar to avoid lag
+          setTimeout(()=>{
+            VRM.from(gltf).then((vrm) => {
+              renameVRMBones(vrm);
+              vrm.scene.traverse((o) => {
+                o.frustumCulled = false
+              })
+              
+              vrm.scene.rotation.set(Math.PI, 0, Math.PI)
+              setLoading(false)
+              startAnimation(vrm)
+              setTimeout(()=>{
+                setScene(vrm.scene)
+                sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+                setModel(vrm)
+              },50);
             })
             
-            vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-            setLoading(false)
-            startAnimation(vrm)
-            setTimeout(()=>{
-              setScene(vrm.scene)
-              sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-              setModel(vrm)
-            },50);
-          })
-          
+          },1000);
         })
     }
   }, [templateInfo.file])
- scene
+ 
   return (
     <Suspense fallback="loading...">
       <ThemeProvider theme={theme ?? defaultTheme}>
         {templateInfo && (
           <Fragment>
-            <DownloadCharacter
-              scene={scene}
-              templateInfo={templateInfo}
-              model={model}
-              downloadPopup={downloadPopup}
-              setDownloadPopup={setDownloadPopup}
-            />
             <animated.div style={animatedStyle} >
               <Scene
                 wrapClass="generator"
