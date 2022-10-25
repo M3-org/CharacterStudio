@@ -37,6 +37,7 @@
     "react-moralis": "^1.4.1",
     "react-spring": "^9.5.5",
     "sass": "^1.54.9",
+    "styled-components": "^5.3.6",
     "three": "^0.141.0",
     "zustand": "^4.1.3"
   },
