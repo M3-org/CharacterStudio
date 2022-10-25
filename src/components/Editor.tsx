@@ -238,7 +238,10 @@ export default function Editor(props: any) {
           <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
         </div>
         <div
-          onClick={() => handleRandom()}
+          onClick={() => {
+            handleRandom()
+            moveCamera("full")
+          }}
           style={
             category && category === "random"
               ? selectorButton
