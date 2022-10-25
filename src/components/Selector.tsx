@@ -55,7 +55,7 @@ export default function Selector(props) {
     width: "528px",
     top: '164px',
   }
-
+  console.log("avatar", avatar)
   const loadingTraitStyle = {
     height: "52px",
     width: "52px",
@@ -145,6 +145,9 @@ export default function Selector(props) {
     }
   }, [category, scene, templateInfo])
 
+  React.useEffect(() => {
+    localStorage.removeItem('color')
+  }, [template])
 
   React.useEffect(() => {
     if(scene){
@@ -177,7 +180,6 @@ export default function Selector(props) {
         let traitName = props[0];
         scene.remove(avatar[traitName].model);
       })
-      
       let buffer={};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
@@ -205,6 +207,7 @@ export default function Selector(props) {
       setTemplateInfo(res)
     })
   }
+  
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -215,6 +218,7 @@ export default function Selector(props) {
         setNoTrait(true)
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
+          //localStorage.removeItem('color')
         }
       } else {
         if (trait.bodyTargets) {
@@ -278,11 +282,8 @@ const itemLoader =  async(item, traits = null) => {
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
       setTimeout(()=>{scene.add(vrm.scene)},50);
-      
-      
+   
     })
-
-    
       // vrm.humanoid.getBoneNode(
       //   VRMSchema.HumanoidBoneName.Hips,
       // ).rotation.y = Math.PI
@@ -302,6 +303,7 @@ const itemLoader =  async(item, traits = null) => {
       }
     }
   })
+  
   return {
       [traits?.trait]: {
         traitInfo: item,
@@ -309,6 +311,18 @@ const itemLoader =  async(item, traits = null) => {
       }
     }
   // });
+}
+
+const getActiveStatus = (item) => {
+  if(category === 'gender') {
+    if(templateInfo.id === item?.id) 
+      return true
+    return false
+  } 
+  
+  if(avatar[category].traitInfo?.id && avatar[category].traitInfo.id === item?.id) 
+    return true
+  return false
 }
   return (
     <div style={selectorContainerPos} >
@@ -383,7 +397,9 @@ const itemLoader =  async(item, traits = null) => {
                       return (
                         <div
                           key={index}
-                          style={selectValue === item?.id ? selectorButtonActive : selectorButton }
+                          style={
+                            getActiveStatus(item) ? selectorButtonActive : selectorButton
+                          }
                           className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
                             }`}
                           onClick={() => {
@@ -391,9 +407,12 @@ const itemLoader =  async(item, traits = null) => {
                               setLoaded(true)
                               setTempInfo(item.id)
                             }
+                            console.log('###', category, item)
                             selectTrait(item)
                           }}
                         >
+                          
+                          {item?.id}
                           <img style={traitsImgStyle}
                             className="icon"
                             src={
@@ -403,7 +422,7 @@ const itemLoader =  async(item, traits = null) => {
                             }
                           />
                           <img src='/tick.svg'
-                            style = {selectValue === item?.id ? tickStyle : tickStyleInActive}
+                            style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
                           />
                           {selectValue === item?.id && loadingTrait > 0 && (
                             <Typography

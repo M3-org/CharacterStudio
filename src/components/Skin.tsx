@@ -27,11 +27,18 @@ function Skin({ scene, templateInfo }) {
     // border: "1px solid rgb(90, 93, 121)",
   }
 
+  React.useEffect(() => {
+    const currentColor = localStorage.getItem('color');
+    setChecked(currentColor)
+  }, templateInfo)
+
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
+      console.log('$$$', value)
+      localStorage.setItem('color', value);
       sceneService.setSkinColor(value)
     }
   }
