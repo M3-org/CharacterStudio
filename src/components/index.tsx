@@ -63,7 +63,8 @@ export default function CharacterEditor(props: any) {
     waist:{},
     weapon:{},
     legs:{},
-    foot:{}
+    foot:{},
+    accessories:{},
   })
   const [loadingModel, setLoadingModel] = useState<boolean>(false)
 

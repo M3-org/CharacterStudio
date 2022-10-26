@@ -4,11 +4,16 @@ import Divider from "@mui/material/Divider"
 import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
+import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
+import cancel from '../ui/selector/cancel.png'
+import tick from '../ui/selector/tick.svg'
+import sectionClick from "../sound/section_click.wav"
+
 
 export default function Selector(props) {
   const {
@@ -34,7 +39,12 @@ export default function Selector(props) {
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
   
-  const iconPath = "icons-gradient/" + category + ".svg";
+  const [play] = useSound(
+    sectionClick,
+    { volume: 1.0 }
+  );
+
+  const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
   const selectorContainer = {
     height: "614px",
     boxSizing: "border-box" as "border-box",
@@ -55,7 +65,6 @@ export default function Selector(props) {
     width: "528px",
     top: '164px',
   }
-
   const loadingTraitStyle = {
     height: "52px",
     width: "52px",
@@ -136,8 +145,6 @@ export default function Selector(props) {
       }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
-          console.log('traits are', traits)
-          console.log('templateInof is', templateInfo)
           setCollection(traits?.collection)
           setTraitName(traits?.trait)
         }
@@ -145,6 +152,9 @@ export default function Selector(props) {
     }
   }, [category, scene, templateInfo])
 
+  React.useEffect(() => {
+    localStorage.removeItem('color')
+  }, [template])
 
   React.useEffect(() => {
     if(scene){
@@ -177,7 +187,6 @@ export default function Selector(props) {
         let traitName = props[0];
         scene.remove(avatar[traitName].model);
       })
-      
       let buffer={};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
@@ -201,10 +210,10 @@ export default function Selector(props) {
 
   const setTempInfo = (id) => {
     apiService.fetchTemplate(templates, id).then((res) => {
-      console.log(res)
       setTemplateInfo(res)
     })
   }
+  
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -215,6 +224,7 @@ export default function Selector(props) {
         setNoTrait(true)
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
+          //localStorage.removeItem('color')
         }
       } else {
         if (trait.bodyTargets) {
@@ -278,11 +288,8 @@ const itemLoader =  async(item, traits = null) => {
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
       setTimeout(()=>{scene.add(vrm.scene)},50);
-      
-      
+   
     })
-
-    
       // vrm.humanoid.getBoneNode(
       //   VRMSchema.HumanoidBoneName.Hips,
       // ).rotation.y = Math.PI
@@ -302,6 +309,7 @@ const itemLoader =  async(item, traits = null) => {
       }
     }
   })
+  
   return {
       [traits?.trait]: {
         traitInfo: item,
@@ -309,6 +317,18 @@ const itemLoader =  async(item, traits = null) => {
       }
     }
   // });
+}
+
+const getActiveStatus = (item) => {
+  if(category === 'gender') {
+    if(templateInfo.id === item?.id) 
+      return true
+    return false
+  } 
+  
+  if(avatar[category].traitInfo?.id && avatar[category].traitInfo.id === item?.id) 
+    return true
+  return false
 }
   return (
     <div style={selectorContainerPos} >
@@ -371,11 +391,14 @@ const itemLoader =  async(item, traits = null) => {
                   {category !== "gender" ?(<div
                     style={noTrait ? selectorButtonActive : selectorButton }
                     className={`selector-button ${noTrait ? "active" : ""}`}
-                    onClick={() => selectTrait("0")}
+                    onClick={() => {
+                      selectTrait("0");
+                      play();
+                    }}
                   >
                     <img style={traitsCancelStyle}
                             className="icon"
-                            src="cancel-1.png"
+                            src={cancel}
                           />
                   </div>):("")}
                   {collection &&
@@ -383,7 +406,9 @@ const itemLoader =  async(item, traits = null) => {
                       return (
                         <div
                           key={index}
-                          style={selectValue === item?.id ? selectorButtonActive : selectorButton }
+                          style={
+                            getActiveStatus(item) ? selectorButtonActive : selectorButton
+                          }
                           className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
                             }`}
                           onClick={() => {
@@ -391,6 +416,7 @@ const itemLoader =  async(item, traits = null) => {
                               setLoaded(true)
                               setTempInfo(item.id)
                             }
+                            play()
                             selectTrait(item)
                           }}
                         >
@@ -402,8 +428,8 @@ const itemLoader =  async(item, traits = null) => {
                                 : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
                             }
                           />
-                          <img src='/tick.svg'
-                            style = {selectValue === item?.id ? tickStyle : tickStyleInActive}
+                          <img src={tick}
+                            style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
                           />
                           {selectValue === item?.id && loadingTrait > 0 && (
                             <Typography

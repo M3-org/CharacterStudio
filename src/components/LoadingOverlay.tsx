@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import { useSpring, animated } from 'react-spring'
 import Lottie from "lottie-react";
 import lottie from '../data/lottie.json'
+import webaMark from '../ui/loading/webaMark.svg'
 
 function CircularProgressWithLabel(props : CircularProgressProps & {
     value : number
@@ -97,7 +98,7 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
         position : "absolute",
     }}>
         <animated.div style = {{...loadingAnimation}}>
-        <img src="/webaMark.svg"  style={{
+        <img src={webaMark}  style={{
             position : "absolute",
             left: "50%",
             transform: "translate(-50%, 30%)",

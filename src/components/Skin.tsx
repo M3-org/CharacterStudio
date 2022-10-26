@@ -3,6 +3,7 @@ import React from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useEffect, useState, useRef } from "react"
+import skinSelector from '../ui/skinSelector/Vector.png'
 
 function Skin({ scene, templateInfo }) {
   const [color, setColor] = useState("#aabbcc");
@@ -27,11 +28,18 @@ function Skin({ scene, templateInfo }) {
     // border: "1px solid rgb(90, 93, 121)",
   }
 
+  React.useEffect(() => {
+    const currentColor = localStorage.getItem('color');
+    setChecked(currentColor)
+  }, templateInfo)
+
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
+      console.log('$$$', value)
+      localStorage.setItem('color', value);
       sceneService.setSkinColor(value)
     }
   }
@@ -79,7 +87,7 @@ function Skin({ scene, templateInfo }) {
               ...btn,
               backgroundColor: col,
             }}  onClick={() => handleChangeSkin(col)}>
-           {(checked == col) && <img src={'Vector.png'} 
+           {(checked == col) && <img src={skinSelector} 
            key={i*row.length + k}
            />}
           </div>
