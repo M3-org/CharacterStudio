@@ -61,9 +61,6 @@ export default function Scene(props: any) {
     const downLoad = (format : any) => {
       sceneService.download(model, `CC_Model`, format, false);
     }
-    const moveCamera = () => {
-
-    }
 
   return (
     <div style={{
@@ -75,7 +72,7 @@ export default function Scene(props: any) {
         id="canvas-wrap"
         className={`canvas-wrap ${wrapClass && wrapClass}`}
         style={{ ...canvasWrap,
-            background : mainBackground,
+            background : `url(${mainBackground})`,
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover'

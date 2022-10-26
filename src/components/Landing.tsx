@@ -37,6 +37,7 @@ export default function Landing({
         window.addEventListener("load", handleLoading);
     }, [])
 
+    const [playingBGM, setPlayingBGM] = useState(false)
     const [backWav] = useSound(
         bgm,
         { volume: 1.0 }
@@ -88,7 +89,14 @@ export default function Landing({
                 overflow : 'hidden',
             }
             }
-            onClick={() => backWav()}
+            onClick={() => {
+                if (playingBGM === false){
+                    backWav()
+                    setPlayingBGM(true);
+                    console.log("play audio")
+                }
+            }
+            }
             >
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
