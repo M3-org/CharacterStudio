@@ -11,12 +11,27 @@ export default [
         "Body",
         "Headbaked(copy)"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.2,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
+      "cameraTarget":{
+        "full": {
+          "distance": 1.4,
+          "height": 0.8
+        },
+        "head": {
+          "distance": 0.5,
+          "height": 1.45
+        },
+        "chest": {
+          "distance": 1.3,
+          "height": 0.9
+        },
+        "legs": {
+          "distance": 1.1,
+          "height": 0.55
+        },
+        "foot": {
+          "distance": 0.8,
+          "height": 0.32
+        }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
@@ -33,12 +48,27 @@ export default [
         "Body",
         "Head002"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.3,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
+      "cameraTarget":{
+        "full": {
+          "distance": 1.5,
+          "height": 0.85
+        },
+        "head": {
+          "distance": 0.5,
+          "height": 1.5
+        },
+        "chest": {
+          "distance": 1.3,
+          "height": 0.9
+        },
+        "legs": {
+          "distance": 1.1,
+          "height": 0.55
+        },
+        "foot": {
+          "distance": 0.8,
+          "height": 0.32
+        }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
@@ -58,12 +88,27 @@ export default [
           "Body_Female",
           "Head_femalebaked"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.35,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
+      "cameraTarget":{
+        "full": {
+          "distance": 1.5,
+          "height": 0.9
+        },
+        "head": {
+          "distance": 0.5,
+          "height": 1.55
+        },
+        "chest": {
+          "distance": 1.4,
+          "height": 0.9
+        },
+        "legs": {
+          "distance": 1.1,
+          "height": 0.6
+        },
+        "foot": {
+          "distance": 0.8,
+          "height": 0.32
+        }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -80,12 +125,27 @@ export default [
           "Body",
           "Face_Malebaked"
       ],
-      "cameraPosition":{
-        "full": [0,-0.9,3.5],
-        "head": [0,-1.2,4.2],
-        "chest": [0,-1.2,4.4],
-        "legs": [0,-0.6,4],
-        "foot": [0,-0.4,4.3]
+      "cameraTarget":{
+        "full": {
+          "distance": 1.4,
+          "height": 0.8
+        },
+        "head": {
+          "distance": 0.5,
+          "height": 1.45
+        },
+        "chest": {
+          "distance": 1.3,
+          "height": 0.9
+        },
+        "legs": {
+          "distance": 1.1,
+          "height": 0.55
+        },
+        "foot": {
+          "distance": 0.8,
+          "height": 0.32
+        }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",

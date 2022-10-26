@@ -2,6 +2,7 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
+
 import useSound from 'use-sound';
 import gsap from 'gsap';
 import accessories from "../ui/traits/accessories.png"
@@ -17,9 +18,8 @@ import torso from "../ui/traits/torso.png"
 import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
 
-
 export default function Editor(props: any) {
-  const { camera, templateInfo, category, setCategory  }: any = props
+  const { camera, controls, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
   const selectorButton = {
     color: "#999999",
@@ -57,77 +57,27 @@ export default function Editor(props: any) {
     props.random();
   }
 
+
   const [play] = useSound(
     optionClick,
     { volume: 1.0 }
   );
 
   const moveCamera = (value:string) => {
-    if (templateInfo.cameraPosition){
-      if (templateInfo.cameraPosition[value]){
-        gsap.to(camera.position,{
-          x:templateInfo.cameraPosition[value][0],
-          y:templateInfo.cameraPosition[value][1],
-          z:templateInfo.cameraPosition[value][2],
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
           duration: 1,
         })
-        gsap.to(camera.rotation,{
-          y:0.4,
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
           duration: 1,
         })
       }
     }
   }
-
-  const camHeadView = ()=>{
-    gsap.to(camera.position,{
-      y:-1.5,
-      z:4.2,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camChestView = () => {
-    gsap.to(camera.position,{
-      y:-1.2,
-      z:4.4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camBottomView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.6,
-      z:4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camFootView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.4,
-      z:4.3,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-  
-
 
   return (
     <div
@@ -265,6 +215,7 @@ export default function Editor(props: any) {
         <div
           onClick={() => {
             handleRandom()
+            moveCamera("full")
             play();
           }}
           style={
