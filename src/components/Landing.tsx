@@ -39,7 +39,8 @@ export default function Landing({
 
     const [backWav] = useSound(
         bgm,
-        { volume: 1.0 }
+        { volume: 1.0,
+        loop : true }
       );
 
     const [play, { stop }] = useSound(
