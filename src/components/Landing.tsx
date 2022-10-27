@@ -3,6 +3,13 @@ import { textAlign } from "@mui/system";
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import { Triangle } from 'react-loader-spinner'
+import useSound from 'use-sound';
+import dropHunter from '../ui/landing/drophunter.png'
+import neuroHacker from '../ui/landing/neurohacker.png'
+import logo from '../ui/landing/logo.png'
+import passUrl from "../sound/class_pass.wav"
+import clickUrl from "../sound/class_click.wav"
+import bgm from "../sound/cc_bgm_balanced.wav"
 
 export default function Landing({
     onSetModel
@@ -17,6 +24,7 @@ export default function Landing({
     }))
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
+    const [isHovering, setIsHovering] = useState(false);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
      from: { y: 0 },
@@ -29,7 +37,25 @@ export default function Landing({
         window.addEventListener("load", handleLoading);
     }, [])
 
+    const [playingBGM, setPlayingBGM] = useState(false)
+    const [backWav] = useSound(
+        bgm,
+        { volume: 1.0,
+        loop : true }
+      );
+
+    const [play, { stop }] = useSound(
+        passUrl,
+        { volume: 1.0 }
+      );
+
+    const [click] = useSound(
+        clickUrl,
+        { volume: 1.0 }
+    );
+
     const handleClick = (type)=> {
+        click();
         setCardAnimation.start({
           from: {
             opacity : 1,
@@ -63,12 +89,20 @@ export default function Landing({
                 alignItems : 'center',
                 overflow : 'hidden',
             }
-            }>
+            }
+            onClick={() => {
+                if (playingBGM === false){
+                    backWav()
+                    setPlayingBGM(true);
+                }
+            }
+            }
+            >
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
                        }} >     
                             <img 
-                                src={"/logo.png"} 
+                                src={logo} 
                                 style = {{
                                     display: 'inline-block',
                                     margin: '41px auto auto',
@@ -105,21 +139,37 @@ export default function Landing({
                     }}
                 >
                     <div className='characterGroup' 
+                    onMouseEnter={() => {
+                        setIsHovering(true);
+                        play();
+                    }}
+                    onMouseLeave={() => {
+                        setIsHovering(false);
+                        stop();
+                    }}
                      onClick = {() => handleClick(1)}>
                      <div className="inner">
                         <span className='characterTitle' >Drophunter</span>
                         <img
-                            src={'/drophunter.png'}
+                            src={dropHunter}
                             className = 'characterImage'
                         />
                     </div>
                     </div>
                     <div className='characterGroup'  
+                        onMouseEnter={() => {
+                            setIsHovering(true);
+                            play();
+                        }}
+                        onMouseLeave={() => {
+                            setIsHovering(false);
+                            stop();
+                        }}
                         onClick = {() => handleClick(2)}>
                         <div className="inner">
                         <span className='characterTitle'>Neurohacker</span>
                         <img
-                            src={'/neurohacker.png'}
+                            src={neuroHacker}
                             className = 'characterImage'
                         />
                         </div>

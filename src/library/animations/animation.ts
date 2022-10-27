@@ -14,11 +14,13 @@ export const loadAnimation = async (path: any) => {
 export const startAnimation = async (gltf: any) => {
   if (!vrmanimation) return
   mixers.forEach(mixer => {
-    mixer.setTime(0)
+    //mixer.setTime(0)
   })
   mixer = new AnimationMixer(gltf.scene);
   mixers.push(mixer)
+  const time = mixers.length > 0 ? mixers[0].time : 0;
   mixer.clipAction(vrmanimation).play();
+  mixer.setTime(time);
 }
 const createVRMAnimation = (animation: AnimationClip) =>{
 

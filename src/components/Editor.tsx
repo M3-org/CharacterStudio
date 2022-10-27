@@ -2,10 +2,24 @@ import { Avatar } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import Stack from "@mui/material/Stack"
 import React, { useEffect, useState, useRef } from "react"
+
+import useSound from 'use-sound';
 import gsap from 'gsap';
+import accessories from "../ui/traits/accessories.png"
+import body from "../ui/traits/body.png"
+import hairStyle from "../ui/traits/hairStyle.png"
+import head from "../ui/traits/head.png"
+import legs from "../ui/traits/legs.png"
+import Rectangle from "../ui/traits/Rectangle.png"
+import shoes from "../ui/traits/shoes.png"
+import shuffle from "../ui/traits/shuffle.png"
+import skinColor from "../ui/traits/skin-color.png"
+import torso from "../ui/traits/torso.png"
+import webaMark from "../ui/traits/webaMark.png"
+import optionClick from "../sound/option_click.wav"
 
 export default function Editor(props: any) {
-  const { camera, templateInfo, category, setCategory  }: any = props
+  const { camera, controls, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
   const selectorButton = {
     color: "#999999",
@@ -44,72 +58,26 @@ export default function Editor(props: any) {
   }
 
 
+  const [play] = useSound(
+    optionClick,
+    { volume: 1.0 }
+  );
+
   const moveCamera = (value:string) => {
-    if (templateInfo.cameraPosition){
-      if (templateInfo.cameraPosition[value]){
-        gsap.to(camera.position,{
-          x:templateInfo.cameraPosition[value][0],
-          y:templateInfo.cameraPosition[value][1],
-          z:templateInfo.cameraPosition[value][2],
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
           duration: 1,
         })
-        gsap.to(camera.rotation,{
-          y:0.4,
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
           duration: 1,
         })
       }
     }
   }
-
-  const camHeadView = ()=>{
-    gsap.to(camera.position,{
-      y:-1.5,
-      z:4.2,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camChestView = () => {
-    gsap.to(camera.position,{
-      y:-1.2,
-      z:4.4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camBottomView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.6,
-      z:4,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-
-  const camFootView = ()=>{
-    gsap.to(camera.position,{
-      y:-0.4,
-      z:4.3,
-      duration: 1,
-    })
-    gsap.to(camera.rotation,{
-      y:0.4,
-      duration: 1,
-    })
-  }
-  
-
 
   return (
     <div
@@ -137,7 +105,7 @@ export default function Editor(props: any) {
       >
         <div
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/webaMark 1.png"} />
+          <Avatar style={selectorButtonIcon} src={webaMark} />
         </div>
         <div style = {{
           border : "1px solid #3A7484",
@@ -148,6 +116,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("gender")
             moveCamera("full")
+            play();
           }
           }
           style={
@@ -156,12 +125,13 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/body.png"} />
+          <Avatar style={selectorButtonIcon} src={body} />
         </div>
         <div
           onClick={() => {
             setCategory("color")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "color"
@@ -169,12 +139,13 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/skin-color.png"} />
+          <Avatar style={selectorButtonIcon} src={skinColor} />
         </div>
         <div
           onClick={() => {
             setCategory("head")
             moveCamera("head")
+            play();
           }}
           style={
             category && category === "head"
@@ -182,13 +153,14 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/hairStyle.png"} />
+          <Avatar style={selectorButtonIcon} src={hairStyle}/>
         </div>
 
         <div
           onClick={() => {
             setCategory("chest")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "chest"
@@ -196,12 +168,13 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/torso.png"} />
+          <Avatar style={selectorButtonIcon} src={torso}/>
         </div>
         <div
           onClick={() => {
             setCategory("accessories")
             moveCamera("full")
+            play();
           }}
           style={
             category && category === "accessories"
@@ -209,12 +182,13 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/accessories.png"} />
+          <Avatar style={selectorButtonIcon} src={accessories} />
         </div>
         <div
           onClick={() => {
             setCategory("legs")
             moveCamera("legs")
+            play();
           }}
           style={
             category && category === "legs"
@@ -222,12 +196,13 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/legs.png"} />
+          <Avatar style={selectorButtonIcon} src={legs} />
         </div>
         <div
           onClick={() => {
             setCategory("foot")
             moveCamera("foot")
+            play();
           }}
           style={
             category && category === "foot"
@@ -235,17 +210,21 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/shoes.png"} />
+          <Avatar style={selectorButtonIcon} src={shoes} />
         </div>
         <div
-          onClick={() => handleRandom()}
+          onClick={() => {
+            handleRandom()
+            moveCamera("full")
+            play();
+          }}
           style={
             category && category === "random"
               ? selectorButton
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={"/traits/shuffle.png"} />
+          <Avatar style={selectorButtonIcon} src={shuffle} />
         </div>
       </Stack>
     </div>
