@@ -7,6 +7,7 @@ let mixers: any = []
 let animation, vrmanimation, timer, mixer
 export const loadAnimation = async (path: any) => {
   const loader = new GLTFLoader()
+  console.log(path)
   const animGltf = await loader.loadAsync(path)
   //animation = animGltf.animations[0]
   vrmanimation = createVRMAnimation(animGltf.animations[0]);
