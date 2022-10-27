@@ -1,0 +1,51 @@
+on:
+  # When someone push or merge a pull request
+  # inside the main branch
+  push:
+    # branches:
+    #   - main
+  # When someone create a pull request from
+  # the main branch
+  pull_request:
+    branches:
+      - main
+      
+jobs:
+  check-quality:
+    runs-on: ubuntu-latest
+    name: Running Code Quality Analysis
+    steps:
+    - name: Configure GH Checkout
+      # Ready-to-use action made by GH or third party 
+      # companies
+      # We can recognize the GH actions from the third party 
+      # ones checking the name prefix.
+      # `actions/` = GH
+      # `something-else/` = third party
+      # This is a GH ready-to-use action
+      uses: actions/checkout@v2
+
+    - name: Install Node Modules
+      # Run the lint custom NPM command that triggers the
+      # ESLint linter check
+      run: npm install --force
+
+    - name: Run ESLint
+      # Run the lint custom NPM command that triggers the
+      # ESLint linter check
+      run: npm run lint:js
+
+    - name: Check code meets quality standards
+      id: code-inspector
+      uses: codeinspectorio/github-action@master
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        code_inspector_api_token: ${{ secrets.CODE_INSPECTOR_API_TOKEN }}
+        force_ref: 'none'
+        min_quality_grade: 'WARNING'
+        min_quality_score: '50'
+        max_defects_rate: '0.0001'
+        max_complex_functions_rate: '0.0001'
+        max_long_functions_rate: '0.0001'
+        project_name: ''
+        max_timeout_sec: '600'
