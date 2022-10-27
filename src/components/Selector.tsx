@@ -48,7 +48,7 @@ export default function Selector(props) {
     { volume: 1.0 }
   );
 
-  const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
+  const iconPath = "./3d/icons-gradient/" + category + ".svg";
 
   const hairSubCategories = [
     // {
