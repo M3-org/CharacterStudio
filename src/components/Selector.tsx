@@ -51,16 +51,16 @@ export default function Selector(props) {
   const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
 
   const hairSubCategories = [
-    {
-      id: 'style',
-      image: hairStyleImg,
-      activeImage: hairStyleImg,
-    },
-    {
-      id: 'color',
-      image: hairColorImg,
-      activeImage: hairColorImg,
-    },
+    // {
+    //   id: 'style',
+    //   image: hairStyleImg,
+    //   activeImage: hairStyleImg,
+    // },
+    // {
+    //   id: 'color',
+    //   image: hairColorImg,
+    //   activeImage: hairColorImg,
+    // },
   ]
 
   const selectorContainer = {
