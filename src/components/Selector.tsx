@@ -11,6 +11,9 @@ import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
 import cancel from '../ui/selector/cancel.png'
+import hairStyleImg from '../ui/traits/hairStyle.png';
+import hairColorImg from '../ui/traits/hairColor.png';
+
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 
@@ -29,6 +32,7 @@ export default function Selector(props) {
     randomFlag,
   }: any = props
   const [selectValue, setSelectValue] = useState("0")
+  const [hairCategory, setHairCategory] = useState("style")
 
   const [collection, setCollection] = useState([])
   const [traitName, setTraitName] = useState("")
@@ -45,6 +49,20 @@ export default function Selector(props) {
   );
 
   const iconPath = "../src/ui/selector/icons-gradient/" + category + ".svg";
+
+  const hairSubCategories = [
+    {
+      id: 'style',
+      image: hairStyleImg,
+      activeImage: hairStyleImg,
+    },
+    {
+      id: 'color',
+      image: hairColorImg,
+      activeImage: hairColorImg,
+    },
+  ]
+
   const selectorContainer = {
     height: "614px",
     boxSizing: "border-box" as "border-box",
@@ -367,6 +385,36 @@ const getActiveStatus = (item) => {
               WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
               maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
             }}>
+            {
+              category === 'head' && 
+                (
+                  <div 
+                    className="hair-sub-category"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      marginLeft: '10px',
+                    }}
+                  >
+                    {
+                      hairSubCategories.map(item => (
+                        <img 
+                          src= {item.image}
+                          style = {{
+                            width: '90px',
+                            height: '90px',
+                            borderBottom: item.id === hairCategory && '4px solid rgb(97, 229, 249)',
+                            opacity: item.id === hairCategory ? 1 : 0.2,
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            setHairCategory(item.id)
+                          }}
+                        />))
+                    }
+                  </div>
+                )
+            }
           {templateInfo?.traitsDirectory && (
             <Stack
               // spacing={2}
@@ -386,66 +434,72 @@ const getActiveStatus = (item) => {
                   templateInfo={templateInfo}
                 />
               ) : (
-                <React.Fragment>
-                  
-                  {category !== "gender" ?(<div
-                    style={noTrait ? selectorButtonActive : selectorButton }
-                    className={`selector-button ${noTrait ? "active" : ""}`}
-                    onClick={() => {
-                      selectTrait("0");
-                      play();
-                    }}
-                  >
-                    <img style={traitsCancelStyle}
-                            className="icon"
-                            src={cancel}
-                          />
-                  </div>):("")}
-                  {collection &&
-                    collection.map((item: any, index) => {
-                      return (
-                        <div
-                          key={index}
-                          style={
-                            getActiveStatus(item) ? selectorButtonActive : selectorButton
-                          }
-                          className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                            }`}
-                          onClick={() => {
-                            if (category === "gender") {
-                              setLoaded(true)
-                              setTempInfo(item.id)
-                            }
-                            play()
-                            selectTrait(item)
-                          }}
-                        >
-                          <img style={traitsImgStyle}
-                            className="icon"
-                            src={
-                              item.thumbnailsDirectory
-                                ? item.thumbnail
-                                : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                            }
-                          />
-                          <img src={tick}
-                            style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
-                          />
-                          {selectValue === item?.id && loadingTrait > 0 && (
-                            <Typography
-                              className="loading-trait"
-                              style={loadingTraitStyle}
+                 (category !== 'head' || hairCategory !== 'color') ? 
+                    <React.Fragment>
+                      {category !== "gender" ?(<div
+                        style={noTrait ? selectorButtonActive : selectorButton }
+                        className={`selector-button ${noTrait ? "active" : ""}`}
+                        onClick={() => {
+                          selectTrait("0");
+                          play();
+                        }}
+                      >
+                        <img style={traitsCancelStyle}
+                                className="icon"
+                                src={cancel}
+                              />
+                      </div>):("")}
+                      {collection &&
+                        collection.map((item: any, index) => {
+                          return (
+                            <div
+                              key={index}
+                              style={
+                                getActiveStatus(item) ? selectorButtonActive : selectorButton
+                              }
+                              className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
+                                }`}
+                              onClick={() => {
+                                if (category === "gender") {
+                                  setLoaded(true)
+                                  setTempInfo(item.id)
+                                }
+                                play()
+                                selectTrait(item)
+                              }}
                             >
-                              {loadingTrait}%
-                            </Typography>
-                          )}
-                        </div>
-                      )
-                    })}
-                  <div style={{ visibility: "hidden" }}>
-                    <Avatar className="icon" />
-                  </div>
-                </React.Fragment>
+                              <img style={traitsImgStyle}
+                                className="icon"
+                                src={
+                                  item.thumbnailsDirectory
+                                    ? item.thumbnail
+                                    : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
+                                }
+                              />
+                              <img src={tick}
+                                style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
+                              />
+                              {selectValue === item?.id && loadingTrait > 0 && (
+                                <Typography
+                                  className="loading-trait"
+                                  style={loadingTraitStyle}
+                                >
+                                  {loadingTrait}%
+                                </Typography>
+                              )}
+                            </div>
+                          )
+                        })}
+                      <div style={{ visibility: "hidden" }}>
+                        <Avatar className="icon" />
+                      </div>
+                    </React.Fragment>
+                  : (
+                    <Skin
+                      scene={scene}
+                      templateInfo={templateInfo}
+                    />
+                  )
               )}
             </Stack>
           )}
