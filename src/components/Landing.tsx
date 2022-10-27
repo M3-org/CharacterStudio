@@ -94,7 +94,6 @@ export default function Landing({
                 if (playingBGM === false){
                     backWav()
                     setPlayingBGM(true);
-                    console.log("play audio")
                 }
             }
             }
