@@ -408,7 +408,8 @@ const getActiveStatus = (item) => {
                             cursor: 'pointer',
                           }}
                           onClick={() => {
-                            setHairCategory(item.id)
+                            play()
+                            setHairCategory(item.id);
                           }}
                         />))
                     }
