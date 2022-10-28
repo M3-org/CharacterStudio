@@ -499,6 +499,8 @@ const getActiveStatus = (item) => {
                     <Skin
                       scene={scene}
                       templateInfo={templateInfo}
+                      category={category}
+                      avatar={avatar}
                     />
                   )
               )}
