@@ -5,7 +5,7 @@ import { RgbColorPicker  } from "react-colorful";
 import { useEffect, useState, useRef } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
 
-function Skin({ scene, templateInfo }) {
+function Skin({ scene, templateInfo, category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
@@ -15,7 +15,6 @@ function Skin({ scene, templateInfo }) {
     alignItems: "center",
     margin: "0.5rem 0"
   }
-
   const btn = {
       width : "56.53px",
       height : "56.54px",
@@ -34,11 +33,21 @@ function Skin({ scene, templateInfo }) {
   }, templateInfo)
 
   const handleChangeSkin = (value: string) => {
+    let material = [];
     setChecked(value)
     const rgbColor = hexToRgbA(value)
+    if(category === "head"){
+      const hairModel = avatar.head.model;
+      hairModel.traverse((o)=> {
+        if(o.isSkinnedMesh){
+          material = [...material, o.name]
+        }
+      })
+      templateInfo.bodyTargets = material;
+    }
+      console.log(templateInfo.bodyTargets)
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
-      console.log('$$$', value)
       localStorage.setItem('color', value);
       sceneService.setSkinColor(value)
     }
