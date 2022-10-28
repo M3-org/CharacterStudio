@@ -32,20 +32,23 @@ function Skin({ scene, templateInfo, category, avatar}) {
     setChecked(currentColor)
   }, templateInfo)
 
-  const handleChangeSkin = (value: string) => {
-    let material = [];
-    setChecked(value)
-    const rgbColor = hexToRgbA(value)
-    if(category === "head"){
-      const hairModel = avatar.head.model;
+  const getHairMaterial = () => {
+     let material = [];
+     const hairModel = avatar.head.model;
       hairModel.traverse((o)=> {
         if(o.isSkinnedMesh){
           material = [...material, o.name]
         }
       })
-      templateInfo.bodyTargets = material;
+      return material;
+  }
+
+  const handleChangeSkin = (value: string) => {
+    setChecked(value)
+    const rgbColor = hexToRgbA(value)
+    if(category === "head"){
+      templateInfo.bodyTargets = getHairMaterial();
     }
-      console.log(templateInfo.bodyTargets)
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
       localStorage.setItem('color', value);
