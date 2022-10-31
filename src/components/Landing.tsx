@@ -10,10 +10,14 @@ import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
+import {MusicButton} from "./MusicButton.tsx"
+import {useMuteStore} from '../store'
 
 export default function Landing({
     onSetModel
     }){
+    const isMute = useMuteStore((state) => state.isMute)
+    const setMute = useMuteStore((state) => state.setMute)
 
     const [clicked, setClicked] = useState(false);
 
@@ -25,6 +29,7 @@ export default function Landing({
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
     const [isHovering, setIsHovering] = useState(false);
+    const [musicStatus, setMusicStatus] = useState(false);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
      from: { y: 0 },
@@ -37,14 +42,7 @@ export default function Landing({
         window.addEventListener("load", handleLoading);
     }, [])
 
-    const [playingBGM, setPlayingBGM] = useState(false)
-    const [backWav] = useSound(
-        bgm,
-        { volume: 1.0,
-        loop : true }
-      );
-
-    const [play, { stop }] = useSound(
+    const [play] = useSound(
         passUrl,
         { volume: 1.0 }
       );
@@ -55,7 +53,8 @@ export default function Landing({
     );
 
     const handleClick = (type)=> {
-        click();
+        if(!isMute)
+            click();
         setCardAnimation.start({
           from: {
             opacity : 1,
@@ -88,13 +87,6 @@ export default function Landing({
                 flexDirection : 'column',
                 alignItems : 'center',
                 overflow : 'hidden',
-            }
-            }
-            onClick={() => {
-                if (playingBGM === false){
-                    backWav()
-                    setPlayingBGM(true);
-                }
             }
             }
             >
@@ -141,7 +133,8 @@ export default function Landing({
                     <div className='characterGroup' 
                     onMouseEnter={() => {
                         setIsHovering(true);
-                        play();
+                        if(!isMute)
+                            play();
                     }}
                     onMouseLeave={() => {
                         setIsHovering(false);
@@ -159,7 +152,8 @@ export default function Landing({
                     <div className='characterGroup'  
                         onMouseEnter={() => {
                             setIsHovering(true);
-                            play();
+                            if(!isMute)
+                                play();
                         }}
                         onMouseLeave={() => {
                             setIsHovering(false);
