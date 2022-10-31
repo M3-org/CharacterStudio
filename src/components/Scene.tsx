@@ -10,12 +10,13 @@ import { position } from "html2canvas/dist/types/css/property-descriptors/positi
 import { sceneService } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { MeshBasicMaterial } from "three";
+import {MusicButton} from "./MusicButton.tsx"
 import mainBackground from "../ui/mainBackground.png"
-
-
+import {useMuteStore} from '../store'
 
 export default function Scene(props: any) {
-
+  const isMute = useMuteStore((state) => state.isMute)
+  const setMute = useMuteStore((state) => state.setMute)
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
@@ -157,6 +158,7 @@ export default function Scene(props: any) {
         }
         <div className="download but" onClick={handleDownload}></div>
         <div className="wallet but" ></div>
+        
       </div>
       <div>
         <Selector

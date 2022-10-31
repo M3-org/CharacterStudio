@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom/client";
 
+import useSound from 'use-sound';
 import CharacterEditor from "./components"
 import { createTheme, Alert, IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close";
@@ -9,6 +10,10 @@ import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
+import bgm from "./sound/cc_bgm_balanced.wav"
+import {useMuteStore} from './store'
+import MuteSetting from "./components/MuteSetting";
+
 const defaultTheme = createTheme({
   palette: {
     mode: "dark",
@@ -19,6 +24,7 @@ const defaultTheme = createTheme({
 })
 
 function App() {
+  const isMute = useMuteStore((state) => state.isMute)
   const [alerCharacterEditortTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [modelClass, setModelClass] = useState<number>(0)
@@ -26,6 +32,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [end, setEnd] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+
+  const [backWav, {stop}] = useSound(
+    bgm,
+    { volume: 1.0,
+    loop : true }
+  );
 
   const handleConnect = (principalId) => {
     console.log("Logged in with principalId", principalId);
@@ -36,6 +48,14 @@ function App() {
   const handleFail = (error) => {
     console.log("Failed to login with Plug", error);
   }
+
+  useEffect(() => {
+    if(!isMute) {
+      backWav();
+    } else {
+      stop();
+    }
+  }, [isMute])
 
   useEffect(() => {
     if(modelClass) 
@@ -139,6 +159,7 @@ function App() {
           }</div>
         )
       }
+      <MuteSetting />
     </React.Fragment>
   )
 }

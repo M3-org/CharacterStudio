@@ -16,7 +16,7 @@ import hairColorImg from '../ui/traits/hairColor.png';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-
+import {useMuteStore} from '../store'
 
 export default function Selector(props) {
   const {
@@ -31,6 +31,7 @@ export default function Selector(props) {
     templateInfo,
     randomFlag,
   }: any = props
+  const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
 
@@ -408,7 +409,7 @@ const getActiveStatus = (item) => {
                             cursor: 'pointer',
                           }}
                           onClick={() => {
-                            play()
+                            !isMute && play();
                             setHairCategory(item.id);
                           }}
                         />))
@@ -442,7 +443,7 @@ const getActiveStatus = (item) => {
                         className={`selector-button ${noTrait ? "active" : ""}`}
                         onClick={() => {
                           selectTrait("0");
-                          play();
+                          !isMute && play();
                         }}
                       >
                         <img style={traitsCancelStyle}
@@ -465,7 +466,7 @@ const getActiveStatus = (item) => {
                                   setLoaded(true)
                                   setTempInfo(item.id)
                                 }
-                                play()
+                                !isMute && play();
                                 selectTrait(item)
                               }}
                             >

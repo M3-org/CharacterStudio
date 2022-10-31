@@ -17,8 +17,10 @@ import skinColor from "../ui/traits/skin-color.png"
 import torso from "../ui/traits/torso.png"
 import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
+import {useMuteStore} from '../store'
 
 export default function Editor(props: any) {
+  const isMute = useMuteStore((state) => state.isMute)
   const { camera, controls, templateInfo, category, setCategory  }: any = props
   const [isModal, setModal] = useState(false)
   const selectorButton = {
@@ -116,7 +118,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("gender")
             moveCamera("full")
-            play();
+            !isMute && play();
           }
           }
           style={
@@ -131,7 +133,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("color")
             moveCamera("full")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "color"
@@ -145,7 +147,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("head")
             moveCamera("head")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "head"
@@ -160,7 +162,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("chest")
             moveCamera("full")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "chest"
@@ -174,7 +176,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("accessories")
             moveCamera("full")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "accessories"
@@ -188,7 +190,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("legs")
             moveCamera("legs")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "legs"
@@ -202,7 +204,7 @@ export default function Editor(props: any) {
           onClick={() => {
             setCategory("foot")
             moveCamera("foot")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "foot"
@@ -216,7 +218,7 @@ export default function Editor(props: any) {
           onClick={() => {
             handleRandom()
             moveCamera("full")
-            play();
+            !isMute && play();
           }}
           style={
             category && category === "random"
