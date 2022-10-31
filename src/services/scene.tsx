@@ -271,6 +271,7 @@ async function download(
     console.log("working...")
     const clonedScene = model.scene.clone();
     const avatar = await combine({transparentColor:skinColor, avatar: clonedScene, atlasSize });  
+    console.log(avatar);
     var scene = model.scene;
     var clonedSecondary;
     scene.traverse((child) =>{
