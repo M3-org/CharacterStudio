@@ -52,16 +52,16 @@ export default function Selector(props) {
   const iconPath = "./3d/icons-gradient/" + category + ".svg";
 
   const hairSubCategories = [
-    // {
-    //   id: 'style',
-    //   image: hairStyleImg,
-    //   activeImage: hairStyleImg,
-    // },
-    // {
-    //   id: 'color',
-    //   image: hairColorImg,
-    //   activeImage: hairColorImg,
-    // },
+    {
+      id: 'style',
+      image: hairStyleImg,
+      activeImage: hairStyleImg,
+    },
+    {
+      id: 'color',
+      image: hairColorImg,
+      activeImage: hairColorImg,
+    },
   ]
 
   const selectorContainer = {
@@ -430,10 +430,11 @@ const getActiveStatus = (item) => {
                 p: 3,
               }}
             >
-              {category === "color" ? (
+              {category === "color" || category === "eyeColor"  ? (
                 <Skin
                   scene={scene}
                   templateInfo={templateInfo}
+                  category={category}
                 />
               ) : (
                  (category !== 'head' || hairCategory !== 'color') ? 
