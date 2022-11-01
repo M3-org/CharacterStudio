@@ -21,6 +21,7 @@ let skinColor = new THREE.Color(1,1,1);
 const setModel = (newModel: any) => {
   model = newModel;
 }
+const getModel = () => model;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -308,6 +309,7 @@ export const sceneService = {
   getTraits,
   setTraits,
   setModel,
+  getModel,
   setSkinColor,
   getSkinColor
 };

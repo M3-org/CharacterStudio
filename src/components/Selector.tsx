@@ -233,6 +233,12 @@ export default function Selector(props) {
     })
   }
   
+  const cullHiddenMeshes = (targets:Array) => {
+    for (let i =0; i < targets.length; i++){
+      console.log(targets[i]);
+    }
+  }
+
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -301,7 +307,9 @@ const itemLoader =  async(item, traits = null) => {
         o.frustumCulled = false
       })
       //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
-      
+      console.log("check here for colisions")
+      console.log(templateInfo);
+      cullHiddenMeshes(templateInfo.cullingModel);
       renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)

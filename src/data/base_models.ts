@@ -11,6 +11,9 @@ export default [
         "Body",
         "Headbaked(copy)"
       ],
+      "cullingModel":[
+        "Body"
+      ],
       "cameraTarget":{
         "full": {
           "distance": 1.4,

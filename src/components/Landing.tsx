@@ -12,6 +12,7 @@ import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
 import {MusicButton} from "./MusicButton.tsx"
 import {useMuteStore} from '../store'
+import {StyledLanding} from '../styles/landing.styled.js'
 
 export default function Landing({
     onSetModel
@@ -79,17 +80,7 @@ export default function Landing({
         }, 500)
     }
     return !isLoading ? (
-        <div 
-            style = {{
-                height: '100vh',
-                backgroundSize : 'cover',
-                display : 'flex',
-                flexDirection : 'column',
-                alignItems : 'center',
-                overflow : 'hidden',
-            }
-            }
-            >
+        <StyledLanding>
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
                        }} >     
@@ -169,7 +160,7 @@ export default function Landing({
                         </div>
                     </div>
                 </animated.div>
-            </div>
+            </StyledLanding>
     ):(
         <Triangle
             height="80"

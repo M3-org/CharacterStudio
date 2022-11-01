@@ -10,12 +10,13 @@ export const loadAnimation = async (path: string):Promise<void>=> {
 }
 export const startAnimation = async (gltf: any):Promise<void> => {
   if (!vrmanimation) return
-  // check mixers and remove those that are no longer active in the scene
+  // important to do* check mixers and remove those that are no longer active in the scene
   mixer = new AnimationMixer(gltf.scene);
   mixers.push(mixer)
   const time = mixers.length > 0 ? mixers[0].time : 0;
-  mixer.clipAction(vrmanimation).play();
-  mixer.setTime(time);
+  // temporary comment, to check mesh cull
+  //mixer.clipAction(vrmanimation).play();
+  //mixer.setTime(time);
 }
 const createVRMAnimation = (animation: AnimationClip) =>{
 
