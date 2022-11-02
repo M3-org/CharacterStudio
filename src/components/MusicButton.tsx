@@ -1,16 +1,18 @@
 import StyleWarapper from './MusicButtonStyle';
+import onButton from '../../src/ui/soundon.png'
+import offButton from '../../src/ui/soundoff.png'
 
 export const MusicButton = (props) =>{
     return (
         <StyleWarapper className = {props.className}>
-            <input 
-                type="checkbox" 
-                className="toggle"
-                checked={!props.isMute}
-                onChange={(e) => {
-                    props.setMute(!e.target.checked)
+            <img 
+                className = "buttonImg"
+                src = {props.isMute ? offButton : onButton} 
+                // checked={!props.isMute}
+                onClick={(e) => {
+                    props.setMute(!props.isMute)
                 }}
-            ></input>
+            ></img>
         </StyleWarapper>
     )
 }
