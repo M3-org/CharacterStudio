@@ -6,8 +6,8 @@ const style = styled.div`
         border: 1px solid #38404E;
         backdrop-filter: blur(22.5px);
         border-radius: 5px;
-        width : 74px;
-        height : 74px;
+        width : 54px;
+        height : 54px;
         display : flex;
         justify-content : center;
         align-items : center;
