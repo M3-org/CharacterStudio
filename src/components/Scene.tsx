@@ -16,6 +16,12 @@ import {useMuteStore} from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
+import {ethers} from 'ethers';
+
+const ACCOUNT_DATA = {
+  EMAIL: 'email',
+  AVATAR: 'avatar',
+};
 
 export default function Scene(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
@@ -25,6 +31,8 @@ export default function Scene(props: any) {
   const [camera, setCamera] = useState<object>(Object);
   const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
+  const [ensName, setEnsName] = useState('');
+
   // const [walletAdress, setWalletAdress] = useState("")
 
   const { activate, deactivate, library, account } = useWeb3React();
@@ -41,8 +49,49 @@ export default function Scene(props: any) {
   };
 
   useEffect(() => {
-    account ? setConnected(true) : setConnected(false);
+    if(account) {
+      _setAddress(account);
+      setConnected(true)
+    } else {
+      setConnected(false);
+    }
+
   }, [account]);
+
+  const _setAddress = async (address:any) => {
+      const {name, avatar}: any = await getAccountDetails(address);
+      console.log("ens", name)
+      setEnsName(name ? name.slice(0, 15) + "..." : '');
+  };
+
+  const getAccountDetails = async (address: any) => {
+    const provider = ethers.getDefaultProvider('mainnet', {
+      alchemy: 'OOWUrxHDTRyPmbYOSGyq7izHNQB1QYOv'
+    });
+    const check = ethers.utils.getAddress(address);
+
+    try {
+      const name = await provider.lookupAddress(check);
+      if (!name) return {};
+
+      // const resolver = await provider.getResolver(name);
+
+      // const accountDetails = {};
+
+      // await Promise.all(
+      //   Object.keys(ACCOUNT_DATA).map(async key => {
+      //     const data = await resolver.getText(ACCOUNT_DATA[key]);
+      //     accountDetails[ACCOUNT_DATA[key]] = data;
+      //   }),
+      // );
+
+      // return {...accountDetails, name};
+      return {name};
+    } catch (err) {
+      console.warn(err.stack);
+      return {};
+    }
+  };
 
   const disConnectWallet = async () => {
     try {
@@ -60,11 +109,7 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
-  // const connect = async (value) =>{
-  //   setConnected(value);
-  //   setWalletAdress("A0x72361872368asafa98adg9adf8h9hwe43");
-  //   console.log(connected)
-  // }
+
   const h =0.65;
   const d = 1.1;
   const { 
@@ -198,7 +243,10 @@ export default function Scene(props: any) {
         :
         (<div className="largeBut but" 
           onClick={disConnectWallet}>
-          <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
+            {
+              ensName ? <div className="walletENS">{ensName}</div>
+                : <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
+            }
           <div className="wallet walletActive" ></div>
         </div>
         )}
