@@ -13,6 +13,7 @@ import { MeshBasicMaterial } from "three";
 import {MusicButton} from "./MusicButton.tsx"
 import mainBackground from "../ui/mainBackground.png"
 import {useMuteStore} from '../store'
+import { NoToneMapping} from 'three';
 
 export default function Scene(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
@@ -47,21 +48,21 @@ export default function Scene(props: any) {
     templateInfo,
     model }: any = props;
 
-    const canvasWrap = {
-      height: "100vh",
-      width: "100vw",
-      position: "absolute" as "absolute",
-      zIndex: "0",
-      top: "0",
-      backgroundColor: "#111111"
-    }
-    const handleDownload = () =>{
-     showType ? setShowType(false) : setShowType(true);
-    }
+  const canvasWrap = {
+    height: "100vh",
+    width: "100vw",
+    position: "absolute" as "absolute",
+    zIndex: "0",
+    top: "0",
+    backgroundColor: "#111111"
+  }
+  const handleDownload = () =>{
+    showType ? setShowType(false) : setShowType(true);
+  }
 
-    const downLoad = (format : any) => {
-      sceneService.download(model, `CC_Model`, format, false);
-    }
+  const downLoad = (format : any) => {
+    sceneService.download(model, `CC_Model`, format, false);
+  }
 
   return (
     <div style={{
@@ -85,6 +86,8 @@ export default function Scene(props: any) {
             position: "absolute",
             right: "100px"
           }}
+          gl={{ antialias: true, toneMapping: NoToneMapping }}
+          linear
           className="canvas"
           id="editor-scene"
         >
