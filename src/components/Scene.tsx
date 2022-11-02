@@ -21,6 +21,8 @@ export default function Scene(props: any) {
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
   const [controls, setControls] = useState<object>(Object);
+  const [connected, setConnected] = useState(false);
+  const [walletAdress, setWalletAdress] = useState("")
  
   const random = () => {
     if(randomFlag == -1){
@@ -28,6 +30,11 @@ export default function Scene(props: any) {
     }else{
       setRandomFlag(1-randomFlag)
     }
+  }
+  const connect = async (value) =>{
+    setConnected(value);
+    setWalletAdress("A0x72361872368asafa98adg9adf8h9hwe43");
+    console.log(connected)
   }
   const h =0.65;
   const d = 1.1;
@@ -154,7 +161,22 @@ export default function Scene(props: any) {
           </>
         }
         <div className="download but" onClick={handleDownload}></div>
-        <div className="wallet but" ></div>
+
+        {!connected ?
+        (<div className="wallet but" 
+          onClick={() => {
+            connect(true)
+          }}>
+        </div>)
+        :
+        (<div className="largeBut but" 
+          onClick={() => {
+            connect(false)
+          }}>
+          <div className="walletAdress">{walletAdress}</div>
+          <div className="wallet walletActive" ></div>
+        </div>
+        )}
         
       </div>
       <div>
