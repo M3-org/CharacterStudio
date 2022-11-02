@@ -430,10 +430,11 @@ const getActiveStatus = (item) => {
                 p: 3,
               }}
             >
-              {category === "color" ? (
+              {category === "color" || category === "eyeColor"  ? (
                 <Skin
                   scene={scene}
                   templateInfo={templateInfo}
+                  category={category}
                 />
               ) : (
                  (category !== 'head' || hairCategory !== 'color') ? 
