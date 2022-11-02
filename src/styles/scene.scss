@@ -73,6 +73,17 @@
   margin: auto;
 }
 
+.walletENS{
+  overflow: hidden;
+  text-align: right;
+  // direction: rtl;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  width: 164px;
+  font-size: 14px;
+  margin: auto;
+}
+
 .wallet {
     background : url('../../src/ui/connectWallet.svg') center center no-repeat;
 }
