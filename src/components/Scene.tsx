@@ -13,6 +13,9 @@ import { MeshBasicMaterial } from "three";
 import {MusicButton} from "./MusicButton.tsx"
 import mainBackground from "../ui/mainBackground.png"
 import {useMuteStore} from '../store'
+import { useWeb3React } from "@web3-react/core";
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { disconnect } from "process";
 
 export default function Scene(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
@@ -22,7 +25,33 @@ export default function Scene(props: any) {
   const [camera, setCamera] = useState<object>(Object);
   const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
-  const [walletAdress, setWalletAdress] = useState("")
+  // const [walletAdress, setWalletAdress] = useState("")
+
+  const { activate, deactivate, library, account } = useWeb3React();
+  const injected = new InjectedConnector({
+    supportedChainIds: [1, 3, 4, 5, 42, 97],
+  });
+
+  const connectWallet = async () => {
+    try {
+      await activate(injected);
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
+
+  useEffect(() => {
+    account ? setConnected(true) : setConnected(false);
+  }, [account]);
+
+  const disConnectWallet = async () => {
+    try {
+      deactivate();
+      setConnected(false);
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
  
   const random = () => {
     if(randomFlag == -1){
@@ -31,11 +60,11 @@ export default function Scene(props: any) {
       setRandomFlag(1-randomFlag)
     }
   }
-  const connect = async (value) =>{
-    setConnected(value);
-    setWalletAdress("A0x72361872368asafa98adg9adf8h9hwe43");
-    console.log(connected)
-  }
+  // const connect = async (value) =>{
+  //   setConnected(value);
+  //   setWalletAdress("A0x72361872368asafa98adg9adf8h9hwe43");
+  //   console.log(connected)
+  // }
   const h =0.65;
   const d = 1.1;
   const { 
@@ -164,16 +193,12 @@ export default function Scene(props: any) {
 
         {!connected ?
         (<div className="wallet but" 
-          onClick={() => {
-            connect(true)
-          }}>
+          onClick={connectWallet}>
         </div>)
         :
         (<div className="largeBut but" 
-          onClick={() => {
-            connect(false)
-          }}>
-          <div className="walletAdress">{walletAdress}</div>
+          onClick={disConnectWallet}>
+          <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
           <div className="wallet walletActive" ></div>
         </div>
         )}
