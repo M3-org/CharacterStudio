@@ -12,7 +12,7 @@ import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMater
 import { MeshBasicMaterial } from "three";
 import {MusicButton} from "./MusicButton.tsx"
 import mainBackground from "../ui/mainBackground.png"
-import {useMuteStore} from '../store'
+import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
@@ -24,8 +24,8 @@ const ACCOUNT_DATA = {
 };
 
 export default function Scene(props: any) {
-  const isMute = useMuteStore((state) => state.isMute)
-  const setMute = useMuteStore((state) => state.setMute)
+  //const isMute = useMuteStore((state) => state.isMute)
+  //const setMute = useMuteStore((state) => state.setMute)
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
@@ -47,6 +47,9 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
+  const mintAsset = async() => {
+    console.log("mint");
+  }
 
   useEffect(() => {
     if(account) {
@@ -235,6 +238,8 @@ export default function Scene(props: any) {
           </>
         }
         <div className="download but" onClick={handleDownload}></div>
+        <div className="mint but" onClick={mintAsset}></div>
+        
 
         {!connected ?
         (<div className="wallet but" 

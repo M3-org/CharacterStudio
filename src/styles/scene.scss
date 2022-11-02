@@ -54,6 +54,17 @@
     opacity : 0.8;
     user-select : none;
 }
+.mint {
+  background : url('../../src/ui/mint.svg') center center no-repeat;
+  width: 74px;
+  height: 74px;
+  border: 1px solid #434B58;
+  backdrop-filter: blur(22.5px);
+  border-radius: 5px;
+  box-sizing: border-box;
+  opacity : 0.8;
+  user-select : none;
+}
 .modeltype {
     width : 106px;
 }

@@ -42,7 +42,6 @@
     "three": "^0.141.0",
     "use-sound": "^4.0.1",
     "zustand": "^4.1.3"
-
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.5.1",
