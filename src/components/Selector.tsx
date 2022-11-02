@@ -17,6 +17,9 @@ import hairColorImg from '../ui/traits/hairColor.png';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
+import {MeshIsHidden} from '../library/cull-mesh.js'
+import { blue } from "@mui/material/colors"
+import {MeshBasicMaterial} from 'three'
 
 export default function Selector(props) {
   const {
@@ -233,9 +236,33 @@ export default function Selector(props) {
     })
   }
   
-  const cullHiddenMeshes = (targets:Array) => {
+  const cullHiddenMeshes = (targets:Array, traitModel:any) => {
+    const scene = sceneService.getScene();
+    const mat = new MeshBasicMaterial({transparent:true, color:blue, opacity:0.5})
+    traitModel.traverse((child)=>{
+      if (child.isMesh){
+        //console.log(child)
+        child.material[0] = mat;
+      }
+    })
     for (let i =0; i < targets.length; i++){
-      console.log(targets[i]);
+      const obj = scene.getObjectByName(targets[i])
+      if (obj != null){
+        if (obj.isMesh){
+          console.log("single mesh case")
+          MeshIsHidden(obj, traitModel);
+        }
+        if (obj.isGroup){
+          console.log("group case")
+          obj.traverse((child) => {
+            if (child.parent === obj && child.isMesh)
+              MeshIsHidden(child, traitModel);
+          })
+        }
+      }
+      else{
+        console.warn(targets[i] + " not found");
+      }
     }
   }
 
@@ -308,8 +335,8 @@ const itemLoader =  async(item, traits = null) => {
       })
       //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
       console.log("check here for colisions")
-      console.log(templateInfo);
-      cullHiddenMeshes(templateInfo.cullingModel);
+      console.log(vrm2);
+      cullHiddenMeshes(templateInfo.cullingModel, vrm2.scene);
       renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)

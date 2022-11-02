@@ -9,7 +9,7 @@ import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import create from 'zustand';
-import {MeshIsHidden} from '../library/cull-mesh.js'
+
 
 const useAvatar = create((set)=>({
   traits:['body', 'chest'] ,
@@ -111,12 +111,6 @@ export default function CharacterEditor(props: any) {
   //   color: "#efefef"
   // }
 
-  // function miniloop(mesh){
-  //   setTimeout(() => {
-      
-  //     miniloop(mesh);
-  //   }, 1000);
-  // }
   useEffect(() => {
     if(model)
     sceneService.setModel(model);
@@ -133,18 +127,13 @@ export default function CharacterEditor(props: any) {
         .then((gltf) => {
           // yield before placing avatar to avoid lag
           setTimeout(()=>{
-            console.log("new vrm")
+            
             VRM.from(gltf).then((vrm) => {
+              console.log(vrm.scene)
               renameVRMBones(vrm);
               vrm.scene.traverse((o) => {
                 o.frustumCulled = false
-                let pas = false;
-                if(o.isMesh && pas === false){
-                  MeshIsHidden(o);
-                  pas = true;
-                }
               })
-              console.log(vrm);
               vrm.scene.rotation.set(Math.PI, 0, Math.PI)
               setLoading(false)
               startAnimation(vrm)
