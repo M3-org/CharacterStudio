@@ -26,7 +26,6 @@ export default function Landing({
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
-
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
     const [isHovering, setIsHovering] = useState(false);
     const [musicStatus, setMusicStatus] = useState(false);
@@ -37,6 +36,7 @@ export default function Landing({
 
     const handleLoading = () => {
         setIsLoading(false);
+        console.log("isloading")
     }
     useEffect(() => {
         window.addEventListener("load", handleLoading);

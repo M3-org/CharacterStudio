@@ -4,8 +4,9 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import { VRM } from "@pixiv/three-vrm";
+import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 
 import { combine } from "../library/mesh-combination";
 // import VRMExporter from "../library/VRM/vrm-exporter";
@@ -14,14 +15,18 @@ function getArrayBuffer (buffer) { return new Blob([buffer], { type: "applicatio
 
 let scene = null;
 
-let model = null;
+let avatar = null;
 
 let skinColor = new THREE.Color(1,1,1);
 
-const setModel = (newModel: any) => {
-  model = newModel;
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+const setAvatar = (newAvatar: VRM) => {
+  avatar = newAvatar;
 }
-const getModel = () => model;
+const getAvatar = () => avatar;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -137,9 +142,55 @@ function setSkinColor(color:any){
   skinColor = new THREE.Color(color)
 }
 
+const loader = new GLTFLoader();
+
+async function loadModel2(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
+  return loader.loadAsync(file, (e) => {
+    progress((e.loaded * 100) / e.total)
+  }).then((model) => {
+    VRM.from(model).then((vrm) => {
+      // setup for vrm
+      renameVRMBones(vrm);
+      vrm.scene.traverse((o) => {
+        o.frustumCulled = false
+      })
+      vrm.scene.rotation.set(Math.PI, 0, Math.PI)
+      //setup additional data here (colliders)
+
+      onloaded(vrm);
+      // setLoading(false)
+      // startAnimation(vrm)
+      // setTimeout(()=>{
+      //   setScene(vrm.scene)
+      //   getSkinColor(vrm.scene,templateInfo.bodyTargets)
+      //   setAvatar(vrm)
+      // },50);
+    })
+    
+
+
+
+
+
+
+    VRM.from(model).then((vrm) => {
+    console.log("VRM Model: ", vrm);
+  });
+    
+    return model;
+  });
+}
+
+const renameVRMBones = (vrm) =>{
+  for (const bone in VRMSchema.HumanoidBoneName) {
+    const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+    if (bn != null)
+       bn.name = VRMSchema.HumanoidBoneName[bone];
+  } 
+}
+
 async function loadModel(file: any, type: any) {
   if (type && type === "glb" && file) {
-    const loader = new GLTFLoader();
     return loader.loadAsync(file, (e) => {
       console.log(e.loaded)
     }).then((gltf) => {
@@ -150,15 +201,25 @@ async function loadModel(file: any, type: any) {
   }
 
   if (type && type === "vrm" && file) {
-    const loader = new GLTFLoader();
-    return loader.loadAsync(file).then((model) => {
+    return loader.loadAsync(file, (e) => {
+      console.log(e.loaded)
+    }).then((model) => {
       VRM.from(model).then((vrm) => {
-        console.log("VRM Model: ", vrm);
-      });
+      console.log("VRM Model: ", vrm);
+    });
       
       return model;
     });
   }
+}
+
+function setupModel(model: THREE.Object3D):void{
+  model?.traverse((child:any)=>{
+  if (child.isMesh){
+      // create the bound tree whne loading model instead
+      if (child.geometry.boundsTree == null)
+            child.geometry.computeBoundsTree({strategy:SAH});
+  }});
 }
 
 async function getMorphValue(key: any, scene: any, target: any) {
@@ -292,7 +353,7 @@ async function download(
 }
 
 export const sceneService = {
-  loadModel,
+  loadModel,loadModel2,
   updatePose,
   updateMorphValue,
   getMorphValue,
@@ -308,8 +369,8 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setModel,
-  getModel,
+  setAvatar,
+  getAvatar,
   setSkinColor,
   getSkinColor
 };

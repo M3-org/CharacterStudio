@@ -1,13 +1,8 @@
-import * as THREE from "three";
-import { SAH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
-
-
-
+import {Raycaster, Vector3, LineBasicMaterial, Line, BufferGeometry} from "three";
+import { SAH  } from 'three-mesh-bvh';
 export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
 
-    THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-    THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-    THREE.Mesh.prototype.raycast = acceleratedRaycast;
+    
 
     let greedCounter =  0;
     const traitMeshes = [];
@@ -25,7 +20,7 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     if (mesh.geometry.boundsTree == null)
          mesh.geometry.computeBoundsTree({strategy:SAH});
 
-    const raycaster = new THREE.Raycaster();
+    const raycaster = new Raycaster();
     raycaster.firstHitOnly = true;
     
     raycaster.far = 0.22;
@@ -35,8 +30,8 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     const normalsData = mesh.geometry.attributes.normal.array;
 
     let hidden = true;
-    let origin = new THREE.Vector3();
-    let direction = new THREE.Vector3();
+    let origin = new Vector3();
+    let direction = new Vector3();
     
     const intersections = [];
     for (let i =0; i < index.length;i++){
@@ -76,15 +71,15 @@ function DebugRay(origin, direction, length, color, scene){
         scene.lines.length = 0;
     }
 
-    let endPoint = new THREE.Vector3();
+    let endPoint = new Vector3();
     endPoint.addVectors ( origin, direction.multiplyScalar( length ) );
 
     const points = []
     points.push( origin );
     points.push( endPoint );
-    const geometry = new THREE.BufferGeometry().setFromPoints( points );
-    let material = new THREE.LineBasicMaterial( { color : color } );
-    var line = new THREE.Line( geometry, material );
+    const geometry = new BufferGeometry().setFromPoints( points );
+    let material = new LineBasicMaterial( { color : color } );
+    var line = new Line( geometry, material );
     scene.parent.add( line );
     scene.lines.push(line);
 }

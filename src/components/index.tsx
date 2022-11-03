@@ -48,13 +48,13 @@ export default function CharacterEditor(props: any) {
   // const [animations, setAnimations] = useState<object>(Object);
   // const [body, setBody] = useState<any>();
 
-  const { theme, templates, mintPopup, setLoading } = props
+  const { theme, templates, mintPopup, setLoading, setLoadingProgress } = props
   // Selected category State Hook
   const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
-  const [model, setModel] = useState<object>(Object)
+  const [model, setModel] = useState<VRM>(Object)
 
-  const [scene, setScene] = useState<object>(Object)
+  const [scene, setScene] = useState<any>(Object)
   
   // States Hooks used in template editor //
   const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
@@ -90,7 +90,6 @@ export default function CharacterEditor(props: any) {
       sceneService.setTraits(avatar);
     }
   }, [avatar])
-
   
   const renameVRMBones = (vrm) =>{
     for (const bone in VRMSchema.HumanoidBoneName) {
@@ -111,41 +110,27 @@ export default function CharacterEditor(props: any) {
   //   color: "#efefef"
   // }
 
+
+
   useEffect(() => {
     if(model)
-    sceneService.setModel(model);
+    sceneService.setAvatar(model);
   }, [model])
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
       
-      const loader = new GLTFLoader()
-      loader
-        .loadAsync(templateInfo.file, (e) => {
-          
-          props.setLoadingProgress((e.loaded * 100) / e.total)
-        })
-        .then((gltf) => {
-          // yield before placing avatar to avoid lag
+      sceneService.loadModel2(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
+        setTimeout(()=>{
+          setLoading(false)
+          startAnimation(vrm)
           setTimeout(()=>{
-            
-            VRM.from(gltf).then((vrm) => {
-              console.log(vrm.scene)
-              renameVRMBones(vrm);
-              vrm.scene.traverse((o) => {
-                o.frustumCulled = false
-              })
-              vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-              setLoading(false)
-              startAnimation(vrm)
-              setTimeout(()=>{
-                setScene(vrm.scene)
-                sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-                setModel(vrm)
-              },50);
-            })
-            
-          },1000);
-        })
+            setScene(vrm.scene)
+            sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+            setModel(vrm);
+            //setAvatar(vrm)
+          },50);
+        },1000)
+      });
     }
   }, [templateInfo.file])
  

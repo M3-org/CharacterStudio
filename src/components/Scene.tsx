@@ -18,7 +18,6 @@ import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
-
 import {
     ethers, BigNumber
 } from "ethers";
@@ -118,8 +117,6 @@ export default function Scene(props: any) {
     }
   }
 
-  const h =0.65;
-  const d = 1.1;
   const { 
     wrapClass,
     templates,
