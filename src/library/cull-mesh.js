@@ -1,22 +1,35 @@
-import { Note } from "@mui/icons-material";
 import * as THREE from "three";
 import { SAH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
 
-
-export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
-    //console.log(mesh);
-    if (mesh.lines == null)
-        mesh.lines = [];
+function DebugRay(origin, direction, length, color, scene){
+    if (scene.lines == null)
+        scene.lines = [];
     else{
-        mesh.lines.forEach(line => {
+        scene.lines.forEach(line => {
             line.visible = false;
         });
-        mesh.lines.length = 0;
+        scene.lines.length = 0;
     }
+
+    let endPoint = new THREE.Vector3();
+    endPoint.addVectors ( origin, direction.multiplyScalar( length ) );
+
+    const points = []
+    points.push( origin );
+    points.push( endPoint );
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    let material = new THREE.LineBasicMaterial( { color : color } );
+    var line = new THREE.Line( geometry, material );
+    scene.parent.add( line );
+    scene.lines.push(line);
+}
+
+export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
+
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
-    //console.log(shapecast)
+
     let greedCounter =  0;
     const traitMeshes = [];
 
@@ -34,9 +47,9 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
          mesh.geometry.computeBoundsTree({strategy:SAH});
 
     const raycaster = new THREE.Raycaster();
-    //raycaster.firstHitOnly = true;
+    raycaster.firstHitOnly = true;
     
-    raycaster.far = 0.4;
+    raycaster.far = 0.22;
 
     const index = mesh.geometry.index.array;
     const vertexData = mesh.geometry.attributes.position.array;
@@ -55,46 +68,21 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
         
         raycaster.set(origin,direction.multiplyScalar(-1));
 
-        if(mesh.name === "Bodybaked_1"){
-            // var pointB = new THREE.Vector3();
-            // pointB.addVectors ( origin, direction.multiplyScalar( raycaster.far ) );
-
-            // const points = []
-            // points.push( origin );
-            // points.push( pointB );
-            // const geometry = new THREE.BufferGeometry().setFromPoints( points );
-            // var material = new THREE.LineBasicMaterial( { color : 0xffffff } );
-            // var line = new THREE.Line( geometry, material );
-            // mesh.parent.add( line );
-            // mesh.lines.push(line);
-        }
+        if(mesh.name === "Bodybaked_1")
+            DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
+        
 
         if (raycaster.intersectObjects( traitMeshes, false, intersections ).length === 0){
+            //if(mesh.name === "Bodybaked_1")
+                //DebugRay(origin, direction,raycaster.far, 0xff0000,mesh );
+            
             greedCounter++;
-            //console.log("greed")
-            if(mesh.name === "Bodybaked_5"){
-
-                var pointB = new THREE.Vector3();
-                pointB.addVectors ( origin.clone(), direction.multiplyScalar( raycaster.far ) );
-
-                const points = []
-                points.push( origin );
-                points.push( pointB );
-                const geometry = new THREE.BufferGeometry().setFromPoints( points );
-                var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-                var line = new THREE.Line( geometry, material );
-                mesh.parent.add( line );
-                mesh.lines.push(line);
-                
-            }
             if (greedCounter >= greed){
                 hidden = false;
-                //break;
+                break;
             }
         }
             
     }
-    console.log(mesh.name)
-    console.log(greedCounter);
     mesh.visible = !hidden;
 }
