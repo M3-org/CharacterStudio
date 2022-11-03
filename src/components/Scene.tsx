@@ -285,7 +285,7 @@ export default function Scene(props: any) {
               <TemplateModel scene={scene} />
             )}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.3, 64]} />
+            <circleGeometry args={[0.45, 64]} />
             <MeshReflectorMaterial
               blur={[400, 400]}
               resolution={1024}
@@ -300,7 +300,6 @@ export default function Scene(props: any) {
             />
           </mesh>
           </PerspectiveCamera>
-
         </Canvas>
       </div>
       <div style={{
