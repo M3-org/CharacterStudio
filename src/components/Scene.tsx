@@ -154,26 +154,38 @@ export default function Scene(props: any) {
 
   const mintAsset = async () => {
     setMintLoading(true);
-    
     sceneService.getScreenShot().then(async (screenshot) => {
       if(screenshot) {
         const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png");
         sceneService.getModelFromScene().then(async (glb) => {
-          const glbHash :any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+          const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+          const attributes : any = getAvatarTraits();
           const metadata = {
             name : "Avatars",
             description: "Creator Studio Avatars.",
             image : `ipfs://${imageHash.IpfsHash}`,
-            animation_url: `ipfs://${glbHash.IpfsHash}`
+            animation_url: `ipfs://${glbHash.IpfsHash}`,
+            attributes
           }
-          console.log("metadata", metadata)
-           const str = JSON.stringify(metadata);
+          const str = JSON.stringify(metadata);
           const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
-          console.log("metadatahash", metaDataHash)
           await mintNFT("ipfs://" + metaDataHash.IpfsHash);
         })
       }
     })
+  }
+
+  const getAvatarTraits = () => {
+    let metadataTraits =[];
+    Object.keys(avatar).map((trait) => {
+      if (Object.keys(avatar[trait]).length !== 0) {
+        metadataTraits.push({
+          "trait_type": trait,
+          "value" : avatar[trait].traitInfo.name
+        })
+      } 
+    })
+    return metadataTraits;
   }
 
   const mintNFT = async (metadataIpfs : any) => {
