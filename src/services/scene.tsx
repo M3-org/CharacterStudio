@@ -38,7 +38,7 @@ const getTraits = () => traits;
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter()
-    var options = {
+    const options = {
       trs: false,
       onlyVisible: true,
       truncateDrawRange: true,
@@ -161,7 +161,7 @@ async function loadModel(file: any, type: any) {
 
 async function getMorphValue(key: any, scene: any, target: any) {
   if (key && scene) {
-    var mesh = scene.getObjectByName(target);
+    const mesh = scene.getObjectByName(target);
     const index = mesh.morphTargetDictionary[key];
     if (index !== undefined) {
       return mesh.morphTargetInfluences[index];
@@ -248,7 +248,6 @@ async function download(
     };
     //combine here
     const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
-    console.log(avatar);
 
     exporter.parse(
       avatar,
@@ -256,7 +255,7 @@ async function download(
         if (result instanceof ArrayBuffer) {
           saveArrayBuffer(result, `${downloadFileName}.glb`);
         } else {
-          var output = JSON.stringify(result, null, 2);
+          const output = JSON.stringify(result, null, 2);
           saveString(output, `${downloadFileName}.gltf`);
         }
       },
