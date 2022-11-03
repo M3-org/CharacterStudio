@@ -43,12 +43,20 @@ function Skin({ scene, templateInfo, category, avatar}) {
       return material;
   }
 
+  const getEyeMaterial = () => {
+
+  }
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     if(category === "head"){
       templateInfo.bodyTargets = getHairMaterial();
     }
+    if(category === "eyeColor"){
+      // templateInfo.bodyTargets = [];
+      templateInfo.bodyTargets = ['Head006'];
+    }
+
     for (const bodyTarget of templateInfo.bodyTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
       localStorage.setItem('color', value);

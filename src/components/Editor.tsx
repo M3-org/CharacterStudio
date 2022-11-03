@@ -145,6 +145,20 @@ export default function Editor(props: any) {
         </div>
         <div
           onClick={() => {
+            setCategory("eyeColor")
+            moveCamera("head")
+            !isMute && play();
+          }}
+          style={
+            category && category === "eyeColor"
+              ? selectorButton
+              : selectorButtonActive
+          }
+        >
+        <Avatar style={selectorButtonIcon} src={skinColor} />
+        </div>
+        <div
+          onClick={() => {
             setCategory("head")
             moveCamera("head")
             !isMute && play();
@@ -155,9 +169,8 @@ export default function Editor(props: any) {
               : selectorButtonActive
           }
         >
-          <Avatar style={selectorButtonIcon} src={hairStyle}/>
+        <Avatar style={selectorButtonIcon} src={hairStyle}/>
         </div>
-
         <div
           onClick={() => {
             setCategory("chest")

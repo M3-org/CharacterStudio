@@ -10,7 +10,6 @@ import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
-import {MusicButton} from "./MusicButton.tsx"
 import {useMuteStore} from '../store'
 import {StyledLanding} from '../styles/landing.styled.js'
 
