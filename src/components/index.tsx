@@ -119,7 +119,7 @@ export default function CharacterEditor(props: any) {
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
       
-      sceneService.loadModel2(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
+      sceneService.loadModel(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
         setTimeout(()=>{
           setLoading(false)
           startAnimation(vrm)

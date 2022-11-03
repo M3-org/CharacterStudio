@@ -17,8 +17,8 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
         }
     });
     // create the bound tree whne loading model instead
-    if (mesh.geometry.boundsTree == null)
-         mesh.geometry.computeBoundsTree({strategy:SAH});
+    //if (mesh.geometry.boundsTree == null)
+        // mesh.geometry.computeBoundsTree({strategy:SAH});
 
     const raycaster = new Raycaster();
     raycaster.firstHitOnly = true;

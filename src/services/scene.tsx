@@ -114,15 +114,25 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
-async function getSkinColor(scene: any, targets: any){
+async function getSkinColor(scene:any, targets: any){
   if (scene) {
     for (const target of targets) {
       const object = scene.getObjectByName(target);
       if (object != null){
-        const mat = object.material.length ? object.material[0]:object.material;
-        if (mat.uniforms != null){
-          setSkinColor(mat.uniforms.color.value);
-          break;
+        if(object.isGroup){
+          const child = object.children[0]
+          const mat = child.material.length ? child.material[0]:child.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
+        }
+        else{
+          const mat = object.material.length ? object.material[0]:object.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
         }
       }
     }
@@ -144,40 +154,22 @@ function setSkinColor(color:any){
 
 const loader = new GLTFLoader();
 
-async function loadModel2(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
+async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
   return loader.loadAsync(file, (e) => {
     progress((e.loaded * 100) / e.total)
   }).then((model) => {
     VRM.from(model).then((vrm) => {
       // setup for vrm
-      renameVRMBones(vrm);
+      renameVRMBones(vrm)
+      vrm.scene.rotation.set(Math.PI, 0, Math.PI)
       vrm.scene.traverse((o) => {
         o.frustumCulled = false
       })
-      vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-      //setup additional data here (colliders)
-
+      setupModel(vrm.scene);
       onloaded(vrm);
-      // setLoading(false)
-      // startAnimation(vrm)
-      // setTimeout(()=>{
-      //   setScene(vrm.scene)
-      //   getSkinColor(vrm.scene,templateInfo.bodyTargets)
-      //   setAvatar(vrm)
-      // },50);
+      
+      return vrm;
     })
-    
-
-
-
-
-
-
-    VRM.from(model).then((vrm) => {
-    console.log("VRM Model: ", vrm);
-  });
-    
-    return model;
   });
 }
 
@@ -189,34 +181,9 @@ const renameVRMBones = (vrm) =>{
   } 
 }
 
-async function loadModel(file: any, type: any) {
-  if (type && type === "glb" && file) {
-    return loader.loadAsync(file, (e) => {
-      console.log(e.loaded)
-    }).then((gltf) => {
-      VRM.from( gltf ).then( ( model ) => {
-      return model;
-      });
-    });
-  }
-
-  if (type && type === "vrm" && file) {
-    return loader.loadAsync(file, (e) => {
-      console.log(e.loaded)
-    }).then((model) => {
-      VRM.from(model).then((vrm) => {
-      console.log("VRM Model: ", vrm);
-    });
-      
-      return model;
-    });
-  }
-}
-
 function setupModel(model: THREE.Object3D):void{
   model?.traverse((child:any)=>{
   if (child.isMesh){
-      // create the bound tree whne loading model instead
       if (child.geometry.boundsTree == null)
             child.geometry.computeBoundsTree({strategy:SAH});
   }});
@@ -353,7 +320,7 @@ async function download(
 }
 
 export const sceneService = {
-  loadModel,loadModel2,
+  loadModel,
   updatePose,
   updateMorphValue,
   getMorphValue,
