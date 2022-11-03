@@ -180,12 +180,12 @@ export default function Scene(props: any) {
         alert("Please connect the wallet")
         return;
     }
-    const chainId = 137; // 1: ethereum mainnet, 4: rinkeby 0x89
+    const chainId = 5; // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
     if (window.ethereum.networkVersion !== chainId) {
         try {
             await window.ethereum.request({
                 method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x89' }] // 0x4 is rinkeby. Ox1 is ethereum mainnet.
+                params: [{ chainId: '0x5' }] // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
             });
         } catch (err) {
             // notifymessage("Please check the Ethereum mainnet", "error");
