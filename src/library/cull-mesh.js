@@ -1,30 +1,9 @@
 import * as THREE from "three";
 import { SAH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
 
-function DebugRay(origin, direction, length, color, scene){
-    if (scene.lines == null)
-        scene.lines = [];
-    else{
-        scene.lines.forEach(line => {
-            line.visible = false;
-        });
-        scene.lines.length = 0;
-    }
 
-    let endPoint = new THREE.Vector3();
-    endPoint.addVectors ( origin, direction.multiplyScalar( length ) );
 
-    const points = []
-    points.push( origin );
-    points.push( endPoint );
-    const geometry = new THREE.BufferGeometry().setFromPoints( points );
-    let material = new THREE.LineBasicMaterial( { color : color } );
-    var line = new THREE.Line( geometry, material );
-    scene.parent.add( line );
-    scene.lines.push(line);
-}
-
-export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
+export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -32,8 +11,8 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
 
     let greedCounter =  0;
     const traitMeshes = [];
-
-    traitModel.traverse((child)=>{
+    
+    traitModel?.traverse((child)=>{
         if (child.isMesh){
             // create the bound tree whne loading model instead
             if (child.geometry.boundsTree == null)
@@ -68,8 +47,8 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
         
         raycaster.set(origin,direction.multiplyScalar(-1));
 
-        if(mesh.name === "Bodybaked_1")
-            DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
+        //if(mesh.name === "Bodybaked_1")
+            //DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
         
 
         if (raycaster.intersectObjects( traitMeshes, false, intersections ).length === 0){
@@ -85,4 +64,27 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 10) => {
             
     }
     mesh.visible = !hidden;
+}
+
+function DebugRay(origin, direction, length, color, scene){
+    if (scene.lines == null)
+        scene.lines = [];
+    else{
+        scene.lines.forEach(line => {
+            line.visible = false;
+        });
+        scene.lines.length = 0;
+    }
+
+    let endPoint = new THREE.Vector3();
+    endPoint.addVectors ( origin, direction.multiplyScalar( length ) );
+
+    const points = []
+    points.push( origin );
+    points.push( endPoint );
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    let material = new THREE.LineBasicMaterial( { color : color } );
+    var line = new THREE.Line( geometry, material );
+    scene.parent.add( line );
+    scene.lines.push(line);
 }

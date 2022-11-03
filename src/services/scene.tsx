@@ -162,7 +162,7 @@ async function loadModel(file: any, type: any) {
 
 async function getMorphValue(key: any, scene: any, target: any) {
   if (key && scene) {
-    var mesh = scene.getObjectByName(target);
+    const mesh = scene.getObjectByName(target);
     const index = mesh.morphTargetDictionary[key];
     if (index !== undefined) {
       return mesh.morphTargetInfluences[index];
@@ -178,7 +178,7 @@ async function updateMorphValue(
 ) {
   if (key && targets && value) {
     targets.map((target: any) => {
-      var mesh = scene.getObjectByName(target);
+      const mesh = scene.getObjectByName(target);
       const index = mesh.morphTargetDictionary[key];
       if (index !== undefined) {
         mesh.morphTargetInfluences[index] = value;
@@ -239,7 +239,7 @@ async function download(
 
   if (format && format === "glb") {
     const exporter = new GLTFExporter();
-    var options = {
+    const options = {
       trs: false,
       onlyVisible: false,
       truncateDrawRange: true,

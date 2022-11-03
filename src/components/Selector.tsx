@@ -17,9 +17,8 @@ import hairColorImg from '../ui/traits/hairColor.png';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
-import {MeshIsHidden} from '../library/cull-mesh.js'
-import { blue } from "@mui/material/colors"
-import {MeshBasicMaterial, BackSide} from 'three'
+import {DisplayMeshIfVisible} from '../library/cull-mesh.js'
+import {MeshBasicMaterial} from 'three'
 
 export default function Selector(props) {
   const {
@@ -237,10 +236,9 @@ export default function Selector(props) {
   }
   
   const cullHiddenMeshes = (targets:Array, traitModel:any) => {
-    console.log("started!!")
     const scene = sceneService.getScene();
     const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
-    traitModel.traverse((child)=>{
+    traitModel?.traverse((child)=>{
       if (child.isMesh){
         //console.log(child)
         child.material[0] = mat;
@@ -252,14 +250,12 @@ export default function Selector(props) {
       const obj = scene.getObjectByName(targets[i])
       if (obj != null){
         if (obj.isMesh){
-          console.log("single mesh case")
-          MeshIsHidden(obj, traitModel);
+          DisplayMeshIfVisible(obj, traitModel);
         }
         if (obj.isGroup){
-          console.log("group case")
           obj.traverse((child) => {
             if (child.parent === obj && child.isMesh)
-              MeshIsHidden(child, traitModel);
+            DisplayMeshIfVisible(child, traitModel);
           })
         }
       }
@@ -279,9 +275,10 @@ export default function Selector(props) {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
+        
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
-          //localStorage.removeItem('color')
+          cullHiddenMeshes(templateInfo.cullingModel, null);
         }
       } else {
         if (trait.bodyTargets) {
@@ -337,9 +334,6 @@ const itemLoader =  async(item, traits = null) => {
       vrm2.scene.traverse((o) => {
         o.frustumCulled = false
       })
-      console.log("check here for colisions")
-      console.log(vrm2);
-      
       renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)
