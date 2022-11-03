@@ -1,5 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
+import { Html, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
@@ -10,8 +11,9 @@ import { position } from "html2canvas/dist/types/css/property-descriptors/positi
 import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { MeshBasicMaterial } from "three";
-import {MusicButton} from "./MusicButton.tsx"
 import mainBackground from "../ui/mainBackground.png"
+import Lottie from "lottie-react";
+import lottie from '../data/Rotation.json'
 import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
@@ -283,7 +285,7 @@ export default function Scene(props: any) {
               <TemplateModel scene={scene} />
             )}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.3,64]} />
+            <circleGeometry args={[0.3, 64]} />
             <MeshReflectorMaterial
               blur={[400, 400]}
               resolution={1024}
@@ -294,7 +296,6 @@ export default function Scene(props: any) {
               color="#303030"
               //color="#49343e"
               metalness={0}
-              
               roughness={1}
             />
           </mesh>
@@ -314,6 +315,7 @@ export default function Scene(props: any) {
             <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
           </>
         }
+        <div className="mint but" ></div>
         <div className="download but" onClick={handleDownload}></div>
         <div className="mint but" onClick={mintAsset}></div>
         
@@ -332,7 +334,6 @@ export default function Scene(props: any) {
           <div className="wallet walletActive" ></div>
         </div>
         )}
-        
       </div>
       <div>
         <Selector
