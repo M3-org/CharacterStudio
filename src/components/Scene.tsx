@@ -7,7 +7,7 @@ import { TemplateModel } from "./Models";
 import Selector from "./Selector";
 import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
-import { sceneService } from "../services";
+import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { MeshBasicMaterial } from "three";
 import {MusicButton} from "./MusicButton.tsx"
@@ -16,7 +16,10 @@ import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
-import {ethers} from 'ethers';
+
+import {
+    ethers, BigNumber
+} from "ethers";
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -32,12 +35,15 @@ export default function Scene(props: any) {
   const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
+  const [mintLoading, setMintLoading] = useState(false);
+
+
 
   // const [walletAdress, setWalletAdress] = useState("")
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
-    supportedChainIds: [1, 3, 4, 5, 42, 97],
+    supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   });
 
   const connectWallet = async () => {
@@ -47,9 +53,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
-  const mintAsset = async() => {
-    console.log("mint");
-  }
 
   useEffect(() => {
     if(account) {
@@ -131,21 +134,94 @@ export default function Scene(props: any) {
     templateInfo,
     model }: any = props;
 
-    const canvasWrap = {
-      height: "100vh",
-      width: "100vw",
-      position: "absolute" as "absolute",
-      zIndex: "0",
-      top: "0",
-      backgroundColor: "#111111"
-    }
-    const handleDownload = () =>{
-     showType ? setShowType(false) : setShowType(true);
-    }
+  const canvasWrap = {
+    height: "100vh",
+    width: "100vw",
+    position: "absolute" as "absolute",
+    zIndex: "0",
+    top: "0",
+    backgroundColor: "#111111"
+  }
+  const handleDownload = () =>{
+    showType ? setShowType(false) : setShowType(true);
+  }
 
-    const downLoad = (format : any) => {
-      sceneService.download(model, `CC_Model`, format, false);
+  const downLoad = (format : any) => {
+    sceneService.download(model, `CC_Model`, format, false);
+  }
+
+  const mintAsset = async () => {
+    setMintLoading(true);
+    
+    sceneService.getScreenShot().then(async (screenshot) => {
+      if(screenshot) {
+        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png");
+        sceneService.getModelFromScene().then(async (glb) => {
+          const glbHash :any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+          const metadata = {
+            name : "Avatars",
+            description: "Creator Studio Avatars.",
+            image : `ipfs://${imageHash.IpfsHash}`,
+            animation_url: `ipfs://${glbHash.IpfsHash}`
+          }
+          console.log("metadata", metadata)
+           const str = JSON.stringify(metadata);
+          const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
+          console.log("metadatahash", metaDataHash)
+          await mintNFT("ipfs://" + metaDataHash.IpfsHash);
+        })
+      }
+    })
+  }
+
+  const mintNFT = async (metadataIpfs : any) => {
+    if(account == undefined) {
+        // notifymessage("Please connect the wallet", "error");
+        alert("Please connect the wallet")
+        return;
     }
+    const chainId = 137; // 1: ethereum mainnet, 4: rinkeby 0x89
+    if (window.ethereum.networkVersion !== chainId) {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x89' }] // 0x4 is rinkeby. Ox1 is ethereum mainnet.
+            });
+        } catch (err) {
+            // notifymessage("Please check the Ethereum mainnet", "error");
+            alert("Please check the Polygon mainnet")
+            return false;
+        }
+    }
+    const signer = new ethers.providers.Web3Provider(
+        window.ethereum
+    ).getSigner();
+    const contract = new ethers.Contract(
+        Contract.address,
+        Contract.abi,
+        signer
+    );
+    const isActive = await contract.saleIsActive();
+    if(!isActive) {
+        alert("Mint isn't Active now!")
+    } else {
+      const tokenPrice = await contract.tokenPrice();                
+      try {
+          const options = {
+              value: BigNumber.from(tokenPrice).mul(1),
+              from: account,
+          };
+          const tx = await contract.mintToken(1, metadataIpfs, options);
+          let res = await tx.wait();
+          if (res.transactionHash) {
+            alert("Mint success!");
+            setMintLoading(false);
+          }
+      } catch (err) {
+          alert("Public Mint failed! Please check your wallet.")
+      }
+    }
+  }
 
   return (
     <div style={{
@@ -169,6 +245,7 @@ export default function Scene(props: any) {
             position: "absolute",
             right: "100px"
           }}
+          gl={{ preserveDrawingBuffer: true }}
           className="canvas"
           id="editor-scene"
         >
