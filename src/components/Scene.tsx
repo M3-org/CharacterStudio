@@ -315,7 +315,6 @@ export default function Scene(props: any) {
             <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
           </>
         }
-        <div className="mint but" ></div>
         <div className="download but" onClick={handleDownload}></div>
         <div className="mint but" onClick={mintAsset}></div>
         
