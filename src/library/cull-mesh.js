@@ -1,19 +1,48 @@
 import * as THREE from "three";
+import { MeshBVH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
+
 
 export const MeshIsHidden = async(mesh, traitModel, greed = 20) => {
+    THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+    THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+    THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
     let greedCounter =  0;
     const traitMeshes = [];
+
     traitModel.traverse((child)=>{
-        if (child.isMesh)
+        if (child.isMesh){
+            child.geometry.computeBoundsTree();
             traitMeshes.push(child);
+        }
     });
+    mesh.geometry.computeBoundsTree();
+
+    console.log(mesh)
     
-    //console.log(traitMeshes)
+    // const bodyGen = new StaticGeometryGenerator( [ mesh ] );
+    // const bodyGeom = bodyGen.generate();
+    // bodyGeom.computeBoundsTree();
+    // bodyGen.generate( bodyGeom );
+    // bodyGeom.boundsTree.refit();
 
-    const ray = new THREE.Ray();
+    // const clothGen = new StaticGeometryGenerator( [ ...traitMeshes ] );
+    // const clothGeom = clothGen.generate();
+    // clothGeom.computeBoundsTree();
+    // clothGen.generate( clothGeom );
+    // clothGeom.boundsTree.refit();
 
-    const raycast = new THREE.Raycaster();
-    raycast.far = 0.1;
+    // console.log(clothGeom);
+    // console.log(bodyGeom)
+
+    const raycaster = new THREE.Raycaster();
+    console.log(raycaster)
+    //raycaster.firstHitOnly = true;
+    
+
+    raycaster.far = 0.1;
+
+    //console.log(raycaster);
     const index = mesh.geometry.index.array;
     // //debug section
     // console.log ("length")
@@ -35,19 +64,21 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 20) => {
 
     const vertexData = mesh.geometry.attributes.position.array;
     const normalsData = mesh.geometry.attributes.normal.array;
-
+    //console.log(vertexData)
+    //console.log(raycaster);
     let hidden = true;
     let origin = new THREE.Vector3();
     let direction = new THREE.Vector3();
     // setting += 3 to only check 1 vertex of each face
     const intersections = [];
-    for (let i =0; i < index.length;i+=3){
+    for (let i =0; i < index.length;i++){
         intersections.length = 0;
         const vi = index[i] * 3;
         origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2])
         direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]);
-        raycast.set(origin,direction);
-        if (raycast.intersectObjects( traitMeshes, false , intersections).length === 0){
+        
+        raycaster.set(origin,direction);
+        if (raycaster.intersectObjects( traitMeshes ).length === 0){
             greedCounter++;
             if (greedCounter >= greed){
                 hidden = false;
