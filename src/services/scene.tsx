@@ -238,7 +238,7 @@ async function download(
 
   if (format && format === "glb") {
     const exporter = new GLTFExporter();
-    var options = {
+    const options = {
       trs: false,
       onlyVisible: false,
       truncateDrawRange: true,
@@ -248,10 +248,10 @@ async function download(
     };
     //combine here
     const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
-    
+    console.log(avatar);
 
     exporter.parse(
-      model.scene,
+      avatar,
       function (result) {
         if (result instanceof ArrayBuffer) {
           saveArrayBuffer(result, `${downloadFileName}.glb`);
