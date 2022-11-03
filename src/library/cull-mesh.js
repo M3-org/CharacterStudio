@@ -1,25 +1,59 @@
 import * as THREE from "three";
-import { MeshBVH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
+import { SAH,computeBoundsTree, disposeBoundsTree, acceleratedRaycast, StaticGeometryGenerator  } from 'three-mesh-bvh';
 
 
-export const MeshIsHidden = async(mesh, traitModel, greed = 20) => {
+export const MeshIsHidden = async(mesh, traitModel, greed = 1) => {
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
-
+    //console.log(shapecast)
     let greedCounter =  0;
     const traitMeshes = [];
 
     traitModel.traverse((child)=>{
         if (child.isMesh){
-            child.geometry.computeBoundsTree();
+            if (child.geometry.boundsTree == null)
+                // create the bound tree whne loading model instead
+                child.geometry.computeBoundsTree({strategy:SAH});
+            
             traitMeshes.push(child);
         }
     });
-    mesh.geometry.computeBoundsTree();
+    if (mesh.geometry.boundsTree == null)
+        // create the bound tree whne loading model instead
+        mesh.geometry.computeBoundsTree({strategy:SAH});
 
-    console.log(mesh)
-    
+    const bvh = mesh.geometry.boundsTree;
+    console.log(bvh)
+    // bvh.shapecast({
+    //     intersectsBounds: ( box, isLeaf, score, depth, nodeIndex ) => {
+
+	// 		if ( /* intersects shape */ ) {
+
+	// 			nodeIndices.add( nodeIndex );
+	// 			return INTERSECTED;
+
+	// 		}
+
+	// 		return NOT_INTERSECTED;
+
+	// 	},
+    //     intersectsRange: ( offset, count, contained, depth, nodeIndex ) => {
+
+	// 		/* collect triangles / vertices to move */
+
+	// 		// the nodeIndex here will have always already been added to the set in the
+	// 		// `intersectsBounds` callback.
+	// 		nodeIndices.add( nodeIndex );
+
+	// 	},
+
+	// 	intersectsTriangle : (triangle,triangleIndex,contained,depth) => {
+
+    //     }
+
+    // })
+    //console.log(mesh.geometry.boundsTree)
     // const bodyGen = new StaticGeometryGenerator( [ mesh ] );
     // const bodyGeom = bodyGen.generate();
     // bodyGeom.computeBoundsTree();
@@ -36,11 +70,12 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 20) => {
     // console.log(bodyGeom)
 
     const raycaster = new THREE.Raycaster();
+    raycaster.firstHitOnly = true;
     console.log(raycaster)
     //raycaster.firstHitOnly = true;
     
 
-    raycaster.far = 0.1;
+    raycaster.far = 0.5;
 
     //console.log(raycaster);
     const index = mesh.geometry.index.array;
@@ -75,7 +110,7 @@ export const MeshIsHidden = async(mesh, traitModel, greed = 20) => {
         intersections.length = 0;
         const vi = index[i] * 3;
         origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2])
-        direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]);
+        direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize;
         
         raycaster.set(origin,direction);
         if (raycaster.intersectObjects( traitMeshes ).length === 0){
