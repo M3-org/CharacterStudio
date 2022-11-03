@@ -9,7 +9,7 @@ export default [
       "format": "vrm",
       "bodyTargets": [
         "Body",
-        "Headbaked(copy)"
+        "Headbaked"
       ],
       "cameraTarget":{
         "full": {

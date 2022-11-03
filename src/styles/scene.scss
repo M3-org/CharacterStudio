@@ -4,7 +4,7 @@
 
     width: 74px;
     height: 74px;
-    border: 1px solid #38404E;
+    border: 1px solid #4d596d;
     backdrop-filter: blur(22.5px);
     border-radius: 5px;
     box-sizing: border-box;
@@ -25,20 +25,76 @@
 
     }
 }
+.largeBut {
+  width: 225px;
+  height: 74px;
+  border: 2px solid #677285;
+  backdrop-filter: blur(22.5px);
+  border-radius: 78px;
+  box-sizing: border-box;
+  display : flex;
+  justify-content : space-between;
+  background-color: #515a7456;
+  padding: 0 10px 0 20px;
+  &:hover {
+    .wallet{
+      background : url('../../src/ui/diconnectWallet.svg') center center no-repeat;
+      margin-right: 3px;
+    }
+  }
+}
 .download {
     background : url('../../src/ui/download.svg') center center no-repeat;
     width: 74px;
     height: 74px;
-    border: 1px solid #38404E;
+    border: 1px solid #434B58;
     backdrop-filter: blur(22.5px);
     border-radius: 5px;
     box-sizing: border-box;
     opacity : 0.8;
     user-select : none;
 }
+.mint {
+  background : url('../../src/ui/mint.svg') center center no-repeat;
+  width: 74px;
+  height: 74px;
+  border: 1px solid #434B58;
+  backdrop-filter: blur(22.5px);
+  border-radius: 5px;
+  box-sizing: border-box;
+  opacity : 0.8;
+  user-select : none;
+}
 .modeltype {
     width : 106px;
 }
+.walletActive{
+  height: 74px;
+  width: 74px;
+  opacity : 1;
+}
+
+.walletAdress{
+  overflow: hidden;
+  text-align: right;
+  // direction: rtl;
+  text-overflow: ellipsis;
+  width: 164px;
+  font-size: 14px;
+  margin: auto;
+}
+
+.walletENS{
+  overflow: hidden;
+  text-align: right;
+  // direction: rtl;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  width: 164px;
+  font-size: 14px;
+  margin: auto;
+}
+
 .wallet {
     background : url('../../src/ui/connectWallet.svg') center center no-repeat;
 }
