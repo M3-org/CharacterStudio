@@ -44,8 +44,6 @@ export default function Scene(props: any) {
   const [confirmWindow, setConfirmWindow] = useState(false);
   const [mintStatus, setMintStatus] = useState("Mint Status");
 
-  // const [walletAdress, setWalletAdress] = useState("")
-
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -159,8 +157,13 @@ export default function Scene(props: any) {
 
 
   const mintAsset = async () => {
-    setMintLoading(true);
+    if(account == undefined) {
+        setMintStatus("Please connect the wallet")
+        setConfirmWindow(true)
+        return;
+    }
     setMintStatus("Uploading...")
+    setMintLoading(true);
     
     sceneService.getScreenShot().then(async (screenshot) => {
       if(screenshot) {
@@ -202,11 +205,7 @@ export default function Scene(props: any) {
   }
 
   const mintNFT = async (metadataIpfs : any) => {
-    if(account == undefined) {
-        // notifymessage("Please connect the wallet", "error");
-        alert("Please connect the wallet")
-        return;
-    }
+    setMintStatus("Minting...")
     const chainId = 5; // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
     if (window.ethereum.networkVersion !== chainId) {
         try {
@@ -216,7 +215,8 @@ export default function Scene(props: any) {
             });
         } catch (err) {
             // notifymessage("Please check the Ethereum mainnet", "error");
-            alert("Please check the Polygon mainnet")
+            setMintStatus("Please check the Polygon mainnet")
+            setMintLoading(false);
             return false;
         }
     }
@@ -230,7 +230,6 @@ export default function Scene(props: any) {
     );
     const isActive = await contract.saleIsActive();
     if(!isActive) {
-        alert("Mint isn't Active now!")
         setMintStatus("Mint isn't Active now!")
         setMintLoading(false);
     } else {
@@ -243,13 +242,11 @@ export default function Scene(props: any) {
           const tx = await contract.mintToken(1, metadataIpfs, options);
           let res = await tx.wait();
           if (res.transactionHash) {
-            alert("Mint success!");
             setMintStatus("Mint success!")
             setMintLoading(false);
           }
       } catch (err) {
           setMintStatus("Public Mint failed! Please check your wallet.")
-          alert("Public Mint failed! Please check your wallet.")
           setMintLoading(false);
       }
     }
@@ -351,7 +348,6 @@ export default function Scene(props: any) {
         }
         <div className="download but" onClick={handleDownload}></div>
         <div className="mint but" onClick={() => {
-          setConfirmWindow(true)
           mintAsset()
           }}>
         </div>
