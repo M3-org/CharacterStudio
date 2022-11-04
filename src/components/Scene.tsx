@@ -332,8 +332,11 @@ export default function Scene(props: any) {
           </>
         }
         <div className="download but" onClick={handleDownload}></div>
-        {/* <div className="mint but" onClick={mintAsset}></div> */}
-        <div className="mint but" onClick={() => {setConfirmWindow(true); mintAsset();}}></div>
+        <div className="mint but" onClick={() => {
+          setConfirmWindow(true)
+          mintAsset()
+          }}>
+        </div>
         
 
         {!connected ?
@@ -377,7 +380,6 @@ export default function Scene(props: any) {
           setConfirmWindow= {setConfirmWindow}
           confirmWindow = {confirmWindow}
           mintStatus = {mintStatus}
-          mintAsset = {mintAsset}
           mintLoading = {mintLoading}>
       </MintPopup>
     </div>

@@ -2,7 +2,7 @@ import { StyledBackground, StyledPopup,StyledContainer, Button1, Title, Buttons 
 import React, { useState, useEffect } from "react";
 
 export default function MintPopup(props: any) {
-    const {setConfirmWindow, confirmWindow, mintStatus, mintAsset, mintLoading} = props;
+    const {setConfirmWindow, confirmWindow, mintStatus, mintLoading} = props;
     return (
         (
             <StyledContainer active={confirmWindow}>
@@ -12,7 +12,6 @@ export default function MintPopup(props: any) {
                         <Title>{mintStatus}</Title>
                         {!mintLoading ? 
                         (<Buttons>
-                            {/* <Button1 onClick={() => mintAsset()}>mint</Button1> */}
                             <Button1 onClick={() => setConfirmWindow(false)}>close</Button1>
                         </Buttons>):("")
                         }
