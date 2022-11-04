@@ -128,8 +128,10 @@ export default function CharacterEditor(props: any) {
               loader.setQuality( 2 );
                 loader.load( '../Rotation.json', function ( texture ) {
                   texture.animation.play();
-                  const geometry = new THREE.CircleGeometry( 0.5, 32 );
-                  const material = new THREE.MeshStandardMaterial( { roughness: 0.1, map: texture , transparent: true, opacity: 0.5});
+                  const geometry = new THREE.CircleGeometry( 0.42, 32 );
+                  geometry.setAttribute("uv2", geometry.getAttribute('uv'));
+                  console.log(geometry)
+                  const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
                   const mesh = new THREE.Mesh( geometry, material );
                   mesh.rotation.x = Math.PI / 2;
 

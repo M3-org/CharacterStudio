@@ -290,10 +290,10 @@ export default function Scene(props: any) {
             position={[0, 0, 0]}
           />  */}
           <ambientLight
-            color={"blue"}
+            color={"white"}
             intensity={1}
           />
-          <directionalLight castShadow intensity={2} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
+          <directionalLight castShadow intensity={1} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
             <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={-20} />
           </directionalLight>
           <OrbitControls
@@ -319,17 +319,19 @@ export default function Scene(props: any) {
               <TemplateModel scene={scene} />
             )}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.45, 64]} />
+            <circleGeometry args={[0.32, 64]} />
             <MeshReflectorMaterial
               blur={[400, 400]}
+              transparent={true}
+              opacity={0.5}
               resolution={1024}
               mixBlur={0.8}
               mixStrength={10}
               depthScale={1}
               minDepthThreshold={0.85}
-              color="#303030"
+              color="#ffffff"
               //color="#49343e"
-              metalness={0}
+              metalness={0.9}
               roughness={1}
             />
           </mesh>
