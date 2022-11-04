@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
+import MintPopup from "./MintPopup";
 import '../styles/scene.scss'
 import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 import { apiService, sceneService, Contract } from "../services";
@@ -38,6 +39,8 @@ export default function Scene(props: any) {
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
   const [mintLoading, setMintLoading] = useState(false);
+  const [confirmWindow, setConfirmWindow] = useState(false);
+  const [mintStatus, setMintStatus] = useState("Mint Status");
 
 
 
@@ -52,6 +55,7 @@ export default function Scene(props: any) {
     try {
       await activate(injected);
     } catch (ex) {
+      
       console.log(ex);
     }
   };
@@ -152,11 +156,19 @@ export default function Scene(props: any) {
     sceneService.download(model, `CC_Model`, format, false);
   }
 
+
   const mintAsset = async () => {
     setMintLoading(true);
+    setMintStatus("Uploading...")
+    
     sceneService.getScreenShot().then(async (screenshot) => {
       if(screenshot) {
-        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png");
+        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
+          .catch((reason)=>{
+            console.error(reason);
+            setMintStatus("Couldn't save to pinata")
+            setMintLoading(false);
+          });
         sceneService.getModelFromScene().then(async (glb) => {
           const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
           const attributes : any = getAvatarTraits();
@@ -218,6 +230,8 @@ export default function Scene(props: any) {
     const isActive = await contract.saleIsActive();
     if(!isActive) {
         alert("Mint isn't Active now!")
+        setMintStatus("Mint isn't Active now!")
+        setMintLoading(false);
     } else {
       const tokenPrice = await contract.tokenPrice();                
       try {
@@ -229,10 +243,13 @@ export default function Scene(props: any) {
           let res = await tx.wait();
           if (res.transactionHash) {
             alert("Mint success!");
+            setMintStatus("Mint success!")
             setMintLoading(false);
           }
       } catch (err) {
+          setMintStatus("Public Mint failed! Please check your wallet.")
           alert("Public Mint failed! Please check your wallet.")
+          setMintLoading(false);
       }
     }
   }
@@ -328,7 +345,11 @@ export default function Scene(props: any) {
           </>
         }
         <div className="download but" onClick={handleDownload}></div>
-        <div className="mint but" onClick={mintAsset}></div>
+        <div className="mint but" onClick={() => {
+          setConfirmWindow(true)
+          mintAsset()
+          }}>
+        </div>
         
 
         {!connected ?
@@ -368,6 +389,12 @@ export default function Scene(props: any) {
           setCategory={setCategory} 
           />
       </div>
+      <MintPopup
+          setConfirmWindow= {setConfirmWindow}
+          confirmWindow = {confirmWindow}
+          mintStatus = {mintStatus}
+          mintLoading = {mintLoading}>
+      </MintPopup>
     </div>
   );
 }
