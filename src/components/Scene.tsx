@@ -20,10 +20,11 @@ import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
-import { NoToneMapping } from 'three';
+import { NoToneMapping, TextureLoader } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
+import whiteCircle from '../data/white-semi-transparent.png';
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -42,8 +43,6 @@ export default function Scene(props: any) {
   const [mintLoading, setMintLoading] = useState(false);
   const [confirmWindow, setConfirmWindow] = useState(false);
   const [mintStatus, setMintStatus] = useState("Mint Status");
-
-
 
   // const [walletAdress, setWalletAdress] = useState("")
 
@@ -319,19 +318,19 @@ export default function Scene(props: any) {
               <TemplateModel scene={scene} />
             )}
           <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.32, 64]} />
+            <circleGeometry args={[0.6, 64]} />
             <MeshReflectorMaterial
-              blur={[400, 400]}
-              transparent={true}
-              opacity={0.5}
+              blur={[100, 100]}
+              //transparent={true}
+              opacity={1}
               resolution={1024}
-              mixBlur={0.8}
+              mixBlur={0}
               mixStrength={10}
-              depthScale={1}
-              minDepthThreshold={0.85}
+              depthScale={0.5}
+              minDepthThreshold={1}
               color="#ffffff"
               //color="#49343e"
-              metalness={0.9}
+              metalness={1}
               roughness={1}
             />
           </mesh>

@@ -20,6 +20,7 @@ let model = null;
 let skinColor = new THREE.Color(1,1,1);
 
 const lottieLoader =  new LottieLoader();
+const textureLoader = new THREE.TextureLoader();
 
 const setModel = (newModel: any) => {
   model = newModel;
@@ -38,12 +39,17 @@ const setTraits = (newTraits: any) => {
 
 const getTraits = () => traits;
 
+async function loadTexture(location:string):THREE.Texture{
+  const txt = textureLoader.load(location);
+  console.log(txt);
+  return txt;
+}
+
 async function loadLottieBase(location:string, quality:number, scene:any, playAnimation:boolean, progress: (progress:any) => any, onloaded:(txt:THREE.Texture) => any){
-  
   lottieLoader.setQuality( quality );
     lottieLoader.load( location, function ( texture ) {
       playAnimation ? texture.animation.play():{};
-      const geometry = new THREE.CircleGeometry( 0.42, 32 );
+      const geometry = new THREE.CircleGeometry( 0.75, 32 );
       geometry.setAttribute("uv2", geometry.getAttribute('uv'));
       const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
       const mesh = new THREE.Mesh( geometry, material );
@@ -311,6 +317,7 @@ async function download(
 }
 
 export const sceneService = {
+  loadTexture,
   loadLottieBase,
   loadModel,
   updatePose,
