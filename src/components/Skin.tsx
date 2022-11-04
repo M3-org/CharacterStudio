@@ -49,6 +49,7 @@ function Skin({ scene, templateInfo, category, avatar}) {
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
+    console.log(rgbColor);
     if(category === "head"){
       templateInfo.bodyTargets = getHairMaterial();
     }

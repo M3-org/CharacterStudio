@@ -127,7 +127,7 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     const object = scene.getObjectByName(target);
     if (object != null){
       const randColor = value;
-      const skinShade = new THREE.Color(randColor);
+      const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
       object.material[0].uniforms.color.value.set(skinShade)
     }
   }

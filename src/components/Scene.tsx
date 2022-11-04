@@ -13,13 +13,14 @@ import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { MeshBasicMaterial } from "three";
 import mainBackground from "../ui/mainBackground.png"
+
 import Lottie from "lottie-react";
 import lottie from '../data/Rotation.json'
 import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
-
+import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
@@ -157,6 +158,7 @@ export default function Scene(props: any) {
   }
 
 
+
   const mintAsset = async () => {
     setMintLoading(true);
     setMintStatus("Uploading...")
@@ -254,6 +256,7 @@ export default function Scene(props: any) {
     }
   }
 
+
   return (
     <div style={{
       width: "100vw",
@@ -276,7 +279,9 @@ export default function Scene(props: any) {
             position: "absolute",
             right: "100px"
           }}
-          gl={{ preserveDrawingBuffer: true }}
+
+          gl={{ antialias: true, toneMapping: NoToneMapping }}
+          linear
           className="canvas"
           id="editor-scene"
         >
