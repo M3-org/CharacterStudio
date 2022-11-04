@@ -24,7 +24,7 @@ import { NoToneMapping, TextureLoader } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-import { DownloadButton, MintButton, WalletButton, TextButton }from '../styles/Scene.styled.js'
+import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo }from '../styles/Scene.styled.js'
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -356,19 +356,17 @@ export default function Scene(props: any) {
           mintAsset()
         }}/>
         
-
-        {!connected ?
-        (<WalletButton onClick={connectWallet}/>)
-        :
-        (<div className="largeBut but" 
-          onClick={disConnectWallet}>
-            {
-              ensName ? <div className="walletENS">{ensName}</div>
-                : <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
-            }
-          <div className="wallet walletActive" ></div>
-        </div>
-        )}
+        <WalletButton connected = {connected} 
+          onClick = {connected ? disConnectWallet : connectWallet}>
+          {connected ? (
+            <WalletInfo ens={ensName}>
+              {ensName ? ensName: 
+              (account ? account.slice(0, 15) + "..." : 
+              "")}
+            </WalletInfo>):
+            ("")}
+          <WalletImg/>
+        </WalletButton>
       </div>
       <div>
         <Selector
