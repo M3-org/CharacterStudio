@@ -7,11 +7,11 @@ export const StyledContainer = styled.div`
     position: absolute;
     display: flex;
     pointer-events: ${props => props.active ? 
-        "auto":
-        "none"};
+        'auto':
+        'none'};
     visibility: ${props => props.active ? 
-        "visible":
-        "hidden"};
+        'visible':
+        'hidden'};
 `
 export const Title = styled.div`
     height: 40px;
@@ -33,11 +33,11 @@ export const StyledBackground = styled.div`
     position: absolute;
     transition: all 0.6s;
     backdrop-filter: ${props => props.active ? 
-        "blur(1rem)":
-        "blur(0)"};
+        'blur(1rem)':
+        'blur(0)'};
     background-color: ${props => props.active ? 
-        "rgba(0, 0, 0, 0.5)":
-        "rgba(0, 0, 0, 0)"};
+        'rgba(0, 0, 0, 0.5)':
+        'rgba(0, 0, 0, 0)'};
     //transition: backdrop-filter blur(2rem) opacity(1) 3s ease;
     //backdrop-filter: blur(2rem);
 `

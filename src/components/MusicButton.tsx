@@ -1,4 +1,4 @@
-import StyleWarapper from './MusicButtonStyle';
+import StyleWarapper from '../styles/MusicButton.styled.js';
 import onButton from '../../src/ui/soundon.png'
 import offButton from '../../src/ui/soundoff.png'
 

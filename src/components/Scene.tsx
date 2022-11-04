@@ -24,7 +24,7 @@ import { NoToneMapping, TextureLoader } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-import whiteCircle from '../data/white-semi-transparent.png';
+import { DownloadButton, MintButton, WalletButton, TextButton }from '../styles/Scene.styled.js'
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -345,22 +345,20 @@ export default function Scene(props: any) {
         gap :'20px'
       }}>
         {showType && <>
-            <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
-            <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
+            <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
+            <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
-        <div className="download but" onClick={handleDownload}></div>
-        <div className="mint but" onClick={() => {
+        {/* <div className="download but" onClick={handleDownload}></div> */}
+        <DownloadButton onClick={handleDownload}/>
+        <MintButton onClick={() => {
           setConfirmWindow(true)
           mintAsset()
-          }}>
-        </div>
+        }}/>
         
 
         {!connected ?
-        (<div className="wallet but" 
-          onClick={connectWallet}>
-        </div>)
+        (<WalletButton onClick={connectWallet}/>)
         :
         (<div className="largeBut but" 
           onClick={disConnectWallet}>

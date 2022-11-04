@@ -107,6 +107,7 @@ export default function CharacterEditor(props: any) {
     if(model)
     sceneService.setModel(model);
   }, [model])
+  
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
       
