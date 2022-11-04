@@ -40,6 +40,7 @@ function initialize(width = 1024, height = 1024){
     renderer.setSize( width, height );
     renderer.setClearColor( new THREE.Color(1,1,1), 1 );
     renderer.autoClear = false;
+    console.log(renderer);
 
     container.appendChild(renderer.domElement);
 }
@@ -68,8 +69,8 @@ export function RenderTexture (texture, multiplyColor, clearColor, width, height
     SetContainerSize(width,height);
     
     material.map = texture;
-    material.color = multiplyColor.clone().convertLinearToSRGB();
-    renderer.setClearColor( clearColor.clone().convertLinearToSRGB(), 1 );
+    material.color = multiplyColor.clone();
+    renderer.setClearColor( clearColor.clone(), 1 );
 
     renderer.setRenderTarget( rtTexture );
     renderer.clear();
