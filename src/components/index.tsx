@@ -125,7 +125,7 @@ export default function CharacterEditor(props: any) {
                 o.frustumCulled = false
               })
               //load lottie here
-              sceneService.loadLottie('../Rotation.json',2,true);
+              sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
               vrm.scene.rotation.set(Math.PI, 0, Math.PI)
               setLoading(false)
               startAnimation(vrm)

@@ -38,21 +38,22 @@ const setTraits = (newTraits: any) => {
 
 const getTraits = () => traits;
 
-const loadLottie = (location:string, quality:number, playAnimation:boolean,onload:(txt)=>{}) => {
+async function loadLottieBase(location:string, quality:number, scene:any, playAnimation:boolean, progress: (progress:any) => any, onloaded:(txt:THREE.Texture) => any){
   
   lottieLoader.setQuality( quality );
-    lottieLoader.load( '../Rotation.json', function ( texture ) {
+    lottieLoader.load( location, function ( texture ) {
       playAnimation ? texture.animation.play():{};
       const geometry = new THREE.CircleGeometry( 0.42, 32 );
       geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-      console.log(geometry)
       const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
       const mesh = new THREE.Mesh( geometry, material );
       mesh.rotation.x = Math.PI / 2;
-
-    vrm.scene.add( mesh );
-}, function(progress){}, function(error){console.log(error)} );
+      scene.add( mesh );
+      onloaded?onloaded(texture):{}
+      return texture;
+  }, (prog)=>{progress?progress(prog):{}}, (error) => console.error(error));
 }
+
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
@@ -310,7 +311,7 @@ async function download(
 }
 
 export const sceneService = {
-  loadLottie,
+  loadLottieBase,
   loadModel,
   updatePose,
   updateMorphValue,
