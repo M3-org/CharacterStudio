@@ -6,6 +6,7 @@ import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRM } from "@pixiv/three-vrm";
 import VRMExporter from "../library/VRM/VRMExporter";
+import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
 // import VRMExporter from "../library/VRM/vrm-exporter";
@@ -17,6 +18,8 @@ let scene = null;
 let model = null;
 
 let skinColor = new THREE.Color(1,1,1);
+
+const lottieLoader =  new LottieLoader();
 
 const setModel = (newModel: any) => {
   model = newModel;
@@ -34,6 +37,22 @@ const setTraits = (newTraits: any) => {
 }
 
 const getTraits = () => traits;
+
+const loadLottie = (location:string, quality:number, playAnimation:boolean,onload:(txt)=>{}) => {
+  
+  lottieLoader.setQuality( quality );
+    lottieLoader.load( '../Rotation.json', function ( texture ) {
+      playAnimation ? texture.animation.play():{};
+      const geometry = new THREE.CircleGeometry( 0.42, 32 );
+      geometry.setAttribute("uv2", geometry.getAttribute('uv'));
+      console.log(geometry)
+      const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
+      const mesh = new THREE.Mesh( geometry, material );
+      mesh.rotation.x = Math.PI / 2;
+
+    vrm.scene.add( mesh );
+}, function(progress){}, function(error){console.log(error)} );
+}
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
@@ -291,6 +310,7 @@ async function download(
 }
 
 export const sceneService = {
+  loadLottie,
   loadModel,
   updatePose,
   updateMorphValue,

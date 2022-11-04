@@ -9,7 +9,7 @@ import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from "three";
-import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
+
 // import {LottieLoader} from "https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.3/lottie.min.js"
 interface Avatar{
   body:{},
@@ -124,21 +124,8 @@ export default function CharacterEditor(props: any) {
               vrm.scene.traverse((o) => {
                 o.frustumCulled = false
               })
-              const loader =  new LottieLoader();
-              loader.setQuality( 2 );
-                loader.load( '../Rotation.json', function ( texture ) {
-                  texture.animation.play();
-                  const geometry = new THREE.CircleGeometry( 0.42, 32 );
-                  geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-                  console.log(geometry)
-                  const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
-                  const mesh = new THREE.Mesh( geometry, material );
-                  mesh.rotation.x = Math.PI / 2;
-
-                  vrm.scene.add( mesh );
-              }, function(progress){}, function(error){console.log(error)} );
-
-
+              //load lottie here
+              sceneService.loadLottie('../Rotation.json',2,true);
               vrm.scene.rotation.set(Math.PI, 0, Math.PI)
               setLoading(false)
               startAnimation(vrm)
