@@ -296,7 +296,6 @@ export default function Scene(props: any) {
             ref = {setControls}
             minDistance={1.5}
             maxDistance={1.5}
-            minPolarAngle={Math.PI / 2 - 0.11}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
             enableDamping={true}
