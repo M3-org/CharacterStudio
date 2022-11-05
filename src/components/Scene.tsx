@@ -43,6 +43,7 @@ export default function Scene(props: any) {
   const [mintLoading, setMintLoading] = useState(false);
   const [confirmWindow, setConfirmWindow] = useState(false);
   const [mintStatus, setMintStatus] = useState("Mint Status");
+  const [autoRotate, setAutoRotate] = useState(true)
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
@@ -296,6 +297,8 @@ export default function Scene(props: any) {
             ref = {setControls}
             minDistance={1.5}
             maxDistance={1.5}
+            autoRotate={autoRotate}
+            autoRotateSpeed={-1}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
             enableDamping={true}
@@ -348,6 +351,8 @@ export default function Scene(props: any) {
         <div className="download but" onClick={handleDownload}></div>
         <div className="mint but" onClick={() => {
           mintAsset()
+          setAutoRotate(!autoRotate)
+          console.log("autorotate temporal")
           }}>
         </div>
         
