@@ -6,7 +6,6 @@ import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
 import MintPopup from "./MintPopup";
-import '../styles/scene.scss'
 import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { useWeb3React } from "@web3-react/core";

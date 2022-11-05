@@ -3,6 +3,9 @@ import styled from 'styled-components';
 export const SquareButton = styled.div`
     transition : .3s;
     font-family : Proxima;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: auto;
     color : rgba(255, 255, 255, 0.5);
     width: ${props => props.width || '74px'};
     height: ${props => props.height || '74px'};
