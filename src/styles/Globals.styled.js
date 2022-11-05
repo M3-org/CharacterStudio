@@ -23,4 +23,36 @@ export const SquareButton = styled.div`
         color:white;
     }
 `
+export const TopRightMenu = styled.div`
+  display : flex;
+  top : 37px;
+  right : 44px;
+  position : absolute;
+  gap :20px;
+`
+export const BottomRightMenu = styled.div`
+  display : flex;
+  bottom : 37px;
+  right : 44px;
+  position : absolute;
+  gap :20px;
+`
 
+export const FitParentContainer = styled.div`
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+`
+export const ScreenSizeContainer = styled.div`
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+`
+export const ResizeableCanvas = styled.div`
+    position: absolute;
+    width: ${props => props.left ? 'calc(100% - ' + props.left + ')' : '100%'};
+    height: ${props => props.bottom ? 'calc(100% - ' + props.bottom + ')' : '100%'};
+    right:  ${props => props.right || '0'};
+    top: ${props => props.top || '0'};
+`

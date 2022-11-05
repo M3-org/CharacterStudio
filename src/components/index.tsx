@@ -150,7 +150,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                wrapClass="generator"
                 templates={templates}
                 scene={scene}
                 downloadPopup={downloadPopup}
