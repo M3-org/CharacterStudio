@@ -261,18 +261,19 @@ export default function Scene(props: any) {
             </directionalLight>
             <OrbitControls
               ref = {setControls}
-              minDistance={1.5}
+              minDistance={0.5}
               maxDistance={1.5}
-              minPolarAngle={Math.PI / 2 - 0.11}
               maxPolarAngle={Math.PI / 2 - 0.1}
-              enablePan={false}
-              enableDamping={true}
+              enablePan = { false }
+              autoRotate = { autoRotate }
+              autoRotateSpeed = { 2 }
+              enableDamping = { true }
+              dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
-              radius={(1200 + 600) / 4}
               fov={100}
               onUpdate={self => self.updateProjectionMatrix()}
             >
