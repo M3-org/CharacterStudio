@@ -22,7 +22,8 @@ import {useMuteStore} from '../store'
 export default function Editor(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
   const { camera, controls, templateInfo, category, setCategory  }: any = props
-  const [isModal, setModal] = useState(false)
+  const [ inverse, setInverse ] = useState(false)
+  const [ isModal, setModal ] = useState(false)
   const selectorButton = {
     color: "#999999",
     fontSize: "12px",
@@ -68,14 +69,36 @@ export default function Editor(props: any) {
   const moveCamera = (value:string) => {
     if (templateInfo.cameraTarget){
       if (templateInfo.cameraTarget[value]){
+
+        setInverse(!inverse);
+
         gsap.to(controls.target,{
           y:templateInfo.cameraTarget[value].height,
           duration: 1,
         })
-        gsap.to(controls,{
-          maxDistance:templateInfo.cameraTarget[value].distance,
-          minDistance:templateInfo.cameraTarget[value].distance,
-          duration: 1,
+
+        gsap.fromTo(controls,
+          {
+            maxDistance:controls.getDistance(),
+            minDistance:controls.getDistance(),
+            minPolarAngle:controls.getPolarAngle(),
+            minAzimuthAngle:controls.getAzimuthalAngle(),
+            maxAzimuthAngle:controls.getAzimuthalAngle(),
+          },
+          {
+            maxDistance:templateInfo.cameraTarget[value].distance,
+            minDistance:templateInfo.cameraTarget[value].distance,
+            minPolarAngle:(Math.PI / 2 - 0.11),
+            minAzimuthAngle: inverse ? -0.78 : 0.78,
+            maxAzimuthAngle: inverse ? -0.78 : 0.78,
+            duration: 1,
+          }
+        ).then(()=>{
+          controls.minPolarAngle = 0;
+          controls.minDistance = 0.5;
+          controls.maxDistance = 2.0;
+          controls.minAzimuthAngle = Infinity;
+          controls.maxAzimuthAngle = Infinity;
         })
       }
     }
