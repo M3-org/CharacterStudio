@@ -107,6 +107,7 @@ export default function CharacterEditor(props: any) {
     if(model)
     sceneService.setModel(model);
   }, [model])
+  
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
       
@@ -149,7 +150,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                wrapClass="generator"
                 templates={templates}
                 scene={scene}
                 downloadPopup={downloadPopup}

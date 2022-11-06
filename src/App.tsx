@@ -14,7 +14,7 @@ import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 import {useMuteStore} from './store'
-import MuteSetting from "./components/MuteSetting";
+import AudioSettings from "./components/AudioSettings";
 
 const defaultTheme = createTheme({
   palette: {
@@ -169,7 +169,7 @@ function App() {
           }</div>
         )
       }
-      <MuteSetting />
+      <AudioSettings/>
     </React.Fragment>
   )
 }

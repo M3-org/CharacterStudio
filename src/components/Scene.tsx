@@ -1,39 +1,27 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
-import { Html, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
 import MintPopup from "./MintPopup";
-import '../styles/scene.scss'
-import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
-import { MeshBasicMaterial } from "three";
-import mainBackground from "../ui/mainBackground.png"
-
-import Lottie from "lottie-react";
-import lottie from '../data/Rotation.json'
-import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
-import { disconnect } from "process";
-import { NoToneMapping, TextureLoader } from 'three';
+import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-import whiteCircle from '../data/white-semi-transparent.png';
-
+import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
+import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
 };
 
 export default function Scene(props: any) {
-  //const isMute = useMuteStore((state) => state.isMute)
-  //const setMute = useMuteStore((state) => state.setMute)
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
@@ -121,10 +109,7 @@ export default function Scene(props: any) {
     }
   }
 
-  const h =0.65;
-  const d = 1.1;
   const { 
-    wrapClass,
     templates,
     scene,
     downloadPopup,
@@ -139,14 +124,6 @@ export default function Scene(props: any) {
     templateInfo,
     model }: any = props;
 
-  const canvasWrap = {
-    height: "100vh",
-    width: "100vw",
-    position: "absolute" as "absolute",
-    zIndex: "0",
-    top: "0",
-    backgroundColor: "#111111"
-  }
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
   }
@@ -154,8 +131,6 @@ export default function Scene(props: any) {
   const downLoad = (format : any) => {
     sceneService.download(model, `CC_Model`, format, false);
   }
-
-
 
   const mintAsset = async () => {
     if(account == undefined) {
@@ -255,123 +230,99 @@ export default function Scene(props: any) {
 
 
   return (
-    <div style={{
-      width: "100vw",
-      height: "100vh",
-      position: "relative" as "relative"
-    }}>
-      <div
-        id="canvas-wrap"
-        className={`canvas-wrap ${wrapClass && wrapClass}`}
-        style={{ ...canvasWrap,
-            background : `url(${mainBackground})`,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: 'cover'
-          }}
-      >
-        <Canvas
-          style = {{
-            width: "calc(100% - 700px)",
-            position: "absolute",
-            right: "100px"
-          }}
-
-          gl={{ antialias: true, toneMapping: NoToneMapping }}
-          linear
-          className="canvas"
-          id="editor-scene"
-        >
-           {/* <gridHelper
-            args={[50, 25, "#101010", "#101010"]}
-            position={[0, 0, 0]}
-          />  */}
-          <ambientLight
-            color={"white"}
-            intensity={1}
-          />
-          <directionalLight castShadow intensity={1} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
-            <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={-20} />
-          </directionalLight>
-          <OrbitControls
-            ref = {setControls}
-            minDistance={1.5}
-            maxDistance={1.5}
-            autoRotate={autoRotate}
-            autoRotateSpeed={-1}
-            maxPolarAngle={Math.PI / 2 - 0.1}
-            enablePan={false}
-            enableDamping={true}
-            target={[0, 0.9, 0]}
-          />
-          <PerspectiveCamera 
-            ref ={setCamera}
-            aspect={1200 / 600}
-            radius={(1200 + 600) / 4}
-            fov={100}
-            //position={[0, 0, 0]}
-            // rotation = {[0,0.5,0]}
-            onUpdate={self => self.updateProjectionMatrix()}
+    <FitParentContainer>
+      <Background>
+        <ResizeableCanvas left = {'700px'} right = {'100px'}>
+          <Canvas
+            gl={{ antialias: true, toneMapping: NoToneMapping }}
+            linear = {true}
+            id="editor-scene"
           >
-            {!downloadPopup && !mintPopup && (
-              <TemplateModel scene={scene} />
-            )}
-          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.6, 64]} />
-            <MeshReflectorMaterial
-              blur={[100, 100]}
-              //transparent={true}
-              opacity={1}
-              resolution={1024}
-              mixBlur={0}
-              mixStrength={10}
-              depthScale={0.5}
-              minDepthThreshold={1}
-              color="#ffffff"
-              //color="#49343e"
-              metalness={1}
-              roughness={1}
+            <gridHelper
+              args={[50, 25, "#101010", "#101010"]}
+              position={[0, 0, 0]}
+              visible={false}
+            /> 
+            <ambientLight
+              color={"white"}
+              intensity={1}
             />
-          </mesh>
-          </PerspectiveCamera>
-        </Canvas>
-      </div>
-      <div style={{
-        display:"flex",
-        top : "37px",
-        right : "44px",
-        position : "absolute",
-        gap :'20px'
-      }}>
+            <directionalLight 
+              castShadow = {true}
+              intensity = {1} 
+              position = {[10, 6, 6]} 
+              shadow-mapSize = {[1024, 1024]}>
+              <orthographicCamera 
+                attach="shadow-camera" 
+                left={-20} 
+                right={20} 
+                top={20} 
+                bottom={-20}/>
+            </directionalLight>
+            <OrbitControls
+              ref = {setControls}
+              minDistance={1.5}
+              maxDistance={1.5}
+              minPolarAngle={Math.PI / 2 - 0.11}
+              maxPolarAngle={Math.PI / 2 - 0.1}
+              enablePan={false}
+              enableDamping={true}
+              target={[0, 0.9, 0]}
+            />
+            <PerspectiveCamera 
+              ref ={setCamera}
+              aspect={1200 / 600}
+              radius={(1200 + 600) / 4}
+              fov={100}
+              onUpdate={self => self.updateProjectionMatrix()}
+            >
+              {!downloadPopup && !mintPopup && (
+                <TemplateModel scene={scene} />
+              )}
+            <mesh rotation={[-Math.PI / 2, 0, 0]}>
+              <circleGeometry args={[0.6, 64]} />
+              <MeshReflectorMaterial
+                blur={[100, 100]}
+                opacity={1}
+                resolution={1024}
+                mixBlur={0}
+                mixStrength={10}
+                depthScale={0.5}
+                minDepthThreshold={1}
+                color="#ffffff"
+                metalness={1}
+                roughness={1}
+              />
+            </mesh>
+            </PerspectiveCamera>
+          </Canvas>
+        </ResizeableCanvas>
+      </Background>
+      <TopRightMenu>
         {showType && <>
-            <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
-            <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
+            <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
+            <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
-        <div className="download but" onClick={handleDownload}></div>
-        <div className="mint but" onClick={() => {
+        <DownloadButton onClick={handleDownload}/>
+        <MintButton onClick={() => {
+          //setConfirmWindow(true)
           mintAsset()
           setAutoRotate(!autoRotate)
           console.log("autorotate temporal")
-          }}>
-        </div>
-        
-
-        {!connected ?
-        (<div className="wallet but" 
-          onClick={connectWallet}>
-        </div>)
-        :
-        (<div className="largeBut but" 
-          onClick={disConnectWallet}>
-            {
-              ensName ? <div className="walletENS">{ensName}</div>
-                : <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
-            }
-          <div className="wallet walletActive" ></div>
-        </div>
-        )}
-      </div>
+        }}/>
+        <WalletButton connected = {connected} 
+          onClick = {connected ? disConnectWallet : connectWallet}>
+          {connected ? (
+            <WalletInfo ens={ensName}>
+              {ensName ? ensName: 
+              (account ? account.slice(0, 15) + "..." : 
+              "")}
+            </WalletInfo>):
+            ("")}
+          <WalletImg/>
+        </WalletButton>
+      </TopRightMenu>
       <div>
         <Selector
           templates={templates}
@@ -400,6 +351,6 @@ export default function Scene(props: any) {
           mintStatus = {mintStatus}
           mintLoading = {mintLoading}>
       </MintPopup>
-    </div>
+    </FitParentContainer>
   );
 }
