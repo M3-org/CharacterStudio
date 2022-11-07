@@ -8,7 +8,7 @@ export const SideMenu = styled.div`
     background-color: rgba(23, 22, 31, 0.35);
     border: 1px solid #38404E;
     border-radius : 5px;
-    backdrop-filter: blur(22.5px);
+    backdrop-filter: blur(22.5px); 
     box-sizing : border-box;
     transform: perspective(400px) rotateY(5deg);
     user-select : none;
@@ -41,6 +41,8 @@ export const MenuImg = styled.img`
 export const ShuffleOption = styled(MenuOption)`
     border-right: '';
     opacity: 1;
+    height: 40px;
+
 `
 export const MenuTitle = styled.div`
     display: inline-block;

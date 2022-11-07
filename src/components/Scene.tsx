@@ -338,7 +338,6 @@ export default function Scene(props: any) {
           randomFlag={randomFlag}
         />
         <Editor 
-          camera = {camera}
           controls = {controls}
           templateInfo={templateInfo}
           random = {random} 
