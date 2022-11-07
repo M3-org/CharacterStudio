@@ -280,7 +280,7 @@ export default function Scene(props: any) {
               {!downloadPopup && !mintPopup && (
                 <TemplateModel scene={scene} />
               )}
-            <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh rotation = {[-Math.PI / 2, 0, 0]}>
               <circleGeometry args={[0.6, 64]} />
               <MeshReflectorMaterial
                 blur={[100, 100]}

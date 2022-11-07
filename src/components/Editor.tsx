@@ -19,6 +19,8 @@ import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
 import {useMuteStore} from '../store'
 
+import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
+
 export default function Editor(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
   const { camera, controls, templateInfo, category, setCategory  }: any = props
@@ -34,14 +36,14 @@ export default function Editor(props: any) {
     textAlign : "center",
     width : "100%"
   }
-
+  const test =[1,2,3,4]
   const selectorButtonActive = {
     color: "#666666",
     fontSize: "12px",
     minWidth: "60px",
     cursor: "pointer",
     opacity : "0.2",
-    width : "100%",
+    width : "100%", 
     textAlign : "center"
   }
 
@@ -65,6 +67,13 @@ export default function Editor(props: any) {
     optionClick,
     { volume: 1.0 }
   );
+
+  const selectOption = (option:any) =>{
+    setCategory(option.name)
+    //moveCamera("legs")
+    console.log(option.cameraTarget)
+    !isMute && play();
+  }
 
   const moveCamera = (value:string) => {
     if (templateInfo.cameraTarget){
@@ -103,7 +112,43 @@ export default function Editor(props: any) {
       }
     }
   }
+  const animals = ["Dog", "Bird", "Cat", "Mouse", "Horse"];
 
+  return(
+  <SideMenu>
+    <Stack
+        alignItems="center"
+      > 
+        
+        <MenuTitle>
+          <MenuImg src={webaMark} />
+        </MenuTitle>
+        
+
+        <LineDivision bottom = {'20px'}/>
+
+        { templateInfo.selectionTraits && templateInfo.selectionTraits.map(item => (
+          // improve id
+          <MenuOption 
+            onClick = {()=>{selectOption(item)}} 
+            selected = {category === item.name}
+            key = {"i" + templateInfo.id + item.id}>  
+            <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
+          </MenuOption>
+        ))}
+
+        <LineDivision top = {'20px'}/>
+
+        <ShuffleOption 
+          onClick={() => {
+            handleRandom()
+            !isMute && play();
+          }}
+        >
+          <MenuImg src = {shuffle} />
+        </ShuffleOption>
+    </Stack>
+  </SideMenu>);
   return (
     <div
       style={{
