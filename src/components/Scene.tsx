@@ -243,13 +243,14 @@ export default function Scene(props: any) {
               position={[0, 0, 0]}
               visible={false}
             /> 
-            <ambientLight
-              color={"white"}
-              intensity={1}
-            />
+            {/* <ambientLight
+              color={[1,1,1]}
+              intensity={0.5}
+            /> */}
             <directionalLight 
-              castShadow = {true}
+              //castShadow = {true}
               intensity = {1} 
+              //color = {[0.5,0.5,0.5]}
               position = {[10, 6, 6]} 
               shadow-mapSize = {[1024, 1024]}>
               <orthographicCamera 
@@ -266,7 +267,7 @@ export default function Scene(props: any) {
               maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = { autoRotate }
-              autoRotateSpeed = { 2 }
+              autoRotateSpeed = { 1 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}

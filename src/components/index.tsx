@@ -5,7 +5,7 @@ import DownloadCharacter from "./Download"
 import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM, VRMLoaderPlugin  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from "three";
@@ -84,13 +84,13 @@ export default function CharacterEditor(props: any) {
   }, [avatar])
 
   
-  const renameVRMBones = (vrm) =>{
-    for (let bone in VRMSchema.HumanoidBoneName) {
-      let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-      if (bn != null)
-         bn.name = VRMSchema.HumanoidBoneName[bone];
-    } 
-  }
+  // const renameVRMBones = (vrm) =>{
+  //   for (let bone in VRMSchema.HumanoidBoneName) {
+  //     let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+  //     if (bn != null)
+  //        bn.name = VRMSchema.HumanoidBoneName[bone];
+  //   } 
+  // }
 
 
   const animatedStyle = useSpring({
@@ -110,24 +110,40 @@ export default function CharacterEditor(props: any) {
   
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-      
+      //console.log(new VRMUtils())
       const loader = new GLTFLoader()
+      // console.log(VRMLoaderPlugin);
+      loader.register((parser) => {
+        return new VRMLoaderPlugin(parser);
+      });
+
       loader
         .loadAsync(templateInfo.file, (e) => {
           
           props.setLoadingProgress((e.loaded * 100) / e.total)
         })
         .then((gltf) => {
+          console.log(gltf)
           // yield before placing avatar to avoid lag
           setTimeout(()=>{
-            VRM.from(gltf).then((vrm) => {
-              renameVRMBones(vrm);
+            //VRM.from(gltf).then((vrm) => {
+              const vrm = gltf.userData.vrm;
+              //renameVRMBones(vrm);
               vrm.scene.traverse((o) => {
                 o.frustumCulled = false
+                if (o.isMesh){
+                  if (o.material)
+                    if (o.material.length > 1){
+                      o.material[0].uniforms.litFactor.value = o.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+                      o.material[0].uniforms.shadeColorFactor.value = o.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+                    }
+                }
               })
+              
+              console.log(vrm)
               //load lottie here
               sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
-              vrm.scene.rotation.set(Math.PI, 0, Math.PI)
+              //vrm.scene.rotation.set(Math.PI, 0, Math.PI)
               setLoading(false)
               startAnimation(vrm)
               
@@ -136,7 +152,7 @@ export default function CharacterEditor(props: any) {
                 sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
                 setModel(vrm)
               },50);
-            })
+            //})
             
           },1000);
         })

@@ -23,32 +23,63 @@ const createVRMAnimation = (animation: AnimationClip) =>{
   const newTracks = [];
   for (let i =0; i < clip.tracks.length;i++){
     const track = clip.tracks[i];
-    if(track instanceof QuaternionKeyframeTrack){
-      let mult = 1;
-      if (track.name.startsWith("leftUpperArm.") || track.name.startsWith("leftUpperArm.")){
-        mult = -1;
-      }
+    // if(track instanceof QuaternionKeyframeTrack){
       
-      for (let i =0; i < track.values.length; i +=4){
-        const origQuat = new Quaternion(
-          Math.abs(track.values[0 + i]) < 0.0001 ? 0:track.values[0 + i],
-          Math.abs(track.values[1 + i]) < 0.0001 ? 0:track.values[1 + i],
-          Math.abs(track.values[2 + i]) < 0.0001 ? 0:track.values[2 + i],
-          Math.abs(track.values[3 + i]) < 0.0001 ? 0:track.values[3 + i]
-          );
-        const eul = new Euler().setFromQuaternion(origQuat);
-        const quatArr = new Quaternion().setFromEuler(new Euler(eul.z*mult,eul.y,eul.x*mult)).toArray();
+    //   for (let i =0; i < track.values.length; i +=4){
+    //     const origQuat = new Quaternion(
+    //       Math.abs(track.values[0 + i]) < 0.0001 ? 0:track.values[0 + i],
+    //       Math.abs(track.values[1 + i]) < 0.0001 ? 0:track.values[1 + i],
+    //       Math.abs(track.values[2 + i]) < 0.0001 ? 0:track.values[2 + i],
+    //       Math.abs(track.values[3 + i]) < 0.0001 ? 0:track.values[3 + i]
+    //       );
+    //     const eul = new Euler().setFromQuaternion(origQuat);
+    //     const quatArr = new Quaternion().setFromEuler(new Euler(-eul.z,eul.y,-eul.x)).toArray();
 
-        for (let j =0; j < quatArr.length;j++){
-          track.values[i+j] = quatArr[j];
-        }
-      }
-      newTracks.push(track);
-    }
+    //     for (let j =0; j < quatArr.length;j++){
+    //       track.values[i+j] = quatArr[j];
+    //     }
+    //   }
+    // }
+    // if(track instanceof VectorKeyframeTrack){
+    //   console.log("keyframe track")
+    // }
+    newTracks.push(track);
   }
   clip.tracks = newTracks;
   return clip;
 }
+// const createVRMAnimation = (animation: AnimationClip) =>{
+
+//   const clip = animation.clone();
+//   const newTracks = [];
+//   for (let i =0; i < clip.tracks.length;i++){
+//     const track = clip.tracks[i];
+//     if(track instanceof QuaternionKeyframeTrack){
+//       let mult = 1;
+//       if (track.name.startsWith("leftUpperArm.") || track.name.startsWith("leftUpperArm.")){
+//         mult = -1;
+//       }
+      
+//       for (let i =0; i < track.values.length; i +=4){
+//         const origQuat = new Quaternion(
+//           Math.abs(track.values[0 + i]) < 0.0001 ? 0:track.values[0 + i],
+//           Math.abs(track.values[1 + i]) < 0.0001 ? 0:track.values[1 + i],
+//           Math.abs(track.values[2 + i]) < 0.0001 ? 0:track.values[2 + i],
+//           Math.abs(track.values[3 + i]) < 0.0001 ? 0:track.values[3 + i]
+//           );
+//         const eul = new Euler().setFromQuaternion(origQuat);
+//         const quatArr = new Quaternion().setFromEuler(new Euler(eul.z*mult,eul.y,eul.x*mult)).toArray();
+
+//         for (let j =0; j < quatArr.length;j++){
+//           track.values[i+j] = quatArr[j];
+//         }
+//       }
+//       newTracks.push(track);
+//     }
+//   }
+//   clip.tracks = newTracks;
+//   return clip;
+// }
 
 const update = () => {
   setInterval(() => {

@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
@@ -204,7 +204,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        await setTempInfo(templates[1].id)
+        await setTempInfo(templates[0].id)
       }
     }
     _get()
@@ -276,13 +276,13 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-const renameVRMBones = (vrm) =>{
-  for (let bone in VRMSchema.HumanoidBoneName) {
-    let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-    if (bn != null)
-        bn.name = VRMSchema.HumanoidBoneName[bone];
-  } 
-}
+// const renameVRMBones = (vrm) =>{
+//   for (let bone in VRMSchema.HumanoidBoneName) {
+//     let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+//     if (bn != null)
+//         bn.name = VRMSchema.HumanoidBoneName[bone];
+//   } 
+// }
 const itemLoader =  async(item, traits = null) => {
  const loader =  new GLTFLoader()
  var vrm;
@@ -321,7 +321,7 @@ const itemLoader =  async(item, traits = null) => {
       })
       //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
       
-      renameVRMBones(vrm2);
+      //renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)

@@ -68,9 +68,7 @@ export default function Editor(props: any) {
 
   return(
   <SideMenu>
-    <Stack
-        alignItems="center"
-      > 
+    <Stack alignItems="center"> 
         
         <MenuTitle>
           <MenuImg src={webaMark} />
@@ -78,7 +76,7 @@ export default function Editor(props: any) {
 
         <LineDivision bottom = {'20px'}/>
 
-        {/* temporal, as we will remove gender section */}
+        {// temporal
         <MenuOption 
             onClick = {()=>{selectOption({
               name:"gender",
@@ -90,6 +88,7 @@ export default function Editor(props: any) {
             key = {"i" + templateInfo.id + "gender"}>  
             <MenuImg src = {templateInfo.traitIconsDirectory + "body.png"} />
         </MenuOption>
+        /*temporal, as we will remove gender section */}
 
 
         { templateInfo.selectionTraits && templateInfo.selectionTraits.map(item => (

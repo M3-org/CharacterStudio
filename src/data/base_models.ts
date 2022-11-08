@@ -4,7 +4,7 @@ export default [
     {
       "id": "1",
       "name": "Female",
-      "file": "./3d/models/f_drophunter.vrm",
+      "file": "./3d/models/vrm1_female.vrm",
       "thumbnail": "./3d/icons/female-body-1.png",
       "format": "vrm",
       "bodyTargets": [

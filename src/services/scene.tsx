@@ -154,7 +154,8 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     if (object != null){
       const randColor = value;
       const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
-      object.material[0].uniforms.color.value.set(skinShade)
+      object.material[0].uniforms.litFactor.value.set(skinShade)
+      //object.material[0].uniforms.color.value.set(skinShade)
     }
   }
 }
