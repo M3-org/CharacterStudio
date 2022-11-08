@@ -235,6 +235,7 @@ export default function Selector(props) {
             let collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
             var temp = await itemLoader(ranItem,traits);
+            console.log(temp)
             buffer = {...buffer,...temp};
             if(i == lists.length-1)
             setAvatar({
@@ -260,7 +261,7 @@ export default function Selector(props) {
     traitModel?.traverse((child)=>{
       if (child.isMesh){
         //console.log(child)
-        child.material[0] = mat;
+        //child.material[0] = mat;
       }
     })
 
@@ -311,86 +312,60 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-// const renameVRMBones = (vrm) =>{
-//   for (let bone in VRMSchema.HumanoidBoneName) {
-//     let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-//     if (bn != null)
-//         bn.name = VRMSchema.HumanoidBoneName[bone];
-//   } 
-// }
-const itemLoader =  async(item, traits = null) => {
- const loader =  new GLTFLoader()
- let vrm;
- await loader
-  .loadAsync(
-    `${templateInfo.traitsDirectory}${item?.directory}`,
-    (e) => {
-      setLoadingTrait(Math.round((e.loaded * 100) / e.total))
-    },
-  )
-  .then( (gltf) => {
-     vrm = gltf
-    // VRM.from(gltf).then(async (vrm) => {
-    // vrm.scene.scale.z = -1;
-    // console.log("scene.add", scene.add)
-    // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
-    // await until scene is not null
-    new Promise<void>( (resolve) => {
-    // if scene, resolve immediately
-    if (scene && scene.add) {
-       resolve()
-    } else {
-        // if scene is null, wait for it to be set
-        const interval = setInterval(() => {
-          if (scene && scene.add) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      }
-    })
-    VRM.from(gltf).then((vrm2) => {
-      vrm2.scene.traverse((o) => {
-        o.frustumCulled = false
-      })
 
-      //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
-      //renameVRMBones(vrm2);
-      startAnimation(vrm2);
+const itemLoader =  async(item, traits = null) => {
+  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,'vrm', setLoadingTrait,  (vrm)=>{
+    new Promise<void>( (resolve) => {
+      // if scene, resolve immediately
+      if (scene && scene.add) {
+         resolve()
+      } else {
+          // if scene is null, wait for it to be set
+          const interval = setInterval(() => {
+            if (scene && scene.add) {
+              clearInterval(interval)
+              resolve()
+            }
+          }, 100)
+        }
+      })
+      console.log("tt");
+      startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
       setTimeout(()=>{
         scene.add(vrm.scene)
-        cullHiddenMeshes(templateInfo.cullingModel, vrm2.scene);
+        cullHiddenMeshes(templateInfo.cullingModel, vrm.scene);
       },100);
-   
-    })
-      // vrm.humanoid.getBoneNode(
-      //   VRMSchema.HumanoidBoneName.Hips,
-      // ).rotation.y = Math.PI
-    vrm.scene.frustumCulled = false
-    if (avatar[traitName]) {
-      setAvatar({
-        ...avatar,
-        [traitName]: {
+
+      if (avatar[traitName]) {
+        setAvatar({
+          ...avatar,
+          [traitName]: {
+            traitInfo: item,
+            model: vrm.scene,
+          }
+        })
+        if (avatar[traitName].model) {
+          setTimeout(() => {
+            scene.remove(avatar[traitName].model)
+          },60);
+        }
+      }
+      return {
+        [traits?.trait]: {
           traitInfo: item,
           model: vrm.scene,
         }
-      })
-      if (avatar[traitName].model) {
-        setTimeout(() => {
-          scene.remove(avatar[traitName].model)
-        },60);
       }
-    }
   })
   
-  return {
-      [traits?.trait]: {
-        traitInfo: item,
-        model: vrm.scene,
-      }
-    }
+  // return {
+  //     [traits?.trait]: {
+  //       traitInfo: item,
+  //       model: vrm.scene,
+  //     }
+  //   }
   // });
 }
 const getActiveStatus = (item) => {

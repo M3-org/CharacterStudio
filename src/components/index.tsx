@@ -5,10 +5,9 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 //import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMLoaderPlugin  } from "@pixiv/three-vrm"
+import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
-import * as THREE from "three";
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -105,6 +104,7 @@ export default function CharacterEditor(props: any) {
     if (templateInfo.file && templateInfo.format) {
       sceneService.loadModel(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
         setTimeout(()=>{
+          sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
           setLoading(false)
           startAnimation(vrm)
           setTimeout(()=>{

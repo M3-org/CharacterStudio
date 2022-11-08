@@ -186,15 +186,10 @@ loader.register((parser) => {
 
 async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
   return loader.loadAsync(file, (e) => {
-    progress((e.loaded * 100) / e.total)
+    progress(Math.round((e.loaded * 100) / e.total))
   }).then((model) => {
     const vrm = model.userData.vrm;
     // setup for vrm
-    //renameVRMBones(vrm)
-    vrm.scene.traverse((o) => {
-      o.frustumCulled = false
-      
-    })
     setupModel(vrm.scene);
     onloaded(vrm);
     
@@ -212,7 +207,8 @@ async function loadModel(file: any, type: any, progress: (perc:number) => any, o
 
 function setupModel(model: THREE.Object3D):void{
   model?.traverse((child:any)=>{
-  if (child.isMesh){
+    child.frustumCulled = false
+    if (child.isMesh){
       if (child.geometry.boundsTree == null)
             child.geometry.computeBoundsTree({strategy:SAH});
             
