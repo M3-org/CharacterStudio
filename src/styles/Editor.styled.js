@@ -22,7 +22,7 @@ export const LineDivision = styled.div`
 `
 export const MenuOption = styled.div`
     display: inline-block;
-    margin: 10px auto 10px auto;
+    margin: 5px auto 5px auto;
     padding: 5px;
     height: 60px;
     width: 82px;
