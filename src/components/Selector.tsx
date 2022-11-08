@@ -6,19 +6,21 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
 import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
+import gsap from 'gsap';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
 import {DisplayMeshIfVisible} from '../library/cull-mesh.js'
 import {MeshBasicMaterial} from 'three'
+import { ColorSelectButton } from "./ColorSelectButton"
 
 export default function Selector(props) {
   const {
@@ -32,10 +34,12 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    controls
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
+  const [colorCategory, setColorCategory] = useState("color")
 
   const [collection, setCollection] = useState([])
   const [traitName, setTraitName] = useState("")
@@ -156,6 +160,21 @@ export default function Selector(props) {
   }
   const tickStyleInActive = {
     display : 'none'
+  }
+  const moveCamera = (value:string) => {
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
+          duration: 1,
+        })
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
+          duration: 1,
+        })
+      }
+    }
   }
   React.useEffect(() => {
     if (!scene || !templateInfo) return
@@ -292,13 +311,13 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-const renameVRMBones = (vrm) =>{
-  for (let bone in VRMSchema.HumanoidBoneName) {
-    let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-    if (bn != null)
-        bn.name = VRMSchema.HumanoidBoneName[bone];
-  } 
-}
+// const renameVRMBones = (vrm) =>{
+//   for (let bone in VRMSchema.HumanoidBoneName) {
+//     let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+//     if (bn != null)
+//         bn.name = VRMSchema.HumanoidBoneName[bone];
+//   } 
+// }
 const itemLoader =  async(item, traits = null) => {
  const loader =  new GLTFLoader()
  let vrm;
@@ -334,7 +353,9 @@ const itemLoader =  async(item, traits = null) => {
       vrm2.scene.traverse((o) => {
         o.frustumCulled = false
       })
-      renameVRMBones(vrm2);
+
+      //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
+      //renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
@@ -372,7 +393,6 @@ const itemLoader =  async(item, traits = null) => {
     }
   // });
 }
-
 const getActiveStatus = (item) => {
   if(category === 'gender') {
     if(templateInfo.id === item?.id) 
@@ -384,6 +404,10 @@ const getActiveStatus = (item) => {
     return true
   return false
 }
+  // selector will onyl get the information of thew data that is being provided
+  // this is important as all icons will be updated accodingly to the json file proviided by the user
+  // there will be some special cases (skin eye color) were this values will be placed differentluy 
+  // return(<></>);
   return (
     <div style={selectorContainerPos} >
       <div className="selector-container" style={selectorContainer}>
@@ -427,28 +451,25 @@ const getActiveStatus = (item) => {
                   <div 
                     className="hair-sub-category"
                     style={{
-                      display: 'block',
-                      width: '100%',
-                      marginLeft: '10px',
+                      display: 'flex',
+                      gap: '20px',
+                      padding : "24px 24px 24px"
                     }}
                   >
-                    {
-                      hairSubCategories.map(item => (
-                        <img 
-                          src= {item.image}
-                          style = {{
-                            width: '90px',
-                            height: '90px',
-                            borderBottom: item.id === hairCategory && '4px solid rgb(97, 229, 249)',
-                            opacity: item.id === hairCategory ? 1 : 0.2,
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            !isMute && play();
-                            setHairCategory(item.id);
-                          }}
-                        />))
-                    }
+                    <ColorSelectButton 
+                      text="Hair"
+                      selected = {hairCategory === 'style'}
+                      onClick = {() => {
+                        setHairCategory('style')
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Color"
+                      selected = {hairCategory === 'color'}
+                      onClick = {() => {
+                        setHairCategory('color')
+                      }}
+                    />
                   </div>
                 )
             }
@@ -465,12 +486,38 @@ const getActiveStatus = (item) => {
                 p: 3,
               }}
             >
-              {category === "color" || category === "eyeColor"  ? (
-                <Skin
-                  scene={scene}
-                  templateInfo={templateInfo}
-                  category={category}
-                />
+              {category === "color" ? (
+                <div>
+                  <div 
+                    className="sub-category-header"
+                    style={{
+                      display: 'flex',
+                      gap: '20px',
+                    }}
+                  >
+                    <ColorSelectButton 
+                      text="Skin"
+                      selected = {colorCategory === 'color'}
+                      onClick = {() => {
+                        setColorCategory('color')
+                        moveCamera("full")
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Eye Color"
+                      selected = {colorCategory === 'eyeColor'}
+                      onClick = {() => {
+                        setColorCategory('eyeColor')
+                        moveCamera("eye")
+                      }}
+                    />
+                  </div>
+                  <Skin
+                    scene={scene}
+                    templateInfo={templateInfo}
+                    category={colorCategory}
+                  />
+                </div>
               ) : (
                  (category !== 'head' || hairCategory !== 'color') ? 
                     <React.Fragment>

@@ -5,18 +5,10 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 //import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM, VRMLoaderPlugin  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
-import create from 'zustand';
-
-
-const useAvatar = create((set)=>({
-  traits:['body', 'chest'] ,
-  addTrait: (trait) =>
-    set((state) => ({traits:[...state.traits, trait]}))
-}))
-console.log(useAvatar)
+import * as THREE from "three";
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -90,14 +82,6 @@ export default function CharacterEditor(props: any) {
       sceneService.setTraits(avatar);
     }
   }, [avatar])
-  
-  const renameVRMBones = (vrm) =>{
-    for (const bone in VRMSchema.HumanoidBoneName) {
-      const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-      if (bn != null)
-         bn.name = VRMSchema.HumanoidBoneName[bone];
-    } 
-  }
 
 
   const animatedStyle = useSpring({
@@ -116,9 +100,9 @@ export default function CharacterEditor(props: any) {
     if(model)
     sceneService.setAvatar(model);
   }, [model])
+  
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-      
       sceneService.loadModel(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
         setTimeout(()=>{
           setLoading(false)
@@ -141,7 +125,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                wrapClass="generator"
                 templates={templates}
                 scene={scene}
                 //downloadPopup={downloadPopup}

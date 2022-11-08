@@ -1,35 +1,28 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
-import { Html, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
-import '../styles/scene.scss'
-import { position } from "html2canvas/dist/types/css/property-descriptors/position";
+import MintPopup from "./MintPopup";
 import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
-import { MeshBasicMaterial } from "three";
-import mainBackground from "../ui/mainBackground.png"
-import Lottie from "lottie-react";
-import lottie from '../data/Rotation.json'
-import { useMuteStore } from '../store'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { disconnect } from "process";
+import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-
+import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
+import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
 };
 
 export default function Scene(props: any) {
-  //const isMute = useMuteStore((state) => state.isMute)
-  //const setMute = useMuteStore((state) => state.setMute)
   const [showType, setShowType] = useState(false);
   const [randomFlag, setRandomFlag] = useState(-1);
   const [camera, setCamera] = useState<object>(Object);
@@ -37,10 +30,9 @@ export default function Scene(props: any) {
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
   const [mintLoading, setMintLoading] = useState(false);
-
-
-
-  // const [walletAdress, setWalletAdress] = useState("")
+  const [confirmWindow, setConfirmWindow] = useState(false);
+  const [mintStatus, setMintStatus] = useState("Mint Status");
+  const [autoRotate, setAutoRotate] = useState(true)
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
@@ -51,6 +43,7 @@ export default function Scene(props: any) {
     try {
       await activate(injected);
     } catch (ex) {
+      
       console.log(ex);
     }
   };
@@ -118,7 +111,6 @@ export default function Scene(props: any) {
   }
 
   const { 
-    wrapClass,
     templates,
     scene,
     downloadPopup,
@@ -133,14 +125,6 @@ export default function Scene(props: any) {
     templateInfo,
     model }: any = props;
 
-  const canvasWrap = {
-    height: "100vh",
-    width: "100vw",
-    position: "absolute" as "absolute",
-    zIndex: "0",
-    top: "0",
-    backgroundColor: "#111111"
-  }
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
   }
@@ -150,35 +134,55 @@ export default function Scene(props: any) {
   }
 
   const mintAsset = async () => {
+    if(account == undefined) {
+        setMintStatus("Please connect the wallet")
+        setConfirmWindow(true)
+        return;
+    }
+    setMintStatus("Uploading...")
     setMintLoading(true);
     
     sceneService.getScreenShot().then(async (screenshot) => {
       if(screenshot) {
-        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png");
+        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
+          .catch((reason)=>{
+            console.error(reason);
+            setMintStatus("Couldn't save to pinata")
+            setMintLoading(false);
+          });
         sceneService.getModelFromScene().then(async (glb) => {
-          const glbHash :any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+          const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+          const attributes : any = getAvatarTraits();
           const metadata = {
             name : "Avatars",
             description: "Creator Studio Avatars.",
             image : `ipfs://${imageHash.IpfsHash}`,
-            animation_url: `ipfs://${glbHash.IpfsHash}`
+            animation_url: `ipfs://${glbHash.IpfsHash}`,
+            attributes
           }
-          console.log("metadata", metadata)
-           const str = JSON.stringify(metadata);
+          const str = JSON.stringify(metadata);
           const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
-          console.log("metadatahash", metaDataHash)
           await mintNFT("ipfs://" + metaDataHash.IpfsHash);
         })
       }
     })
   }
 
+  const getAvatarTraits = () => {
+    let metadataTraits =[];
+    Object.keys(avatar).map((trait) => {
+      if (Object.keys(avatar[trait]).length !== 0) {
+        metadataTraits.push({
+          "trait_type": trait,
+          "value" : avatar[trait].traitInfo.name
+        })
+      } 
+    })
+    return metadataTraits;
+  }
+
   const mintNFT = async (metadataIpfs : any) => {
-    if(account == undefined) {
-        // notifymessage("Please connect the wallet", "error");
-        alert("Please connect the wallet")
-        return;
-    }
+    setMintStatus("Minting...")
     const chainId = 5; // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
     if (window.ethereum.networkVersion !== chainId) {
         try {
@@ -188,7 +192,8 @@ export default function Scene(props: any) {
             });
         } catch (err) {
             // notifymessage("Please check the Ethereum mainnet", "error");
-            alert("Please check the Polygon mainnet")
+            setMintStatus("Please check the Polygon mainnet")
+            setMintLoading(false);
             return false;
         }
     }
@@ -202,7 +207,8 @@ export default function Scene(props: any) {
     );
     const isActive = await contract.saleIsActive();
     if(!isActive) {
-        alert("Mint isn't Active now!")
+        setMintStatus("Mint isn't Active now!")
+        setMintLoading(false);
     } else {
       const tokenPrice = await contract.tokenPrice();                
       try {
@@ -213,124 +219,113 @@ export default function Scene(props: any) {
           const tx = await contract.mintToken(1, metadataIpfs, options);
           let res = await tx.wait();
           if (res.transactionHash) {
-            alert("Mint success!");
+            setMintStatus("Mint success!")
             setMintLoading(false);
           }
       } catch (err) {
-          alert("Public Mint failed! Please check your wallet.")
+          setMintStatus("Public Mint failed! Please check your wallet.")
+          setMintLoading(false);
       }
     }
   }
 
-  return (
-    <div style={{
-      width: "100vw",
-      height: "100vh",
-      position: "relative" as "relative"
-    }}>
-      <div
-        id="canvas-wrap"
-        className={`canvas-wrap ${wrapClass && wrapClass}`}
-        style={{ ...canvasWrap,
-            background : `url(${mainBackground})`,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: 'cover'
-          }}
-      >
-        <Canvas
-          style = {{
-            width: "calc(100% - 700px)",
-            position: "absolute",
-            right: "100px"
-          }}
-          gl={{ preserveDrawingBuffer: true }}
-          className="canvas"
-          id="editor-scene"
-        >
-           {/* <gridHelper
-            args={[50, 25, "#101010", "#101010"]}
-            position={[0, 0, 0]}
-          />  */}
-          <ambientLight
-            color={"blue"}
-            intensity={1}
-          />
-          <directionalLight castShadow intensity={2} position={[10, 6, 6]} shadow-mapSize={[1024, 1024]}>
-            <orthographicCamera attach="shadow-camera" left={-20} right={20} top={20} bottom={-20} />
-          </directionalLight>
-          <OrbitControls
-            ref = {setControls}
-            minDistance={1.5}
-            maxDistance={1.5}
-            minPolarAngle={Math.PI / 2 - 0.11}
-            maxPolarAngle={Math.PI / 2 - 0.1}
-            enablePan={false}
-            enableDamping={true}
-            target={[0, 0.9, 0]}
-          />
-          <PerspectiveCamera 
-            ref ={setCamera}
-            aspect={1200 / 600}
-            radius={(1200 + 600) / 4}
-            fov={100}
-            //position={[0, 0, 0]}
-            // rotation = {[0,0.5,0]}
-            onUpdate={self => self.updateProjectionMatrix()}
-          >
-            {!downloadPopup && !mintPopup && (
-              <TemplateModel scene={scene} />
-            )}
-          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.3, 64]} />
-            <MeshReflectorMaterial
-              blur={[400, 400]}
-              resolution={1024}
-              mixBlur={0.8}
-              mixStrength={10}
-              depthScale={1}
-              minDepthThreshold={0.85}
-              color="#303030"
-              //color="#49343e"
-              metalness={0}
-              roughness={1}
-            />
-          </mesh>
-          </PerspectiveCamera>
 
-        </Canvas>
-      </div>
-      <div style={{
-        display:"flex",
-        top : "37px",
-        right : "44px",
-        position : "absolute",
-        gap :'20px'
-      }}>
+  return (
+    <FitParentContainer>
+      <Background>
+        <ResizeableCanvas left = {'700px'} right = {'100px'}>
+          <Canvas
+            gl={{ antialias: true, toneMapping: NoToneMapping }}
+            linear = {true}
+            id="editor-scene"
+          >
+            <gridHelper
+              args={[50, 25, "#101010", "#101010"]}
+              position={[0, 0, 0]}
+              visible={false}
+            /> 
+            {/* <ambientLight
+              color={[1,1,1]}
+              intensity={0.5}
+            /> */}
+            <directionalLight 
+              //castShadow = {true}
+              intensity = {1} 
+              //color = {[0.5,0.5,0.5]}
+              position = {[10, 6, 6]} 
+              shadow-mapSize = {[1024, 1024]}>
+              <orthographicCamera 
+                attach="shadow-camera" 
+                left={-20} 
+                right={20} 
+                top={20} 
+                bottom={-20}/>
+            </directionalLight>
+            <OrbitControls
+              ref = {setControls}
+              minDistance={0.5}
+              maxDistance={1.5}
+              maxPolarAngle={Math.PI / 2 - 0.1}
+              enablePan = { false }
+              autoRotate = { autoRotate }
+              autoRotateSpeed = { 1 }
+              enableDamping = { true }
+              dampingFactor = { 0.1 }
+              target={[0, 0.9, 0]}
+            />
+            <PerspectiveCamera 
+              ref ={setCamera}
+              aspect={1200 / 600}
+              fov={100}
+              onUpdate={self => self.updateProjectionMatrix()}
+            >
+              {!downloadPopup && !mintPopup && (
+                <TemplateModel scene={scene} />
+              )}
+            <mesh rotation = {[-Math.PI / 2, 0, 0]}>
+              <circleGeometry args={[0.6, 64]} />
+              <MeshReflectorMaterial
+                blur={[100, 100]}
+                opacity={1}
+                resolution={1024}
+                mixBlur={0}
+                mixStrength={10}
+                depthScale={0.5}
+                minDepthThreshold={1}
+                color="#ffffff"
+                metalness={1}
+                roughness={1}
+              />
+            </mesh>
+            </PerspectiveCamera>
+          </Canvas>
+        </ResizeableCanvas>
+      </Background>
+      <TopRightMenu>
         {showType && <>
-            <div className="modeltype but" onClick={() => downLoad('vrm')} ><span>VRM</span></div>
-            <div className="modeltype but" onClick={() => downLoad('glb')} ><span>GLB</span></div>
+            <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
+            <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
-        <div className="download but" onClick={handleDownload}></div>
-        <div className="mint but" onClick={mintAsset}></div>
-        
-
-        {!connected ?
-        (<div className="wallet but" 
-          onClick={connectWallet}>
-        </div>)
-        :
-        (<div className="largeBut but" 
-          onClick={disConnectWallet}>
-            {
-              ensName ? <div className="walletENS">{ensName}</div>
-                : <div className="walletAdress">{account ? account.slice(0, 15) + "..." : ""}</div>
-            }
-          <div className="wallet walletActive" ></div>
-        </div>
-        )}
-      </div>
+        <DownloadButton onClick={handleDownload}/>
+        <MintButton onClick={() => {
+          //setConfirmWindow(true)
+          mintAsset()
+          setAutoRotate(!autoRotate)
+          console.log("autorotate temporal")
+        }}/>
+        <WalletButton connected = {connected} 
+          onClick = {connected ? disConnectWallet : connectWallet}>
+          {connected ? (
+            <WalletInfo ens={ensName}>
+              {ensName ? ensName: 
+              (account ? account.slice(0, 15) + "..." : 
+              "")}
+            </WalletInfo>):
+            ("")}
+          <WalletImg/>
+        </WalletButton>
+      </TopRightMenu>
       <div>
         <Selector
           templates={templates}
@@ -343,9 +338,9 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
+          controls = {controls}
         />
         <Editor 
-          camera = {camera}
           controls = {controls}
           templateInfo={templateInfo}
           random = {random} 
@@ -353,6 +348,12 @@ export default function Scene(props: any) {
           setCategory={setCategory} 
           />
       </div>
-    </div>
+      <MintPopup
+          setConfirmWindow= {setConfirmWindow}
+          confirmWindow = {confirmWindow}
+          mintStatus = {mintStatus}
+          mintLoading = {mintLoading}>
+      </MintPopup>
+    </FitParentContainer>
   );
 }

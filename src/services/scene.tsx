@@ -7,6 +7,7 @@ import html2canvas from "html2canvas";
 import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
+import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
 // import VRMExporter from "../library/VRM/vrm-exporter";
@@ -22,6 +23,9 @@ let skinColor = new THREE.Color(1,1,1);
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+const lottieLoader =  new LottieLoader();
+const textureLoader = new THREE.TextureLoader();
 
 const setAvatar = (newAvatar: VRM) => {
   avatar = newAvatar;
@@ -40,6 +44,28 @@ const setTraits = (newTraits: any) => {
 }
 
 const getTraits = () => traits;
+
+async function loadTexture(location:string):THREE.Texture{
+  const txt = textureLoader.load(location);
+  console.log(txt);
+  return txt;
+}
+
+async function loadLottieBase(location:string, quality:number, scene:any, playAnimation:boolean, progress: (progress:any) => any, onloaded:(txt:THREE.Texture) => any){
+  lottieLoader.setQuality( quality );
+    lottieLoader.load( location, function ( texture ) {
+      playAnimation ? texture.animation.play():{};
+      const geometry = new THREE.CircleGeometry( 0.75, 32 );
+      geometry.setAttribute("uv2", geometry.getAttribute('uv'));
+      const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
+      const mesh = new THREE.Mesh( geometry, material );
+      mesh.rotation.x = Math.PI / 2;
+      scene.add( mesh );
+      onloaded?onloaded(texture):{}
+      return texture;
+  }, (prog)=>{progress?progress(prog):{}}, (error) => console.error(error));
+}
+
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
@@ -143,8 +169,9 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     const object = scene.getObjectByName(target);
     if (object != null){
       const randColor = value;
-      const skinShade = new THREE.Color(randColor);
-      object.material[0].uniforms.color.value.set(skinShade)
+      const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
+      object.material[0].uniforms.litFactor.value.set(skinShade)
+      //object.material[0].uniforms.color.value.set(skinShade)
     }
   }
 }
@@ -320,6 +347,8 @@ async function download(
 }
 
 export const sceneService = {
+  loadTexture,
+  loadLottieBase,
   loadModel,
   updatePose,
   updateMorphValue,
