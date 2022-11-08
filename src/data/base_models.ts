@@ -31,6 +31,10 @@ export default [
         "foot": {
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
@@ -68,6 +72,10 @@ export default [
         "foot": {
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
@@ -108,6 +116,10 @@ export default [
         "foot": {
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -145,6 +157,10 @@ export default [
         "foot": {
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       },
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
