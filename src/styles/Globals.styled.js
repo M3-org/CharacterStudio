@@ -52,6 +52,8 @@ export const ScreenSizeContainer = styled.div`
     position: absolute;
     top: 0;
 `
+export const RightMenu = styled.div`
+`
 export const ResizeableCanvas = styled.div`
     position: absolute;
     width: ${props => props.left ? 'calc(100% - ' + props.left + ')' : '100%'};

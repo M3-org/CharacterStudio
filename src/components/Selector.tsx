@@ -204,7 +204,7 @@ export default function Selector(props) {
     if (!scene) return
     async function _get() {
       if (!loaded) {
-        await setTempInfo(templates[0].id)
+        await setTempInfo(templates[1].id)
       }
     }
     _get()
@@ -367,6 +367,10 @@ const getActiveStatus = (item) => {
     return true
   return false
 }
+  // selector will onyl get the information of thew data that is being provided
+  // this is important as all icons will be updated accodingly to the json file proviided by the user
+  // there will be some special cases (skin eye color) were this values will be placed differentluy 
+  // return(<></>);
   return (
     <div style={selectorContainerPos} >
       <div className="selector-container" style={selectorContainer}>
