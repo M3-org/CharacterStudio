@@ -4,8 +4,9 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import { VRM } from "@pixiv/three-vrm";
+import { VRM, VRMSchema } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
@@ -15,16 +16,21 @@ function getArrayBuffer (buffer) { return new Blob([buffer], { type: "applicatio
 
 let scene = null;
 
-let model = null;
+let avatar = null;
 
 let skinColor = new THREE.Color(1,1,1);
+
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const setModel = (newModel: any) => {
-  model = newModel;
+const setAvatar = (newAvatar: VRM) => {
+  avatar = newAvatar;
 }
+const getAvatar = () => avatar;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -134,15 +140,25 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
-async function getSkinColor(scene: any, targets: any){
+async function getSkinColor(scene:any, targets: any){
   if (scene) {
     for (const target of targets) {
       const object = scene.getObjectByName(target);
       if (object != null){
-        const mat = object.material.length ? object.material[0]:object.material;
-        if (mat.uniforms != null){
-          setSkinColor(mat.uniforms.color.value);
-          break;
+        if(object.isGroup){
+          const child = object.children[0]
+          const mat = child.material.length ? child.material[0]:child.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
+        }
+        else{
+          const mat = object.material.length ? object.material[0]:object.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
         }
       }
     }
@@ -163,28 +179,41 @@ function setSkinColor(color:any){
   skinColor = new THREE.Color(color)
 }
 
-async function loadModel(file: any, type: any) {
-  if (type && type === "glb" && file) {
-    const loader = new GLTFLoader();
-    return loader.loadAsync(file, (e) => {
-      console.log(e.loaded)
-    }).then((gltf) => {
-      VRM.from( gltf ).then( ( model ) => {
-      return model;
-      });
-    });
-  }
+const loader = new GLTFLoader();
 
-  if (type && type === "vrm" && file) {
-    const loader = new GLTFLoader();
-    return loader.loadAsync(file).then((model) => {
-      VRM.from(model).then((vrm) => {
-        console.log("VRM Model: ", vrm);
-      });
+async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
+  return loader.loadAsync(file, (e) => {
+    progress((e.loaded * 100) / e.total)
+  }).then((model) => {
+    VRM.from(model).then((vrm) => {
+      // setup for vrm
+      renameVRMBones(vrm)
+      vrm.scene.rotation.set(Math.PI, 0, Math.PI)
+      vrm.scene.traverse((o) => {
+        o.frustumCulled = false
+      })
+      setupModel(vrm.scene);
+      onloaded(vrm);
       
-      return model;
-    });
-  }
+      return vrm;
+    })
+  });
+}
+
+const renameVRMBones = (vrm) =>{
+  for (const bone in VRMSchema.HumanoidBoneName) {
+    const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+    if (bn != null)
+       bn.name = VRMSchema.HumanoidBoneName[bone];
+  } 
+}
+
+function setupModel(model: THREE.Object3D):void{
+  model?.traverse((child:any)=>{
+  if (child.isMesh){
+      if (child.geometry.boundsTree == null)
+            child.geometry.computeBoundsTree({strategy:SAH});
+  }});
 }
 
 async function getMorphValue(key: any, scene: any, target: any) {
@@ -205,7 +234,7 @@ async function updateMorphValue(
 ) {
   if (key && targets && value) {
     targets.map((target: any) => {
-      var mesh = scene.getObjectByName(target);
+      const mesh = scene.getObjectByName(target);
       const index = mesh.morphTargetDictionary[key];
       if (index !== undefined) {
         mesh.morphTargetInfluences[index] = value;
@@ -336,7 +365,8 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setModel,
+  setAvatar,
+  getAvatar,
   setSkinColor,
   getSkinColor
 };

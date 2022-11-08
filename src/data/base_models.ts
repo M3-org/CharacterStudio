@@ -11,6 +11,9 @@ export default [
         "Body",
         "Headbaked"
       ],
+      "cullingModel":[
+        "Body"
+      ],
       "traitsDirectory": "./loot-assets/drophunter/female/",
       "thumbnailsDirectory": "./loot-assets/drophunter/female/",
       "traitsJsonPath": "./loot-assets/drophunter/female/loot.json",

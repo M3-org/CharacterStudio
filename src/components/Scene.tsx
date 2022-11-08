@@ -10,6 +10,7 @@ import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
+import { disconnect } from "process";
 import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber

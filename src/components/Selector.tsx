@@ -18,6 +18,8 @@ import gsap from 'gsap';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
+import {DisplayMeshIfVisible} from '../library/cull-mesh.js'
+import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
 
 export default function Selector(props) {
@@ -252,6 +254,38 @@ export default function Selector(props) {
     })
   }
   
+  const cullHiddenMeshes = (targets:Array, traitModel:any) => {
+    const scene = sceneService.getScene();
+    const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
+    traitModel?.traverse((child)=>{
+      if (child.isMesh){
+        //console.log(child)
+        child.material[0] = mat;
+      }
+    })
+
+
+    for (let i =0; i < targets.length; i++){
+      const obj = scene.getObjectByName(targets[i])
+      if (obj != null){
+        if (obj.isMesh){
+          DisplayMeshIfVisible(obj, traitModel);
+        }
+        if (obj.isGroup){
+          obj.traverse((child) => {
+            if (child.parent === obj && child.isMesh)
+            DisplayMeshIfVisible(child, traitModel);
+          })
+        }
+      }
+      else{
+        console.warn(targets[i] + " not found");
+      }
+    }
+
+    
+  }
+
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -260,9 +294,10 @@ export default function Selector(props) {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
+        
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
-          //localStorage.removeItem('color')
+          cullHiddenMeshes(templateInfo.cullingModel, null);
         }
       } else {
         if (trait.bodyTargets) {
@@ -285,12 +320,11 @@ export default function Selector(props) {
 // }
 const itemLoader =  async(item, traits = null) => {
  const loader =  new GLTFLoader()
- var vrm;
+ let vrm;
  await loader
   .loadAsync(
     `${templateInfo.traitsDirectory}${item?.directory}`,
     (e) => {
-      // console.log((e.loaded * 100) / e.total);
       setLoadingTrait(Math.round((e.loaded * 100) / e.total))
     },
   )
@@ -319,13 +353,16 @@ const itemLoader =  async(item, traits = null) => {
       vrm2.scene.traverse((o) => {
         o.frustumCulled = false
       })
+
       //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
-      
       //renameVRMBones(vrm2);
       startAnimation(vrm2);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      setTimeout(()=>{scene.add(vrm.scene)},50);
+      setTimeout(()=>{
+        scene.add(vrm.scene)
+        cullHiddenMeshes(templateInfo.cullingModel, vrm2.scene);
+      },100);
    
     })
       // vrm.humanoid.getBoneNode(
