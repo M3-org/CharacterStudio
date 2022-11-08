@@ -4,7 +4,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
@@ -180,39 +180,46 @@ function setSkinColor(color:any){
 }
 
 const loader = new GLTFLoader();
+loader.register((parser) => {
+  return new VRMLoaderPlugin(parser);
+});
 
 async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
   return loader.loadAsync(file, (e) => {
     progress((e.loaded * 100) / e.total)
   }).then((model) => {
-    VRM.from(model).then((vrm) => {
-      // setup for vrm
-      renameVRMBones(vrm)
-      vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-      vrm.scene.traverse((o) => {
-        o.frustumCulled = false
-      })
-      setupModel(vrm.scene);
-      onloaded(vrm);
+    const vrm = model.userData.vrm;
+    // setup for vrm
+    //renameVRMBones(vrm)
+    vrm.scene.traverse((o) => {
+      o.frustumCulled = false
       
-      return vrm;
     })
+    setupModel(vrm.scene);
+    onloaded(vrm);
+    
+    return vrm;
   });
 }
 
-const renameVRMBones = (vrm) =>{
-  for (const bone in VRMSchema.HumanoidBoneName) {
-    const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-    if (bn != null)
-       bn.name = VRMSchema.HumanoidBoneName[bone];
-  } 
-}
+// const renameVRMBones = (vrm) =>{
+//   for (const bone in VRMSchema.HumanoidBoneName) {
+//     const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+//     if (bn != null)
+//        bn.name = VRMSchema.HumanoidBoneName[bone];
+//   } 
+// }
 
 function setupModel(model: THREE.Object3D):void{
   model?.traverse((child:any)=>{
   if (child.isMesh){
       if (child.geometry.boundsTree == null)
             child.geometry.computeBoundsTree({strategy:SAH});
+            
+      if (child.material.length > 1){
+        child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+        child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+      }
   }});
 }
 
