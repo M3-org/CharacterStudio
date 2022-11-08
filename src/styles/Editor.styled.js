@@ -29,7 +29,7 @@ export const MenuOption = styled.div`
     opacity: ${props => props.selected ? 1 : 0.3};
     user-select: none;
     text-align: center;
-    
+    cursor:pointer;
     border-right: ${props => props.selected ? '4px solid #61E5F9' : ''};
 `
 export const MenuImg = styled.img`
