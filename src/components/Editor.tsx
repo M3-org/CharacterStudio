@@ -78,7 +78,7 @@ export default function Editor(props: any) {
 
         <LineDivision bottom = {'20px'}/>
 
-
+        {/* temporal, as we will remove gender section */}
         <MenuOption 
             onClick = {()=>{selectOption({
               name:"gender",
