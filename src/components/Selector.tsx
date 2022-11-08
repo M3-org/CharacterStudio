@@ -410,28 +410,25 @@ const getActiveStatus = (item) => {
                   <div 
                     className="hair-sub-category"
                     style={{
-                      display: 'block',
-                      width: '100%',
-                      marginLeft: '10px',
+                      display: 'flex',
+                      gap: '20px',
+                      padding : "24px 24px 24px"
                     }}
                   >
-                    {
-                      hairSubCategories.map(item => (
-                        <img 
-                          src= {item.image}
-                          style = {{
-                            width: '90px',
-                            height: '90px',
-                            borderBottom: item.id === hairCategory && '4px solid rgb(97, 229, 249)',
-                            opacity: item.id === hairCategory ? 1 : 0.2,
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            !isMute && play();
-                            setHairCategory(item.id);
-                          }}
-                        />))
-                    }
+                    <ColorSelectButton 
+                      text="Hair"
+                      selected = {hairCategory === 'style'}
+                      onClick = {() => {
+                        setHairCategory('style')
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Color"
+                      selected = {hairCategory === 'color'}
+                      onClick = {() => {
+                        setHairCategory('color')
+                      }}
+                    />
                   </div>
                 )
             }
