@@ -91,6 +91,10 @@ export default [
         "cameraTarget":{
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       }]
     },
@@ -184,6 +188,10 @@ export default [
         "cameraTarget":{
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       }]
     }  
@@ -280,6 +288,10 @@ export default [
         "cameraTarget":{
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       }]
       },
@@ -373,6 +385,10 @@ export default [
         "cameraTarget":{
           "distance": 0.8,
           "height": 0.32
+        },
+        "eye": {
+          "distance": 0.3,
+          "height": 1.5
         }
       }]
       }  

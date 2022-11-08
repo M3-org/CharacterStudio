@@ -13,10 +13,12 @@ import { Margin } from "@mui/icons-material"
 import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
+import gsap from 'gsap';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
+import { ColorSelectButton } from "./ColorSelectButton"
 
 export default function Selector(props) {
   const {
@@ -30,10 +32,12 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    controls
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
+  const [colorCategory, setColorCategory] = useState("color")
 
   const [collection, setCollection] = useState([])
   const [traitName, setTraitName] = useState("")
@@ -154,6 +158,21 @@ export default function Selector(props) {
   }
   const tickStyleInActive = {
     display : 'none'
+  }
+  const moveCamera = (value:string) => {
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
+          duration: 1,
+        })
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
+          duration: 1,
+        })
+      }
+    }
   }
   React.useEffect(() => {
     if (!scene || !templateInfo) return
@@ -337,7 +356,6 @@ const itemLoader =  async(item, traits = null) => {
     }
   // });
 }
-
 const getActiveStatus = (item) => {
   if(category === 'gender') {
     if(templateInfo.id === item?.id) 
@@ -396,28 +414,25 @@ const getActiveStatus = (item) => {
                   <div 
                     className="hair-sub-category"
                     style={{
-                      display: 'block',
-                      width: '100%',
-                      marginLeft: '10px',
+                      display: 'flex',
+                      gap: '20px',
+                      padding : "24px 24px 24px"
                     }}
                   >
-                    {
-                      hairSubCategories.map(item => (
-                        <img 
-                          src= {item.image}
-                          style = {{
-                            width: '90px',
-                            height: '90px',
-                            borderBottom: item.id === hairCategory && '4px solid rgb(97, 229, 249)',
-                            opacity: item.id === hairCategory ? 1 : 0.2,
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            !isMute && play();
-                            setHairCategory(item.id);
-                          }}
-                        />))
-                    }
+                    <ColorSelectButton 
+                      text="Hair"
+                      selected = {hairCategory === 'style'}
+                      onClick = {() => {
+                        setHairCategory('style')
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Color"
+                      selected = {hairCategory === 'color'}
+                      onClick = {() => {
+                        setHairCategory('color')
+                      }}
+                    />
                   </div>
                 )
             }
@@ -434,12 +449,38 @@ const getActiveStatus = (item) => {
                 p: 3,
               }}
             >
-              {category === "color" || category === "eyeColor"  ? (
-                <Skin
-                  scene={scene}
-                  templateInfo={templateInfo}
-                  category={category}
-                />
+              {category === "color" ? (
+                <div>
+                  <div 
+                    className="sub-category-header"
+                    style={{
+                      display: 'flex',
+                      gap: '20px',
+                    }}
+                  >
+                    <ColorSelectButton 
+                      text="Skin"
+                      selected = {colorCategory === 'color'}
+                      onClick = {() => {
+                        setColorCategory('color')
+                        moveCamera("full")
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Eye Color"
+                      selected = {colorCategory === 'eyeColor'}
+                      onClick = {() => {
+                        setColorCategory('eyeColor')
+                        moveCamera("eye")
+                      }}
+                    />
+                  </div>
+                  <Skin
+                    scene={scene}
+                    templateInfo={templateInfo}
+                    category={colorCategory}
+                  />
+                </div>
               ) : (
                  (category !== 'head' || hairCategory !== 'color') ? 
                     <React.Fragment>
