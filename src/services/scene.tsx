@@ -188,6 +188,7 @@ async function loadModel(file: any, type: any, progress: (perc:number) => any, o
   return loader.loadAsync(file, (e) => {
     progress(Math.round((e.loaded * 100) / e.total))
   }).then((model) => {
+    console.log(model);
     const vrm = model.userData.vrm;
     // setup for vrm
     setupModel(vrm.scene);

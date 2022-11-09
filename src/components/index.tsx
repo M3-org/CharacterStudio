@@ -107,6 +107,7 @@ export default function CharacterEditor(props: any) {
           sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
           setLoading(false)
           startAnimation(vrm)
+          console.log(vrm)
           setTimeout(()=>{
             setScene(vrm.scene)
             sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
