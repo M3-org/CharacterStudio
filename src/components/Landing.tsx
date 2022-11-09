@@ -1,16 +1,19 @@
 
-import { textAlign } from "@mui/system";
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import { Triangle } from 'react-loader-spinner'
 import useSound from 'use-sound';
 import dropHunter from '../ui/landing/drophunter.png'
 import neuroHacker from '../ui/landing/neurohacker.png'
+import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
-import {useMuteStore} from '../store'
+import {useMuteStore, useModelingStore} from '../store'
+
+import ModelCanvas from './ModelCanvas';
+import { LandingPop } from './LandingPop';
 
 export default function Landing({
     onSetModel
@@ -18,17 +21,36 @@ export default function Landing({
     const isMute = useMuteStore((state) => state.isMute)
     const setMute = useMuteStore((state) => state.setMute)
 
+    const isModeling = useModelingStore((state) => state.isModeling)
+    const isComplete = useModelingStore((state) => state.isComplete)
+
     const [clicked, setClicked] = useState(false);
 
-    const [isLoading, setIsLoading] = useState(true);
-    
+    const [isLoading, setIsLoading] = useState(false);
+   
+    const dropHunterModel = "../3D/models/landing_model_1.vrm"
+    const neuroHackerModel = "../3D/models/landing_model_2.vrm"
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
+    
+    const [modelArr, setModelArr] = useState([
+        {
+            index: 1,
+            model: dropHunterModel,
+            text: 'Drop Hunter'
+        },
+        {
+            index: 2,
+            model: neuroHackerModel,
+            text: 'Neuro Hacker'
+        },
+    ]);
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
     const [isHovering, setIsHovering] = useState(false);
     const [musicStatus, setMusicStatus] = useState(false);
+    const [loadingPercent, setLoadingPercent] = useState(0);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
      from: { y: 0 },
@@ -38,8 +60,31 @@ export default function Landing({
         setIsLoading(false);
     }
     useEffect(() => {
-        window.addEventListener("load", handleLoading);
+        setIsLoading(true)
+        // window.addEventListener("load", handleLoading);
     }, [])
+
+    useEffect(() => {
+        let sum = 0;
+        isModeling.map((item, idx) => {
+            if(item !== undefined)
+            sum += item;
+        })
+        
+        console.log('$$$', sum / modelArr.length)
+        setLoadingPercent(sum / modelArr.length)
+    }, [isModeling])
+
+    useEffect(() => {
+        let sum = 0;
+        isComplete.map((item, idx) => {
+            if(item !== undefined)
+            sum += 1;
+        })
+        
+        if(sum === modelArr.length)
+            setIsLoading(false)
+    }, [isComplete])
 
     const [play] = useSound(
         passUrl,
@@ -77,7 +122,7 @@ export default function Landing({
             onSetModel(type)    
         }, 500)
     }
-    return !isLoading ? (
+    return (
         <div 
             style = {{
                 height: '100vh',
@@ -89,6 +134,14 @@ export default function Landing({
             }
             }
             >
+                {
+                    isLoading && (
+                        <LoadingOverlayCircularStatic
+                            loadingModelProgress={loadingPercent}
+                            background={true}
+                        />
+                    )
+                }
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
                        }} >     
@@ -118,7 +171,6 @@ export default function Landing({
                             </div>
                         </div>
                 </animated.div>
-
                 <animated.div 
                     className="imgs"
                     style={{
@@ -129,60 +181,25 @@ export default function Landing({
                           ...cardAnimation,
                     }}
                 >
-                    <div className='characterGroup' 
-                    onMouseEnter={() => {
-                        setIsHovering(true);
-                        if(!isMute)
-                            play();
-                    }}
-                    onMouseLeave={() => {
-                        setIsHovering(false);
-                        stop();
-                    }}
-                     onClick = {() => handleClick(1)}>
-                     <div className="inner">
-                        <span className='characterTitle' >Drophunter</span>
-                        <img
-                            src={dropHunter}
-                            className = 'characterImage'
-                        />
-                    </div>
-                    </div>
-                    <div className='characterGroup'  
-                        onMouseEnter={() => {
-                            setIsHovering(true);
-                            if(!isMute)
-                                play();
-                        }}
-                        onMouseLeave={() => {
-                            setIsHovering(false);
-                            stop();
-                        }}
-                        onClick = {() => handleClick(2)}>
-                        <div className="inner">
-                        <span className='characterTitle'>Neurohacker</span>
-                        <img
-                            src={neuroHacker}
-                            className = 'characterImage'
-                        />
-                        </div>
-                    </div>
+                    {
+                        modelArr.map((item, idx) => (
+                            <div className='characterGroup' key={idx}
+                                onMouseEnter={() => {
+                                    setIsHovering(true);
+                                    if(!isMute)
+                                        play();
+                                }}
+                                onMouseLeave={() => {
+                                    setIsHovering(false);
+                                    stop();
+                            }}
+                            onClick = {() => handleClick(item.index)}
+                            >
+                                <LandingPop className="landingPop" text={item.text} />
+                                <ModelCanvas modelPath={item.model} order = {item.index} />
+                            </div>
+                        ))
+                    }
                 </animated.div>
-            </div>
-    ):(
-        <Triangle
-            height="80"
-            width = "80"
-            radius = "9"
-            color = "green"
-            ariaLabel = "Lodaing"
-            wrapperStyle = {{
-                justifyContent: "center",
-                alignItems : "center",
-                height : "100vh"
-            }}
-            wrapperClass= ""
-            visible = {true}
-            />
-    
-)}
+            </div>)
+    }
