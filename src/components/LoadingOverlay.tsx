@@ -8,7 +8,8 @@ import lottie from '../data/lottie.json'
 import webaMark from '../ui/loading/webaMark.svg'
 
 function CircularProgressWithLabel(props : CircularProgressProps & {
-    value : number
+    value : number,
+    background: boolean,
 }) {
 
     const [loadingAnimation, setLoadingAnimation] = useSpring(() => ({
@@ -30,7 +31,8 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
             alignItems: "center",
             justifyContent: "center",
             userSelect : "none",
-            overflow: "hidden"
+            overflow: "hidden",
+            background: props.background && "black",
         }
         }>
         <span style={{
@@ -121,6 +123,6 @@ function CircularProgressWithLabel(props : CircularProgressProps & {
     );
 }
 
-export default function LoadingOverlayCircularStatic({loadingModelProgress}) {
-    return <CircularProgressWithLabel value={loadingModelProgress}/>;
+export default function LoadingOverlayCircularStatic({loadingModelProgress, background}) {
+    return <CircularProgressWithLabel value={loadingModelProgress} background={background}/>;
 }
