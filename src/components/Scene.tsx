@@ -25,6 +25,7 @@ import {
     ethers, BigNumber
 } from "ethers";
 import whiteCircle from '../data/white-semi-transparent.png';
+import { BackButton } from "./BackButton";
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -138,6 +139,8 @@ export default function Scene(props: any) {
     template,
     setTemplateInfo,
     templateInfo,
+    setModelClass,
+    setEnd,
     model }: any = props;
 
   const canvasWrap = {
@@ -372,6 +375,9 @@ export default function Scene(props: any) {
         </div>
         )}
       </div>
+      <BackButton onClick={() => {
+        setModelClass(0);
+      }}/>
       <div>
         <Selector
           templates={templates}

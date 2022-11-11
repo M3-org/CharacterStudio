@@ -40,7 +40,7 @@ export default function CharacterEditor(props: any) {
   // const [animations, setAnimations] = useState<object>(Object);
   // const [body, setBody] = useState<any>();
 
-  const { theme, templates, mintPopup, setLoading } = props
+  const { theme, templates, mintPopup, setLoading, setModelClass, setEnd} = props
   // Selected category State Hook
   const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
@@ -163,6 +163,8 @@ export default function CharacterEditor(props: any) {
                 setTemplateInfo={setTemplateInfo}
                 templateInfo={templateInfo}
                 model={model}
+                setModelClass={setModelClass}
+                setEnd={setEnd}
               />  
             </animated.div>
           </Fragment>
