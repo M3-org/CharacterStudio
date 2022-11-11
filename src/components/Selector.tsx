@@ -317,8 +317,10 @@ export default function Selector(props) {
   }
 
 const itemLoader =  async(item, traits = null) => {
-  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
+  let r_vrm;
+  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
+      r_vrm = vrm;
     new Promise<void>( (resolve) => {
       // if scene, resolve immediately
       if (scene && scene.add) {
@@ -356,20 +358,14 @@ const itemLoader =  async(item, traits = null) => {
           },60);
         }
       }
-      return {
-        [traits?.trait]: {
-          traitInfo: item,
-          model: vrm.scene,
-        }
-      }
     })
   
-  // return {
-  //     [traits?.trait]: {
-  //       traitInfo: item,
-  //       model: vrm.scene,
-  //     }
-  //   }
+  return {
+      [traits?.trait]: {
+        traitInfo: item,
+        model: r_vrm.scene,
+      }
+    }
   // });
 }
 const getActiveStatus = (item) => {
