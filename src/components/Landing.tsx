@@ -10,10 +10,12 @@ import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
-import {useMuteStore, useModelingStore} from '../store'
 
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
+import {useMuteStore, useModelingStore} from '../store'
+import {StyledLanding} from '../styles/landing.styled.js'
+
 
 export default function Landing({
     onSetModel
@@ -33,6 +35,7 @@ export default function Landing({
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
+
     
     const [modelArr, setModelArr] = useState([
         {
@@ -58,6 +61,7 @@ export default function Landing({
 
     const handleLoading = () => {
         setIsLoading(false);
+        console.log("isloading")
     }
     useEffect(() => {
         setIsLoading(true)
@@ -143,6 +147,7 @@ export default function Landing({
                         />
                     )
                 }
+
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
                        }} >     
@@ -202,5 +207,4 @@ export default function Landing({
                         ))
                     }
                 </animated.div>
-            </div>)
-    }
+            </div>)}

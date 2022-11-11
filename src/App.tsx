@@ -13,8 +13,10 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
+
 import {useMuteStore, useModelingStore} from './store'
-import MuteSetting from "./components/MuteSetting";
+import AudioSettings from "./components/AudioSettings";
+
 
 const defaultTheme = createTheme({
   palette: {
@@ -180,7 +182,7 @@ function App() {
           }</div>
         )
       }
-      <MuteSetting />
+      <AudioSettings/>
     </React.Fragment>
   )
 }

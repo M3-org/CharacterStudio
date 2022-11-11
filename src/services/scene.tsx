@@ -4,27 +4,34 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import { VRM } from "@pixiv/three-vrm";
+import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
+import { renameVRMBones } from "./bonesRename";
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
 let scene = null;
 
-let model = null;
+let avatar = null;
 
 let skinColor = new THREE.Color(1,1,1);
+
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const setModel = (newModel: any) => {
-  model = newModel;
+const setAvatar = (newAvatar: VRM) => {
+  avatar = newAvatar;
 }
+const getAvatar = () => avatar;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -134,15 +141,25 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
-async function getSkinColor(scene: any, targets: any){
+async function getSkinColor(scene:any, targets: any){
   if (scene) {
     for (const target of targets) {
       const object = scene.getObjectByName(target);
       if (object != null){
-        const mat = object.material.length ? object.material[0]:object.material;
-        if (mat.uniforms != null){
-          setSkinColor(mat.uniforms.color.value);
-          break;
+        if(object.isGroup){
+          const child = object.children[0]
+          const mat = child.material.length ? child.material[0]:child.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
+        }
+        else{
+          const mat = object.material.length ? object.material[0]:object.material;
+          if (mat.uniforms != null){
+            setSkinColor(mat.uniforms.color.value);
+            break;
+          }
         }
       }
     }
@@ -154,7 +171,8 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     if (object != null){
       const randColor = value;
       const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
-      object.material[0].uniforms.color.value.set(skinShade)
+      object.material[0].uniforms.litFactor.value.set(skinShade)
+      //object.material[0].uniforms.color.value.set(skinShade)
     }
   }
 }
@@ -162,28 +180,64 @@ function setSkinColor(color:any){
   skinColor = new THREE.Color(color)
 }
 
-async function loadModel(file: any, type: any) {
-  if (type && type === "glb" && file) {
-    const loader = new GLTFLoader();
-    return loader.loadAsync(file, (e) => {
-      console.log(e.loaded)
-    }).then((gltf) => {
-      VRM.from( gltf ).then( ( model ) => {
-      return model;
-      });
-    });
-  }
+const loader = new GLTFLoader();
+loader.register((parser) => {
+  return new VRMLoaderPlugin(parser);
+});
 
-  if (type && type === "vrm" && file) {
-    const loader = new GLTFLoader();
-    return loader.loadAsync(file).then((model) => {
-      VRM.from(model).then((vrm) => {
-        console.log("VRM Model: ", vrm);
-      });
-      
-      return model;
-    });
-  }
+async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
+  return loader.loadAsync(file, (e) => {
+    progress(Math.round((e.loaded * 100) / e.total))
+  }).then((model) => {
+    console.log(model);
+    const vrm = model.userData.vrm;
+    // setup for vrm
+    //renameVRMBones(vrm);
+    setupModel(vrm.scene);
+    onloaded(vrm);
+    
+    return vrm;
+  });
+}
+
+// const renameVRMBones = (vrm) =>{
+//   for (const bone in VRMSchema.HumanoidBoneName) {
+//     const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
+//     if (bn != null)
+//        bn.name = VRMSchema.HumanoidBoneName[bone];
+//   } 
+// }
+
+const renameVRMBonesold = (vrm) =>{
+  console.log("HERE")
+ // console.log(vrm.firstPerson.humanoid._rawHumanBones.humanBones);
+ 
+  const bones = vrm.firstPerson.humanoid.humanBones;
+  console.log(bones);
+  console.log(vrm)
+  //const skel = new THREE.Skeleton(bones);
+  //console.log(skel);
+  for (const boneName in bones) {
+    console.log(boneName);
+    bones[boneName].node.name = boneName;
+  } 
+  const testArr = []
+  testArr['L_Shoulder'] = 'mixamorig:LeftToeBase';
+  //console.log(vrm.scene);
+}
+
+function setupModel(model: THREE.Object3D):void{
+  model?.traverse((child:any)=>{
+    child.frustumCulled = false
+    if (child.isMesh){
+      if (child.geometry.boundsTree == null)
+            child.geometry.computeBoundsTree({strategy:SAH});
+            
+      if (child.material.length > 1){
+        child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+        child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+      }
+  }});
 }
 
 async function getMorphValue(key: any, scene: any, target: any) {
@@ -204,7 +258,7 @@ async function updateMorphValue(
 ) {
   if (key && targets && value) {
     targets.map((target: any) => {
-      var mesh = scene.getObjectByName(target);
+      const mesh = scene.getObjectByName(target);
       const index = mesh.morphTargetDictionary[key];
       if (index !== undefined) {
         mesh.morphTargetInfluences[index] = value;
@@ -335,7 +389,8 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setModel,
+  setAvatar,
+  getAvatar,
   setSkinColor,
   getSkinColor
 };

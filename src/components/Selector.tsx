@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
@@ -18,6 +18,8 @@ import gsap from 'gsap';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
+import {DisplayMeshIfVisible} from '../library/cull-mesh.js'
+import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
 
 export default function Selector(props) {
@@ -233,6 +235,7 @@ export default function Selector(props) {
             let collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
             var temp = await itemLoader(ranItem,traits);
+            console.log(temp)
             buffer = {...buffer,...temp};
             if(i == lists.length-1)
             setAvatar({
@@ -252,6 +255,41 @@ export default function Selector(props) {
     })
   }
   
+  const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
+    // make sure it was defined in json file
+    if (targets){
+      const scene = sceneService.getScene();
+      const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
+      traitModel?.traverse((child)=>{
+        if (child.isMesh){
+          //console.log(child)
+          //child.material[0] = mat;
+        }
+      })
+
+
+      for (let i =0; i < targets.length; i++){
+        const obj = scene.getObjectByName(targets[i])
+        if (obj != null){
+          if (obj.isMesh){
+            DisplayMeshIfVisible(obj, traitModel);
+          }
+          if (obj.isGroup){
+            obj.traverse((child) => {
+              if (child.parent === obj && child.isMesh)
+              DisplayMeshIfVisible(child, traitModel);
+            })
+          }
+        }
+        else{
+          console.warn(targets[i] + " not found");
+        }
+      }
+    }
+
+    
+  }
+
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -260,9 +298,10 @@ export default function Selector(props) {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
+        
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
-          //localStorage.removeItem('color')
+          cullHiddenMeshes(templateInfo.cullingModel, null);
         }
       } else {
         if (trait.bodyTargets) {
@@ -276,84 +315,60 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-const renameVRMBones = (vrm) =>{
-  for (let bone in VRMSchema.HumanoidBoneName) {
-    let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-    if (bn != null)
-        bn.name = VRMSchema.HumanoidBoneName[bone];
-  } 
-}
+
 const itemLoader =  async(item, traits = null) => {
- const loader =  new GLTFLoader()
- var vrm;
- await loader
-  .loadAsync(
-    `${templateInfo.traitsDirectory}${item?.directory}`,
-    (e) => {
-      // console.log((e.loaded * 100) / e.total);
-      setLoadingTrait(Math.round((e.loaded * 100) / e.total))
-    },
-  )
-  .then( (gltf) => {
-     vrm = gltf
-    // VRM.from(gltf).then(async (vrm) => {
-    // vrm.scene.scale.z = -1;
-    // console.log("scene.add", scene.add)
-    // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
-    // await until scene is not null
+  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,'vrm', setLoadingTrait,  (vrm)=>{
     new Promise<void>( (resolve) => {
-    // if scene, resolve immediately
-    if (scene && scene.add) {
-       resolve()
-    } else {
-        // if scene is null, wait for it to be set
-        const interval = setInterval(() => {
-          if (scene && scene.add) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      }
-    })
-    VRM.from(gltf).then((vrm2) => {
-      vrm2.scene.traverse((o) => {
-        o.frustumCulled = false
+      // if scene, resolve immediately
+      if (scene && scene.add) {
+         resolve()
+      } else {
+          // if scene is null, wait for it to be set
+          const interval = setInterval(() => {
+            if (scene && scene.add) {
+              clearInterval(interval)
+              resolve()
+            }
+          }, 100)
+        }
       })
-      //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
-      
-      renameVRMBones(vrm2);
-      startAnimation(vrm2);
+      console.log("check here");
+      startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      setTimeout(()=>{scene.add(vrm.scene)},50);
-   
-    })
-      // vrm.humanoid.getBoneNode(
-      //   VRMSchema.HumanoidBoneName.Hips,
-      // ).rotation.y = Math.PI
-    vrm.scene.frustumCulled = false
-    if (avatar[traitName]) {
-      setAvatar({
-        ...avatar,
-        [traitName]: {
+      setTimeout(()=>{
+        scene.add(vrm.scene)
+        cullHiddenMeshes(templateInfo.cullingModel, vrm.scene);
+      },100);
+
+      if (avatar[traitName]) {
+        setAvatar({
+          ...avatar,
+          [traitName]: {
+            traitInfo: item,
+            model: vrm.scene,
+          }
+        })
+        if (avatar[traitName].model) {
+          setTimeout(() => {
+            scene.remove(avatar[traitName].model)
+          },60);
+        }
+      }
+      return {
+        [traits?.trait]: {
           traitInfo: item,
           model: vrm.scene,
         }
-      })
-      if (avatar[traitName].model) {
-        setTimeout(() => {
-          scene.remove(avatar[traitName].model)
-        },60);
       }
-    }
   })
   
-  return {
-      [traits?.trait]: {
-        traitInfo: item,
-        model: vrm.scene,
-      }
-    }
+  // return {
+  //     [traits?.trait]: {
+  //       traitInfo: item,
+  //       model: vrm.scene,
+  //     }
+  //   }
   // });
 }
 const getActiveStatus = (item) => {
@@ -367,6 +382,10 @@ const getActiveStatus = (item) => {
     return true
   return false
 }
+  // selector will onyl get the information of thew data that is being provided
+  // this is important as all icons will be updated accodingly to the json file proviided by the user
+  // there will be some special cases (skin eye color) were this values will be placed differentluy 
+  // return(<></>);
   return (
     <div style={selectorContainerPos} >
       <div className="selector-container" style={selectorContainer}>

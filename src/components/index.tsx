@@ -1,27 +1,26 @@
 import { createTheme, ThemeProvider } from "@mui/material"
 import React, { Suspense, useState, useEffect, Fragment } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import DownloadCharacter from "./Download"
-import LoadingOverlayCircularStatic from "./LoadingOverlay"
+//import DownloadCharacter from "./Download"
+//import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
-import * as THREE from "three";
 
-// import {LottieLoader} from "https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.3/lottie.min.js"
 interface Avatar{
-  body:{},
-  chest:{},
-  head:{},
-  neck:{},
-  hand:{},
-  ring:{},
-  waist:{},
-  weapon:{},
-  legs:{},
-  foot:{}
+  body:Record<string, unknown>,
+  chest:Record<string, unknown>,
+  head:Record<string, unknown>,
+  neck:Record<string, unknown>,
+  hand:Record<string, unknown>,
+  ring:Record<string, unknown>,
+  waist:Record<string, unknown>,
+  weapon:Record<string, unknown>,
+  legs:Record<string, unknown>,
+  foot:Record<string, unknown>,
+  accessories:Record<string, unknown>
 }
 
 export default function CharacterEditor(props: any) {
@@ -40,20 +39,22 @@ export default function CharacterEditor(props: any) {
   // const [animations, setAnimations] = useState<object>(Object);
   // const [body, setBody] = useState<any>();
 
-  const { theme, templates, mintPopup, setLoading, setModelClass, setEnd} = props
+
+  const { theme, templates, mintPopup, setLoading, setLoadingProgress, setModelClass, setEnd } = props
+  
   // Selected category State Hook
   const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
-  const [model, setModel] = useState<object>(Object)
+  const [model, setModel] = useState<VRM>(Object)
 
-  const [scene, setScene] = useState<object>(Object)
+  const [scene, setScene] = useState<any>(Object)
   
   // States Hooks used in template editor //
   const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
 
-  const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
+  //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
-  const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
+  //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
     body:{},
     chest:{},
@@ -67,7 +68,7 @@ export default function CharacterEditor(props: any) {
     foot:{},
     accessories:{},
   })
-  const [loadingModel, setLoadingModel] = useState<boolean>(false)
+  //const [loadingModel, setLoadingModel] = useState<boolean>(false)
 
   const defaultTheme = createTheme({
     palette: {
@@ -83,15 +84,6 @@ export default function CharacterEditor(props: any) {
     }
   }, [avatar])
 
-  
-  const renameVRMBones = (vrm) =>{
-    for (let bone in VRMSchema.HumanoidBoneName) {
-      let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-      if (bn != null)
-         bn.name = VRMSchema.HumanoidBoneName[bone];
-    } 
-  }
-
 
   const animatedStyle = useSpring({
     from: { opacity: "0"},
@@ -103,42 +95,29 @@ export default function CharacterEditor(props: any) {
   //   color: "#efefef"
   // }
 
+
+
   useEffect(() => {
     if(model)
-    sceneService.setModel(model);
+    sceneService.setAvatar(model);
   }, [model])
+  
   useEffect(() => {
     if (templateInfo.file && templateInfo.format) {
-      
-      const loader = new GLTFLoader()
-      loader
-        .loadAsync(templateInfo.file, (e) => {
-          
-          props.setLoadingProgress((e.loaded * 100) / e.total)
-        })
-        .then((gltf) => {
-          // yield before placing avatar to avoid lag
+      sceneService.loadModel(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
+        setTimeout(()=>{
+          sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
+          setLoading(false)
+          startAnimation(vrm)
+          console.log(vrm)
           setTimeout(()=>{
-            VRM.from(gltf).then((vrm) => {
-              renameVRMBones(vrm);
-              vrm.scene.traverse((o) => {
-                o.frustumCulled = false
-              })
-              //load lottie here
-              sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
-              vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-              setLoading(false)
-              startAnimation(vrm)
-              
-              setTimeout(()=>{
-                setScene(vrm.scene)
-                sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-                setModel(vrm)
-              },50);
-            })
-            
-          },1000);
-        })
+            setScene(vrm.scene)
+            sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+            setModel(vrm);
+            //setAvatar(vrm)
+          },50);
+        },1000)
+      });
     }
   }, [templateInfo.file])
  
@@ -149,10 +128,9 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                wrapClass="generator"
                 templates={templates}
                 scene={scene}
-                downloadPopup={downloadPopup}
+                //downloadPopup={downloadPopup}
                 mintPopup={mintPopup}
                 category={category}
                 setCategory={setCategory}

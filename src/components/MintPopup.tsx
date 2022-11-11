@@ -1,4 +1,4 @@
-import { StyledBackground, StyledPopup,StyledContainer, Button1, Title, Buttons } from './MintPopup.styled.js'
+import { StyledBackground, StyledPopup,StyledContainer, Button1, Title, Buttons } from '../styles/MintPopup.styled.js'
 import React, { useState, useEffect } from "react";
 
 export default function MintPopup(props: any) {
