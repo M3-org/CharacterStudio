@@ -4,7 +4,8 @@ import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { NoToneMapping, TextureLoader } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM  } from "@pixiv/three-vrm"
+import { sceneService } from '../services/scene'
 import { startAnimation } from "../library/animations/animation"
 import {useModelingStore} from '../store'
 
@@ -26,32 +27,19 @@ export default function ModelCanvas (props){
     useEffect(() => {
         if (props.modelPath) {
           
-          const loader = new GLTFLoader()
-          loader
-            .loadAsync(props.modelPath, (e) => {
+          sceneService.loadModel(props.modelPath, (e) => {
               console.log('aaaaaaaaaaaaaaa', (e.loaded * 100) / e.total)
               setModeling(props.order, 100);
             //   props.setLoadingProgress((e.loaded * 100) / e.total)
             })
-            .then((gltf) => {
+            .then((vrm) => {
               // yield before placing avatar to avoid lag
               setTimeout(()=>{
-                VRM.from(gltf).then((vrm) => {
-                  renameVRMBones(vrm);
-                  vrm.scene.traverse((o) => {
-                    o.frustumCulled = false
-                  })
-                  //load lottie here
-                  vrm.scene.rotation.set(Math.PI, 0, Math.PI)
-                  
-                  startAnimation(vrm)
-                  
-                  setTimeout(()=>{
-                    setScene(vrm.scene)
-                    setComplete(props.order, true);
-                  },50);
-                })
-                
+                startAnimation(vrm)
+                setTimeout(()=>{
+                  setScene(vrm.scene)
+                  setComplete(props.order, true);
+                },50);
               },1000);
             })
         }

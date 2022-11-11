@@ -103,21 +103,24 @@ export default function CharacterEditor(props: any) {
   }, [model])
   
   useEffect(() => {
-    if (templateInfo.file && templateInfo.format) {
-      sceneService.loadModel(templateInfo.file, templateInfo.format, setLoadingProgress, (vrm)=>{
-        setTimeout(()=>{
-          sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
-          setLoading(false)
-          startAnimation(vrm)
-          console.log(vrm)
+    if (templateInfo.file) {
+      console.log("up top here")
+
+      sceneService.loadModel(templateInfo.file,setLoadingProgress)
+        .then((vrm)=>{
           setTimeout(()=>{
-            setScene(vrm.scene)
-            sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-            setModel(vrm);
-            //setAvatar(vrm)
-          },50);
-        },1000)
-      });
+            sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
+            setLoading(false)
+            startAnimation(vrm)
+            console.log(vrm)
+            setTimeout(()=>{
+              setScene(vrm.scene)
+              sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+              setModel(vrm);
+              //setAvatar(vrm)
+            },50);
+          },1000)
+        })
     }
   }, [templateInfo.file])
  

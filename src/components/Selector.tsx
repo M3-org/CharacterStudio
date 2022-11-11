@@ -317,7 +317,8 @@ export default function Selector(props) {
   }
 
 const itemLoader =  async(item, traits = null) => {
-  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,'vrm', setLoadingTrait,  (vrm)=>{
+  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
+    .then((vrm) => {
     new Promise<void>( (resolve) => {
       // if scene, resolve immediately
       if (scene && scene.add) {
@@ -361,7 +362,7 @@ const itemLoader =  async(item, traits = null) => {
           model: vrm.scene,
         }
       }
-  })
+    })
   
   // return {
   //     [traits?.trait]: {

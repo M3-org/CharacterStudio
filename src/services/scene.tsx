@@ -184,17 +184,16 @@ const loader = new GLTFLoader();
 loader.register((parser) => {
   return new VRMLoaderPlugin(parser);
 });
+//loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
-  return loader.loadAsync(file, (e) => {
-    progress(Math.round((e.loaded * 100) / e.total))
-  }).then((model) => {
+async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+  return loader.loadAsync(file, onProgress).then((model) => {
     console.log(model);
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
     setupModel(vrm.scene);
-    onloaded(vrm);
+    //onloaded(vrm);
     
     return vrm;
   });
