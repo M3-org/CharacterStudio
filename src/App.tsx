@@ -13,8 +13,10 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
-import {useMuteStore} from './store'
+
+import {useMuteStore, useModelingStore} from './store'
 import AudioSettings from "./components/AudioSettings";
+
 
 const defaultTheme = createTheme({
   palette: {
@@ -27,6 +29,9 @@ const defaultTheme = createTheme({
 
 function App() {
   const isMute = useMuteStore((state) => state.isMute)
+
+  const formatModeling = useModelingStore((state) => state.formatModeling)
+  const formatComplete = useModelingStore((state) => state.formatComplete)
   const [alerCharacterEditortTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [modelClass, setModelClass] = useState<number>(0)
@@ -122,6 +127,7 @@ function App() {
             (value) => {
               setPreModelClass(value)
               //setLoading(true)
+              
             }
           }
         /> : 
@@ -142,6 +148,13 @@ function App() {
                     }, 1000)
                   }} 
                   setLoadingProgress = {setLoadingProgress}
+                  setModelClass = {(v) => {
+                    setModelClass(v);
+                    setEnd(false);
+                    formatModeling();
+                    formatComplete();
+                  }}
+                  setEnd = {setEnd}
                 />
             </Web3ReactProvider>
             {showAlert && (

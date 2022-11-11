@@ -15,8 +15,11 @@ import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
+
+import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
+
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
@@ -123,6 +126,8 @@ export default function Scene(props: any) {
     template,
     setTemplateInfo,
     templateInfo,
+    setModelClass,
+    setEnd,
     model }: any = props;
 
   const handleDownload = () =>{
@@ -326,6 +331,10 @@ export default function Scene(props: any) {
           <WalletImg/>
         </WalletButton>
       </TopRightMenu>
+      <BackButton onClick={() => {
+        setModelClass(0);
+      }}/>
+
       <div>
         <Selector
           templates={templates}
