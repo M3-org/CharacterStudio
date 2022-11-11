@@ -14,10 +14,10 @@ export default [
       "cullingModel":[
         "Body"
       ],
-      "traitsDirectory": "./loot-assets/drophunter/female/",
-      "thumbnailsDirectory": "./loot-assets/drophunter/female/",
-      "traitsJsonPath": "./loot-assets/drophunter/female/loot.json",
-      "animationPath": "./3d/animations/vrmanim.glb",
+      "traitsDirectory": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/female/",
+      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/female/",
+      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/female/loot.json",
+      "animationPath": "./3d/animations/idle.fbx",
       "traitIconsDirectory": "./3d/icons/",
       "selectionTraits": [{
         "name": "color",
@@ -111,10 +111,10 @@ export default [
         "Body",
         "Head002"
       ],
-      "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
-      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
-      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
-      "animationPath": "./3d/animations/vrmanim.glb",
+      "traitsDirectory": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/male/",
+      "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/male/",
+      "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/loot-assets/drophunter/male/loot.json",
+      "animationPath": "./3d/animations/idle.fbx",
       "traitIconsDirectory": "./3d/icons/",
       "selectionTraits": [{
         "name": "color",

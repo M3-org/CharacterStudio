@@ -255,32 +255,35 @@ export default function Selector(props) {
     })
   }
   
-  const cullHiddenMeshes = (targets:Array, traitModel:any) => {
-    const scene = sceneService.getScene();
-    const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
-    traitModel?.traverse((child)=>{
-      if (child.isMesh){
-        //console.log(child)
-        //child.material[0] = mat;
-      }
-    })
+  const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
+    // make sure it was defined in json file
+    if (targets){
+      const scene = sceneService.getScene();
+      const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
+      traitModel?.traverse((child)=>{
+        if (child.isMesh){
+          //console.log(child)
+          //child.material[0] = mat;
+        }
+      })
 
 
-    for (let i =0; i < targets.length; i++){
-      const obj = scene.getObjectByName(targets[i])
-      if (obj != null){
-        if (obj.isMesh){
-          DisplayMeshIfVisible(obj, traitModel);
+      for (let i =0; i < targets.length; i++){
+        const obj = scene.getObjectByName(targets[i])
+        if (obj != null){
+          if (obj.isMesh){
+            DisplayMeshIfVisible(obj, traitModel);
+          }
+          if (obj.isGroup){
+            obj.traverse((child) => {
+              if (child.parent === obj && child.isMesh)
+              DisplayMeshIfVisible(child, traitModel);
+            })
+          }
         }
-        if (obj.isGroup){
-          obj.traverse((child) => {
-            if (child.parent === obj && child.isMesh)
-            DisplayMeshIfVisible(child, traitModel);
-          })
+        else{
+          console.warn(targets[i] + " not found");
         }
-      }
-      else{
-        console.warn(targets[i] + " not found");
       }
     }
 
@@ -329,7 +332,7 @@ const itemLoader =  async(item, traits = null) => {
           }, 100)
         }
       })
-      console.log("tt");
+      console.log("check here");
       startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)

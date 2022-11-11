@@ -10,6 +10,7 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 't
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
+import { renameVRMBones } from "./bonesRename";
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -191,6 +192,7 @@ async function loadModel(file: any, type: any, progress: (perc:number) => any, o
     console.log(model);
     const vrm = model.userData.vrm;
     // setup for vrm
+    //renameVRMBones(vrm);
     setupModel(vrm.scene);
     onloaded(vrm);
     
@@ -205,6 +207,24 @@ async function loadModel(file: any, type: any, progress: (perc:number) => any, o
 //        bn.name = VRMSchema.HumanoidBoneName[bone];
 //   } 
 // }
+
+const renameVRMBonesold = (vrm) =>{
+  console.log("HERE")
+ // console.log(vrm.firstPerson.humanoid._rawHumanBones.humanBones);
+ 
+  const bones = vrm.firstPerson.humanoid.humanBones;
+  console.log(bones);
+  console.log(vrm)
+  //const skel = new THREE.Skeleton(bones);
+  //console.log(skel);
+  for (const boneName in bones) {
+    console.log(boneName);
+    bones[boneName].node.name = boneName;
+  } 
+  const testArr = []
+  testArr['L_Shoulder'] = 'mixamorig:LeftToeBase';
+  //console.log(vrm.scene);
+}
 
 function setupModel(model: THREE.Object3D):void{
   model?.traverse((child:any)=>{
