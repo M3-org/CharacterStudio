@@ -28,8 +28,8 @@ export default function Landing({
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const dropHunterModel = "../3D/models/landing_model_1.vrm"
-    const neuroHackerModel = "../3D/models/landing_model_2.vrm"
+    const dropHunterModel = "../3d/models/landing_model_1.vrm"
+    const neuroHackerModel = "../3d/models/landing_model_2.vrm"
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
@@ -82,8 +82,9 @@ export default function Landing({
             sum += 1;
         })
         
-        if(sum === modelArr.length)
+        if(sum === modelArr.length) {
             setIsLoading(false)
+        }
     }, [isComplete])
 
     const [play] = useSound(
