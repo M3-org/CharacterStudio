@@ -184,28 +184,39 @@ const loader = new GLTFLoader();
 loader.register((parser) => {
   return new VRMLoaderPlugin(parser);
 });
+//loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, type: any, progress: (perc:number) => any, onloaded:(model:any)=>any) {
-  return loader.loadAsync(file, (e) => {
-    progress(Math.round((e.loaded * 100) / e.total))
-  }).then((model) => {
+async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+  return loader.loadAsync(file, onProgress).then((model) => {
     console.log(model);
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
     setupModel(vrm.scene);
-    onloaded(vrm);
+    //onloaded(vrm);
     
     return vrm;
   });
 }
 
-// const renameVRMBones = (vrm) =>{
-//   for (const bone in VRMSchema.HumanoidBoneName) {
-//     const bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-//     if (bn != null)
-//        bn.name = VRMSchema.HumanoidBoneName[bone];
-//   } 
+
+// create face normals
+// let pos = this.face.geometry.attributes.position;
+// let idx = this.face.geometry.index;
+
+// let tri = new THREE.Triangle(); // for re-use
+// let a = new THREE.Vector3(), 
+//     b = new THREE.Vector3(), 
+//     c = new THREE.Vector3(); // for re-use
+
+// for( let f = 0; f < 2; f++ ){
+//     let idxBase = f * 3;
+//     a.fromBufferAttribute( pos, idx.getX( idxBase + 0 ) );
+//     b.fromBufferAttribute( pos, idx.getX( idxBase + 1 ) );
+//     c.fromBufferAttribute( pos, idx.getX( idxBase + 2 ) );
+//     tri.set( a, b, c );
+//     tri.getNormal( copytoavector3 );
+//     //otherstuff
 // }
 
 const renameVRMBonesold = (vrm) =>{
@@ -230,6 +241,7 @@ function setupModel(model: THREE.Object3D):void{
   model?.traverse((child:any)=>{
     child.frustumCulled = false
     if (child.isMesh){
+      //child.userData.origIndexBuffer = child.geometry.index;
       if (child.geometry.boundsTree == null)
             child.geometry.computeBoundsTree({strategy:SAH});
             

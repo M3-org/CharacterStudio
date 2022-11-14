@@ -257,6 +257,7 @@ export default function Selector(props) {
   
   const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
     // make sure it was defined in json file
+    console.log(targets)
     if (targets){
       const scene = sceneService.getScene();
       const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
@@ -271,6 +272,7 @@ export default function Selector(props) {
       for (let i =0; i < targets.length; i++){
         const obj = scene.getObjectByName(targets[i])
         if (obj != null){
+          
           if (obj.isMesh){
             DisplayMeshIfVisible(obj, traitModel);
           }
@@ -301,7 +303,7 @@ export default function Selector(props) {
         
         if (avatar[traitName] && avatar[traitName].model) {
           scene.remove(avatar[traitName].model)
-          cullHiddenMeshes(templateInfo.cullingModel, null);
+          //cullHiddenMeshes(templateInfo.cullingModel, null);
         }
       } else {
         if (trait.bodyTargets) {
@@ -317,7 +319,10 @@ export default function Selector(props) {
   }
 
 const itemLoader =  async(item, traits = null) => {
-  sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,'vrm', setLoadingTrait,  (vrm)=>{
+  let r_vrm;
+  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
+    .then((vrm) => {
+      r_vrm = vrm;
     new Promise<void>( (resolve) => {
       // if scene, resolve immediately
       if (scene && scene.add) {
@@ -355,20 +360,14 @@ const itemLoader =  async(item, traits = null) => {
           },60);
         }
       }
-      return {
-        [traits?.trait]: {
-          traitInfo: item,
-          model: vrm.scene,
-        }
-      }
-  })
+    })
   
-  // return {
-  //     [traits?.trait]: {
-  //       traitInfo: item,
-  //       model: vrm.scene,
-  //     }
-  //   }
+  return {
+      [traits?.trait]: {
+        traitInfo: item,
+        model: r_vrm.scene,
+      }
+    }
   // });
 }
 const getActiveStatus = (item) => {

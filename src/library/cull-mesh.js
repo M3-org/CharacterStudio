@@ -1,21 +1,23 @@
-import {Raycaster, Vector3, LineBasicMaterial, Line, BufferGeometry} from "three";
-import { SAH  } from 'three-mesh-bvh';
+import {Raycaster, Vector3, LineBasicMaterial, Line, BufferGeometry, BufferAttribute} from "three";
 export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
 
-    
+    if (mesh.userData.origIndexBuffer == null)
+        mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
 
-    let greedCounter =  0;
+        console.log(mesh.userData.origIndexBuffer);
+    //let greedCounter =  0;
     const traitMeshes = [];
     
     traitModel?.traverse((child)=>{
         if (child.isMesh){
             // create the bound tree whne loading model instead
-            if (child.geometry.boundsTree == null)
-                 child.geometry.computeBoundsTree({strategy:SAH});
+            //if (child.geometry.boundsTree == null)
+                // child.geometry.computeBoundsTree({strategy:SAH});
             
             traitMeshes.push(child);
         }
     });
+    
     // create the bound tree whne loading model instead
     //if (mesh.geometry.boundsTree == null)
         // mesh.geometry.computeBoundsTree({strategy:SAH});
@@ -23,52 +25,80 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     const raycaster = new Raycaster();
     raycaster.firstHitOnly = true;
     
-    raycaster.far = 0.22;
+    raycaster.far = 0.035;
 
-    const index = mesh.geometry.index.array;
+    //const index = mesh.geometry.index.array;
+    const index = mesh.userData.origIndexBuffer.array;
     const vertexData = mesh.geometry.attributes.position.array;
     const normalsData = mesh.geometry.attributes.normal.array;
 
-    let hidden = true;
+    //let hidden = true;
     let origin = new Vector3();
     let direction = new Vector3();
+
+    console.log(index);
     
     const intersections = [];
-    for (let i =0; i < index.length;i++){
-        intersections.length = 0;
-        const vi = index[i] * 3;
-        direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
-        origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(0.2))
+    //console.log(index.length);
+    
+    const indexCustomArr = [];
+    for (let i =0; i < index.length;i+=3){
         
-        raycaster.set(origin,direction.multiplyScalar(-1));
+        //const vi = index[i] * 3;
+        //indexCustomArr.push(index[i])
 
-        //if(mesh.name === "Bodybaked_1")
-            //DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
-        
+        //if at least 1 vertex collides with nothing, it is vi9sible
+        for (let j = 0; j < 3 ; j++){
 
-        if (raycaster.intersectObjects( traitMeshes, false, intersections ).length === 0){
-            //if(mesh.name === "Bodybaked_1")
-                //DebugRay(origin, direction,raycaster.far, 0xff0000,mesh );
+            intersections.length = 0;
+            // mutliplied by 3 as it refers to a vector3 saved as a float array
+            const vi = index[i+j] * 3;
+
+            direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
+            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(0.03))
             
-            greedCounter++;
-            if (greedCounter >= greed){
-                hidden = false;
+            raycaster.set(origin,direction.multiplyScalar(-1));
+
+            //DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
+            if (raycaster.intersectObjects( traitMeshes, false, intersections ).length === 0){
+                
+                //DebugRay(origin, direction,raycaster.far, 0xff0000,mesh );
+                for (let k = 0; k < 3 ; k++){
+                    //const vi = index[k+i] * 3;
+                    indexCustomArr.push(index[i+k])
+                }
                 break;
+                // greedCounter++;
+                // if (greedCounter >= greed){
+                //     hidden = false;
+                //     //save the 3 indices and break out of the triangle, as this triangle is visible
+                //     break;
+                // }
             }
         }
-            
     }
-    mesh.visible = !hidden;
+    console.log(mesh.geometry.index.array);
+    //console.log(indexCustomArr);
+    const indexArr = new Uint32Array(indexCustomArr);
+    console.log(indexArr);
+    const buffer = new BufferAttribute(indexArr,1,false);
+
+    mesh.geometry.setIndex(buffer);
+
+    //mesh.visible = !hidden;
 }
 
+
+
 function DebugRay(origin, direction, length, color, scene){
+    //console.log("tt")
     if (scene.lines == null)
         scene.lines = [];
     else{
-        scene.lines.forEach(line => {
-            line.visible = false;
-        });
-        scene.lines.length = 0;
+        // scene.lines.forEach(line => {
+        //     line.visible = false;
+        // });
+        // scene.lines.length = 0;
     }
 
     let endPoint = new Vector3();
@@ -80,6 +110,7 @@ function DebugRay(origin, direction, length, color, scene){
     const geometry = new BufferGeometry().setFromPoints( points );
     let material = new LineBasicMaterial( { color : color } );
     var line = new Line( geometry, material );
+    //line.renderOrder = 100;
     scene.parent.add( line );
     scene.lines.push(line);
 }
