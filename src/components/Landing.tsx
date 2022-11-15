@@ -48,6 +48,16 @@ export default function Landing({
             model: neuroHackerModel,
             text: 'Neuro Hacker'
         },
+        {
+            index: 3,
+            model: dropHunterModel,
+            text: 'Drop Hunter'
+        },
+        {
+            index: 4,
+            model: neuroHackerModel,
+            text: 'Neuro Hacker'
+        },
     ]);
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)

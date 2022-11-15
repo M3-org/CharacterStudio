@@ -8,8 +8,8 @@ const useMuteStore = create((set) => ({
 }))
 
 const useModelingStore = create((set) => ({
-    isModeling: new Array(3),
-    isComplete: new Array(3),
+    isModeling: new Array(4),
+    isComplete: new Array(4),
     setModeling: (order, percent) => set((state) => {
         let isModeling = [...state.isModeling];
         isModeling[order] = percent;
@@ -18,7 +18,7 @@ const useModelingStore = create((set) => ({
         }
     }),
     formatModeling: () => set((state) => ({
-        isModeling: new Array(3)
+        isModeling: new Array(4)
     })),
     setComplete: (order, value) => set((state) => {
         let isComplete = [...state.isComplete];
@@ -28,7 +28,7 @@ const useModelingStore = create((set) => ({
         }
     }),
     formatComplete: () => set((state) => ({
-        isComplete: new Array(3)
+        isComplete: new Array(4)
     })),
 }))
 
