@@ -4,7 +4,6 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     if (mesh.userData.origIndexBuffer == null)
         mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
 
-        console.log(mesh.userData.origIndexBuffer);
     //let greedCounter =  0;
     const traitMeshes = [];
     
@@ -35,8 +34,6 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     //let hidden = true;
     let origin = new Vector3();
     let direction = new Vector3();
-
-    console.log(index);
     
     const intersections = [];
     //console.log(index.length);
@@ -77,10 +74,9 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
             }
         }
     }
-    console.log(mesh.geometry.index.array);
+
     //console.log(indexCustomArr);
     const indexArr = new Uint32Array(indexCustomArr);
-    console.log(indexArr);
     const buffer = new BufferAttribute(indexArr,1,false);
 
     mesh.geometry.setIndex(buffer);

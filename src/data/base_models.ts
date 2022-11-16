@@ -17,7 +17,7 @@ export default [
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/female/loot.json",
-      "animationPath": "./3d/animations/idle.fbx",
+      "animationPath": "./3d/animations/idle_sword.fbx",
       "traitIconsDirectory": "./3d/icons/",
       "selectionTraits": [{
         "name": "color",
@@ -43,7 +43,7 @@ export default [
             "height": 1.45
           },
           "bodyTargets": [
-            "Eye"
+            "Headbaked_2"
           ]
         }]
       },{
@@ -114,7 +114,7 @@ export default [
       "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
       "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
-      "animationPath": "./3d/animations/idle.fbx",
+      "animationPath": "./3d/animations/idle_sword.fbx",
       "traitIconsDirectory": "./3d/icons/",
       "selectionTraits": [{
         "name": "color",

@@ -55,7 +55,7 @@ function Skin({ scene, templateInfo, category, avatar}) {
     }
     if(category === "eyeColor"){
       // templateInfo.bodyTargets = [];
-      colorTargets = ['Head006'];
+      colorTargets = ['Headbaked_2'];
     }
     if(category === "color"){
       colorTargets = templateInfo.bodyTargets;

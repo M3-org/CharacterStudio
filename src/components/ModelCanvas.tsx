@@ -17,13 +17,7 @@ export default function ModelCanvas (props){
     const setModeling = useModelingStore((state) => state.setModeling)
     const setComplete = useModelingStore((state) => state.setComplete)
     // const landingModelPath = '../3D/models/landing_model.vrm'
-    const renameVRMBones = (vrm) =>{
-        for (let bone in VRMSchema.HumanoidBoneName) {
-            let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-            if (bn != null)
-                bn.name = VRMSchema.HumanoidBoneName[bone];
-        }
-    }
+    
     useEffect(() => {
         if (props.modelPath) {
           

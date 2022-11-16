@@ -10,8 +10,7 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 't
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
-import { renameVRMBones } from "./bonesRename";
-// import VRMExporter from "../library/VRM/vrm-exporter";
+// import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
@@ -141,6 +140,7 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
+
 async function getSkinColor(scene:any, targets: any){
   if (scene) {
     for (const target of targets) {
@@ -171,8 +171,12 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     if (object != null){
       const randColor = value;
       const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
-      object.material[0].uniforms.litFactor.value.set(skinShade)
-      //object.material[0].uniforms.color.value.set(skinShade)
+      const mat =  object.material.length ? object.material[0] : object.material;
+      mat.uniforms.litFactor.value.set(skinShade)
+      const hslSkin = { h: 0, s: 0, l: 0 };
+      skinShade.getHSL(hslSkin);
+
+      mat.uniforms.shadeColorFactor.value.setRGB(skinShade.r,skinShade.g*0.8,skinShade.b*0.8)
     }
   }
 }
@@ -192,8 +196,8 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
+    renameVRMBones(vrm);
     setupModel(vrm.scene);
-    //onloaded(vrm);
     
     return vrm;
   });
@@ -219,22 +223,12 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
 //     //otherstuff
 // }
 
-const renameVRMBonesold = (vrm) =>{
-  console.log("HERE")
- // console.log(vrm.firstPerson.humanoid._rawHumanBones.humanBones);
- 
+const renameVRMBones = (vrm) =>{
   const bones = vrm.firstPerson.humanoid.humanBones;
-  console.log(bones);
-  console.log(vrm)
-  //const skel = new THREE.Skeleton(bones);
-  //console.log(skel);
   for (const boneName in bones) {
-    console.log(boneName);
+    //console.log(boneName);
     bones[boneName].node.name = boneName;
   } 
-  const testArr = []
-  testArr['L_Shoulder'] = 'mixamorig:LeftToeBase';
-  //console.log(vrm.scene);
 }
 
 function setupModel(model: THREE.Object3D):void{

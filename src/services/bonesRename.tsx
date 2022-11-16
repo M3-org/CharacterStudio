@@ -1,6 +1,6 @@
 import { VRM } from "@pixiv/three-vrm"
 
-export function renameVRMBones(vrm:VRM):void{
+export function renameMecanimBones(vrm:VRM):void{
     //const boneArr:Array <string> = [];
 
     const renArr = [
