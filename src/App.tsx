@@ -139,7 +139,7 @@ function App() {
           >
             <Web3ReactProvider getLibrary={getLibrary}>
               <CharacterEditor 
-                  templates={defaultTemplates[modelClass-1].gender} 
+                  templates={defaultTemplates} 
                   theme={defaultTheme} 
                   setLoading={(value) => {
                     setTimeout (() => {
