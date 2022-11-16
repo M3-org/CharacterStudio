@@ -70,8 +70,8 @@ const animRandomizer = (yieldTime) => {
 const cleanupMixers = () => {
   let i = animControls.length;
   while (i--) {
-      const animControl = animControls[i];
-      console.log(animControl.mixer.rootObject);
+      if (animControls[i] == null)
+        animControls.splice
   }
 }
 
@@ -93,6 +93,8 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
   const animControl = {mixer:mixer, actions:actions, to:actions[curAnimID], from:null};
   animControls.push(animControl);
+
+  gltf.scene.userData.animControl = animControl;
   
   if (lastAnimID != -1){
     //animControl.to = actions[curAnimID];
@@ -118,7 +120,14 @@ export const startAnimation = async (gltf: any):Promise<void> => {
   }
 }
 
-
+export const disposeAnimation = (model:any) => {
+  if (model.userData.animControl != null){
+    //model.userData.animControl.actions.forEach(action => {
+      //action.stop();
+    //});
+    animControls.splice(animControls.indexOf(model.userData.animControl),1);
+  }
+}
 
 const ModifyRotations = (track : QuaternionKeyframeTrack, modifyValue: Vector3, multValue: Vector3, debug? : boolean):QuaternionKeyframeTrack => {
   

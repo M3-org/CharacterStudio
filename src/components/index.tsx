@@ -8,6 +8,7 @@ import { startAnimation } from "../library/animations/animation"
 import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
+import * as THREE from 'three'
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -105,16 +106,22 @@ export default function CharacterEditor(props: any) {
   useEffect(() => {
     if (templateInfo.file) {
       console.log("up top here")
+      const newScene = new THREE.Scene();
+      setScene(newScene)
+      sceneService.loadLottieBase('../Rotation.json',2,newScene,true);
 
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
         .then((vrm)=>{
           setTimeout(()=>{
-            sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
             setLoading(false)
             startAnimation(vrm)
-            console.log(vrm)
             setTimeout(()=>{
-              setScene(vrm.scene)
+              // not here, we should add a three js scene
+              
+              newScene.add (vrm.scene);
+              // wIP
+              console.log(vrm.scene.userData)
+              
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
               //setAvatar(vrm)

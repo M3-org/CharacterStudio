@@ -10,6 +10,8 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 't
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
+
+import { disposeAnimation } from "../library/animations/animation";
 // import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -42,6 +44,10 @@ let traits = {};
 const setTraits = (newTraits: any) => {
   traits = newTraits;
 }
+
+// const createScene = () => {
+//   scene = new THREE.Scene();
+// }
 
 const getTraits = () => traits;
 
@@ -203,6 +209,34 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
   });
 }
 
+async function disposeModel (model: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+  //console.log(model);
+  model.traverse((o)=>{
+    
+    if (o.geometry) {
+      o.geometry.dispose()
+      console.log("dispose geometry ", o.geometry)                        
+    }
+
+    if (o.material) {
+        if (o.material.length) {
+            for (let i = 0; i < o.material.length; ++i) {
+                o.material[i].dispose()
+                console.log("dispose material ", o.material[i])                                
+            }
+        }
+        else {
+            o.material.dispose()
+            console.log("dispose material ", o.material)                            
+        }
+    }
+  })
+  scene.remove(model);
+  disposeAnimation(model);
+  
+}
+
+
 
 // create face normals
 // let pos = this.face.geometry.attributes.position;
@@ -255,6 +289,8 @@ async function getMorphValue(key: any, scene: any, target: any) {
     }
   }
 }
+
+
 
 async function updateMorphValue(
   key: any,
@@ -398,5 +434,6 @@ export const sceneService = {
   setAvatar,
   getAvatar,
   setSkinColor,
+  disposeModel,
   getSkinColor
 };

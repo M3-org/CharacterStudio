@@ -225,6 +225,7 @@ export default function Selector(props) {
       let ranItem;
       Object.entries(avatar).map((props : any) => {
         let traitName = props[0];
+        console.log(props)
         scene.remove(avatar[traitName].model);
       })
       let buffer={};
@@ -356,7 +357,9 @@ const itemLoader =  async(item, traits = null) => {
         })
         if (avatar[traitName].model) {
           setTimeout(() => {
-            scene.remove(avatar[traitName].model)
+            // not working yet v
+            sceneService.disposeModel(avatar[traitName].model);
+            //scene.remove(avatar[traitName].model)
           },60);
         }
       }
