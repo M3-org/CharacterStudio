@@ -85,6 +85,13 @@ export default function CharacterEditor(props: any) {
     }
   }, [avatar])
 
+  useEffect(() => {
+    if(templateInfo){
+      console.log("temp info")
+      sceneService.setAvatarTemplateInfo(templateInfo);
+    }
+  }, [templateInfo])
+
 
   const animatedStyle = useSpring({
     from: { opacity: "0"},

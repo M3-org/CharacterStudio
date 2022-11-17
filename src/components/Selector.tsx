@@ -18,7 +18,7 @@ import gsap from 'gsap';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
-import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
+
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
 
@@ -243,8 +243,6 @@ export default function Selector(props) {
               ...avatar,
               ...buffer
             })   
-            console.log("2")
-            console.log(avatar)
           }
         })
       }
@@ -258,65 +256,6 @@ export default function Selector(props) {
     })
   }
   
-  //const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
-  const cullHiddenMeshes = () => {
-    // make sure it was defined in json file
-    console.log(avatar)
-    //console.log(avatar)
-    const models = [];
-    for (const property in avatar) {
-      const model = avatar[property].model;
-      if (model){
-        model.traverse((child)=>{
-          if (child.isMesh){
-            //child.userData.cullLayer = avatar[property].model.userData.data?.cullingLayer || 1;
-            child.userData.cullLayer = 1;
-            models.push(child);
-          }
-        })
-      }
-      console.log();
-    }
-    const targets = templateInfo.cullingModel;
-    if (targets){
-      const scene = sceneService.getScene();
-      // const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
-      // traitModel?.traverse((child)=>{
-      //   if (child.isMesh){
-      //     //console.log(child)
-      //     //child.material[0] = mat;
-      //   }
-      // })
-
-
-      for (let i =0; i < targets.length; i++){
-        const obj = scene.getObjectByName(targets[i])
-        if (obj != null){
-          
-          if (obj.isMesh){
-            obj.userData.cullLayer = 0;
-            models.push(obj);
-            //DisplayMeshIfVisible(obj, traitModel);
-          }
-          if (obj.isGroup){
-            obj.traverse((child) => {
-              if (child.parent === obj && child.isMesh){
-                child.userData.cullLayer = 0;
-                models.push(child);
-                //DisplayMeshIfVisible(child, traitModel);
-              }
-            })
-          }
-        }
-        else{
-          console.warn(targets[i] + " not found");
-        }
-      }
-      CullHiddenFaces(models);
-    }
-
-    
-  }
 
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
@@ -328,8 +267,7 @@ export default function Selector(props) {
         setNoTrait(true)
         
         if (avatar[traitName] && avatar[traitName].model) {
-          scene.remove(avatar[traitName].model)
-          //cullHiddenMeshes(templateInfo.cullingModel, null);
+          sceneService.disposeModel(avatar[traitName].model)
         }
       } else {
         if (trait.bodyTargets) {
@@ -338,12 +276,13 @@ export default function Selector(props) {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           itemLoader(trait)
-          
         }
       }
     }
     setSelectValue(trait?.id)
   }
+//console.log("5")
+  //console.log(avatar.accessories.traitInfo.id)
 const itemLoader =  async(item, traits = null) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
@@ -365,14 +304,13 @@ const itemLoader =  async(item, traits = null) => {
           }, 100)
         }
       })
-      console.log("check here");
+      //console.log("check here");
       startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
       setTimeout(()=>{
         scene.add(vrm.scene)
       },100);
-
       if (avatar[traitName]) {
         
         setAvatar({
@@ -382,13 +320,10 @@ const itemLoader =  async(item, traits = null) => {
             model: vrm.scene,
           }
         })
-        console.log("1")
-        console.log(avatar)
         if (avatar[traitName].model) {
           setTimeout(() => {
             sceneService.disposeModel(avatar[traitName].model);
             //scene.remove(avatar[traitName].model)
-            console.log(avatar)
           },60);
         }
       }

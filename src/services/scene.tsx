@@ -8,7 +8,7 @@ import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
-
+import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
 import { disposeAnimation } from "../library/animations/animation";
@@ -44,6 +44,58 @@ let traits = {};
 
 const setTraits = (newTraits: any) => {
   traits = newTraits;
+  cullHiddenMeshes();
+}
+
+let avatarTemplateInfo = null;
+const setAvatarTemplateInfo = (neAvatarTemplateInfo:any) =>{
+  avatarTemplateInfo = neAvatarTemplateInfo;
+}
+
+const cullHiddenMeshes = () => {
+  if (avatarTemplateInfo){
+    const models = [];
+    for (const property in traits) {
+      const model = traits[property].model;
+      if (model){
+        model.traverse((child)=>{
+          if (child.isMesh){
+            child.userData.cullLayer = 1;
+            models.push(child);
+          }
+        })
+      }
+    }
+    const targets = avatarTemplateInfo.cullingModel;
+    if (targets){
+
+      
+      for (let i =0; i < targets.length; i++){
+        const obj = scene.getObjectByName(targets[i])
+        if (obj != null){
+          
+          if (obj.isMesh){
+            obj.userData.cullLayer = 0;
+            models.push(obj);
+            //DisplayMeshIfVisible(obj, traitModel);
+          }
+          if (obj.isGroup){
+            obj.traverse((child) => {
+              if (child.parent === obj && child.isMesh){
+                child.userData.cullLayer = 0;
+                models.push(child);
+                //DisplayMeshIfVisible(child, traitModel);
+              }
+            })
+          }
+        }
+        else{
+          console.warn(targets[i] + " not found");
+        }
+      }
+      CullHiddenFaces(models);
+    }
+  }
 }
 
 // const createScene = () => {
@@ -456,5 +508,6 @@ export const sceneService = {
   setSkinColor,
   disposeModel,
   getSkinColor,
-  addModelData
+  addModelData,
+  setAvatarTemplateInfo
 };
