@@ -18,7 +18,7 @@ import gsap from 'gsap';
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore} from '../store'
-import {DisplayMeshIfVisible} from '../library/cull-mesh.js'
+import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
 
@@ -242,7 +242,8 @@ export default function Selector(props) {
             setAvatar({
               ...avatar,
               ...buffer
-            })          
+            })   
+            
           }
         })
       }
@@ -256,18 +257,35 @@ export default function Selector(props) {
     })
   }
   
-  const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
+  //const cullHiddenMeshes = (targets:Array<string>, traitModel:any) => {
+  const cullHiddenMeshes = () => {
     // make sure it was defined in json file
-    console.log(targets)
+    console.log(avatar)
+    //console.log(avatar)
+    const models = [];
+    for (const property in avatar) {
+      const model = avatar[property].model;
+      if (model){
+        model.traverse((child)=>{
+          if (child.isMesh){
+            //child.userData.cullLayer = avatar[property].model.userData.data?.cullingLayer || 1;
+            child.userData.cullLayer = 1;
+            models.push(child);
+          }
+        })
+      }
+      console.log();
+    }
+    const targets = templateInfo.cullingModel;
     if (targets){
       const scene = sceneService.getScene();
-      const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
-      traitModel?.traverse((child)=>{
-        if (child.isMesh){
-          //console.log(child)
-          //child.material[0] = mat;
-        }
-      })
+      // const mat = new MeshBasicMaterial({transparent:true, opacity:0.8})
+      // traitModel?.traverse((child)=>{
+      //   if (child.isMesh){
+      //     //console.log(child)
+      //     //child.material[0] = mat;
+      //   }
+      // })
 
 
       for (let i =0; i < targets.length; i++){
@@ -275,12 +293,17 @@ export default function Selector(props) {
         if (obj != null){
           
           if (obj.isMesh){
-            DisplayMeshIfVisible(obj, traitModel);
+            obj.userData.cullLayer = 0;
+            models.push(obj);
+            //DisplayMeshIfVisible(obj, traitModel);
           }
           if (obj.isGroup){
             obj.traverse((child) => {
-              if (child.parent === obj && child.isMesh)
-              DisplayMeshIfVisible(child, traitModel);
+              if (child.parent === obj && child.isMesh){
+                child.userData.cullLayer = 0;
+                models.push(child);
+                //DisplayMeshIfVisible(child, traitModel);
+              }
             })
           }
         }
@@ -288,6 +311,7 @@ export default function Selector(props) {
           console.warn(targets[i] + " not found");
         }
       }
+      CullHiddenFaces(models);
     }
 
     
@@ -313,18 +337,20 @@ export default function Selector(props) {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           itemLoader(trait)
+          
         }
       }
     }
     setSelectValue(trait?.id)
   }
-
 const itemLoader =  async(item, traits = null) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
+      sceneService.addModelData(vrm.scene,{cullingLayer: item.cullingLayer || 1})
+      console.log(vrm.scene)
       r_vrm = vrm;
-    new Promise<void>( (resolve) => {
+      new Promise<void>( (resolve) => {
       // if scene, resolve immediately
       if (scene && scene.add) {
          resolve()
@@ -344,10 +370,10 @@ const itemLoader =  async(item, traits = null) => {
       setLoadingTraitOverlay(false)
       setTimeout(()=>{
         scene.add(vrm.scene)
-        cullHiddenMeshes(templateInfo.cullingModel, vrm.scene);
       },100);
 
       if (avatar[traitName]) {
+        
         setAvatar({
           ...avatar,
           [traitName]: {
@@ -355,21 +381,23 @@ const itemLoader =  async(item, traits = null) => {
             model: vrm.scene,
           }
         })
+        console.log(avatar)
         if (avatar[traitName].model) {
           setTimeout(() => {
-            // not working yet v
             sceneService.disposeModel(avatar[traitName].model);
             //scene.remove(avatar[traitName].model)
+            console.log(avatar)
           },60);
         }
       }
     })
   
   return {
-      [traits?.trait]: {
-        traitInfo: item,
-        model: r_vrm.scene,
-      }
+    test:"test"
+      // [traits?.trait]: {
+      //   traitInfo: item,
+      //   model: r_vrm.scene,
+      // }
     }
   // });
 }

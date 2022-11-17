@@ -32,6 +32,10 @@ const textureLoader = new THREE.TextureLoader();
 const setAvatar = (newAvatar: VRM) => {
   avatar = newAvatar;
 }
+
+const setAvatarModel = (avatarModel: VRM) =>{
+  
+}
 const getAvatar = () => avatar;
 
 const setScene = (newScene: any) => {
@@ -57,7 +61,7 @@ async function loadTexture(location:string):Promise<THREE.Texture>{
   return txt;
 }
 
-async function loadLottieBase(file:string, quality?:number, playAnimation?:boolean, onProgress?: (event: ProgressEvent) => void):Promise<THREE.Mesh>{
+async function loadLottie(file:string, quality?:number, playAnimation?:boolean, onProgress?: (event: ProgressEvent) => void):Promise<THREE.Mesh>{
   lottieLoader.setQuality( quality || 2 );
   return lottieLoader.loadAsync(file, onProgress).then((lot) => {
       playAnimation ? lot.animation.play():{};
@@ -65,7 +69,7 @@ async function loadLottieBase(file:string, quality?:number, playAnimation?:boole
 
       // assign same uvs in lightmaps as main uvs
       geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-      
+
       const material = new THREE.MeshBasicMaterial( { map: lot, lightMap: lot, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
       const mesh = new THREE.Mesh( geometry, material );
       
@@ -197,15 +201,13 @@ loader.register((parser) => {
 });
 //loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, data?:any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
     renameVRMBones(vrm);
     setupModel(vrm.scene);
-    if (data)
-      addModelData(vrm.scene, data);
     return vrm;
   });
 }
@@ -435,7 +437,7 @@ async function download(
 
 export const sceneService = {
   loadTexture,
-  loadLottieBase,
+  loadLottie,
   loadModel,
   updatePose,
   updateMorphValue,

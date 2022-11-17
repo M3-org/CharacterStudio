@@ -105,27 +105,30 @@ export default function CharacterEditor(props: any) {
   
   useEffect(() => {
     if (templateInfo.file) {
-      console.log("up top here")
+      
+      // create a scene that will hold all elements (decoration and avatar)
       const newScene = new THREE.Scene();
       setScene(newScene)
+
+      // load part of the decoration (spinning base)
       sceneService.loadLottie('../Rotation.json',2,true).then((mesh) => {
         newScene.add(mesh);
         mesh.rotation.x = Math.PI / 2;
       });
 
+      // load the avatar
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
         .then((vrm)=>{
           setTimeout(()=>{
             setLoading(false)
             startAnimation(vrm)
             setTimeout(()=>{
-              // not here, we should add a three js scene
-              
               newScene.add (vrm.scene);
 
               // wIP
               sceneService.addModelData(vrm.scene, {cullingLayer:0});
-              vrm.scene.userData.modelData = {}
+
+              console.log(vrm.scene);
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);

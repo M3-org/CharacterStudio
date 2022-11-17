@@ -1,4 +1,42 @@
 import {Raycaster, Vector3, LineBasicMaterial, Line, BufferGeometry, BufferAttribute} from "three";
+
+export const CullHiddenFaces = async(meshes) => {
+    console.log(meshes)
+
+    const culls = [];
+    meshes.forEach(mesh => {
+        if (mesh.userData.origIndexBuffer == null)
+            mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+    
+        if (culls [mesh.userData.cullLayer] == null)
+            culls [mesh.userData.cullLayer] = [];
+
+        culls [mesh.userData.cullLayer].push(mesh);
+
+        // const raycaster = new Raycaster();
+        // raycaster.firstHitOnly = true;
+        
+        // raycaster.far = 0.035;
+    
+        // //const index = mesh.geometry.index.array;
+        // const index = mesh.userData.origIndexBuffer.array;
+        // const vertexData = mesh.geometry.attributes.position.array;
+        // const normalsData = mesh.geometry.attributes.normal.array;
+    
+        // //let hidden = true;
+        // let origin = new Vector3();
+        // let direction = new Vector3();
+        
+        // const intersections = [];
+        // //console.log(index.length);
+        
+        // const indexCustomArr = [];
+    });
+    console.log(culls);
+
+    
+}
+
 export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
 
     if (mesh.userData.origIndexBuffer == null)
