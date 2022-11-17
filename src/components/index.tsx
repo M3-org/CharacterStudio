@@ -108,7 +108,10 @@ export default function CharacterEditor(props: any) {
       console.log("up top here")
       const newScene = new THREE.Scene();
       setScene(newScene)
-      sceneService.loadLottieBase('../Rotation.json',2,newScene,true);
+      sceneService.loadLottie('../Rotation.json',2,true).then((mesh) => {
+        newScene.add(mesh);
+        mesh.rotation.x = Math.PI / 2;
+      });
 
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
         .then((vrm)=>{
@@ -119,8 +122,10 @@ export default function CharacterEditor(props: any) {
               // not here, we should add a three js scene
               
               newScene.add (vrm.scene);
+
               // wIP
-              console.log(vrm.scene.userData)
+              sceneService.addModelData(vrm.scene, {cullingLayer:0});
+              vrm.scene.userData.modelData = {}
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);

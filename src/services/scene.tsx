@@ -51,25 +51,26 @@ const setTraits = (newTraits: any) => {
 
 const getTraits = () => traits;
 
-async function loadTexture(location:string):THREE.Texture{
+async function loadTexture(location:string):Promise<THREE.Texture>{
   const txt = textureLoader.load(location);
   console.log(txt);
   return txt;
 }
 
-async function loadLottieBase(location:string, quality:number, scene:any, playAnimation:boolean, progress: (progress:any) => any, onloaded:(txt:THREE.Texture) => any){
-  lottieLoader.setQuality( quality );
-    lottieLoader.load( location, function ( texture ) {
-      playAnimation ? texture.animation.play():{};
+async function loadLottieBase(file:string, quality?:number, playAnimation?:boolean, onProgress?: (event: ProgressEvent) => void):Promise<THREE.Mesh>{
+  lottieLoader.setQuality( quality || 2 );
+  return lottieLoader.loadAsync(file, onProgress).then((lot) => {
+      playAnimation ? lot.animation.play():{};
       const geometry = new THREE.CircleGeometry( 0.75, 32 );
+
+      // assign same uvs in lightmaps as main uvs
       geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-      const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
+      
+      const material = new THREE.MeshBasicMaterial( { map: lot, lightMap: lot, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
       const mesh = new THREE.Mesh( geometry, material );
-      mesh.rotation.x = Math.PI / 2;
-      scene.add( mesh );
-      onloaded?onloaded(texture):{}
-      return texture;
-  }, (prog)=>{progress?progress(prog):{}}, (error) => console.error(error));
+      
+      return mesh;
+  })
 }
 
 
@@ -196,43 +197,63 @@ loader.register((parser) => {
 });
 //loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+async function loadModel(file: any, data?:any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
-    console.log(model);
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
     renameVRMBones(vrm);
     setupModel(vrm.scene);
-    
+    if (data)
+      addModelData(vrm.scene, data);
     return vrm;
   });
 }
 
+function addModelData(model:any, data:any){
+  if (model.userData.data == null)
+    model.userData.data = data;
+  else
+    model.userData.data = {...model.userData.data, ...data};
+}
+function removeModelData(model:any, props:Array<string>){
+  if (model.userData.data == null)
+    return;
+
+  props.forEach(prop => {
+    if (model.userData.data[prop]!= null)
+      model.userData.data[prop] = null;
+  });
+}
+
+function getModelProperty(model:any, property:string):any{
+  if (model.userData.data == null)
+    return;
+  return model.userData.data[property];
+}
+
 async function disposeModel (model: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   //console.log(model);
+  disposeAnimation(getModelProperty(model, "animControl"));
+  
   model.traverse((o)=>{
     
     if (o.geometry) {
-      o.geometry.dispose()
-      console.log("dispose geometry ", o.geometry)                        
+      o.geometry.dispose()            
     }
 
     if (o.material) {
         if (o.material.length) {
             for (let i = 0; i < o.material.length; ++i) {
-                o.material[i].dispose()
-                console.log("dispose material ", o.material[i])                                
+                o.material[i].dispose()                            
             }
         }
         else {
-            o.material.dispose()
-            console.log("dispose material ", o.material)                            
+            o.material.dispose()                     
         }
     }
   })
   scene.remove(model);
-  disposeAnimation(model);
   
 }
 
@@ -435,5 +456,6 @@ export const sceneService = {
   getAvatar,
   setSkinColor,
   disposeModel,
-  getSkinColor
+  getSkinColor,
+  addModelData
 };

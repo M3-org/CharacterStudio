@@ -1,6 +1,7 @@
-import {AnimationMixer, Euler, Quaternion, AnimationClip, QuaternionKeyframeTrack, VectorKeyframeTrack, Vector3, Vector3} from 'three'
+import { AnimationMixer, Euler, Quaternion, AnimationClip, QuaternionKeyframeTrack, VectorKeyframeTrack, Vector3, Vector3} from 'three'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
+import { sceneService } from '../../services/scene'
 
 const mixers: any = []
 const origQuat = new Quaternion();
@@ -94,7 +95,9 @@ export const startAnimation = async (gltf: any):Promise<void> => {
   const animControl = {mixer:mixer, actions:actions, to:actions[curAnimID], from:null};
   animControls.push(animControl);
 
-  gltf.scene.userData.animControl = animControl;
+  console.log(animControls)
+
+  sceneService.addModelData(gltf.scene , {animControl});
   
   if (lastAnimID != -1){
     //animControl.to = actions[curAnimID];
@@ -120,12 +123,11 @@ export const startAnimation = async (gltf: any):Promise<void> => {
   }
 }
 
-export const disposeAnimation = (model:any) => {
-  if (model.userData.animControl != null){
-    //model.userData.animControl.actions.forEach(action => {
-      //action.stop();
-    //});
-    animControls.splice(animControls.indexOf(model.userData.animControl),1);
+export const disposeAnimation = (targetAnimControl:any) => {
+  if (targetAnimControl != null){
+    const ind = animControls.indexOf(targetAnimControl);
+    if (ind != -1)
+      animControls.splice(ind,1);
   }
 }
 
