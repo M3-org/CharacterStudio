@@ -243,7 +243,8 @@ export default function Selector(props) {
               ...avatar,
               ...buffer
             })   
-            
+            console.log("2")
+            console.log(avatar)
           }
         })
       }
@@ -381,6 +382,7 @@ const itemLoader =  async(item, traits = null) => {
             model: vrm.scene,
           }
         })
+        console.log("1")
         console.log(avatar)
         if (avatar[traitName].model) {
           setTimeout(() => {
@@ -393,11 +395,10 @@ const itemLoader =  async(item, traits = null) => {
     })
   
   return {
-    test:"test"
-      // [traits?.trait]: {
-      //   traitInfo: item,
-      //   model: r_vrm.scene,
-      // }
+      [traits?.trait]: {
+        traitInfo: item,
+        model: r_vrm.scene,
+      }
     }
   // });
 }

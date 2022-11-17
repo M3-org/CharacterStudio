@@ -100,7 +100,7 @@ export default function CharacterEditor(props: any) {
 
   useEffect(() => {
     if(model)
-    sceneService.setAvatar(model);
+    sceneService.setAvatarModel(model);
   }, [model])
   
   useEffect(() => {
