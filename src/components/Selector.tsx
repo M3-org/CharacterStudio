@@ -268,7 +268,12 @@ export default function Selector(props) {
         
         if (avatar[traitName] && avatar[traitName].model) {
           sceneService.disposeModel(avatar[traitName].model)
+          setAvatar({
+            ...avatar,
+            [traitName]: {}
+          })
         }
+        //sceneService.
       } else {
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
@@ -323,7 +328,6 @@ const itemLoader =  async(item, traits = null) => {
         if (avatar[traitName].model) {
           setTimeout(() => {
             sceneService.disposeModel(avatar[traitName].model);
-            //scene.remove(avatar[traitName].model)
           },60);
         }
       }

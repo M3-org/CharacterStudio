@@ -57,7 +57,9 @@ const cullHiddenMeshes = () => {
     const models = [];
     for (const property in traits) {
       const model = traits[property].model;
+      
       if (model){
+        console.log(model);
         model.traverse((child)=>{
           if (child.isMesh){
             child.userData.cullLayer = 1;
@@ -93,6 +95,7 @@ const cullHiddenMeshes = () => {
           console.warn(targets[i] + " not found");
         }
       }
+      console.log(models)
       CullHiddenFaces(models);
     }
   }
