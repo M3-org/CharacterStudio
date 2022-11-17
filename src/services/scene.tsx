@@ -29,14 +29,11 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const setAvatar = (newAvatar: VRM) => {
+const setAvatarModel = (newAvatar: VRM) => {
   avatar = newAvatar;
 }
 
-const setAvatarModel = (avatarModel: VRM) =>{
-  
-}
-const getAvatar = () => avatar;
+const getAvatarModel = () => avatar;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -454,8 +451,8 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setAvatar,
-  getAvatar,
+  setAvatarModel,
+  getAvatarModel,
   setSkinColor,
   disposeModel,
   getSkinColor,
