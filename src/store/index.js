@@ -7,6 +7,13 @@ const useMuteStore = create((set) => ({
     }))
 }))
 
+const useRotateStore = create((set) => ({
+    isRotate: true,
+    setRotate: (value) => set((state) => ({
+        isRotate: value
+    }))
+}))
+
 const useModelingStore = create((set) => ({
     isModeling: new Array(4),
     isComplete: new Array(4),
@@ -35,4 +42,5 @@ const useModelingStore = create((set) => ({
 export {
     useMuteStore,
     useModelingStore,
+    useRotateStore
 };

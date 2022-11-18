@@ -13,6 +13,7 @@ export const Background = styled(ScreenSizeContainer)`
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  overflow: hidden;
 `
 
 export const WalletInfo = styled.div`
