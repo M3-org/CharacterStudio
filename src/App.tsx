@@ -123,6 +123,7 @@ function App() {
       {
         !modelClass ? 
         <Landing 
+          templates={ defaultTemplates } 
           onSetModel = {
             (value) => {
               setPreModelClass(value)

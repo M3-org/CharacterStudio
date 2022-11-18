@@ -234,7 +234,6 @@ export default function Scene(props: any) {
     }
   }
 
-
   return (
     <FitParentContainer>
       <Background>
@@ -348,6 +347,7 @@ export default function Scene(props: any) {
           templateInfo={templateInfo}
           randomFlag={randomFlag}
           controls = {controls}
+          model = {model}
         />
         <Editor 
           controls = {controls}

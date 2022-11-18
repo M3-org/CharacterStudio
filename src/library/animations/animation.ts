@@ -3,6 +3,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { sceneService } from '../../services/scene'
 
+// make a class that hold all the informarion
+
 const mixers: any = []
 const origQuat = new Quaternion();
 const eul = new Euler();
@@ -10,20 +12,19 @@ let quatArr = [];
 const v3 = new Vector3();
 const v3_2 = new Vector3(1,1,1)
 
-let mixer, animations, curAnimID, lastAnimID, started, weightIn, weightOut, globalTimer, curAction, lastAction;
+let mixer, animations, curAnimID, lastAnimID, started, weightIn, weightOut;
 const interpolationTime = 1;
 const animControls = [];
 export const loadAnimation = async (path: string):Promise<void>=> {
+  //remove last
   let loader;
   if (path.endsWith('.fbx')){
     loader = new FBXLoader();
-    
   }
   if (path.endsWith('.glb')||path.endsWith('.gltf')){
     loader = new GLTFLoader()
   }
 
-  globalTimer = 0;
   started = false;
   lastAnimID = -1;
   curAnimID = 0;
@@ -53,12 +54,7 @@ const animRandomizer = (yieldTime) => {
         
         animControl.to.play();
         animControl.to.reset();
-
-        //globalTimer = 0;
-        
       })
-      //lastAction = animControls[0].from;
-      //curAction = animControls[0].from;
     }
     animRandomizer(animations[curAnimID].duration + 0.2);
   }, (yieldTime * 1000) - (interpolationTime/2) * 1000);
@@ -97,7 +93,7 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
   console.log(animControls)
 
-  sceneService.addModelData(gltf.scene , {animControl});
+  sceneService.addModelData(gltf , {animControl});
   
   if (lastAnimID != -1){
     //animControl.to = actions[curAnimID];
@@ -125,7 +121,9 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
 export const disposeAnimation = (targetAnimControl:any) => {
   if (targetAnimControl != null){
+    console.log(targetAnimControl);
     const ind = animControls.indexOf(targetAnimControl);
+    console.log(ind)
     if (ind != -1)
       animControls.splice(ind,1);
   }
@@ -282,7 +280,6 @@ const update = () => {
     if (weightOut > 0) weightOut -= 1/(30*interpolationTime);
     else weightOut = 0;
       
-    globalTimer += 1/30;
     animControls.forEach(animControl => {
       animControl.mixer.update(1/30);
 

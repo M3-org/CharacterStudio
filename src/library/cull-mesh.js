@@ -15,13 +15,15 @@ export const CullHiddenFaces = async(meshes) => {
 
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
-        if (mesh.userData.origIndexBuffer == null)
-            mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
-    
-        if (culls [mesh.userData.cullLayer] == null)
-            culls [mesh.userData.cullLayer] = [];
+        if (mesh.userData.cullLayer != null){
+            if (mesh.userData.origIndexBuffer == null)
+                mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+        
+            if (culls [mesh.userData.cullLayer] == null)
+                culls [mesh.userData.cullLayer] = [];
 
-        culls [mesh.userData.cullLayer].push(mesh);
+            culls [mesh.userData.cullLayer].push(mesh);
+        }
     });
 
     // this array will hold all possible mesh colliders

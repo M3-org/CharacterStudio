@@ -18,7 +18,7 @@ function getArrayBuffer (buffer) { return new Blob([buffer], { type: "applicatio
 
 let scene = null;
 
-let avatar = null;
+let avatarModel = null;
 
 let skinColor = new THREE.Color(1,1,1);
 
@@ -30,10 +30,10 @@ const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
 const setAvatarModel = (newAvatar: VRM) => {
-  avatar = newAvatar;
+  avatarModel = newAvatar;
 }
 
-const getAvatarModel = () => avatar;
+const getAvatarModel = () => avatarModel;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -130,7 +130,9 @@ async function loadLottie(file:string, quality?:number, playAnimation?:boolean, 
 }
 
 
+
 async function getModelFromScene(format = 'glb') {
+  console.log(format)
   if (format && format === 'glb') {
     const exporter = new GLTFExporter()
     const options = {
@@ -142,8 +144,17 @@ async function getModelFromScene(format = 'glb') {
       maxTextureSize: 1024 || Infinity
     }
     console.log("Scene is", scene);
-    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone()});
+
+    //temporary remove data, maybe we should make it in a different way to avoid this?
+    // const data = avatarModel.scene.userData.data;
+    // avatarModel.scene.userData.data = null;
+    // const cloneAvatar = avatarModel.scene.clone()
+    // avatarModel.scene.userData.data = data;
+    
+    const avatar = await combine({ transparentColor:skinColor, avatar:avatarModel.scene.clone() });
+    
     const glb: any = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
+    console.log("after")
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -213,14 +224,14 @@ async function getSkinColor(scene:any, targets: any){
           const child = object.children[0]
           const mat = child.material.length ? child.material[0]:child.material;
           if (mat.uniforms != null){
-            setSkinColor(mat.uniforms.color.value);
+            setSkinColor(mat.uniforms.litFactor.value);
             break;
           }
         }
         else{
           const mat = object.material.length ? object.material[0]:object.material;
           if (mat.uniforms != null){
-            setSkinColor(mat.uniforms.color.value);
+            setSkinColor(mat.uniforms.litFactor.value);
             break;
           }
         }
@@ -264,30 +275,37 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
   });
 }
 
+//make sure to remove this data when downloading, as this data is only required while in edit mode
 function addModelData(model:any, data:any){
-  if (model.userData.data == null)
-    model.userData.data = data;
+  if (model.data == null)
+    model.data = data;
   else
-    model.userData.data = {...model.userData.data, ...data};
+    model.data = {...model.data, ...data};
 }
-function removeModelData(model:any, props:Array<string>){
-  if (model.userData.data == null)
+function removeModelData(model:any, props?:Array<string>){
+  if (model.data == null)
     return;
 
-  props.forEach(prop => {
-    if (model.userData.data[prop]!= null)
-      model.userData.data[prop] = null;
-  });
+  if (props){
+    props.forEach(prop => {
+      if (model.data[prop]!= null)
+        model.data[prop] = null;
+    });
+  }
+  else{
+    model.data = null;
+  }
 }
 
 function getModelProperty(model:any, property:string):any{
-  if (model.userData.data == null)
+  if (model.data == null)
     return;
-  return model.userData.data[property];
+
+  return model.data[property];
 }
 
-async function disposeModel (model: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
-  //console.log(model);
+function disposeVRM (vrm: any) {
+  const model = vrm.scene;
   disposeAnimation(getModelProperty(model, "animControl"));
   
   model.traverse((o)=>{
@@ -307,7 +325,7 @@ async function disposeModel (model: any, onProgress?: (event: ProgressEvent) => 
         }
     }
   })
-  scene.remove(model);
+  model.parent.remove(model);
   
 }
 
@@ -444,9 +462,8 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-    //combine here
-    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
-
+    console.log(skinColor);
+    const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,
       function (result) {
@@ -509,7 +526,7 @@ export const sceneService = {
   setAvatarModel,
   getAvatarModel,
   setSkinColor,
-  disposeModel,
+  disposeVRM,
   getSkinColor,
   addModelData,
   setAvatarTemplateInfo

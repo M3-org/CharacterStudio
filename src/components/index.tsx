@@ -133,9 +133,9 @@ export default function CharacterEditor(props: any) {
               newScene.add (vrm.scene);
 
               // wIP
-              sceneService.addModelData(vrm.scene, {cullingLayer:0});
+              sceneService.addModelData(vrm, {cullingLayer:0});
 
-              console.log(vrm.scene);
+              console.log(vrm);
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);

@@ -34,7 +34,8 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
-    controls
+    controls,
+    model
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
@@ -266,8 +267,8 @@ export default function Selector(props) {
       if (trait === "0") {
         setNoTrait(true)
         
-        if (avatar[traitName] && avatar[traitName].model) {
-          sceneService.disposeModel(avatar[traitName].model)
+        if (avatar[traitName] && avatar[traitName].vrm) {
+          sceneService.disposeVRM(avatar[traitName].vrm)
           setAvatar({
             ...avatar,
             [traitName]: {}
@@ -292,8 +293,8 @@ const itemLoader =  async(item, traits = null) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
-      sceneService.addModelData(vrm.scene,{cullingLayer: item.cullingLayer || 1})
-      console.log(vrm.scene)
+      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
+      console.log(vrm)
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately
@@ -314,7 +315,7 @@ const itemLoader =  async(item, traits = null) => {
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
       setTimeout(()=>{
-        scene.add(vrm.scene)
+        model.scene.add(vrm.scene)
       },100);
       if (avatar[traitName]) {
         
@@ -323,11 +324,12 @@ const itemLoader =  async(item, traits = null) => {
           [traitName]: {
             traitInfo: item,
             model: vrm.scene,
+            vrm: vrm
           }
         })
-        if (avatar[traitName].model) {
+        if (avatar[traitName].vrm) {
           setTimeout(() => {
-            sceneService.disposeModel(avatar[traitName].model);
+            sceneService.disposeVRM(avatar[traitName].vrm);
           },60);
         }
       }
