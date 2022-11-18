@@ -45,6 +45,7 @@ export const FitParentContainer = styled.div`
     width: 100vw;
     height: 100vh;
     position: relative;
+    overflow : hidden;
 `
 export const ScreenSizeContainer = styled.div`
     height: 100vh;
@@ -56,6 +57,7 @@ export const RightMenu = styled.div`
 `
 export const ResizeableCanvas = styled.div`
     position: absolute;
+    overflow : hidden;
     width: ${props => props.left ? 'calc(100% - ' + props.left + ')' : '100%'};
     height: ${props => props.bottom ? 'calc(100% - ' + props.bottom + ')' : '100%'};
     right:  ${props => props.right || '0'};

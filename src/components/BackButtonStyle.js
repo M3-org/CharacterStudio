@@ -12,6 +12,7 @@ const style = styled.div`
         box-sizing: border-box;
         opacity : 0.4;
         user-select : none;
+        position : absolute;
         :hover {
             opacity : 1.0;
             cursor : pointer;
