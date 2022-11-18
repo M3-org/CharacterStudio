@@ -19,7 +19,8 @@ import {
 import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
-
+import AutoRotate from "./AutoRotate";
+import { useRotateStore } from "../store";
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
@@ -35,8 +36,9 @@ export default function Scene(props: any) {
   const [mintLoading, setMintLoading] = useState(false);
   const [confirmWindow, setConfirmWindow] = useState(false);
   const [mintStatus, setMintStatus] = useState("Mint Status");
-  const [autoRotate, setAutoRotate] = useState(true)
+  const [autoRotate, setAutoRotate] = useState(true);
 
+  const isRotate = useRotateStore((state) => state.isRotate)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -270,10 +272,10 @@ export default function Scene(props: any) {
               ref = {setControls}
               minDistance={0.5}
               maxDistance={1.5}
-              maxPolarAngle={Math.PI / 2 - 0.1}
+              // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
-              autoRotate = { autoRotate }
-              autoRotateSpeed = { 1 }
+              autoRotate = {isRotate}
+              autoRotateSpeed = { 10 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
@@ -312,6 +314,7 @@ export default function Scene(props: any) {
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
+        <AutoRotate/>
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
           //setConfirmWindow(true)
@@ -330,6 +333,7 @@ export default function Scene(props: any) {
             ("")}
           <WalletImg/>
         </WalletButton>
+
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
