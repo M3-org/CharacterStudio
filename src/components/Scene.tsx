@@ -320,8 +320,6 @@ export default function Scene(props: any) {
         <MintButton onClick={() => {
           //setConfirmWindow(true)
           mintAsset()
-          setAutoRotate(!autoRotate)
-          console.log("autorotate temporal")
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>

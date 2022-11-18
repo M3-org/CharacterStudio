@@ -13,8 +13,8 @@ import bgm from "../sound/cc_bgm_balanced.wav"
 
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
-import {useMuteStore, useModelingStore} from '../store'
-import {StyledLanding} from '../styles/landing.styled.js'
+import { useMuteStore, useModelingStore} from '../store'
+import { StyledLanding } from '../styles/landing.styled.js'
 
 
 export default function Landing(props){
@@ -62,7 +62,7 @@ export default function Landing(props){
         {
             index: 3,
             model: f_neuroHacker,
-            text: 'Drop Hunter',
+            text: 'Neuro Hacker',
             animation: anims
         },
         {

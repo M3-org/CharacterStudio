@@ -114,6 +114,9 @@ export default [
       "Body",
       "Head002"
     ],
+    "cullingModel":[
+      "Body"
+    ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
