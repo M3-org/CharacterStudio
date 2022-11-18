@@ -205,7 +205,7 @@ export default [
   {
     "id": "3",
     "name": "Female",
-    "file": "./3d/models/f_neurohacker.vrm",
+    "file": "./3d/models/f_neurohacker_v1.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vgitrm",
     "bodyTargets": [
@@ -215,7 +215,7 @@ export default [
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/female/loot.json",
-    "animationPath": "./3d/animations/vrmanim.glb",
+    "animationPath": "./3d/animations/idle_sword.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{
       "name": "color",
@@ -302,7 +302,7 @@ export default [
     {
     "id": "4",
     "name": "Male",
-    "file": "./3d/models/m_neurohacker.vrm",
+    "file": "./3d/models/m_neurohacker_v1.vrm",
     "thumbnail": "./3d/icons/male-body-1.png",
     "format": "vrm",
     "bodyTargets": [
@@ -312,7 +312,7 @@ export default [
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/male/loot.json",
-    "animationPath": "./3d/animations/vrmanim.glb",
+    "animationPath": "./3d/animations/idle_sword.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{
       "name": "color",

@@ -145,6 +145,7 @@ export default function Scene(props: any) {
         setConfirmWindow(true)
         return;
     }
+    setConfirmWindow(true)
     setMintStatus("Uploading...")
     setMintLoading(true);
     
