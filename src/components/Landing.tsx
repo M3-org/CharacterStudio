@@ -42,7 +42,6 @@ export default function Landing(props){
      from: { x: 0, opacity : 1 },
     }))
     
-    console.log(templates)
     //should be included in templates
     const [modelArr, setModelArr] = useState([
         {
