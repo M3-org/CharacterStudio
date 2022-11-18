@@ -127,6 +127,7 @@ export default function Scene(props: any) {
     setTemplateInfo,
     templateInfo,
     setModelClass,
+    modelClass,
     setEnd,
     model }: any = props;
 
@@ -332,6 +333,8 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
+        setTemplateInfo(null);
+        sceneService.setAvatarTemplateInfo(null);
       }}/>
 
       <div>
@@ -348,6 +351,7 @@ export default function Scene(props: any) {
           randomFlag={randomFlag}
           controls = {controls}
           model = {model}
+          modelClass = {modelClass}
         />
         <Editor 
           controls = {controls}

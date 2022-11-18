@@ -136,7 +136,7 @@ export default function Landing(props){
         })
         setTitleAnimation.start({
           from: {
-            y: 0,
+            y: 0, 
           },
           to: {
             y: -window.innerHeight,

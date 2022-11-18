@@ -35,7 +35,8 @@ export default function Selector(props) {
     templateInfo,
     randomFlag,
     controls,
-    model
+    model, 
+    modelClass
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
@@ -206,8 +207,8 @@ export default function Selector(props) {
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
-      if (!loaded) {
-        await setTempInfo(templates[0].id)
+      if (!loaded && modelClass) {
+        await setTempInfo(templates[modelClass-1].id)
       }
     }
     _get()

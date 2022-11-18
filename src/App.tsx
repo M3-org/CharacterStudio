@@ -123,7 +123,7 @@ function App() {
       {
         !modelClass ? 
         <Landing 
-          templates={ defaultTemplates } 
+          templates = { defaultTemplates } 
           onSetModel = {
             (value) => {
               setPreModelClass(value)
@@ -155,6 +155,7 @@ function App() {
                     formatModeling();
                     formatComplete();
                   }}
+                  modelClass = {modelClass}
                   setEnd = {setEnd}
                 />
             </Web3ReactProvider>

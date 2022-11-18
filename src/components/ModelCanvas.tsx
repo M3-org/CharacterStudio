@@ -21,12 +21,10 @@ export default function ModelCanvas (props){
     useEffect(() => {
         if (props.modelPath) {
             if (props.animation){
-                console.log(props.animation)
                 loadAnimation(props.animation);
             }
 
             //loadAnimation("loadAnimation")
-          console.log(props.modelPath)
           sceneService.loadModel(props.modelPath, (e) => {
               // console.log('aaaaaaaaaaaaaaa', (e.loaded * 100) / e.total)
               setModeling(props.order, 100);

@@ -22,6 +22,8 @@ let avatarModel = null;
 
 let skinColor = new THREE.Color(1,1,1);
 
+let avatarTemplateInfo = null;
+
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -47,9 +49,9 @@ const setTraits = (newTraits: any) => {
   cullHiddenMeshes();
 }
 
-let avatarTemplateInfo = null;
-const setAvatarTemplateInfo = (neAvatarTemplateInfo:any) =>{
-  avatarTemplateInfo = neAvatarTemplateInfo;
+
+const setAvatarTemplateInfo = (newAvatarTemplateInfo:any) =>{
+  avatarTemplateInfo = newAvatarTemplateInfo;
 }
 
 const cullHiddenMeshes = () => {
@@ -70,8 +72,9 @@ const cullHiddenMeshes = () => {
     }
     const targets = avatarTemplateInfo.cullingModel;
     if (targets){
-
-      
+      console.log(avatarTemplateInfo)
+      console.log(targets)
+      console.log(scene)
       for (let i =0; i < targets.length; i++){
         const obj = scene.getObjectByName(targets[i])
         if (obj != null){
