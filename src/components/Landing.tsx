@@ -34,8 +34,11 @@ export default function Landing(props){
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const dropHunterModel = "../3d/models/f_drophunter_v1.vrm"
-    const neuroHackerModel = "../3d/models/m_drophunter_v1.vrm"
+    const f_dropHunter = "../3d/models/f_drophunter_v1.vrm"
+    const m_dropHunter = "../3d/models/m_drophunter_v1.vrm"
+
+    const f_neuroHacker = "../3d/models/f_neurohacker_v1.vrm"
+    const m_neuroHacker = "../3d/models/m_neurohacker_v1.vrm"
 
     const anims = "../3d/animations/idle_sword.fbx";
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
@@ -46,25 +49,25 @@ export default function Landing(props){
     const [modelArr, setModelArr] = useState([
         {
             index: 1,
-            model: dropHunterModel,
+            model: f_dropHunter,
             text: 'Drop Hunter',
             animation: anims
         },
         {
             index: 2,
-            model: neuroHackerModel,
-            text: 'Neuro Hacker',
+            model: m_dropHunter,
+            text: 'Drop Hunter',
             animation: anims
         },
         {
             index: 3,
-            model: dropHunterModel,
+            model: f_neuroHacker,
             text: 'Drop Hunter',
             animation: anims
         },
         {
             index: 4,
-            model: neuroHackerModel,
+            model: m_neuroHacker,
             text: 'Neuro Hacker',
             animation: anims
         },
