@@ -1,7 +1,7 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
@@ -21,6 +21,11 @@ import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, Wallet
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
 import { useRotateStore } from "../store";
+
+import { EffectComposer, SSAO, Bloom } from '@react-three/postprocessing'
+//import { EffectComposer, SSAO, Bloom } from "react-postprocessing";
+
+
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
@@ -281,6 +286,12 @@ export default function Scene(props: any) {
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
+            <Suspense fallback={null}>
+              <EffectComposer smaa>
+                <Bloom />
+                <SSAO />
+              </EffectComposer>
+            </Suspense>
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
