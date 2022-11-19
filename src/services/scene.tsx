@@ -11,6 +11,7 @@ import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 
 import { combine } from "../library/mesh-combination";
 import { renameVRMBones } from "./bonesRename";
+import { OfflineShareTwoTone, Output } from "@mui/icons-material";
 // import VRMExporter from "../library/VRM/vrm-exporter";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -173,6 +174,7 @@ async function setMaterialColor(scene: any, value: any, target: any) {
       const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
       const mat =  object.material.length ? object.material[0] : object.material;
       mat.uniforms.litFactor.value.set(skinShade)
+    
       const hslSkin = { h: 0, s: 0, l: 0 };
       skinShade.getHSL(hslSkin);
 
@@ -192,7 +194,7 @@ loader.register((parser) => {
 
 async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
-    console.log(model);
+    console.log('aaaaaaaaaaaaaaa', model);
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
