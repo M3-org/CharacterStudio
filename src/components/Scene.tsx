@@ -22,8 +22,7 @@ import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Gl
 import AutoRotate from "./AutoRotate";
 import { useRotateStore } from "../store";
 
-import { EffectComposer, SSAO, Bloom } from '@react-three/postprocessing'
-//import { EffectComposer, SSAO, Bloom } from "react-postprocessing";
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
 
 const ACCOUNT_DATA = {
@@ -287,9 +286,8 @@ export default function Scene(props: any) {
               target={[0, 0.9, 0]}
             />
             <Suspense fallback={null}>
-              <EffectComposer smaa>
+              <EffectComposer>
                 <Bloom />
-                <SSAO />
               </EffectComposer>
             </Suspense>
             <PerspectiveCamera 

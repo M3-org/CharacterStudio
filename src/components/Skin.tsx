@@ -62,6 +62,7 @@ function Skin({ scene, templateInfo, category, avatar}) {
       colorTargets = templateInfo.bodyTargets;
     }
     console.log(category)
+    console.log(colorTargets)
     for (const bodyTarget of colorTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
       localStorage.setItem('color', value);

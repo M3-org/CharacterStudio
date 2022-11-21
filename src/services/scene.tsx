@@ -11,7 +11,6 @@ import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
-//import { renameVRMBones } from "./bonesRename";
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
 import { disposeAnimation } from "../library/animations/animation";
 // import { renameMecanimBones } from "./bonesRename";
@@ -252,7 +251,6 @@ async function setMaterialColor(scene: any, value: any, target: any) {
       const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
       const mat =  object.material.length ? object.material[0] : object.material;
       mat.uniforms.litFactor.value.set(skinShade)
-    
       const hslSkin = { h: 0, s: 0, l: 0 };
       skinShade.getHSL(hslSkin);
 
@@ -272,7 +270,6 @@ loader.register((parser) => {
 
 async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
-    console.log('aaaaaaaaaaaaaaa', model);
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
