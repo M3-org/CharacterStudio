@@ -12,6 +12,9 @@ export default [
     "cullingModel":[
       "Body"
     ],
+    "EyeTargets": [
+      "Headbaked_2"
+    ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/female/loot.json",
@@ -28,16 +31,6 @@ export default [
         "distance": 1.4,
         "height": 0.8
       },
-      "bodyTargets": [
-        "Body",
-        "Headbaked"
-      ],
-      "EyeTargets": [
-        "Headbaked_2"
-      ],
-      "cullingModel":[
-        "Body"
-      ],
       "subTrait":[
       {
         "name": "Eye Color",
@@ -123,6 +116,9 @@ export default [
     "cullingModel":[
       "Body"
     ],
+    "EyeTargets": [
+      "Head006"
+    ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
@@ -139,13 +135,6 @@ export default [
         "distance": 1.5,
         "height": 0.85
       },
-      "bodyTargets": [
-        "Body",
-        "Head005"
-      ],
-      "EyeTargets": [
-        "Head001"
-      ],
       "subTrait":[
       {
         "name": "Eye Color",
@@ -154,9 +143,6 @@ export default [
           "distance": 0.5,
           "height": 1.5
         },
-        "bodyTargets": [
-          "Eye"
-        ]
       }]
     },{
       "name": "head",
@@ -225,7 +211,7 @@ export default [
         "Head_femalebaked"
     ],
     "EyeTargets": [
-        "Eyes"
+        "Head_femalebaked_3"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -243,10 +229,6 @@ export default [
         "distance": 1.5,
         "height": 0.9
       },
-      "bodyTargets": [
-        "Body_Female",
-        "Head_femalebaked"
-      ],
       "subTrait":[
       {
         "name": "Eye Color",
@@ -325,7 +307,7 @@ export default [
         "Face_Malebaked"
     ],
     "EyeTargets": [
-        "Eyes"
+        "Face_Malebaked_2"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
@@ -343,10 +325,6 @@ export default [
         "distance": 1.4,
         "height": 0.8
       },
-      "bodyTargets": [
-        "Body",
-        "Face_Malebaked"
-      ],
       "subTrait":[
       {
         "name": "Eye Color",
