@@ -32,6 +32,12 @@ export default [
         "Body",
         "Headbaked"
       ],
+      "EyeTargets": [
+        "Headbaked_2"
+      ],
+      "cullingModel":[
+        "Body"
+      ],
       "subTrait":[
       {
         "name": "Eye Color",
@@ -135,7 +141,10 @@ export default [
       },
       "bodyTargets": [
         "Body",
-        "Head002"
+        "Head005"
+      ],
+      "EyeTargets": [
+        "Head001"
       ],
       "subTrait":[
       {
@@ -214,6 +223,9 @@ export default [
     "bodyTargets": [
         "Body_Female",
         "Head_femalebaked"
+    ],
+    "EyeTargets": [
+        "Eyes"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
@@ -311,6 +323,9 @@ export default [
     "bodyTargets": [
         "Body",
         "Face_Malebaked"
+    ],
+    "EyeTargets": [
+        "Eyes"
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
