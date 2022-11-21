@@ -13,7 +13,8 @@ export default [
       "Body"
     ],
     "EyeTargets": [
-      "Headbaked_2"
+        "Headbaked_2",
+        "Headbaked_1",
     ],
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
