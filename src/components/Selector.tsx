@@ -347,7 +347,7 @@ const itemLoader =  async(item, traits = null) => {
       setLoadingTraitOverlay(false)
       setTimeout(()=>{
         model.scene.add(vrm.scene)
-      },100);
+      });
       if (avatar[traitName]) {
         
         setAvatar({
@@ -361,7 +361,7 @@ const itemLoader =  async(item, traits = null) => {
         if (avatar[traitName].vrm) {
           setTimeout(() => {
             sceneService.disposeVRM(avatar[traitName].vrm);
-          },60);
+          },100);
         }
       }
     })

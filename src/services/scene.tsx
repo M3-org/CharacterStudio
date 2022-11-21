@@ -8,7 +8,7 @@ import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
-import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
+import { CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
@@ -270,6 +270,7 @@ loader.register((parser) => {
 
 async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
+    console.log(model)
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
