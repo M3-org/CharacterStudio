@@ -76,21 +76,6 @@ export default function Editor(props: any) {
 
         <LineDivision bottom = {'20px'}/>
 
-        {// temporal
-        <MenuOption 
-            onClick = {()=>{selectOption({
-              name:"gender",
-              cameraTargets:{
-                distance:1.4,
-                height:0.8
-              }})}} 
-            selected = {category === "gender"}
-            key = {"i" + templateInfo.id + "gender"}>  
-            <MenuImg src = {templateInfo.traitIconsDirectory + "body.png"} />
-        </MenuOption>
-        /*temporal, as we will remove gender section */}
-
-
         { templateInfo.selectionTraits && templateInfo.selectionTraits.map(item => (
           // improve id
           <MenuOption 

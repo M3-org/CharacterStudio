@@ -65,7 +65,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
             meshes.forEach((mesh) => {
                 let bufferAttribute;
                 const morphTargetDictionary = sourceMorphTargetDictionaries.get(mesh);
-                if (morphTargetDictionary.hasOwnProperty(morphName)) {
+                if (morphTargetDictionary.hasOwnProperty(morphName) && mesh.geometry.morphAttributes[propName]) {
                     const sourceMorphIndex = morphTargetDictionary[morphName];
                     bufferAttribute = mesh.geometry.morphAttributes[propName][sourceMorphIndex];
                 }

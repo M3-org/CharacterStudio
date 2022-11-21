@@ -1,7 +1,7 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
@@ -21,6 +21,11 @@ import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, Wallet
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
 import { useRotateStore } from "../store";
+
+import { EffectComposer, SSAO, Bloom } from '@react-three/postprocessing'
+//import { EffectComposer, SSAO, Bloom } from "react-postprocessing";
+
+
 const ACCOUNT_DATA = {
   EMAIL: 'email',
   AVATAR: 'avatar',
@@ -129,6 +134,7 @@ export default function Scene(props: any) {
     setTemplateInfo,
     templateInfo,
     setModelClass,
+    modelClass,
     setEnd,
     model }: any = props;
 
@@ -146,6 +152,7 @@ export default function Scene(props: any) {
         setConfirmWindow(true)
         return;
     }
+    setConfirmWindow(true)
     setMintStatus("Uploading...")
     setMintLoading(true);
     
@@ -236,7 +243,6 @@ export default function Scene(props: any) {
     }
   }
 
-
   return (
     <FitParentContainer>
       <Background>
@@ -280,6 +286,12 @@ export default function Scene(props: any) {
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
+            <Suspense fallback={null}>
+              <EffectComposer smaa>
+                <Bloom />
+                <SSAO />
+              </EffectComposer>
+            </Suspense>
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
@@ -319,8 +331,6 @@ export default function Scene(props: any) {
         <MintButton onClick={() => {
           //setConfirmWindow(true)
           mintAsset()
-          setAutoRotate(!autoRotate)
-          console.log("autorotate temporal")
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>
@@ -337,6 +347,8 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
+        setTemplateInfo(null);
+        sceneService.setAvatarTemplateInfo(null);
       }}/>
 
       <div>
@@ -352,6 +364,8 @@ export default function Scene(props: any) {
           templateInfo={templateInfo}
           randomFlag={randomFlag}
           controls = {controls}
+          model = {model}
+          modelClass = {modelClass}
         />
         <Editor 
           controls = {controls}

@@ -8,6 +8,7 @@ import { startAnimation } from "../library/animations/animation"
 import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
+import * as THREE from 'three'
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -40,7 +41,7 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, templates, mintPopup, setLoading, setLoadingProgress, setModelClass, setEnd } = props
+  const { theme, templates, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass, setEnd } = props
   
   // Selected category State Hook
   const [category, setCategory] = useState("color")
@@ -84,6 +85,13 @@ export default function CharacterEditor(props: any) {
     }
   }, [avatar])
 
+  useEffect(() => {
+    if(templateInfo){
+      console.log("temp info")
+      sceneService.setAvatarTemplateInfo(templateInfo);
+    }
+  }, [templateInfo])
+
 
   const animatedStyle = useSpring({
     from: { opacity: "0"},
@@ -99,22 +107,36 @@ export default function CharacterEditor(props: any) {
 
   useEffect(() => {
     if(model)
-    sceneService.setAvatar(model);
+    sceneService.setAvatarModel(model);
   }, [model])
   
   useEffect(() => {
     if (templateInfo.file) {
-      console.log("up top here")
+      
+      // create a scene that will hold all elements (decoration and avatar)
+      const newScene = new THREE.Scene();
+      setScene(newScene)
 
+      // load part of the decoration (spinning base)
+      sceneService.loadLottie('../Rotation.json',2,true).then((mesh) => {
+        newScene.add(mesh);
+        mesh.rotation.x = Math.PI / 2;
+      });
+
+      // load the avatar
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
         .then((vrm)=>{
           setTimeout(()=>{
-            sceneService.loadLottieBase('../Rotation.json',2,vrm.scene,true);
             setLoading(false)
             startAnimation(vrm)
-            console.log(vrm)
             setTimeout(()=>{
-              setScene(vrm.scene)
+              newScene.add (vrm.scene);
+
+              // wIP
+              sceneService.addModelData(vrm, {cullingLayer:0});
+
+              console.log(vrm);
+              
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
               //setAvatar(vrm)
@@ -145,6 +167,7 @@ export default function CharacterEditor(props: any) {
                 templateInfo={templateInfo}
                 model={model}
                 setModelClass={setModelClass}
+                modelClass = {modelClass}
                 setEnd={setEnd}
               />  
             </animated.div>

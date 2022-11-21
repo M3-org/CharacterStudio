@@ -8,19 +8,23 @@ import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
-
+import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
-import { renameVRMBones } from "./bonesRename";
+
+//import { renameVRMBones } from "./bonesRename";
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
-// import VRMExporter from "../library/VRM/vrm-exporter";
+import { disposeAnimation } from "../library/animations/animation";
+// import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
 let scene = null;
 
-let avatar = null;
+let avatarModel = null;
 
 let skinColor = new THREE.Color(1,1,1);
+
+let avatarTemplateInfo = null;
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -29,10 +33,11 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const setAvatar = (newAvatar: VRM) => {
-  avatar = newAvatar;
+const setAvatarModel = (newAvatar: VRM) => {
+  avatarModel = newAvatar;
 }
-const getAvatar = () => avatar;
+
+const getAvatarModel = () => avatarModel;
 
 const setScene = (newScene: any) => {
   scene = newScene;
@@ -43,33 +48,96 @@ let traits = {};
 
 const setTraits = (newTraits: any) => {
   traits = newTraits;
+  cullHiddenMeshes();
 }
+
+
+const setAvatarTemplateInfo = (newAvatarTemplateInfo:any) =>{
+  avatarTemplateInfo = newAvatarTemplateInfo;
+}
+
+const cullHiddenMeshes = () => {
+  if (avatarTemplateInfo){
+    const models = [];
+    for (const property in traits) {
+      const model = traits[property].model;
+      
+      if (model){
+        console.log(model);
+        model.traverse((child)=>{
+          if (child.isMesh){
+            child.userData.cullLayer = 1;
+            models.push(child);
+          }
+        })
+      }
+    }
+    const targets = avatarTemplateInfo.cullingModel;
+    if (targets){
+      console.log(avatarTemplateInfo)
+      console.log(targets)
+      console.log(scene)
+      for (let i =0; i < targets.length; i++){
+        const obj = scene.getObjectByName(targets[i])
+        if (obj != null){
+          
+          if (obj.isMesh){
+            obj.userData.cullLayer = 0;
+            models.push(obj);
+            //DisplayMeshIfVisible(obj, traitModel);
+          }
+          if (obj.isGroup){
+            obj.traverse((child) => {
+              if (child.parent === obj && child.isMesh){
+                child.userData.cullLayer = 0;
+                models.push(child);
+                //DisplayMeshIfVisible(child, traitModel);
+              }
+            })
+          }
+        }
+        else{
+          console.warn(targets[i] + " not found");
+        }
+      }
+      console.log(models)
+      CullHiddenFaces(models);
+    }
+  }
+}
+
+// const createScene = () => {
+//   scene = new THREE.Scene();
+// }
 
 const getTraits = () => traits;
 
-async function loadTexture(location:string):THREE.Texture{
+async function loadTexture(location:string):Promise<THREE.Texture>{
   const txt = textureLoader.load(location);
   console.log(txt);
   return txt;
 }
 
-async function loadLottieBase(location:string, quality:number, scene:any, playAnimation:boolean, progress: (progress:any) => any, onloaded:(txt:THREE.Texture) => any){
-  lottieLoader.setQuality( quality );
-    lottieLoader.load( location, function ( texture ) {
-      playAnimation ? texture.animation.play():{};
+async function loadLottie(file:string, quality?:number, playAnimation?:boolean, onProgress?: (event: ProgressEvent) => void):Promise<THREE.Mesh>{
+  lottieLoader.setQuality( quality || 2 );
+  return lottieLoader.loadAsync(file, onProgress).then((lot) => {
+      playAnimation ? lot.animation.play():{};
       const geometry = new THREE.CircleGeometry( 0.75, 32 );
+
+      // assign same uvs in lightmaps as main uvs
       geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-      const material = new THREE.MeshBasicMaterial( { map: texture, lightMap: texture, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
+
+      const material = new THREE.MeshBasicMaterial( { map: lot, lightMap: lot, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
       const mesh = new THREE.Mesh( geometry, material );
-      mesh.rotation.x = Math.PI / 2;
-      scene.add( mesh );
-      onloaded?onloaded(texture):{}
-      return texture;
-  }, (prog)=>{progress?progress(prog):{}}, (error) => console.error(error));
+      
+      return mesh;
+  })
 }
 
 
+
 async function getModelFromScene(format = 'glb') {
+  console.log(format)
   if (format && format === 'glb') {
     const exporter = new GLTFExporter()
     const options = {
@@ -81,8 +149,17 @@ async function getModelFromScene(format = 'glb') {
       maxTextureSize: 1024 || Infinity
     }
     console.log("Scene is", scene);
-    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone()});
+
+    //temporary remove data, maybe we should make it in a different way to avoid this?
+    // const data = avatarModel.scene.userData.data;
+    // avatarModel.scene.userData.data = null;
+    // const cloneAvatar = avatarModel.scene.clone()
+    // avatarModel.scene.userData.data = data;
+    
+    const avatar = await combine({ transparentColor:skinColor, avatar:avatarModel.scene.clone() });
+    
     const glb: any = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
+    console.log("after")
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -142,6 +219,7 @@ async function getMesh(name: any, scene: any) {
   const object = scene.getObjectByName(name);
   return object;
 }
+
 async function getSkinColor(scene:any, targets: any){
   if (scene) {
     for (const target of targets) {
@@ -151,14 +229,14 @@ async function getSkinColor(scene:any, targets: any){
           const child = object.children[0]
           const mat = child.material.length ? child.material[0]:child.material;
           if (mat.uniforms != null){
-            setSkinColor(mat.uniforms.color.value);
+            setSkinColor(mat.uniforms.litFactor.value);
             break;
           }
         }
         else{
           const mat = object.material.length ? object.material[0]:object.material;
           if (mat.uniforms != null){
-            setSkinColor(mat.uniforms.color.value);
+            setSkinColor(mat.uniforms.litFactor.value);
             break;
           }
         }
@@ -198,12 +276,66 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
+    renameVRMBones(vrm);
     setupModel(vrm.scene);
-    //onloaded(vrm);
-    
     return vrm;
   });
 }
+
+//make sure to remove this data when downloading, as this data is only required while in edit mode
+function addModelData(model:any, data:any){
+  if (model.data == null)
+    model.data = data;
+  else
+    model.data = {...model.data, ...data};
+}
+function removeModelData(model:any, props?:Array<string>){
+  if (model.data == null)
+    return;
+
+  if (props){
+    props.forEach(prop => {
+      if (model.data[prop]!= null)
+        model.data[prop] = null;
+    });
+  }
+  else{
+    model.data = null;
+  }
+}
+
+function getModelProperty(model:any, property:string):any{
+  if (model.data == null)
+    return;
+
+  return model.data[property];
+}
+
+function disposeVRM (vrm: any) {
+  const model = vrm.scene;
+  disposeAnimation(getModelProperty(model, "animControl"));
+  
+  model.traverse((o)=>{
+    
+    if (o.geometry) {
+      o.geometry.dispose()            
+    }
+
+    if (o.material) {
+        if (o.material.length) {
+            for (let i = 0; i < o.material.length; ++i) {
+                o.material[i].dispose()                            
+            }
+        }
+        else {
+            o.material.dispose()                     
+        }
+    }
+  })
+  model.parent.remove(model);
+  
+}
+
 
 
 // create face normals
@@ -225,22 +357,12 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
 //     //otherstuff
 // }
 
-const renameVRMBonesold = (vrm) =>{
-  console.log("HERE")
- // console.log(vrm.firstPerson.humanoid._rawHumanBones.humanBones);
- 
+const renameVRMBones = (vrm) =>{
   const bones = vrm.firstPerson.humanoid.humanBones;
-  console.log(bones);
-  console.log(vrm)
-  //const skel = new THREE.Skeleton(bones);
-  //console.log(skel);
   for (const boneName in bones) {
-    console.log(boneName);
+    //console.log(boneName);
     bones[boneName].node.name = boneName;
   } 
-  const testArr = []
-  testArr['L_Shoulder'] = 'mixamorig:LeftToeBase';
-  //console.log(vrm.scene);
 }
 
 function setupModel(model: THREE.Object3D):void{
@@ -267,6 +389,8 @@ async function getMorphValue(key: any, scene: any, target: any) {
     }
   }
 }
+
+
 
 async function updateMorphValue(
   key: any,
@@ -345,9 +469,8 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-    //combine here
-    const avatar = await combine({ transparentColor:skinColor, avatar: model.scene.clone(), atlasSize });
-
+    console.log(skinColor);
+    const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,
       function (result) {
@@ -390,7 +513,7 @@ async function download(
 
 export const sceneService = {
   loadTexture,
-  loadLottieBase,
+  loadLottie,
   loadModel,
   updatePose,
   updateMorphValue,
@@ -407,8 +530,11 @@ export const sceneService = {
   getScene,
   getTraits,
   setTraits,
-  setAvatar,
-  getAvatar,
+  setAvatarModel,
+  getAvatarModel,
   setSkinColor,
-  getSkinColor
+  disposeVRM,
+  getSkinColor,
+  addModelData,
+  setAvatarTemplateInfo
 };

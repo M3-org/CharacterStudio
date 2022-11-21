@@ -123,6 +123,7 @@ function App() {
       {
         !modelClass ? 
         <Landing 
+          templates = { defaultTemplates } 
           onSetModel = {
             (value) => {
               setPreModelClass(value)
@@ -139,7 +140,7 @@ function App() {
           >
             <Web3ReactProvider getLibrary={getLibrary}>
               <CharacterEditor 
-                  templates={defaultTemplates[modelClass-1].gender} 
+                  templates={defaultTemplates} 
                   theme={defaultTheme} 
                   setLoading={(value) => {
                     setTimeout (() => {
@@ -154,6 +155,7 @@ function App() {
                     formatModeling();
                     formatComplete();
                   }}
+                  modelClass = {modelClass}
                   setEnd = {setEnd}
                 />
             </Web3ReactProvider>

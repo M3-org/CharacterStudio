@@ -13,13 +13,17 @@ import bgm from "../sound/cc_bgm_balanced.wav"
 
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
-import {useMuteStore, useModelingStore} from '../store'
-import {StyledLanding} from '../styles/landing.styled.js'
+import { useMuteStore, useModelingStore} from '../store'
+import { StyledLanding } from '../styles/landing.styled.js'
 
 
-export default function Landing({
-    onSetModel
-    }){
+export default function Landing(props){
+
+    const {
+        onSetModel,
+        templates
+    }:any = props;
+    
     const isMute = useMuteStore((state) => state.isMute)
     const setMute = useMuteStore((state) => state.setMute)
 
@@ -30,33 +34,42 @@ export default function Landing({
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const dropHunterModel = "../3d/models/landing_model_1.vrm"
-    const neuroHackerModel = "../3d/models/landing_model_2.vrm"
+    const f_dropHunter = "../3d/models/f_drophunter_v1.vrm"
+    const m_dropHunter = "../3d/models/m_drophunter_v1.vrm"
+
+    const f_neuroHacker = "../3d/models/f_neurohacker_v1.vrm"
+    const m_neuroHacker = "../3d/models/m_neurohacker_v1.vrm"
+
+    const anims = "../3d/animations/idle_sword.fbx";
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
-
     
+    //should be included in templates
     const [modelArr, setModelArr] = useState([
         {
             index: 1,
-            model: dropHunterModel,
-            text: 'Drop Hunter'
+            model: f_dropHunter,
+            text: 'Drop Hunter',
+            animation: anims
         },
         {
             index: 2,
-            model: neuroHackerModel,
-            text: 'Neuro Hacker'
+            model: m_dropHunter,
+            text: 'Drop Hunter',
+            animation: anims
         },
         {
             index: 3,
-            model: dropHunterModel,
-            text: 'Drop Hunter'
+            model: f_neuroHacker,
+            text: 'Neuro Hacker',
+            animation: anims
         },
         {
             index: 4,
-            model: neuroHackerModel,
-            text: 'Neuro Hacker'
+            model: m_neuroHacker,
+            text: 'Neuro Hacker',
+            animation: anims
         },
     ]);
 
@@ -126,7 +139,7 @@ export default function Landing({
         })
         setTitleAnimation.start({
           from: {
-            y: 0,
+            y: 0, 
           },
           to: {
             y: -window.innerHeight,
@@ -191,7 +204,7 @@ export default function Landing({
                     className="imgs"
                     style={{
                         display : 'flex',
-                        gap: '50px',
+                        //gap: '50px',
                         userSelect : "none",                        
                         marginTop: '30px',
                           ...cardAnimation,
@@ -212,7 +225,11 @@ export default function Landing({
                             onClick = {() => handleClick(item.index)}
                             >
                                 <LandingPop className="landingPop" text={item.text} />
-                                <ModelCanvas modelPath={item.model} order = {item.index} />
+                                <ModelCanvas 
+                                    modelPath={item.model} 
+                                    animation = {item.animation} 
+                                    order = {item.index} 
+                                />
                             </div>
                         ))
                     }
