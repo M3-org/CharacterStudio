@@ -33,7 +33,9 @@ export default [
         "Headbaked"
       ],
       "EyeTargets": [
-        "Headbaked_2"
+        "Headbaked_2",
+        "Headbaked_1",
+        
       ],
       "cullingModel":[
         "Body"

@@ -21,6 +21,8 @@ import {useMuteStore} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
+import optionClick from "../sound/option_click.wav"
+
 
 export default function Selector(props) {
   const {
@@ -51,6 +53,7 @@ export default function Selector(props) {
 
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
+  const [ inverse, setInverse ] = useState(false)
   
   const [play] = useSound(
     sectionClick,
@@ -163,19 +166,46 @@ export default function Selector(props) {
   const tickStyleInActive = {
     display : 'none'
   }
-  const moveCamera = (value:string) => {
-    if (templateInfo.cameraTarget){
-      if (templateInfo.cameraTarget[value]){
-        gsap.to(controls.target,{
-          y:templateInfo.cameraTarget[value].height,
+
+  const selectOption = (option:any) =>{
+    console.log('aaaaaaaaa', option)
+    moveCamera(option.cameraTarget)
+    !isMute && play();
+  }
+
+  const moveCamera = (value:any) => {
+    console.log('aaaaaaaaa', value)
+    if (value){
+      setInverse(!inverse);
+
+      gsap.to(controls.target,{
+        y:value.height,
+        duration: 1,
+      })
+
+      gsap.fromTo(controls,
+        {
+          maxDistance:controls.getDistance(),
+          minDistance:controls.getDistance(),
+          minPolarAngle:controls.getPolarAngle(),
+          minAzimuthAngle:controls.getAzimuthalAngle(),
+          maxAzimuthAngle:controls.getAzimuthalAngle(),
+        },
+        {
+          maxDistance:value.distance,
+          minDistance:value.distance,
+          minPolarAngle:(Math.PI / 2 - 0.11),
+          minAzimuthAngle: inverse ? -0.78 : 0.78,
+          maxAzimuthAngle: inverse ? -0.78 : 0.78,
           duration: 1,
-        })
-        gsap.to(controls,{
-          maxDistance:templateInfo.cameraTarget[value].distance,
-          minDistance:templateInfo.cameraTarget[value].distance,
-          duration: 1,
-        })
-      }
+        }
+      ).then(()=>{
+        controls.minPolarAngle = 0;
+        controls.minDistance = 0.5;
+        controls.maxDistance = 2.0;
+        controls.minAzimuthAngle = Infinity;
+        controls.maxAzimuthAngle = Infinity;
+      })
     }
   }
   React.useEffect(() => {
@@ -451,7 +481,11 @@ const getActiveStatus = (item) => {
                       selected = {colorCategory === 'color'}
                       onClick = {() => {
                         setColorCategory('color')
-                        moveCamera("full")
+                        selectOption({
+                          cameraTarget:{
+                            distance:1.4,
+                            height:0.8
+                        }})
                       }}
                     />
                     <ColorSelectButton 
@@ -459,7 +493,11 @@ const getActiveStatus = (item) => {
                       selected = {colorCategory === 'eyeColor'}
                       onClick = {() => {
                         setColorCategory('eyeColor')
-                        moveCamera("eye")
+                        selectOption({
+                          cameraTarget:{
+                            distance:0.5,
+                            height:1.45
+                        }})
                       }}
                     />
                   </div>
