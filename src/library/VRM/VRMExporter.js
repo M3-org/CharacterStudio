@@ -46,7 +46,7 @@ export default class VRMExporter {
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
-        const blendShapeProxy = vrm.blendShapeProxy;
+        const blendShapeProxy = vrm.expressionManager;
         const lookAt = vrm.lookAt;
         const springBone = vrm.springBoneManager;
         const exporterInfo = {
@@ -54,6 +54,18 @@ export default class VRMExporter {
             generator: "UniGLTF-2.0.0",
             version: "2.0",
         };
+
+        console.log(scene)
+        console.log(humanoid)
+        console.log(vrmMeta)
+        console.log(materials)
+
+        console.log(blendShapeProxy)
+        console.log(lookAt)
+        console.log(springBone)
+        console.log(exporterInfo)
+
+
         // TODO: とりあえず全部ある想定で進める
         if (!scene) {
             throw new Error("scene is undefined or null");
@@ -73,9 +85,10 @@ export default class VRMExporter {
         else if (!lookAt) {
             throw new Error("lookAt is undefined or null");
         }
-        else if (!springBone) {
-            throw new Error("springBone is undefined or null");
-        }
+        // remove
+        // else if (!springBone) {
+        //     throw new Error("springBone is undefined or null");
+        // }
         // TODO: name基準で重複除外 これでいいのか？
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
@@ -203,26 +216,27 @@ export default class VRMExporter {
             });
         });
         // secondary
-        const secondaryRootNode = scene.children.filter((child) => child.name === "secondary")[0];
-        outputNodes.push({
-            name: secondaryRootNode.name,
-            rotation: [
-                secondaryRootNode.quaternion.x,
-                secondaryRootNode.quaternion.y,
-                secondaryRootNode.quaternion.z,
-                secondaryRootNode.quaternion.w,
-            ],
-            scale: [
-                secondaryRootNode.scale.x,
-                secondaryRootNode.scale.y,
-                secondaryRootNode.scale.z,
-            ],
-            translation: [
-                secondaryRootNode.position.x,
-                secondaryRootNode.position.y,
-                secondaryRootNode.position.z,
-            ],
-        });
+        // remove
+        // const secondaryRootNode = scene.children.filter((child) => child.name === "secondary")[0];
+        // outputNodes.push({
+        //     name: secondaryRootNode.name,
+        //     rotation: [
+        //         secondaryRootNode.quaternion.x,
+        //         secondaryRootNode.quaternion.y,
+        //         secondaryRootNode.quaternion.z,
+        //         secondaryRootNode.quaternion.w,
+        //     ],
+        //     scale: [
+        //         secondaryRootNode.scale.x,
+        //         secondaryRootNode.scale.y,
+        //         secondaryRootNode.scale.z,
+        //     ],
+        //     translation: [
+        //         secondaryRootNode.position.x,
+        //         secondaryRootNode.position.y,
+        //         secondaryRootNode.position.z,
+        //     ],
+        // });
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
         const blendShapeMaster = {

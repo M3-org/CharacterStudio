@@ -6,17 +6,21 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
 import { startAnimation } from "../library/animations/animation"
-import { VRM, VRMSchema } from "@pixiv/three-vrm"
+import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
 import { Margin } from "@mui/icons-material"
 import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
+import gsap from 'gsap';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
+import {useMuteStore} from '../store'
 
+import {MeshBasicMaterial} from 'three'
+import { ColorSelectButton } from "./ColorSelectButton"
 
 export default function Selector(props) {
   const {
@@ -30,9 +34,14 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    controls,
+    model, 
+    modelClass
   }: any = props
+  const isMute = useMuteStore((state) => state.isMute)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
+  const [colorCategory, setColorCategory] = useState("color")
 
   const [collection, setCollection] = useState([])
   const [traitName, setTraitName] = useState("")
@@ -51,16 +60,16 @@ export default function Selector(props) {
   const iconPath = "./3d/icons-gradient/" + category + ".svg";
 
   const hairSubCategories = [
-    // {
-    //   id: 'style',
-    //   image: hairStyleImg,
-    //   activeImage: hairStyleImg,
-    // },
-    // {
-    //   id: 'color',
-    //   image: hairColorImg,
-    //   activeImage: hairColorImg,
-    // },
+    {
+      id: 'style',
+      image: hairStyleImg,
+      activeImage: hairStyleImg,
+    },
+    {
+      id: 'color',
+      image: hairColorImg,
+      activeImage: hairColorImg,
+    },
   ]
 
   const selectorContainer = {
@@ -154,6 +163,21 @@ export default function Selector(props) {
   const tickStyleInActive = {
     display : 'none'
   }
+  const moveCamera = (value:string) => {
+    if (templateInfo.cameraTarget){
+      if (templateInfo.cameraTarget[value]){
+        gsap.to(controls.target,{
+          y:templateInfo.cameraTarget[value].height,
+          duration: 1,
+        })
+        gsap.to(controls,{
+          maxDistance:templateInfo.cameraTarget[value].distance,
+          minDistance:templateInfo.cameraTarget[value].distance,
+          duration: 1,
+        })
+      }
+    }
+  }
   React.useEffect(() => {
     if (!scene || !templateInfo) return
     if (category) {
@@ -183,8 +207,8 @@ export default function Selector(props) {
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
-      if (!loaded) {
-        await setTempInfo(templates[0].id)
+      if (!loaded && modelClass) {
+        await setTempInfo(templates[modelClass-1].id)
       }
     }
     _get()
@@ -203,6 +227,7 @@ export default function Selector(props) {
       let ranItem;
       Object.entries(avatar).map((props : any) => {
         let traitName = props[0];
+        console.log(props)
         scene.remove(avatar[traitName].model);
       })
       let buffer={};
@@ -213,12 +238,13 @@ export default function Selector(props) {
             let collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
             var temp = await itemLoader(ranItem,traits);
+            console.log(temp)
             buffer = {...buffer,...temp};
             if(i == lists.length-1)
             setAvatar({
               ...avatar,
               ...buffer
-            })          
+            })   
           }
         })
       }
@@ -232,6 +258,7 @@ export default function Selector(props) {
     })
   }
   
+
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
@@ -240,10 +267,15 @@ export default function Selector(props) {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
-        if (avatar[traitName] && avatar[traitName].model) {
-          scene.remove(avatar[traitName].model)
-          //localStorage.removeItem('color')
+        
+        if (avatar[traitName] && avatar[traitName].vrm) {
+          sceneService.disposeVRM(avatar[traitName].vrm)
+          setAvatar({
+            ...avatar,
+            [traitName]: {}
+          })
         }
+        //sceneService.
       } else {
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
@@ -256,87 +288,62 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-const renameVRMBones = (vrm) =>{
-  for (let bone in VRMSchema.HumanoidBoneName) {
-    let bn = vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName[bone]);
-    if (bn != null)
-        bn.name = VRMSchema.HumanoidBoneName[bone];
-  } 
-}
+//console.log("5")
+  //console.log(avatar.accessories.traitInfo.id)
 const itemLoader =  async(item, traits = null) => {
- const loader =  new GLTFLoader()
- var vrm;
- await loader
-  .loadAsync(
-    `${templateInfo.traitsDirectory}${item?.directory}`,
-    (e) => {
-      // console.log((e.loaded * 100) / e.total);
-      setLoadingTrait(Math.round((e.loaded * 100) / e.total))
-    },
-  )
-  .then( (gltf) => {
-     vrm = gltf
-    // VRM.from(gltf).then(async (vrm) => {
-    // vrm.scene.scale.z = -1;
-    // console.log("scene.add", scene.add)
-    // TODO: This is a hack to prevent early loading, but we seem to be loading traits before this anyways
-    // await until scene is not null
-    new Promise<void>( (resolve) => {
-    // if scene, resolve immediately
-    if (scene && scene.add) {
-       resolve()
-    } else {
-        // if scene is null, wait for it to be set
-        const interval = setInterval(() => {
-          if (scene && scene.add) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      }
-    })
-    VRM.from(gltf).then((vrm2) => {
-      vrm2.scene.traverse((o) => {
-        o.frustumCulled = false
-      })
-      //vrm2.scene.rotation.set(Math.PI, 0, Math.PI)
-      
-      renameVRMBones(vrm2);
-      startAnimation(vrm2);
-      setLoadingTrait(null)
-      setLoadingTraitOverlay(false)
-      setTimeout(()=>{scene.add(vrm.scene)},50);
-   
-    })
-      // vrm.humanoid.getBoneNode(
-      //   VRMSchema.HumanoidBoneName.Hips,
-      // ).rotation.y = Math.PI
-    vrm.scene.frustumCulled = false
-    if (avatar[traitName]) {
-      setAvatar({
-        ...avatar,
-        [traitName]: {
-          traitInfo: item,
-          model: vrm.scene,
+  let r_vrm;
+  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
+    .then((vrm) => {
+      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
+      console.log(vrm)
+      r_vrm = vrm;
+      new Promise<void>( (resolve) => {
+      // if scene, resolve immediately
+      if (scene && scene.add) {
+         resolve()
+      } else {
+          // if scene is null, wait for it to be set
+          const interval = setInterval(() => {
+            if (scene && scene.add) {
+              clearInterval(interval)
+              resolve()
+            }
+          }, 100)
         }
       })
-      if (avatar[traitName].model) {
-        setTimeout(() => {
-          scene.remove(avatar[traitName].model)
-        },60);
+      //console.log("check here");
+      startAnimation(vrm);
+      setLoadingTrait(null)
+      setLoadingTraitOverlay(false)
+      setTimeout(()=>{
+        model.scene.add(vrm.scene)
+      },100);
+      if (avatar[traitName]) {
+        
+        setAvatar({
+          ...avatar,
+          [traitName]: {
+            traitInfo: item,
+            model: vrm.scene,
+            vrm: vrm
+          }
+        })
+        if (avatar[traitName].vrm) {
+          setTimeout(() => {
+            sceneService.disposeVRM(avatar[traitName].vrm);
+          },60);
+        }
       }
-    }
-  })
+    })
   
   return {
       [traits?.trait]: {
         traitInfo: item,
-        model: vrm.scene,
+        model: r_vrm.scene,
       }
     }
   // });
 }
-
 const getActiveStatus = (item) => {
   if(category === 'gender') {
     if(templateInfo.id === item?.id) 
@@ -348,6 +355,10 @@ const getActiveStatus = (item) => {
     return true
   return false
 }
+  // selector will onyl get the information of thew data that is being provided
+  // this is important as all icons will be updated accodingly to the json file proviided by the user
+  // there will be some special cases (skin eye color) were this values will be placed differentluy 
+  // return(<></>);
   return (
     <div style={selectorContainerPos} >
       <div className="selector-container" style={selectorContainer}>
@@ -391,28 +402,25 @@ const getActiveStatus = (item) => {
                   <div 
                     className="hair-sub-category"
                     style={{
-                      display: 'block',
-                      width: '100%',
-                      marginLeft: '10px',
+                      display: 'flex',
+                      gap: '20px',
+                      padding : "24px 24px 24px"
                     }}
                   >
-                    {
-                      hairSubCategories.map(item => (
-                        <img 
-                          src= {item.image}
-                          style = {{
-                            width: '90px',
-                            height: '90px',
-                            borderBottom: item.id === hairCategory && '4px solid rgb(97, 229, 249)',
-                            opacity: item.id === hairCategory ? 1 : 0.2,
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            play()
-                            setHairCategory(item.id);
-                          }}
-                        />))
-                    }
+                    <ColorSelectButton 
+                      text="Hair"
+                      selected = {hairCategory === 'style'}
+                      onClick = {() => {
+                        setHairCategory('style')
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Color"
+                      selected = {hairCategory === 'color'}
+                      onClick = {() => {
+                        setHairCategory('color')
+                      }}
+                    />
                   </div>
                 )
             }
@@ -430,10 +438,37 @@ const getActiveStatus = (item) => {
               }}
             >
               {category === "color" ? (
-                <Skin
-                  scene={scene}
-                  templateInfo={templateInfo}
-                />
+                <div>
+                  <div 
+                    className="sub-category-header"
+                    style={{
+                      display: 'flex',
+                      gap: '20px',
+                    }}
+                  >
+                    <ColorSelectButton 
+                      text="Skin"
+                      selected = {colorCategory === 'color'}
+                      onClick = {() => {
+                        setColorCategory('color')
+                        moveCamera("full")
+                      }}
+                    />
+                    <ColorSelectButton 
+                      text="Eye Color"
+                      selected = {colorCategory === 'eyeColor'}
+                      onClick = {() => {
+                        setColorCategory('eyeColor')
+                        moveCamera("eye")
+                      }}
+                    />
+                  </div>
+                  <Skin
+                    scene={scene}
+                    templateInfo={templateInfo}
+                    category={colorCategory}
+                  />
+                </div>
               ) : (
                  (category !== 'head' || hairCategory !== 'color') ? 
                     <React.Fragment>
@@ -442,7 +477,7 @@ const getActiveStatus = (item) => {
                         className={`selector-button ${noTrait ? "active" : ""}`}
                         onClick={() => {
                           selectTrait("0");
-                          play();
+                          !isMute && play();
                         }}
                       >
                         <img style={traitsCancelStyle}
@@ -465,7 +500,7 @@ const getActiveStatus = (item) => {
                                   setLoaded(true)
                                   setTempInfo(item.id)
                                 }
-                                play()
+                                !isMute && play();
                                 selectTrait(item)
                               }}
                             >
@@ -499,6 +534,8 @@ const getActiveStatus = (item) => {
                     <Skin
                       scene={scene}
                       templateInfo={templateInfo}
+                      category={category}
+                      avatar={avatar}
                     />
                   )
               )}

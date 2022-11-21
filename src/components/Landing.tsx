@@ -1,30 +1,82 @@
 
-import { textAlign } from "@mui/system";
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import { Triangle } from 'react-loader-spinner'
 import useSound from 'use-sound';
 import dropHunter from '../ui/landing/drophunter.png'
 import neuroHacker from '../ui/landing/neurohacker.png'
+import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import bgm from "../sound/cc_bgm_balanced.wav"
 
-export default function Landing({
-    onSetModel
-    }){
+import ModelCanvas from './ModelCanvas';
+import { LandingPop } from './LandingPop';
+import { useMuteStore, useModelingStore} from '../store'
+import { StyledLanding } from '../styles/landing.styled.js'
+
+
+export default function Landing(props){
+
+    const {
+        onSetModel,
+        templates
+    }:any = props;
+    
+    const isMute = useMuteStore((state) => state.isMute)
+    const setMute = useMuteStore((state) => state.setMute)
+
+    const isModeling = useModelingStore((state) => state.isModeling)
+    const isComplete = useModelingStore((state) => state.isComplete)
 
     const [clicked, setClicked] = useState(false);
 
-    const [isLoading, setIsLoading] = useState(true);
-    
+    const [isLoading, setIsLoading] = useState(false);
+   
+    const f_dropHunter = "../3d/models/f_drophunter_v1.vrm"
+    const m_dropHunter = "../3d/models/m_drophunter_v1.vrm"
+
+    const f_neuroHacker = "../3d/models/f_neurohacker_v1.vrm"
+    const m_neuroHacker = "../3d/models/m_neurohacker_v1.vrm"
+
+    const anims = "../3d/animations/idle_sword.fbx";
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
+    
+    //should be included in templates
+    const [modelArr, setModelArr] = useState([
+        {
+            index: 1,
+            model: f_dropHunter,
+            text: 'Drop Hunter',
+            animation: anims
+        },
+        {
+            index: 2,
+            model: m_dropHunter,
+            text: 'Drop Hunter',
+            animation: anims
+        },
+        {
+            index: 3,
+            model: f_neuroHacker,
+            text: 'Neuro Hacker',
+            animation: anims
+        },
+        {
+            index: 4,
+            model: m_neuroHacker,
+            text: 'Neuro Hacker',
+            animation: anims
+        },
+    ]);
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
     const [isHovering, setIsHovering] = useState(false);
+    const [musicStatus, setMusicStatus] = useState(false);
+    const [loadingPercent, setLoadingPercent] = useState(0);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
      from: { y: 0 },
@@ -32,19 +84,37 @@ export default function Landing({
 
     const handleLoading = () => {
         setIsLoading(false);
+        console.log("isloading")
     }
     useEffect(() => {
-        window.addEventListener("load", handleLoading);
+        setIsLoading(true)
+        // window.addEventListener("load", handleLoading);
     }, [])
 
-    const [playingBGM, setPlayingBGM] = useState(false)
-    const [backWav] = useSound(
-        bgm,
-        { volume: 1.0,
-        loop : true }
-      );
+    useEffect(() => {
+        let sum = 0;
+        isModeling.map((item, idx) => {
+            if(item !== undefined)
+            sum += item;
+        })
+        
+        console.log('$$$', sum / modelArr.length)
+        setLoadingPercent(sum / modelArr.length)
+    }, [isModeling])
 
-    const [play, { stop }] = useSound(
+    useEffect(() => {
+        let sum = 0;
+        isComplete.map((item, idx) => {
+            if(item !== undefined)
+            sum += 1;
+        })
+        
+        if(sum === modelArr.length) {
+            setIsLoading(false)
+        }
+    }, [isComplete])
+
+    const [play] = useSound(
         passUrl,
         { volume: 1.0 }
       );
@@ -55,7 +125,8 @@ export default function Landing({
     );
 
     const handleClick = (type)=> {
-        click();
+        if(!isMute)
+            click();
         setCardAnimation.start({
           from: {
             opacity : 1,
@@ -68,7 +139,7 @@ export default function Landing({
         })
         setTitleAnimation.start({
           from: {
-            y: 0,
+            y: 0, 
           },
           to: {
             y: -window.innerHeight,
@@ -79,7 +150,7 @@ export default function Landing({
             onSetModel(type)    
         }, 500)
     }
-    return !isLoading ? (
+    return (
         <div 
             style = {{
                 height: '100vh',
@@ -90,14 +161,16 @@ export default function Landing({
                 overflow : 'hidden',
             }
             }
-            onClick={() => {
-                if (playingBGM === false){
-                    backWav()
-                    setPlayingBGM(true);
-                }
-            }
-            }
             >
+                {
+                    isLoading && (
+                        <LoadingOverlayCircularStatic
+                            loadingModelProgress={loadingPercent}
+                            background={true}
+                        />
+                    )
+                }
+
                 <animated.div style = {{...titleAnimation}}>
                        <div className="topBanner" style={{
                        }} >     
@@ -127,69 +200,38 @@ export default function Landing({
                             </div>
                         </div>
                 </animated.div>
-
                 <animated.div 
                     className="imgs"
                     style={{
                         display : 'flex',
-                        gap: '50px',
+                        //gap: '50px',
                         userSelect : "none",                        
                         marginTop: '30px',
                           ...cardAnimation,
                     }}
                 >
-                    <div className='characterGroup' 
-                    onMouseEnter={() => {
-                        setIsHovering(true);
-                        play();
-                    }}
-                    onMouseLeave={() => {
-                        setIsHovering(false);
-                        stop();
-                    }}
-                     onClick = {() => handleClick(1)}>
-                     <div className="inner">
-                        <span className='characterTitle' >Drophunter</span>
-                        <img
-                            src={dropHunter}
-                            className = 'characterImage'
-                        />
-                    </div>
-                    </div>
-                    <div className='characterGroup'  
-                        onMouseEnter={() => {
-                            setIsHovering(true);
-                            play();
-                        }}
-                        onMouseLeave={() => {
-                            setIsHovering(false);
-                            stop();
-                        }}
-                        onClick = {() => handleClick(2)}>
-                        <div className="inner">
-                        <span className='characterTitle'>Neurohacker</span>
-                        <img
-                            src={neuroHacker}
-                            className = 'characterImage'
-                        />
-                        </div>
-                    </div>
+                    {
+                        modelArr.map((item, idx) => (
+                            <div className='characterGroup' key={idx}
+                                onMouseEnter={() => {
+                                    setIsHovering(true);
+                                    if(!isMute)
+                                        play();
+                                }}
+                                onMouseLeave={() => {
+                                    setIsHovering(false);
+                                    stop();
+                            }}
+                            onClick = {() => handleClick(item.index)}
+                            >
+                                <LandingPop className="landingPop" text={item.text} />
+                                <ModelCanvas 
+                                    modelPath={item.model} 
+                                    animation = {item.animation} 
+                                    order = {item.index} 
+                                />
+                            </div>
+                        ))
+                    }
                 </animated.div>
-            </div>
-    ):(
-        <Triangle
-            height="80"
-            width = "80"
-            radius = "9"
-            color = "green"
-            ariaLabel = "Lodaing"
-            wrapperStyle = {{
-                justifyContent: "center",
-                alignItems : "center",
-                height : "100vh"
-            }}
-            wrapperClass= ""
-            visible = {true}
-            />
-    
-)}
+            </div>)}

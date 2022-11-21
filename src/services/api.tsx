@@ -1,13 +1,22 @@
+import axios from "axios";
+
 import bones from "../library/bones";
 import { loadAnimation } from "../library/animations/animation"
 //import templates from "../data/base_models";
 
+const pinataApiKey = '05efa6dda750457f9c78';
+const pinataSecretApiKey = 'f2b51a2d960d6c2ab02163cd57979fe4e47b6287f048ae47ff8967f27623308b';
+
+// PINATA_API_KEY=4327cb1d2291c81e79ca
+// PINATA_SECRET_API_KEY=0a9c01fcafd1db1266325f52be4d135f0f578bd8d13b486d4bffbc2fb4325dcd
 export const apiService = {
   fetchBones,
   filterElements,
   fetchTemplate,
   fetchTraitsByCategory,
-  fetchCategoryList
+  fetchCategoryList,
+  saveFileToPinata,
+  saveMetaDataToPinata,
 };
 
 let modelTraits = []
@@ -69,4 +78,37 @@ async function filterElements(search: any, elements: any, category: any) {
       };
     }
   }
+}
+
+async function saveFileToPinata(fileData: any, fileName: any) {
+
+  const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+  let data = new FormData();
+  data.append("file", fileData, fileName);
+  let resultOfUpload = await axios.post(url, data, {
+      maxContentLength: "Infinity", //this is needed to prevent axios from erroring out with large files
+      maxBodyLength: "Infinity", //this is needed to prevent axios from erroring out with large files
+      headers: {
+        "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+        pinata_api_key: pinataApiKey,
+        pinata_secret_api_key: pinataSecretApiKey,
+      },
+    });
+    return resultOfUpload.data;
+}
+
+async function saveMetaDataToPinata(metadata: any) {
+  // const response = await axios.post(`${BASE_URI_PROD}/save-metadata`, {
+  //   ...metadata,
+  // });
+  // return response.data;
+  const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+  let resultOfUpload = await axios
+    .post(url, metadata, {
+      headers: {
+        pinata_api_key: pinataApiKey,
+        pinata_secret_api_key: pinataSecretApiKey,
+      },
+    })
+  return resultOfUpload.data;
 }

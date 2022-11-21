@@ -5,7 +5,7 @@ import { RgbColorPicker  } from "react-colorful";
 import { useEffect, useState, useRef } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
 
-function Skin({ scene, templateInfo }) {
+function Skin({ scene, templateInfo, category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
@@ -15,7 +15,6 @@ function Skin({ scene, templateInfo }) {
     alignItems: "center",
     margin: "0.5rem 0"
   }
-
   const btn = {
       width : "56.53px",
       height : "56.54px",
@@ -33,12 +32,38 @@ function Skin({ scene, templateInfo }) {
     setChecked(currentColor)
   }, templateInfo)
 
+  const getHairMaterial = () => {
+     let material = [];
+     const hairModel = avatar.head.model;
+      hairModel.traverse((o)=> {
+        if(o.isSkinnedMesh){
+          material = [...material, o.name]
+        }
+      })
+      return material;
+  }
+
+  const getEyeMaterial = () => {
+
+  }
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
-    for (const bodyTarget of templateInfo.bodyTargets) {
+    let colorTargets;
+    if(category === "head"){
+      colorTargets = getHairMaterial();
+    }
+    if(category === "eyeColor"){
+      // templateInfo.bodyTargets = [];
+      colorTargets = templateInfo.EyeTargets;
+    }
+    if(category === "color"){
+      colorTargets = templateInfo.bodyTargets;
+    }
+    console.log(category)
+    console.log(colorTargets)
+    for (const bodyTarget of colorTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
-      console.log('$$$', value)
       localStorage.setItem('color', value);
       sceneService.setSkinColor(value)
     }
@@ -48,12 +73,23 @@ function Skin({ scene, templateInfo }) {
     const col = "rgb(" + color.r + ', ' + color.g + ', ' + color.b + ")";
     handleChangeSkin(col)
   }
-
-  const colorArray = [
-    ["#8F7B72", "#7F6B5D", "#6A5144", "#5C4031", "#4C342D", "#3C2516", "#2B180A", "#0F0204"],
-    ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
-    ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]
-  ];
+  const colorArray = {
+    color : [
+      ["#8F7B72", "#7F6B5D", "#6A5144", "#5C4031", "#4C342D", "#3C2516", "#2B180A", "#0F0204"],
+      ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
+      ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]
+    ],
+    eyeColor : [
+      ["#8F7B72", "#817071", "#7F6B52", "#6F5B42", "#5F4B32", "#4F3B22", "#3F2B12", "#f00000"],
+      ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
+      ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]
+    ],
+    head : [
+      ["#ff0000", "#00ff00", "#0000ff", "#090807", "#f7e6b5", "#c37c3c", "#e4a1c1", "#8F7B72"],
+      ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
+      ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]
+    ]
+};
   
   const hexToRgbA = (hex) =>{
       var c;
@@ -79,7 +115,7 @@ function Skin({ scene, templateInfo }) {
         marginTop: '40px',
       }}
     >
-    {colorArray.map((row, i) => {
+    {colorArray[category].map((row, i) => {
       return row.map((col, k) => 
         (
           <div 
