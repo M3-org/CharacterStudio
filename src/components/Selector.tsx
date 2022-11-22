@@ -256,8 +256,8 @@ export default function Selector(props) {
       
       let lists = apiService.fetchCategoryList();
       let ranItem;
-      Object.entries(avatar).map((props : any) => {
-        let traitName = props[0];
+      //Object.entries(avatar).map((props : any) => {
+        //let traitName = props[0];
 
         // if (avatar[traitName] && avatar[traitName].vrm) {
         //   sceneService.disposeVRM(avatar[traitName].vrm)
@@ -269,26 +269,33 @@ export default function Selector(props) {
 
 
         //scene.remove(avatar[traitName].model);
-      })
+      //})
       let buffer={};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
+          console.log(traits)
           if (traits) {
             const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
-            const temp = await itemLoader(ranItem,traits);
-
-            console.log(traits.trait)
-            console.log(avatar[traits.trait])
-            if (avatar[traits.trait] && avatar[traits.trait].vrm) {
-              sceneService.disposeVRM(avatar[traits.trait].vrm)
+            if (avatar[traits.trait]){
+              if (avatar[traits.trait].traitInfo != ranItem ){
+                const temp = await itemLoader(ranItem,traits, false);
+                buffer = {...buffer,...temp};
+              }
             }
-
-            buffer = {...buffer,...temp};
           }
         })
       }
+      for (const property in buffer) {
+        if (avatar[property]?.vrm){
+          sceneService.disposeVRM(avatar[property].vrm)
+        }
+        startAnimation(buffer[property].vrm);
+        model.scene.add(buffer[property].vrm.scene);
+        //console.log(`${property}: ${buffer[property]}`);
+      }
+      console.log(buffer)
       setAvatar({
       ...avatar,
       ...buffer
@@ -364,9 +371,7 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
       if (addToScene){
         startAnimation(vrm);
-        setTimeout(()=>{
-          model.scene.add(vrm.scene)
-        });
+        model.scene.add(vrm.scene);
       }
       if (avatar[traitName]) {
         
