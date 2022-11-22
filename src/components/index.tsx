@@ -3,7 +3,7 @@ import React, { Suspense, useState, useEffect, Fragment } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 //import DownloadCharacter from "./Download"
 //import LoadingOverlayCircularStatic from "./LoadingOverlay"
-import { sceneService } from "../services"
+import { apiService, sceneService } from "../services"
 import { startAnimation } from "../library/animations/animation"
 import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
@@ -56,6 +56,7 @@ export default function CharacterEditor(props: any) {
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
   const [randomFlag, setRandomFlag] = useState(-1);
+  const [loadedTraits, setLoadedTraits] = useState(false)
 
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
@@ -81,6 +82,14 @@ export default function CharacterEditor(props: any) {
       },
     },
   })
+
+  useEffect(()=>{
+    if (loadedTraits === true){
+      setLoading(false)
+      setLoadedTraits(false)
+    }
+  }, [loadedTraits])
+
   useEffect(() => {
     if(avatar){
       console.log(avatar)
@@ -128,8 +137,8 @@ export default function CharacterEditor(props: any) {
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
         .then((vrm)=>{
           setTimeout(()=>{
-            setLoading(false)
             startAnimation(vrm)
+            
             setTimeout(()=>{
               newScene.add (vrm.scene);
 
@@ -139,8 +148,10 @@ export default function CharacterEditor(props: any) {
               console.log(vrm);
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+              
               setModel(vrm);
-              //setAvatar(vrm)
+              setRandomFlag(1);
+              
             },50);
           },1000)
         })
@@ -172,6 +183,7 @@ export default function CharacterEditor(props: any) {
                 setEnd={setEnd}
                 setRandomFlag = {setRandomFlag}
                 randomFlag = {randomFlag}
+                setLoadedTraits = {setLoadedTraits}
               />  
             </animated.div>
           </Fragment>

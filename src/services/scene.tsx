@@ -73,9 +73,6 @@ const cullHiddenMeshes = () => {
     }
     const targets = avatarTemplateInfo.cullingModel;
     if (targets){
-      console.log(avatarTemplateInfo)
-      console.log(targets)
-      console.log(scene)
       for (let i =0; i < targets.length; i++){
         const obj = scene.getObjectByName(targets[i])
         if (obj != null){
@@ -311,6 +308,7 @@ function getModelProperty(model:any, property:string):any{
 
 function disposeVRM (vrm: any) {
   const model = vrm.scene;
+  console.log(model)
   disposeAnimation(getModelProperty(model, "animControl"));
   
   model.traverse((o)=>{
@@ -330,7 +328,8 @@ function disposeVRM (vrm: any) {
         }
     }
   })
-  model.parent.remove(model);
+  if (model.parent)
+    model.parent.remove(model);
   
 }
 

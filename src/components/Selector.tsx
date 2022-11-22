@@ -37,6 +37,7 @@ export default function Selector(props) {
     templateInfo,
     randomFlag,
     setRandomFlag,
+    setLoadedTraits,
     controls,
     model, 
     modelClass
@@ -250,17 +251,24 @@ export default function Selector(props) {
   ])
 
   React.useEffect(  () => {
-    (async ():Promise<void>=>{
-      console.log(randomFlag)
-      console.log("enters")
+    (async ()=>{
       if(randomFlag === -1) return;
       
       let lists = apiService.fetchCategoryList();
       let ranItem;
       Object.entries(avatar).map((props : any) => {
         let traitName = props[0];
-        console.log(props)
-        scene.remove(avatar[traitName].model);
+
+        // if (avatar[traitName] && avatar[traitName].vrm) {
+        //   sceneService.disposeVRM(avatar[traitName].vrm)
+        //   setAvatar({
+        //     ...avatar,
+        //     [traitName]: {}
+        //   })
+        // }
+
+
+        //scene.remove(avatar[traitName].model);
       })
       let buffer={};
       for(let i=0; i < lists.length ; i++){
@@ -270,6 +278,13 @@ export default function Selector(props) {
             const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
             const temp = await itemLoader(ranItem,traits);
+
+            console.log(traits.trait)
+            console.log(avatar[traits.trait])
+            if (avatar[traits.trait] && avatar[traits.trait].vrm) {
+              sceneService.disposeVRM(avatar[traits.trait].vrm)
+            }
+
             buffer = {...buffer,...temp};
           }
         })
@@ -278,6 +293,8 @@ export default function Selector(props) {
       ...avatar,
       ...buffer
       });
+      
+      if (randomFlag === 1) setLoadedTraits(true);
       setRandomFlag(-1);
     })()
 
@@ -321,7 +338,7 @@ export default function Selector(props) {
   }
 //console.log("5")
   //console.log(avatar.accessories.traitInfo.id)
-const itemLoader =  async(item, traits = null) => {
+const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
@@ -342,13 +359,15 @@ const itemLoader =  async(item, traits = null) => {
           }, 100)
         }
       })
-      //console.log("check here");
-      startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      setTimeout(()=>{
-        model.scene.add(vrm.scene)
-      });
+
+      if (addToScene){
+        startAnimation(vrm);
+        setTimeout(()=>{
+          model.scene.add(vrm.scene)
+        });
+      }
       if (avatar[traitName]) {
         
         setAvatar({

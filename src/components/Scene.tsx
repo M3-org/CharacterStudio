@@ -129,6 +129,7 @@ export default function Scene(props: any) {
     setEnd,
     setRandomFlag,
     randomFlag,
+    setLoadedTraits,
     model }: any = props;
 
   const handleDownload = () =>{
@@ -355,6 +356,7 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
+          setLoadedTraits = {setLoadedTraits}
           setRandomFlag = {setRandomFlag} 
           controls = {controls}
           model = {model}
