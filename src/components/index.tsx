@@ -55,6 +55,8 @@ export default function CharacterEditor(props: any) {
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
+  const [randomFlag, setRandomFlag] = useState(-1);
+
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
     body:{},
@@ -81,6 +83,7 @@ export default function CharacterEditor(props: any) {
   })
   useEffect(() => {
     if(avatar){
+      console.log(avatar)
       sceneService.setTraits(avatar);
     }
   }, [avatar])
@@ -102,8 +105,6 @@ export default function CharacterEditor(props: any) {
   //   backgroundColor: "rgba(16,16,16,0.6)",
   //   color: "#efefef"
   // }
-
-
 
   useEffect(() => {
     if(model)
@@ -169,6 +170,8 @@ export default function CharacterEditor(props: any) {
                 setModelClass={setModelClass}
                 modelClass = {modelClass}
                 setEnd={setEnd}
+                setRandomFlag = {setRandomFlag}
+                randomFlag = {randomFlag}
               />  
             </animated.div>
           </Fragment>

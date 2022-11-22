@@ -16,7 +16,7 @@ export default function Editor(props: any) {
   const [ inverse, setInverse ] = useState(false)
 
   const handleRandom = () => {
-    props.random();
+    props.setRandomFlag(0);
   }
 
 

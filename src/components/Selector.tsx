@@ -36,6 +36,7 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    setRandomFlag,
     controls,
     model, 
     modelClass
@@ -249,8 +250,9 @@ export default function Selector(props) {
   ])
 
   React.useEffect(  () => {
-    (async ()=>{
-
+    (async ():Promise<void>=>{
+      console.log(randomFlag)
+      console.log("enters")
       if(randomFlag === -1) return;
       
       let lists = apiService.fetchCategoryList();
@@ -265,19 +267,18 @@ export default function Selector(props) {
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
           if (traits) {
-            let collection = traits.collection;
+            const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
-            var temp = await itemLoader(ranItem,traits);
-            console.log(temp)
+            const temp = await itemLoader(ranItem,traits);
             buffer = {...buffer,...temp};
-            if(i == lists.length-1)
-            setAvatar({
-              ...avatar,
-              ...buffer
-            })   
           }
         })
       }
+      setAvatar({
+      ...avatar,
+      ...buffer
+      });
+      setRandomFlag(-1);
     })()
 
   }, [randomFlag])
@@ -361,7 +362,8 @@ const itemLoader =  async(item, traits = null) => {
         if (avatar[traitName].vrm) {
           setTimeout(() => {
             sceneService.disposeVRM(avatar[traitName].vrm);
-          },100);
+          },50);
+          // small delay to avoid character being with no clothes
         }
       }
     })
@@ -370,6 +372,7 @@ const itemLoader =  async(item, traits = null) => {
       [traits?.trait]: {
         traitInfo: item,
         model: r_vrm.scene,
+        vrm: r_vrm
       }
     }
   // });

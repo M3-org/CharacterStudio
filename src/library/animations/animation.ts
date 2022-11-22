@@ -89,7 +89,7 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
 
   const animControl = {mixer:mixer, actions:actions, to:actions[curAnimID], from:null};
-  animControls.push(animControl);
+  
 
   //console.log(animControls)
 
@@ -106,11 +106,13 @@ export const startAnimation = async (gltf: any):Promise<void> => {
     animControl.from.weight = weightOut;
   }
 
+  
+
   actions[curAnimID].reset();
-  actions[curAnimID].time = animControls[0].actions[curAnimID].time;
+  actions[curAnimID].time = animControls.length > 0 ? animControls[0].actions[curAnimID].time : 0.1;
   actions[curAnimID].play();
   
-  
+  animControls.push(animControl);
   
  
   if (!started){
