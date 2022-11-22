@@ -47,6 +47,7 @@ let traits = {};
 
 const setTraits = (newTraits: any) => {
   traits = newTraits;
+  console.log (traits)
   cullHiddenMeshes();
 }
 
@@ -307,6 +308,7 @@ function getModelProperty(model:any, property:string):any{
 }
 
 function disposeVRM (vrm: any) {
+  console.warn(vrm)
   const model = vrm.scene;
   console.log(model)
   disposeAnimation(getModelProperty(model, "animControl"));

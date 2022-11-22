@@ -270,11 +270,10 @@ export default function Selector(props) {
 
         //scene.remove(avatar[traitName].model);
       //})
-      let buffer={};
+      let buffer = {...avatar};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
-          console.log(traits)
           if (traits) {
             const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
@@ -288,14 +287,16 @@ export default function Selector(props) {
         })
       }
       for (const property in buffer) {
-        if (avatar[property]?.vrm){
-          sceneService.disposeVRM(avatar[property].vrm)
+        if (buffer[property].vrm){
+          if (avatar[property].vrm != buffer[property].vrm){
+            if (avatar[property].vrm != null){
+              sceneService.disposeVRM(avatar[property].vrm)
+            }
+          }
+          startAnimation(buffer[property].vrm);
+          model.scene.add(buffer[property].vrm.scene);
         }
-        startAnimation(buffer[property].vrm);
-        model.scene.add(buffer[property].vrm.scene);
-        //console.log(`${property}: ${buffer[property]}`);
       }
-      console.log(buffer)
       setAvatar({
       ...avatar,
       ...buffer
@@ -350,7 +351,6 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
-      console.log(vrm)
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately
@@ -372,22 +372,23 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
       if (addToScene){
         startAnimation(vrm);
         model.scene.add(vrm.scene);
-      }
-      if (avatar[traitName]) {
-        
-        setAvatar({
-          ...avatar,
-          [traitName]: {
-            traitInfo: item,
-            model: vrm.scene,
-            vrm: vrm
+     
+        if (avatar[traitName]) {
+          
+          setAvatar({
+            ...avatar,
+            [traitName]: {
+              traitInfo: item,
+              model: vrm.scene,
+              vrm: vrm
+            }
+          })
+          if (avatar[traitName].vrm) {
+            setTimeout(() => {
+              sceneService.disposeVRM(avatar[traitName].vrm);
+            },50);
+            // small delay to avoid character being with no clothes
           }
-        })
-        if (avatar[traitName].vrm) {
-          setTimeout(() => {
-            sceneService.disposeVRM(avatar[traitName].vrm);
-          },50);
-          // small delay to avoid character being with no clothes
         }
       }
     })
