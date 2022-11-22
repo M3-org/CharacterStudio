@@ -47,7 +47,6 @@ let traits = {};
 
 const setTraits = (newTraits: any) => {
   traits = newTraits;
-  console.log (traits)
   cullHiddenMeshes();
 }
 
@@ -97,7 +96,6 @@ const cullHiddenMeshes = () => {
           console.warn(targets[i] + " not found");
         }
       }
-      console.log(models)
       CullHiddenFaces(models);
     }
   }
@@ -111,7 +109,6 @@ const getTraits = () => traits;
 
 async function loadTexture(location:string):Promise<THREE.Texture>{
   const txt = textureLoader.load(location);
-  console.log(txt);
   return txt;
 }
 
@@ -134,7 +131,6 @@ async function loadLottie(file:string, quality?:number, playAnimation?:boolean, 
 
 
 async function getModelFromScene(format = 'glb') {
-  console.log(format)
   if (format && format === 'glb') {
     const exporter = new GLTFExporter()
     const options = {
@@ -145,7 +141,6 @@ async function getModelFromScene(format = 'glb') {
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     }
-    console.log("Scene is", scene);
 
     //temporary remove data, maybe we should make it in a different way to avoid this?
     // const data = avatarModel.scene.userData.data;
@@ -156,7 +151,6 @@ async function getModelFromScene(format = 'glb') {
     const avatar = await combine({ transparentColor:skinColor, avatar:avatarModel.scene.clone() });
     
     const glb: any = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
-    console.log("after")
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -268,7 +262,6 @@ loader.register((parser) => {
 
 async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
-    console.log(model)
     const vrm = model.userData.vrm;
     // setup for vrm
     //renameVRMBones(vrm);
@@ -308,9 +301,7 @@ function getModelProperty(model:any, property:string):any{
 }
 
 function disposeVRM (vrm: any) {
-  console.warn(vrm)
   const model = vrm.scene;
-  console.log(model)
   disposeAnimation(getModelProperty(model, "animControl"));
   
   model.traverse((o)=>{
@@ -366,7 +357,6 @@ const createFaceNormals  = (geometry:THREE.BufferGeometry) => {
 const renameVRMBones = (vrm:VRM) =>{
   const bones = vrm.firstPerson.humanoid.humanBones;
   for (const boneName in bones) {
-    //console.log(boneName);
     bones[boneName].node.name = boneName;
   } 
 }
@@ -384,7 +374,6 @@ function setupModel(vrm: VRM):void{
       }
       
       createFaceNormals(child.geometry)
-      console.log(child.geometry);
 
       if (child.material.length > 1){
         child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
@@ -482,7 +471,6 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-    console.log(skinColor);
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,

@@ -73,6 +73,7 @@ const cleanupMixers = () => {
 }
 
 export const startAnimation = async (gltf: any):Promise<void> => {
+  //return;
   if (!animations) return
   // important to do* check mixers and remove those that are no longer active in the scene
   cleanupMixers();
