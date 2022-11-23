@@ -15,15 +15,13 @@ import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-
 import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useRotateStore } from "../store";
+import { useHideStore, useRotateStore } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
-
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -43,6 +41,7 @@ export default function Scene(props: any) {
   const [autoRotate, setAutoRotate] = useState(true);
 
   const isRotate = useRotateStore((state) => state.isRotate)
+  const ishidden =  useHideStore((state) => state.ishidden)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -241,11 +240,12 @@ export default function Scene(props: any) {
       }
     }
   }
-
+  const leftPadding = ishidden ? '100px' : '700px'
+  
   return (
-    <FitParentContainer>
-      <Background>
-        <ResizeableCanvas left = {'700px'} right = {'100px'}>
+    <FitParentContainer >
+      <Background >
+        <ResizeableCanvas left = {leftPadding} right = {'100px'}>
           <Canvas
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
@@ -348,7 +348,6 @@ export default function Scene(props: any) {
         setTemplateInfo(null);
         sceneService.setAvatarTemplateInfo(null);
       }}/>
-
       <div>
         <Selector
           templates={templates}
