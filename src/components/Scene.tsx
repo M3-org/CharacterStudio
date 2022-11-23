@@ -295,7 +295,8 @@ export default function Scene(props: any) {
                 <TemplateModel scene={scene} />
               )}
             <mesh rotation = {[-Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.6, 64]} />
+              <circleGeometry 
+                args={[0.6, 64]} />
               <MeshReflectorMaterial
                 blur={[100, 100]}
                 opacity={1}

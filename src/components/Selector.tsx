@@ -14,6 +14,7 @@ import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
 import gsap from 'gsap';
+import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
@@ -344,8 +345,6 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-//console.log("5")
-  //console.log(avatar.accessories.traitInfo.id)
 const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
@@ -371,25 +370,27 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
       if (addToScene){
         startAnimation(vrm);
-        model.scene.add(vrm.scene);
-     
-        if (avatar[traitName]) {
-          
-          setAvatar({
-            ...avatar,
-            [traitName]: {
-              traitInfo: item,
-              model: vrm.scene,
-              vrm: vrm
+        setTimeout(() => {  // wait for it to play 
+          model.scene.add(vrm.scene);
+       
+          if (avatar[traitName]) {
+            
+            setAvatar({
+              ...avatar,
+              [traitName]: {
+                traitInfo: item,
+                model: vrm.scene,
+                vrm: vrm
+              }
+            })
+            if (avatar[traitName].vrm) {
+              //setTimeout(() => {
+                sceneService.disposeVRM(avatar[traitName].vrm);
+              //},200);
+              // small delay to avoid character being with no clothes
             }
-          })
-          if (avatar[traitName].vrm) {
-            setTimeout(() => {
-              sceneService.disposeVRM(avatar[traitName].vrm);
-            },50);
-            // small delay to avoid character being with no clothes
           }
-        }
+        },200)// timeout for animations
       }
     })
   

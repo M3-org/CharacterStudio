@@ -1,4 +1,4 @@
-import {Raycaster, Vector3, LineBasicMaterial, Line, BufferGeometry, BufferAttribute} from "three";
+import {Raycaster, Vector3, LineBasicMaterial, Line, Color, BufferGeometry, BufferAttribute} from "three";
 import { sceneService } from "../services";
 
 let origin = new Vector3();
@@ -9,7 +9,6 @@ const raycaster = new Raycaster();
 raycaster.firstHitOnly = true;
 
 export const CullHiddenFaces = async(meshes) => {
-    console.log(meshes)
 
     // make a 2 dimensional array that will hold the layers
     const culls = [];
@@ -35,9 +34,8 @@ export const CullHiddenFaces = async(meshes) => {
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
     for (var i = culls.length - 1; i >= 0; i--) {
         if (hitArr.length != 0 || culls.length == 1){
-            console.log(hitArr)
             for (let k = 0; k < culls[i].length; k++){
-
+                
                 const mesh = culls[i][k];
 
                 const index = mesh.userData.origIndexBuffer.array;
@@ -52,18 +50,20 @@ export const CullHiddenFaces = async(meshes) => {
     }
 }
 
+const distance = 0.1;
+const distanceAfter = 0.005;
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels) =>{
     const indexCustomArr = [];
-    console.log(intersectModels)
     // we should make this data editable by user
-    raycaster.far = 0.035;
-let counter = 30;
+    raycaster.far = distance + distanceAfter;
+    
     for (let i =0; i < index.length/3 ;i++){
 
         //set the direction of the raycast with the normals of the faces
-        direction = faceNormals[i].normalize();
-        //if (faceNormals)
-            //direction.set(faceNormals[i].x,faceNormals[i].y,faceNormals[i].z).normalize();
+        direction = faceNormals[i].clone()//.normalize();
+
+        if (faceNormals)
+            direction.set(faceNormals[i].x,faceNormals[i].y,faceNormals[i].z).normalize();
 
         const idxBase = i * 3;
         //if at least 1 vertex collides with nothing, it is visible
@@ -77,35 +77,23 @@ let counter = 30;
             // if face normals was not defined, use vertex normals instead
             if (faceNormals == null)
                 direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
-            //else
-                //direction = faceNormals[i].normalize();
 
             // move the origin away to have the raycast being casted from outside
-            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(0.03))
+            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distance))
             
             //invert the direction of the raycaster as we moved it away from its origin
-            raycaster.set( origin, direction.multiplyScalar(-1));
-
-            //DebugRay(origin, direction,raycaster.far, 0x00ff00,sceneService.getScene() );
+            raycaster.set( origin, direction.clone().multiplyScalar(-1));
 
             // if it hits it means vertex is visible
             if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
-                
-                if (counter >= 0){
-                    counter--;
-                    DebugRay(origin, direction,raycaster.far, 0xffff00,sceneService.getScene() );
-                }
-                //DebugRay(origin, direction,raycaster.far, 0xffff00,sceneService.getScene() );
                 for (let k = 0; k < 3 ; k++){
-                    //const vi = index[k+i] * 3;
                     indexCustomArr.push(index[idxBase+k])
                 }
                 break;
             }
-            else{
-                //this did collide
-                //DebugRay(origin, direction,raycaster.far, 0xff0000,sceneService.getScene() );
-            }
+            // else{
+            //     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
+            // }
         }
     }
 
@@ -212,15 +200,29 @@ function DebugRay(origin, direction, length, color, scene){
     }
 
     let endPoint = new Vector3();
-    endPoint.addVectors ( origin, direction.multiplyScalar( length ) );
+    endPoint.addVectors ( origin, direction.clone().multiplyScalar( length ) );
 
+    //geometry.vertexColors.
+    
     const points = []
     points.push( origin );
     points.push( endPoint );
     const geometry = new BufferGeometry().setFromPoints( points );
-    let material = new LineBasicMaterial( { color : color } );
+
+    const cols = [];
+    cols.push(new Color(0x000000));
+    cols.push(new Color(0xffffff)); 
+
+    // geometry.setAttribute(
+    //     'color',
+    //     new BufferAttribute(new Float32Array(cols), 2));
+
+    let material = new LineBasicMaterial( {color:color } );
     var line = new Line( geometry, material );
-    //line.renderOrder = 100;
+
+    
+
+    line.renderOrder = 100;
     scene.parent.add( line );
     scene.lines.push(line);
 }
