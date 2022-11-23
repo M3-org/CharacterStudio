@@ -50,7 +50,7 @@ export const CullHiddenFaces = async(meshes) => {
     }
 }
 
-const distance = 0.1;
+const distance = 0.03;
 const distanceAfter = 0.005;
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels) =>{
     const indexCustomArr = [];

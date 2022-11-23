@@ -130,7 +130,6 @@ export default function CharacterEditor(props: any) {
       // load part of the decoration (spinning base)
       sceneService.loadLottie('../Rotation.json',2,true).then((mesh) => {
         newScene.add(mesh);
-        mesh.position.y = 0.02;
         mesh.rotation.x = Math.PI / 2;
       });
 
