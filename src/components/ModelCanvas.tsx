@@ -21,14 +21,14 @@ export default function ModelCanvas (props){
     
     useEffect(() => {
         if (props.modelPath) {
-          const animManager = new AnimationManager();
-          if (props.animation){
-            animManager.loadAnimations(props.animation);
-          }
           sceneService.loadModel(props.modelPath, (e) => {
               setModeling(props.order, 100);
             })
             .then((vrm) => {
+              const animManager = new AnimationManager();
+              if (props.animation){
+                animManager.loadAnimations(props.animation);
+              }
               // yield before placing avatar to avoid lag
               setTimeout(()=>{
                 animManager.startAnimation(vrm)
