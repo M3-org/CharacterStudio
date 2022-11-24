@@ -43,7 +43,6 @@ async function fetchTemplate(template:any,id: any) {
   const filtered = template.filter((templates: any) => templates.id === id);
   if (fetchedTemplate != id) {
     if (filtered[0] && filtered[0].traitsJsonPath) await fetchTraits(filtered[0].traitsJsonPath)
-    if (filtered[0] && filtered[0].animationPath) await loadAnimation(filtered[0].animationPath)
   }
   fetchedTemplate = id
   return filtered[0];

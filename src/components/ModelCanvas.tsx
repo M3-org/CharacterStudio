@@ -6,7 +6,7 @@ import { NoToneMapping, TextureLoader } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRM  } from "@pixiv/three-vrm"
 import { sceneService } from '../services/scene'
-import { loadAnimation, startAnimation } from "../library/animations/animation"
+//import { loadAnimation, startAnimation } from "../library/animations/animation"
 import { AnimationManager } from '../library/animations/animationManager';
 import {useModelingStore} from '../store'
 
