@@ -4,11 +4,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 //import DownloadCharacter from "./Download"
 //import LoadingOverlayCircularStatic from "./LoadingOverlay"
 import { apiService, sceneService } from "../services"
-import { startAnimation } from "../library/animations/animation"
+//import { startAnimation } from "../library/animations/animation"
+import { AnimationManager } from "../library/animations/animationManager"
 import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
+import { ManageSearchRounded } from "@mui/icons-material"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -135,9 +137,15 @@ export default function CharacterEditor(props: any) {
 
       // load the avatar
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
-        .then((vrm)=>{
+        .then(async (vrm)=>{
+          const animationManager = new AnimationManager();
+          sceneService.addModelData(vrm, {animationManager:animationManager});
+          if (templateInfo.animationPath){
+            await animationManager.loadAnimations(templateInfo.animationPath);
+            animationManager.startAnimation(vrm);
+          }
           setTimeout(()=>{
-            startAnimation(vrm)
+            //startAnimation(vrm)
             
             setTimeout(()=>{
               newScene.add (vrm.scene);
@@ -147,7 +155,7 @@ export default function CharacterEditor(props: any) {
 
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-              
+              console.log(vrm)
               setModel(vrm);
               setRandomFlag(1);
               

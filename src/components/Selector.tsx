@@ -5,7 +5,6 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
-import { startAnimation } from "../library/animations/animation"
 import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
@@ -294,7 +293,7 @@ export default function Selector(props) {
               sceneService.disposeVRM(avatar[property].vrm)
             }
           }
-          startAnimation(buffer[property].vrm);
+          model.data?.animationManager?.startAnimation(buffer[property].vrm);
           model.scene.add(buffer[property].vrm.scene);
         }
       }
@@ -369,7 +368,8 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
       setLoadingTraitOverlay(false)
 
       if (addToScene){
-        startAnimation(vrm);
+        model.data?.animationManager?.startAnimation(vrm);
+        //startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
           model.scene.add(vrm.scene);
        
