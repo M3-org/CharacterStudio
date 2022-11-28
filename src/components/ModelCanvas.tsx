@@ -24,10 +24,10 @@ export default function ModelCanvas (props){
           sceneService.loadModel(props.modelPath, (e) => {
               setModeling(props.order, 100);
             })
-            .then((vrm) => {
+            .then(async(vrm) => {
               const animManager = new AnimationManager();
               if (props.animation){
-                animManager.loadAnimations(props.animation);
+                await animManager.loadAnimations(props.animation);
               }
               // yield before placing avatar to avoid lag
               setTimeout(()=>{

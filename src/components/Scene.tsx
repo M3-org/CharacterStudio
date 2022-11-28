@@ -55,7 +55,10 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
-
+  useEffect(()=>{
+    console.log(ishidden);
+  },[ishidden])
+  
   useEffect(() => {
     if(account) {
       _setAddress(account);
@@ -235,12 +238,12 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? '100px' : '700px'
+  const leftPadding = ishidden ? 100 : 700
   
   return (
     <FitParentContainer >
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {'100px'}>
+        <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
@@ -251,15 +254,15 @@ export default function Scene(props: any) {
               position={[0, 0, 0]}
               visible={false}
             /> 
-            {/* <ambientLight
+            <ambientLight
               color={[1,1,1]}
               intensity={0.5}
-            /> */}
+            />
             <directionalLight 
               //castShadow = {true}
-              intensity = {1} 
+              intensity = {0.5} 
               //color = {[0.5,0.5,0.5]}
-              position = {[10, 6, 6]} 
+              position = {[3, 1, 5]} 
               shadow-mapSize = {[1024, 1024]}>
               <orthographicCamera 
                 attach="shadow-camera" 
@@ -280,11 +283,11 @@ export default function Scene(props: any) {
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
-            <Suspense fallback={null}>
+            {/* <Suspense fallback={null}>
               <EffectComposer>
                 <Bloom />
               </EffectComposer>
-            </Suspense>
+            </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
@@ -306,7 +309,7 @@ export default function Scene(props: any) {
                 depthScale={0.5}
                 minDepthThreshold={1}
                 color="#ffffff"
-                metalness={1}
+                metalness={0.9}
                 roughness={1}
               />
             </mesh>

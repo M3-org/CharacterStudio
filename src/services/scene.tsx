@@ -12,7 +12,6 @@ import { CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
-import { disposeAnimation } from "../library/animations/animation";
 // import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
@@ -302,7 +301,11 @@ function getModelProperty(model:any, property:string):any{
 
 function disposeVRM (vrm: any) {
   const model = vrm.scene;
-  disposeAnimation(getModelProperty(model, "animControl"));
+  console.log(vrm)
+  const animationControl = (getModelProperty(vrm, "animationControl"));
+  if (animationControl)
+    animationControl.dispose();
+  //disposeAnimation(getModelProperty(model, "animControl"));
   
   model.traverse((o)=>{
     

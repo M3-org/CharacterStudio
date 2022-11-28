@@ -2,7 +2,7 @@ export default [
   {
     "id": "1",
     "name": "Female",
-    "file": "./3d/models/f_drophunter_v1.vrm",
+    "file": "./3d/models/drophunter_female.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
     "bodyTargets": [
@@ -10,15 +10,15 @@ export default [
       "Headbaked"
     ],
     "cullingModel":[
-      "Body"
+      "body_geo"
     ],
     "EyeTargets": [
         "Headbaked_2",
         "Headbaked_1",
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/female/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/female/loot.json",
+    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
+    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
+    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_sword.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{
