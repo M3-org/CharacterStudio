@@ -5,7 +5,6 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
-import { startAnimation } from "../library/animations/animation"
 import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
@@ -14,6 +13,7 @@ import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
 import gsap from 'gsap';
+import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
@@ -37,6 +37,8 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    setRandomFlag,
+    setLoadedTraits,
     controls,
     model, 
     modelClass
@@ -255,34 +257,58 @@ export default function Selector(props) {
 
   React.useEffect(  () => {
     (async ()=>{
-
       if(randomFlag === -1) return;
       
       let lists = apiService.fetchCategoryList();
       let ranItem;
-      Object.entries(avatar).map((props : any) => {
-        let traitName = props[0];
-        console.log(props)
-        scene.remove(avatar[traitName].model);
-      })
-      let buffer={};
+      //Object.entries(avatar).map((props : any) => {
+        //let traitName = props[0];
+
+        // if (avatar[traitName] && avatar[traitName].vrm) {
+        //   sceneService.disposeVRM(avatar[traitName].vrm)
+        //   setAvatar({
+        //     ...avatar,
+        //     [traitName]: {}
+        //   })
+        // }
+
+
+        //scene.remove(avatar[traitName].model);
+      //})
+      let buffer = {...avatar};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
           if (traits) {
-            let collection = traits.collection;
+            const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
-            var temp = await itemLoader(ranItem,traits);
-            console.log(temp)
-            buffer = {...buffer,...temp};
-            if(i == lists.length-1)
-            setAvatar({
-              ...avatar,
-              ...buffer
-            })   
+            if (avatar[traits.trait]){
+              if (avatar[traits.trait].traitInfo != ranItem ){
+                const temp = await itemLoader(ranItem,traits, false);
+                buffer = {...buffer,...temp};
+              }
+            }
           }
         })
       }
+      for (const property in buffer) {
+        if (buffer[property].vrm){
+          if (avatar[property].vrm != buffer[property].vrm){
+            if (avatar[property].vrm != null){
+              sceneService.disposeVRM(avatar[property].vrm)
+            }
+          }
+          model.data?.animationManager?.startAnimation(buffer[property].vrm);
+          model.scene.add(buffer[property].vrm.scene);
+        }
+      }
+      setAvatar({
+      ...avatar,
+      ...buffer
+      });
+      
+      if (randomFlag === 1) setLoadedTraits(true);
+      setRandomFlag(-1);
     })()
 
   }, [randomFlag])
@@ -323,14 +349,11 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-//console.log("5")
-  //console.log(avatar.accessories.traitInfo.id)
-const itemLoader =  async(item, traits = null) => {
+const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
-      console.log(vrm)
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately
@@ -346,28 +369,33 @@ const itemLoader =  async(item, traits = null) => {
           }, 100)
         }
       })
-      //console.log("check here");
-      startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      setTimeout(()=>{
-        model.scene.add(vrm.scene)
-      },100);
-      if (avatar[traitName]) {
-        
-        setAvatar({
-          ...avatar,
-          [traitName]: {
-            traitInfo: item,
-            model: vrm.scene,
-            vrm: vrm
+
+      if (addToScene){
+        model.data?.animationManager?.startAnimation(vrm);
+        //startAnimation(vrm);
+        setTimeout(() => {  // wait for it to play 
+          model.scene.add(vrm.scene);
+       
+          if (avatar[traitName]) {
+            
+            setAvatar({
+              ...avatar,
+              [traitName]: {
+                traitInfo: item,
+                model: vrm.scene,
+                vrm: vrm
+              }
+            })
+            if (avatar[traitName].vrm) {
+              //setTimeout(() => {
+                sceneService.disposeVRM(avatar[traitName].vrm);
+              //},200);
+              // small delay to avoid character being with no clothes
+            }
           }
-        })
-        if (avatar[traitName].vrm) {
-          setTimeout(() => {
-            sceneService.disposeVRM(avatar[traitName].vrm);
-          },60);
-        }
+        },200)// timeout for animations
       }
     })
   
@@ -375,6 +403,7 @@ const itemLoader =  async(item, traits = null) => {
       [traits?.trait]: {
         traitInfo: item,
         model: r_vrm.scene,
+        vrm: r_vrm
       }
     }
   // });

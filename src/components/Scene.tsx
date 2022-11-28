@@ -30,7 +30,7 @@ const ACCOUNT_DATA = {
 
 export default function Scene(props: any) {
   const [showType, setShowType] = useState(false);
-  const [randomFlag, setRandomFlag] = useState(-1);
+
   const [camera, setCamera] = useState<object>(Object);
   const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
@@ -109,14 +109,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
- 
-  const random = () => {
-    if(randomFlag == -1){
-      setRandomFlag(0);
-    }else{
-      setRandomFlag(1-randomFlag)
-    }
-  }
 
   const { 
     templates,
@@ -134,6 +126,9 @@ export default function Scene(props: any) {
     setModelClass,
     modelClass,
     setEnd,
+    setRandomFlag,
+    randomFlag,
+    setLoadedTraits,
     model }: any = props;
 
   const handleDownload = () =>{
@@ -299,8 +294,9 @@ export default function Scene(props: any) {
               {!downloadPopup && !mintPopup && (
                 <TemplateModel scene={scene} />
               )}
-            <mesh rotation = {[-Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.6, 64]} />
+            <mesh rotation = {[-Math.PI / 2, 0, 0]} position = {[0,-0.02,0]}>
+              <circleGeometry 
+                args={[0.6, 64]} />
               <MeshReflectorMaterial
                 blur={[100, 100]}
                 opacity={1}
@@ -360,6 +356,8 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
+          setLoadedTraits = {setLoadedTraits}
+          setRandomFlag = {setRandomFlag} 
           controls = {controls}
           model = {model}
           modelClass = {modelClass}
@@ -367,7 +365,7 @@ export default function Scene(props: any) {
         <Editor 
           controls = {controls}
           templateInfo={templateInfo}
-          random = {random} 
+          setRandomFlag = {setRandomFlag} 
           category={category} 
           setCategory={setCategory} 
           />

@@ -73,13 +73,14 @@ const cleanupMixers = () => {
 }
 
 export const startAnimation = async (gltf: any):Promise<void> => {
+  //return;
   if (!animations) return
   // important to do* check mixers and remove those that are no longer active in the scene
   cleanupMixers();
   
   mixer = new AnimationMixer(gltf.scene);
   
-  console.log(gltf.scene);
+  //console.log(gltf.scene);
   mixers.push(mixer)
 
   const actions = [];
@@ -89,9 +90,9 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
 
   const animControl = {mixer:mixer, actions:actions, to:actions[curAnimID], from:null};
-  animControls.push(animControl);
+  
 
-  console.log(animControls)
+  //console.log(animControls)
 
   sceneService.addModelData(gltf , {animControl});
   
@@ -99,19 +100,22 @@ export const startAnimation = async (gltf: any):Promise<void> => {
     //animControl.to = actions[curAnimID];
     animControl.from = actions[lastAnimID];
     animControl.from.reset();
-    animControl.from.play();
     animControl.from.time = animControls[0].actions[lastAnimID].time;
-
+    animControl.from.play();
 
     animControl.to.weight = weightIn;
     animControl.from.weight = weightOut;
   }
 
-  actions[curAnimID].play();
-  actions[curAnimID].reset();
-  actions[curAnimID].time = animControls[0].actions[curAnimID].time;
   
 
+  actions[curAnimID].reset();
+  actions[curAnimID].time = animControls.length > 0 ? animControls[0].actions[curAnimID].time : 0.1;
+  actions[curAnimID].play();
+  
+  animControls.push(animControl);
+  
+ 
   if (!started){
     started = true;
     animRandomizer(animations[curAnimID].duration);
@@ -121,9 +125,9 @@ export const startAnimation = async (gltf: any):Promise<void> => {
 
 export const disposeAnimation = (targetAnimControl:any) => {
   if (targetAnimControl != null){
-    console.log(targetAnimControl);
+    //console.log(targetAnimControl);
     const ind = animControls.indexOf(targetAnimControl);
-    console.log(ind)
+    //console.log(ind)
     if (ind != -1)
       animControls.splice(ind,1);
   }
@@ -139,7 +143,7 @@ const ModifyRotations = (track : QuaternionKeyframeTrack, modifyValue: Vector3, 
   )
 
   // modify all values 
-
+ 
   if (debug){
   console.log("BEFORE")
   const testQuat = new Quaternion(

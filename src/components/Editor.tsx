@@ -18,7 +18,7 @@ export default function Editor(props: any) {
   const [ inverse, setInverse ] = useState(false)
   const [itemClicked, setItemClicked] = useState(true)
   const handleRandom = () => {
-    props.random();
+    props.setRandomFlag(0);
   }
   var optionArr = [];
   useEffect(()=> {

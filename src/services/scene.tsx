@@ -8,7 +8,7 @@ import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
-import {DisplayMeshIfVisible, CullHiddenFaces} from '../library/cull-mesh.js'
+import { CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
@@ -62,7 +62,6 @@ const cullHiddenMeshes = () => {
       const model = traits[property].model;
       
       if (model){
-        console.log(model);
         model.traverse((child)=>{
           if (child.isMesh){
             child.userData.cullLayer = 1;
@@ -73,9 +72,6 @@ const cullHiddenMeshes = () => {
     }
     const targets = avatarTemplateInfo.cullingModel;
     if (targets){
-      console.log(avatarTemplateInfo)
-      console.log(targets)
-      console.log(scene)
       for (let i =0; i < targets.length; i++){
         const obj = scene.getObjectByName(targets[i])
         if (obj != null){
@@ -99,8 +95,8 @@ const cullHiddenMeshes = () => {
           console.warn(targets[i] + " not found");
         }
       }
-      console.log(models)
       CullHiddenFaces(models);
+      
     }
   }
 }
@@ -113,7 +109,6 @@ const getTraits = () => traits;
 
 async function loadTexture(location:string):Promise<THREE.Texture>{
   const txt = textureLoader.load(location);
-  console.log(txt);
   return txt;
 }
 
@@ -136,7 +131,6 @@ async function loadLottie(file:string, quality?:number, playAnimation?:boolean, 
 
 
 async function getModelFromScene(format = 'glb') {
-  console.log(format)
   if (format && format === 'glb') {
     const exporter = new GLTFExporter()
     const options = {
@@ -147,7 +141,6 @@ async function getModelFromScene(format = 'glb') {
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     }
-    console.log("Scene is", scene);
 
     //temporary remove data, maybe we should make it in a different way to avoid this?
     // const data = avatarModel.scene.userData.data;
@@ -158,7 +151,6 @@ async function getModelFromScene(format = 'glb') {
     const avatar = await combine({ transparentColor:skinColor, avatar:avatarModel.scene.clone() });
     
     const glb: any = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
-    console.log("after")
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
@@ -274,7 +266,7 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
     // setup for vrm
     //renameVRMBones(vrm);
     renameVRMBones(vrm);
-    setupModel(vrm.scene);
+    setupModel(vrm);
     return vrm;
   });
 }
@@ -329,47 +321,60 @@ function disposeVRM (vrm: any) {
         }
     }
   })
-  model.parent.remove(model);
+  if (model.parent)
+    model.parent.remove(model);
   
 }
 
 
+const createFaceNormals  = (geometry:THREE.BufferGeometry) => {
+  //create face normals
+  const pos = geometry.attributes.position;
+  const idx = geometry.index;
 
-// create face normals
-// let pos = this.face.geometry.attributes.position;
-// let idx = this.face.geometry.index;
+  const tri = new THREE.Triangle(); // for re-use
+  const a = new THREE.Vector3(), 
+        b = new THREE.Vector3(), 
+        c = new THREE.Vector3(); // for re-use
 
-// let tri = new THREE.Triangle(); // for re-use
-// let a = new THREE.Vector3(), 
-//     b = new THREE.Vector3(), 
-//     c = new THREE.Vector3(); // for re-use
+  const faceNormals = [];
 
-// for( let f = 0; f < 2; f++ ){
-//     let idxBase = f * 3;
-//     a.fromBufferAttribute( pos, idx.getX( idxBase + 0 ) );
-//     b.fromBufferAttribute( pos, idx.getX( idxBase + 1 ) );
-//     c.fromBufferAttribute( pos, idx.getX( idxBase + 2 ) );
-//     tri.set( a, b, c );
-//     tri.getNormal( copytoavector3 );
-//     //otherstuff
-// }
+  //set foreach vertex
+  for( let f = 0; f < (idx.array.length/3); f++ ){
+      const idxBase = f * 3;
+      a.fromBufferAttribute( pos, idx.getX( idxBase + 0 ) );
+      b.fromBufferAttribute( pos, idx.getX( idxBase + 1 ) );
+      c.fromBufferAttribute( pos, idx.getX( idxBase + 2 ) );
+      tri.set( a, b, c );
+      faceNormals.push(tri.getNormal( new THREE.Vector3() ));
+      //otherstuff
+  }
+  geometry.userData.faceNormals = faceNormals;
+}
 
-const renameVRMBones = (vrm) =>{
+
+
+const renameVRMBones = (vrm:VRM) =>{
   const bones = vrm.firstPerson.humanoid.humanBones;
   for (const boneName in bones) {
-    //console.log(boneName);
     bones[boneName].node.name = boneName;
   } 
 }
 
-function setupModel(model: THREE.Object3D):void{
-  model?.traverse((child:any)=>{
+function setupModel(vrm: VRM):void{
+  vrm.scene?.traverse((child:any)=>{
+
     child.frustumCulled = false
+
     if (child.isMesh){
+      
       //child.userData.origIndexBuffer = child.geometry.index;
-      if (child.geometry.boundsTree == null)
-            child.geometry.computeBoundsTree({strategy:SAH});
-            
+      if (child.geometry.boundsTree == null){
+        child.geometry.computeBoundsTree({strategy:SAH});
+      }
+      
+      createFaceNormals(child.geometry)
+
       if (child.material.length > 1){
         child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
         child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
@@ -466,7 +471,6 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-    console.log(skinColor);
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,

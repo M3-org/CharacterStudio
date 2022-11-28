@@ -6,7 +6,8 @@ import { NoToneMapping, TextureLoader } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRM  } from "@pixiv/three-vrm"
 import { sceneService } from '../services/scene'
-import { loadAnimation, startAnimation } from "../library/animations/animation"
+//import { loadAnimation, startAnimation } from "../library/animations/animation"
+import { AnimationManager } from '../library/animations/animationManager';
 import {useModelingStore} from '../store'
 
 export default function ModelCanvas (props){
@@ -20,20 +21,17 @@ export default function ModelCanvas (props){
     
     useEffect(() => {
         if (props.modelPath) {
-            if (props.animation){
-                loadAnimation(props.animation);
-            }
-
-            //loadAnimation("loadAnimation")
           sceneService.loadModel(props.modelPath, (e) => {
-              // console.log('aaaaaaaaaaaaaaa', (e.loaded * 100) / e.total)
               setModeling(props.order, 100);
-            //   props.setLoadingProgress((e.loaded * 100) / e.total)
             })
             .then((vrm) => {
+              const animManager = new AnimationManager();
+              if (props.animation){
+                animManager.loadAnimations(props.animation);
+              }
               // yield before placing avatar to avoid lag
               setTimeout(()=>{
-                startAnimation(vrm)
+                animManager.startAnimation(vrm)
                 setTimeout(()=>{
                   setScene(vrm.scene)
                   setComplete(props.order, true);
