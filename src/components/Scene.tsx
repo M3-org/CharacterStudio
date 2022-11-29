@@ -47,6 +47,8 @@ export default function Scene(props: any) {
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   });
 
+  const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
+
   const connectWallet = async () => {
     try {
       await activate(injected);
@@ -55,6 +57,9 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
+  useEffect(()=>{
+    console.log(ishidden);
+  },[ishidden])
 
   useEffect(() => {
     if(account) {
@@ -235,13 +240,14 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? '100px' : '700px'
+  const leftPadding = ishidden ? 250 : 700
   
   return (
     <FitParentContainer >
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {'100px'}>
+        <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
+            style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
             id="editor-scene"
@@ -251,15 +257,15 @@ export default function Scene(props: any) {
               position={[0, 0, 0]}
               visible={false}
             /> 
-            {/* <ambientLight
+            <ambientLight
               color={[1,1,1]}
               intensity={0.5}
-            /> */}
+            />
             <directionalLight 
               //castShadow = {true}
-              intensity = {1} 
+              intensity = {0.5} 
               //color = {[0.5,0.5,0.5]}
-              position = {[10, 6, 6]} 
+              position = {[3, 1, 5]} 
               shadow-mapSize = {[1024, 1024]}>
               <orthographicCamera 
                 attach="shadow-camera" 
@@ -275,16 +281,16 @@ export default function Scene(props: any) {
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
-              autoRotateSpeed = { 10 }
+              autoRotateSpeed = { 1 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
-            <Suspense fallback={null}>
+            {/* <Suspense fallback={null}>
               <EffectComposer>
                 <Bloom />
               </EffectComposer>
-            </Suspense>
+            </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
@@ -306,7 +312,7 @@ export default function Scene(props: any) {
                 depthScale={0.5}
                 minDepthThreshold={1}
                 color="#ffffff"
-                metalness={1}
+                metalness={0.9}
                 roughness={1}
               />
             </mesh>

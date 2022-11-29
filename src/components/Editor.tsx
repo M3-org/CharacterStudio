@@ -16,11 +16,11 @@ export default function Editor(props: any) {
   const ishide = useHideStore((state) =>state.ishidden)
   const { controls, templateInfo, category, setCategory  }: any = props
   const [ inverse, setInverse ] = useState(false)
-  const [itemClicked, setItemClicked] = useState(true)
+  //const [itemClicked, setItemClicked] = useState(true)
   const handleRandom = () => {
     props.setRandomFlag(0);
   }
-  var optionArr = [];
+  //var optionArr = [];
   useEffect(()=> {
     sethidden(false);
   }, [category])
@@ -31,10 +31,16 @@ export default function Editor(props: any) {
   );
 
   const selectOption = (option:any) =>{
-    if(option.name == category) setItemClicked(!itemClicked)
-    itemClicked ? sethidden(true) : sethidden(false);
+    if (option.name == category){ 
+      if (ishide) sethidden(false);
+      else sethidden (true);
+    }
+    else sethidden(false);
+
+    if (option.name != category)
+      moveCamera(option.cameraTarget);
     setCategory(option.name)
-    moveCamera(option.cameraTarget)
+    
     !isMute && play();
   }
 

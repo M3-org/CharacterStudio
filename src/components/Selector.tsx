@@ -254,7 +254,7 @@ export default function Selector(props) {
   React.useEffect(() => {
     console.log('aaaaaaaaaaaa', isHide)
   }, [isHide])
-
+  
   React.useEffect(  () => {
     (async ()=>{
       if(randomFlag === -1) return;
@@ -349,6 +349,7 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
+  let loading;
 const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
@@ -424,215 +425,215 @@ const getActiveStatus = (item) => {
   // there will be some special cases (skin eye color) were this values will be placed differentluy 
   // return(<></>);
   return (
-    <FadeInOut show={!isHide} duration={1000} >
-        <div style={selectorContainerPos}>
-          <div className="selector-container" style={selectorContainer}>
-            <div className="selector-container-header" style={{
-              height : "73px",
-              borderBottom : "2px solid #3A7484",
-              position : 'relative',
-              display : 'flex',
-              alignItems: 'center',
-              overflow : 'hidden',
-              justifyContent : "space-between",
-            }}>
-              <span style={{
-                display : 'inline-block',
-                fontFamily: 'Proxima',
-                fontStyle: 'normal',
-                fontWeight: '800',
-                fontSize: '35px',
-                lineHeight: '91.3%',
-                color: '#FFFFFF',
-                paddingLeft : "46px",
-                userSelect : "none"
-              }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
-              <img src={iconPath} style={{
-                width: '100px',
-                right : '0px',
-                top : '0px',
-              }}/>
-            </div>
-            <div style={{
-                  overflowY : "auto",
-                  flex : "1",
-                  height : "30%",
-                  top : "70%",
-                  WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
-                  maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
-                }}>
-                {
-                  category === 'head' && 
-                    (
-                      <div 
-                        className="hair-sub-category"
-                        style={{
-                          display: 'flex',
-                          gap: '20px',
-                          padding : "24px 24px 24px"
+    <FadeInOut show={!isHide} duration={300} >
+      <div style={selectorContainerPos}>
+        <div className="selector-container" style={selectorContainer}>
+          <div className="selector-container-header" style={{
+            height : "73px",
+            borderBottom : "2px solid #3A7484",
+            position : 'relative',
+            display : 'flex',
+            alignItems: 'center',
+            overflow : 'hidden',
+            justifyContent : "space-between",
+          }}>
+            <span style={{
+              display : 'inline-block',
+              fontFamily: 'Proxima',
+              fontStyle: 'normal',
+              fontWeight: '800',
+              fontSize: '35px',
+              lineHeight: '91.3%',
+              color: '#FFFFFF',
+              paddingLeft : "46px",
+              userSelect : "none"
+            }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+            <img src={iconPath} style={{
+              width: '100px',
+              right : '0px',
+              top : '0px',
+            }}/>
+          </div>
+          <div style={{
+                overflowY : "auto",
+                flex : "1",
+                height : "30%",
+                top : "70%",
+                WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
+                maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
+              }}>
+              {
+                category === 'head' && 
+                  (
+                    <div 
+                      className="hair-sub-category"
+                      style={{
+                        display: 'flex',
+                        gap: '20px',
+                        padding : "24px 24px 24px"
+                      }}
+                    >
+                      <ColorSelectButton 
+                        text="Hair"
+                        selected = {hairCategory === 'style'}
+                        onClick = {() => {
+                          setHairCategory('style')
                         }}
-                      >
-                        <ColorSelectButton 
-                          text="Hair"
-                          selected = {hairCategory === 'style'}
-                          onClick = {() => {
-                            setHairCategory('style')
-                          }}
-                        />
-                        <ColorSelectButton 
-                          text="Color"
-                          selected = {hairCategory === 'color'}
-                          onClick = {() => {
-                            setHairCategory('color')
-                          }}
-                        />
-                      </div>
-                    )
-                }
-              {templateInfo?.traitsDirectory && (
-                <Stack
-                  // spacing={2}
-                  justifyContent="inherit"
-                  alignItems="left"
-                  divider={<Divider orientation="vertical" flexItem />}
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
-                    gap: 3,
-                    p: 3,
-                  }}
-                >
-                  {category === "color" ? (
-                    <div>
-                      <div 
-                        className="sub-category-header"
-                        style={{
-                          display: 'flex',
-                          gap: '20px',
+                      />
+                      <ColorSelectButton 
+                        text="Color"
+                        selected = {hairCategory === 'color'}
+                        onClick = {() => {
+                          setHairCategory('color')
                         }}
-                      >
-                        <ColorSelectButton 
-                          text="Skin"
-                          selected = {colorCategory === 'color'}
-                          onClick = {() => {
-                            setColorCategory('color')
-                            selectOption({
-                              cameraTarget:{
-                                distance:1.4,
-                                height:0.8
-                            }})
+                      />
+                    </div>
+                  )
+              }
+            {templateInfo?.traitsDirectory && (
+              <Stack
+                // spacing={2}
+                justifyContent="inherit"
+                alignItems="left"
+                divider={<Divider orientation="vertical" flexItem />}
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
+                  gap: 3,
+                  p: 3,
+                }}
+              >
+                {category === "color" ? (
+                  <div>
+                    <div 
+                      className="sub-category-header"
+                      style={{
+                        display: 'flex',
+                        gap: '20px',
+                      }}
+                    >
+                      <ColorSelectButton 
+                        text="Skin"
+                        selected = {colorCategory === 'color'}
+                        onClick = {() => {
+                          setColorCategory('color')
+                          selectOption({
+                            cameraTarget:{
+                              distance:1.4,
+                              height:0.8
+                          }})
+                        }}
+                      />
+                      <ColorSelectButton 
+                        text="Eye Color"
+                        selected = {colorCategory === 'eyeColor'}
+                        onClick = {() => {
+                          setColorCategory('eyeColor')
+                          selectOption({
+                            cameraTarget:{
+                              distance:0.5,
+                              height:1.45
+                          }})
+                        }}
+                      />
+                    </div>
+                    <Skin
+                      scene={scene}
+                      templateInfo={templateInfo}
+                      category={colorCategory}
+                    />
+                  </div>
+                ) : (
+                  (category !== 'head' || hairCategory !== 'color') ? 
+                      <React.Fragment>
+                        {category !== "gender" ?(<div
+                          style={noTrait ? selectorButtonActive : selectorButton }
+                          className={`selector-button ${noTrait ? "active" : ""}`}
+                          onClick={() => {
+                            selectTrait("0");
+                            !isMute && play();
                           }}
-                        />
-                        <ColorSelectButton 
-                          text="Eye Color"
-                          selected = {colorCategory === 'eyeColor'}
-                          onClick = {() => {
-                            setColorCategory('eyeColor')
-                            selectOption({
-                              cameraTarget:{
-                                distance:0.5,
-                                height:1.45
-                            }})
-                          }}
-                        />
-                      </div>
+                        >
+                          <img style={traitsCancelStyle}
+                                  className="icon"
+                                  src={cancel}
+                                />
+                        </div>):("")}
+                        {collection &&
+                          collection.map((item: any, index) => {
+                            return (
+                              <div
+                                key={index}
+                                style={
+                                  getActiveStatus(item) ? selectorButtonActive : selectorButton
+                                }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
+                                  }`}
+                                onClick={() => {
+                                  if (category === "gender") {
+                                    setLoaded(true)
+                                    setTempInfo(item.id)
+                                  }
+                                  !isMute && play();
+                                  selectTrait(item)
+                                }}
+                              >
+                                <img style={traitsImgStyle}
+                                  className="icon"
+                                  src={
+                                    item.thumbnailsDirectory
+                                      ? item.thumbnail
+                                      : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
+                                  }
+                                />
+                                <img src={tick}
+                                  style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
+                                />
+                                {selectValue === item?.id && loadingTrait > 0 && (
+                                  <Typography
+                                    className="loading-trait"
+                                    style={loadingTraitStyle}
+                                  >
+                                    {loadingTrait}%
+                                  </Typography>
+                                )}
+                              </div>
+                            )
+                          })}
+                        <div style={{ visibility: "hidden" }}>
+                          <Avatar className="icon" />
+                        </div>
+                      </React.Fragment>
+                    : (
                       <Skin
                         scene={scene}
                         templateInfo={templateInfo}
-                        category={colorCategory}
+                        category={category}
+                        avatar={avatar}
                       />
-                    </div>
-                  ) : (
-                    (category !== 'head' || hairCategory !== 'color') ? 
-                        <React.Fragment>
-                          {category !== "gender" ?(<div
-                            style={noTrait ? selectorButtonActive : selectorButton }
-                            className={`selector-button ${noTrait ? "active" : ""}`}
-                            onClick={() => {
-                              selectTrait("0");
-                              !isMute && play();
-                            }}
-                          >
-                            <img style={traitsCancelStyle}
-                                    className="icon"
-                                    src={cancel}
-                                  />
-                          </div>):("")}
-                          {collection &&
-                            collection.map((item: any, index) => {
-                              return (
-                                <div
-                                  key={index}
-                                  style={
-                                    getActiveStatus(item) ? selectorButtonActive : selectorButton
-                                  }
-                                  className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                                    }`}
-                                  onClick={() => {
-                                    if (category === "gender") {
-                                      setLoaded(true)
-                                      setTempInfo(item.id)
-                                    }
-                                    !isMute && play();
-                                    selectTrait(item)
-                                  }}
-                                >
-                                  <img style={traitsImgStyle}
-                                    className="icon"
-                                    src={
-                                      item.thumbnailsDirectory
-                                        ? item.thumbnail
-                                        : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                                    }
-                                  />
-                                  <img src={tick}
-                                    style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
-                                  />
-                                  {selectValue === item?.id && loadingTrait > 0 && (
-                                    <Typography
-                                      className="loading-trait"
-                                      style={loadingTraitStyle}
-                                    >
-                                      {loadingTrait}%
-                                    </Typography>
-                                  )}
-                                </div>
-                              )
-                            })}
-                          <div style={{ visibility: "hidden" }}>
-                            <Avatar className="icon" />
-                          </div>
-                        </React.Fragment>
-                      : (
-                        <Skin
-                          scene={scene}
-                          templateInfo={templateInfo}
-                          category={category}
-                          avatar={avatar}
-                        />
-                      )
-                  )}
-                </Stack>
-              )}
-            </div>
-        {/*   <div style={{
-              width: "100%",
-              height : '100px',
-              border : "1px solid red",
-              
-            }}></div>*/}
-            <div
-              className={
-                loadingTraitOverlay
-                  ? "loading-trait-overlay show"
-                  : "loading-trait-overlay"
-              }
-              style={
-                loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
-              }
-            />
+                    )
+                )}
+              </Stack>
+            )}
           </div>
+      {/*   <div style={{
+            width: "100%",
+            height : '100px',
+            border : "1px solid red",
+            
+          }}></div>*/}
+          <div
+            className={
+              loadingTraitOverlay
+                ? "loading-trait-overlay show"
+                : "loading-trait-overlay"
+            }
+            style={
+              loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
+            }
+          />
         </div>
+      </div>
     </FadeInOut>
   )
 }
