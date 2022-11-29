@@ -238,7 +238,7 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? 100 : 700
+  const leftPadding = ishidden ? 200 : 700
   
   return (
     <FitParentContainer >
