@@ -55,10 +55,20 @@ export const ScreenSizeContainer = styled.div`
 `
 export const RightMenu = styled.div`
 `
+// export const ResizeableCanvas = styled.div`
+//     position: absolute;
+//     overflow : hidden;
+//     transition : all 1s;
+//     width: ${props => props.left ? 'calc(100% - ' + props.left + ')' : '100%'};
+//     height: ${props => props.bottom ? 'calc(100% - ' + props.bottom + ')' : '100%'};
+//     right:  ${props => props.right || '0'};
+//     top: ${props => props.top || '0'};
+// `
+
 export const ResizeableCanvas = styled.div`
     position: absolute;
     overflow : hidden;
-    transition : all 5s;
+    transition : all 1s;
     width: ${props => props.left ? 'calc(100% - ' + (props.left + props.right) + 'px)' : '100%'};
     height: ${props => props.bottom ? 'calc(100% - ' + props.bottom + 'px)' : '100%'};
     right:  ${props => props.right + 'px' || '0'};

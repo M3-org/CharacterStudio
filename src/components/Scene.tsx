@@ -58,7 +58,7 @@ export default function Scene(props: any) {
   useEffect(()=>{
     console.log(ishidden);
   },[ishidden])
-  
+
   useEffect(() => {
     if(account) {
       _setAddress(account);
@@ -245,6 +245,7 @@ export default function Scene(props: any) {
       <Background >
         <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
+            style = {{justifyContent:'center', display:'flex', width:'100%', position:'relative'}}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
             id="editor-scene"
@@ -278,7 +279,7 @@ export default function Scene(props: any) {
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
-              autoRotateSpeed = { 10 }
+              autoRotateSpeed = { 1 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
@@ -290,9 +291,9 @@ export default function Scene(props: any) {
             </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
-              aspect={1200 / 600}
-              fov={100}
-              onUpdate={self => self.updateProjectionMatrix()}
+              //aspect={1200 / 600}
+              //fov={100}
+              // onUpdate={self => self.updateProjectionMatrix()}
             >
               {!downloadPopup && !mintPopup && (
                 <TemplateModel scene={scene} />
