@@ -424,7 +424,7 @@ const getActiveStatus = (item) => {
   // there will be some special cases (skin eye color) were this values will be placed differentluy 
   // return(<></>);
   return (
-    <FadeInOut show={!isHide} duration={1000} >
+    <FadeInOut show={!isHide} duration={300} >
       <div style={selectorContainerPos}>
         <div className="selector-container" style={selectorContainer}>
           <div className="selector-container-header" style={{

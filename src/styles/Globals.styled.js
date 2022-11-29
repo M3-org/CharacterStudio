@@ -69,6 +69,8 @@ export const ResizeableCanvas = styled.div`
     position: absolute;
     overflow : hidden;
     transition : all 1s;
+    display: flex;
+    justify-content: center;
     width: ${props => props.left ? 'calc(100% - ' + (props.left + props.right) + 'px)' : '100%'};
     height: ${props => props.bottom ? 'calc(100% - ' + props.bottom + 'px)' : '100%'};
     right:  ${props => props.right + 'px' || '0'};

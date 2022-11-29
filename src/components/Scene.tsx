@@ -238,14 +238,14 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? 200 : 700
+  const leftPadding = ishidden ? 250 : 700
   
   return (
     <FitParentContainer >
       <Background >
         <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
-            style = {{justifyContent:'center', display:'flex', width:'100%', position:'relative'}}
+            style = {{width: '100vw', display:'flex', position:'absolute'}}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
             id="editor-scene"
@@ -291,9 +291,9 @@ export default function Scene(props: any) {
             </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
-              //aspect={1200 / 600}
-              //fov={100}
-              // onUpdate={self => self.updateProjectionMatrix()}
+              aspect={1200 / 600}
+              fov={100}
+              onUpdate={self => self.updateProjectionMatrix()}
             >
               {!downloadPopup && !mintPopup && (
                 <TemplateModel scene={scene} />
