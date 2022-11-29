@@ -32,7 +32,7 @@ export function BaseModel(props: any) {
 export function TemplateModel(props: any) {
   const { scene }: any = props;
   return (
-    <mesh position={[0, 0.02, 0]}>
+    <mesh>
       <primitive object={scene} />
     </mesh>
   );

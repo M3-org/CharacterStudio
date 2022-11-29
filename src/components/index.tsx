@@ -3,12 +3,14 @@ import React, { Suspense, useState, useEffect, Fragment } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 //import DownloadCharacter from "./Download"
 //import LoadingOverlayCircularStatic from "./LoadingOverlay"
-import { sceneService } from "../services"
-import { startAnimation } from "../library/animations/animation"
+import { apiService, sceneService } from "../services"
+//import { startAnimation } from "../library/animations/animation"
+import { AnimationManager } from "../library/animations/animationManager"
 import { VRM  } from "@pixiv/three-vrm"
 import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
+import { ManageSearchRounded } from "@mui/icons-material"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -55,6 +57,9 @@ export default function CharacterEditor(props: any) {
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
+  const [randomFlag, setRandomFlag] = useState(-1);
+  const [loadedTraits, setLoadedTraits] = useState(false)
+
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
     body:{},
@@ -79,8 +84,17 @@ export default function CharacterEditor(props: any) {
       },
     },
   })
+
+  useEffect(()=>{
+    if (loadedTraits === true){
+      setLoading(false)
+      setLoadedTraits(false)
+    }
+  }, [loadedTraits])
+
   useEffect(() => {
     if(avatar){
+      console.log(avatar)
       sceneService.setTraits(avatar);
     }
   }, [avatar])
@@ -103,8 +117,6 @@ export default function CharacterEditor(props: any) {
   //   color: "#efefef"
   // }
 
-
-
   useEffect(() => {
     if(model)
     sceneService.setAvatarModel(model);
@@ -125,21 +137,28 @@ export default function CharacterEditor(props: any) {
 
       // load the avatar
       sceneService.loadModel(templateInfo.file,setLoadingProgress)
-        .then((vrm)=>{
+        .then(async (vrm)=>{
+          const animationManager = new AnimationManager();
+          sceneService.addModelData(vrm, {animationManager:animationManager});
+          if (templateInfo.animationPath){
+            await animationManager.loadAnimations(templateInfo.animationPath);
+            animationManager.startAnimation(vrm);
+          }
           setTimeout(()=>{
-            setLoading(false)
-            startAnimation(vrm)
+            //startAnimation(vrm)
+            
             setTimeout(()=>{
               newScene.add (vrm.scene);
 
               // wIP
               sceneService.addModelData(vrm, {cullingLayer:0});
 
-              console.log(vrm);
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
+              console.log(vrm)
               setModel(vrm);
-              //setAvatar(vrm)
+              setRandomFlag(1);
+              
             },50);
           },1000)
         })
@@ -169,6 +188,9 @@ export default function CharacterEditor(props: any) {
                 setModelClass={setModelClass}
                 modelClass = {modelClass}
                 setEnd={setEnd}
+                setRandomFlag = {setRandomFlag}
+                randomFlag = {randomFlag}
+                setLoadedTraits = {setLoadedTraits}
               />  
             </animated.div>
           </Fragment>

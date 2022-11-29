@@ -5,7 +5,6 @@ import React, { useState } from "react"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
-import { startAnimation } from "../library/animations/animation"
 import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
 import '../styles/font.scss'
@@ -14,6 +13,7 @@ import cancel from '../ui/selector/cancel.png'
 import hairStyleImg from '../ui/traits/hairStyle.png';
 import hairColorImg from '../ui/traits/hairColor.png';
 import gsap from 'gsap';
+import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
@@ -21,6 +21,9 @@ import {useMuteStore} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
+import optionClick from "../sound/option_click.wav"
+import { useHideStore } from "../store"
+import FadeInOut from "./FadeAnimation";
 
 export default function Selector(props) {
   const {
@@ -34,11 +37,15 @@ export default function Selector(props) {
     setTemplateInfo,
     templateInfo,
     randomFlag,
+    setRandomFlag,
+    setLoadedTraits,
     controls,
     model, 
     modelClass
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
+  const isHide = useHideStore((state) => state.ishidden)
+  
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
   const [colorCategory, setColorCategory] = useState("color")
@@ -51,12 +58,12 @@ export default function Selector(props) {
 
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
-  
+  const [ inverse, setInverse ] = useState(false)
+  const container = React.useRef();
   const [play] = useSound(
     sectionClick,
     { volume: 1.0 }
   );
-
   const iconPath = "./3d/icons-gradient/" + category + ".svg";
 
   const hairSubCategories = [
@@ -163,19 +170,46 @@ export default function Selector(props) {
   const tickStyleInActive = {
     display : 'none'
   }
-  const moveCamera = (value:string) => {
-    if (templateInfo.cameraTarget){
-      if (templateInfo.cameraTarget[value]){
-        gsap.to(controls.target,{
-          y:templateInfo.cameraTarget[value].height,
+
+  const selectOption = (option:any) =>{
+    console.log('aaaaaaaaa', option)
+    moveCamera(option.cameraTarget)
+    !isMute && play();
+  }
+
+  const moveCamera = (value:any) => {
+    console.log('aaaaaaaaa', value)
+    if (value){
+      setInverse(!inverse);
+
+      gsap.to(controls.target,{
+        y:value.height,
+        duration: 1,
+      })
+
+      gsap.fromTo(controls,
+        {
+          maxDistance:controls.getDistance(),
+          minDistance:controls.getDistance(),
+          minPolarAngle:controls.getPolarAngle(),
+          minAzimuthAngle:controls.getAzimuthalAngle(),
+          maxAzimuthAngle:controls.getAzimuthalAngle(),
+        },
+        {
+          maxDistance:value.distance,
+          minDistance:value.distance,
+          minPolarAngle:(Math.PI / 2 - 0.11),
+          minAzimuthAngle: inverse ? -0.78 : 0.78,
+          maxAzimuthAngle: inverse ? -0.78 : 0.78,
           duration: 1,
-        })
-        gsap.to(controls,{
-          maxDistance:templateInfo.cameraTarget[value].distance,
-          minDistance:templateInfo.cameraTarget[value].distance,
-          duration: 1,
-        })
-      }
+        }
+      ).then(()=>{
+        controls.minPolarAngle = 0;
+        controls.minDistance = 0.5;
+        controls.maxDistance = 2.0;
+        controls.minAzimuthAngle = Infinity;
+        controls.maxAzimuthAngle = Infinity;
+      })
     }
   }
   React.useEffect(() => {
@@ -217,37 +251,64 @@ export default function Selector(props) {
     scene,
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
-
+  React.useEffect(() => {
+    console.log('aaaaaaaaaaaa', isHide)
+  }, [isHide])
+  
   React.useEffect(  () => {
     (async ()=>{
-
       if(randomFlag === -1) return;
       
       let lists = apiService.fetchCategoryList();
       let ranItem;
-      Object.entries(avatar).map((props : any) => {
-        let traitName = props[0];
-        console.log(props)
-        scene.remove(avatar[traitName].model);
-      })
-      let buffer={};
+      //Object.entries(avatar).map((props : any) => {
+        //let traitName = props[0];
+
+        // if (avatar[traitName] && avatar[traitName].vrm) {
+        //   sceneService.disposeVRM(avatar[traitName].vrm)
+        //   setAvatar({
+        //     ...avatar,
+        //     [traitName]: {}
+        //   })
+        // }
+
+
+        //scene.remove(avatar[traitName].model);
+      //})
+      let buffer = {...avatar};
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
           if (traits) {
-            let collection = traits.collection;
+            const collection = traits.collection;
             ranItem = collection[Math.floor(Math.random()*collection.length)];
-            var temp = await itemLoader(ranItem,traits);
-            console.log(temp)
-            buffer = {...buffer,...temp};
-            if(i == lists.length-1)
-            setAvatar({
-              ...avatar,
-              ...buffer
-            })   
+            if (avatar[traits.trait]){
+              if (avatar[traits.trait].traitInfo != ranItem ){
+                const temp = await itemLoader(ranItem,traits, false);
+                buffer = {...buffer,...temp};
+              }
+            }
           }
         })
       }
+      for (const property in buffer) {
+        if (buffer[property].vrm){
+          if (avatar[property].vrm != buffer[property].vrm){
+            if (avatar[property].vrm != null){
+              sceneService.disposeVRM(avatar[property].vrm)
+            }
+          }
+          model.data?.animationManager?.startAnimation(buffer[property].vrm);
+          model.scene.add(buffer[property].vrm.scene);
+        }
+      }
+      setAvatar({
+      ...avatar,
+      ...buffer
+      });
+      
+      if (randomFlag === 1) setLoadedTraits(true);
+      setRandomFlag(-1);
     })()
 
   }, [randomFlag])
@@ -288,14 +349,12 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
-//console.log("5")
-  //console.log(avatar.accessories.traitInfo.id)
-const itemLoader =  async(item, traits = null) => {
+  let loading;
+const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
-      console.log(vrm)
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately
@@ -311,28 +370,33 @@ const itemLoader =  async(item, traits = null) => {
           }, 100)
         }
       })
-      //console.log("check here");
-      startAnimation(vrm);
       setLoadingTrait(null)
       setLoadingTraitOverlay(false)
-      setTimeout(()=>{
-        model.scene.add(vrm.scene)
-      },100);
-      if (avatar[traitName]) {
-        
-        setAvatar({
-          ...avatar,
-          [traitName]: {
-            traitInfo: item,
-            model: vrm.scene,
-            vrm: vrm
+
+      if (addToScene){
+        model.data?.animationManager?.startAnimation(vrm);
+        //startAnimation(vrm);
+        setTimeout(() => {  // wait for it to play 
+          model.scene.add(vrm.scene);
+       
+          if (avatar[traitName]) {
+            
+            setAvatar({
+              ...avatar,
+              [traitName]: {
+                traitInfo: item,
+                model: vrm.scene,
+                vrm: vrm
+              }
+            })
+            if (avatar[traitName].vrm) {
+              //setTimeout(() => {
+                sceneService.disposeVRM(avatar[traitName].vrm);
+              //},200);
+              // small delay to avoid character being with no clothes
+            }
           }
-        })
-        if (avatar[traitName].vrm) {
-          setTimeout(() => {
-            sceneService.disposeVRM(avatar[traitName].vrm);
-          },60);
-        }
+        },200)// timeout for animations
       }
     })
   
@@ -340,6 +404,7 @@ const itemLoader =  async(item, traits = null) => {
       [traits?.trait]: {
         traitInfo: item,
         model: r_vrm.scene,
+        vrm: r_vrm
       }
     }
   // });
@@ -360,205 +425,215 @@ const getActiveStatus = (item) => {
   // there will be some special cases (skin eye color) were this values will be placed differentluy 
   // return(<></>);
   return (
-    <div style={selectorContainerPos} >
-      <div className="selector-container" style={selectorContainer}>
-        <div className="selector-container-header" style={{
-          height : "73px",
-          borderBottom : "2px solid #3A7484",
-          position : 'relative',
-          display : 'flex',
-          alignItems: 'center',
-          overflow : 'hidden',
-          justifyContent : "space-between",
-        }}>
-          <span style={{
-            display : 'inline-block',
-            fontFamily: 'Proxima',
-            fontStyle: 'normal',
-            fontWeight: '800',
-            fontSize: '35px',
-            lineHeight: '91.3%',
-            color: '#FFFFFF',
-            paddingLeft : "46px",
-            userSelect : "none"
-          }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
-          <img src={iconPath} style={{
-            width: '100px',
-            right : '0px',
-            top : '0px',
-          }}/>
-        </div>
-        <div style={{
-              overflowY : "auto",
-              flex : "1",
-              height : "30%",
-              top : "70%",
-              WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
-              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
-            }}>
-            {
-              category === 'head' && 
-                (
-                  <div 
-                    className="hair-sub-category"
-                    style={{
-                      display: 'flex',
-                      gap: '20px',
-                      padding : "24px 24px 24px"
-                    }}
-                  >
-                    <ColorSelectButton 
-                      text="Hair"
-                      selected = {hairCategory === 'style'}
-                      onClick = {() => {
-                        setHairCategory('style')
+    <FadeInOut show={!isHide} duration={300} >
+      <div style={selectorContainerPos}>
+        <div className="selector-container" style={selectorContainer}>
+          <div className="selector-container-header" style={{
+            height : "73px",
+            borderBottom : "2px solid #3A7484",
+            position : 'relative',
+            display : 'flex',
+            alignItems: 'center',
+            overflow : 'hidden',
+            justifyContent : "space-between",
+          }}>
+            <span style={{
+              display : 'inline-block',
+              fontFamily: 'Proxima',
+              fontStyle: 'normal',
+              fontWeight: '800',
+              fontSize: '35px',
+              lineHeight: '91.3%',
+              color: '#FFFFFF',
+              paddingLeft : "46px",
+              userSelect : "none"
+            }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+            <img src={iconPath} style={{
+              width: '100px',
+              right : '0px',
+              top : '0px',
+            }}/>
+          </div>
+          <div style={{
+                overflowY : "auto",
+                flex : "1",
+                height : "30%",
+                top : "70%",
+                WebkitMaskImage:"-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))",
+                maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
+              }}>
+              {
+                category === 'head' && 
+                  (
+                    <div 
+                      className="hair-sub-category"
+                      style={{
+                        display: 'flex',
+                        gap: '20px',
+                        padding : "24px 24px 24px"
                       }}
-                    />
-                    <ColorSelectButton 
-                      text="Color"
-                      selected = {hairCategory === 'color'}
-                      onClick = {() => {
-                        setHairCategory('color')
-                      }}
-                    />
-                  </div>
-                )
-            }
-          {templateInfo?.traitsDirectory && (
-            <Stack
-              // spacing={2}
-              justifyContent="inherit"
-              alignItems="left"
-              divider={<Divider orientation="vertical" flexItem />}
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
-                gap: 3,
-                p: 3,
-              }}
-            >
-              {category === "color" ? (
-                <div>
-                  <div 
-                    className="sub-category-header"
-                    style={{
-                      display: 'flex',
-                      gap: '20px',
-                    }}
-                  >
-                    <ColorSelectButton 
-                      text="Skin"
-                      selected = {colorCategory === 'color'}
-                      onClick = {() => {
-                        setColorCategory('color')
-                        moveCamera("full")
-                      }}
-                    />
-                    <ColorSelectButton 
-                      text="Eye Color"
-                      selected = {colorCategory === 'eyeColor'}
-                      onClick = {() => {
-                        setColorCategory('eyeColor')
-                        moveCamera("eye")
-                      }}
-                    />
-                  </div>
-                  <Skin
-                    scene={scene}
-                    templateInfo={templateInfo}
-                    category={colorCategory}
-                  />
-                </div>
-              ) : (
-                 (category !== 'head' || hairCategory !== 'color') ? 
-                    <React.Fragment>
-                      {category !== "gender" ?(<div
-                        style={noTrait ? selectorButtonActive : selectorButton }
-                        className={`selector-button ${noTrait ? "active" : ""}`}
-                        onClick={() => {
-                          selectTrait("0");
-                          !isMute && play();
+                    >
+                      <ColorSelectButton 
+                        text="Hair"
+                        selected = {hairCategory === 'style'}
+                        onClick = {() => {
+                          setHairCategory('style')
                         }}
-                      >
-                        <img style={traitsCancelStyle}
-                                className="icon"
-                                src={cancel}
-                              />
-                      </div>):("")}
-                      {collection &&
-                        collection.map((item: any, index) => {
-                          return (
-                            <div
-                              key={index}
-                              style={
-                                getActiveStatus(item) ? selectorButtonActive : selectorButton
-                              }
-                              className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                                }`}
-                              onClick={() => {
-                                if (category === "gender") {
-                                  setLoaded(true)
-                                  setTempInfo(item.id)
-                                }
-                                !isMute && play();
-                                selectTrait(item)
-                              }}
-                            >
-                              <img style={traitsImgStyle}
-                                className="icon"
-                                src={
-                                  item.thumbnailsDirectory
-                                    ? item.thumbnail
-                                    : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                                }
-                              />
-                              <img src={tick}
-                                style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
-                              />
-                              {selectValue === item?.id && loadingTrait > 0 && (
-                                <Typography
-                                  className="loading-trait"
-                                  style={loadingTraitStyle}
-                                >
-                                  {loadingTrait}%
-                                </Typography>
-                              )}
-                            </div>
-                          )
-                        })}
-                      <div style={{ visibility: "hidden" }}>
-                        <Avatar className="icon" />
-                      </div>
-                    </React.Fragment>
-                  : (
+                      />
+                      <ColorSelectButton 
+                        text="Color"
+                        selected = {hairCategory === 'color'}
+                        onClick = {() => {
+                          setHairCategory('color')
+                        }}
+                      />
+                    </div>
+                  )
+              }
+            {templateInfo?.traitsDirectory && (
+              <Stack
+                // spacing={2}
+                justifyContent="inherit"
+                alignItems="left"
+                divider={<Divider orientation="vertical" flexItem />}
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: category !== "gender" ? ('repeat(3, 1fr)'):('repeat(2, 1fr)'),
+                  gap: 3,
+                  p: 3,
+                }}
+              >
+                {category === "color" ? (
+                  <div>
+                    <div 
+                      className="sub-category-header"
+                      style={{
+                        display: 'flex',
+                        gap: '20px',
+                      }}
+                    >
+                      <ColorSelectButton 
+                        text="Skin"
+                        selected = {colorCategory === 'color'}
+                        onClick = {() => {
+                          setColorCategory('color')
+                          selectOption({
+                            cameraTarget:{
+                              distance:1.4,
+                              height:0.8
+                          }})
+                        }}
+                      />
+                      <ColorSelectButton 
+                        text="Eye Color"
+                        selected = {colorCategory === 'eyeColor'}
+                        onClick = {() => {
+                          setColorCategory('eyeColor')
+                          selectOption({
+                            cameraTarget:{
+                              distance:0.5,
+                              height:1.45
+                          }})
+                        }}
+                      />
+                    </div>
                     <Skin
                       scene={scene}
                       templateInfo={templateInfo}
-                      category={category}
-                      avatar={avatar}
+                      category={colorCategory}
                     />
-                  )
-              )}
-            </Stack>
-          )}
+                  </div>
+                ) : (
+                  (category !== 'head' || hairCategory !== 'color') ? 
+                      <React.Fragment>
+                        {category !== "gender" ?(<div
+                          style={noTrait ? selectorButtonActive : selectorButton }
+                          className={`selector-button ${noTrait ? "active" : ""}`}
+                          onClick={() => {
+                            selectTrait("0");
+                            !isMute && play();
+                          }}
+                        >
+                          <img style={traitsCancelStyle}
+                                  className="icon"
+                                  src={cancel}
+                                />
+                        </div>):("")}
+                        {collection &&
+                          collection.map((item: any, index) => {
+                            return (
+                              <div
+                                key={index}
+                                style={
+                                  getActiveStatus(item) ? selectorButtonActive : selectorButton
+                                }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
+                                  }`}
+                                onClick={() => {
+                                  if (category === "gender") {
+                                    setLoaded(true)
+                                    setTempInfo(item.id)
+                                  }
+                                  !isMute && play();
+                                  selectTrait(item)
+                                }}
+                              >
+                                <img style={traitsImgStyle}
+                                  className="icon"
+                                  src={
+                                    item.thumbnailsDirectory
+                                      ? item.thumbnail
+                                      : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
+                                  }
+                                />
+                                <img src={tick}
+                                  style = {getActiveStatus(item) ? tickStyle : tickStyleInActive}
+                                />
+                                {selectValue === item?.id && loadingTrait > 0 && (
+                                  <Typography
+                                    className="loading-trait"
+                                    style={loadingTraitStyle}
+                                  >
+                                    {loadingTrait}%
+                                  </Typography>
+                                )}
+                              </div>
+                            )
+                          })}
+                        <div style={{ visibility: "hidden" }}>
+                          <Avatar className="icon" />
+                        </div>
+                      </React.Fragment>
+                    : (
+                      <Skin
+                        scene={scene}
+                        templateInfo={templateInfo}
+                        category={category}
+                        avatar={avatar}
+                      />
+                    )
+                )}
+              </Stack>
+            )}
+          </div>
+      {/*   <div style={{
+            width: "100%",
+            height : '100px',
+            border : "1px solid red",
+            
+          }}></div>*/}
+          <div
+            className={
+              loadingTraitOverlay
+                ? "loading-trait-overlay show"
+                : "loading-trait-overlay"
+            }
+            style={
+              loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
+            }
+          />
         </div>
-     {/*   <div style={{
-          width: "100%",
-          height : '100px',
-          border : "1px solid red",
-          
-        }}></div>*/}
-        <div
-          className={
-            loadingTraitOverlay
-              ? "loading-trait-overlay show"
-              : "loading-trait-overlay"
-          }
-          style={
-            loadingTraitOverlay ? loadingTraitOverlayStyle : { display: "none" }
-          }
-        />
       </div>
-    </div>
+    </FadeInOut>
   )
 }

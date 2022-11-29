@@ -46,6 +46,7 @@ function Skin({ scene, templateInfo, category, avatar}) {
   const getEyeMaterial = () => {
 
   }
+
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)

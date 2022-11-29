@@ -15,15 +15,13 @@ import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-
 import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useRotateStore } from "../store";
+import { useHideStore, useRotateStore } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
-
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -32,7 +30,7 @@ const ACCOUNT_DATA = {
 
 export default function Scene(props: any) {
   const [showType, setShowType] = useState(false);
-  const [randomFlag, setRandomFlag] = useState(-1);
+
   const [camera, setCamera] = useState<object>(Object);
   const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
@@ -43,10 +41,13 @@ export default function Scene(props: any) {
   const [autoRotate, setAutoRotate] = useState(true);
 
   const isRotate = useRotateStore((state) => state.isRotate)
+  const ishidden =  useHideStore((state) => state.ishidden)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   });
+
+  const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
 
   const connectWallet = async () => {
     try {
@@ -56,6 +57,9 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
+  useEffect(()=>{
+    console.log(ishidden);
+  },[ishidden])
 
   useEffect(() => {
     if(account) {
@@ -110,14 +114,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
- 
-  const random = () => {
-    if(randomFlag == -1){
-      setRandomFlag(0);
-    }else{
-      setRandomFlag(1-randomFlag)
-    }
-  }
 
   const { 
     templates,
@@ -135,6 +131,9 @@ export default function Scene(props: any) {
     setModelClass,
     modelClass,
     setEnd,
+    setRandomFlag,
+    randomFlag,
+    setLoadedTraits,
     model }: any = props;
 
   const handleDownload = () =>{
@@ -241,12 +240,14 @@ export default function Scene(props: any) {
       }
     }
   }
-
+  const leftPadding = ishidden ? 250 : 700
+  
   return (
-    <FitParentContainer>
-      <Background>
-        <ResizeableCanvas left = {'700px'} right = {'100px'}>
+    <FitParentContainer >
+      <Background >
+        <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
+            style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
             id="editor-scene"
@@ -256,15 +257,15 @@ export default function Scene(props: any) {
               position={[0, 0, 0]}
               visible={false}
             /> 
-            {/* <ambientLight
+            <ambientLight
               color={[1,1,1]}
               intensity={0.5}
-            /> */}
+            />
             <directionalLight 
               //castShadow = {true}
-              intensity = {1} 
+              intensity = {0.5} 
               //color = {[0.5,0.5,0.5]}
-              position = {[10, 6, 6]} 
+              position = {[3, 1, 5]} 
               shadow-mapSize = {[1024, 1024]}>
               <orthographicCamera 
                 attach="shadow-camera" 
@@ -280,16 +281,16 @@ export default function Scene(props: any) {
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
-              autoRotateSpeed = { 10 }
+              autoRotateSpeed = { 1 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
-            <Suspense fallback={null}>
+            {/* <Suspense fallback={null}>
               <EffectComposer>
                 <Bloom />
               </EffectComposer>
-            </Suspense>
+            </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
@@ -299,8 +300,9 @@ export default function Scene(props: any) {
               {!downloadPopup && !mintPopup && (
                 <TemplateModel scene={scene} />
               )}
-            <mesh rotation = {[-Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.6, 64]} />
+            <mesh rotation = {[-Math.PI / 2, 0, 0]} position = {[0,-0.02,0]}>
+              <circleGeometry 
+                args={[0.6, 64]} />
               <MeshReflectorMaterial
                 blur={[100, 100]}
                 opacity={1}
@@ -310,7 +312,7 @@ export default function Scene(props: any) {
                 depthScale={0.5}
                 minDepthThreshold={1}
                 color="#ffffff"
-                metalness={1}
+                metalness={0.9}
                 roughness={1}
               />
             </mesh>
@@ -348,7 +350,6 @@ export default function Scene(props: any) {
         setTemplateInfo(null);
         sceneService.setAvatarTemplateInfo(null);
       }}/>
-
       <div>
         <Selector
           templates={templates}
@@ -361,6 +362,8 @@ export default function Scene(props: any) {
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           randomFlag={randomFlag}
+          setLoadedTraits = {setLoadedTraits}
+          setRandomFlag = {setRandomFlag} 
           controls = {controls}
           model = {model}
           modelClass = {modelClass}
@@ -368,7 +371,7 @@ export default function Scene(props: any) {
         <Editor 
           controls = {controls}
           templateInfo={templateInfo}
-          random = {random} 
+          setRandomFlag = {setRandomFlag} 
           category={category} 
           setCategory={setCategory} 
           />

@@ -1,24 +1,29 @@
 import Stack from "@mui/material/Stack"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
 import shuffle from "../ui/traits/shuffle.png"
 import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
-import {useMuteStore} from '../store'
+import {useMuteStore, useHideStore} from '../store'
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
 export default function Editor(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
+  const sethidden = useHideStore((state) =>state.sethidden)
+  const ishide = useHideStore((state) =>state.ishidden)
   const { controls, templateInfo, category, setCategory  }: any = props
   const [ inverse, setInverse ] = useState(false)
-
+  //const [itemClicked, setItemClicked] = useState(true)
   const handleRandom = () => {
-    props.random();
+    props.setRandomFlag(0);
   }
-
+  //var optionArr = [];
+  useEffect(()=> {
+    sethidden(false);
+  }, [category])
 
   const [play] = useSound(
     optionClick,
@@ -26,8 +31,16 @@ export default function Editor(props: any) {
   );
 
   const selectOption = (option:any) =>{
+    if (option.name == category){ 
+      if (ishide) sethidden(false);
+      else sethidden (true);
+    }
+    else sethidden(false);
+
+    if (option.name != category)
+      moveCamera(option.cameraTarget);
     setCategory(option.name)
-    moveCamera(option.cameraTarget)
+    
     !isMute && play();
   }
 
