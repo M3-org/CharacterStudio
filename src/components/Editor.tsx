@@ -36,8 +36,11 @@ export default function Editor(props: any) {
       else sethidden (true);
     }
     else sethidden(false);
+
+    if (option.name != category)
+      moveCamera(option.cameraTarget);
     setCategory(option.name)
-    moveCamera(option.cameraTarget)
+    
     !isMute && play();
   }
 
