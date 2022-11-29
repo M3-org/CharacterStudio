@@ -55,7 +55,6 @@ export default function Selector(props) {
 
   const [loadingTrait, setLoadingTrait] = useState(null)
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
-
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
   const [ inverse, setInverse ] = useState(false)
@@ -172,13 +171,11 @@ export default function Selector(props) {
   }
 
   const selectOption = (option:any) =>{
-    console.log('aaaaaaaaa', option)
     moveCamera(option.cameraTarget)
     !isMute && play();
   }
 
   const moveCamera = (value:any) => {
-    console.log('aaaaaaaaa', value)
     if (value){
       setInverse(!inverse);
 
@@ -252,7 +249,7 @@ export default function Selector(props) {
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
   React.useEffect(() => {
-    console.log('aaaaaaaaaaaa', isHide)
+ 
   }, [isHide])
   
   React.useEffect(  () => {
@@ -343,7 +340,13 @@ export default function Selector(props) {
         } else {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
-          itemLoader(trait)
+          templateInfo.selectionTraits.map((item) =>{
+            if(item.name === category && item.type === "texture"){
+              textureTraitLoader(item, trait)
+            }else if(item.name === category){
+              itemLoader(trait)
+            }
+          })
         }
       }
     }
@@ -352,6 +355,8 @@ export default function Selector(props) {
   let loading;
 const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
+  console.log(templateInfo.traitsDirectory, item?.directory)
+
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
     .then((vrm) => {
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
@@ -408,7 +413,15 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
       }
     }
   // });
+
 }
+
+const textureTraitLoader = (props, trait) => {
+  const object = scene.getObjectByName(props.target);
+  const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
+  object.material[0].map = new THREE.TextureLoader().load(eyeTexture)
+}
+
 const getActiveStatus = (item) => {
   if(category === 'gender') {
     if(templateInfo.id === item?.id) 
