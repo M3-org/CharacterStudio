@@ -47,6 +47,8 @@ export default function Scene(props: any) {
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   });
 
+  const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
+
   const connectWallet = async () => {
     try {
       await activate(injected);
@@ -245,7 +247,7 @@ export default function Scene(props: any) {
       <Background >
         <ResizeableCanvas left = {leftPadding} right = {100}>
           <Canvas
-            style = {{width: '100vw', display:'flex', position:'absolute'}}
+            style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             linear = {true}
             id="editor-scene"
