@@ -349,6 +349,7 @@ export default function Selector(props) {
     }
     setSelectValue(trait?.id)
   }
+  let loading;
 const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
