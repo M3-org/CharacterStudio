@@ -2,13 +2,18 @@ import { display } from "html2canvas/dist/types/css/property-descriptors/display
 import React from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
-import { useEffect, useState, useRef } from "react"
+import { useState } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
+import { useColorStatus } from "../store";
+import { colors } from "@mui/material";
 
 function Skin({ scene, templateInfo, category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
+  const colorStatus = useColorStatus((state) => state.colorStatus)
+  const setColorStatus = useColorStatus((state) => state.setColorStatus)
+
   const container = {
     display: "flex",
     justifyContent: "center",
@@ -28,8 +33,7 @@ function Skin({ scene, templateInfo, category, avatar}) {
   }
 
   React.useEffect(() => {
-    const currentColor = localStorage.getItem('color');
-    setChecked(currentColor)
+    setChecked(colorStatus)
   }, templateInfo)
 
   const getHairMaterial = () => {
@@ -43,10 +47,6 @@ function Skin({ scene, templateInfo, category, avatar}) {
       return material;
   }
 
-  const getEyeMaterial = () => {
-
-  }
-
   const handleChangeSkin = (value: string) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
@@ -55,17 +55,14 @@ function Skin({ scene, templateInfo, category, avatar}) {
       colorTargets = getHairMaterial();
     }
     if(category === "eyeColor"){
-      // templateInfo.bodyTargets = [];
       colorTargets = templateInfo.EyeTargets;
     }
     if(category === "color"){
       colorTargets = templateInfo.bodyTargets;
     }
-    console.log(category)
-    console.log(colorTargets)
     for (const bodyTarget of colorTargets) {
       sceneService.setMaterialColor(scene, value, bodyTarget)
-      localStorage.setItem('color', value);
+      setColorStatus(value)
       sceneService.setSkinColor(value)
     }
   }
