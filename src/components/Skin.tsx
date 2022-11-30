@@ -1,12 +1,9 @@
-import { display } from "html2canvas/dist/types/css/property-descriptors/display"
 import React from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
 import { useColorStatus } from "../store";
-import { colors } from "@mui/material";
-
 function Skin({ scene, templateInfo, category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
