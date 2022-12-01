@@ -352,7 +352,6 @@ export default function Scene(props: any) {
       }}/>
       <div>
         <Selector
-          templates={templates}
           category={category}
           scene={scene}
           avatar = {avatar}

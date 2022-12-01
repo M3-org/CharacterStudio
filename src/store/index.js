@@ -14,6 +14,13 @@ const useRotateStore = create((set) => ({
     }))
 }))
 
+const useColorStatus = create((set) => ({
+    colorStatus: '',
+    setColorStatus: (value) => set((state) => ({
+        colorStatus: value
+    }))
+}))
+
 const useHideStore = create((set) => ({
     ishidden: true,
     sethidden: (value) => set((state) => ({
@@ -46,9 +53,18 @@ const useModelingStore = create((set) => ({
     })),
 }))
 
+const useDefaultTemplates = create((set) => ({
+    defaultTemplates: "",
+    setDefaultTemplates: (value) => set((state) => ({
+        defaultTemplates: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
     useRotateStore,
-    useHideStore
+    useHideStore,
+    useColorStatus,
+    useDefaultTemplates
 };

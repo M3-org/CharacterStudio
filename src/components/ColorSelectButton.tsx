@@ -1,4 +1,4 @@
-import StyleWarapper from './ColorSelectButtonStyle';
+import StyleWarapper from '../styles/ColorSelectButtonStyle';
 
 export const ColorSelectButton = (props) =>{
     return (
