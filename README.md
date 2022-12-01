@@ -11,7 +11,7 @@ npm install avatarcreator
 ```bash
 # Clone the repo and change directory into it
 git clone https://github.com/webaverse-studios/CharacterCreator
-cd AvatarCreator
+cd CharacterCreator
 
 # Install dependencies with legacy peer deps flag to ignore React errors
 npm install --legacy-peer-deps

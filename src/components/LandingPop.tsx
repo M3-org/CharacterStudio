@@ -1,4 +1,4 @@
-import {Tooltip} from './LandingPopStyle';
+import {Tooltip} from '../styles/LandingPopStyle';
 
 export const LandingPop = (props) =>{
     return (

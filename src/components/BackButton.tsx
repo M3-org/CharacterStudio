@@ -1,4 +1,4 @@
-import StyleWarapper from './BackButtonStyle';
+import StyleWarapper from '../styles/BackButtonStyle';
 
 export const BackButton = (props) =>{
     return (

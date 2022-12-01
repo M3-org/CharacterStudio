@@ -43,7 +43,7 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, templates, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass, setEnd } = props
+  const { theme, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass, setEnd } = props
   
   // Selected category State Hook
   const [category, setCategory] = useState("color")
@@ -73,6 +73,7 @@ export default function CharacterEditor(props: any) {
     legs:{},
     foot:{},
     accessories:{},
+    eyeColor:{}
   })
   //const [loadingModel, setLoadingModel] = useState<boolean>(false)
 
@@ -172,7 +173,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                templates={templates}
                 scene={scene}
                 //downloadPopup={downloadPopup}
                 mintPopup={mintPopup}

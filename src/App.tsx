@@ -10,11 +10,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-import '.././src/styles/landing.scss'
+// import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -28,8 +28,6 @@ const defaultTheme = createTheme({
 })
 
 function App() {
-  const isMute = useMuteStore((state) => state.isMute)
-
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
   const [alerCharacterEditortTitle, setAlertTitle] = useState("");
@@ -39,7 +37,10 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [end, setEnd] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-
+  
+  const isMute = useMuteStore((state) => state.isMute)
+  const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
+  setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
     const library = new Web3Provider(provider);
     library.pollingInterval = 12000;
@@ -111,9 +112,6 @@ function App() {
       }
       {
         loading && <div
-          style={{
-            
-          }}
         >
           <LoadingOverlayCircularStatic
             loadingModelProgress={loadingProgress}
@@ -123,12 +121,9 @@ function App() {
       {
         !modelClass ? 
         <Landing 
-          templates = { defaultTemplates } 
           onSetModel = {
             (value) => {
               setPreModelClass(value)
-              //setLoading(true)
-              
             }
           }
         /> : 
@@ -140,7 +135,6 @@ function App() {
           >
             <Web3ReactProvider getLibrary={getLibrary}>
               <CharacterEditor 
-                  templates={defaultTemplates} 
                   theme={defaultTheme} 
                   setLoading={(value) => {
                     setTimeout (() => {

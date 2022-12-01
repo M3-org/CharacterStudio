@@ -101,7 +101,19 @@ export default [
         "distance": 0.3,
         "height": 1.5
       }
-    }]
+    },
+    {
+      "name": "eyeColor",
+      "icon": "legs.png",
+      "type": "texture",
+      "target": "head_geobaked(copy)",
+      "icon-gradient": "chest-gradient.svg",
+      "id":6,
+      "cameraTarget":{
+        "distance": 0.5,
+        "height": 1.45
+      }
+    },]
   }
   ,
   {
