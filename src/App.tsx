@@ -10,7 +10,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-import '.././src/styles/landing.scss'
+// import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
