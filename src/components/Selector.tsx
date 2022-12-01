@@ -17,18 +17,16 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
 import optionClick from "../sound/option_click.wav"
-import { useHideStore } from "../store"
 import FadeInOut from "./FadeAnimation";
 import { SelectorContainerPos } from "../styles/SelectorStyle"
 
 export default function Selector(props) {
   const {
-    templates,
     category,
     scene,
     avatar,
@@ -46,6 +44,7 @@ export default function Selector(props) {
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const isHide = useHideStore((state) => state.ishidden)
+  const templates = useDefaultTemplates((state) => state.defaultTemplates);
   
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")

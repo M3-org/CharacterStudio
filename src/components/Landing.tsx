@@ -8,7 +8,7 @@ import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
-import { useMuteStore, useModelingStore} from '../store'
+import { useMuteStore, useModelingStore, useDefaultTemplates } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 
@@ -16,7 +16,6 @@ export default function Landing(props){
 
     const {
         onSetModel,
-        templates
     }:any = props;
     
     const isMute = useMuteStore((state) => state.isMute)
@@ -24,6 +23,7 @@ export default function Landing(props){
 
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
+    const defaultTemplates = useDefaultTemplates((state) => state.defaultTemplates)
 
     const [clicked, setClicked] = useState(false);
 

@@ -53,10 +53,18 @@ const useModelingStore = create((set) => ({
     })),
 }))
 
+const useDefaultTemplates = create((set) => ({
+    defaultTemplates: "",
+    setDefaultTemplates: (value) => set((state) => ({
+        defaultTemplates: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
     useRotateStore,
     useHideStore,
-    useColorStatus
+    useColorStatus,
+    useDefaultTemplates
 };
