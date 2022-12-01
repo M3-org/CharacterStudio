@@ -65,8 +65,8 @@ export default function Editor(props: any) {
           maxDistance:value.distance,
           minDistance:value.distance,
           minPolarAngle:(Math.PI / 2 - 0.11),
-          minAzimuthAngle: inverse ? -0.78 : 0.78,
-          maxAzimuthAngle: inverse ? -0.78 : 0.78,
+          minAzimuthAngle: - 0.78,
+          maxAzimuthAngle: - 0.78,
           duration: 1,
         }
       ).then(()=>{

@@ -250,7 +250,7 @@ export default function Selector(props) {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
-
+    console.warn(loadingTraitOverlay);
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
