@@ -111,9 +111,6 @@ function App() {
       }
       {
         loading && <div
-          style={{
-            
-          }}
         >
           <LoadingOverlayCircularStatic
             loadingModelProgress={loadingProgress}
@@ -127,8 +124,6 @@ function App() {
           onSetModel = {
             (value) => {
               setPreModelClass(value)
-              //setLoading(true)
-              
             }
           }
         /> : 
