@@ -8,7 +8,7 @@ import { useSpring, animated } from "react-spring"
 import Lottie from "lottie-react"
 import lottie from "../data/lottie.json"
 import webaMark from "../ui/loading/webaMark.svg"
-import { LoadingStyleBox } from "./LoadingOverlaystyle"
+import { LoadingStyleBox } from "../styles/LoadingOverlaystyle"
 
 function CircularProgressWithLabel(
   props: CircularProgressProps & {

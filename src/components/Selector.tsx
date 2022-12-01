@@ -24,7 +24,7 @@ import { ColorSelectButton } from "./ColorSelectButton"
 import optionClick from "../sound/option_click.wav"
 import { useHideStore } from "../store"
 import FadeInOut from "./FadeAnimation";
-import { SelectorContainerPos } from "./SelectorStyle"
+import { SelectorContainerPos } from "../styles/SelectorStyle"
 
 export default function Selector(props) {
   const {
