@@ -1,16 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
-import { Triangle } from 'react-loader-spinner'
 import useSound from 'use-sound';
-import dropHunter from '../ui/landing/drophunter.png'
-import neuroHacker from '../ui/landing/neurohacker.png'
 import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
-import bgm from "../sound/cc_bgm_balanced.wav"
-
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
 import { useMuteStore, useModelingStore} from '../store'
@@ -151,87 +146,54 @@ export default function Landing(props){
         }, 500)
     }
     return (
-        <div 
-            style = {{
-                height: '100vh',
-                backgroundSize : 'cover',
-                display : 'flex',
-                flexDirection : 'column',
-                alignItems : 'center',
-                overflow : 'hidden',
+        <StyledLanding>
+            {
+                isLoading && (
+                    <LoadingOverlayCircularStatic
+                        loadingModelProgress={loadingPercent}
+                        background={true}
+                    />
+                )
             }
-            }
+            <animated.div style = {{...titleAnimation}}>
+                    <div className="topBanner" >     
+                        <img className ="webaverse-text" src={logo} />
+                        <div className='studio' >Character Studio</div>
+                    </div>
+                    <div className="subTitle" >
+                        <div className='subTitle-text'>Pick a Class
+                            <div className="subTitle-desc"> You'll be able to customize in a moment.</div>
+                        </div>
+                    </div>
+            </animated.div>
+            <animated.div 
+                className="imgs"
+                style={{
+                    ...cardAnimation,
+                }}
             >
                 {
-                    isLoading && (
-                        <LoadingOverlayCircularStatic
-                            loadingModelProgress={loadingPercent}
-                            background={true}
-                        />
-                    )
-                }
-
-                <animated.div style = {{...titleAnimation}}>
-                       <div className="topBanner" style={{
-                       }} >     
-                            <img 
-                                src={logo} 
-                                style = {{
-                                    display: 'inline-block',
-                                    margin: '41px auto auto',
-                                    userSelect : "none"
-                                }}
-                            />
-                            <div className='studio' >Character Studio</div>
-                        </div>
-                        <div className="subTitle" >
-                            <div style={{
-                                fontWeight : '1200',
-                                userSelect : "none"
-                            }}>Pick a Class
-                                <div 
-                                    style={{
-                                        fontStyle: 'normal',
-                                        fontWeight: '400',
-                                    }}
-                                    className="subTitle-desc"
-                                > You'll be able to customize in a moment 
-                                </div>
-                            </div>
-                        </div>
-                </animated.div>
-                <animated.div 
-                    className="imgs"
-                    style={{
-                        display : 'flex',
-                        //gap: '50px',
-                        userSelect : "none",                        
-                        marginTop: '30px',
-                          ...cardAnimation,
-                    }}
-                >
-                    {
-                        modelArr.map((item, idx) => (
-                            <div className='characterGroup' key={idx}
-                                onMouseEnter={() => {
-                                    setIsHovering(true);
-                                    if(!isMute)
-                                        play();
-                                }}
-                                onMouseLeave={() => {
-                                    setIsHovering(false);
-                                    stop();
+                    modelArr.map((item, idx) => (
+                        <div className='characterGroup' key={idx}
+                            onMouseEnter={() => {
+                                setIsHovering(true);
+                                if(!isMute)
+                                    play();
                             }}
-                            onClick = {() => handleClick(item.index)}
-                            >
-                                <LandingPop className="landingPop" text={item.text} />
-                                <ModelCanvas 
-                                    modelPath={item.model} 
-                                    animation = {item.animation} 
-                                    order = {item.index} 
-                                />
-                            </div>
-                        ))
-                    }
-                </animated.div>
-            </div>)}
+                            onMouseLeave={() => {
+                                setIsHovering(false);
+                                stop();
+                        }}
+                        onClick = {() => handleClick(item.index)}
+                        >
+                            <LandingPop className="landingPop" text={item.text} />
+                            <ModelCanvas 
+                                modelPath={item.model} 
+                                animation = {item.animation} 
+                                order = {item.index} 
+                            />
+                        </div>
+                    ))
+                }
+            </animated.div>
+        </StyledLanding>)}
