@@ -12,7 +12,7 @@ import { CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
 
 import { OfflineShareTwoTone, Output } from "@mui/icons-material";
-// import { renameMecanimBones } from "./bonesRename";
+import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
@@ -263,8 +263,8 @@ async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void)
   return loader.loadAsync(file, onProgress).then((model) => {
     const vrm = model.userData.vrm;
     // setup for vrm
-    //renameVRMBones(vrm);
     renameVRMBones(vrm);
+    //renameMecanimBones(vrm);
     setupModel(vrm);
     return vrm;
   });

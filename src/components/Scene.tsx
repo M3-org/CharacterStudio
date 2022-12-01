@@ -240,12 +240,12 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? 250 : 700
+  const leftPadding = ishidden ? 200 : 700
   
   return (
     <FitParentContainer >
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {100}>
+        <ResizeableCanvas left = {leftPadding} right = {0}>
           <Canvas
             style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
