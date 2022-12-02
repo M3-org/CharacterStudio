@@ -92,10 +92,11 @@ export const SelectorContainerPos = styled.div`
                         }
                     }
                     .selectorButton{
-                        display: flex
+                        display: flex;
                         justify-content: center;
+                        items-align : center;
                         cursor: pointer;
-                        width: '100%',
+                        width: 100%;
                         height: 134px;
                         background: rgba(81, 90, 116, 0.2);
                         backdrop-filter: blur(22.5px);
