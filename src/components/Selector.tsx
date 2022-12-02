@@ -57,6 +57,8 @@ export default function Selector(props) {
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
   const [noTrait, setNoTrait] = useState(true)
   const [loaded, setLoaded] = useState(false)
+  let loadedPercent = Math.round(loadingTrait?.loaded * 100 / loadingTrait?.total);
+  
   const [ inverse, setInverse ] = useState(false)
   const container = React.useRef();
   const [play] = useSound(
@@ -77,6 +79,7 @@ export default function Selector(props) {
       activeImage: hairColorImg,
     },
   ]
+
   const selectorButton = {
     display: "flex",
     justifyContent: "center" as "center",
@@ -286,7 +289,7 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
   console.log(templateInfo.traitsDirectory, item?.directory)
 
-  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`,setLoadingTrait)
+  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
       r_vrm = vrm;
@@ -476,13 +479,12 @@ const getActiveStatus = (item) => {
                                 <img src={tick}
                                   className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
                                 />
-                                {selectValue === item?.id && loadingTrait > 0 && (
-                                  <Typography
+                                {selectValue === item?.id && loadedPercent > 0 && (
+                                  <div
                                     className="loading-trait"
-                                    // style={loadingTraitStyle}
                                   >
-                                    {loadingTrait}%
-                                  </Typography>
+                                    {loadedPercent}%
+                                  </div>
                                 )}
                               </div>
                             )
