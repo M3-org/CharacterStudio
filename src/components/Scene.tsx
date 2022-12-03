@@ -42,6 +42,7 @@ export default function Scene(props: any) {
 
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
+
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -131,8 +132,6 @@ export default function Scene(props: any) {
     setModelClass,
     modelClass,
     setEnd,
-    setRandomFlag,
-    randomFlag,
     setLoadedTraits,
     model }: any = props;
 
@@ -360,9 +359,7 @@ export default function Scene(props: any) {
           template={template}
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
-          randomFlag={randomFlag}
           setLoadedTraits = {setLoadedTraits}
-          setRandomFlag = {setRandomFlag} 
           controls = {controls}
           model = {model}
           modelClass = {modelClass}
@@ -370,7 +367,6 @@ export default function Scene(props: any) {
         <Editor 
           controls = {controls}
           templateInfo={templateInfo}
-          setRandomFlag = {setRandomFlag} 
           category={category} 
           setCategory={setCategory} 
           />

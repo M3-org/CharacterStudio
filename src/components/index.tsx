@@ -11,6 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
+import { useRandomFlag } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -51,14 +52,17 @@ export default function CharacterEditor(props: any) {
   const [model, setModel] = useState<VRM>(Object)
 
   const [scene, setScene] = useState<any>(Object)
+  const [flagPass, setFlagPass] = useState<any>(false)
   
   // States Hooks used in template editor //
   const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
-  const [randomFlag, setRandomFlag] = useState(-1);
   const [loadedTraits, setLoadedTraits] = useState(false)
+
+  const randomFlag = useRandomFlag((state) => state.randomFlag)
+  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
 
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
@@ -95,7 +99,6 @@ export default function CharacterEditor(props: any) {
 
   useEffect(() => {
     if(avatar){
-      console.log(avatar)
       sceneService.setTraits(avatar);
     }
   }, [avatar])
@@ -123,7 +126,8 @@ export default function CharacterEditor(props: any) {
     sceneService.setAvatarModel(model);
   }, [model])
   
-  useEffect(() => {
+  useEffect( () => {
+
     if (templateInfo.file) {
       
       // create a scene that will hold all elements (decoration and avatar)
@@ -145,9 +149,9 @@ export default function CharacterEditor(props: any) {
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);
           }
+
           setTimeout(()=>{
-            //startAnimation(vrm)
-            
+                    
             setTimeout(()=>{
               newScene.add (vrm.scene);
 
@@ -156,15 +160,18 @@ export default function CharacterEditor(props: any) {
 
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-              console.log(vrm)
               setModel(vrm);
-              setRandomFlag(1);
-              
+              setFlagPass(true)
+            // setRandomFlag(1);
             },50);
           },1000)
         })
     }
   }, [templateInfo.file])
+
+  useEffect(() => {
+    if(flagPass) setRandomFlag(1)
+  }, [flagPass])
  
   return (
     <Suspense fallback="loading...">
@@ -188,8 +195,6 @@ export default function CharacterEditor(props: any) {
                 setModelClass={setModelClass}
                 modelClass = {modelClass}
                 setEnd={setEnd}
-                setRandomFlag = {setRandomFlag}
-                randomFlag = {randomFlag}
                 setLoadedTraits = {setLoadedTraits}
               />  
             </animated.div>

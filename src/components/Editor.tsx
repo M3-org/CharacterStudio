@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import shuffle from "../ui/traits/shuffle.png"
 import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
-import {useMuteStore, useHideStore} from '../store'
+import {useMuteStore, useHideStore, useRandomFlag} from '../store'
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
@@ -14,12 +14,10 @@ export default function Editor(props: any) {
   const isMute = useMuteStore((state) => state.isMute)
   const sethidden = useHideStore((state) =>state.sethidden)
   const ishide = useHideStore((state) =>state.ishidden)
+  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const { controls, templateInfo, category, setCategory  }: any = props
   const [ inverse, setInverse ] = useState(false)
   //const [itemClicked, setItemClicked] = useState(true)
-  const handleRandom = () => {
-    props.setRandomFlag(0);
-  }
   //var optionArr = [];
   useEffect(()=> {
     sethidden(false);
@@ -103,7 +101,7 @@ export default function Editor(props: any) {
 
         <ShuffleOption 
           onClick={() => {
-            handleRandom()
+            setRandomFlag(0);
             !isMute && play();
           }}>
           <MenuImg src = {shuffle} />

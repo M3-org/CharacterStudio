@@ -60,11 +60,19 @@ const useDefaultTemplates = create((set) => ({
     }))
 }))
 
+const useRandomFlag = create((set) => ({
+    randomFlag: -1,
+    setRandomFlag: (value) => set((state) => ({
+        randomFlag: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
     useRotateStore,
     useHideStore,
     useColorStatus,
-    useDefaultTemplates
+    useDefaultTemplates,
+    useRandomFlag
 };

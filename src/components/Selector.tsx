@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore, useDefaultTemplates, useHideStore} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
@@ -35,8 +35,6 @@ export default function Selector(props) {
     template,
     setTemplateInfo,
     templateInfo,
-    randomFlag,
-    setRandomFlag,
     setLoadedTraits,
     controls,
     model, 
@@ -44,6 +42,9 @@ export default function Selector(props) {
   }: any = props
   const isMute = useMuteStore((state) => state.isMute)
   const isHide = useHideStore((state) => state.ishidden)
+  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
+  const randomFlag = useRandomFlag((state) => state.randomFlag)
+
   const templates = useDefaultTemplates((state) => state.defaultTemplates);
   
   const [selectValue, setSelectValue] = useState("0")
@@ -66,19 +67,6 @@ export default function Selector(props) {
     { volume: 1.0 }
   );
   const iconPath = "./3d/icons-gradient/" + category + ".svg";
-
-  const hairSubCategories = [
-    {
-      id: 'style',
-      image: hairStyleImg,
-      activeImage: hairStyleImg,
-    },
-    {
-      id: 'color',
-      image: hairColorImg,
-      activeImage: hairColorImg,
-    },
-  ]
 
   const selectorButton = {
     display: "flex",
@@ -235,8 +223,8 @@ export default function Selector(props) {
       ...avatar,
       ...buffer
       });
-      
-      if (randomFlag === 1) setLoadedTraits(true);
+      if (randomFlag == 1) {
+        setLoadedTraits(true);}
       setRandomFlag(-1);
     })()
 
@@ -285,9 +273,8 @@ export default function Selector(props) {
     setSelectValue(trait?.id)
   }
   let loading;
-const itemLoader =  async(item, traits = null, addToScene = true) => {
+  const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
-  console.log(templateInfo.traitsDirectory, item?.directory)
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
