@@ -3,14 +3,14 @@ import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
-import { useColorStatus } from "../store";
-function Skin({ scene, templateInfo, category, avatar}) {
+import { useColorStatus, useScene } from "../store";
+function Skin({ templateInfo, category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
   const colorStatus = useColorStatus((state) => state.colorStatus)
   const setColorStatus = useColorStatus((state) => state.setColorStatus)
-
+  const scene = useScene((state) => state.scene)
   const container = {
     display: "flex",
     justifyContent: "center",

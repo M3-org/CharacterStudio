@@ -11,7 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
-import { useRandomFlag, useAvatar, useLoadedTraits } from "../store"
+import { useRandomFlag, useAvatar, useLoadedTraits, useScene } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -51,7 +51,6 @@ export default function CharacterEditor(props: any) {
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
   const [model, setModel] = useState<VRM>(Object)
 
-  const [scene, setScene] = useState<any>(Object)
   const [flagPass, setFlagPass] = useState<any>(false)
   
   // States Hooks used in template editor //
@@ -65,7 +64,7 @@ export default function CharacterEditor(props: any) {
 
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const avatar = useAvatar((state) => state.avatar)
-
+  const setScene = useScene((state) => state.setScene)
   const defaultTheme = createTheme({
     palette: {
       mode: "dark",
@@ -165,7 +164,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                scene={scene}
                 //downloadPopup={downloadPopup}
                 mintPopup={mintPopup}
                 category={category}

@@ -108,6 +108,13 @@ const useSetTemplate = create((set) => ({
     }))
 }))
 
+const useScene = create((set) => ({
+    scene: {},
+    setScene: (value) => set((state) => ({
+        scene: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -119,5 +126,6 @@ export {
     useAvatar,
     useLoadedTraits,
     useEnd,
-    useSetTemplate
+    useSetTemplate,
+    useScene
 };
