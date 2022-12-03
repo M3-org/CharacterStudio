@@ -94,6 +94,13 @@ const useLoadedTraits = create((set) => ({
     }))
 }))
 
+const useEnd = create((set) => ({
+    end: false,
+    setEnd: (value) => set((state) => ({
+        end: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -103,5 +110,6 @@ export {
     useDefaultTemplates,
     useRandomFlag,
     useAvatar,
-    useLoadedTraits
+    useLoadedTraits,
+    useEnd
 };

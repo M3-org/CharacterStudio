@@ -44,7 +44,7 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass, setEnd } = props
+  const { theme, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass } = props
   
   // Selected category State Hook
   const [category, setCategory] = useState("color")
@@ -178,7 +178,6 @@ export default function CharacterEditor(props: any) {
                 model={model}
                 setModelClass={setModelClass}
                 modelClass = {modelClass}
-                setEnd={setEnd}
               />  
             </animated.div>
           </Fragment>

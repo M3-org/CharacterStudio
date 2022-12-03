@@ -14,7 +14,7 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore, useDefaultTemplates} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -35,11 +35,12 @@ function App() {
   const [modelClass, setModelClass] = useState<number>(0)
   const [preModelClass, setPreModelClass] = useState<number>(0)
   const [loading, setLoading] = useState(false);
-  const [end, setEnd] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   const isMute = useMuteStore((state) => state.isMute)
   const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
+  const setEnd = useEnd((state) => state.setEnd)
+  const end = useEnd((state) => state.end)
   setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
     const library = new Web3Provider(provider);
@@ -150,7 +151,6 @@ function App() {
                     formatComplete();
                   }}
                   modelClass = {modelClass}
-                  setEnd = {setEnd}
                 />
             </Web3ReactProvider>
             {showAlert && (

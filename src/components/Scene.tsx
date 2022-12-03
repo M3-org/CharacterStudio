@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useLoadedTraits } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useEnd } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -43,6 +43,8 @@ export default function Scene(props: any) {
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
   const avatar = useAvatar((state) => state.avatar)
+  const setEnd = useEnd((state) => state.setEnd)
+
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
@@ -130,7 +132,6 @@ export default function Scene(props: any) {
     templateInfo,
     setModelClass,
     modelClass,
-    setEnd,
     model }: any = props;
 
   const handleDownload = () =>{
