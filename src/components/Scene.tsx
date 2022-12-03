@@ -120,7 +120,6 @@ export default function Scene(props: any) {
 
   const { 
     downloadPopup,
-    mintPopup,
     category,
     setCategory,
     setTemplateInfo,
@@ -128,7 +127,6 @@ export default function Scene(props: any) {
     setModelClass,
     modelClass,
     model }: any = props;
-
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
   }
@@ -290,7 +288,7 @@ export default function Scene(props: any) {
               fov={100}
               onUpdate={self => self.updateProjectionMatrix()}
             >
-              {!downloadPopup && !mintPopup && (
+              {!downloadPopup && (
                 <TemplateModel scene={scene} />
               )}
             <mesh rotation = {[-Math.PI / 2, 0, 0]} position = {[0,-0.02,0]}>
