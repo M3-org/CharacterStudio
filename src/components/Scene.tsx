@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useLoadedTraits } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -131,7 +131,6 @@ export default function Scene(props: any) {
     setModelClass,
     modelClass,
     setEnd,
-    setLoadedTraits,
     model }: any = props;
 
   const handleDownload = () =>{
@@ -356,7 +355,6 @@ export default function Scene(props: any) {
           template={template}
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
-          setLoadedTraits = {setLoadedTraits}
           controls = {controls}
           model = {model}
           modelClass = {modelClass}

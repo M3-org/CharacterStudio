@@ -87,6 +87,13 @@ const useAvatar = create((set) => ({
     }))
 }))
 
+const useLoadedTraits = create((set) => ({
+    loadedTraits: false,
+    setLoadedTraits: (value) => set((state) => ({
+        loadedTraits: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -95,5 +102,6 @@ export {
     useColorStatus,
     useDefaultTemplates,
     useRandomFlag,
-    useAvatar
+    useAvatar,
+    useLoadedTraits
 };

@@ -11,7 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
-import { useRandomFlag, useAvatar } from "../store"
+import { useRandomFlag, useAvatar, useLoadedTraits } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -59,7 +59,10 @@ export default function CharacterEditor(props: any) {
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
-  const [loadedTraits, setLoadedTraits] = useState(false)
+  // const [loadedTraits, setLoadedTraits] = useState(false)
+  
+  const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
+  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
 
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const avatar = useAvatar((state) => state.avatar)
@@ -176,7 +179,6 @@ export default function CharacterEditor(props: any) {
                 setModelClass={setModelClass}
                 modelClass = {modelClass}
                 setEnd={setEnd}
-                setLoadedTraits = {setLoadedTraits}
               />  
             </animated.div>
           </Fragment>

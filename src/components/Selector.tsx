@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar, useLoadedTraits} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
@@ -33,7 +33,6 @@ export default function Selector(props) {
     template,
     setTemplateInfo,
     templateInfo,
-    setLoadedTraits,
     controls,
     model, 
     modelClass
@@ -44,6 +43,8 @@ export default function Selector(props) {
   const randomFlag = useRandomFlag((state) => state.randomFlag)
   const avatar = useAvatar((state) => state.avatar)
   const setAvatar = useAvatar((state) => state.setAvatar)
+  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
+
 
   const templates = useDefaultTemplates((state) => state.defaultTemplates);
   
