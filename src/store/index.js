@@ -101,6 +101,13 @@ const useEnd = create((set) => ({
     }))
 }))
 
+const useSetTemplate = create((set) => ({
+    template: 1,
+    setTemplate: (value) => set((state) => ({
+        template: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -111,5 +118,6 @@ export {
     useRandomFlag,
     useAvatar,
     useLoadedTraits,
-    useEnd
+    useEnd,
+    useSetTemplate
 };

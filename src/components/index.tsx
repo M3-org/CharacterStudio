@@ -58,7 +58,6 @@ export default function CharacterEditor(props: any) {
   const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
-  const [template, setTemplate] = useState<number>(1)
   // const [loadedTraits, setLoadedTraits] = useState(false)
   
   const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
@@ -171,8 +170,6 @@ export default function CharacterEditor(props: any) {
                 mintPopup={mintPopup}
                 category={category}
                 setCategory={setCategory}
-                setTemplate={setTemplate}
-                template={template}
                 setTemplateInfo={setTemplateInfo}
                 templateInfo={templateInfo}
                 model={model}

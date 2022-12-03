@@ -126,8 +126,6 @@ export default function Scene(props: any) {
     mintPopup,
     category,
     setCategory,
-    setTemplate,
-    template,
     setTemplateInfo,
     templateInfo,
     setModelClass,
@@ -352,8 +350,6 @@ export default function Scene(props: any) {
         <Selector
           category={category}
           scene={scene}
-          setTemplate={setTemplate}
-          template={template}
           setTemplateInfo={setTemplateInfo}
           templateInfo={templateInfo}
           controls = {controls}
