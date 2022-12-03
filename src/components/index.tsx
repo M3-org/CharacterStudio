@@ -64,22 +64,6 @@ export default function CharacterEditor(props: any) {
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const avatar = useAvatar((state) => state.avatar)
 
-  //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
-  // const [ avatar,setAvatar] = useState<Avatar>({
-  //   body:{},
-  //   chest:{},
-  //   head:{},
-  //   neck:{},
-  //   hand:{},
-  //   ring:{},
-  //   waist:{},
-  //   weapon:{},
-  //   legs:{},
-  //   foot:{},
-  //   accessories:{},
-  //   eyeColor:{}
-  // })
-
   const defaultTheme = createTheme({
     palette: {
       mode: "dark",
