@@ -291,6 +291,7 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
+      console.log(item)
       sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
@@ -308,7 +309,9 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
         }
       })
       setLoadingTrait(null)
-      setLoadingTraitOverlay(false)
+
+      // small timer to avoid quickly clicking
+      setTimeout(() => {setLoadingTraitOverlay(false)},500);
 
       if (addToScene){
         model.data?.animationManager?.startAnimation(vrm);

@@ -26,13 +26,19 @@ export const CullHiddenFaces = async(meshes) => {
         }
     });
 
+    // remove empty spaces
+    for (let i = culls.length - 1; i >= 0; i--) {
+        if (culls[i] == null)
+        culls.splice(i, 1)
+    }
+
     // this array will hold all possible mesh colliders
     let hitArr = [];
 
     // go from top to bottom to increase array size of collide meshes
     // lowest layer should consider all meshes
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
-    for (var i = culls.length - 1; i >= 0; i--) {
+    for (let i = culls.length - 1; i >= 0; i--) {
         if (hitArr.length != 0 || culls.length == 1){
             for (let k = 0; k < culls[i].length; k++){
                 
@@ -42,16 +48,61 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
+
+                const boneDirections = mesh.geometry.userData.boneDirections;
                 
-                mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr));
+                //mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr));
+                mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr));
             }
         }
         hitArr = [...hitArr, ...culls[i]]
     }
 }
 
-const distance = 0.03;
-const distanceAfter = 0.005;
+const distance = 0.1;
+const distanceAfter = 0.1;
+const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels) =>{
+    const indexCustomArr = [];
+    // we should make this data editable by user
+    raycaster.far = distance + distanceAfter;
+    
+    for (let i =0; i < index.length/3 ;i++){
+
+        const idxBase = i * 3;
+        //if at least 1 vertex collides with nothing, it is visible
+        for (let j = 0; j < 3 ; j++){
+            // reset intersections
+            intersections.length = 0;
+
+            // vi = vertex index, mutliplied by 3 as it refers to a vector3 saved as a float array
+            const vi = index[idxBase+j] * 3;
+
+            // bi = bones index, bones are an array of vector3 non buffer, so no need to muliply here
+            const bi = index[idxBase+j];  
+            const direction = boneDirections[bi];
+
+            // move the origin away to have the raycast being casted from outside
+            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distance))
+            
+            //invert the direction of the raycaster as we moved it away from its origin
+            raycaster.set( origin, direction.clone().multiplyScalar(-1));
+
+            // if it hits it means vertex is visible
+            if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
+                for (let k = 0; k < 3 ; k++){
+                    indexCustomArr.push(index[idxBase+k])
+                }
+                break;
+            }
+            // else{
+            //     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
+            // }
+        }
+    }
+
+    const indexArr = new Uint32Array(indexCustomArr);
+    return new BufferAttribute(indexArr,1,false);
+}
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels) =>{
     const indexCustomArr = [];
     // we should make this data editable by user
