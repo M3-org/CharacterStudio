@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
@@ -29,8 +29,6 @@ export default function Selector(props) {
   const {
     category,
     scene,
-    avatar,
-    setAvatar,
     setTemplate,
     template,
     setTemplateInfo,
@@ -44,6 +42,8 @@ export default function Selector(props) {
   const isHide = useHideStore((state) => state.ishidden)
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const randomFlag = useRandomFlag((state) => state.randomFlag)
+  const avatar = useAvatar((state) => state.avatar)
+  const setAvatar = useAvatar((state) => state.setAvatar)
 
   const templates = useDefaultTemplates((state) => state.defaultTemplates);
   

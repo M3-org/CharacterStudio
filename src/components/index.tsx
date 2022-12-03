@@ -11,7 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
-import { useRandomFlag } from "../store"
+import { useRandomFlag, useAvatar } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -61,25 +61,24 @@ export default function CharacterEditor(props: any) {
   const [template, setTemplate] = useState<number>(1)
   const [loadedTraits, setLoadedTraits] = useState(false)
 
-  const randomFlag = useRandomFlag((state) => state.randomFlag)
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
+  const avatar = useAvatar((state) => state.avatar)
 
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
-  const [ avatar,setAvatar] = useState<Avatar>({
-    body:{},
-    chest:{},
-    head:{},
-    neck:{},
-    hand:{},
-    ring:{},
-    waist:{},
-    weapon:{},
-    legs:{},
-    foot:{},
-    accessories:{},
-    eyeColor:{}
-  })
-  //const [loadingModel, setLoadingModel] = useState<boolean>(false)
+  // const [ avatar,setAvatar] = useState<Avatar>({
+  //   body:{},
+  //   chest:{},
+  //   head:{},
+  //   neck:{},
+  //   hand:{},
+  //   ring:{},
+  //   waist:{},
+  //   weapon:{},
+  //   legs:{},
+  //   foot:{},
+  //   accessories:{},
+  //   eyeColor:{}
+  // })
 
   const defaultTheme = createTheme({
     palette: {
@@ -185,8 +184,6 @@ export default function CharacterEditor(props: any) {
                 mintPopup={mintPopup}
                 category={category}
                 setCategory={setCategory}
-                avatar = {avatar}
-                setAvatar={setAvatar}
                 setTemplate={setTemplate}
                 template={template}
                 setTemplateInfo={setTemplateInfo}

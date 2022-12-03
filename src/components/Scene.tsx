@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore } from "../store";
+import { useHideStore, useRotateStore, useAvatar } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -42,6 +42,7 @@ export default function Scene(props: any) {
 
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
+  const avatar = useAvatar((state) => state.avatar)
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
@@ -123,8 +124,6 @@ export default function Scene(props: any) {
     mintPopup,
     category,
     setCategory,
-    avatar,
-    setAvatar,
     setTemplate,
     template,
     setTemplateInfo,
@@ -353,8 +352,6 @@ export default function Scene(props: any) {
         <Selector
           category={category}
           scene={scene}
-          avatar = {avatar}
-          setAvatar={setAvatar}
           setTemplate={setTemplate}
           template={template}
           setTemplateInfo={setTemplateInfo}

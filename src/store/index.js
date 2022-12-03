@@ -67,6 +67,26 @@ const useRandomFlag = create((set) => ({
     }))
 }))
 
+const useAvatar = create((set) => ({
+    avatar:  {
+        body:{},
+        chest:{},
+        head:{},
+        neck:{},
+        hand:{},
+        ring:{},
+        waist:{},
+        weapon:{},
+        legs:{},
+        foot:{},
+        accessories:{},
+        eyeColor:{}
+    },
+    setAvatar: (value) => set((state) => ({
+        avatar: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -74,5 +94,6 @@ export {
     useHideStore,
     useColorStatus,
     useDefaultTemplates,
-    useRandomFlag
+    useRandomFlag,
+    useAvatar
 };
