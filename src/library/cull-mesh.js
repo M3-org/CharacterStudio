@@ -59,8 +59,8 @@ export const CullHiddenFaces = async(meshes) => {
     }
 }
 
-const distance = 0.1;
-const distanceAfter = 0.1;
+const distance = 0.03;
+const distanceAfter = 0.03;
 const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels) =>{
     const indexCustomArr = [];
     // we should make this data editable by user
