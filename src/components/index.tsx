@@ -95,14 +95,12 @@ export default function CharacterEditor(props: any) {
 
   useEffect(() => {
     if(avatar){
-      console.log(avatar)
       sceneService.setTraits(avatar);
     }
   }, [avatar])
 
   useEffect(() => {
     if(templateInfo){
-      console.log("temp info")
       sceneService.setAvatarTemplateInfo(templateInfo);
     }
   }, [templateInfo])
@@ -156,7 +154,6 @@ export default function CharacterEditor(props: any) {
 
               
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-              console.log(vrm)
               setModel(vrm);
               setRandomFlag(1);
               

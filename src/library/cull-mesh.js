@@ -9,10 +9,9 @@ const raycaster = new Raycaster();
 raycaster.firstHitOnly = true;
 
 export const CullHiddenFaces = async(meshes) => {
-
+    //clearRays();
     // make a 2 dimensional array that will hold the layers
     const culls = [];
-
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
         if (mesh.userData.cullLayer != null){
@@ -31,7 +30,6 @@ export const CullHiddenFaces = async(meshes) => {
         if (culls[i] == null)
         culls.splice(i, 1)
     }
-
     // this array will hold all possible mesh colliders
     let hitArr = [];
 
@@ -39,7 +37,8 @@ export const CullHiddenFaces = async(meshes) => {
     // lowest layer should consider all meshes
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
     for (let i = culls.length - 1; i >= 0; i--) {
-        if (hitArr.length != 0 || culls.length == 1){
+        //console.log(culls[i])
+        if (hitArr.length != 0 || culls.length >= 1){
             for (let k = 0; k < culls[i].length; k++){
                 
                 const mesh = culls[i][k];
@@ -52,6 +51,7 @@ export const CullHiddenFaces = async(meshes) => {
                 const boneDirections = mesh.geometry.userData.boneDirections;
                 
                 //mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr));
+                
                 mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr));
             }
         }
@@ -61,7 +61,7 @@ export const CullHiddenFaces = async(meshes) => {
 
 const distance = 0.03;
 const distanceAfter = 0.03;
-const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels) =>{
+const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, debug=false) =>{
     const indexCustomArr = [];
     // we should make this data editable by user
     raycaster.far = distance + distanceAfter;
@@ -86,17 +86,18 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
             
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
-
+            
             // if it hits it means vertex is visible
             if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
+                if (debug)DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
                 for (let k = 0; k < 3 ; k++){
                     indexCustomArr.push(index[idxBase+k])
                 }
                 break;
             }
-            // else{
-            //     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
-            // }
+             else{
+                 //if (debug)DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
+             }
         }
     }
 
@@ -238,7 +239,16 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
 }
 
 
-
+function clearRays(scene){
+    if (scene.lines){
+        scene.lines.forEach(line => {
+            line.visible = false;
+            line.parent = null;
+            line.geometry.dispose();
+        });
+        scene.lines.length = 0;
+    }
+}
 function DebugRay(origin, direction, length, color, scene){
     //console.log("tt")
     if (scene.lines == null)

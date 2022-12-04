@@ -61,7 +61,6 @@ const cullHiddenMeshes = () => {
       const vrm = traits[property].vrm;
       
       if (vrm){
-        console.log(vrm.data.cullingLayer)
         const cullLayer = vrm.data.cullingLayer;
         vrm.scene.traverse((child)=>{
           if (child.isMesh){
@@ -97,7 +96,6 @@ const cullHiddenMeshes = () => {
         }
       }
       CullHiddenFaces(models);
-      
     }
   }
 }
@@ -305,7 +303,6 @@ function getModelProperty(model:any, property:string):any{
 
 function disposeVRM (vrm: any) {
   const model = vrm.scene;
-  console.log(vrm)
   const animationControl = (getModelProperty(vrm, "animationControl"));
   if (animationControl)
     animationControl.dispose();
@@ -365,6 +362,8 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
   const geometry = skinMesh.geometry;
 
   const pos = geometry.attributes.position.array;
+  //console.log(geometry)
+  const normals = geometry.attributes.normal.array;
 
   // set by jumps of 4
   const bnIdx = geometry.attributes.skinIndex.array;
@@ -382,8 +381,9 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
   
   const bonesArrange = [];
   for (let i = 0; i < skinMesh.skeleton.bones.length;i++){
-    if (skinMesh.skeleton.bones[i].name.includes("Shoulder"))
+    if (skinMesh.skeleton.bones[i].name.includes("Shoulder")){
       bonesArrange[i] = 2;
+    }
     else if (skinMesh.skeleton.bones[i].name.includes("Arm") || 
           skinMesh.skeleton.bones[i].name.includes("Hand") ||
           skinMesh.skeleton.bones[i].name.includes("Index") ||
@@ -392,15 +392,24 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
           skinMesh.skeleton.bones[i].name.includes("Ring") ||
           skinMesh.skeleton.bones[i].name.includes("Thumb"))
       bonesArrange[i] = 1; 
+    // else if (skinMesh.skeleton.bones[i].name.includes("Foot") || 
+    //       skinMesh.skeleton.bones[i].name.includes("Toes"))
+    //   bonesArrange[i] = 3; 
+    else if (
+      skinMesh.skeleton.bones[i].name.includes("Foot") || 
+      skinMesh.skeleton.bones[i].name.includes("Toes"))
+      bonesArrange[i] = 3; 
     else
       bonesArrange[i] = 0; 
   }
+
+
 
   for( let f = 0; f < (bnIdx.length/4); f++ ){
     const idxBnBase = f * 4;
     // get the highest weight value
     let highIdx = bnIdx[idxBnBase];
-    for (let i = 1; i < 4; i ++){
+    for (let i = 0; i < 4; i ++){
       if (bnWeight[highIdx] < bnWeight[idxBnBase + i]){
         highIdx = bnIdx[idxBnBase + i];
       }
@@ -420,28 +429,41 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
     switch (bonesArrange[highIdx]){
       case 0:  // 0 vertical (x,z) bone,
         boneTargetPos.set(
-          skinMesh.skeleton.bones[highIdx].position.x,
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).x,
           vertexPosition.y,  // lock the value in y to vertex position
-          skinMesh.skeleton.bones[highIdx].position.z);
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).z)
         break;
       case 1: // 1 horizontal (y,z) bone
         boneTargetPos.set(
-          skinMesh.skeleton.bones[highIdx].position.x,
-          skinMesh.skeleton.bones[highIdx].position.y, 
-          vertexPosition.z);
+          vertexPosition.x,
+          //skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).x,
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).y, 
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).z);
+          //vertexPosition.z);
         break;
       case 2: // 2 all sides (x,y,z) bone,
         boneTargetPos.set(
-          skinMesh.skeleton.bones[highIdx].position.x,
-          skinMesh.skeleton.bones[highIdx].position.y, 
-          skinMesh.skeleton.bones[highIdx].position.z);
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).x,
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).y, 
+          skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).z);
+
         break;
+      case 3: // 
+        //nothing, the direction will be taken from vertex normals
+        break;  
       default:
         console.log("wrong index value")
     }
 
     // calculate the direction from  *boneTargetPos to *vertexPosition
-    const dir = new THREE.Vector3().subVectors( vertexPosition, boneTargetPos ).normalize();
+    const dir = new THREE.Vector3();
+    if (bonesArrange[highIdx] !== 3)
+      dir.subVectors( vertexPosition, boneTargetPos ).normalize();
+    else
+      dir.set(
+        normals[idxPosBase],    //x
+        normals[idxPosBase+1],  //y
+        normals[idxPosBase+2])   //z
 
     //we have now the direction from the vertex to the bone
 
