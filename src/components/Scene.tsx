@@ -57,9 +57,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
-  useEffect(()=>{
-    console.log(ishidden);
-  },[ishidden])
 
   useEffect(() => {
     if(account) {

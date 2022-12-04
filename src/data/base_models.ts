@@ -46,15 +46,15 @@ export default [
       }]
     },
     {
-      "name": "skin",
+      "name": "eyeColor",
       "icon": "skin-color.png",
       "type": "texture",
       "target": "head_geobaked(copy)",
       "icon-gradient": "color-gradient.svg",
       "id":6,
       "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.45
+        "distance": 0.7,
+        "height": 1.55
       }
     },
     {

@@ -219,7 +219,6 @@ export default function Selector(props) {
                 const temp = await itemLoader(ranItem,traits, false);
                 loaded += 100/lists.length;
                 setLoadedTraits(loaded-1);
-                console.log(loaded)
                 buffer = {...buffer,...temp};
               }
             }
@@ -241,7 +240,6 @@ export default function Selector(props) {
       ...avatar,
       ...buffer
       });
-      console.log("finiished")
       if (randomFlag === 1) setLoadedTraits(100);
       setRandomFlag(-1);
     })()
@@ -292,7 +290,6 @@ export default function Selector(props) {
   let loading;
 const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
-  console.log(templateInfo.traitsDirectory, item?.directory)
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
@@ -355,7 +352,7 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 const textureTraitLoader =  (props, trait) => {
   const object = scene.getObjectByName(props.target);
   const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
-  object.material[0].map = new THREE.TextureLoader().load(eyeTexture, ()=>{setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
 }
 
 const getActiveStatus = (item) => {
