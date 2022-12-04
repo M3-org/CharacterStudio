@@ -73,6 +73,7 @@ export default function Editor(props: any) {
         }
       ).then(()=>{
         controls.minPolarAngle = 0;
+        controls.maxPolarAngle = 3.1415;
         controls.minDistance = 0.5;
         controls.maxDistance = 2.0;
         controls.minAzimuthAngle = Infinity;
