@@ -86,8 +86,6 @@ export class AnimationManager{
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
-    console.log(this.animationControls)
-
     sceneService.addModelData(vrm , {animationControl});
 
     if (this.mainControl == null){

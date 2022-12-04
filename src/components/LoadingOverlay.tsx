@@ -28,7 +28,7 @@ function CircularProgressWithLabel(
       loadedValue = {props.value}
     >
       <span className = "loading-text" >
-        Loading your avatar
+        Loading Avatars
       </span>
       <animated.div style={{ ...loadingAnimation }}>
         <div className="vh-centered">
