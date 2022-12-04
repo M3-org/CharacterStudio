@@ -291,8 +291,8 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
-      console.log(item)
-      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
+      //console.log(item)
+      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || -1})
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately

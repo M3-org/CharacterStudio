@@ -29,7 +29,7 @@ export default [
       "icon-gradient": "color-gradient.svg",
       "buttonName": "Skin Color",
       "cameraTarget":{
-        "distance": 1.6,
+        "distance": 2,
         "height": 1
       },
       "subTrait":[
@@ -72,7 +72,7 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.6,
+        "distance": 2,
         "height": 0.9
       }
     },
