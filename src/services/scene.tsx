@@ -62,12 +62,14 @@ const cullHiddenMeshes = () => {
       
       if (vrm){
         const cullLayer = vrm.data.cullingLayer;
-        vrm.scene.traverse((child)=>{
-          if (child.isMesh){
-            child.userData.cullLayer = cullLayer;
-            models.push(child);
-          }
-        })
+        if (cullLayer >= 0){
+          vrm.scene.traverse((child)=>{
+            if (child.isMesh){
+              child.userData.cullLayer = cullLayer;
+              models.push(child);
+            }
+          })
+        }
       }
     }
     const targets = avatarTemplateInfo.cullingModel;

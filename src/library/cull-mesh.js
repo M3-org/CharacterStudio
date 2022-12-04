@@ -32,7 +32,7 @@ export const CullHiddenFaces = async(meshes) => {
     }
     // this array will hold all possible mesh colliders
     let hitArr = [];
-
+    console.log(culls);
     // go from top to bottom to increase array size of collide meshes
     // lowest layer should consider all meshes
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
