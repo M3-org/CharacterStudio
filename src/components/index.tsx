@@ -43,7 +43,7 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, mintPopup, setLoading, setLoadingProgress, setModelClass, modelClass, setEnd } = props
+  const { theme, mintPopup, setLoadingProgress, setModelClass, modelClass, setEnd, setLoadedTraits } = props
   
   // Selected category State Hook
   const [category, setCategory] = useState("color")
@@ -58,7 +58,7 @@ export default function CharacterEditor(props: any) {
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   const [template, setTemplate] = useState<number>(1)
   const [randomFlag, setRandomFlag] = useState(-1);
-  const [loadedTraits, setLoadedTraits] = useState(false)
+ 
 
   //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
   const [ avatar,setAvatar] = useState<Avatar>({
@@ -73,7 +73,8 @@ export default function CharacterEditor(props: any) {
     legs:{},
     foot:{},
     accessories:{},
-    eyeColor:{}
+    eyeColor:{},
+    skin:{}
   })
   //const [loadingModel, setLoadingModel] = useState<boolean>(false)
 
@@ -86,12 +87,6 @@ export default function CharacterEditor(props: any) {
     },
   })
 
-  useEffect(()=>{
-    if (loadedTraits === true){
-      setLoading(false)
-      setLoadedTraits(false)
-    }
-  }, [loadedTraits])
 
   useEffect(() => {
     if(avatar){
@@ -135,30 +130,26 @@ export default function CharacterEditor(props: any) {
       });
 
       // load the avatar
-      sceneService.loadModel(templateInfo.file,setLoadingProgress)
+      sceneService.loadModel(templateInfo.file)
         .then(async (vrm)=>{
+          setLoadingProgress(100);
           const animationManager = new AnimationManager();
           sceneService.addModelData(vrm, {animationManager:animationManager});
           if (templateInfo.animationPath){
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);
           }
-          setTimeout(()=>{
-            //startAnimation(vrm)
-            
             setTimeout(()=>{
               newScene.add (vrm.scene);
 
               // wIP
               sceneService.addModelData(vrm, {cullingLayer:0});
 
-              
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
               setRandomFlag(1);
               
             },50);
-          },1000)
         })
     }
   }, [templateInfo.file])

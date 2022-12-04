@@ -44,7 +44,20 @@ export default [
           "Headbaked_2"
         ]
       }]
-    },{
+    },
+    {
+      "name": "skin",
+      "icon": "skin-color.png",
+      "type": "texture",
+      "target": "head_geobaked(copy)",
+      "icon-gradient": "color-gradient.svg",
+      "id":6,
+      "cameraTarget":{
+        "distance": 0.5,
+        "height": 1.45
+      }
+    },
+    {
       "name": "head",
       "icon": "hairStyle.png",
       "type": "mesh",
@@ -98,18 +111,6 @@ export default [
         "height": 0.22
       }
     }
-    // {
-    //   "name": "eyeColor",
-    //   "icon": "legs.png",
-    //   "type": "texture",
-    //   "target": "head_geobaked(copy)",
-    //   "icon-gradient": "chest-gradient.svg",
-    //   "id":6,
-    //   "cameraTarget":{
-    //     "distance": 0.5,
-    //     "height": 1.45
-    //   }
-    // }
   ]
   }
   ,

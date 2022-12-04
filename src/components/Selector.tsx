@@ -205,6 +205,9 @@ export default function Selector(props) {
         //scene.remove(avatar[traitName].model);
       //})
       let buffer = {...avatar};
+      //const total = lists.length;
+      //let loaded = 0;
+      let loaded = 0;
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
@@ -214,6 +217,9 @@ export default function Selector(props) {
             if (avatar[traits.trait]){
               if (avatar[traits.trait].traitInfo != ranItem ){
                 const temp = await itemLoader(ranItem,traits, false);
+                loaded += 100/lists.length;
+                setLoadedTraits(loaded-1);
+                console.log(loaded)
                 buffer = {...buffer,...temp};
               }
             }
@@ -235,8 +241,8 @@ export default function Selector(props) {
       ...avatar,
       ...buffer
       });
-      
-      if (randomFlag === 1) setLoadedTraits(true);
+      console.log("finiished")
+      if (randomFlag === 1) setLoadedTraits(100);
       setRandomFlag(-1);
     })()
 
@@ -253,7 +259,6 @@ export default function Selector(props) {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
-    console.warn(loadingTraitOverlay);
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
@@ -315,7 +320,6 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
       if (addToScene){
         model.data?.animationManager?.startAnimation(vrm);
-        //startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
           model.scene.add(vrm.scene);
        
@@ -330,10 +334,7 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
               }
             })
             if (avatar[traitName].vrm) {
-              //setTimeout(() => {
                 sceneService.disposeVRM(avatar[traitName].vrm);
-              //},200);
-              // small delay to avoid character being with no clothes
             }
           }
         },200)// timeout for animations
@@ -351,10 +352,10 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 
 }
 
-const textureTraitLoader = (props, trait) => {
+const textureTraitLoader =  (props, trait) => {
   const object = scene.getObjectByName(props.target);
   const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
-  object.material[0].map = new THREE.TextureLoader().load(eyeTexture)
+  object.material[0].map = new THREE.TextureLoader().load(eyeTexture, ()=>{setTimeout(() => {setLoadingTraitOverlay(false)},500)})
 }
 
 const getActiveStatus = (item) => {

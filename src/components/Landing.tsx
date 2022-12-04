@@ -83,7 +83,6 @@ export default function Landing(props){
             sum += item;
         })
         
-        console.log('$$$', sum / modelArr.length)
         setLoadingPercent(sum / modelArr.length)
     }, [isModeling])
 
