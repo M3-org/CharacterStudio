@@ -55,7 +55,10 @@ export const SelectorContainerPos = styled.div`
                 height : 30%;
                 top : 70%;
                 Webkit-mask-image:-webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
-                mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+                mask-image: linear-gradient(to bottom, 
+                    rgba(0,0,0,1) 0px, 
+                    rgba(0,0,0,1) 300px,
+                    rgba(0,0,0,0));
 
                 .hair-sub-category{
                     display: flex;
