@@ -127,8 +127,8 @@ export class AnimationManager{
 
   animRandomizer(yieldTime):void{
     const root = this.mainControl.mixer.getRoot();
-    if (root.parent)
-      console.log(root);
+    //if (root.parent)
+      //console.log(root);
     // if (this.mainControl) {
     //   if (this.mainControl.mixer){
         

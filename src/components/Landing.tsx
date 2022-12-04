@@ -35,7 +35,8 @@ export default function Landing(props){
     const f_neuroHacker = "../3d/models/f_neurohacker_v1.vrm"
     const m_neuroHacker = "../3d/models/m_neurohacker_v1.vrm"
 
-    const anims = "../3d/animations/idle_sword.fbx";
+    const anim_female = "../3d/animations/idle_female.fbx";
+    const anim_male = "../3d/animations/idle_male.fbx";
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },
     }))
@@ -46,26 +47,15 @@ export default function Landing(props){
             index: 1,
             model: f_dropHunter,
             text: 'Drop Hunter',
-            animation: anims
+            animation: anim_female
         },
         {
             index: 2,
             model: m_dropHunter,
             text: 'Drop Hunter',
-            animation: anims
+            animation: anim_male
         },
-        {
-            index: 3,
-            model: f_neuroHacker,
-            text: 'Neuro Hacker',
-            animation: anims
-        },
-        {
-            index: 4,
-            model: m_neuroHacker,
-            text: 'Neuro Hacker',
-            animation: anims
-        },
+        
     ]);
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
