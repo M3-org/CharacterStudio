@@ -142,6 +142,7 @@ export default function Landing(props){
                     <LoadingOverlayCircularStatic
                         loadingModelProgress={loadingPercent}
                         background={true}
+                        title={"Loading Avatars"}
                     />
                 )
             }

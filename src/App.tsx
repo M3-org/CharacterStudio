@@ -115,6 +115,7 @@ function App() {
         >
           <LoadingOverlayCircularStatic
             loadingModelProgress={loadingProgress}
+            title = {"Loading Selected Avatar"}
           />
         </div>
       }
