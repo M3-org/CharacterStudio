@@ -10,6 +10,7 @@ export const Tooltip = styled.div`
         border-radius: 6px;
         text-align: center;
         padding: 5px 0;
+        margin-top:20px;
         position: absolute;
         z-index: 1;
         bottom: 150%;
