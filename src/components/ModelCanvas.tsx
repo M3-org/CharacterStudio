@@ -58,12 +58,12 @@ return (
               intensity = {1} 
               color = {[0.6,.8,1]}
               position = {[-2, 3, 6]} 
-              intensity={0.5}
+              intensity={.7}
               shadow-mapSize = {[1024, 1024]}>
         </directionalLight>
         <ambientLight
             color = {[0.6,0.9,1]}
-          intensity={0.6}
+          intensity={1}
         />
         <PerspectiveCamera 
             ref ={setCamera}
