@@ -350,9 +350,58 @@ const itemLoader =  async(item, traits = null, addToScene = true) => {
 }
 
 const textureTraitLoader =  (props, trait) => {
-  const object = scene.getObjectByName(props.target);
-  const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
-  object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  console.log(props.target)
+  if (typeof props.target != 'string'){
+    for (let i =0; i < props.target.length ; i ++){
+      const object = scene.getObjectByName(props.target[i]);
+      if (typeof trait?.directory != 'string'){
+        let texture = "";
+
+        
+        if (trait?.directory[i] != null) //grab the texture with same object position
+          texture = templateInfo.traitsDirectory + trait?.directory[i];
+        else  //else grab the latest texture in the array
+          texture = templateInfo.traitsDirectory + trait?.directory[trait?.directory.length-1];
+
+          console.log(texture)
+          //console.log(object)
+        const txrt = new THREE.TextureLoader().load(texture, (txt)=>{
+          txt.flipY = false; 
+          //console.log(object.material[0].uniforms.map)
+          object.material[0].map = txt;
+          object.material[0].shadeMultiplyTexture = txt;
+          setTimeout(() => {setLoadingTraitOverlay(false)},500)
+        })
+
+
+      }
+      else{
+        const texture = templateInfo.traitsDirectory + trait?.directory;
+        object.material[0].map = new THREE.TextureLoader().load(texture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+      }
+    }
+  }
+  else{
+    const object = scene.getObjectByName(props.target);
+    console.log(object)
+    const texture = typeof trait?.directory === 'string' ? 
+      templateInfo.traitsDirectory + trait?.directory : 
+      templateInfo.traitsDirectory + trait?.directory[0];
+      console.log(texture)
+    object.material[0].map = new THREE.TextureLoader().load(texture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  }
+  
+  
+  // if (trait?.directory.length != null){
+  //   for (let i =0; i < trait.directory.length ; i++){
+  //     const eyeTexture = templateInfo.traitsDirectory + trait.directory[i];
+  //     object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  //   }
+  // }
+  // else{
+  //   const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
+  //   object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  // }
 }
 
 const getActiveStatus = (item) => {
