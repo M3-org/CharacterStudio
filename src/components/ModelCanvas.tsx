@@ -50,7 +50,7 @@ return (
             height : '500px',
         }}
         gl={{ antialias: true, toneMapping: NoToneMapping }}
-        linear
+        //linear
         //className="canvas"
         >
         <directionalLight 
@@ -58,12 +58,12 @@ return (
               intensity = {1} 
               color = {[0.6,.8,1]}
               position = {[-2, 3, 6]} 
-              intensity={.7}
+              intensity={.2}
               shadow-mapSize = {[1024, 1024]}>
         </directionalLight>
         <ambientLight
             color = {[0.6,0.9,1]}
-          intensity={1}
+          intensity={0.5}
         />
         <PerspectiveCamera 
             ref ={setCamera}
