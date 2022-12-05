@@ -46,7 +46,7 @@ export default function CharacterEditor(props: any) {
   const { theme, mintPopup, setLoadingProgress, setModelClass, modelClass, setEnd, setLoadedTraits } = props
   
   // Selected category State Hook
-  const [category, setCategory] = useState("color")
+  const [category, setCategory] = useState("skin")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
   const [model, setModel] = useState<VRM>(Object)
 
