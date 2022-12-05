@@ -29,8 +29,8 @@ export default function Landing(props){
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const f_dropHunter = "../3d/models/f_drophunter_v1.vrm"
-    const m_dropHunter = "../3d/models/m_drophunter_v1.vrm"
+    const f_dropHunter = "../3d/models/landing_f_drophunter_v1.vrm"
+    const m_dropHunter = "../3d/models/landing_m_drophunter_v1.vrm"
 
     const f_neuroHacker = "../3d/models/f_neurohacker_v1.vrm"
     const m_neuroHacker = "../3d/models/m_neurohacker_v1.vrm"

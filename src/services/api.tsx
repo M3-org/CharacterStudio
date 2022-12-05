@@ -1,7 +1,6 @@
 import axios from "axios";
 
 import bones from "../library/bones";
-import { loadAnimation } from "../library/animations/animation"
 //import templates from "../data/base_models";
 
 const pinataApiKey = '05efa6dda750457f9c78';
@@ -28,7 +27,7 @@ function fetchCategoryList () { //need to update
     "head",
     "neck",
     "legs",
-    "foot"
+    "feet"
   ]
   return categoryList;
 } 

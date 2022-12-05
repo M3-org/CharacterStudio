@@ -319,15 +319,22 @@ export default function Scene(props: any) {
       </Background>
       <TopRightMenu>
         {showType && <>
-            <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
+            <TextButton onClick={
+              //() => downLoad('vrm')
+              () => {
+                setMintStatus("VRM download coming soon!")
+                setConfirmWindow(true)
+              }
+              } ><span>VRM</span></TextButton>
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
         <AutoRotate/>
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
-          //setConfirmWindow(true)
-          mintAsset()
+          setMintStatus("Mint coming soon!")
+          setConfirmWindow(true)
+          //mintAsset()
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>

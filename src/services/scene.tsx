@@ -479,7 +479,8 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
 
 
 const renameVRMBones = (vrm:VRM) =>{
-  const bones = vrm.firstPerson.humanoid.humanBones;
+  console.log(vrm)
+  const bones = vrm.humanoid.humanBones;
   for (const boneName in bones) {
     bones[boneName].node.name = boneName;
   } 
