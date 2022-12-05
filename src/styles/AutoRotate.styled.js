@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { SquareButton } from './Globals.styled';
-import svgSoundOn from '../../src/ui/soundon.svg'
-import svgSoundOff from '../../src/ui/soundoff.svg'
+import svgSoundOn from '../../src/ui/rotate.png'
+import svgSoundOff from '../../src/ui/rotate-cancel.png'
 
 export const AutoRotationButton = styled(SquareButton)`
     background-size: 35px;
