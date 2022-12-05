@@ -1,8 +1,9 @@
 import styled from 'styled-components';
+import backButton from '../../src/ui/download.svg'
 
 const style = styled.div`
-    {   
-        background : url('../../src/ui/download.svg') center center no-repeat;
+    {   //'url(' + svgSoundOff + ');' : 
+        background : ${'url('+ backButton + ') center center no-repeat;'};
         transform: rotate(90deg);
         width: 74px;
         height: 74px;

@@ -10,11 +10,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-import '.././src/styles/landing.scss'
+// import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -28,8 +28,6 @@ const defaultTheme = createTheme({
 })
 
 function App() {
-  const isMute = useMuteStore((state) => state.isMute)
-
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
   const [alerCharacterEditortTitle, setAlertTitle] = useState("");
@@ -38,8 +36,12 @@ function App() {
   const [preModelClass, setPreModelClass] = useState<number>(0)
   const [loading, setLoading] = useState(false);
   const [end, setEnd] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-
+  const [loadingProgress, setLoadingProgress] = useState<number>(0)
+  const [loadedTraits, setLoadedTraits] = useState<number>(0)
+  
+  const isMute = useMuteStore((state) => state.isMute)
+  const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
+  setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
     const library = new Web3Provider(provider);
     library.pollingInterval = 12000;
@@ -61,6 +63,15 @@ function App() {
   const handleFail = (error) => {
     console.log("Failed to login with Plug", error);
   }
+  useEffect(()=>{
+    if (loadedTraits >= 100){
+      setTimeout (() => {
+        setLoading(false)
+        setEnd(true)
+        setLoadedTraits(0)
+      }, 2000)  // timeout to avoid lag
+    }
+  }, [loadedTraits])
 
   useEffect(() => {
     if(!isMute) {
@@ -111,24 +122,19 @@ function App() {
       }
       {
         loading && <div
-          style={{
-            
-          }}
         >
           <LoadingOverlayCircularStatic
-            loadingModelProgress={loadingProgress}
+            loadingModelProgress={ (loadingProgress/2) + (loadedTraits/2) }
+            title = {"Loading Selected Avatar"}
           />
         </div>
       }
       {
         !modelClass ? 
         <Landing 
-          templates = { defaultTemplates } 
           onSetModel = {
             (value) => {
               setPreModelClass(value)
-              //setLoading(true)
-              
             }
           }
         /> : 
@@ -140,14 +146,15 @@ function App() {
           >
             <Web3ReactProvider getLibrary={getLibrary}>
               <CharacterEditor 
-                  templates={defaultTemplates} 
                   theme={defaultTheme} 
-                  setLoading={(value) => {
-                    setTimeout (() => {
-                      setLoading(false)
-                      setEnd(true)
-                    }, 1000)
-                  }} 
+                  // setLoading={(value) => {
+                  //   setTimeout (() => {
+                  //     console.log("ends")
+                  //     setLoading(false)
+                  //     setEnd(true)
+                  //   }, 1000)
+                  // }} 
+                  setLoadedTraits = {setLoadedTraits}
                   setLoadingProgress = {setLoadingProgress}
                   setModelClass = {(v) => {
                     setModelClass(v);

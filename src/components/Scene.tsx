@@ -57,9 +57,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
-  useEffect(()=>{
-    console.log(ishidden);
-  },[ishidden])
 
   useEffect(() => {
     if(account) {
@@ -240,12 +237,12 @@ export default function Scene(props: any) {
       }
     }
   }
-  const leftPadding = ishidden ? 250 : 700
+  const leftPadding = ishidden ? 200 : 700
   
   return (
     <FitParentContainer >
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {100}>
+        <ResizeableCanvas left = {leftPadding} right = {0}>
           <Canvas
             style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
@@ -277,7 +274,7 @@ export default function Scene(props: any) {
             <OrbitControls
               ref = {setControls}
               minDistance={0.5}
-              maxDistance={1.5}
+              maxDistance={2}
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
@@ -352,7 +349,6 @@ export default function Scene(props: any) {
       }}/>
       <div>
         <Selector
-          templates={templates}
           category={category}
           scene={scene}
           avatar = {avatar}

@@ -75,6 +75,7 @@ export class AnimationManager{
   }
 
   startAnimation(vrm: VRM):void{
+    //return
     if (!this.animations) {
       console.warn("no animations were preloaded, ignoring");
       return
@@ -84,8 +85,6 @@ export class AnimationManager{
 
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
-
-    console.log(this.animationControls)
 
     sceneService.addModelData(vrm , {animationControl});
 
@@ -128,8 +127,8 @@ export class AnimationManager{
 
   animRandomizer(yieldTime):void{
     const root = this.mainControl.mixer.getRoot();
-    if (root.parent)
-      console.log(root);
+    //if (root.parent)
+      //console.log(root);
     // if (this.mainControl) {
     //   if (this.mainControl.mixer){
         
