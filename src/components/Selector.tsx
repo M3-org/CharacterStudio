@@ -377,7 +377,11 @@ const textureTraitLoader =  (props, trait) => {
       }
       else{
         const texture = templateInfo.traitsDirectory + trait?.directory;
-        object.material[0].map = new THREE.TextureLoader().load(texture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+        new THREE.TextureLoader().load(texture, (txt)=>{
+          txt.flipY = false;
+          object.material[0].map = txt;
+          setTimeout(() => {setLoadingTraitOverlay(false)},500)
+        })
       }
     }
   }
@@ -388,7 +392,12 @@ const textureTraitLoader =  (props, trait) => {
       templateInfo.traitsDirectory + trait?.directory : 
       templateInfo.traitsDirectory + trait?.directory[0];
       console.log(texture)
-    object.material[0].map = new THREE.TextureLoader().load(texture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+      new THREE.TextureLoader().load(texture, (txt)=>{
+        txt.flipY = false; 
+        object.material[0].map = txt;
+        setTimeout(() => {setLoadingTraitOverlay(false)},500)
+      })
+    
   }
   
   

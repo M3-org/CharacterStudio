@@ -57,16 +57,21 @@ return (
               //castShadow = {true}
               intensity = {1} 
               color = {[0.6,.8,1]}
-              position = {[0, 6, 2]} 
+              position = {[-2, 3, 6]} 
+              intensity={0.5}
               shadow-mapSize = {[1024, 1024]}>
         </directionalLight>
+        <ambientLight
+            color = {[0.6,0.9,1]}
+          intensity={0.6}
+        />
         <PerspectiveCamera 
             ref ={setCamera}
             //aspect={250 / 500}
             //radius={(250 + 500) / 4}
             //fov={10}
-            position = {[0, -1.8 , 3.5]}
-            rotation = {[-0.1,0,0]}
+            position = {[0, -2 , 3.5]}
+            rotation = {[-0.12,0,0]}
             onUpdate = {self => self.updateProjectionMatrix()}
         >
         <mesh position={[0, 1.0, 0]}>
