@@ -384,7 +384,7 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
   const bonesArrange = [];
   for (let i = 0; i < skinMesh.skeleton.bones.length;i++){
     if (skinMesh.skeleton.bones[i].name.includes("Shoulder")){
-      bonesArrange[i] = 2;
+      bonesArrange[i] = 3;
     }
     else if (skinMesh.skeleton.bones[i].name.includes("Arm") || 
           skinMesh.skeleton.bones[i].name.includes("Hand") ||
