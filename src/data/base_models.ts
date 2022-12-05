@@ -101,7 +101,7 @@ export default [
       }
     },
     {
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
@@ -195,7 +195,7 @@ export default [
         "height": 0.55
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
@@ -292,7 +292,7 @@ export default [
         "height": 0.6
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
@@ -388,7 +388,7 @@ export default [
         "height": 0.55
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
