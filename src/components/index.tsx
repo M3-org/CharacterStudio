@@ -71,7 +71,7 @@ export default function CharacterEditor(props: any) {
     waist:{},
     weapon:{},
     legs:{},
-    foot:{},
+    feet:{},
     accessories:{},
     eyeColor:{},
     skin:{}
