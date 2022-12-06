@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar, useLoadedTraits, useSetTemplate, useScene} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar, useLoadedTraits, useSetTemplate, useScene, useCategory, useTemplateInfo} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
@@ -27,9 +27,6 @@ import { SelectorContainerPos } from "../styles/SelectorStyle"
 
 export default function Selector(props) {
   const {
-    category,
-    setTemplateInfo,
-    templateInfo,
     controls,
     model, 
     modelClass
@@ -45,6 +42,9 @@ export default function Selector(props) {
   const template = useSetTemplate((state) => state.template)
   const templates = useDefaultTemplates((state) => state.defaultTemplates);
   const scene = useScene((state) => state.scene);
+  const category = useCategory((state) => state.category)
+  const templateInfo = useTemplateInfo((state) => state.templateInfo)
+  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
   const [colorCategory, setColorCategory] = useState("color")
@@ -419,7 +419,6 @@ const getActiveStatus = (item) => {
                       />
                     </div>
                     <Skin
-                      templateInfo={templateInfo}
                       category={colorCategory}
                     />
                   </div>
@@ -479,7 +478,6 @@ const getActiveStatus = (item) => {
                       </React.Fragment>
                     : (
                       <Skin
-                        templateInfo={templateInfo}
                         category={category}
                         avatar={avatar}
                       />

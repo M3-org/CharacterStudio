@@ -11,7 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
-import { useRandomFlag, useAvatar, useLoadedTraits, useScene } from "../store"
+import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -47,14 +47,13 @@ export default function CharacterEditor(props: any) {
   const { theme, setLoading, setLoadingProgress, setModelClass, modelClass } = props
 
   // Selected category State Hook
-  const [category, setCategory] = useState("color")
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
   const [model, setModel] = useState<VRM>(Object)
 
   const [flagPass, setFlagPass] = useState<any>(false)
   
   // States Hooks used in template editor //
-  const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
+  const templateInfo = useTemplateInfo((state) => state.templateInfo)
 
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
   // const [loadedTraits, setLoadedTraits] = useState(false)
@@ -164,10 +163,6 @@ export default function CharacterEditor(props: any) {
           <Fragment>
             <animated.div style={animatedStyle} >
               <Scene
-                category={category}
-                setCategory={setCategory}
-                setTemplateInfo={setTemplateInfo}
-                templateInfo={templateInfo}
                 model={model}
                 setModelClass={setModelClass}
                 modelClass = {modelClass}

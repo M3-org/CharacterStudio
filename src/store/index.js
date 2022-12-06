@@ -115,6 +115,21 @@ const useScene = create((set) => ({
     }))
 }))
 
+const useCategory = create((set) => ({
+    category: "color",
+    setCategory: (value) => set((state) => ({
+        category: value
+    }))
+}))
+
+
+const useTemplateInfo = create((set) => ({
+    templateInfo: { file: null, format: null, bodyTargets:null },
+    setTemplateInfo: (value) => set((state) => ({
+        templateInfo: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -127,5 +142,7 @@ export {
     useLoadedTraits,
     useEnd,
     useSetTemplate,
-    useScene
+    useScene,
+    useCategory,
+    useTemplateInfo
 };
