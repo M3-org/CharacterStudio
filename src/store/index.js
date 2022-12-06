@@ -130,6 +130,13 @@ const useTemplateInfo = create((set) => ({
     }))
 }))
 
+const useModel = create((set) => ({
+    model: {},
+    setModel: (value) => set((state) => ({
+        model: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -144,5 +151,6 @@ export {
     useSetTemplate,
     useScene,
     useCategory,
-    useTemplateInfo
+    useTemplateInfo,
+    useModel
 };

@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -45,7 +45,7 @@ export default function Scene(props: any) {
   const avatar = useAvatar((state) => state.avatar)
   const scene = useScene((state) => state.scene)
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
-
+  const model = useModel((state) => state.model)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -122,8 +122,7 @@ export default function Scene(props: any) {
   const { 
     downloadPopup,
     setModelClass,
-    modelClass,
-    model }: any = props;
+    modelClass}: any = props;
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
   }
@@ -335,13 +334,12 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
-        setTemplateInfo(null);
-        sceneService.setAvatarTemplateInfo(null);
+        // setTemplateInfo(null);
+        // sceneService.setAvatarTemplateInfo(null);
       }}/>
       <div>
         <Selector
           controls = {controls}
-          model = {model}
           modelClass = {modelClass}
         />
         <Editor 
