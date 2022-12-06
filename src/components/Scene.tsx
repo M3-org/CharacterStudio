@@ -334,8 +334,6 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
-        // setTemplateInfo(null);
-        // sceneService.setAvatarTemplateInfo(null);
       }}/>
       <div>
         <Selector
