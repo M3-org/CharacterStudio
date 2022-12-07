@@ -32,7 +32,7 @@ function Skin({ category, avatar}) {
 
   React.useEffect(() => {
     setChecked(colorStatus)
-  }, templateInfo)
+  }, [templateInfo])
 
   const getHairMaterial = () => {
      let material = [];
@@ -118,10 +118,8 @@ function Skin({ category, avatar}) {
             style={{
               ...btn,
               backgroundColor: col,
-            }}  onClick={() => handleChangeSkin(col)}>
-           {(checked == col) && <img src={skinSelector} 
-           key={i*row.length + k}
-           />}
+            }}  onClick={() => handleChangeSkin(col)} key={i * row.length + k}>
+           {(checked == col) && <img src={skinSelector}/>}
           </div>
         )
       )

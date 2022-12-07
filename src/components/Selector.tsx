@@ -419,6 +419,7 @@ const getActiveStatus = (item) => {
                     </div>
                     <Skin
                       category={colorCategory}
+                      avatar={avatar}
                     />
                   </div>
                 ) : (
