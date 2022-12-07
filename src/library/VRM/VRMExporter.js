@@ -46,7 +46,7 @@ export default class VRMExporter {
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
-        const blendShapeProxy = vrm.expressionManager;
+        //const blendShapeProxy = vrm.blendShapeProxy;
         const lookAt = vrm.lookAt;
         const springBone = vrm.springBoneManager;
         const exporterInfo = {
@@ -54,18 +54,6 @@ export default class VRMExporter {
             generator: "UniGLTF-2.0.0",
             version: "2.0",
         };
-
-        console.log(scene)
-        console.log(humanoid)
-        console.log(vrmMeta)
-        console.log(materials)
-
-        console.log(blendShapeProxy)
-        console.log(lookAt)
-        console.log(springBone)
-        console.log(exporterInfo)
-
-
         // TODO: とりあえず全部ある想定で進める
         if (!scene) {
             throw new Error("scene is undefined or null");
@@ -79,16 +67,15 @@ export default class VRMExporter {
         else if (!materials) {
             throw new Error("materials is undefined or null");
         }
-        else if (!blendShapeProxy) {
-            throw new Error("blendShapeProxy is undefined or null");
-        }
+        //else if (!blendShapeProxy) {
+            //throw new Error("blendShapeProxy is undefined or null");
+        //}
         else if (!lookAt) {
             throw new Error("lookAt is undefined or null");
         }
-        // remove
-        // else if (!springBone) {
-        //     throw new Error("springBone is undefined or null");
-        // }
+        else if (!springBone) {
+            throw new Error("springBone is undefined or null");
+        }
         // TODO: name基準で重複除外 これでいいのか？
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
@@ -216,7 +203,6 @@ export default class VRMExporter {
             });
         });
         // secondary
-        // remove
         // const secondaryRootNode = scene.children.filter((child) => child.name === "secondary")[0];
         // outputNodes.push({
         //     name: secondaryRootNode.name,
@@ -239,108 +225,142 @@ export default class VRMExporter {
         // });
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        const blendShapeMaster = {
-            // @ts-ignore: Unreachable code error
-            blendShapeGroups: Object.values(blendShapeProxy._blendShapeGroups).map((blendShape) => ({
-                // @ts-ignore: Unreachable code error
-                binds: blendShape._binds.map((bind) => ({
-                    index: bind.morphTargetIndex,
-                    mesh: outputMeshes
-                        .map((mesh) => mesh.name)
-                        .indexOf(bind.meshes[0].name),
-                    weight: bind.weight * 100,
-                })),
-                // @ts-ignore: Unreachable code error
-                isBinary: blendShape.isBinary,
-                // @ts-ignore: Unreachable code error
-                materialValues: blendShape._materialValues,
-                // @ts-ignore: Unreachable code error
-                name: blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""),
-                presetName: Object.entries(blendShapeProxy.blendShapePresetMap).filter((x) => 
-                // @ts-ignore: Unreachable code error
-                x[1] === blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""))[0][0],
-            })),
-        };
+        // const blendShapeMaster = {
+        //     // @ts-ignore: Unreachable code error
+        //     blendShapeGroups: Object.values(blendShapeProxy._blendShapeGroups).map((blendShape) => ({
+        //         // @ts-ignore: Unreachable code error
+        //         binds: blendShape._binds.map((bind) => ({
+        //             index: bind.morphTargetIndex,
+        //             mesh: outputMeshes
+        //                 .map((mesh) => mesh.name)
+        //                 .indexOf(bind.meshes[0].name),
+        //             weight: bind.weight * 100,
+        //         })),
+        //         // @ts-ignore: Unreachable code error
+        //         isBinary: blendShape.isBinary,
+        //         // @ts-ignore: Unreachable code error
+        //         materialValues: blendShape._materialValues,
+        //         // @ts-ignore: Unreachable code error
+        //         name: blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""),
+        //         presetName: Object.entries(blendShapeProxy.blendShapePresetMap).filter((x) => 
+        //         // @ts-ignore: Unreachable code error
+        //         x[1] === blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""))[0][0],
+        //     })),
+        // };
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
         // @ts-ignore: Unreachable code error
-        lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
-        const vrmFirstPerson = {
-            firstPersonBone: nodeNames.indexOf(
-            // @ts-ignore: Unreachable code error
-            lookAt.firstPerson._firstPersonBone.name),
-            // @ts-ignore: Unreachable code error
-            firstPersonBoneOffset: lookAt.firstPerson._firstPersonBoneOffset,
-            lookAtHorizontalInner: {
-                // @ts-ignore: Unreachable code error
-                curve: lookAt.applyer._curveHorizontalInner.curve,
-                xRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveHorizontalInner.curveXRangeDegree),
-                yRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveHorizontalInner.curveYRangeDegree),
-            },
-            lookAtHorizontalOuter: {
-                // @ts-ignore: Unreachable code error
-                curve: lookAt.applyer._curveHorizontalOuter.curve,
-                xRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveHorizontalOuter.curveXRangeDegree),
-                yRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveHorizontalOuter.curveYRangeDegree),
-            },
-            // @ts-ignore: Unreachable code error
-            lookAtTypeName: lookAt.applyer.type,
-            lookAtVerticalDown: {
-                // @ts-ignore: Unreachable code error
-                curve: lookAt.applyer._curveVerticalDown.curve,
-                xRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveVerticalDown.curveXRangeDegree),
-                yRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveVerticalDown.curveYRangeDegree),
-            },
-            lookAtVerticalUp: {
-                // @ts-ignore: Unreachable code error
-                curve: lookAt.applyer._curveVerticalUp.curve,
-                xRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveVerticalUp.curveXRangeDegree),
-                yRange: radian2Degree(
-                // @ts-ignore: Unreachable code error
-                lookAt.applyer._curveVerticalUp.curveYRangeDegree),
-            },
-            meshAnnotations: lookAt.firstPerson.meshAnnotations.map((annotation) => ({
-                firstPersonFlag: annotation.firstPersonFlag === 0 ? "Auto" : "",
-                mesh: outputMeshes
-                    .map((mesh) => mesh.name)
-                    .indexOf(annotation.primitives[0].name), // TODO: とりあえず対応
-            })),
+        //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
+        const vrmLookAt = {
+          // @ts-ignore: Unreachable code error
+          offsetFromHeadBone: lookAt.offsetFromHeadBone,
+          rangeMapHorizontalInner: {
+              inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
+              outputScale: lookAt.applier.rangeMapHorizontalInner.outputScale,
+          },
+          rangeMapHorizontalOuter: {
+              inputMaxValue: lookAt.applier.rangeMapHorizontalOuter.inputMaxValue,
+              outputScale: lookAt.applier.rangeMapHorizontalOuter.outputScale,
+          },
+          rangeMapVerticalDown: {
+              inputMaxValue: lookAt.applier.rangeMapVerticalDown.inputMaxValue,
+              outputScale: lookAt.applier.rangeMapVerticalDown.outputScale,
+          },
+          rangeMapVerticalUp: {
+              inputMaxValue: lookAt.applier.rangeMapVerticalUp.inputMaxValue,
+              outputScale: lookAt.applier.rangeMapVerticalUp.outputScale,
+          },
+          type: "bone"
         };
+        // const vrmFirstPerson = {
+        //     firstPersonBone: nodeNames.indexOf(
+        //     // @ts-ignore: Unreachable code error
+        //     lookAt.firstPerson._firstPersonBone.name),
+        //     // @ts-ignore: Unreachable code error
+        //     firstPersonBoneOffset: lookAt.firstPerson._firstPersonBoneOffset,
+        //     lookAtHorizontalInner: {
+        //         // @ts-ignore: Unreachable code error
+        //         curve: lookAt.applyer._curveHorizontalInner.curve,
+        //         xRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveHorizontalInner.curveXRangeDegree),
+        //         yRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveHorizontalInner.curveYRangeDegree),
+        //     },
+        //     lookAtHorizontalOuter: {
+        //         // @ts-ignore: Unreachable code error
+        //         curve: lookAt.applyer._curveHorizontalOuter.curve,
+        //         xRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveHorizontalOuter.curveXRangeDegree),
+        //         yRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveHorizontalOuter.curveYRangeDegree),
+        //     },
+        //     // @ts-ignore: Unreachable code error
+        //     lookAtTypeName: lookAt.applyer.type,
+        //     lookAtVerticalDown: {
+        //         // @ts-ignore: Unreachable code error
+        //         curve: lookAt.applyer._curveVerticalDown.curve,
+        //         xRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveVerticalDown.curveXRangeDegree),
+        //         yRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveVerticalDown.curveYRangeDegree),
+        //     },
+        //     lookAtVerticalUp: {
+        //         // @ts-ignore: Unreachable code error
+        //         curve: lookAt.applyer._curveVerticalUp.curve,
+        //         xRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveVerticalUp.curveXRangeDegree),
+        //         yRange: radian2Degree(
+        //         // @ts-ignore: Unreachable code error
+        //         lookAt.applyer._curveVerticalUp.curveYRangeDegree),
+        //     },
+        //     meshAnnotations: lookAt.firstPerson.meshAnnotations.map((annotation) => ({
+        //         firstPersonFlag: annotation.firstPersonFlag === 0 ? "Auto" : "",
+        //         mesh: outputMeshes
+        //             .map((mesh) => mesh.name)
+        //             .indexOf(annotation.primitives[0].name), // TODO: とりあえず対応
+        //     })),
+        // };
+
+
+
         const vrmHumanoid = {
-            armStretch: humanoid.humanDescription.armStretch,
-            feetSpacing: humanoid.humanDescription.feetSpacing,
-            hasTranslationDoF: humanoid.humanDescription.hasTranslationDoF,
-            humanBones: Object.entries(humanoid.humanBones)
-                .filter((x) => x[1].length > 0)
-                .map((x) => ({
-                bone: x[0],
-                node: nodeNames.indexOf(x[1][0].node.name),
-                useDefaultValues: true, // TODO:
-            })),
-            legStretch: humanoid.humanDescription.legStretch,
-            lowerArmTwist: humanoid.humanDescription.lowerArmTwist,
-            lowerLegTwist: humanoid.humanDescription.lowerLegTwist,
-            upperArmTwist: humanoid.humanDescription.upperArmTwist,
-            upperLegTwist: humanoid.humanDescription.upperLegTwist,
+          humanBones: {}
+          //humanBones2: Object.assign(humanoid.humanBones)
+
         };
+        for (const bone in humanoid.humanBones) {
+            //console.log(`${property}: ${object[property]}`);
+            vrmHumanoid.humanBones[bone] = { node: nodeNames.indexOf(humanoid.humanBones[bone].node.name)}
+        }
+        //rest of the data is stored in VRMHumanoidDescription
+        // const vrmHumanoid = {
+        //     armStretch: humanoid.humanDescription.armStretch,
+        //     feetSpacing: humanoid.humanDescription.feetSpacing,
+        //     hasTranslationDoF: humanoid.humanDescription.hasTranslationDoF,
+        //     humanBones: Object.entries(humanoid.humanBones)
+        //         .filter((x) => x[1].length > 0)
+        //         .map((x) => ({
+        //         bone: x[0],
+        //         node: nodeNames.indexOf(x[1][0].node.name),
+        //         useDefaultValues: true, // TODO:
+        //     })),
+        //     legStretch: humanoid.humanDescription.legStretch,
+        //     lowerArmTwist: humanoid.humanDescription.lowerArmTwist,
+        //     lowerLegTwist: humanoid.humanDescription.lowerLegTwist,
+        //     upperArmTwist: humanoid.humanDescription.upperArmTwist,
+        //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
+        // };
         const materialProperties = uniqueMaterials.map((material) => 
             material.userData.vrmMaterialProperties
         );
         const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
-        const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
+        //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
         const bufferViews = [];
         bufferViews.push(...images.map((image) => ({
             buffer: imageBitmap2png(image.imageBitmap),
@@ -387,22 +407,23 @@ export default class VRMExporter {
             ],
             bufferViews: outputBufferViews,
             extensions: {
-                VRM: {
-                    blendShapeMaster: blendShapeMaster,
+                VRMC_vrm: {
+                    //blendShapeMaster: blendShapeMaster,
                     exporterVersion: EXPORTER_VERSION,
-                    firstPerson: vrmFirstPerson,
+                    //firstPerson: vrmFirstPerson,
                     humanoid: vrmHumanoid,
-                    materialProperties: materialProperties,
+                    lookAt: vrmLookAt,
                     meta: outputVrmMeta,
-                    secondaryAnimation: outputSecondaryAnimation,
+                    //materialProperties: materialProperties,
+                    //secondaryAnimation: outputSecondaryAnimation,
                     specVersion: "0.0", // TODO:
                 },
             },
             extensionsUsed: [
-                "KHR_materials_unlit",
-                "KHR_texture_transform",
-                "VRMC_materials_mtoon",
-                "VRM",
+              "KHR_materials_unlit",
+              "KHR_texture_transform",
+              "VRMC_materials_mtoon",
+              "VRMC_vrm",
             ],
             images: outputImages,
             materials: outputMaterials,
@@ -414,6 +435,8 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(scene)
+        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -661,84 +684,101 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
     });
 };
 const toOutputMaterials = (uniqueMaterials, images) => {
-    return uniqueMaterials.map((material) => {
-        let baseColor;
-        if (material.type === MaterialType.MToonMaterial) {
-            const mtoonMaterial = material;
-            baseColor = mtoonMaterial.color
-                ? [
-                    mtoonMaterial.color.x,
-                    mtoonMaterial.color.y,
-                    mtoonMaterial.color.z,
-                    mtoonMaterial.color.w,
-                ]
-                : undefined;
-        }
-        else {
-            const otherMaterial = material;
-            baseColor = otherMaterial.color
-                ? [
-                    otherMaterial.color.r,
-                    otherMaterial.color.g,
-                    otherMaterial.color.b,
-                    1, // TODO:
-                ]
-                : undefined;
-        }
-        const baseTexture = material.map
-            ? {
-                extensions: {
-                    KHR_texture_transform: {
-                        offset: [0, 0],
-                        scale: [1, 1],
-                    },
-                },
-                index: images.map((image) => image.name).indexOf(material.name),
-                texCoord: 0, // TODO:
-            }
-            : undefined;
-        const metallicFactor = (() => {
-            switch (material.type) {
-                case MaterialType.MeshStandardMaterial:
-                    return material.metalness;
-                case MaterialType.MeshBasicMaterial:
-                    return 0;
-                default:
-                    return 0.5;
-            }
-        })();
-        const roughnessFactor = (() => {
-            switch (material.type) {
-                case MaterialType.MeshStandardMaterial:
-                    return material.roughness;
-                case MaterialType.MeshBasicMaterial:
-                    return 0.9;
-                default:
-                    return 0.5;
-            }
-        })();
-        return {
-            alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
-            alphaMode: material.transparent
-                ? "BLEND"
-                : material.alphaTest > 0
-                    ? "MASK"
-                    : "OPAQUE",
-            doubleSided: material.side === 2,
-            extensions: material.type === MaterialType.MeshBasicMaterial
-                ? {
-                    KHR_materials_unlit: {}, // TODO:
-                }
-                : undefined,
-            name: material.name,
-            pbrMetallicRoughness: {
-                baseColorFactor: baseColor,
-                baseColorTexture: baseTexture,
-                metallicFactor: metallicFactor,
-                roughnessFactor: roughnessFactor,
-            },
-        };
-    });
+  //console.log(uniqueMaterials)
+  return uniqueMaterials.map((material) => {
+      let baseColor;
+      let VRMC_materials_mtoon = null;
+      
+      material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
+      if (material.type === "ShaderMaterial") {
+          console.log("ERE");
+          console.log(material);
+          VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          VRMC_materials_mtoon.shadeMultiplyTexture = images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name),
+          console.log(VRMC_materials_mtoon);
+          // VRMC_materials_mtoon = {
+          //     shadeMultiplyTexture:
+          // }
+          const mtoonMaterial = material;
+          baseColor = mtoonMaterial.color ? [
+                  1,
+                  1,
+                  1,
+                  1,
+              ] :
+              undefined;
+      } else {
+          const otherMaterial = material;
+          baseColor = otherMaterial.color ? [
+                  otherMaterial.color.r,
+                  otherMaterial.color.g,
+                  otherMaterial.color.b,
+                  1, // TODO:
+              ] :
+              undefined;
+      }
+      let baseTxrIndex = -1;
+      if (material.map)
+          baseTxrIndex = images.map((image) => image.name).indexOf(material.name);
+      else if (material.uniforms){
+          if (material.uniforms.map){
+              baseTxrIndex = images.map((image) => image.name).indexOf(material.uniforms.map.name);
+          }
+      }
+
+      console.log(baseTxrIndex);
+      console.log (material.uniforms.map);
+
+      const baseTexture = baseTxrIndex >= 0 ? {
+              extensions: {
+                  KHR_texture_transform: {
+                      offset: [0, 0],
+                      scale: [1, 1],
+                  },
+              },
+              index: baseTxrIndex,
+              texCoord: 0, // TODO:
+          } :
+          undefined;
+      const metallicFactor = (() => {
+          switch (material.type) {
+              case MaterialType.MeshStandardMaterial:
+                  return material.metalness;
+              case MaterialType.MeshBasicMaterial:
+                  return 0;
+              default:
+                  return 0.5;
+          }
+      })();
+      const roughnessFactor = (() => {
+          switch (material.type) {
+              case MaterialType.MeshStandardMaterial:
+                  return material.roughness;
+              case MaterialType.MeshBasicMaterial:
+                  return 0.9;
+              default:
+                  return 0.5;
+          }
+      })();
+      return {
+          alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
+          alphaMode: material.transparent ?
+              "BLEND" : material.alphaTest > 0 ?
+              "MASK" : "OPAQUE",
+          doubleSided: material.side === 2,
+          extensions: material.type === "ShaderMaterial" ? {
+              KHR_materials_unlit: {}, // TODO:
+              VRMC_materials_mtoon
+          } : undefined,
+          name: material.name,
+          pbrMetallicRoughness: {
+              baseColorFactor: baseColor,
+              baseColorTexture: baseTexture,
+              metallicFactor: metallicFactor,
+              roughnessFactor: roughnessFactor,
+          },
+      };
+  });
 };
 const toOutputImages = (images, icon) => {
     return (icon ? images.concat(icon) : images)

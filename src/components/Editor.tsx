@@ -32,8 +32,14 @@ export default function Editor(props: any) {
 
   const selectOption = (option:any) =>{
     if (option.name == category){ 
-      if (ishide) sethidden(false);
-      else sethidden (true);
+      if (ishide) {
+        moveCamera(option.cameraTarget);
+        sethidden(false);
+      }
+      else{ 
+        sethidden (true);
+        moveCamera({height:0.9, distance:2});
+      }
     }
     else sethidden(false);
 
