@@ -21,38 +21,40 @@ export default [
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_female.fbx",
     "traitIconsDirectory": "./3d/icons/",
-    "selectionTraits": [{
-      "name": "color",
-      "id":1,
-      "icon": "skin-color.png",
-      "type": "color",
-      "icon-gradient": "color-gradient.svg",
-      "buttonName": "Skin Color",
-      "cameraTarget":{
-        "distance": 1.4,
-        "height": 0.8
-      },
-      "subTrait":[
+    "selectionTraits": [
       {
-        "name": "Eye Color",
-        "type": "color",
+        "name": "skin",
+        "icon": "skin-color.png",
+        "type": "texture",
+        "target": ["body_geo", "head_geobaked(copy)_1"],
+        "icon-gradient": "color-gradient.svg",
+        "id":6,
         "cameraTarget":{
-          "distance": 0.5,
-          "height": 1.45
-        },
-        "bodyTargets": [
-          "Headbaked_2"
-        ]
-      }]
-    },{
+          "distance": 2,
+          "height": 0.9
+        }
+      },
+    {
+      "name": "eyeColor",
+      "icon": "skin-color.png",
+      "type": "texture",
+      "target": "head_geobaked(copy)",
+      "icon-gradient": "color-gradient.svg",
+      "id":6,
+      "cameraTarget":{
+        "distance": 0.7,
+        "height": 1.55
+      }
+    },
+    {
       "name": "head",
       "icon": "hairStyle.png",
       "type": "mesh",
       "id":2,
       "icon-gradient": "head-gradient.svg",
       "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.45
+        "distance": 0.7,
+        "height": 1.55
       }
     },
     {
@@ -61,8 +63,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1.3,
-        "height": 0.9
+        "distance": 1.5,
+        "height": 1
       }
     },
     {
@@ -72,8 +74,8 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.4,
-        "height": 0.8
+        "distance": 2,
+        "height": 0.9
       }
     },
     {
@@ -83,37 +85,22 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 1.1,
-        "height": 0.55
+        "distance": 1.3,
+        "height": 0.75
       }
     },
     {
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
       "id":5,
       "cameraTarget":{
-        "distance": 0.8,
-        "height": 0.32
-      },
-      "eye": {
-        "distance": 0.3,
-        "height": 1.5
+        "distance": 1,
+        "height": 0.22
       }
-    },
-    {
-      "name": "eyeColor",
-      "icon": "legs.png",
-      "type": "texture",
-      "target": "head_geobaked(copy)",
-      "icon-gradient": "chest-gradient.svg",
-      "id":6,
-      "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.45
-      }
-    },]
+    }
+  ]
   }
   ,
   {
@@ -197,7 +184,7 @@ export default [
         "height": 0.55
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
@@ -294,7 +281,7 @@ export default [
         "height": 0.6
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",
@@ -390,7 +377,7 @@ export default [
         "height": 0.55
       }
     },{
-      "name": "foot",
+      "name": "feet",
       "icon": "shoes.png",
       "type": "mesh",
       "icon-gradient": "foot-gradient.svg",

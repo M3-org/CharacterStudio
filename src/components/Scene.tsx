@@ -67,9 +67,6 @@ export default function Scene() {
       console.log(ex);
     }
   };
-  useEffect(()=>{
-    console.log(ishidden);
-  },[ishidden])
 
   useEffect(() => {
     if(account) {
@@ -266,7 +263,7 @@ export default function Scene() {
             <OrbitControls
               ref = {setControls}
               minDistance={0.5}
-              maxDistance={1.5}
+              maxDistance={2}
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
@@ -316,8 +313,9 @@ export default function Scene() {
         <AutoRotate/>
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
-          //setConfirmWindow(true)
-          mintAsset()
+          setMintStatus("Mint coming soon!")
+          setConfirmWindow(true)
+          //mintAsset()
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>

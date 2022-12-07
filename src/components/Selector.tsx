@@ -190,6 +190,9 @@ export default function Selector() {
         //scene.remove(avatar[traitName].model);
       //})
       let buffer = {...avatar};
+      //const total = lists.length;
+      //let loaded = 0;
+      let loaded = 0;
       for(let i=0; i < lists.length ; i++){
        await apiService.fetchTraitsByCategory(lists[i]).then(
          async (traits) => {
@@ -199,6 +202,8 @@ export default function Selector() {
             if (avatar[traits.trait]){
               if (avatar[traits.trait].traitInfo != ranItem ){
                 const temp = await itemLoader(ranItem,traits, false);
+                loaded += 100/lists.length;
+                setLoadedTraits(loaded-1);
                 buffer = {...buffer,...temp};
               }
             }
@@ -238,7 +243,6 @@ export default function Selector() {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
-
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
@@ -275,7 +279,8 @@ export default function Selector() {
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
-      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || 1})
+      //console.log(item)
+      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || -1})
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately
@@ -292,11 +297,12 @@ export default function Selector() {
         }
       })
       setLoadingTrait(null)
-      setLoadingTraitOverlay(false)
+
+      // small timer to avoid quickly clicking
+      setTimeout(() => {setLoadingTraitOverlay(false)},500);
 
       if (addToScene){
         model.data?.animationManager?.startAnimation(vrm);
-        //startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
           model.scene.add(vrm.scene);
        
@@ -311,10 +317,7 @@ export default function Selector() {
               }
             })
             if (avatar[traitName].vrm) {
-              //setTimeout(() => {
                 sceneService.disposeVRM(avatar[traitName].vrm);
-              //},200);
-              // small delay to avoid character being with no clothes
             }
           }
         },200)// timeout for animations
@@ -332,10 +335,68 @@ export default function Selector() {
 
 }
 
-const textureTraitLoader = (props, trait) => {
-  const object = scene.getObjectByName(props.target);
-  const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
-  object.material[0].map = new THREE.TextureLoader().load(eyeTexture)
+const textureTraitLoader =  (props, trait) => {
+  console.log(props.target)
+  if (typeof props.target != 'string'){
+    for (let i =0; i < props.target.length ; i ++){
+      const object = scene.getObjectByName(props.target[i]);
+      if (typeof trait?.directory != 'string'){
+        let texture = "";
+
+        
+        if (trait?.directory[i] != null) //grab the texture with same object position
+          texture = templateInfo.traitsDirectory + trait?.directory[i];
+        else  //else grab the latest texture in the array
+          texture = templateInfo.traitsDirectory + trait?.directory[trait?.directory.length-1];
+
+          console.log(texture)
+          //console.log(object)
+        const txrt = new THREE.TextureLoader().load(texture, (txt)=>{
+          txt.flipY = false; 
+          //console.log(object.material[0].uniforms.map)
+          object.material[0].map = txt;
+          object.material[0].shadeMultiplyTexture = txt;
+          setTimeout(() => {setLoadingTraitOverlay(false)},500)
+        })
+
+
+      }
+      else{
+        const texture = templateInfo.traitsDirectory + trait?.directory;
+        new THREE.TextureLoader().load(texture, (txt)=>{
+          txt.flipY = false;
+          object.material[0].map = txt;
+          setTimeout(() => {setLoadingTraitOverlay(false)},500)
+        })
+      }
+    }
+  }
+  else{
+    const object = scene.getObjectByName(props.target);
+    console.log(object)
+    const texture = typeof trait?.directory === 'string' ? 
+      templateInfo.traitsDirectory + trait?.directory : 
+      templateInfo.traitsDirectory + trait?.directory[0];
+      console.log(texture)
+      new THREE.TextureLoader().load(texture, (txt)=>{
+        txt.flipY = false; 
+        object.material[0].map = txt;
+        setTimeout(() => {setLoadingTraitOverlay(false)},500)
+      })
+    
+  }
+  
+  
+  // if (trait?.directory.length != null){
+  //   for (let i =0; i < trait.directory.length ; i++){
+  //     const eyeTexture = templateInfo.traitsDirectory + trait.directory[i];
+  //     object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  //   }
+  // }
+  // else{
+  //   const eyeTexture = templateInfo.traitsDirectory + trait?.directory;
+  //   object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
+  // }
 }
 
 const getActiveStatus = (item) => {

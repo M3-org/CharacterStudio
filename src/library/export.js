@@ -23,9 +23,11 @@ export function cloneSkeleton(skinnedMesh) {
     skinnedMesh.skeleton.bones[0].traverse((o) => {
         if (o.type !== "Bone")
             return;
+            
         const clone = boneClones.get(o);
         for (const child of o.children) {
-            clone.add(boneClones.get(child));
+            const ch = boneClones.get(child);
+            if (ch)clone.add(ch);
         }
     });
     return new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));

@@ -38,12 +38,14 @@ export const LoadingStyleBox = styled.div`
             
             .loading-bar{
                 display: flex;
-                alignItems: center;
-                justifyContent: center;
-                width : ${props => Math.round(props.value * 2.31)};
+                align-items: center;
+                justify-content: center;
+
+                width : ${props => Math.round(props.loadedValue) + '%'};
+
                 height: 6px;
-                backgroundColor: #FFFFFF;
-                borderRadius: 10px;
+                background-color: #FFFFFF;
+                border-radius: 10px;
                 transition:  width 1s;
                 margin: 10px;
             }

@@ -14,6 +14,7 @@ function CircularProgressWithLabel(
   props: CircularProgressProps & {
     value: number
     background: boolean
+    title: string
   },
 ) {
   const [loadingAnimation, setLoadingAnimation] = useSpring(() => ({
@@ -28,7 +29,7 @@ function CircularProgressWithLabel(
       loadedValue = {props.value}
     >
       <span className = "loading-text" >
-        Loading your avatar
+        {props.title}
       </span>
       <animated.div style={{ ...loadingAnimation }}>
         <div className="vh-centered">
@@ -63,11 +64,13 @@ function CircularProgressWithLabel(
 export default function LoadingOverlayCircularStatic({
   loadingModelProgress,
   background = null,
+  title = "Loading"
 }) {
   return (
     <CircularProgressWithLabel
       value={loadingModelProgress}
       background={background}
+      title = {title}
     />
   )
 }

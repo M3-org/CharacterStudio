@@ -44,9 +44,11 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
+
   const { theme, setLoadingProgress } = props
 
   // Selected category State Hook
+
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
 
   const [flagPass, setFlagPass] = useState<any>(false)
@@ -85,6 +87,7 @@ export default function CharacterEditor(props: any) {
     }
   }, [loadedTraits])
 
+
   useEffect(() => {
     if(avatar){
       sceneService.setTraits(avatar);
@@ -93,7 +96,6 @@ export default function CharacterEditor(props: any) {
 
   useEffect(() => {
     if(templateInfo){
-      console.log("temp info")
       sceneService.setAvatarTemplateInfo(templateInfo);
     }
   }, [templateInfo])
@@ -129,8 +131,10 @@ export default function CharacterEditor(props: any) {
       });
 
       // load the avatar
-      sceneService.loadModel(templateInfo.file,setLoadingProgress)
+      sceneService.loadModel(templateInfo.file)
         .then(async (vrm)=>{
+          console.log(vrm)
+          setLoadingProgress(100);
           const animationManager = new AnimationManager();
           sceneService.addModelData(vrm, {animationManager:animationManager});
           if (templateInfo.animationPath){
@@ -142,12 +146,12 @@ export default function CharacterEditor(props: any) {
               newScene.add (vrm.scene);
               // wIP
               sceneService.addModelData(vrm, {cullingLayer:0});
+
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
               setFlagPass(true)
             // setRandomFlag(1);
             },50);
-          },1000)
         })
     }
   }, [templateInfo.file])

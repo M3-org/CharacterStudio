@@ -33,8 +33,14 @@ export default function Editor() {
 
   const selectOption = (option:any) =>{
     if (option.name == category){ 
-      if (ishide) sethidden(false);
-      else sethidden (true);
+      if (ishide) {
+        moveCamera(option.cameraTarget);
+        sethidden(false);
+      }
+      else{ 
+        sethidden (true);
+        moveCamera({height:0.9, distance:2});
+      }
     }
     else sethidden(false);
 
@@ -59,6 +65,7 @@ export default function Editor() {
           maxDistance:controls.getDistance(),
           minDistance:controls.getDistance(),
           minPolarAngle:controls.getPolarAngle(),
+          maxPolarAngle:controls.getPolarAngle(),
           minAzimuthAngle:controls.getAzimuthalAngle(),
           maxAzimuthAngle:controls.getAzimuthalAngle(),
         },
@@ -66,12 +73,14 @@ export default function Editor() {
           maxDistance:value.distance,
           minDistance:value.distance,
           minPolarAngle:(Math.PI / 2 - 0.11),
-          minAzimuthAngle: inverse ? -0.78 : 0.78,
-          maxAzimuthAngle: inverse ? -0.78 : 0.78,
+          maxPolarAngle:(Math.PI / 2 - 0.11),
+          minAzimuthAngle: - 0.78,
+          maxAzimuthAngle: - 0.78,
           duration: 1,
         }
       ).then(()=>{
         controls.minPolarAngle = 0;
+        controls.maxPolarAngle = 3.1415;
         controls.minDistance = 0.5;
         controls.maxDistance = 2.0;
         controls.minAzimuthAngle = Infinity;

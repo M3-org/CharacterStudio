@@ -34,6 +34,7 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
   const [preModelClass, setPreModelClass] = useState<number>(0)
   const [loadingProgress, setLoadingProgress] = useState(0);
+
   
   const isMute = useMuteStore((state) => state.isMute)
   const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
@@ -66,6 +67,15 @@ function App() {
   const handleFail = (error) => {
     console.log("Failed to login with Plug", error);
   }
+  useEffect(()=>{
+    if (loadedTraits >= 100){
+      setTimeout (() => {
+        setLoading(false)
+        setEnd(true)
+        setLoadedTraits(0)
+      }, 2000)  // timeout to avoid lag
+    }
+  }, [loadedTraits])
 
   useEffect(() => {
     if(!isMute) {
@@ -118,7 +128,8 @@ function App() {
         loading && <div
         >
           <LoadingOverlayCircularStatic
-            loadingModelProgress={loadingProgress}
+            loadingModelProgress={ (loadingProgress/2) + (loadedTraits/2) }
+            title = {"Loading Selected Avatar"}
           />
         </div>
       }
