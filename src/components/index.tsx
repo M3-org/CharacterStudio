@@ -11,7 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
-import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo, useModel } from "../store"
+import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo, useModel, useLoading, useEnd } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -44,7 +44,7 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, setLoading, setLoadingProgress, setModelClass, modelClass } = props
+  const { theme, setLoadingProgress } = props
 
   // Selected category State Hook
   // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
@@ -63,6 +63,9 @@ export default function CharacterEditor(props: any) {
   const setScene = useScene((state) => state.setScene)
   const model = useModel((state) => state.model)
   const setModel = useModel((state) => state.setModel)
+  const setLoading = useLoading((state) => state.setLoading)
+  const setEnd = useEnd((state) => state.setEnd)
+
   const defaultTheme = createTheme({
     palette: {
       mode: "dark",
@@ -74,7 +77,10 @@ export default function CharacterEditor(props: any) {
 
   useEffect(()=>{
     if (loadedTraits === true){
-      setLoading(false)
+      setTimeout (() => {
+        setLoading(false)
+        setEnd(true)
+      }, 1000)
       setLoadedTraits(false)
     }
   }, [loadedTraits])
@@ -131,16 +137,11 @@ export default function CharacterEditor(props: any) {
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);
           }
-
           setTimeout(()=>{
-                    
             setTimeout(()=>{
               newScene.add (vrm.scene);
-
               // wIP
               sceneService.addModelData(vrm, {cullingLayer:0});
-
-              
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
               setFlagPass(true)
@@ -161,10 +162,7 @@ export default function CharacterEditor(props: any) {
         {templateInfo && (
           <Fragment>
             <animated.div style={animatedStyle} >
-              <Scene
-                setModelClass={setModelClass}
-                modelClass = {modelClass}
-              />  
+              <Scene/>  
             </animated.div>
           </Fragment>
         )}

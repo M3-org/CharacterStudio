@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore} from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -28,7 +28,7 @@ const ACCOUNT_DATA = {
   AVATAR: 'avatar',
 };
 
-export default function Scene(props: any) {
+export default function Scene() {
   const [showType, setShowType] = useState(false);
 
   const [camera, setCamera] = useState<object>(Object);
@@ -46,7 +46,11 @@ export default function Scene(props: any) {
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
-
+  const modelClass = useModelClass((state) => state.modelClass)
+  const setModelClass = useModelClass((state) => state.setModelClass)
+  const setEnd = useEnd((state) => state.setEnd)
+  const formatModeling = useModelingStore((state) => state.formatModeling)
+  const formatComplete = useModelingStore((state) => state.formatComplete)
 
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
@@ -121,10 +125,6 @@ export default function Scene(props: any) {
     }
   };
 
-  const { 
-    downloadPopup,
-    setModelClass,
-    modelClass}: any = props;
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
   }
@@ -286,9 +286,7 @@ export default function Scene(props: any) {
               fov={100}
               onUpdate={self => self.updateProjectionMatrix()}
             >
-              {!downloadPopup && (
-                <TemplateModel scene={scene} />
-              )}
+            <TemplateModel scene={scene} />
             <mesh rotation = {[-Math.PI / 2, 0, 0]} position = {[0,-0.02,0]}>
               <circleGeometry 
                 args={[0.6, 64]} />
@@ -336,12 +334,13 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
+        setEnd(false);
+        formatModeling();
+        formatComplete();
       }}/>
       <div>
-        <Selector
-          modelClass = {modelClass}
-        />
-        <Editor />
+        <Selector/>
+        <Editor/>
       </div>
       <MintPopup/>
     </FitParentContainer>

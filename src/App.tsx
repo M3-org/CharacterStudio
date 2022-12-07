@@ -14,7 +14,7 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd, useLoading, useModelClass} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -32,15 +32,18 @@ function App() {
   const formatComplete = useModelingStore((state) => state.formatComplete)
   const [alerCharacterEditortTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [modelClass, setModelClass] = useState<number>(0)
   const [preModelClass, setPreModelClass] = useState<number>(0)
-  const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   const isMute = useMuteStore((state) => state.isMute)
   const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
   const setEnd = useEnd((state) => state.setEnd)
   const end = useEnd((state) => state.end)
+  const loading = useLoading((state) => state.loading)
+  const setLoading = useLoading((state) => state.setLoading)
+  const modelClass = useModelClass((state) => state.modelClass)
+  const setModelClass = useModelClass((state) => state.setModelClass)
+
   setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
     const library = new Web3Provider(provider);
@@ -137,20 +140,6 @@ function App() {
             <Web3ReactProvider getLibrary={getLibrary}>
               <CharacterEditor 
                   theme={defaultTheme} 
-                  setLoading={(value) => {
-                    setTimeout (() => {
-                      setLoading(false)
-                      setEnd(true)
-                    }, 1000)
-                  }} 
-                  setLoadingProgress = {setLoadingProgress}
-                  setModelClass = {(v) => {
-                    setModelClass(v);
-                    setEnd(false);
-                    formatModeling();
-                    formatComplete();
-                  }}
-                  modelClass = {modelClass}
                 />
             </Web3ReactProvider>
             {showAlert && (

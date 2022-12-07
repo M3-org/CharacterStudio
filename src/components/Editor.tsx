@@ -10,7 +10,7 @@ import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo,
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
-export default function Editor(props: any) {
+export default function Editor() {
   const isMute = useMuteStore((state) => state.isMute)
   const sethidden = useHideStore((state) =>state.sethidden)
   const ishide = useHideStore((state) =>state.ishidden)

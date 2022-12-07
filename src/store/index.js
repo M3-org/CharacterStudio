@@ -165,7 +165,19 @@ const useMintStatus = create((set) => ({
     }))
 }))
 
+const useLoading = create((set) => ({
+    loading: false,
+    setLoading: (value) => set((state) => ({
+        loading: value
+    }))
+}))
 
+const useModelClass = create((set) => ({
+    modelClass: 0,
+    setModelClass: (value) => set((state) => ({
+        modelClass: value
+    }))
+}))
 
 export {
     useMuteStore,
@@ -186,5 +198,7 @@ export {
     useControls,
     useConfirmWindow,
     useMintLoading,
-    useMintStatus
+    useMintStatus,
+    useLoading,
+    useModelClass
 };
