@@ -117,7 +117,7 @@ const useScene = create((set) => ({
 }))
 
 const useCategory = create((set) => ({
-    category: "color",
+    category: "skin",
     setCategory: (value) => set((state) => ({
         category: value
     }))
