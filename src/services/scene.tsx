@@ -384,7 +384,7 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
   const bonesArrange = [];
   for (let i = 0; i < skinMesh.skeleton.bones.length;i++){
     if (skinMesh.skeleton.bones[i].name.includes("Shoulder")){
-      bonesArrange[i] = 2;
+      bonesArrange[i] = 3;
     }
     else if (skinMesh.skeleton.bones[i].name.includes("Arm") || 
           skinMesh.skeleton.bones[i].name.includes("Hand") ||
@@ -598,6 +598,7 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
+    console.log("export glb")
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,
@@ -617,24 +618,46 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
+    console.log()
+    
     console.log("working...")
-    const clonedScene = model.scene.clone();
-    const avatar = await combine({transparentColor:skinColor, avatar: clonedScene, atlasSize });  
+    const avatar = await combine({transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });  
     console.log(avatar);
-    var scene = model.scene;
-    var clonedSecondary;
-    scene.traverse((child) =>{
-      if(child.name == 'secondary'){
-        clonedSecondary = child.clone();  
-      }
-    })
+    console.log(avatarModel)
 
-    avatar.add(clonedSecondary);
+    const hips = avatar.getObjectByName('hips');
+    if (hips){
+      console.log(hips.rotation.y)
+      hips.rotation.y = Math.PI;
+      console.log(hips.rotation.y)
+    }
     // change material array to the single atlas material
-    model.materials = [avatar.userData.atlasMaterial];
-    exporter.parse(model, avatar, (vrm : ArrayBuffer) => {
+    avatarModel.materials = [avatar.userData.atlasMaterial];
+
+    //temporal;
+    // const options = {
+    //   trs: false,
+    //   onlyVisible: false,
+    //   truncateDrawRange: true,
+    //   binary: true,
+    //   forcePowerOfTwoTextures: false,
+    //   maxTextureSize: 1024 || Infinity
+    // };
+    // new GLTFExporter().parse(avatar,(result: ArrayBuffer) => {
+    //       saveArrayBuffer(result, `${downloadFileName}.glb`);
+    //   },
+    //   (error) => { console.error("Error parsing", error)},
+    //   options
+    // );
+    //end temporal
+
+    exporter.parse(avatarModel, avatar, (vrm : ArrayBuffer) => {
       saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
+
+    // exporter.parse(avatarModel, avatar, (vrm : ArrayBuffer) => {
+    //   saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+    // });
     console.log("finished")
   }
 }

@@ -176,7 +176,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   const IMAGE_NAMES = ["diffuse"];
   const bakeObjects = [];
   // save if there is vrm data
-  let vrmData = null;
+  let vrmMaterial = null;
   // save material color from here
   meshes.forEach((mesh) => {
     //console.log(mesh.geometry.attributes.uv)
@@ -184,8 +184,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     const material = mesh.material.length ==  null ? mesh.material : mesh.material[0];
     
     // use the vrmData of the first material, and call it atlas if it exists
-    if (vrmData == null){
-      vrmData = getMaterialVRMData(material);
+    if (vrmMaterial == null){
+      vrmMaterial = material.clone();
     }
 
     // check if bakeObjects as any objects that contain the material property with value of mesh.material
@@ -201,13 +201,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       console.log('baked new geometry', bakeObject);
     }
   });
-
-  // assign extra base data of vrm atlas
-  if (vrmData != null){
-    vrmData.name = "atlas";
-    vrmData.vectorProperties._Color = [1,1,1,1]
-    vrmData.vectorProperties._ShadeColor = [1,1,1,1]
-  }
 
   // create the canvas to draw textures
   const contexts = Object.fromEntries(
@@ -375,5 +368,5 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     )
   );
     
-  return { bakeObjects, textures, uvs, vrmData };
+  return { bakeObjects, textures, uvs, vrmMaterial };
 };

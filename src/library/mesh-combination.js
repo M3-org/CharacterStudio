@@ -39,9 +39,9 @@ function removeBakedMorphs(mesh, bakedMorphIndices) {
     });
 }
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
-    const { bakeObjects, textures, uvs, vrmData } = await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
-    if (vrmData != null)
-        vrmData.textureProperties = {_MainTex:0, _ShadeTexture:0}
+    const { bakeObjects, textures, uvs, vrmMaterial } = await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+    // if (vrmMaterial != null)
+    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
         
     
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
@@ -67,8 +67,10 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
-    
-    material.userData.vrmMaterialProperties = vrmData;
+    vrmMaterial.uniforms.map = textures["diffuse"];
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];;
+
+    material.userData.vrmMaterial = vrmMaterial;
     const mesh = new THREE.SkinnedMesh(geometry, material);
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
