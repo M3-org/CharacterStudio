@@ -252,7 +252,7 @@ export default class VRMExporter {
         //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
         const vrmLookAt = {
           // @ts-ignore: Unreachable code error
-          offsetFromHeadBone: lookAt.offsetFromHeadBone,
+          offsetFromHeadBone: [lookAt.offsetFromHeadBonex,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
           rangeMapHorizontalInner: {
               inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
               outputScale: lookAt.applier.rangeMapHorizontalInner.outputScale,

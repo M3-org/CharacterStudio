@@ -14,6 +14,7 @@ import { ManageSearchRounded } from "@mui/icons-material"
 import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo, useModel, useLoading, useEnd } from "../store"
 
 interface Avatar{
+  skin:Record<string, unknown>,
   body:Record<string, unknown>,
   chest:Record<string, unknown>,
   head:Record<string, unknown>,
@@ -23,7 +24,7 @@ interface Avatar{
   waist:Record<string, unknown>,
   weapon:Record<string, unknown>,
   legs:Record<string, unknown>,
-  foot:Record<string, unknown>,
+  feet:Record<string, unknown>,
   accessories:Record<string, unknown>
 }
 
@@ -134,14 +135,13 @@ export default function CharacterEditor(props: any) {
       sceneService.loadModel(templateInfo.file)
         .then(async (vrm)=>{
           console.log(vrm)
-          setLoadingProgress(100);
+          //setLoadingProgress(100);
           const animationManager = new AnimationManager();
           sceneService.addModelData(vrm, {animationManager:animationManager});
           if (templateInfo.animationPath){
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);
           }
-          setTimeout(()=>{
             setTimeout(()=>{
               newScene.add (vrm.scene);
               // wIP

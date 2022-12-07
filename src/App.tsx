@@ -14,7 +14,7 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd, useLoading, useModelClass} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd, useLoading, useModelClass, useLoadedTraits} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -44,6 +44,7 @@ function App() {
   const setLoading = useLoading((state) => state.setLoading)
   const modelClass = useModelClass((state) => state.modelClass)
   const setModelClass = useModelClass((state) => state.setModelClass)
+  const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
 
   setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
@@ -67,15 +68,15 @@ function App() {
   const handleFail = (error) => {
     console.log("Failed to login with Plug", error);
   }
-  useEffect(()=>{
-    if (loadedTraits >= 100){
-      setTimeout (() => {
-        setLoading(false)
-        setEnd(true)
-        setLoadedTraits(0)
-      }, 2000)  // timeout to avoid lag
-    }
-  }, [loadedTraits])
+  // useEffect(()=>{
+  //   if (loadedTraits >= 100){
+  //     setTimeout (() => {
+  //       setLoading(false)
+  //       setEnd(true)
+  //       setLoadedTraits(0)
+  //     }, 2000)  // timeout to avoid lag
+  //   }
+  // }, [loadedTraits])
 
   useEffect(() => {
     if(!isMute) {
@@ -128,7 +129,7 @@ function App() {
         loading && <div
         >
           <LoadingOverlayCircularStatic
-            loadingModelProgress={ (loadingProgress/2) + (loadedTraits/2) }
+            loadingModelProgress={(loadedTraits) }
             title = {"Loading Selected Avatar"}
           />
         </div>

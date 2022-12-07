@@ -69,6 +69,7 @@ const useRandomFlag = create((set) => ({
 
 const useAvatar = create((set) => ({
     avatar:  {
+        skin:{},
         body:{},
         chest:{},
         head:{},
@@ -78,7 +79,7 @@ const useAvatar = create((set) => ({
         waist:{},
         weapon:{},
         legs:{},
-        foot:{},
+        feet:{},
         accessories:{},
         eyeColor:{}
     },
