@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore} from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -28,20 +28,30 @@ const ACCOUNT_DATA = {
   AVATAR: 'avatar',
 };
 
-export default function Scene(props: any) {
+export default function Scene() {
   const [showType, setShowType] = useState(false);
 
   const [camera, setCamera] = useState<object>(Object);
-  const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
-  const [mintLoading, setMintLoading] = useState(false);
-  const [confirmWindow, setConfirmWindow] = useState(false);
-  const [mintStatus, setMintStatus] = useState("Mint Status");
   const [autoRotate, setAutoRotate] = useState(true);
 
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
+  const avatar = useAvatar((state) => state.avatar)
+  const scene = useScene((state) => state.scene)
+  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
+  const model = useModel((state) => state.model)
+  const setControls = useControls((state) => state.setControls)
+  const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
+  const setMintLoading = useMintLoading((state) => state.setMintLoading)
+  const setMintStatus = useMintStatus((state) => state.setMintStatus)
+  const modelClass = useModelClass((state) => state.modelClass)
+  const setModelClass = useModelClass((state) => state.setModelClass)
+  const setEnd = useEnd((state) => state.setEnd)
+  const formatModeling = useModelingStore((state) => state.formatModeling)
+  const formatComplete = useModelingStore((state) => state.formatComplete)
+
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -111,27 +121,6 @@ export default function Scene(props: any) {
       console.log(ex);
     }
   };
-
-  const { 
-    templates,
-    scene,
-    downloadPopup,
-    mintPopup,
-    category,
-    setCategory,
-    avatar,
-    setAvatar,
-    setTemplate,
-    template,
-    setTemplateInfo,
-    templateInfo,
-    setModelClass,
-    modelClass,
-    setEnd,
-    setRandomFlag,
-    randomFlag,
-    setLoadedTraits,
-    model }: any = props;
 
   const handleDownload = () =>{
     showType ? setShowType(false) : setShowType(true);
@@ -294,9 +283,7 @@ export default function Scene(props: any) {
               fov={100}
               onUpdate={self => self.updateProjectionMatrix()}
             >
-              {!downloadPopup && !mintPopup && (
-                <TemplateModel scene={scene} />
-              )}
+            <TemplateModel scene={scene} />
             <mesh rotation = {[-Math.PI / 2, 0, 0]} position = {[0,-0.02,0]}>
               <circleGeometry 
                 args={[0.6, 64]} />
@@ -345,40 +332,15 @@ export default function Scene(props: any) {
       </TopRightMenu>
       <BackButton onClick={() => {
         setModelClass(0);
-        setTemplateInfo(null);
-        sceneService.setAvatarTemplateInfo(null);
+        setEnd(false);
+        formatModeling();
+        formatComplete();
       }}/>
       <div>
-        <Selector
-          category={category}
-          scene={scene}
-          avatar = {avatar}
-          setAvatar={setAvatar}
-          setTemplate={setTemplate}
-          template={template}
-          setTemplateInfo={setTemplateInfo}
-          templateInfo={templateInfo}
-          randomFlag={randomFlag}
-          setLoadedTraits = {setLoadedTraits}
-          setRandomFlag = {setRandomFlag} 
-          controls = {controls}
-          model = {model}
-          modelClass = {modelClass}
-        />
-        <Editor 
-          controls = {controls}
-          templateInfo={templateInfo}
-          setRandomFlag = {setRandomFlag} 
-          category={category} 
-          setCategory={setCategory} 
-          />
+        <Selector/>
+        <Editor/>
       </div>
-      <MintPopup
-          setConfirmWindow= {setConfirmWindow}
-          confirmWindow = {confirmWindow}
-          mintStatus = {mintStatus}
-          mintLoading = {mintLoading}>
-      </MintPopup>
+      <MintPopup/>
     </FitParentContainer>
   );
 }

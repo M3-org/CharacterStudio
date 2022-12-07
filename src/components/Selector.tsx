@@ -17,7 +17,7 @@ import * as THREE from 'three';
 
 import tick from '../ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
-import {useMuteStore, useDefaultTemplates, useHideStore} from '../store'
+import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar, useLoadedTraits, useSetTemplate, useScene, useCategory, useTemplateInfo,useModel, useControls, useModelClass} from '../store'
 
 import {MeshBasicMaterial} from 'three'
 import { ColorSelectButton } from "./ColorSelectButton"
@@ -25,27 +25,24 @@ import optionClick from "../sound/option_click.wav"
 import FadeInOut from "./FadeAnimation";
 import { SelectorContainerPos } from "../styles/SelectorStyle"
 
-export default function Selector(props) {
-  const {
-    category,
-    scene,
-    avatar,
-    setAvatar,
-    setTemplate,
-    template,
-    setTemplateInfo,
-    templateInfo,
-    randomFlag,
-    setRandomFlag,
-    setLoadedTraits,
-    controls,
-    model, 
-    modelClass
-  }: any = props
+export default function Selector() {
   const isMute = useMuteStore((state) => state.isMute)
   const isHide = useHideStore((state) => state.ishidden)
+  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
+  const randomFlag = useRandomFlag((state) => state.randomFlag)
+  const avatar = useAvatar((state) => state.avatar)
+  const setAvatar = useAvatar((state) => state.setAvatar)
+  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
+  const setTemplate = useSetTemplate((state) => state.setTemplate)
+  const template = useSetTemplate((state) => state.template)
   const templates = useDefaultTemplates((state) => state.defaultTemplates);
-  
+  const scene = useScene((state) => state.scene);
+  const category = useCategory((state) => state.category)
+  const templateInfo = useTemplateInfo((state) => state.templateInfo)
+  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
+  const model = useModel((state) => state.model)
+  const controls = useControls((state) => state.controls)
+  const modelClass = useModelClass((state) => state.modelClass)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
   const [colorCategory, setColorCategory] = useState("color")
@@ -66,19 +63,6 @@ export default function Selector(props) {
     { volume: 1.0 }
   );
   const iconPath = "./3d/icons-gradient/" + category + ".svg";
-
-  const hairSubCategories = [
-    {
-      id: 'style',
-      image: hairStyleImg,
-      activeImage: hairStyleImg,
-    },
-    {
-      id: 'color',
-      image: hairColorImg,
-      activeImage: hairColorImg,
-    },
-  ]
 
   const selectorButton = {
     display: "flex",
@@ -178,6 +162,7 @@ export default function Selector(props) {
     _get()
   }, [
     loaded,
+    modelClass,
     scene,
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
@@ -240,7 +225,8 @@ export default function Selector(props) {
       ...avatar,
       ...buffer
       });
-      if (randomFlag === 1) setLoadedTraits(100);
+      if (randomFlag == 1) {
+        setLoadedTraits(true);}
       setRandomFlag(-1);
     })()
 
@@ -288,7 +274,7 @@ export default function Selector(props) {
     setSelectValue(trait?.id)
   }
   let loading;
-const itemLoader =  async(item, traits = null, addToScene = true) => {
+  const itemLoader =  async(item, traits = null, addToScene = true) => {
   let r_vrm;
 
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
@@ -493,9 +479,8 @@ const getActiveStatus = (item) => {
                       />
                     </div>
                     <Skin
-                      scene={scene}
-                      templateInfo={templateInfo}
                       category={colorCategory}
+                      avatar={avatar}
                     />
                   </div>
                 ) : (
@@ -554,8 +539,6 @@ const getActiveStatus = (item) => {
                       </React.Fragment>
                     : (
                       <Skin
-                        scene={scene}
-                        templateInfo={templateInfo}
                         category={category}
                         avatar={avatar}
                       />

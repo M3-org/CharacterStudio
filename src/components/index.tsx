@@ -11,6 +11,7 @@ import Scene from "./Scene"
 import { useSpring, animated } from 'react-spring'
 import * as THREE from 'three'
 import { ManageSearchRounded } from "@mui/icons-material"
+import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo, useModel, useLoading, useEnd } from "../store"
 
 interface Avatar{
   body:Record<string, unknown>,
@@ -43,40 +44,29 @@ export default function CharacterEditor(props: any) {
   // const [body, setBody] = useState<any>();
 
 
-  const { theme, mintPopup, setLoadingProgress, setModelClass, modelClass, setEnd, setLoadedTraits } = props
-  
-  // Selected category State Hook
-  const [category, setCategory] = useState("skin")
-  // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
-  const [model, setModel] = useState<VRM>(Object)
 
-  const [scene, setScene] = useState<any>(Object)
+  const { theme, setLoadingProgress } = props
+
+  // Selected category State Hook
+
+  // 3D Model Content State Hooks ( Scene, Nodes, Materials, Animations e.t.c ) //
+
+  const [flagPass, setFlagPass] = useState<any>(false)
   
   // States Hooks used in template editor //
-  const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null })
-
+  const templateInfo = useTemplateInfo((state) => state.templateInfo)
   //const [downloadPopup, setDownloadPopup] = useState<boolean>(false)
-  const [template, setTemplate] = useState<number>(1)
-  const [randomFlag, setRandomFlag] = useState(-1);
- 
-
-  //const [loadingModelProgress, setLoadingModelProgress] = useState<number>(0)
-  const [ avatar,setAvatar] = useState<Avatar>({
-    body:{},
-    chest:{},
-    head:{},
-    neck:{},
-    hand:{},
-    ring:{},
-    waist:{},
-    weapon:{},
-    legs:{},
-    feet:{},
-    accessories:{},
-    eyeColor:{},
-    skin:{}
-  })
-  //const [loadingModel, setLoadingModel] = useState<boolean>(false)
+  // const [loadedTraits, setLoadedTraits] = useState(false)
+  
+  const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
+  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
+  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
+  const avatar = useAvatar((state) => state.avatar)
+  const setScene = useScene((state) => state.setScene)
+  const model = useModel((state) => state.model)
+  const setModel = useModel((state) => state.setModel)
+  const setLoading = useLoading((state) => state.setLoading)
+  const setEnd = useEnd((state) => state.setEnd)
 
   const defaultTheme = createTheme({
     palette: {
@@ -86,6 +76,16 @@ export default function CharacterEditor(props: any) {
       },
     },
   })
+
+  useEffect(()=>{
+    if (loadedTraits === true){
+      setTimeout (() => {
+        setLoading(false)
+        setEnd(true)
+      }, 1000)
+      setLoadedTraits(false)
+    }
+  }, [loadedTraits])
 
 
   useEffect(() => {
@@ -116,7 +116,8 @@ export default function CharacterEditor(props: any) {
     sceneService.setAvatarModel(model);
   }, [model])
   
-  useEffect(() => {
+  useEffect( () => {
+
     if (templateInfo.file) {
       
       // create a scene that will hold all elements (decoration and avatar)
@@ -140,20 +141,24 @@ export default function CharacterEditor(props: any) {
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);
           }
+          setTimeout(()=>{
             setTimeout(()=>{
               newScene.add (vrm.scene);
-
               // wIP
               sceneService.addModelData(vrm, {cullingLayer:0});
 
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
-              setRandomFlag(1);
-              
+              setFlagPass(true)
+            // setRandomFlag(1);
             },50);
         })
     }
   }, [templateInfo.file])
+
+  useEffect(() => {
+    if(flagPass) setRandomFlag(1)
+  }, [flagPass])
  
   return (
     <Suspense fallback="loading...">
@@ -161,26 +166,7 @@ export default function CharacterEditor(props: any) {
         {templateInfo && (
           <Fragment>
             <animated.div style={animatedStyle} >
-              <Scene
-                scene={scene}
-                //downloadPopup={downloadPopup}
-                mintPopup={mintPopup}
-                category={category}
-                setCategory={setCategory}
-                avatar = {avatar}
-                setAvatar={setAvatar}
-                setTemplate={setTemplate}
-                template={template}
-                setTemplateInfo={setTemplateInfo}
-                templateInfo={templateInfo}
-                model={model}
-                setModelClass={setModelClass}
-                modelClass = {modelClass}
-                setEnd={setEnd}
-                setRandomFlag = {setRandomFlag}
-                randomFlag = {randomFlag}
-                setLoadedTraits = {setLoadedTraits}
-              />  
+              <Scene/>  
             </animated.div>
           </Fragment>
         )}
