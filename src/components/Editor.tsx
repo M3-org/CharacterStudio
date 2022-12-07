@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import shuffle from "../ui/traits/shuffle.png"
 import webaMark from "../ui/traits/webaMark.png"
 import optionClick from "../sound/option_click.wav"
-import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo} from '../store'
+import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo, useControls} from '../store'
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
@@ -18,7 +18,7 @@ export default function Editor(props: any) {
   const setCategory = useCategory((state) => state.setCategory);
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const { controls }: any = props
+  const controls = useControls((state) => state.controls)
   const [ inverse, setInverse ] = useState(false)
   //const [itemClicked, setItemClicked] = useState(true)
   //var optionArr = [];

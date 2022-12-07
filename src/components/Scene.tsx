@@ -19,7 +19,7 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel } from "../store";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus } from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -32,12 +32,8 @@ export default function Scene(props: any) {
   const [showType, setShowType] = useState(false);
 
   const [camera, setCamera] = useState<object>(Object);
-  const [controls, setControls] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
-  const [mintLoading, setMintLoading] = useState(false);
-  const [confirmWindow, setConfirmWindow] = useState(false);
-  const [mintStatus, setMintStatus] = useState("Mint Status");
   const [autoRotate, setAutoRotate] = useState(true);
 
   const isRotate = useRotateStore((state) => state.isRotate)
@@ -46,6 +42,12 @@ export default function Scene(props: any) {
   const scene = useScene((state) => state.scene)
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const model = useModel((state) => state.model)
+  const setControls = useControls((state) => state.setControls)
+  const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
+  const setMintLoading = useMintLoading((state) => state.setMintLoading)
+  const setMintStatus = useMintStatus((state) => state.setMintStatus)
+
+
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -337,19 +339,11 @@ export default function Scene(props: any) {
       }}/>
       <div>
         <Selector
-          controls = {controls}
           modelClass = {modelClass}
         />
-        <Editor 
-          controls = {controls}
-          />
+        <Editor />
       </div>
-      <MintPopup
-          setConfirmWindow= {setConfirmWindow}
-          confirmWindow = {confirmWindow}
-          mintStatus = {mintStatus}
-          mintLoading = {mintLoading}>
-      </MintPopup>
+      <MintPopup/>
     </FitParentContainer>
   );
 }

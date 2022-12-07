@@ -137,6 +137,36 @@ const useModel = create((set) => ({
     }))
 }))
 
+const useControls = create((set) => ({
+    controls: {},
+    setControls: (value) => set((state) => ({
+        controls: value
+    }))
+}))
+
+const useConfirmWindow = create((set) => ({
+    confirmWindow: false,
+    setConfirmWindow: (value) => set((state) => ({
+        confirmWindow: value
+    }))
+}))
+
+const useMintLoading = create((set) => ({
+    mintLoading: false,
+    setMintLoading: (value) => set((state) => ({
+        mintLoading: value
+    }))
+}))
+
+const useMintStatus = create((set) => ({
+    mintStatus: "Mint Status",
+    setMintStatus: (value) => set((state) => ({
+        mintStatus: value
+    }))
+}))
+
+
+
 export {
     useMuteStore,
     useModelingStore,
@@ -152,5 +182,9 @@ export {
     useScene,
     useCategory,
     useTemplateInfo,
-    useModel
+    useModel,
+    useControls,
+    useConfirmWindow,
+    useMintLoading,
+    useMintStatus
 };
