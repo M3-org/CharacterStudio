@@ -180,6 +180,13 @@ const useModelClass = create((set) => ({
     }))
 }))
 
+const usePreModelClass = create((set) => ({
+    preModelClass: 0,
+    setPreModelClass: (value) => set((state) => ({
+        preModelClass: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -201,5 +208,6 @@ export {
     useMintLoading,
     useMintStatus,
     useLoading,
-    useModelClass
+    useModelClass,
+    usePreModelClass
 };
