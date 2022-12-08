@@ -158,7 +158,6 @@ export default class VRMExporter {
             const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
             if (mesh.geometry.userData.targetNames) {
                 mesh.geometry.userData.targetNames.forEach((targetName, index) => {
-                    console.log(morphIndexPair);
                     const morphIndex = morphIndexPair.filter((pair) => pair[0] === index.toString())[0][1];
                     const morphAttribute = mesh.geometry.morphAttributes;
                     meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
@@ -359,7 +358,8 @@ export default class VRMExporter {
         const materialProperties = uniqueMaterials.map((material) => 
             material.userData.vrmMaterialProperties
         );
-        const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
+        //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
+        const outputVrmMeta = vrmMeta;
         //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
         const bufferViews = [];
         bufferViews.push(...images.map((image) => ({
@@ -435,8 +435,6 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(scene)
-        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -691,14 +689,9 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
       if (material.type === "ShaderMaterial") {
-          console.log("ERE");
-          console.log(material);
           VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
-          VRMC_materials_mtoon.shadeMultiplyTexture = images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name),
-          console.log(VRMC_materials_mtoon);
-          // VRMC_materials_mtoon = {
-          //     shadeMultiplyTexture:
-          // }
+          VRMC_materials_mtoon.shadeMultiplyTexture = images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name);
+
           const mtoonMaterial = material;
           baseColor = mtoonMaterial.color ? [
                   1,
@@ -725,9 +718,6 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               baseTxrIndex = images.map((image) => image.name).indexOf(material.uniforms.map.name);
           }
       }
-
-      console.log(baseTxrIndex);
-      console.log (material.uniforms.map);
 
       const baseTexture = baseTxrIndex >= 0 ? {
               extensions: {

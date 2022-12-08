@@ -479,7 +479,6 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
 
 
 const renameVRMBones = (vrm:VRM) =>{
-  console.log(vrm)
   const bones = vrm.humanoid.humanBones;
   for (const boneName in bones) {
     bones[boneName].node.name = boneName;
@@ -598,7 +597,7 @@ async function download(
       forcePowerOfTwoTextures: false,
       maxTextureSize: 1024 || Infinity
     };
-    console.log("export glb")
+
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
     exporter.parse(
       avatar,
@@ -618,38 +617,15 @@ async function download(
     saveArrayBuffer(exporter.parse(model.scene), `${downloadFileName}.obj`);
   } else if (format && format === "vrm") {
     const exporter = new VRMExporter();
-    console.log()
     
     console.log("working...")
-    const avatar = await combine({transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });  
-    console.log(avatar);
-    console.log(avatarModel)
+    const avatarSceneClone = avatarModel.scene.clone();
+    
 
-    const hips = avatar.getObjectByName('hips');
-    if (hips){
-      console.log(hips.rotation.y)
-      hips.rotation.y = Math.PI;
-      console.log(hips.rotation.y)
-    }
+    const avatar = await combine({transparentColor:skinColor, avatar: avatarSceneClone, atlasSize });  
+
     // change material array to the single atlas material
     avatarModel.materials = [avatar.userData.atlasMaterial];
-
-    //temporal;
-    // const options = {
-    //   trs: false,
-    //   onlyVisible: false,
-    //   truncateDrawRange: true,
-    //   binary: true,
-    //   forcePowerOfTwoTextures: false,
-    //   maxTextureSize: 1024 || Infinity
-    // };
-    // new GLTFExporter().parse(avatar,(result: ArrayBuffer) => {
-    //       saveArrayBuffer(result, `${downloadFileName}.glb`);
-    //   },
-    //   (error) => { console.error("Error parsing", error)},
-    //   options
-    // );
-    //end temporal
 
     exporter.parse(avatarModel, avatar, (vrm : ArrayBuffer) => {
       saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
