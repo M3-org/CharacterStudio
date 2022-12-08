@@ -14,7 +14,7 @@ import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
-import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd, useLoading, useModelClass, useLoadedTraits} from './store'
+import {useMuteStore, useModelingStore, useDefaultTemplates, useEnd, useLoading, useModelClass, useLoadedTraits, usePreModelClass} from './store'
 import AudioSettings from "./components/AudioSettings";
 
 
@@ -30,11 +30,9 @@ const defaultTheme = createTheme({
 function App() {
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
-  const [alerCharacterEditortTitle, setAlertTitle] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [preModelClass, setPreModelClass] = useState<number>(0)
   const [loadingProgress, setLoadingProgress] = useState(0);
-
   
   const isMute = useMuteStore((state) => state.isMute)
   const setDefaultModel = useDefaultTemplates((state) => state.setDefaultTemplates);
@@ -45,6 +43,7 @@ function App() {
   const modelClass = useModelClass((state) => state.modelClass)
   const setModelClass = useModelClass((state) => state.setModelClass)
   const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
+  const preModelClass = usePreModelClass((state) => state.preModelClass)
 
   setDefaultModel(defaultTemplates)
   const getLibrary = (provider: any): Web3Provider => {
@@ -136,13 +135,7 @@ function App() {
       }
       {
         !modelClass ? 
-        <Landing 
-          onSetModel = {
-            (value) => {
-              setPreModelClass(value)
-            }
-          }
-        /> : 
+        <Landing /> : 
         (
           <div
             style={{
