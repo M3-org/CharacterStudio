@@ -66,6 +66,7 @@ const cullHiddenMeshes = () => {
           vrm.scene.traverse((child)=>{
             if (child.isMesh){
               child.userData.cullLayer = cullLayer;
+              child.userData.cullDistance = vrm.data.cullingDistance;
               models.push(child);
             }
           })
@@ -261,11 +262,14 @@ loader.register((parser) => {
 });
 //loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+async function loadModel(file: any, offset?: Array<float>, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
   return loader.loadAsync(file, onProgress).then((model) => {
+    
     const vrm = model.userData.vrm;
     // setup for vrm
     renameVRMBones(vrm);
+
+
     // renameMecanimBones(vrm);
 
     // important to be after renaming bones!

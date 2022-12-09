@@ -280,7 +280,10 @@ export default function Selector() {
   await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
       //console.log(item)
-      sceneService.addModelData(vrm,{cullingLayer: item.cullingLayer || -1})
+      sceneService.addModelData(vrm,{
+        cullingLayer: item.cullingLayer || -1,
+        cullingDistance: item.cullingDistance || null,
+      })
       r_vrm = vrm;
       new Promise<void>( (resolve) => {
       // if scene, resolve immediately

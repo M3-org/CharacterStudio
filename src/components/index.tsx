@@ -25,7 +25,8 @@ interface Avatar{
   weapon:Record<string, unknown>,
   legs:Record<string, unknown>,
   feet:Record<string, unknown>,
-  accessories:Record<string, unknown>
+  accessories:Record<string, unknown>,
+  outer:Record<string,unknown>
 }
 
 export default function CharacterEditor(props: any) {
@@ -134,10 +135,10 @@ export default function CharacterEditor(props: any) {
       // load the avatar
       sceneService.loadModel(templateInfo.file)
         .then(async (vrm)=>{
-          console.log(vrm)
           //setLoadingProgress(100);
-          const animationManager = new AnimationManager();
+          const animationManager = new AnimationManager(templateInfo.offset);
           sceneService.addModelData(vrm, {animationManager:animationManager});
+
           if (templateInfo.animationPath){
             await animationManager.loadAnimations(templateInfo.animationPath);
             animationManager.startAnimation(vrm);

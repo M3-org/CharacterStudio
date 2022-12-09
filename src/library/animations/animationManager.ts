@@ -1,4 +1,4 @@
-import { AnimationMixer, AnimationClip, AnimationAction, Group, Vector3} from 'three'
+import { AnimationMixer, AnimationClip, AnimationAction, Group, Vector3, NumberKeyframeTrack, VectorKeyframeTrack} from 'three'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { sceneService } from '../../services/scene'
@@ -59,19 +59,46 @@ export class AnimationManager{
   animations: Array<AnimationClip>
   weightIn:number;
   weightOut:number;
+  offset:Vector3;
 
-  constructor (){
+  constructor (offset?:Array<number>){
 
     this.lastAnimID = -1;
     this.curAnimID = 0;
     this.animationControls = [];
-
+    if (offset){
+      this.offset = new Vector3(
+        offset[0],
+        offset[1],
+        offset[2]
+      );
+      console.log(offset);
+    }
     this.update();
   }
   async loadAnimations(path:string):Promise<void>{
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const anim = await loader.loadAsync(path);
+    // offset hips
     this.animations = anim.animations;
+    if (this.offset)
+      this.offsetHips();
+  }
+
+  offsetHips():void{
+    this.animations.forEach(anim => {
+      for (let i =0; i < anim.tracks.length; i++){
+        const track = anim.tracks[i];
+        if (track.name === "hips.position"){
+          for (let j = 0; j < track.values.length/3 ; j++){
+            const base = j*3;
+            track.values[base] = track.values[base] + this.offset.x;
+            track.values[base + 1] = track.values[base + 1] + this.offset.y;
+            track.values[base + 2] = track.values[base + 2] + this.offset.z;
+          }
+        }
+      }
+    });
   }
 
   startAnimation(vrm: VRM):void{

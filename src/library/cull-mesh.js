@@ -8,12 +8,17 @@ const intersections = [];
 const raycaster = new Raycaster();
 raycaster.firstHitOnly = true;
 
+const distance = 0.03;
+const distanceAfter = 0.03;
+
 export const CullHiddenFaces = async(meshes) => {
     //clearRays();
     // make a 2 dimensional array that will hold the layers
     const culls = [];
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
+        if (mesh.userData.cullDistance != null)
+            console.log(mesh.userData.cullDistance);
         if (mesh.userData.cullLayer != null){
             if (mesh.userData.origIndexBuffer == null)
                 mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
@@ -51,19 +56,37 @@ export const CullHiddenFaces = async(meshes) => {
                 
                 //mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr));
                 
-                mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr));
+                mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr, mesh.userData.cullDistance));
             }
         }
         hitArr = [...hitArr, ...culls[i]]
     }
 }
 
-const distance = 0.03;
-const distanceAfter = 0.03;
-const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, debug=false) =>{
+
+const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, distanceArr, debug=false) =>{
     const indexCustomArr = [];
     // we should make this data editable by user
-    raycaster.far = distance + distanceAfter;
+    let distIn = distance;
+    let distOut = distanceAfter;
+
+    if (intersectModels){
+        if (!isNaN(distanceArr)){   // is its a number
+            distIn = distanceArr;
+        }
+        else{
+            if (!isNaN(distanceArr[0])){
+                distIn = distanceArr[0];
+            }
+            if (!isNaN(distanceArr[1])){
+                distOut =  distanceArr[1];
+            }
+        }
+    }
+    
+    raycaster.far = distIn + distOut;
+    if (distOut != distanceAfter)
+        console.log(distOut);
     
     for (let i =0; i < index.length/3 ;i++){
 
@@ -81,7 +104,7 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
             const direction = boneDirections[bi];
 
             // move the origin away to have the raycast being casted from outside
-            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distance))
+            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distIn))
             
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
