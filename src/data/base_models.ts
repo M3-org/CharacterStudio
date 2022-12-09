@@ -32,8 +32,8 @@ export default [
         "icon-gradient": "color-gradient.svg",
         "id":6,
         "cameraTarget":{
-          "distance": 2,
-          "height": 0.9
+          "distance": 1.7,
+          "height": 0.8
         }
       },
     {
@@ -45,7 +45,7 @@ export default [
       "id":6,
       "cameraTarget":{
         "distance": 0.7,
-        "height": 1.55
+        "height": 1.3
       }
     },
     {
@@ -56,7 +56,7 @@ export default [
       "icon-gradient": "head-gradient.svg",
       "cameraTarget":{
         "distance": 0.7,
-        "height": 1.55
+        "height": 1.3
       }
     },
     {
@@ -65,8 +65,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1.5,
-        "height": 1
+        "distance": 1,
+        "height": 0.9
       }
     },
     {
@@ -75,8 +75,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1.5,
-        "height": 1
+        "distance": 1,
+        "height": 0.9
       }
     },
     {
@@ -86,8 +86,8 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 2,
-        "height": 0.9
+        "distance": 1.7,
+        "height": 0.8
       }
     },
     {
@@ -97,8 +97,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 1.3,
-        "height": 0.75
+        "distance": 1,
+        "height": 0.5
       }
     },
     {
@@ -108,8 +108,8 @@ export default [
       "icon-gradient": "foot-gradient.svg",
       "id":5,
       "cameraTarget":{
-        "distance": 1,
-        "height": 0.22
+        "distance": 0.6,
+        "height": 0.2
       }
     }
   ]
