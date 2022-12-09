@@ -313,9 +313,9 @@ export default function Scene() {
         <AutoRotate/>
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
-          setMintStatus("Mint coming soon!")
+          // setMintStatus("Mint coming soon!")
           setConfirmWindow(true)
-          //mintAsset()
+          mintAsset()
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>

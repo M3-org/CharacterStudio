@@ -1,6 +1,7 @@
 import { StyledBackground, StyledPopup,StyledContainer, Button1, Title, Buttons } from '../styles/MintPopup.styled.js'
 import React, { useState, useEffect } from "react";
 import {useConfirmWindow, useMintLoading, useMintStatus } from "../store";
+import MintModal from './MintModal';
 
 export default function MintPopup() {
     const confirmWindow = useConfirmWindow((state) => state.confirmWindow)
@@ -17,7 +18,8 @@ export default function MintPopup() {
                         {!mintLoading ? 
                         (<Buttons>
                             <Button1 onClick={() => setConfirmWindow(false)}>close</Button1>
-                        </Buttons>):("")
+                        </Buttons>):
+                        (<MintModal/>)
                         }
                     </StyledPopup>
                 )}
