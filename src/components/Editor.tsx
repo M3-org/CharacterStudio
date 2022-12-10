@@ -94,7 +94,7 @@ export default function Editor() {
     <Stack alignItems="center"> 
         
         <MenuTitle>
-          <MenuImg src={webaMark} />
+          <MenuImg src={webaMark}/>
         </MenuTitle>
 
         <LineDivision bottom = {'20px'}/>
