@@ -75,11 +75,13 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
             distIn = distanceArr;
         }
         else{
-            if (!isNaN(distanceArr[0])){
-                distIn = distanceArr[0];
-            }
-            if (!isNaN(distanceArr[1])){
-                distOut =  distanceArr[1];
+            if (Array.isArray(distanceArr)){
+                if (!isNaN(distanceArr[0])){
+                    distIn = distanceArr[0];
+                }
+                if (!isNaN(distanceArr[1])){
+                    distOut =  distanceArr[1];
+                }
             }
         }
     }

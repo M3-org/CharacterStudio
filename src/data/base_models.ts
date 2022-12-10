@@ -6,7 +6,7 @@ export default [
     "file": "./3d/models/drophunter_female.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
-    "offset":[0,-0.2,0],
+    "offset":[0,-0.18,0],
     "bodyTargets": [
       "Body",
       "Headbaked"
@@ -18,9 +18,9 @@ export default [
         "Headbaked_2",
         "Headbaked_1",
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
+    "traitsDirectory": "./loot-assets/drophunter_female/",
+    "thumbnailsDirectory": "./loot-assets/drophunter_female/",
+    "traitsJsonPath": "./loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_female.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [
@@ -57,6 +57,16 @@ export default [
       "cameraTarget":{
         "distance": 0.7,
         "height": 1.3
+      }
+    },
+    {
+      "name": "solo",
+      "icon": "torso.png",
+      "icon-gradient": "chest-gradient.svg",
+      "type": "mesh",
+      "cameraTarget":{
+        "distance": 1.7,
+        "height": 0.8
       }
     },
     {

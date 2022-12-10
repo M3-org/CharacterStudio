@@ -26,7 +26,8 @@ interface Avatar{
   legs:Record<string, unknown>,
   feet:Record<string, unknown>,
   accessories:Record<string, unknown>,
-  outer:Record<string,unknown>
+  outer:Record<string,unknown>,
+  solo:Record<string,unknown>
 }
 
 export default function CharacterEditor(props: any) {
