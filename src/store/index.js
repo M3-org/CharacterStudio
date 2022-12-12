@@ -81,7 +81,9 @@ const useAvatar = create((set) => ({
         legs:{},
         feet:{},
         accessories:{},
-        eyeColor:{}
+        eyeColor:{},
+        outer:{},
+        solo:{}
     },
     setAvatar: (value) => set((state) => ({
         avatar: value

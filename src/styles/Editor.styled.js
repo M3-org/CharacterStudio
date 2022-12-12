@@ -24,8 +24,8 @@ export const MenuOption = styled.div`
     display: inline-block;
     margin: 5px auto 5px auto;
     padding: 5px;
-    height: 60px;
-    width: 82px;
+    height: 40px;
+    width: 62px;
     opacity: ${props => props.selected ? 1 : 0.3};
     user-select: none;
     text-align: center;
@@ -41,13 +41,13 @@ export const MenuImg = styled.img`
 export const ShuffleOption = styled(MenuOption)`
     border-right: '';
     opacity: 1;
-    height: 40px;
+    height: 30px;
 
 `
 export const MenuTitle = styled.div`
     display: inline-block;
     text-align: center;
-    height: 100px;
+    height: 70px;
     margin: 5px auto 5px auto;
     user-select: none;
     
