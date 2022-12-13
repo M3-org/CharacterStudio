@@ -2,7 +2,6 @@ export default [
   {
     "id": "1",
     "name": "Female",
-    //"file": "./3d/models/drophunter_female.vrm",
     "file": "./3d/models/drophunter_female.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
@@ -23,11 +22,9 @@ export default [
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_female.fbx",
     "traitIconsDirectory": "./3d/icons/",
-    "typeRestrictions":
-      {
+    "typeRestrictions":{
         "pants" : ["boots"]
-      }
-    ,
+    },
     "selectionTraits": [
       {
         "name": "skin",
@@ -66,7 +63,7 @@ export default [
     },
     {
       "name": "solo",
-      "restrictedTraits": ["chest","legs", "outer"],
+      "restrictedTraits": ["chest", "outer"],
       "icon": "torso.png",
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
