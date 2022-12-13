@@ -62,7 +62,6 @@ export default [
     {
       "name": "solo",
       "restrictedTraits": ["chest","legs", "outer"],
-      "restrictedTypes": ["hoodie"],
       "icon": "torso.png",
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",

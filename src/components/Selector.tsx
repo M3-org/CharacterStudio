@@ -313,8 +313,7 @@ export default function Selector() {
           if (avatar[traitName]) {
 
             const traitData = templateInfo.selectionTraits.find(element => element.name === traitName);
-            console.log(traitName)
-            console.log(traitData)
+
             // set the new trait
             const newAvatarData = {}
             newAvatarData[traitName] = {
@@ -326,11 +325,68 @@ export default function Selector() {
             // search in the trait data for restricted traits and restricted types  => (todo)
             if (traitData){
               if (traitData.restrictedTraits) {
-                traitData.restrictedTraits.forEach(restrict => {
-                  if (avatar[restrict] !== undefined)
-                    newAvatarData[restrict]={}
+                traitData.restrictedTraits.forEach(restrictTrait => {
+                  if (avatar[restrictTrait] !== undefined)
+                    newAvatarData[restrictTrait]={}
                 });
               }
+
+              
+              // 2 exists: 
+              // traitInfo that comes from the user and 
+              // traitData the comes from the setup
+
+
+              // first check for every trait type in avatar properties if we have restricted types
+              if (traitData.restrictedTypes){
+                // check every property in avatar for restricted types
+                // also check if current trait has restricted type
+                for (const property in avatar){
+                  if (avatar[property].traitInfo?.type){
+
+                    const itemTypes = Array.isArray(avatar[property].traitInfo.type) ?
+                      avatar[property].traitInfo.type:
+                      [avatar[property].traitInfo.type]
+
+                    for (let i =0; i < traitData.restrictedTypes.length ; i ++){
+                      const restrictedType = traitData.restrictedTypes[i];
+
+                      // remove if  its type is restricted
+                      for (let j = 0; j < itemTypes.length; j ++){
+                        const itemType = itemTypes[j];
+                        if (itemType === restrictedType){
+                          newAvatarData[property] = {}
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              // now check inside every property if they dont have this type as restriction keep going
+              if (item.type){
+                const itemTypes = Array.isArray(item.type) ? item.type : [item.type];
+                for (const property in avatar){
+                  const tData = templateInfo.selectionTraits.find(element => element.name === property);
+                  if (tData != null){
+                    if (tData.restrictedTypes){
+                      for (let i =0 ; i < tData.restrictedTypes.length;i++){
+                        const restrictedType = tData.restrictedTypes[i];
+
+                        for (let j = 0; j < itemTypes.length; j ++){
+                          const itemType = itemTypes[j];
+                          if (itemType === restrictedType){
+                            newAvatarData[property] = {}
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              console.log(newAvatarData)
             }
 
             // combine current data with new data
