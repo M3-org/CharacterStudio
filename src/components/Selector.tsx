@@ -363,15 +363,25 @@ export default function Selector() {
                   }
                 }
               }
-
               // now check inside every property if they dont have this type as restriction keep going
               if (item.type){
-                const itemTypes = Array.isArray(item.type) ? item.type : [item.type];
+                const itemTypes = getAsArray(item.type)
                 for (const property in avatar){
                   const tData = templateInfo.selectionTraits.find(element => element.name === property);
                   if (tData != null){
                     if (tData.restrictedTypes){
-                      for (let i =0 ; i < tData.restrictedTypes.length;i++){
+
+                      const restrictedTypeArray = tData.restrictedTypes;
+                      // make sure to include also typeRestrictions if they exist
+                      // const restrictedTypeArray = !templateInfo.typeRestrictions?
+                      //   tData.restrictedTypes :
+                      //   [...tData.restrictedTypes, ... getAsArray(templateInfo.typeRestrictions[item.type])]
+                      
+                      // console.log("here");
+                      // console.log(restrictedTypeArray)
+                      // console.log(tData.restrictedTypes)
+
+                      for (let i =0 ; i < restrictedTypeArray.length;i++){
                         const restrictedType = tData.restrictedTypes[i];
 
                         for (let j = 0; j < itemTypes.length; j ++){
@@ -385,8 +395,42 @@ export default function Selector() {
                     }
                   }
                 }
+                // this array include the names of the traits as property and the types it cannot include
+                if (templateInfo.typeRestrictions){
+
+                  // we should check every type this trait has 
+                  for (let i = 0; i < itemTypes.length; i ++){
+                    const itemType = itemTypes[i]
+                    // and get the restriction included in each array if exists
+                    const typeRestrictions = getAsArray(templateInfo.typeRestrictions[itemType]);
+                    // now check if the avatar properties include this restrictions to remove
+                    for (const property in avatar){
+                      if (property !== traitName ){
+                        typeRestrictions.forEach(typeRestriction => {
+                          if (avatar[property].traitInfo?.type === typeRestriction){
+                            newAvatarData[property] = {}
+                          }
+                        });
+
+                        // check also if any of the current trait is of type
+                        if (avatar[property].vrm){
+                          
+                          const propertyTypes = getAsArray(avatar[property].traitInfo?.type);
+
+                          propertyTypes.forEach(t => {
+                            const typeRestrictionsSecondary = getAsArray(templateInfo.typeRestrictions[t]);
+                            if (typeRestrictionsSecondary.includes(itemType))
+                              newAvatarData[property] = {}
+                          });
+                        }
+                      }
+                    }
+
+                    // if (typeRestriction.includes(itemType))
+                    //   newAvatarData[itemType] = {}
+                  }
+                }
               }
-              console.log(newAvatarData)
             }
 
             // combine current data with new data
@@ -400,9 +444,7 @@ export default function Selector() {
             for (const property in newAvatar) {
               if (property !== traitName){
                 if (newAvatar[property].vrm){
-                  console.log(property)
                   const tdata = templateInfo.selectionTraits.find(element => element.name === property);
-                  console.log(tdata.restrictedTraits)
                   const restricted = tdata.restrictedTraits;
                   if (restricted){
                     for (let i =0; i < restricted.length;i++){
@@ -440,6 +482,15 @@ export default function Selector() {
     }
   // });
 
+}
+// always return an array
+const getAsArray = (target) => {
+  if (target == null)
+    return [];
+
+  return Array.isArray(target) ? 
+    target:
+    [target]
 }
 
 const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
