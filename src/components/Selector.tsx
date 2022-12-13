@@ -174,7 +174,7 @@ export default function Selector() {
     (async ()=>{
       if(randomFlag === -1) return;
       
-      let lists = apiService.fetchCategoryList();
+      const lists = apiService.fetchCategoryList();
       let ranItem;
       //Object.entries(avatar).map((props : any) => {
         //let traitName = props[0];
@@ -221,6 +221,7 @@ export default function Selector() {
           model.scene.add(buffer[property].vrm.scene);
         }
       }
+      //with random
       setAvatar({
       ...avatar,
       ...buffer
@@ -308,20 +309,165 @@ export default function Selector() {
         model.data?.animationManager?.startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
           model.scene.add(vrm.scene);
-       
+          
           if (avatar[traitName]) {
-            
-            setAvatar({
-              ...avatar,
-              [traitName]: {
-                traitInfo: item,
-                model: vrm.scene,
-                vrm: vrm
-              }
-            })
-            if (avatar[traitName].vrm) {
-                sceneService.disposeVRM(avatar[traitName].vrm);
+
+            const traitData = templateInfo.selectionTraits.find(element => element.name === traitName);
+
+            // set the new trait
+            const newAvatarData = {}
+            newAvatarData[traitName] = {
+              traitInfo: item,
+              model: vrm.scene,
+              vrm: vrm
             }
+
+            // search in the trait data for restricted traits and restricted types  => (todo)
+            if (traitData){
+              if (traitData.restrictedTraits) {
+                traitData.restrictedTraits.forEach(restrictTrait => {
+                  if (avatar[restrictTrait] !== undefined)
+                    newAvatarData[restrictTrait]={}
+                });
+              }
+
+              
+              // 2 exists: 
+              // traitInfo that comes from the user and 
+              // traitData the comes from the setup
+
+
+              // first check for every trait type in avatar properties if we have restricted types
+              if (traitData.restrictedTypes){
+                // check every property in avatar for restricted types
+                // also check if current trait has restricted type
+                for (const property in avatar){
+                  if (avatar[property].traitInfo?.type){
+
+                    const itemTypes = Array.isArray(avatar[property].traitInfo.type) ?
+                      avatar[property].traitInfo.type:
+                      [avatar[property].traitInfo.type]
+
+                    for (let i =0; i < traitData.restrictedTypes.length ; i ++){
+                      const restrictedType = traitData.restrictedTypes[i];
+
+                      // remove if  its type is restricted
+                      for (let j = 0; j < itemTypes.length; j ++){
+                        const itemType = itemTypes[j];
+                        if (itemType === restrictedType){
+                          newAvatarData[property] = {}
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              // now check inside every property if they dont have this type as restriction keep going
+              if (item.type){
+                const itemTypes = getAsArray(item.type)
+                for (const property in avatar){
+                  const tData = templateInfo.selectionTraits.find(element => element.name === property);
+                  if (tData != null){
+                    if (tData.restrictedTypes){
+
+                      const restrictedTypeArray = tData.restrictedTypes;
+                      // make sure to include also typeRestrictions if they exist
+                      // const restrictedTypeArray = !templateInfo.typeRestrictions?
+                      //   tData.restrictedTypes :
+                      //   [...tData.restrictedTypes, ... getAsArray(templateInfo.typeRestrictions[item.type])]
+                      
+                      // console.log("here");
+                      // console.log(restrictedTypeArray)
+                      // console.log(tData.restrictedTypes)
+
+                      for (let i =0 ; i < restrictedTypeArray.length;i++){
+                        const restrictedType = tData.restrictedTypes[i];
+
+                        for (let j = 0; j < itemTypes.length; j ++){
+                          const itemType = itemTypes[j];
+                          if (itemType === restrictedType){
+                            newAvatarData[property] = {}
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                // this array include the names of the traits as property and the types it cannot include
+                if (templateInfo.typeRestrictions){
+
+                  // we should check every type this trait has 
+                  for (let i = 0; i < itemTypes.length; i ++){
+                    const itemType = itemTypes[i]
+                    // and get the restriction included in each array if exists
+                    const typeRestrictions = getAsArray(templateInfo.typeRestrictions[itemType]);
+                    // now check if the avatar properties include this restrictions to remove
+                    for (const property in avatar){
+                      if (property !== traitName ){
+                        typeRestrictions.forEach(typeRestriction => {
+                          if (avatar[property].traitInfo?.type === typeRestriction){
+                            newAvatarData[property] = {}
+                          }
+                        });
+
+                        // check also if any of the current trait is of type
+                        if (avatar[property].vrm){
+                          
+                          const propertyTypes = getAsArray(avatar[property].traitInfo?.type);
+
+                          propertyTypes.forEach(t => {
+                            const typeRestrictionsSecondary = getAsArray(templateInfo.typeRestrictions[t]);
+                            if (typeRestrictionsSecondary.includes(itemType))
+                              newAvatarData[property] = {}
+                          });
+                        }
+                      }
+                    }
+
+                    // if (typeRestriction.includes(itemType))
+                    //   newAvatarData[itemType] = {}
+                  }
+                }
+              }
+            }
+
+            // combine current data with new data
+            const newAvatar = {
+              ...avatar,
+              ...newAvatarData
+            };
+
+            // now compare others with thair restricted traits, if they have a restriction with 
+            // current selected trait, !must be removed the other one, not this one
+            for (const property in newAvatar) {
+              if (property !== traitName){
+                if (newAvatar[property].vrm){
+                  const tdata = templateInfo.selectionTraits.find(element => element.name === property);
+                  const restricted = tdata.restrictedTraits;
+                  if (restricted){
+                    for (let i =0; i < restricted.length;i++){
+                      if (restricted[i] === traitName){
+                        // if one of their restrcited elements match, remove him and break
+                        newAvatarData[property] = {}
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            setAvatar({...newAvatar, ...newAvatarData})
+            
+            for (const property in newAvatarData) {
+              if (avatar[property].vrm){
+                sceneService.disposeVRM(avatar[property].vrm);
+              }
+            }
+            // if (avatar[traitName].vrm) {
+            //     sceneService.disposeVRM(avatar[traitName].vrm);
+            // }
           }
         },200)// timeout for animations
       }
@@ -336,6 +482,31 @@ export default function Selector() {
     }
   // });
 
+}
+// always return an array
+const getAsArray = (target) => {
+  if (target == null)
+    return [];
+
+  return Array.isArray(target) ? 
+    target:
+    [target]
+}
+
+const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
+  const newAvatarData = {}
+  
+  if (traitData){
+    if (traitData.restrictedTraits) {
+      traitData.restrictedTraits.forEach(restrict => {
+        if (avatar[restrict] !== undefined){
+          if (restrict){
+            newAvatarData[restrict]={}
+          }
+        }
+      });
+    }
+  }
 }
 
 const textureTraitLoader =  (props, trait) => {

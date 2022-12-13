@@ -85,9 +85,12 @@ const useAvatar = create((set) => ({
         outer:{},
         solo:{}
     },
-    setAvatar: (value) => set((state) => ({
-        avatar: value
-    }))
+    setAvatar: (value) => {
+        console.log(value);
+        set((state) => ({
+            avatar: value
+        }))
+    }
 }))
 
 const useLoadedTraits = create((set) => ({
