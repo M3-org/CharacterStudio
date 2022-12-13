@@ -11,6 +11,7 @@ import { Canvas } from "@react-three/fiber";
 import { sceneService } from "../services";
 import { TemplateModel } from "./Models";
 import { useScene, useTemplateInfo, useModel } from "../store";
+import { NoToneMapping } from 'three';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -40,56 +41,24 @@ const canvasStyle = {
 export default function MintModal() {
   const scene = useScene((state) => state.scene);
   const model = useModel((state) => state.model);
-
+  
   return (
         <Canvas
           style={canvasStyle}
           id="mint-scene"
-          gl={{ preserveDrawingBuffer: true }}
+            gl={{ antialias: true, toneMapping: NoToneMapping }}
         >
-          <spotLight
-            // ref={ref}
-            intensity={1}
-            position={[0, 3.5, 2]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            castShadow
-          />
-          <spotLight
-            // ref={ref}
-            intensity={0.2}
-            position={[-5, 2.5, 4]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            // castShadow
-          />
-          <spotLight
-            // ref={ref}
-            intensity={0.2}
-            position={[5, 2.5, 4]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            // castShadow
-          />
-          <spotLight
-            // ref={ref}
-            intensity={0.3}
-            position={[0, -2, -8]}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            castShadow
-          />
           <OrbitControls
-            minDistance={1}
-            maxDistance={2}
+            minDistance={1.5}
+            maxDistance={1.5}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
             target={[0, 1, 0]}
           />
-          <PerspectiveCamera>
-            <TemplateModel scene={scene} />
-          </PerspectiveCamera>
+          <PerspectiveCamera>c
+            <TemplateModel scene={model.scene.clone()} />
+          </PerspectiveCamera>c
         </Canvas>
   );
 }

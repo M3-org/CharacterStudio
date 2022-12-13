@@ -5,6 +5,8 @@ import MintModal from './MintModal';
 import walletErrorImage from '../ui/mint/walletError.png'
 import mintPopupImage from '../ui/mint/mintPopup.png'
 import StyledButton from '../styles/ColorSelectButtonStyle';
+import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
+
 export default function MintPopup({
     connectWallet,
     connected,
@@ -22,7 +24,7 @@ export default function MintPopup({
         if(trait.name in avatar){
             if('traitInfo' in avatar[trait.name]){
                 return avatar[trait.name].traitInfo.name;
-            } else return "No " + trait.name;
+            } else return "Default " + trait.name;
         }else return colorStatus;
     }
     const onMintClick = () => {
