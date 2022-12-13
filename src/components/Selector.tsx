@@ -174,7 +174,7 @@ export default function Selector() {
     (async ()=>{
       if(randomFlag === -1) return;
       
-      let lists = apiService.fetchCategoryList();
+      const lists = apiService.fetchCategoryList();
       let ranItem;
       //Object.entries(avatar).map((props : any) => {
         //let traitName = props[0];
@@ -221,6 +221,7 @@ export default function Selector() {
           model.scene.add(buffer[property].vrm.scene);
         }
       }
+      //with random
       setAvatar({
       ...avatar,
       ...buffer
@@ -308,20 +309,67 @@ export default function Selector() {
         model.data?.animationManager?.startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
           model.scene.add(vrm.scene);
-       
+          
           if (avatar[traitName]) {
-            
-            setAvatar({
-              ...avatar,
-              [traitName]: {
-                traitInfo: item,
-                model: vrm.scene,
-                vrm: vrm
-              }
-            })
-            if (avatar[traitName].vrm) {
-                sceneService.disposeVRM(avatar[traitName].vrm);
+
+            const traitData = templateInfo.selectionTraits.find(element => element.name === traitName);
+            console.log(traitName)
+            console.log(traitData)
+            // set the new trait
+            const newAvatarData = {}
+            newAvatarData[traitName] = {
+              traitInfo: item,
+              model: vrm.scene,
+              vrm: vrm
             }
+
+            // search in the trait data for restricted traits and restricted types  => (todo)
+            if (traitData){
+              if (traitData.restrictedTraits) {
+                traitData.restrictedTraits.forEach(restrict => {
+                  if (avatar[restrict] !== undefined)
+                    newAvatarData[restrict]={}
+                });
+              }
+            }
+
+            // combine current data with new data
+            const newAvatar = {
+              ...avatar,
+              ...newAvatarData
+            };
+
+            // now compare others with thair restricted traits, if they have a restriction with 
+            // current selected trait, !must be removed the other one, not this one
+            for (const property in newAvatar) {
+              if (property !== traitName){
+                if (newAvatar[property].vrm){
+                  console.log(property)
+                  const tdata = templateInfo.selectionTraits.find(element => element.name === property);
+                  console.log(tdata.restrictedTraits)
+                  const restricted = tdata.restrictedTraits;
+                  if (restricted){
+                    for (let i =0; i < restricted.length;i++){
+                      if (restricted[i] === traitName){
+                        // if one of their restrcited elements match, remove him and break
+                        newAvatarData[property] = {}
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            setAvatar({...newAvatar, ...newAvatarData})
+            
+            for (const property in newAvatarData) {
+              if (avatar[property].vrm){
+                sceneService.disposeVRM(avatar[property].vrm);
+              }
+            }
+            // if (avatar[traitName].vrm) {
+            //     sceneService.disposeVRM(avatar[traitName].vrm);
+            // }
           }
         },200)// timeout for animations
       }
@@ -336,6 +384,22 @@ export default function Selector() {
     }
   // });
 
+}
+
+const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
+  const newAvatarData = {}
+  
+  if (traitData){
+    if (traitData.restrictedTraits) {
+      traitData.restrictedTraits.forEach(restrict => {
+        if (avatar[restrict] !== undefined){
+          if (restrict){
+            newAvatarData[restrict]={}
+          }
+        }
+      });
+    }
+  }
 }
 
 const textureTraitLoader =  (props, trait) => {
