@@ -99,9 +99,9 @@ export default function Editor() {
 
         <LineDivision bottom = {'20px'}/>
 
-        { templateInfo.selectionTraits && templateInfo.selectionTraits.map(item => (
+        { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item) => (
           // improve id
-          <MenuOption 
+          <MenuOption
             onClick = {()=>{selectOption(item)}} 
             selected = {category === item.name}
             key = {"i" + templateInfo.id + item.id}>  

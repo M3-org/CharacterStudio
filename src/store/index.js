@@ -1,3 +1,4 @@
+
 import create from 'zustand';
 
 const useMuteStore = create((set) => ({
@@ -165,7 +166,7 @@ const useMintLoading = create((set) => ({
 }))
 
 const useMintStatus = create((set) => ({
-    mintStatus: "Mint Status",
+    mintStatus: "Please connect your wallet.",
     setMintStatus: (value) => set((state) => ({
         mintStatus: value
     }))
@@ -192,6 +193,14 @@ const usePreModelClass = create((set) => ({
     }))
 }))
 
+
+const useMintDone = create((set) => ({
+    mintDone: false,
+    setMintDone: (value) => set((state) => ({
+        mintDone: value
+    }))
+}))
+
 export {
     useMuteStore,
     useModelingStore,
@@ -214,5 +223,6 @@ export {
     useMintStatus,
     useLoading,
     useModelClass,
-    usePreModelClass
+    usePreModelClass,
+    useMintDone
 };

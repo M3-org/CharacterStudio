@@ -26,64 +26,25 @@ const style = {
   pb: 3,
 };
 
-const closePopup = {
-  position: "absolute",
-  right: 0,
-  top: 8,
-  background: "none",
-  color: "#999999"
+const canvasStyle = {
+  right: '0',
+  width: '528px',
+  color: "#999999",
+  height: "295px",
+  background: "#40455A",
+  border: "1px solid #303949",
+  backdropFilter: "blur(22.5px)",
+  borderRadius: '5px',
 }
 
 export default function MintModal() {
-  // const saveScreenshot = async (id:string) => {
-  //   sceneService.saveScreenShotByElementId(id).then(() => {});
-  // };
-  // const downloadModel = (format: any) => {
-  //   sceneService.download(model, `CC_Model_${templateInfo.name.replace(" ", "_")}`, format, false);
-  // };
-  // const handleOpen = () => {
-  //   setDownloadPopup(true);
-  // };
-  // const handleClose = () => {
-  //   setDownloadPopup(false);
-  // };
   const scene = useScene((state) => state.scene);
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
   const model = useModel((state) => state.model);
-  console.log('aaaaaaaaaaa', model)
 
   return (
-    // <div style={{
-    //   position: "absolute",
-    //   top: "20px",
-    //   right: "154px",
-    //   zIndex: 10
-    // }}>
-    //   <Button
-    //     id="download-button"
-    //     aria-controls="download-menu"
-    //     aria-haspopup="true"
-    //     aria-expanded={downloadPopup ? "true" : undefined}
-    //     onClick={handleOpen}
-    //   >
-    //   </Button>
-    //   <Modal
-    //     open={downloadPopup}
-    //     onClose={handleClose}
-    //     aria-labelledby="child-modal-title"
-    //     aria-describedby="child-modal-description"
-    //   >
-    //     <Box sx={{ ...style, border: 0 }}>
-    //     <Button onClick={handleClose} sx={closePopup}><CloseIcon /></Button>
-    //     <Button onClick={() => downloadModel('vrm')}>Download VRM</Button>
-    //     <Button onClick={() => downloadModel('gltf/glb')}>Download GLB</Button>
-    //       <Button onClick={() => saveScreenshot('screenshot-canvas-wrap')}>Screenshot</Button>
-    //     <div
-    //     id="screenshot-canvas-wrap"
-    //     style={{ height: 2080, width: 2080, zoom: 0.2, background: "#111111" }}
-    //   >
         <Canvas
-          id="screenshot-scene"
+          style={canvasStyle}
+          id="mint-scene"
           gl={{ preserveDrawingBuffer: true }}
         >
           <spotLight
@@ -127,14 +88,8 @@ export default function MintModal() {
             target={[0, 1, 0]}
           />
           <PerspectiveCamera>
-            {/* {downloadPopup && ( */}
-            <TemplateModel scene={model} />
-            {/* )} */}
+            <TemplateModel scene={scene} />
           </PerspectiveCamera>
         </Canvas>
-    //   </div>
-    //     </Box>
-    //   </Modal>
-    // </div>
   );
 }
