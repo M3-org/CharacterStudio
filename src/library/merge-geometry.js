@@ -59,6 +59,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
     const morphNames = Object.keys(destMorphTargetDictionary);
     const unmerged = {};
     propertyNames.forEach((propName) => {
+        console.log(propName)
         unmerged[propName] = [];
         Object.entries(destMorphTargetDictionary).forEach(([morphName, destMorphIndex]) => {
             unmerged[propName][destMorphIndex] = [];

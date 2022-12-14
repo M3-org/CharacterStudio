@@ -168,8 +168,9 @@ async function getScreenShot() {
 }
 
 async function getScreenShotByElementId(id) {
-  let snapShotElement = document.getElementById(id);
-  return await html2canvas(snapShotElement).then(async function (canvas) {
+  const snapShotElement = document.getElementById(id);
+  console.log(snapShotElement)
+  return await html2canvas(snapShotElement, { allowTaint: true }).then(async function (canvas) {
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
       dataURL.replace(/^data:image\/\w+;base64,/, ""),

@@ -48,8 +48,10 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
-        if (geometry.morphAttributes.position)
+        if (geometry.morphAttributes.position){
             console.log(mesh)
+            console.log(geometry)
+        }
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
@@ -71,7 +73,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
         map: textures["diffuse"],
     });
     vrmMaterial.uniforms.map = textures["diffuse"];
-    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];;
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
 
     material.userData.vrmMaterial = vrmMaterial;
     const mesh = new THREE.SkinnedMesh(geometry, material);

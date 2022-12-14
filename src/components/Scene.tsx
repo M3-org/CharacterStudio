@@ -132,6 +132,23 @@ export default function Scene() {
     sceneService.download(model, `CC_Model`, format, false);
   }
 
+  function saveBlobAsFile(blob, fileName) {
+    const reader = new FileReader();
+
+    reader.onloadend = function () {    
+        const base64 = reader.result;
+        const link = document.createElement("a");
+
+        document.body.appendChild(link); // for Firefox
+
+        link.setAttribute("href", base64);
+        link.setAttribute("download", fileName);
+        link.click();
+    };
+
+    reader.readAsDataURL(blob);
+  }
+
   const mintAsset = async () => {
     if(account == undefined) {
         setMintStatus("Please connect the wallet")
@@ -144,6 +161,9 @@ export default function Scene() {
         
         sceneService.getScreenShot().then(async (screenshot) => {
           if(screenshot) {
+            console.log("SCREENSHOT")
+            saveBlobAsFile(screenshot, "test")
+            console.log(screenshot)
             const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
               .catch((reason)=>{
                 console.error(reason);
@@ -164,6 +184,9 @@ export default function Scene() {
               const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
               await mintNFT("ipfs://" + metaDataHash.IpfsHash);
             })
+          }
+          else{
+            console.log("no screenshot")
           }
         })
   }

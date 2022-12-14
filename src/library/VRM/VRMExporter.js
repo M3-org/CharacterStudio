@@ -164,7 +164,9 @@ export default class VRMExporter {
             const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
             mesh.geometry.userData.targetNames = [];
             for (const prop in mesh.morphTargetDictionary){
-                mesh.geometry.userData.targetNames.push(prop);
+                //mesh.geometry.userData.targetNames.push(prop);
+
+                
                // console.log(mesh.morphTargetDictionary[prop]);
                // console.log(prop)
 
