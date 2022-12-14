@@ -272,6 +272,7 @@ export function mergeGeometry({ meshes }) {
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
     });
+    console.log(dest.morphTargetInfluences);
     dest.index = mergeSourceIndices({ meshes });
     //disable for now cuz no animations.
     // dest.animations = remapAnimationClips({

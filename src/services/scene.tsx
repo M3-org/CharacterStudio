@@ -603,6 +603,7 @@ async function download(
     };
 
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
+    
     exporter.parse(
       avatar,
       function (result) {
@@ -627,7 +628,7 @@ async function download(
     
 
     const avatar = await combine({transparentColor:skinColor, avatar: avatarSceneClone, atlasSize });  
-
+    console.log(avatar)
     // change material array to the single atlas material
     avatarModel.materials = [avatar.userData.atlasMaterial];
 

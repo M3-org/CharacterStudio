@@ -196,6 +196,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
         bakeObjects.push({ material, mesh });
     }
     else {
+      console.log("merging!")
       const { source, dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
       bakeObject.mesh.geometry = dest;
       console.log('baked new geometry', bakeObject);
