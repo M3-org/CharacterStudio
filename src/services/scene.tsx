@@ -163,14 +163,20 @@ async function getModelFromScene(format = 'glb') {
   }
 }
 
-async function getScreenShot() {
-  return await getScreenShotByElementId("editor-scene")
+async function getScreenShot(delay?) {
+  delay = delay || 0;
+  await timeout(delay)
+  return await getScreenShotByElementId("mint-scene")
+
+}
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function getScreenShotByElementId(id) {
   const snapShotElement = document.getElementById(id);
   console.log(snapShotElement)
-  return await html2canvas(snapShotElement, { allowTaint: true }).then(async function (canvas) {
+  return await html2canvas(snapShotElement).then(async function (canvas) {
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
       dataURL.replace(/^data:image\/\w+;base64,/, ""),

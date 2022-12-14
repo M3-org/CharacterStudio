@@ -148,6 +148,13 @@ const useControls = create((set) => ({
     controls: {},
     setControls: (value) => set((state) => ({
         controls: value
+    })),
+}))
+
+const useCamera = create((set) => ({
+    camera: {},
+    setCamera: (value) => set((state) => ({
+        camera: value
     }))
 }))
 
@@ -217,6 +224,7 @@ export {
     useCategory,
     useTemplateInfo,
     useModel,
+    useCamera,
     useControls,
     useConfirmWindow,
     useMintLoading,

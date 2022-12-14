@@ -19,7 +19,8 @@ import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
+import { useThree } from "@react-three/fiber";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -31,7 +32,7 @@ const ACCOUNT_DATA = {
 export default function Scene() {
   const [showType, setShowType] = useState(false);
 
-  const [camera, setCamera] = useState<object>(Object);
+  //const [camera, setCamera] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
   const [autoRotate, setAutoRotate] = useState(true);
@@ -43,6 +44,9 @@ export default function Scene() {
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const model = useModel((state) => state.model)
   const setControls = useControls((state) => state.setControls)
+  const setCamera = useCamera((state) => state.setCamera)
+  const camera = useCamera((state) => state.camera)
+  const controls = useControls((state) => state.controls)
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
@@ -58,6 +62,7 @@ export default function Scene() {
   });
 
   const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
+
 
   const connectWallet = async () => {
     try {
@@ -132,22 +137,73 @@ export default function Scene() {
     sceneService.download(model, `CC_Model`, format, false);
   }
 
-  function saveBlobAsFile(blob, fileName) {
-    const reader = new FileReader();
+  // const currentControlPos = () =>{
+  //   return {
+  //     minDistance: controls.getDistance(),
+  //     maxDistance: controls.getDistance(),
+  //     minPolarAngle: controls.getPolarAngle(),
+  //     maxPolarAngle: controls.getPolarAngle(),
+  //     minAzimuthAngle: controls.getAzimuthalAngle(),
+  //     maxAzimuthAngle: controls.getAzimuthalAngle()
+  //   }
+  // }
+  // const currentControlLimits = () =>{
+  //   return {
+  //     minDistance: controls.minDistance,
+  //     maxDistance: controls.maxDistance,
+  //     minPolarAngle: controls.minPolarAngle,
+  //     maxPolarAngle: controls.maxPolarAngle,
+  //     minAzimuthAngle: controls.minAzimuthAngle,
+  //     maxAzimuthAngle: controls.maxAzimuthAngle
+  //   }
+  // }
+  // const setControlPos = (values) => {
+  //   controls.minDistance = values.minDistance,
+  //   controls.maxDistance = values.maxDistance,
+  //   controls.minPolarAngle = values.minPolarAngle,
+  //   controls.maxPolarAngle = values.maxPolarAngle,
+  //   controls.minAzimuthAngle = values.minAzimuthAngle,
+  //   controls.maxAzimuthAngle = values.maxAzimuthAngle
+  // }
+  // let origControlPos = {};
+  // let origControlLimits ={};
+  // const setScreenshotCam = (set: boolean) => {
 
-    reader.onloadend = function () {    
-        const base64 = reader.result;
-        const link = document.createElement("a");
+  //   if (set){
+  //     // save controls original positions
+  //     origControlPos = currentControlPos();
+  //     origControlLimits = currentControlLimits();
+  //     setControlPos({
+  //       maxDistance:1.3,
+  //       minDistance:1.3,
+  //       minPolarAngle:(Math.PI / 2 - 0.11),
+  //       maxPolarAngle:(Math.PI / 2 - 0.11),
+  //       minAzimuthAngle: - 0,
+  //       maxAzimuthAngle: - 0,
+  //     })
+  //   }
+  //   else{
+  //     setControlPos(origControlPos);
+  //     setControlPos(origControlLimits);
+  //   }
+  // }
 
-        document.body.appendChild(link); // for Firefox
+  // function saveBlobAsFile(blob, fileName) {
+  //   const reader = new FileReader();
 
-        link.setAttribute("href", base64);
-        link.setAttribute("download", fileName);
-        link.click();
-    };
+  //   reader.onloadend = function () {    
+  //       const base64 = reader.result;
+  //       const link = document.createElement("a");
 
-    reader.readAsDataURL(blob);
-  }
+  //       document.body.appendChild(link); // for Firefox
+
+  //       link.setAttribute("href", base64);
+  //       link.setAttribute("download", fileName);
+  //       link.click();
+  //   };
+
+  //   reader.readAsDataURL(blob);
+  // }
 
   const mintAsset = async () => {
     if(account == undefined) {
@@ -161,9 +217,6 @@ export default function Scene() {
         
         sceneService.getScreenShot().then(async (screenshot) => {
           if(screenshot) {
-            console.log("SCREENSHOT")
-            saveBlobAsFile(screenshot, "test")
-            console.log(screenshot)
             const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
               .catch((reason)=>{
                 console.error(reason);
@@ -185,10 +238,8 @@ export default function Scene() {
               await mintNFT("ipfs://" + metaDataHash.IpfsHash);
             })
           }
-          else{
-            console.log("no screenshot")
-          }
         })
+
   }
 
   const getAvatarTraits = () => {
@@ -256,13 +307,16 @@ export default function Scene() {
   
   return (
     <FitParentContainer >
+      
+
+
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {0}>
+        <ResizeableCanvas left = {leftPadding} right = {0}  >
           <Canvas
+            id = "editor-scene"
             style = {canvasStyle}
-            gl={{ antialias: true, toneMapping: NoToneMapping }}
+            gl={{ antialias: true, toneMapping: NoToneMapping}}
             linear = {true}
-            id="editor-scene"
           >
             <gridHelper
               args={[50, 25, "#101010", "#101010"]}
@@ -273,6 +327,7 @@ export default function Scene() {
               color={[1,1,1]}
               intensity={0.5}
             />
+            
             <directionalLight 
               //castShadow = {true}
               intensity = {0.5} 
@@ -286,6 +341,7 @@ export default function Scene() {
                 top={20} 
                 bottom={-20}/>
             </directionalLight>
+            
             <OrbitControls
               ref = {setControls}
               minDistance={0.5}
@@ -298,6 +354,7 @@ export default function Scene() {
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
+           
             {/* <Suspense fallback={null}>
               <EffectComposer>
                 <Bloom />

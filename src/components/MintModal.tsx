@@ -46,15 +46,28 @@ export default function MintModal() {
         <Canvas
           style={canvasStyle}
           id="mint-scene"
-            gl={{ antialias: true, toneMapping: NoToneMapping }}
+            gl={{ antialias: true, toneMapping: NoToneMapping,preserveDrawingBuffer:true }}
+            linear = {true}
         >
+          <ambientLight
+              color={[1,1,1]}
+              intensity={0.5}
+            />
+            
+            <directionalLight 
+              //castShadow = {true}
+              intensity = {0.5} 
+              //color = {[0.5,0.5,0.5]}
+              position = {[3, 1, 5]} 
+              shadow-mapSize = {[1024, 1024]}>
+            </directionalLight>
           <OrbitControls
             minDistance={1.5}
             maxDistance={1.5}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={false}
-            target={[0, 1, 0]}
+            target={[0, 0.9, 0]}
           />
           <PerspectiveCamera>c
             <TemplateModel scene={model.scene.clone()} />
