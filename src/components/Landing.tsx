@@ -8,22 +8,19 @@ import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import ModelCanvas from './ModelCanvas';
 import { LandingPop } from './LandingPop';
-import { useMuteStore, useModelingStore, useDefaultTemplates } from '../store'
+import { useMuteStore, useModelingStore, useDefaultTemplates, usePreModelClass } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 
 export default function Landing(props){
 
-    const {
-        onSetModel,
-    }:any = props;
-    
     const isMute = useMuteStore((state) => state.isMute)
     const setMute = useMuteStore((state) => state.setMute)
 
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
     const defaultTemplates = useDefaultTemplates((state) => state.defaultTemplates)
+    const setPreModelClass = usePreModelClass((state) => state.setPreModelClass)
 
     const [clicked, setClicked] = useState(false);
 
@@ -131,7 +128,7 @@ export default function Landing(props){
         })
         setBackgroundAnimation(true)
         setTimeout(() => {
-            onSetModel(type)    
+            setPreModelClass(type)    
         }, 500)
     }
     return (
