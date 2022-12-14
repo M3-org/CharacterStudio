@@ -17,9 +17,9 @@ export default [
         "Headbaked_2",
         "Headbaked_1",
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
+    "traitsDirectory": "./loot-assets/drophunter_female/",
+    "thumbnailsDirectory": "./loot-assets/drophunter_female/",
+    "traitsJsonPath": "./loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_female.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{

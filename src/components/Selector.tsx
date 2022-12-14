@@ -56,6 +56,8 @@ export default function Selector() {
   const [loaded, setLoaded] = useState(false)
   let loadedPercent = Math.round(loadingTrait?.loaded * 100 / loadingTrait?.total);
   
+  const [textureOptions, setTextureOptions] = useState(true);
+
   const [ inverse, setInverse ] = useState(false)
   const container = React.useRef();
   const [play] = useSound(
@@ -244,10 +246,11 @@ export default function Selector() {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
+    
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
-        
+        setTextureOptions(false);
         if (avatar[traitName] && avatar[traitName].vrm) {
           sceneService.disposeVRM(avatar[traitName].vrm)
           setAvatar({
@@ -257,6 +260,13 @@ export default function Selector() {
         }
         //sceneService.
       } else {
+        
+        if (trait.textures){
+          setTextureOptions(true);
+        }
+        else{
+          setTextureOptions(false);
+        }
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
         } else {
@@ -625,38 +635,7 @@ const getActiveStatus = (item) => {
             {templateInfo?.traitsDirectory && (
               <div className="traits" >
                 {category === "color" ? (
-                  <div className="sub-category">
-                    <div className="sub-category-header">
-                      <ColorSelectButton 
-                        text="Skin"
-                        selected = {colorCategory === 'color'}
-                        onClick = {() => {
-                          setColorCategory('color')
-                          selectOption({
-                            cameraTarget:{
-                              distance:1.4,
-                              height:0.8
-                          }})
-                        }}
-                      />
-                      <ColorSelectButton 
-                        text="Eye Color"
-                        selected = {colorCategory === 'eyeColor'}
-                        onClick = {() => {
-                          setColorCategory('eyeColor')
-                          selectOption({
-                            cameraTarget:{
-                              distance:0.5,
-                              height:1.45
-                          }})
-                        }}
-                      />
-                    </div>
-                    <Skin
-                      category={colorCategory}
-                      avatar={avatar}
-                    />
-                  </div>
+                  <div/>
                 ) : (
                   (category !== 'head' || hairCategory !== 'color') ? 
                       <React.Fragment>
@@ -676,11 +655,8 @@ const getActiveStatus = (item) => {
                             return (
                               <div
                                 key={index}
-                                style={
-                                  getActiveStatus(item) ? selectorButtonActive : selectorButton
-                                }
-                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                                  }`}
+                                style={getActiveStatus(item) ? selectorButtonActive : selectorButton }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
                                 onClick={() => {
                                   !isMute && play();
                                   selectTrait(item)
@@ -688,13 +664,10 @@ const getActiveStatus = (item) => {
                               >
                                 <img 
                                   className="trait-icon"
-                                  src={
-                                    item.thumbnailsDirectory
-                                      ? item.thumbnail
-                                      : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                                  }
+                                  src={ item.thumbnailsDirectory ? item.thumbnail: `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}` }
                                 />
-                                <img src={tick}
+                                <img 
+                                  src={tick}
                                   className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
                                 />
                                 {selectValue === item?.id && loadedPercent > 0 && (
