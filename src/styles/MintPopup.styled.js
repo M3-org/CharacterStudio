@@ -14,12 +14,12 @@ export const StyledContainer = styled.div`
         'hidden'};
 `
 export const Title = styled.div`
-    height: 40px;
     display: flex;
     justify-content: center;
     text-align: center;
     align-items: center;
     font-size:1.2rem;
+    padding: 45px;
 `
 export const Buttons = styled.div`
     display: flex;
@@ -43,7 +43,8 @@ export const StyledBackground = styled.div`
 `
 export const StyledPopup = styled.div`
     width: 600px;
-    height: 200px;
+    display:flex;
+    flex-direction: column;
     position: relative;
     background-color: #1716168D;
     border-color: #38404E;
@@ -54,7 +55,6 @@ export const StyledPopup = styled.div`
     margin: auto;
     border-radius: 10px;
     color:white;
-
     text-align:center;
     justify-content: space-evenly;
     display: flex;
@@ -73,6 +73,51 @@ export const Button1 = styled.button`
     color:white;
     font-size:1.2rem;
     text-align: center;
+`
+export const Header = styled.div`
+        border-bottom: 3px solid #3A7484;
+        width: 100%;
+        padding: 5px 0px;
+        .mintStatus{
+            display : flex;
+        }
+        .mintTitle{
+            font-family : 'Proxima';
+            font-weight: 800;
+            font-size: 32px;
+            line-height: 32px;
+        }
+`
+export const ButtonPanel = styled.div`
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        margin: 10px;
+`
+export const TraitDetail = styled.div`
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 20px;
+`
 
-    
+export const TraitImage = styled.img`
+    height: ${props => props.height || '100%'};
+    src: ${props => props.src || ''};
+   
+`
+export const TraitText = styled.span`
+    font-family: 'Proxima';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 91.3%;
+    color: #FFFFFF;
+`
+
+export const TraitBox = styled.div`
+        min-width: 246px;
+        display: flex;
+        justify-content: left;
+        align-items: center;
 `
