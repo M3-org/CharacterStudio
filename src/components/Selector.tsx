@@ -243,25 +243,14 @@ export default function Selector() {
   }
   
   const selectTexture = (traitTexture:any) => {
-    console.log(traitTexture);
-    console.log(category)
-    console.log(collection)
-    console.log(avatar)
-    console.log(avatar[category].model)
-    
     new THREE.TextureLoader().load(`${templateInfo.traitsDirectory}${traitTexture?.directory}`, (txt)=>{
       txt.flipY = false; 
-      console.log("enters")
-      //console.log(object.material[0].uniforms.map)
       avatar[category].model.traverse((child)=>{
         if (child.isMesh){
-          console.log("meshes")
           child.material[0].map = txt;
           child.material[0].shadeMultiplyTexture = txt;
         }
       })
-      
-      //setTimeout(() => {setLoadingTraitOverlay(false)},500)
     })
   }
 
