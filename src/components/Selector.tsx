@@ -56,7 +56,8 @@ export default function Selector() {
   const [loaded, setLoaded] = useState(false)
   let loadedPercent = Math.round(loadingTrait?.loaded * 100 / loadingTrait?.total);
   
-  const [textureOptions, setTextureOptions] = useState(true);
+  const [textureOptions, setTextureOptions] = useState([])
+  const [selectionMode, setSelectionMode] = useState(0); // 0 base, 1 texture, 2 color
 
   const [ inverse, setInverse ] = useState(false)
   const container = React.useRef();
@@ -241,6 +242,28 @@ export default function Selector() {
     })
   }
   
+  const selectTexture = (traitTexture:any) => {
+    console.log(traitTexture);
+    console.log(category)
+    console.log(collection)
+    console.log(avatar)
+    console.log(avatar[category].model)
+    
+    new THREE.TextureLoader().load(`${templateInfo.traitsDirectory}${traitTexture?.directory}`, (txt)=>{
+      txt.flipY = false; 
+      console.log("enters")
+      //console.log(object.material[0].uniforms.map)
+      avatar[category].model.traverse((child)=>{
+        if (child.isMesh){
+          console.log("meshes")
+          child.material[0].map = txt;
+          child.material[0].shadeMultiplyTexture = txt;
+        }
+      })
+      
+      //setTimeout(() => {setLoadingTraitOverlay(false)},500)
+    })
+  }
 
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
@@ -250,7 +273,7 @@ export default function Selector() {
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
-        setTextureOptions(false);
+        setTextureOptions([]);
         if (avatar[traitName] && avatar[traitName].vrm) {
           sceneService.disposeVRM(avatar[traitName].vrm)
           setAvatar({
@@ -262,10 +285,10 @@ export default function Selector() {
       } else {
         
         if (trait.textures){
-          setTextureOptions(true);
+          setTextureOptions(trait.textures);
         }
         else{
-          setTextureOptions(false);
+          setTextureOptions([]);
         }
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
@@ -273,6 +296,7 @@ export default function Selector() {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           templateInfo.selectionTraits.map((item) =>{
+            console.log(item)
             if(item.name === category && item.type === "texture"){
               textureTraitLoader(item, trait)
             }else if(item.name === category){
@@ -285,10 +309,11 @@ export default function Selector() {
     setSelectValue(trait?.id)
   }
   let loading;
-  const itemLoader =  async(item, traits = null, addToScene = true) => {
-  let r_vrm;
 
-  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
+  const itemLoader =  async(item, traits = null, addToScene = true) => {
+    let r_vrm;
+
+    await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
       //console.log(item)
       sceneService.addModelData(vrm,{
@@ -521,6 +546,7 @@ const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
 
 const textureTraitLoader =  (props, trait) => {
   console.log(props.target)
+
   if (typeof props.target != 'string'){
     for (let i =0; i < props.target.length ; i ++){
       const object = scene.getObjectByName(props.target[i]);
@@ -535,7 +561,7 @@ const textureTraitLoader =  (props, trait) => {
 
           console.log(texture)
           //console.log(object)
-        const txrt = new THREE.TextureLoader().load(texture, (txt)=>{
+        new THREE.TextureLoader().load(texture, (txt)=>{
           txt.flipY = false; 
           //console.log(object.material[0].uniforms.map)
           object.material[0].map = txt;
@@ -610,34 +636,36 @@ const getActiveStatus = (item) => {
           </div>
           <div className="traitPanel">
               {
-                category === 'head' && 
+                //category === 'head' && 
                   (
                     <div 
                       className="hair-sub-category"
                     >
                       <ColorSelectButton 
-                        text="Hair"
+                        text="Model"
                         selected = {hairCategory === 'style'}
                         onClick = {() => {
-                          setHairCategory('style')
+                          setSelectionMode(0);
+                          //setHairCategory('style')
                         }}
                       />
+                      {
+                      textureOptions.length>0 && (
                       <ColorSelectButton 
                         text="Color"
                         selected = {hairCategory === 'color'}
                         onClick = {() => {
-                          setHairCategory('color')
+                          setSelectionMode(1);
+                          //setHairCategory('color')
                         }}
-                      />
+                      />)
+                      }
                     </div>
                   )
               }
             {templateInfo?.traitsDirectory && (
               <div className="traits" >
-                {category === "color" ? (
-                  <div/>
-                ) : (
-                  (category !== 'head' || hairCategory !== 'color') ? 
+                {(category !== 'head' || hairCategory !== 'color') ? 
                       <React.Fragment>
                         <div
                           className={noTrait ? "selectorButtonActive" : "selectorButton" }
@@ -650,7 +678,7 @@ const getActiveStatus = (item) => {
                             src={cancel}
                           />
                         </div>
-                        {collection &&
+                        {selectionMode === 0 && collection &&
                           collection.map((item: any, index) => {
                             return (
                               <div
@@ -679,7 +707,42 @@ const getActiveStatus = (item) => {
                                 )}
                               </div>
                             )
-                          })}
+                          })
+                        }
+                        {/* to - do, set this to be with a fn rather than duplicating */}
+                        {selectionMode === 1 && collection &&
+                          textureOptions.map((item: any, index) => {
+                            return (
+                              <div
+                                key={index}
+                                style={getActiveStatus(item) ? selectorButtonActive : selectorButton }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
+                                onClick={() => {
+                                  !isMute && play();
+                                  console.log(item);
+                                  selectTexture(item)
+                                  //selectTrait(item)
+                                }}
+                              >
+                                <img 
+                                  className="trait-icon"
+                                  src={ item.thumbnailsDirectory ? item.thumbnail: `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}` }
+                                />
+                                <img 
+                                  src={tick}
+                                  className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
+                                />
+                                {selectValue === item?.id && loadedPercent > 0 && (
+                                  <div
+                                    className="loading-trait"
+                                  >
+                                    {loadedPercent}%
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })
+                        }
                         <div className="icon-hidden">
                           <Avatar className="icon" />
                         </div>
@@ -690,7 +753,7 @@ const getActiveStatus = (item) => {
                         avatar={avatar}
                       />
                     )
-                )}
+                }
               </div>
             )}
           </div>
