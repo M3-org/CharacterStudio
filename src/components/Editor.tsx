@@ -38,7 +38,7 @@ export default function Editor() {
       }
       else{ 
         sethidden (true);
-        moveCamera({height:0.9, distance:2});
+        moveCamera({height:0.8, distance:3.2});
       }
     }
     else sethidden(false);
