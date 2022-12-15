@@ -285,7 +285,6 @@ export default function Selector() {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           templateInfo.selectionTraits.map((item) =>{
-            console.log(item)
             if(item.name === category && item.type === "texture"){
               textureTraitLoader(item, trait)
             }else if(item.name === category){
@@ -534,7 +533,6 @@ const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
 }
 
 const textureTraitLoader =  (props, trait) => {
-  console.log(props.target)
 
   if (typeof props.target != 'string'){
     for (let i =0; i < props.target.length ; i ++){
@@ -548,7 +546,6 @@ const textureTraitLoader =  (props, trait) => {
         else  //else grab the latest texture in the array
           texture = templateInfo.traitsDirectory + trait?.directory[trait?.directory.length-1];
 
-          console.log(texture)
           //console.log(object)
         new THREE.TextureLoader().load(texture, (txt)=>{
           txt.flipY = false; 
@@ -572,11 +569,9 @@ const textureTraitLoader =  (props, trait) => {
   }
   else{
     const object = scene.getObjectByName(props.target);
-    console.log(object)
     const texture = typeof trait?.directory === 'string' ? 
       templateInfo.traitsDirectory + trait?.directory : 
       templateInfo.traitsDirectory + trait?.directory[0];
-      console.log(texture)
       new THREE.TextureLoader().load(texture, (txt)=>{
         txt.flipY = false; 
         object.material[0].map = txt;
@@ -708,7 +703,6 @@ const getActiveStatus = (item) => {
                                 className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
                                 onClick={() => {
                                   !isMute && play();
-                                  console.log(item);
                                   selectTexture(item)
                                   //selectTrait(item)
                                 }}

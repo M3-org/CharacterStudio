@@ -17,9 +17,9 @@ export default [
         "Headbaked_2",
         "Headbaked_1",
     ],
-    "traitsDirectory": "./loot-assets/drophunter_female/",
-    "thumbnailsDirectory": "./loot-assets/drophunter_female/",
-    "traitsJsonPath": "./loot-assets/drophunter_female/loot.json",
+    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
+    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
+    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_webaverse.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{
@@ -132,9 +132,9 @@ export default [
     "EyeTargets": [
       "Head006"
     ],
-    "traitsDirectory": "./loot-assets/neurohacker_male/",
-    "thumbnailsDirectory": "./loot-assets/neurohacker_male/",
-    "traitsJsonPath": "./loot-assets/neurohacker_male/loot.json",
+    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker_male/",
+    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker_male/",
+    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker_male/loot.json",
     "animationPath": "./3d/animations/idle_male.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{

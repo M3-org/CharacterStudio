@@ -40,7 +40,6 @@ function initialize(width = 1024, height = 1024){
     renderer.setSize( width, height );
     renderer.setClearColor( new THREE.Color(1,1,1), 1 );
     renderer.autoClear = false;
-    console.log(renderer);
 
     container.appendChild(renderer.domElement);
 }

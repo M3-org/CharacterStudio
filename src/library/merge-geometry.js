@@ -59,7 +59,6 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
     const morphNames = Object.keys(destMorphTargetDictionary);
     const unmerged = {};
     propertyNames.forEach((propName) => {
-        console.log(propName)
         unmerged[propName] = [];
         Object.entries(destMorphTargetDictionary).forEach(([morphName, destMorphIndex]) => {
             unmerged[propName][destMorphIndex] = [];
@@ -273,7 +272,6 @@ export function mergeGeometry({ meshes }) {
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
     });
-    console.log(dest.morphTargetInfluences);
     dest.index = mergeSourceIndices({ meshes });
     //disable for now cuz no animations.
     // dest.animations = remapAnimationClips({

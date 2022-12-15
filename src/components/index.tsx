@@ -136,7 +136,6 @@ export default function CharacterEditor(props: any) {
       // load the avatar
       sceneService.loadModel(templateInfo.file)
         .then(async (vrm)=>{
-          console.log(vrm.scene)
           //setLoadingProgress(100);
           const animationManager = new AnimationManager(templateInfo.offset);
           sceneService.addModelData(vrm, {animationManager:animationManager});

@@ -133,12 +133,6 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
     return new BufferAttribute(indexArr,1,false);
 }
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr) =>{
-    if (faceNormals){
-        console.log("by face normals");
-    }
-    else{
-        console.log("by vertices");
-    }
     const indexCustomArr = [];
     // we should make this data editable by user
 

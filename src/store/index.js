@@ -87,7 +87,6 @@ const useAvatar = create((set) => ({
         solo:{}
     },
     setAvatar: (value) => {
-        console.log(value);
         set((state) => ({
             avatar: value
         }))

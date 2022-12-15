@@ -46,7 +46,7 @@ export default class VRMExporter {
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
-        console.log(vrm)
+        //console.log(vrm)
         //const blendShapeProxy = vrm.blendShapeProxy;
         const lookAt = vrm.lookAt;
         const springBone = vrm.springBoneManager;
@@ -157,9 +157,9 @@ export default class VRMExporter {
                 // throw new Error(mesh.name + " morphTargetDictionary is null");
             }
             else{
-                console.log(mesh.morphTargetDictionary)
-                console.log(mesh.geometry.morphAttributes)
-                console.log("it has")
+                // console.log(mesh.morphTargetDictionary)
+                // console.log(mesh.geometry.morphAttributes)
+                // console.log("it has")
             }
             const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
             mesh.geometry.userData.targetNames = [];
@@ -181,9 +181,9 @@ export default class VRMExporter {
                 mesh.geometry.userData.targetNames.forEach((targetName, index) => {
                     const morphIndex = morphIndexPair.filter((pair) => pair[0] === index.toString())[0][1];
                     const morphAttribute = mesh.geometry.morphAttributes;
-                    console.log(morphAttribute);
-                    console.log(targetName)
-                    console.log(index)
+                    // console.log(morphAttribute);
+                    // console.log(targetName)
+                    // console.log(index)
                     meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
                     meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
                 }); 

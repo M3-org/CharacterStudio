@@ -175,7 +175,6 @@ function timeout(ms) {
 
 async function getScreenShotByElementId(id) {
   const snapShotElement = document.getElementById(id);
-  console.log(snapShotElement)
   return await html2canvas(snapShotElement).then(async function (canvas) {
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
@@ -635,7 +634,6 @@ async function download(
     
 
     const avatar = await combine({transparentColor:skinColor, avatar: avatarSceneClone, atlasSize });  
-    console.log(avatar)
     // change material array to the single atlas material
     avatarModel.materials = [avatar.userData.atlasMaterial];
 
