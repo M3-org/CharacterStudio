@@ -19,6 +19,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRM  } from "@pixiv/three-vrm"
 import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
+import drophunterIcon from '../ui/DropHunter.svg'
+import neuralhackerIcon from '../ui/NeuralHacker.svg'
 
 export default function Landing(props){
 
@@ -228,7 +230,7 @@ export default function Landing(props){
                                 maxWidth: "30vh",
                                 minWidth: "30em"
                             }}
-                        src={"public/DropHunter.svg"} />
+                        src={drophunterIcon} />
                     </div>
 
                     <div className="neurohacker" style={{
@@ -259,7 +261,7 @@ export default function Landing(props){
                                 maxWidth: "30vh",
                                 minWidth: "30em"
                             }}
-                            src={"public/NeuralHacker.svg"}
+                            src={neuralhackerIcon}
                         />
                     </div>
 

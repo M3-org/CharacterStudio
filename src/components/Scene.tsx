@@ -277,7 +277,7 @@ export default function Scene() {
             <OrbitControls
               ref = {setControls}
               minDistance={1}
-              maxDistance={3}
+              maxDistance={5}
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}

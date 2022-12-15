@@ -164,7 +164,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
 
             // move the origin away to have the raycast being casted from outside
-            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distance))
+            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distIn))
             
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
