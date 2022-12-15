@@ -17,8 +17,6 @@ export const CullHiddenFaces = async(meshes) => {
     const culls = [];
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
-        if (mesh.userData.cullDistance != null)
-            console.log(mesh.userData.cullDistance);
         if (mesh.userData.cullLayer != null){
             if (mesh.userData.origIndexBuffer == null)
                 mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
@@ -54,23 +52,21 @@ export const CullHiddenFaces = async(meshes) => {
 
                 const boneDirections = mesh.geometry.userData.boneDirections;
                 
-                //mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr));
+                mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance));
                 
-                mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr, mesh.userData.cullDistance));
+                //mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr, mesh.userData.cullDistance));
             }
         }
         hitArr = [...hitArr, ...culls[i]]
     }
 }
 
-
-const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, distanceArr, debug=false) =>{
-    const indexCustomArr = [];
-    // we should make this data editable by user
+const getDistanceInOut = (distanceArr) => {
     let distIn = distance;
     let distOut = distanceAfter;
 
-    if (intersectModels){
+    // distance set by the user in an array form (ditance far, distance after)
+    if (distanceArr){
         if (!isNaN(distanceArr)){   // is its a number
             distIn = distanceArr;
         }
@@ -85,10 +81,18 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
             }
         }
     }
+
+    return [distIn, distOut]
+}
+
+const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, distanceArr, debug=false) =>{
+    const indexCustomArr = [];
+
+    const distArr = getDistanceInOut(distanceArr);
+    let distIn = distArr[0];
+    let distOut = distArr[1];
     
     raycaster.far = distIn + distOut;
-    if (distOut != distanceAfter)
-        console.log(distOut);
     
     for (let i =0; i < index.length/3 ;i++){
 
@@ -128,10 +132,21 @@ const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, inters
     const indexArr = new Uint32Array(indexCustomArr);
     return new BufferAttribute(indexArr,1,false);
 }
-const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels) =>{
+const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr) =>{
+    if (faceNormals){
+        console.log("by face normals");
+    }
+    else{
+        console.log("by vertices");
+    }
     const indexCustomArr = [];
     // we should make this data editable by user
-    raycaster.far = distance + distanceAfter;
+
+    const distArr = getDistanceInOut(distanceArr);
+    let distIn = distArr[0];
+    let distOut = distArr[1];
+
+    raycaster.far = distIn + distOut;
     
     for (let i =0; i < index.length/3 ;i++){
 

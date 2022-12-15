@@ -26,11 +26,11 @@ export default function Landing(props){
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const f_dropHunter = "../3d/models/landing/landing_f_drophunter.vrm"
+    const f_dropHunter = "../3d/models/landing/drop.vrm"
     const m_dropHunter = "../3d/models/landing/landing_m_drophunter.vrm"
 
     const f_neuroHacker = "../3d/models/landing/f_neurohacker.vrm"
-    const m_neuroHacker = "../3d/models/landing/m_neurohacker.vrm"
+    const m_neuroHacker = "../3d/models/landing/neuro.vrm"
 
     const anim_female = "../3d/animations/idle_female.fbx";
     const anim_male = "../3d/animations/idle_male.fbx";
@@ -43,13 +43,13 @@ export default function Landing(props){
         {
             index: 1,
             model: f_dropHunter,
-            text: 'Drop Hunter',
+            text: 'Dropunter',
             animation: anim_female
         },
         {
             index: 2,
-            model: m_dropHunter,
-            text: 'Drop Hunter',
+            model: m_neuroHacker,
+            text: 'Neurohacker',
             animation: anim_male
         },
         
