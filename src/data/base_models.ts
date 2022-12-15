@@ -137,14 +137,15 @@ export default [
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker_male/loot.json",
     "animationPath": "./3d/animations/idle_male.fbx",
     "traitIconsDirectory": "./3d/icons/",
-    "selectionTraits": [{
+    "selectionTraits": [
+    {
       "name": "skin",
       "icon": "skin-color.png",
       "type": "texture",
       "target": ["Body", "Headbaked(copy)"],
       "icon-gradient": "color-gradient.svg",
       "cameraTarget":{
-        "distance": 1.7,
+        "distance": 3.4,
         "height": 0.8
       }
     },
@@ -155,8 +156,8 @@ export default [
       "target": "Headbaked(copy)_1",
       "icon-gradient": "eye.svg",
       "cameraTarget":{
-        "distance": 0.7,
-        "height": 1.3
+        "distance": 1.2,
+        "height": 1.35
       }
     },{
       "name": "head",
@@ -164,8 +165,8 @@ export default [
       "type": "mesh",
       "icon-gradient": "head-gradient.svg",
       "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.5
+        "distance": 1.2,
+        "height": 1.35
       }
     },
     {
@@ -175,8 +176,8 @@ export default [
       "icon-gradient": "jacket.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1,
-        "height": 0.9
+        "distance": 1.5,
+        "height": 1
       }
     },{
       "name": "chest",
@@ -184,8 +185,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1.3,
-        "height": 0.9
+        "distance": 1.5,
+        "height": 1
       }
     },{
       "name": "accessories",
@@ -194,7 +195,7 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.8,
+        "distance": 3.4,
         "height": 0.8
       }
     },{
@@ -204,8 +205,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 2.0,
-        "height": 0.55
+        "distance": 2,
+        "height": 0.5
       }
     },{
       "name": "feet",
@@ -214,13 +215,9 @@ export default [
       "icon-gradient": "foot-gradient.svg",
       "id":5,
       "cameraTarget":{
-        "distance": 0.8,
-        "height": 0.32
+        "distance": 1.3,
+        "height": 0.2
       },
-      "eye": {
-        "distance": 0.3,
-        "height": 1.5
-      }
     }]
   } 
   ,
