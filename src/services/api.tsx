@@ -27,8 +27,7 @@ function fetchCategoryList () { //need to update
     "head",
     "neck",
     "legs",
-    "feet",
-    "outer"
+    "feet"
   ]
   return categoryList;
 } 
