@@ -19,7 +19,11 @@ export const Title = styled.div`
     text-align: center;
     align-items: center;
     font-size:1.2rem;
-    padding: 45px;
+    font-size: ${props => props.fontSize || '1.2rem'};
+    padding: ${props => props.padding || '45px'};
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
 `
 export const Buttons = styled.div`
     display: flex;
@@ -42,7 +46,7 @@ export const StyledBackground = styled.div`
     //backdrop-filter: blur(2rem);
 `
 export const StyledPopup = styled.div`
-    width: 600px;
+    width: 550px;
     display:flex;
     flex-direction: column;
     position: relative;
@@ -53,6 +57,7 @@ export const StyledPopup = styled.div`
     border-radius: 5px;
     align-items: center;
     margin: auto;
+    padding: 10px 0 30px;
     border-radius: 10px;
     color:white;
     text-align:center;
@@ -78,13 +83,16 @@ export const Header = styled.div`
         border-bottom: 3px solid #3A7484;
         width: 100%;
         padding: 5px 0px;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none; 
         .mintStatus{
             display : flex;
         }
         .mintTitle{
             font-family : 'Proxima';
             font-weight: 800;
-            font-size: 32px;
+            font-size: 20px;
             line-height: 32px;
         }
 `
@@ -97,27 +105,56 @@ export const ButtonPanel = styled.div`
 export const TraitDetail = styled.div`
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin: 20px;
+        gap: 15px;
+        margin: 20px 20px 10px 20px;
 `
 
 export const TraitImage = styled.img`
     height: ${props => props.height || '100%'};
     src: ${props => props.src || ''};
+    padding:5px;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
    
 `
 export const TraitText = styled.span`
     font-family: 'Proxima';
     font-style: normal;
     font-weight: 400;
-    font-size: 20px;
+    font-size: 15px;
+    margin:5px;
     line-height: 91.3%;
     color: #FFFFFF;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+`
+export const MintCost = styled.span`
+    font-family: 'Proxima';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    margin:0px;
+    line-height: 91.3%;
+    color: #FFFFFF;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
 `
 
 export const TraitBox = styled.div`
-        min-width: 246px;
+        width: 190px;
+        height:40px;
         display: flex;
         justify-content: left;
+        align-items: center;
+`
+
+export const MintPriceBox = styled.div`
+        width: 390px;
+        height:50px;
+        display: flex;
+        justify-content: center;
         align-items: center;
 `

@@ -29,13 +29,14 @@ const style = {
 
 const canvasStyle = {
   right: '0',
-  width: '528px',
+  width: '390px',
   color: "#999999",
-  height: "295px",
+  height: "220px",
   background: "#40455A",
   border: "1px solid #303949",
   backdropFilter: "blur(22.5px)",
   borderRadius: '5px',
+  marginTop:'10px'
 }
 
 export default function MintModal() {

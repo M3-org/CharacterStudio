@@ -12,7 +12,7 @@ const style = styled.div`
         font-family: 'Proxima';
         font-style: normal;
         font-weight: 400;
-        font-size: 25px;
+        font-size: 20px;
         line-height: 50px;
         cursor: pointer;
         color: rgba(255, 255, 255, 0.3);

@@ -5,6 +5,7 @@ import hoverButton from '../../src/ui/backButton_white.png'
 const style = styled.div`
     {   //'url(' + svgSoundOff + ');' : 
         background : ${'url('+ backButton + ') center center no-repeat;'};
+        background-size: 45% 55%;
         width: 74px;
         height: 74px;
         border: 1px solid #434B58;
@@ -18,6 +19,7 @@ const style = styled.div`
             opacity : 1.0;
             cursor : pointer;
             background : ${'url('+ hoverButton + ') center center no-repeat;'};
+            background-size: 45% 55%;
 
         }
     }

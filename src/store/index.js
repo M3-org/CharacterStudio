@@ -174,8 +174,12 @@ const useMintLoading = create((set) => ({
 
 const useMintStatus = create((set) => ({
     mintStatus: "Please connect your wallet.",
+    mintCost: 0.1,
     setMintStatus: (value) => set((state) => ({
         mintStatus: value
+    })),
+    setMintCost: (value) => set((state) => ({
+        mintCost: value
     }))
 }))
 

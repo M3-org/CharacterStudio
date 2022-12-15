@@ -1,10 +1,12 @@
-import { StyledBackground, StyledPopup,StyledContainer, Button1, Title, Buttons, Header, ButtonPanel,TraitDetail, TraitImage,TraitText, TraitBox } from '../styles/MintPopup.styled.js'
+import { StyledBackground,MintPriceBox, MintCost, StyledPopup,StyledContainer, Button1, Title, Buttons, Header, ButtonPanel,TraitDetail, TraitImage,TraitText, TraitBox } from '../styles/MintPopup.styled.js'
 import React, { useState, useEffect } from "react";
 import {useAvatar, useConfirmWindow, useMintLoading, useMintStatus, useTemplateInfo, useColorStatus, useDefaultTemplates, useModelClass, useMintDone } from "../store";
 import MintModal from './MintModal';
 import walletErrorImage from '../ui/mint/walletError.png'
 import mintPopupImage from '../ui/mint/mintPopup.png'
+import polygonIcon from '../ui/mint/polygon.png'
 import StyledButton from '../styles/ColorSelectButtonStyle';
+
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 
 export default function MintPopup({
@@ -16,6 +18,7 @@ export default function MintPopup({
     const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
     const mintLoading = useMintLoading((state) => state.mintLoading)
     const mintStatus = useMintStatus((state) => state.mintStatus)
+    const mintCost = useMintStatus((state) => state.mintCost)
     const templateInfo = useTemplateInfo((state) => state.templateInfo)
     const avatar = useAvatar((state) => state.avatar)
     const colorStatus = useColorStatus((state) => state.colorStatus)
@@ -53,7 +56,7 @@ export default function MintPopup({
                   {confirmWindow &&(
                         <StyledPopup>
                           <Header >
-                                <img src={mintPopupImage} className={mintStatus}/>
+                                <img src={mintPopupImage} className={mintStatus} height = {'50px'}/>
                                 <div className='mintTitle'>Mint Avatar</div>
                             </Header>
                             <MintModal/>
@@ -65,7 +68,12 @@ export default function MintPopup({
                                     </TraitBox>
                                 ))}
                             </TraitDetail>
-                            <TraitText >{mintStatus}</TraitText>
+                            <MintPriceBox >
+                                <MintCost >{"Mint Price: "}</MintCost>
+                                <TraitImage src = {polygonIcon} height = {'40%'}/>
+                                <MintCost >{mintCost}</MintCost>
+                            </MintPriceBox>
+                            <Title fontSize = {'1rem'} padding = {'10px 0 20px'}>{mintStatus}</Title>
                             <ButtonPanel >
                                 <StyledButton onClick={() => setConfirmWindow(false)}> {!mintDone? "Cancel": "Ok" }</StyledButton>
                                {!mintDone ? (<StyledButton onClick={() => onMintClick()} >Mint </StyledButton>) : <></>}

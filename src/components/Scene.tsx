@@ -50,6 +50,7 @@ export default function Scene() {
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
+  const setMintCost = useMintStatus((state) => state.setMintCost)
   const modelClass = useModelClass((state) => state.modelClass)
   const setModelClass = useModelClass((state) => state.setModelClass)
   const setEnd = useEnd((state) => state.setEnd)
@@ -137,80 +138,13 @@ export default function Scene() {
     sceneService.download(model, `CC_Model`, format, false);
   }
 
-  // const currentControlPos = () =>{
-  //   return {
-  //     minDistance: controls.getDistance(),
-  //     maxDistance: controls.getDistance(),
-  //     minPolarAngle: controls.getPolarAngle(),
-  //     maxPolarAngle: controls.getPolarAngle(),
-  //     minAzimuthAngle: controls.getAzimuthalAngle(),
-  //     maxAzimuthAngle: controls.getAzimuthalAngle()
-  //   }
-  // }
-  // const currentControlLimits = () =>{
-  //   return {
-  //     minDistance: controls.minDistance,
-  //     maxDistance: controls.maxDistance,
-  //     minPolarAngle: controls.minPolarAngle,
-  //     maxPolarAngle: controls.maxPolarAngle,
-  //     minAzimuthAngle: controls.minAzimuthAngle,
-  //     maxAzimuthAngle: controls.maxAzimuthAngle
-  //   }
-  // }
-  // const setControlPos = (values) => {
-  //   controls.minDistance = values.minDistance,
-  //   controls.maxDistance = values.maxDistance,
-  //   controls.minPolarAngle = values.minPolarAngle,
-  //   controls.maxPolarAngle = values.maxPolarAngle,
-  //   controls.minAzimuthAngle = values.minAzimuthAngle,
-  //   controls.maxAzimuthAngle = values.maxAzimuthAngle
-  // }
-  // let origControlPos = {};
-  // let origControlLimits ={};
-  // const setScreenshotCam = (set: boolean) => {
-
-  //   if (set){
-  //     // save controls original positions
-  //     origControlPos = currentControlPos();
-  //     origControlLimits = currentControlLimits();
-  //     setControlPos({
-  //       maxDistance:1.3,
-  //       minDistance:1.3,
-  //       minPolarAngle:(Math.PI / 2 - 0.11),
-  //       maxPolarAngle:(Math.PI / 2 - 0.11),
-  //       minAzimuthAngle: - 0,
-  //       maxAzimuthAngle: - 0,
-  //     })
-  //   }
-  //   else{
-  //     setControlPos(origControlPos);
-  //     setControlPos(origControlLimits);
-  //   }
-  // }
-
-  // function saveBlobAsFile(blob, fileName) {
-  //   const reader = new FileReader();
-
-  //   reader.onloadend = function () {    
-  //       const base64 = reader.result;
-  //       const link = document.createElement("a");
-
-  //       document.body.appendChild(link); // for Firefox
-
-  //       link.setAttribute("href", base64);
-  //       link.setAttribute("download", fileName);
-  //       link.click();
-  //   };
-
-  //   reader.readAsDataURL(blob);
-  // }
-
   const mintAsset = async () => {
     if(account == undefined) {
         setMintStatus("Please connect the wallet")
         setConfirmWindow(true)
         return;
     }
+    //setMintCost(10);
         setConfirmWindow(true)
         setMintStatus("Uploading...")
         setMintLoading(true);
