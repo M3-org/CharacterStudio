@@ -80,7 +80,7 @@ export default function Editor() {
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = 3.1415;
         controls.minDistance = 0.5;
-        controls.maxDistance = 2.0;
+        controls.maxDistance = 5;
         controls.minAzimuthAngle = Infinity;
         controls.maxAzimuthAngle = Infinity;
       })
@@ -100,7 +100,10 @@ export default function Editor() {
         { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
           // improve id
           <MenuOption
-            onClick = {()=>{selectOption(item)}} 
+            onClick = {()=>{
+              console.log(item)
+              selectOption(item)
+            }} 
             selected = {category === item.name}
             key = {index}>  
             <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />

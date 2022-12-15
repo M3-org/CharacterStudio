@@ -17,9 +17,9 @@ export default [
         "Headbaked_2",
         "Headbaked_1",
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
+    "traitsDirectory": "./loot-assets/drophunter_female/",
+    "thumbnailsDirectory": "./loot-assets/drophunter_female/",
+    "traitsJsonPath": "./loot-assets/drophunter_female/loot.json",
     "animationPath": "./3d/animations/idle_webaverse.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{
@@ -33,7 +33,7 @@ export default [
         "target": ["body_geo", "head_geobaked(copy)_1"],
         "icon-gradient": "color-gradient.svg",
         "cameraTarget":{
-          "distance": 1.7,
+          "distance": 3.4,
           "height": 0.8
         }
       },
@@ -44,8 +44,8 @@ export default [
       "target": "head_geobaked(copy)",
       "icon-gradient": "eye.svg",
       "cameraTarget":{
-        "distance": 0.7,
-        "height": 1.3
+        "distance": 0.75,
+        "height": 1.35
       }
     },
     {
@@ -54,8 +54,8 @@ export default [
       "type": "mesh",
       "icon-gradient": "hairStyle.svg",
       "cameraTarget":{
-        "distance": 0.7,
-        "height": 1.3
+        "distance": 0.75,
+        "height": 1.35
       }
     },
     {
@@ -65,8 +65,8 @@ export default [
       "icon-gradient": "jacket.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1,
-        "height": 0.9
+        "distance": 1.5,
+        "height": 1
       }
     },
     {
@@ -75,8 +75,8 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "type": "mesh",
       "cameraTarget":{
-        "distance": 1,
-        "height": 0.9
+        "distance": 1.5,
+        "height": 1
       }
     },
     {
@@ -86,7 +86,7 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.7,
+        "distance": 3.4,
         "height": 0.8
       }
     },
@@ -97,7 +97,7 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 1,
+        "distance": 2,
         "height": 0.5
       }
     },
@@ -108,8 +108,8 @@ export default [
       "icon-gradient": "foot-gradient.svg",
       "id":5,
       "cameraTarget":{
-        "distance": 0.6,
-        "height": 0.2
+          "distance": 1.3,
+          "height": 0.2
       }
     }
   ]
@@ -194,8 +194,8 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.5,
-        "height": 0.85
+        "distance": 1.8,
+        "height": 0.8
       }
     },{
       "name": "legs",
@@ -204,7 +204,7 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 1.1,
+        "distance": 2.0,
         "height": 0.55
       }
     },{
@@ -291,8 +291,8 @@ export default [
       "id":3,
       "icon-gradient": "accessories-gradient.svg",
       "cameraTarget":{
-        "distance": 1.5,
-        "height": 0.9
+        "distance": 1.7,
+        "height": 0.8
       }
     },{
       "name": "legs",
@@ -301,7 +301,7 @@ export default [
       "icon-gradient": "chest-gradient.svg",
       "id":4,
       "cameraTarget":{
-        "distance": 1.1,
+        "distance": 1.5,
         "height": 0.6
       }
     },{
