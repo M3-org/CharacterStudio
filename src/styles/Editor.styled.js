@@ -24,8 +24,8 @@ export const MenuOption = styled.div`
     display: inline-block;
     margin: 5px auto 5px auto;
     padding: 5px;
-    height: 40px;
-    width: 62px;
+    height: 3em;
+    width: 3em;
     opacity: ${props => props.selected ? 1 : 0.3};
     user-select: none;
     text-align: center;

@@ -241,16 +241,14 @@ export default function Scene() {
   
   return (
     <FitParentContainer >
-      
-
-
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {0}  >
+        <ResizeableCanvas left = {0} right = {0}  >
           <Canvas
             id = "editor-scene"
             style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping}}
             linear = {true}
+            camera={{ fov: 30, position: [0, 1, 5] }}
           >
             <gridHelper
               args={[50, 25, "#101010", "#101010"]}
@@ -278,8 +276,8 @@ export default function Scene() {
             
             <OrbitControls
               ref = {setControls}
-              minDistance={0.5}
-              maxDistance={2}
+              minDistance={1}
+              maxDistance={3}
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}

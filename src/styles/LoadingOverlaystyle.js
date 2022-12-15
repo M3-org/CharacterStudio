@@ -19,27 +19,30 @@ export const LoadingStyleBox = styled.div`
         font-style: normal;
         font-weight: 400;
         font-size: 18px;
+        position: relative;
+        top: -1em;
         line-height: 32px;
         text-align: center;
         color: #FFFFFF;
     }
     .vh-centered{
-        position: relative;
-        display: inline-flex;
-        
+        position: absolute;        
         .cover-loadingbar{
-            display: flex;
+            display: block;
             align-items: center;
             justify-content: start;
-            width: 237px;
+            width: 50vw;
+            margin-left: auto;
+            margin-right: auto;
             height: 14px;
             border: 2px solid  #645D8D;
             border-radius: 10px;
             
             .loading-bar{
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                display: block;
+
+                // move 30% to the right
+                transform : translate(30%, 0);
 
                 width : ${props => Math.round(props.loadedValue) + '%'};
 
@@ -57,10 +60,11 @@ export const LoadingStyleBox = styled.div`
 
         .webamark {
             position : absolute;
-            left : 50%;
-            transform : translate(-50%, 30%);
-            bottom : -10vh;
-            height : 20vh;
+            // center
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 100px;
+            
         }
         .logo-gradient {
             height: 20vh;
