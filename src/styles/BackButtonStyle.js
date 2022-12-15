@@ -8,7 +8,6 @@ const style = styled.div`
         background-size: 45% 55%;
         width: 74px;
         height: 74px;
-        border: 1px solid #434B58;
         backdrop-filter: blur(22.5px);
         border-radius: 5px;
         box-sizing: border-box;

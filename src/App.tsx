@@ -143,6 +143,8 @@ function App() {
             }}
           >
             <Web3ReactProvider getLibrary={getLibrary}>
+            <AudioSettings/>
+
               <CharacterEditor 
                   theme={defaultTheme} 
                 />
@@ -172,7 +174,6 @@ function App() {
           }</div>
         )
       }
-      <AudioSettings/>
     </React.Fragment>
   )
 }

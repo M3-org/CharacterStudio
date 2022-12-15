@@ -48,7 +48,9 @@ export const MenuTitle = styled.div`
     display: inline-block;
     text-align: center;
     height: 70px;
-    margin: 5px auto 5px auto;
+    width: 85%;
+    text-align: center;
+    margin: .25em auto .25em auto;
     user-select: none;
     
 `

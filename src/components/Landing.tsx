@@ -199,69 +199,84 @@ export default function Landing(props){
                     />
                 )
             }
+        <div className='drophunter-container' style={{
+            position: "absolute",
+            right: "0px",
+            zIndex: 10,
+            marginTop: "30vh",
+            height: "70vh",
+            width: "40vw",
+        }}
+        
+        onMouseEnter={() => {
+            setHovering('neurohacker')
+        }}
 
-                    <div className="drophunter" style={{
-                        position: "absolute",
-                        bottom: "40px",
-                        right: "0px",
-                        opacity: hovering === 'neurohacker' ? 1 : 0.5,
-                        zIndex: 10
-                    }}
+        onMouseLeave={() => {
+            if(hovering === 'neurohacker'){
+                setHovering('');
+            }
+        }}
 
-                    onMouseEnter={() => {
-                        setHovering('neurohacker')
+        // on mouse click
+        onClick={() => {
+            handleClick(1)
+        }}
+        >
+            <div className="drophunter" style={{
+                position: "absolute",
+                bottom: "40px",
+                right: "0px",
+                opacity: hovering === 'neurohacker' ? 1 : 0.5,
+            }}
+            >
+                <img
+                    style={{
+                        maxWidth: "30vh",
+                        minWidth: "30em"
                     }}
+                src={"public/DropHunter.svg"} />
+            </div>
+        </div>
+        <div className='neurohacker-container' style={{
+                position: "absolute",
+                bottom: "0px",
+                left: "0px",
+                zIndex: 10,
+                marginTop: "30vh",
+                height: "70vh",
+                width: "40vw",
+        }}
+        onMouseEnter={() => {
+            setHovering('drophunter')
+        }}
 
-                    onMouseLeave={() => {
-                        if(hovering === 'neurohacker'){
-                            setHovering('');
-                        }
-                    }}
+        onMouseLeave={() => {
+            if(hovering === 'drophunter'){
+                setHovering('');
+            }
+        }}
 
-                    // on mouse click
-                    onClick={() => {
-                        handleClick(1)
+        // on mouse click
+        onClick={() => {
+            handleClick(2)
+        }}
+        >
+            <div className="neurohacker" style={{
+                position: "absolute",
+                bottom: "40px",
+                opacity: hovering === 'drophunter' ? 1 : 0.5,
+            }}
+            >
+                <img
+                    style={{
+                        maxWidth: "30vh",
+                        minWidth: "30em"
                     }}
-                    >
-                        <img
-                            style={{
-                                maxWidth: "30vh",
-                                minWidth: "30em"
-                            }}
-                        src={"public/DropHunter.svg"} />
-                    </div>
-
-                    <div className="neurohacker" style={{
-                        position: "absolute",
-                        bottom: "40px",
-                        left: "0px",
-                        opacity: hovering === 'drophunter' ? 1 : 0.5,
-                        zIndex: 10
-                    }}
-                    
-                    onMouseEnter={() => {
-                        setHovering('drophunter')
-                    }}
-
-                    onMouseLeave={() => {
-                        if(hovering === 'drophunter'){
-                            setHovering('');
-                        }
-                    }}
-
-                    // on mouse click
-                    onClick={() => {
-                        handleClick(2)
-                    }}
-                    >
-                        <img
-                            style={{
-                                maxWidth: "30vh",
-                                minWidth: "30em"
-                            }}
-                            src={"public/NeuralHacker.svg"}
-                        />
-                    </div>
+                    src={"public/Neurohacker.svg"}
+                />
+            </div>
+        </div>
 
         <animated.div style = {{...titleAnimation}}>
                     <div className="topBanner" >     

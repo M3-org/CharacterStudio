@@ -119,7 +119,7 @@ export default function DownloadCharacter({ scene, templateInfo, model, download
             maxDistance={2}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
-            enablePan={false}
+            enablePan={true}
             target={[0, 1, 0]}
           />
           <PerspectiveCamera>
