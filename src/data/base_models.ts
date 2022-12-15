@@ -1,8 +1,7 @@
 export default [
   {
     "id": "1",
-    "name": "Female",
-    //"file": "./3d/models/drophunter_female.vrm",
+    "name": "Neurohacker Female",
     "file": "./3d/models/drophunter_female.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
@@ -21,13 +20,11 @@ export default [
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
-    "animationPath": "./3d/animations/idle_female.fbx",
+    "animationPath": "./3d/animations/idle_webaverse.fbx",
     "traitIconsDirectory": "./3d/icons/",
-    "typeRestrictions":
-      {
+    "typeRestrictions":{
         "pants" : ["boots"]
-      }
-    ,
+    },
     "selectionTraits": [
       {
         "name": "skin",
@@ -35,7 +32,6 @@ export default [
         "type": "texture",
         "target": ["body_geo", "head_geobaked(copy)_1"],
         "icon-gradient": "color-gradient.svg",
-        "id":6,
         "cameraTarget":{
           "distance": 1.7,
           "height": 0.8
@@ -43,11 +39,10 @@ export default [
       },
     {
       "name": "eyeColor",
-      "icon": "skin-color.png",
+      "icon": "eye.png",
       "type": "texture",
       "target": "head_geobaked(copy)",
-      "icon-gradient": "color-gradient.svg",
-      "id":6,
+      "icon-gradient": "eye.svg",
       "cameraTarget":{
         "distance": 0.7,
         "height": 1.3
@@ -57,29 +52,17 @@ export default [
       "name": "head",
       "icon": "hairStyle.png",
       "type": "mesh",
-      "id":2,
-      "icon-gradient": "head-gradient.svg",
+      "icon-gradient": "hairStyle.svg",
       "cameraTarget":{
         "distance": 0.7,
         "height": 1.3
       }
     },
     {
-      "name": "solo",
-      "restrictedTraits": ["chest","legs", "outer"],
-      "icon": "torso.png",
-      "icon-gradient": "chest-gradient.svg",
-      "type": "mesh",
-      "cameraTarget":{
-        "distance": 1.7,
-        "height": 0.8
-      }
-    },
-    {
       "name": "outer",
-      "restrictedTypes": ["hoodie"],
-      "icon": "torso.png",
-      "icon-gradient": "chest-gradient.svg",
+      "restrictedTypes": ["hoodie", "solo"],
+      "icon": "jacket.png",
+      "icon-gradient": "jacket.svg",
       "type": "mesh",
       "cameraTarget":{
         "distance": 1,
@@ -134,10 +117,11 @@ export default [
   ,
   {
     "id": "2",
-    "name": "Male",
-    "file": "./3d/models/m_drophunter_v1.vrm",
+    "name": "Neurohacker Male",
+    "file": "./3d/models/neurohacker_male.vrm",
     "thumbnail": "./3d/icons/male-body-1.png",
     "format": "vrm",
+    "offset":[0,-0.14,0],
     "bodyTargets": [
       "Body",
       "Head002"
@@ -148,40 +132,51 @@ export default [
     "EyeTargets": [
       "Head006"
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter/male/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter/male/loot.json",
+    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker_male/",
+    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker_male/",
+    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker_male/loot.json",
     "animationPath": "./3d/animations/idle_male.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{
-      "name": "color",
-      "id":1,
+      "name": "skin",
       "icon": "skin-color.png",
-      "type": "color",
+      "type": "texture",
+      "target": ["Body", "Headbaked(copy)"],
       "icon-gradient": "color-gradient.svg",
-      "buttonName": "Skin Color",
       "cameraTarget":{
-        "distance": 1.5,
-        "height": 0.85
-      },
-      "subTrait":[
-      {
-        "name": "Eye Color",
-        "type": "color",
-        "cameraTarget":{
-          "distance": 0.5,
-          "height": 1.5
-        },
-      }]
+        "distance": 1.7,
+        "height": 0.8
+      }
+    },
+    {
+      "name": "eyeColor",
+      "icon": "eye.png",
+      "type": "texture",
+      "target": "Headbaked(copy)_1",
+      "icon-gradient": "eye.svg",
+      "cameraTarget":{
+        "distance": 0.7,
+        "height": 1.3
+      }
     },{
       "name": "head",
       "icon": "hairStyle.png",
       "type": "mesh",
-      "id":2,
       "icon-gradient": "head-gradient.svg",
       "cameraTarget":{
         "distance": 0.5,
         "height": 1.5
+      }
+    },
+    {
+      "name": "outer",
+      "restrictedTypes": ["hoodie", "solo"],
+      "icon": "jacket.png",
+      "icon-gradient": "jacket.svg",
+      "type": "mesh",
+      "cameraTarget":{
+        "distance": 1,
+        "height": 0.9
       }
     },{
       "name": "chest",

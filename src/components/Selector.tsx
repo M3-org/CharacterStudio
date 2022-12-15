@@ -56,6 +56,9 @@ export default function Selector() {
   const [loaded, setLoaded] = useState(false)
   let loadedPercent = Math.round(loadingTrait?.loaded * 100 / loadingTrait?.total);
   
+  const [textureOptions, setTextureOptions] = useState([])
+  const [selectionMode, setSelectionMode] = useState(0); // 0 base, 1 texture, 2 color
+
   const [ inverse, setInverse ] = useState(false)
   const container = React.useRef();
   const [play] = useSound(
@@ -239,15 +242,27 @@ export default function Selector() {
     })
   }
   
+  const selectTexture = (traitTexture:any) => {
+    new THREE.TextureLoader().load(`${templateInfo.traitsDirectory}${traitTexture?.directory}`, (txt)=>{
+      txt.flipY = false; 
+      avatar[category].model.traverse((child)=>{
+        if (child.isMesh){
+          child.material[0].map = txt;
+          child.material[0].shadeMultiplyTexture = txt;
+        }
+      })
+    })
+  }
 
   const selectTrait = (trait: any) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
+    
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
-        
+        setTextureOptions([]);
         if (avatar[traitName] && avatar[traitName].vrm) {
           sceneService.disposeVRM(avatar[traitName].vrm)
           setAvatar({
@@ -257,6 +272,13 @@ export default function Selector() {
         }
         //sceneService.
       } else {
+        
+        if (trait.textures){
+          setTextureOptions(trait.textures);
+        }
+        else{
+          setTextureOptions([]);
+        }
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
         } else {
@@ -275,10 +297,11 @@ export default function Selector() {
     setSelectValue(trait?.id)
   }
   let loading;
-  const itemLoader =  async(item, traits = null, addToScene = true) => {
-  let r_vrm;
 
-  await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
+  const itemLoader =  async(item, traits = null, addToScene = true) => {
+    let r_vrm;
+
+    await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
     .then((vrm) => {
       //console.log(item)
       sceneService.addModelData(vrm,{
@@ -510,7 +533,7 @@ const checkRestrictedTraits = (avatar, traitData, restrict = true) =>{
 }
 
 const textureTraitLoader =  (props, trait) => {
-  console.log(props.target)
+
   if (typeof props.target != 'string'){
     for (let i =0; i < props.target.length ; i ++){
       const object = scene.getObjectByName(props.target[i]);
@@ -523,9 +546,8 @@ const textureTraitLoader =  (props, trait) => {
         else  //else grab the latest texture in the array
           texture = templateInfo.traitsDirectory + trait?.directory[trait?.directory.length-1];
 
-          console.log(texture)
           //console.log(object)
-        const txrt = new THREE.TextureLoader().load(texture, (txt)=>{
+        new THREE.TextureLoader().load(texture, (txt)=>{
           txt.flipY = false; 
           //console.log(object.material[0].uniforms.map)
           object.material[0].map = txt;
@@ -547,11 +569,9 @@ const textureTraitLoader =  (props, trait) => {
   }
   else{
     const object = scene.getObjectByName(props.target);
-    console.log(object)
     const texture = typeof trait?.directory === 'string' ? 
       templateInfo.traitsDirectory + trait?.directory : 
       templateInfo.traitsDirectory + trait?.directory[0];
-      console.log(texture)
       new THREE.TextureLoader().load(texture, (txt)=>{
         txt.flipY = false; 
         object.material[0].map = txt;
@@ -600,65 +620,36 @@ const getActiveStatus = (item) => {
           </div>
           <div className="traitPanel">
               {
-                category === 'head' && 
+                //category === 'head' && 
                   (
                     <div 
                       className="hair-sub-category"
                     >
                       <ColorSelectButton 
-                        text="Hair"
+                        text="Model"
                         selected = {hairCategory === 'style'}
                         onClick = {() => {
-                          setHairCategory('style')
+                          setSelectionMode(0);
+                          //setHairCategory('style')
                         }}
                       />
+                      {
+                      textureOptions.length>0 && (
                       <ColorSelectButton 
                         text="Color"
                         selected = {hairCategory === 'color'}
                         onClick = {() => {
-                          setHairCategory('color')
+                          setSelectionMode(1);
+                          //setHairCategory('color')
                         }}
-                      />
+                      />)
+                      }
                     </div>
                   )
               }
             {templateInfo?.traitsDirectory && (
               <div className="traits" >
-                {category === "color" ? (
-                  <div className="sub-category">
-                    <div className="sub-category-header">
-                      <ColorSelectButton 
-                        text="Skin"
-                        selected = {colorCategory === 'color'}
-                        onClick = {() => {
-                          setColorCategory('color')
-                          selectOption({
-                            cameraTarget:{
-                              distance:1.4,
-                              height:0.8
-                          }})
-                        }}
-                      />
-                      <ColorSelectButton 
-                        text="Eye Color"
-                        selected = {colorCategory === 'eyeColor'}
-                        onClick = {() => {
-                          setColorCategory('eyeColor')
-                          selectOption({
-                            cameraTarget:{
-                              distance:0.5,
-                              height:1.45
-                          }})
-                        }}
-                      />
-                    </div>
-                    <Skin
-                      category={colorCategory}
-                      avatar={avatar}
-                    />
-                  </div>
-                ) : (
-                  (category !== 'head' || hairCategory !== 'color') ? 
+                {(category !== 'head' || hairCategory !== 'color') ? 
                       <React.Fragment>
                         <div
                           className={noTrait ? "selectorButtonActive" : "selectorButton" }
@@ -671,16 +662,13 @@ const getActiveStatus = (item) => {
                             src={cancel}
                           />
                         </div>
-                        {collection &&
+                        {selectionMode === 0 && collection &&
                           collection.map((item: any, index) => {
                             return (
                               <div
                                 key={index}
-                                style={
-                                  getActiveStatus(item) ? selectorButtonActive : selectorButton
-                                }
-                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""
-                                  }`}
+                                style={getActiveStatus(item) ? selectorButtonActive : selectorButton }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
                                 onClick={() => {
                                   !isMute && play();
                                   selectTrait(item)
@@ -688,13 +676,10 @@ const getActiveStatus = (item) => {
                               >
                                 <img 
                                   className="trait-icon"
-                                  src={
-                                    item.thumbnailsDirectory
-                                      ? item.thumbnail
-                                      : `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}`
-                                  }
+                                  src={ item.thumbnailsDirectory ? item.thumbnail: `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}` }
                                 />
-                                <img src={tick}
+                                <img 
+                                  src={tick}
                                   className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
                                 />
                                 {selectValue === item?.id && loadedPercent > 0 && (
@@ -706,7 +691,41 @@ const getActiveStatus = (item) => {
                                 )}
                               </div>
                             )
-                          })}
+                          })
+                        }
+                        {/* to - do, set this to be with a fn rather than duplicating */}
+                        {selectionMode === 1 && collection &&
+                          textureOptions.map((item: any, index) => {
+                            return (
+                              <div
+                                key={index}
+                                style={getActiveStatus(item) ? selectorButtonActive : selectorButton }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
+                                onClick={() => {
+                                  !isMute && play();
+                                  selectTexture(item)
+                                  //selectTrait(item)
+                                }}
+                              >
+                                <img 
+                                  className="trait-icon"
+                                  src={ item.thumbnailsDirectory ? item.thumbnail: `${templateInfo?.thumbnailsDirectory}${item?.thumbnail}` }
+                                />
+                                <img 
+                                  src={tick}
+                                  className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
+                                />
+                                {selectValue === item?.id && loadedPercent > 0 && (
+                                  <div
+                                    className="loading-trait"
+                                  >
+                                    {loadedPercent}%
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })
+                        }
                         <div className="icon-hidden">
                           <Avatar className="icon" />
                         </div>
@@ -717,7 +736,7 @@ const getActiveStatus = (item) => {
                         avatar={avatar}
                       />
                     )
-                )}
+                }
               </div>
             )}
           </div>

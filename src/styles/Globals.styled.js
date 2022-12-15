@@ -36,7 +36,7 @@ export const TopRightMenu = styled.div`
 export const BottomRightMenu = styled.div`
   display : flex;
   bottom : 37px;
-  right : 44px;
+  right:  ${props => props.right || '44px'};
   position : absolute;
   gap :20px;
 `

@@ -163,12 +163,18 @@ async function getModelFromScene(format = 'glb') {
   }
 }
 
-async function getScreenShot() {
-  return await getScreenShotByElementId("editor-scene")
+async function getScreenShot(delay?) {
+  delay = delay || 0;
+  await timeout(delay)
+  return await getScreenShotByElementId("mint-scene")
+
+}
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function getScreenShotByElementId(id) {
-  let snapShotElement = document.getElementById(id);
+  const snapShotElement = document.getElementById(id);
   return await html2canvas(snapShotElement).then(async function (canvas) {
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
@@ -603,6 +609,7 @@ async function download(
     };
 
     const avatar = await combine({ transparentColor:skinColor, avatar: avatarModel.scene.clone(), atlasSize });
+    
     exporter.parse(
       avatar,
       function (result) {
@@ -627,7 +634,6 @@ async function download(
     
 
     const avatar = await combine({transparentColor:skinColor, avatar: avatarSceneClone, atlasSize });  
-
     // change material array to the single atlas material
     avatarModel.materials = [avatar.userData.atlasMaterial];
 

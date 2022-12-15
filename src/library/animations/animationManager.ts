@@ -72,7 +72,6 @@ export class AnimationManager{
         offset[1],
         offset[2]
       );
-      console.log(offset);
     }
     this.update();
   }
@@ -186,7 +185,7 @@ export class AnimationManager{
     setInterval(() => {
       if (this.mainControl){
         if (this.weightIn < 1){ 
-          if (this.mainControl.mixer.getRoot().parent)console.log(this.weightIn)
+          //if (this.mainControl.mixer.getRoot().parent)console.log(this.weightIn)
           this.weightIn += 1/(30*interpolationTime);
         }
         else this.weightIn = 1;  

@@ -19,7 +19,6 @@ export default function Editor() {
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const templateInfo = useTemplateInfo((state) => state.templateInfo)
   const controls = useControls((state) => state.controls)
-  const [ inverse, setInverse ] = useState(false)
   //const [itemClicked, setItemClicked] = useState(true)
   //var optionArr = [];
   useEffect(()=> {
@@ -53,7 +52,6 @@ export default function Editor() {
 
   const moveCamera = (value:any) => {
     if (value){
-      setInverse(!inverse);
 
       gsap.to(controls.target,{
         y:value.height,
@@ -99,12 +97,12 @@ export default function Editor() {
 
         <LineDivision bottom = {'20px'}/>
 
-        { templateInfo.selectionTraits && templateInfo.selectionTraits.map(item => (
+        { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
           // improve id
-          <MenuOption 
+          <MenuOption
             onClick = {()=>{selectOption(item)}} 
             selected = {category === item.name}
-            key = {"i" + templateInfo.id + item.id}>  
+            key = {index}>  
             <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
           </MenuOption>
         ))}

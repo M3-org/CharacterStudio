@@ -17,9 +17,10 @@ import {
 } from "ethers";
 import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
-import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
+import { FitParentContainer, TopRightMenu, BottomRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
-import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore} from "../store";
+import { useThree } from "@react-three/fiber";
+import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
@@ -31,7 +32,7 @@ const ACCOUNT_DATA = {
 export default function Scene() {
   const [showType, setShowType] = useState(false);
 
-  const [camera, setCamera] = useState<object>(Object);
+  //const [camera, setCamera] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
   const [autoRotate, setAutoRotate] = useState(true);
@@ -43,15 +44,19 @@ export default function Scene() {
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const model = useModel((state) => state.model)
   const setControls = useControls((state) => state.setControls)
+  const setCamera = useCamera((state) => state.setCamera)
+  const camera = useCamera((state) => state.camera)
+  const controls = useControls((state) => state.controls)
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
+  const setMintCost = useMintStatus((state) => state.setMintCost)
   const modelClass = useModelClass((state) => state.modelClass)
   const setModelClass = useModelClass((state) => state.setModelClass)
   const setEnd = useEnd((state) => state.setEnd)
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
-
+  const setMintDone = useMintDone((state) => state.setMintDone)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -59,9 +64,11 @@ export default function Scene() {
 
   const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
 
+
   const connectWallet = async () => {
     try {
       await activate(injected);
+      setMintStatus("Your wallet has been connected.")
     } catch (ex) {
       
       console.log(ex);
@@ -74,6 +81,7 @@ export default function Scene() {
       setConnected(true)
     } else {
       setConnected(false);
+      setMintStatus("Please connect your wallet.")
     }
 
   }, [account]);
@@ -136,34 +144,36 @@ export default function Scene() {
         setConfirmWindow(true)
         return;
     }
-    setConfirmWindow(true)
-    setMintStatus("Uploading...")
-    setMintLoading(true);
-    
-    sceneService.getScreenShot().then(async (screenshot) => {
-      if(screenshot) {
-        const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
-          .catch((reason)=>{
-            console.error(reason);
-            setMintStatus("Couldn't save to pinata")
-            setMintLoading(false);
-          });
-        sceneService.getModelFromScene().then(async (glb) => {
-          const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
-          const attributes : any = getAvatarTraits();
-          const metadata = {
-            name : "Avatars",
-            description: "Creator Studio Avatars.",
-            image : `ipfs://${imageHash.IpfsHash}`,
-            animation_url: `ipfs://${glbHash.IpfsHash}`,
-            attributes
+    //setMintCost(10);
+        setConfirmWindow(true)
+        setMintStatus("Uploading...")
+        setMintLoading(true);
+        
+        sceneService.getScreenShot().then(async (screenshot) => {
+          if(screenshot) {
+            const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
+              .catch((reason)=>{
+                console.error(reason);
+                setMintStatus("Couldn't save to pinata")
+                setMintLoading(false);
+              });
+            sceneService.getModelFromScene().then(async (glb) => {
+              const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+              const attributes : any = getAvatarTraits();
+              const metadata = {
+                name : "Avatars",
+                description: "Creator Studio Avatars.",
+                image : `ipfs://${imageHash.IpfsHash}`,
+                animation_url: `ipfs://${glbHash.IpfsHash}`,
+                attributes
+              }
+              const str = JSON.stringify(metadata);
+              const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
+              await mintNFT("ipfs://" + metaDataHash.IpfsHash);
+            })
           }
-          const str = JSON.stringify(metadata);
-          const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
-          await mintNFT("ipfs://" + metaDataHash.IpfsHash);
         })
-      }
-    })
+
   }
 
   const getAvatarTraits = () => {
@@ -217,7 +227,8 @@ export default function Scene() {
           const tx = await contract.mintToken(1, metadataIpfs, options);
           let res = await tx.wait();
           if (res.transactionHash) {
-            setMintStatus("Mint success!")
+            setMintStatus("Mint success!");
+            setMintDone(true);
             setMintLoading(false);
           }
       } catch (err) {
@@ -230,13 +241,16 @@ export default function Scene() {
   
   return (
     <FitParentContainer >
+      
+
+
       <Background >
-        <ResizeableCanvas left = {leftPadding} right = {0}>
+        <ResizeableCanvas left = {leftPadding} right = {0}  >
           <Canvas
+            id = "editor-scene"
             style = {canvasStyle}
-            gl={{ antialias: true, toneMapping: NoToneMapping }}
+            gl={{ antialias: true, toneMapping: NoToneMapping}}
             linear = {true}
-            id="editor-scene"
           >
             <gridHelper
               args={[50, 25, "#101010", "#101010"]}
@@ -247,6 +261,7 @@ export default function Scene() {
               color={[1,1,1]}
               intensity={0.5}
             />
+            
             <directionalLight 
               //castShadow = {true}
               intensity = {0.5} 
@@ -260,6 +275,7 @@ export default function Scene() {
                 top={20} 
                 bottom={-20}/>
             </directionalLight>
+            
             <OrbitControls
               ref = {setControls}
               minDistance={0.5}
@@ -267,11 +283,12 @@ export default function Scene() {
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
-              autoRotateSpeed = { 1 }
+              autoRotateSpeed = { 5 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
             />
+           
             {/* <Suspense fallback={null}>
               <EffectComposer>
                 <Bloom />
@@ -310,12 +327,10 @@ export default function Scene() {
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
-        <AutoRotate/>
+        
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
-          setMintStatus("Mint coming soon!")
-          setConfirmWindow(true)
-          //mintAsset()
+          setConfirmWindow(true);
         }}/>
         <WalletButton connected = {connected} 
           onClick = {connected ? disConnectWallet : connectWallet}>
@@ -328,8 +343,11 @@ export default function Scene() {
             ("")}
           <WalletImg/>
         </WalletButton>
-
       </TopRightMenu>
+      <BottomRightMenu right = {'140px'}>
+        <AutoRotate/>
+      </BottomRightMenu>
+
       <BackButton onClick={() => {
         setModelClass(0);
         setEnd(false);
@@ -340,7 +358,11 @@ export default function Scene() {
         <Selector/>
         <Editor/>
       </div>
-      <MintPopup/>
+      <MintPopup 
+        connected={connected}
+        connectWallet={connectWallet}
+        mintAsset={mintAsset}
+      />
     </FitParentContainer>
   );
 }

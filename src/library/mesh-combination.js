@@ -39,7 +39,8 @@ function removeBakedMorphs(mesh, bakedMorphIndices) {
     });
 }
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
-    const { bakeObjects, textures, uvs, vrmMaterial } = await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+    const { bakeObjects, textures, uvs, vrmMaterial } = 
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
     //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
         
@@ -68,7 +69,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
         map: textures["diffuse"],
     });
     vrmMaterial.uniforms.map = textures["diffuse"];
-    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];;
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
 
     material.userData.vrmMaterial = vrmMaterial;
     const mesh = new THREE.SkinnedMesh(geometry, material);
