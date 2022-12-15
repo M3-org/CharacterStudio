@@ -9,7 +9,7 @@ const useMuteStore = create((set) => ({
 }))
 
 const useRotateStore = create((set) => ({
-    isRotate: true,
+    isRotate: false,
     setRotate: (value) => set((state) => ({
         isRotate: value
     }))
