@@ -32,7 +32,7 @@ export default function Landing(props){
     const f_neuroHacker = "../3d/models/landing/f_neurohacker.vrm"
     const m_neuroHacker = "../3d/models/landing/neuro.vrm"
 
-    const anim_female = "../3d/animations/idle_female.fbx";
+    const anim_female = "../3d/animations/idle_webaverse.fbx";
     const anim_male = "../3d/animations/idle_male.fbx";
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
      from: { x: 0, opacity : 1 },

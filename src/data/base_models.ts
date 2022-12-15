@@ -20,7 +20,7 @@ export default [
     "traitsDirectory": "./loot-assets/drophunter_female/",
     "thumbnailsDirectory": "./loot-assets/drophunter_female/",
     "traitsJsonPath": "./loot-assets/drophunter_female/loot.json",
-    "animationPath": "./3d/animations/idle_female.fbx",
+    "animationPath": "./3d/animations/idle_webaverse.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{
         "pants" : ["boots"]
