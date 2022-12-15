@@ -31,30 +31,16 @@ function CircularProgressWithLabel(
       <span className = "loading-text" >
         {props.title}
       </span>
-      <animated.div style={{ ...loadingAnimation }}>
         <div className="vh-centered">
-          {/*<CircularProgress/>*/}
           <div className="cover-loadingbar">
             <div className="loading-bar" >
             </div>
           </div>
         </div>
-      </animated.div>
-      <Lottie
-        style={{
-          zIndex: "-999",
-          position: "absolute",
-          height: "80vh",
-        }}
-        animationData={lottie}
-        loop={true}
-      />
       <div className = "logo-container">
-        <animated.div style={{ ...loadingAnimation }}>
           <img className="webamark"
             src={webaMark}
           />
-        </animated.div>
         <div className="logo-gradient"></div>
       </div>
     </LoadingStyleBox>
