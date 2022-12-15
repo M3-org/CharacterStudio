@@ -26,11 +26,11 @@ export default function Landing(props){
 
     const [isLoading, setIsLoading] = useState(false);
    
-    const f_dropHunter = "../3d/models/landing/drop.vrm"
+    const f_dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
     const m_dropHunter = "../3d/models/landing/landing_m_drophunter.vrm"
 
     const f_neuroHacker = "../3d/models/landing/f_neurohacker.vrm"
-    const m_neuroHacker = "../3d/models/landing/neuro.vrm"
+    const m_neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
 
     const anim_female = "../3d/animations/idle_webaverse.fbx";
     const anim_male = "../3d/animations/idle_male.fbx";
