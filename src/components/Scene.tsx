@@ -297,7 +297,7 @@ export default function Scene() {
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
-              fov={100}
+              fov={30}
               onUpdate={self => self.updateProjectionMatrix()}
             >
             <TemplateModel scene={scene} />

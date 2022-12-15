@@ -70,9 +70,9 @@ export default function MintModal() {
             enablePan={false}
             target={[0, 0.9, 0]}
           />
-          <PerspectiveCamera>c
+          <PerspectiveCamera>
             <TemplateModel scene={model.scene.clone()} />
-          </PerspectiveCamera>c
+          </PerspectiveCamera>
         </Canvas>
   );
 }
