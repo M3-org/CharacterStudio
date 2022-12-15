@@ -71,8 +71,10 @@ export default function Selector() {
     display: "flex",
     justifyContent: "center" as "center",
     cursor: "pointer" as "pointer",
-    width: '100%',
-    height: category !== "gender" ? ('134px'):('200px'),
+    width: "4em",
+    height: "4em",
+    padding: "1em",
+
     background: "rgba(81, 90, 116, 0.2)",
     backdropFilter: "blur(22.5px)",
     borderRadius: "5px",
@@ -82,8 +84,9 @@ export default function Selector() {
     display: "flex",
     justifyContent: "center" as "center",
     cursor: "pointer" as "pointer",
-    width: '100%',
-    height: category !== "gender" ? ('134px'):('200px'),
+    width: "4em",
+    height: "4em",
+    padding: "1em",
     background: "rgba(81, 90, 116, 0.2)",
     backdropFilter: "blur(22.5px)",
     borderRadius: "5px",
@@ -612,41 +615,13 @@ const getActiveStatus = (item) => {
     <FadeInOut show={!isHide} duration={300} >
       <SelectorContainerPos loadingOverlay = {loadingTraitOverlay}>
         <div className="selector-container">
-          <div className="selector-container-header">
+          {/* <div className="selector-container-header">
             <span className = "categoryTitle">
               {category.charAt(0).toUpperCase() + category.slice(1)}
             </span>
             <img src={iconPath} className = "titleIcon"/>
-          </div>
+          </div> */}
           <div className="traitPanel">
-              {
-                //category === 'head' && 
-                  (
-                    <div 
-                      className="hair-sub-category"
-                    >
-                      <ColorSelectButton 
-                        text="Model"
-                        selected = {hairCategory === 'style'}
-                        onClick = {() => {
-                          setSelectionMode(0);
-                          //setHairCategory('style')
-                        }}
-                      />
-                      {
-                      textureOptions.length>0 && (
-                      <ColorSelectButton 
-                        text="Color"
-                        selected = {hairCategory === 'color'}
-                        onClick = {() => {
-                          setSelectionMode(1);
-                          //setHairCategory('color')
-                        }}
-                      />)
-                      }
-                    </div>
-                  )
-              }
             {templateInfo?.traitsDirectory && (
               <div className="traits" >
                 {(category !== 'head' || hairCategory !== 'color') ? 
@@ -658,8 +633,13 @@ const getActiveStatus = (item) => {
                             !isMute && play();
                           }}
                         >
-                          <img className="icon"
+                          <img
+                            className="icon"
                             src={cancel}
+                            style={{
+                              width: "3em",
+                              height: "3em",
+                            }}
                           />
                         </div>
                         {selectionMode === 0 && collection &&

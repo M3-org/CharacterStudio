@@ -52,7 +52,7 @@ function Skin({ category, avatar}) {
     if(category === "head"){
       colorTargets = getHairMaterial();
     }
-    if(category === "eyeColor"){
+    if(category === "eyes"){
       colorTargets = templateInfo.EyeTargets;
     }
     if(category === "color"){
@@ -75,7 +75,7 @@ function Skin({ category, avatar}) {
       ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
       ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]
     ],
-    eyeColor : [
+    eyes : [
       ["#8F7B72", "#817071", "#7F6B52", "#6F5B42", "#5F4B32", "#4F3B22", "#3F2B12", "#f00000"],
       ["#B08F7D", "#9E7E65", "#907045", "#765E37", "#704F20", "#653F1B", "#4F2F11", "#3F2202"],
       ["#D18D55", "#C47E44", "#AC703F", "#9D6434", "#89582D", "#7D4A25", "#6A3C1E", "#563019"]

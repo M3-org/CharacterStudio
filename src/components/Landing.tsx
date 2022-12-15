@@ -195,7 +195,7 @@ export default function Landing(props){
                     <LoadingOverlayCircularStatic
                         loadingModelProgress={loadingPercent}
                         background={true}
-                        title={"Loading Avatars"}
+                        title={"Loading..."}
                     />
                 )
             }
@@ -223,7 +223,12 @@ export default function Landing(props){
                         handleClick(1)
                     }}
                     >
-                        <img src={"public/DropHunter.svg"} />
+                        <img
+                            style={{
+                                maxWidth: "30vh",
+                                minWidth: "30em"
+                            }}
+                        src={"public/DropHunter.svg"} />
                     </div>
 
                     <div className="neurohacker" style={{
@@ -249,7 +254,13 @@ export default function Landing(props){
                         handleClick(2)
                     }}
                     >
-                        <img src={"public/NeuralHacker.svg"} />
+                        <img
+                            style={{
+                                maxWidth: "30vh",
+                                minWidth: "30em"
+                            }}
+                            src={"public/NeuralHacker.svg"}
+                        />
                     </div>
 
         <animated.div style = {{...titleAnimation}}>
