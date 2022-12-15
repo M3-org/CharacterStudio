@@ -70,7 +70,7 @@ return (
             //aspect={250 / 500}
             //radius={(250 + 500) / 4}
             //fov={10}
-            position = {[0, -1.8 , 3.35]}
+            position = {[0, -1.9 , 3.45]}
             rotation = {[-0,0,0]}
             onUpdate = {self => self.updateProjectionMatrix()}
         >

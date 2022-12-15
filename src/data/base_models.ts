@@ -141,7 +141,7 @@ export default [
       "name": "skin",
       "icon": "skin-color.png",
       "type": "texture",
-      "target": ["body_geo", "head_geobaked(copy)_1"],
+      "target": ["Body", "Headbaked(copy)"],
       "icon-gradient": "color-gradient.svg",
       "cameraTarget":{
         "distance": 1.7,
@@ -152,7 +152,7 @@ export default [
       "name": "eyeColor",
       "icon": "eye.png",
       "type": "texture",
-      "target": "head_geobaked(copy)",
+      "target": "Headbaked(copy)_1",
       "icon-gradient": "eye.svg",
       "cameraTarget":{
         "distance": 0.7,
