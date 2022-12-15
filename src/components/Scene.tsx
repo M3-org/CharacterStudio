@@ -17,7 +17,7 @@ import {
 } from "ethers";
 import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
-import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
+import { FitParentContainer, TopRightMenu, BottomRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
 import { useThree } from "@react-three/fiber";
 import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
@@ -283,7 +283,7 @@ export default function Scene() {
               // maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan = { false }
               autoRotate = {isRotate}
-              autoRotateSpeed = { 1 }
+              autoRotateSpeed = { 5 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
               target={[0, 0.9, 0]}
@@ -327,7 +327,7 @@ export default function Scene() {
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
           </>
         }
-        <AutoRotate/>
+        
         <DownloadButton onClick={handleDownload}/>
         <MintButton onClick={() => {
           setConfirmWindow(true);
@@ -343,8 +343,11 @@ export default function Scene() {
             ("")}
           <WalletImg/>
         </WalletButton>
-
       </TopRightMenu>
+      <BottomRightMenu right = {'140px'}>
+        <AutoRotate/>
+      </BottomRightMenu>
+
       <BackButton onClick={() => {
         setModelClass(0);
         setEnd(false);
