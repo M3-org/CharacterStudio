@@ -17,11 +17,11 @@ export default [
         "Headbaked_2",
         "Headbaked_1",
     ],
+    "animationPath": "./3d/animations/idle_female.fbx",
+    "traitIconsDirectory": "./3d/icons/",
     "traitsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
     "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/drophunter_female/",
     "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/drophunter_female/loot.json",
-    "animationPath": "./3d/animations/idle_female.fbx",
-    "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{
         "pants" : ["boots"]
     },
@@ -40,10 +40,10 @@ export default [
       },
     {
       "name": "eyeColor",
-      "icon": "skin-color.png",
+      "icon": "eye.png",
       "type": "texture",
       "target": "head_geobaked(copy)",
-      "icon-gradient": "color-gradient.svg",
+      "icon-gradient": "eye.svg",
       "id":6,
       "cameraTarget":{
         "distance": 0.7,
@@ -55,7 +55,7 @@ export default [
       "icon": "hairStyle.png",
       "type": "mesh",
       "id":2,
-      "icon-gradient": "head-gradient.svg",
+      "icon-gradient": "hairStyle.svg",
       "cameraTarget":{
         "distance": 0.7,
         "height": 1.3
@@ -75,8 +75,8 @@ export default [
     {
       "name": "outer",
       "restrictedTypes": ["hoodie"],
-      "icon": "torso.png",
-      "icon-gradient": "chest-gradient.svg",
+      "icon": "jacket.png",
+      "icon-gradient": "jacket.svg",
       "type": "mesh",
       "cameraTarget":{
         "distance": 1,
