@@ -1,26 +1,16 @@
-import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"
-import { Avatar, Slider, Stack, Typography } from "@mui/material"
-import Divider from "@mui/material/Divider"
+import { Avatar } from "@mui/material"
 import React, { useState } from "react"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { apiService, sceneService } from "../services"
 import useSound from 'use-sound';
-import { VRM } from "@pixiv/three-vrm"
 import Skin from "./Skin"
-import { Margin } from "@mui/icons-material"
-import cancel from '../ui/selector/cancel.png'
-import hairStyleImg from '../ui/traits/hairStyle.png';
-import hairColorImg from '../ui/traits/hairColor.png';
+import cancel from '../../public/ui/selector/cancel.png'
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-import tick from '../ui/selector/tick.svg'
+import tick from '../../public/ui/selector/tick.svg'
 import sectionClick from "../sound/section_click.wav"
 import {useMuteStore, useDefaultTemplates, useHideStore, useRandomFlag, useAvatar, useLoadedTraits, useSetTemplate, useScene, useCategory, useTemplateInfo,useModel, useControls, useModelClass} from '../store'
 
-import {MeshBasicMaterial} from 'three'
-import { ColorSelectButton } from "./ColorSelectButton"
-import optionClick from "../sound/option_click.wav"
 import FadeInOut from "./FadeAnimation";
 import { SelectorContainerPos } from "../styles/SelectorStyle"
 
@@ -134,10 +124,6 @@ export default function Selector() {
   React.useEffect(() => {
     if (!scene || !templateInfo) return
     if (category) {
-      if (category === "gender") {
-        setCollection(templates)
-        setTraitName("gender")
-      }
       apiService.fetchTraitsByCategory(category).then((traits) => {
         if (traits) {
           setCollection(traits.collection)
@@ -317,8 +303,7 @@ export default function Selector() {
 
   const itemLoader =  async(item, traits = null, addToScene = true, texture) => {
     let r_vrm;
-    await sceneService.loadModel(`${templateInfo.traitsDirectory}${item && item.directory}`, setLoadingTrait)
-    .then(async(vrm) => {
+    const vrm = await sceneService.loadModel(`${templateInfo.traitsDirectory}${item && item.directory}`)
       //console.log(item)
       sceneService.addModelData(vrm,{
         cullingLayer: item.cullingLayer || -1,
@@ -339,8 +324,6 @@ export default function Selector() {
           }, 100)
         }
       })
-
-      setLoadingTrait(null)
 
       // small timer to avoid quickly clicking
       setTimeout(() => {setLoadingTraitOverlay(false)},500);
@@ -520,7 +503,6 @@ export default function Selector() {
           }
         },200)// timeout for animations
       }
-    })
   
   return {
       [traits.trait]: {
@@ -618,15 +600,7 @@ const textureTraitLoader =  (props, trait) => {
 }
 
 const getActiveStatus = (item) => {
-  if(category === 'gender') {
-    if(templateInfo.id === item.id) 
-      return true
-    return false
-  } 
-  
-  if(avatar[category].traitInfo.id && avatar[category].traitInfo.id === item.id) 
-    return true
-  return false
+  return avatar[category] && avatar[category].traitInfo && avatar[category].traitInfo.id === item.id
 }
   return (
     <FadeInOut show={!isHide} duration={300} >

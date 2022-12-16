@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import useSound from 'use-sound';
 import LoadingOverlayCircularStatic from './LoadingOverlay';
-import logo from '../ui/landing/logo.png'
+import logo from '../../public/ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
 import { useModelingStore, usePreModelClass } from '../store'
@@ -24,11 +24,11 @@ export default function Landing(props) {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const f_dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
-    const m_neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
+    const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
+    const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
 
-    const anim_female = "../3d/animations/idle_webaverse.fbx";
-    const anim_male = "../3d/animations/idle_male.fbx";
+    const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
+    const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
 
     const [hovering, setHovering] = useState('');
 
@@ -44,15 +44,15 @@ export default function Landing(props) {
     const [modelArr, setModelArr] = useState([
         {
             index: 1,
-            model: f_dropHunter,
+            model: dropHunter,
             text: 'Dropunter',
-            animation: anim_female
+            animation: anim_drophunter
         },
         {
             index: 2,
-            model: m_neuroHacker,
+            model: neuroHacker,
             text: 'Neurohacker',
-            animation: anim_male
+            animation: anim_neurohacker
         },
 
     ]);

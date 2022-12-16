@@ -1,5 +1,5 @@
 import React from "react"
-import webaMark from "../ui/loading/webaMark.svg"
+import webaMark from "../../public/ui/loading/webaMark.svg"
 import { LoadingStyleBox } from "../styles/LoadingOverlaystyle"
 
 function CircularProgressWithLabel({background, value, title}) {

@@ -49,7 +49,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-plugin-no-inline-styles": "^1.0.5",
-    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-react": "^7.31.11",
     "prettier": "^2.3.2",
     "vite": "^2.4.4"
   }

@@ -2,7 +2,7 @@ export default [
   {
     "id": "1",
     "name": "Neurohacker Female",
-    "file": "./3d/models/drophunter_female.vrm",
+    "file": "./3d/models/drophunter.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
     "offset":[0,-0.18,0],
@@ -20,7 +20,7 @@ export default [
     "traitsDirectory": "https://webaverse-studios.github.io/character-assets/drophunter/",
     "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/drophunter/",
     "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/drophunter/loot.json",
-    "animationPath": "./3d/animations/idle_webaverse.fbx",
+    "animationPath": "./3d/animations/idle_drophunter.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "typeRestrictions":{
         "pants" : ["boots"]
@@ -118,7 +118,7 @@ export default [
   {
     "id": "2",
     "name": "Neurohacker Male",
-    "file": "./3d/models/neurohacker_male.vrm",
+    "file": "./3d/models/neurohacker.vrm",
     "thumbnail": "./3d/icons/male-body-1.png",
     "format": "vrm",
     "offset":[0,-0.14,0],
@@ -234,9 +234,9 @@ export default [
     "EyeTargets": [
         "Head_femalebaked_3"
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/female/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/female/loot.json",
+    "traitsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/female/",
+    "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/female/",
+    "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/neurohacker/female/loot.json",
     "animationPath": "./3d/animations/idle_sword.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{
@@ -330,9 +330,9 @@ export default [
     "EyeTargets": [
         "Face_Malebaked_2"
     ],
-    "traitsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
-    "thumbnailsDirectory": "https://memelotsqui.github.io/loot-assets/neurohacker/male/",
-    "traitsJsonPath": "https://memelotsqui.github.io/loot-assets/neurohacker/male/loot.json",
+    "traitsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/male/",
+    "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/male/",
+    "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/neurohacker/male/loot.json",
     "animationPath": "./3d/animations/idle_sword.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [{

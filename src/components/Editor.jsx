@@ -3,7 +3,7 @@ import React, { useEffect } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
-import shuffle from "../ui/traits/shuffle.png";
+import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../sound/option_click.wav"
 import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo, useControls} from '../store'

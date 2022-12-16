@@ -2,11 +2,11 @@
 import styled from 'styled-components';
 import { SquareButton, ScreenSizeContainer } from './Globals.styled';
 
-import svgDownload from '../../src/ui/download.svg';
-import svgMint from '../../src/ui/mint.svg';
-import svgWallet from '../../src/ui/connectWallet.svg';
-import svgDiconnectWallet from '../../src/ui/diconnectWallet.svg';
-import pngMainBackground from "../ui/mainBackground.png"
+import svgDownload from '../../public/ui/download.svg';
+import svgMint from '../../public/ui/mint.svg';
+import svgWallet from '../../public/ui/connectWallet.svg';
+import svgDiconnectWallet from '../../public/ui/diconnectWallet.svg';
+import pngMainBackground from "../../public/ui/mainBackground.png"
 
 export const Background = styled(ScreenSizeContainer)`
   background : url(${pngMainBackground});
