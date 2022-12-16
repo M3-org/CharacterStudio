@@ -208,7 +208,7 @@ export default function Landing(props) {
                             maxWidth: "30vh",
                             minWidth: "30em"
                         }}
-                        src={"public/DropHunter.svg"} />
+                        src={"./DropHunter.svg"} />
                 </div>
             </div>
             <div className='neurohacker-container' style={{
@@ -246,7 +246,7 @@ export default function Landing(props) {
                             maxWidth: "30vh",
                             minWidth: "30em"
                         }}
-                        src={"public/Neurohacker.svg"}
+                        src={"./Neurohacker.svg"}
                     />
                 </div>
             </div>

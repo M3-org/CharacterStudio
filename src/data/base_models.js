@@ -135,7 +135,7 @@ export default [
     "traitsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/",
     "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/",
     "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/neurohacker/loot.json",
-    "animationPath": "./3d/animations/idle_male.fbx",
+    "animationPath": "./3d/animations/idle_neurohacker.fbx",
     "traitIconsDirectory": "./3d/icons/",
     "selectionTraits": [
     {
