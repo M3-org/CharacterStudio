@@ -1,7 +1,7 @@
 export default [
   {
-    "id": "1",
-    "name": "Neurohacker Female",
+    "id": "0",
+    "name": "Drophunter",
     "file": "./3d/models/drophunter.vrm",
     "thumbnail": "./3d/icons/female-body-1.png",
     "format": "vrm",
@@ -113,11 +113,10 @@ export default [
       }
     }
   ]
-  }
-  ,
+  },
   {
-    "id": "2",
-    "name": "Neurohacker Male",
+    "id": "1",
+    "name": "Neurohacker",
     "file": "./3d/models/neurohacker.vrm",
     "thumbnail": "./3d/icons/male-body-1.png",
     "format": "vrm",
@@ -218,199 +217,6 @@ export default [
         "distance": 1.3,
         "height": 0.2
       },
-    }]
-  } 
-  ,
-  {
-    "id": "3",
-    "name": "Female",
-    "file": "./3d/models/f_neurohacker_v1.vrm",
-    "thumbnail": "./3d/icons/female-body-1.png",
-    "format": "vgitrm",
-    "bodyTargets": [
-        "Body_Female",
-        "Head_femalebaked"
-    ],
-    "EyeTargets": [
-        "Head_femalebaked_3"
-    ],
-    "traitsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/female/",
-    "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/female/",
-    "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/neurohacker/female/loot.json",
-    "animationPath": "./3d/animations/idle_sword.fbx",
-    "traitIconsDirectory": "./3d/icons/",
-    "selectionTraits": [{
-      "name": "color",
-      "id":1,
-      "icon": "skin-color.png",
-      "type": "color",
-      "icon-gradient": "color-gradient.svg",
-      "buttonName": "Skin Color",
-      "cameraTarget":{
-        "distance": 1.5,
-        "height": 0.9
-      },
-      "subTrait":[
-      {
-        "name": "Eye Color",
-        "type": "color",
-        "cameraTarget":{
-          "distance": 0.5,
-          "height": 1.55
-        },
-        "bodyTargets": [
-          "Eye"
-        ]
-      }]
-    },{
-      "name": "head",
-      "icon": "hairStyle.png",
-      "type": "mesh",
-      "id":2,
-      "icon-gradient": "head-gradient.svg",
-      "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.55
-      }
-    },{
-      "name": "chest",
-      "icon": "torso.png",
-      "icon-gradient": "chest-gradient.svg",
-      "type": "mesh",
-      "cameraTarget":{
-        "distance": 1.4,
-        "height": 0.9
-      }
-    },{
-      "name": "accessories",
-      "icon": "accessories.png",
-      "type": "mesh",
-      "id":3,
-      "icon-gradient": "accessories-gradient.svg",
-      "cameraTarget":{
-        "distance": 1.7,
-        "height": 0.8
-      }
-    },{
-      "name": "legs",
-      "icon": "legs.png",
-      "type": "mesh",
-      "icon-gradient": "chest-gradient.svg",
-      "id":4,
-      "cameraTarget":{
-        "distance": 1.5,
-        "height": 0.6
-      }
-    },{
-      "name": "feet",
-      "icon": "shoes.png",
-      "type": "mesh",
-      "icon-gradient": "foot-gradient.svg",
-      "id":5,
-      "cameraTarget":{
-        "distance": 0.8,
-        "height": 0.32
-      },
-      "eye": {
-        "distance": 0.3,
-        "height": 1.5
-      }
-    }]
-    },
-    {
-    "id": "4",
-    "name": "Male",
-    "file": "./3d/models/m_neurohacker_v1.vrm",
-    "thumbnail": "./3d/icons/male-body-1.png",
-    "format": "vrm",
-    "bodyTargets": [
-        "Body",
-        "Face_Malebaked"
-    ],
-    "EyeTargets": [
-        "Face_Malebaked_2"
-    ],
-    "traitsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/male/",
-    "thumbnailsDirectory": "https://webaverse-studios.github.io/character-assets/neurohacker/male/",
-    "traitsJsonPath": "https://webaverse-studios.github.io/character-assets/neurohacker/male/loot.json",
-    "animationPath": "./3d/animations/idle_sword.fbx",
-    "traitIconsDirectory": "./3d/icons/",
-    "selectionTraits": [{
-      "name": "color",
-      "id":1,
-      "icon": "skin-color.png",
-      "type": "color",
-      "icon-gradient": "color-gradient.svg",
-      "buttonName": "Skin Color",
-      "cameraTarget":{
-        "distance": 1.4,
-        "height": 0.8
-      },
-      "subTrait":[
-      {
-        "name": "Eye Color",
-        "type": "color",
-        "cameraTarget":{
-          "distance": 0.5,
-          "height": 1.45
-        },
-        "bodyTargets": [
-          "Eye"
-        ]
-      }]
-    },{
-      "name": "head",
-      "icon": "hairStyle.png",
-      "type": "mesh",
-      "id":2,
-      "icon-gradient": "head-gradient.svg",
-      "cameraTarget":{
-        "distance": 0.5,
-        "height": 1.45
-      }
-    },{
-      "name": "chest",
-      "icon": "torso.png",
-      "icon-gradient": "chest-gradient.svg",
-      "type": "mesh",
-      "cameraTarget":{
-        "distance": 1.3,
-        "height": 0.9
-      }
-    },{
-      "name": "accessories",
-      "icon": "accessories.png",
-      "type": "mesh",
-      "id":3,
-      "icon-gradient": "accessories-gradient.svg",
-      "cameraTarget":{
-        "distance": 1.4,
-        "height": 0.8
-      }
-    },{
-      "name": "legs",
-      "icon": "legs.png",
-      "type": "mesh",
-      "icon-gradient": "chest-gradient.svg",
-      "id":4,
-      "cameraTarget":{
-        "distance": 1.1,
-        "height": 0.55
-      }
-    },{
-      "name": "feet",
-      "icon": "shoes.png",
-      "type": "mesh",
-      "icon-gradient": "foot-gradient.svg",
-      "id":5,
-      "cameraTarget":{
-        "distance": 0.8,
-        "height": 0.32
-      },
-      "eye": {
-        "distance": 0.3,
-        "height": 1.5
-      }
     }]
   }  
 ]

@@ -105,7 +105,7 @@ export default function CharacterEditor(props) {
         {templateInfo && (
           <Fragment>
             <animated.div style={animatedStyle} >
-              <Scene/>  
+              <Scene type={templateInfo.name} />  
             </animated.div>
           </Fragment>
         )}

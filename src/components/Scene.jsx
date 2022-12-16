@@ -1,7 +1,7 @@
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
@@ -20,11 +20,12 @@ import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateI
 
 import logo from '../../public/ui/weba.png'
 
-export default function Scene() {
+export default function Scene({type}) {
   const [showType, setShowType] = useState(false);
 
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
+  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
 
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
@@ -53,6 +54,7 @@ export default function Scene() {
     setEnd(false);
     formatModeling();
     formatComplete();
+    setTemplateInfo({file: null, format: null, bodyTarget: null});
   }
 
   const connectWallet = async () => {
@@ -111,8 +113,8 @@ export default function Scene() {
     showType ? setShowType(false) : setShowType(true);
   }
 
-  const downLoad = (format ) => {
-    sceneService.download(model, `CC_Model`, format, false);
+  const download = (format, type) => {
+    sceneService.download(model, `UpstreetAvatars_${type}`, format, false);
   }
 
   const mintAsset = async () => {
@@ -307,8 +309,8 @@ export default function Scene() {
       </Background>
       <TopRightMenu>
         {showType && <Fragment>
-            <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
-            <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
+            <TextButton onClick={() => download('vrm', type)} ><span>VRM</span></TextButton>
+            <TextButton onClick={() => download('glb', type)} ><span>GLB</span></TextButton>
           </Fragment>
         }
         

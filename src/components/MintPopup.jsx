@@ -1,5 +1,5 @@
 import { StyledBackground,MintPriceBox, MintCost, StyledPopup,StyledContainer, Title, Header, ButtonPanel,TraitDetail, TraitImage,TraitText, TraitBox } from '../styles/MintPopup.styled.js'
-import React from "react";
+import React, { Fragment } from "react";
 import {useAvatar, useConfirmWindow, useMintLoading, useMintStatus, useTemplateInfo, useColorStatus, useMintDone } from "../store";
 import MintModal from './MintModal';
 import walletErrorImage from '../../public/ui/mint/walletError.png'
