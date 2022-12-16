@@ -257,11 +257,10 @@ export default function Selector() {
     })
   }
 
-  const selectTrait = (trait: any) => {
+  const selectTrait = (trait: any, textureIndex?: number) => {
     if (trait.bodyTargets) {
       setTemplate(trait?.id)
     }
-    
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
@@ -276,22 +275,38 @@ export default function Selector() {
         //sceneService.
       } else {
         
-        if (trait.textures){
-          setTextureOptions(trait.textures);
-        }
-        else{
-          setTextureOptions([]);
-        }
+        // if (trait.textures){
+        //   setTextureOptions(trait.textures);
+        // }
+        // else{
+        //   setTextureOptions([]);
+        // }
         if (trait.bodyTargets) {
           setTemplate(trait?.id)
         } else {
+
+
+
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           templateInfo.selectionTraits.map((item) =>{
             if(item.name === category && item.type === "texture"){
               textureTraitLoader(item, trait)
             }else if(item.name === category){
-              itemLoader(trait)
+              if (trait.textureCollection && textureIndex){
+                  apiService.fetchTraitsByCategory(trait.textureCollection).then((txtrs)=>{
+                    const localDir = txtrs.collection[textureIndex].directory;
+                    const texture = templateInfo.traitsDirectory + localDir;
+                    const loader = new THREE.TextureLoader();
+                    loader.load(texture, (txt)=>{
+                      txt.flipY = false; 
+                      itemLoader(trait, null, true, txt)
+                    });
+                  })
+                }
+              else{
+                itemLoader(trait, null, true)
+              }
             }
           })
         }
@@ -301,11 +316,10 @@ export default function Selector() {
   }
   let loading;
 
-  const itemLoader =  async(item, traits = null, addToScene = true) => {
+  const itemLoader =  async(item, traits = null, addToScene = true, texture?) => {
     let r_vrm;
-
     await sceneService.loadModel(`${templateInfo.traitsDirectory}${item?.directory}`, setLoadingTrait)
-    .then((vrm) => {
+    .then(async(vrm) => {
       //console.log(item)
       sceneService.addModelData(vrm,{
         cullingLayer: item.cullingLayer || -1,
@@ -326,6 +340,7 @@ export default function Selector() {
           }, 100)
         }
       })
+
       setLoadingTrait(null)
 
       // small timer to avoid quickly clicking
@@ -334,8 +349,17 @@ export default function Selector() {
       if (addToScene){
         model.data?.animationManager?.startAnimation(vrm);
         setTimeout(() => {  // wait for it to play 
+         
+          if (texture){
+            vrm.scene.traverse((child)=>{
+              if (child.isMesh){
+                child.material[0].map = texture;
+                child.material[0].shadeMultiplyTexture = texture;
+              }
+            })
+          }
+          //texture area
           model.scene.add(vrm.scene);
-          
           if (avatar[traitName]) {
 
             const traitData = templateInfo.selectionTraits.find(element => element.name === traitName);
@@ -645,6 +669,7 @@ const getActiveStatus = (item) => {
                         {selectionMode === 0 && collection &&
                           collection.map((item: any, index) => {
                             return (
+                              !item.thumbnailOverrides ? (
                               <div
                                 key={index}
                                 style={getActiveStatus(item) ? selectorButtonActive : selectorButton }
@@ -670,6 +695,38 @@ const getActiveStatus = (item) => {
                                   </div>
                                 )}
                               </div>
+                              )
+                              :
+                                
+                              item.thumbnailOverrides.map((icn:any, icnindex)=>{
+                                  return (
+                              <div
+                                key={index + "_" + icnindex}
+                                style={selectorButton }
+                                //style={getActiveStatus(icn) ? selectorButtonActive : selectorButton }
+                                className={`selector-button coll-${traitName} ${selectValue === item?.id ? "active" : ""}`}
+                                onClick={() => {
+                                  !isMute && play();
+                                  selectTrait(item,icnindex)
+                                }}
+                              >
+                                <img 
+                                  className="trait-icon"
+                                  src={`${templateInfo?.thumbnailsDirectory}${icn}` }
+                                />
+                                <img 
+                                  src={tick}
+                                  className = {getActiveStatus(item) ? "tickStyle" : "tickStyleInActive"}
+                                />
+                                {selectValue === item?.id && loadedPercent > 0 && (
+                                  <div
+                                    className="loading-trait"
+                                  >
+                                    {loadedPercent}%
+                                  </div>
+                                )}
+                              </div>
+                              )})
                             )
                           })
                         }

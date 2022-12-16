@@ -104,7 +104,6 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
           // improve id
           <MenuOption
             onClick = {()=>{
-              console.log(item)
               selectOption(item)
             }} 
             selected = {category === item.name}
