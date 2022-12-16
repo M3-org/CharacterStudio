@@ -38,7 +38,7 @@ export default [
         }
       },
     {
-      "name": "eyes",
+      "name": "eyeColor",
       "icon": "eye.png",
       "type": "texture",
       "target": "head_geobaked(copy)",
@@ -150,7 +150,7 @@ export default [
       }
     },
     {
-      "name": "eyes",
+      "name": "eyeColor",
       "icon": "eye.png",
       "type": "texture",
       "target": "Headbaked(copy)_1",

@@ -277,11 +277,6 @@ export default function Scene() {
             linear = {true}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
-            <gridHelper
-              args={[50, 25, "#101010", "#101010"]}
-              position={[0, 0, 0]}
-              visible={false}
-            /> 
             <ambientLight
               color={[1,1,1]}
               intensity={0.5}
