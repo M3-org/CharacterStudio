@@ -84,6 +84,10 @@ function App() {
       stop();
     }
   }, [isMute])
+  
+  useEffect(() => {
+    backWav();
+  }, [])
 
   useEffect(() => {
     if(modelClass) 

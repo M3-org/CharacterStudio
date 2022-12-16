@@ -21,10 +21,6 @@ import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
 
 export default function Landing(props) {
-
-    const isMute = useMuteStore((state) => state.isMute)
-    const setMute = useMuteStore((state) => state.setMute)
-
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
     const defaultTemplates = useDefaultTemplates((state) => state.defaultTemplates)
@@ -163,7 +159,6 @@ export default function Landing(props) {
     );
 
     const handleClick = (type) => {
-        if (!isMute)
             click();
         setCardAnimation.start({
             from: {
@@ -308,17 +303,25 @@ export default function Landing(props) {
             //linear
             //className="canvas"
             >
-                <directionalLight
-                    //castShadow = {true}
-                    intensity={1}
-                    color={[0.6, .8, 1]}
-                    position={[-2, 3, 6]}
-                    shadow-mapSize={[1024, 1024]}>
-                </directionalLight>
-                <ambientLight
-                    color={[0.6, 0.9, 1]}
-                    intensity={0.5}
-                />
+            <ambientLight
+              color={[1,1,1]}
+              intensity={0.5}
+            />
+            
+            <directionalLight 
+              //castShadow = {true}
+              intensity = {0.5} 
+              //color = {[0.5,0.5,0.5]}
+              position = {[3, 1, 5]} 
+              shadow-mapSize = {[1024, 1024]}>
+              <orthographicCamera 
+                attach="shadow-camera" 
+                left={-20} 
+                right={20} 
+                top={20} 
+                bottom={-20}/>
+            </directionalLight>
+            
                 <PerspectiveCamera
                     ref={camera}
                     fov={20}
