@@ -254,7 +254,7 @@ async function setMaterialColor(scene: any, value: any, target: any) {
       const hslSkin = { h: 0, s: 0, l: 0 };
       skinShade.getHSL(hslSkin);
 
-      mat.uniforms.shadeColorFactor.value.setRGB(skinShade.r,skinShade.g*0.8,skinShade.b*0.8)
+      mat.uniforms.shadeColorFactor.value.setRGB(skinShade.r,skinShade.g,skinShade.b)
     }
   }
 }
