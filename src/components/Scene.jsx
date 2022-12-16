@@ -41,6 +41,7 @@ export default function Scene() {
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
   const setMintDone = useMintDone((state) => state.setMintDone)
+  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -53,6 +54,7 @@ export default function Scene() {
     setEnd(false);
     formatModeling();
     formatComplete();
+    setTemplateInfo({file:null, format:null, bodyTarget:null})
   }
 
   const connectWallet = async () => {
