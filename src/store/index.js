@@ -82,7 +82,7 @@ const useAvatar = create((set) => ({
         legs:{},
         feet:{},
         accessories:{},
-        eyes:{},
+        eyeColor:{},
         outer:{},
         solo:{}
     },
