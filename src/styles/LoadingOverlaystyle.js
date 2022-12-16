@@ -41,16 +41,13 @@ export const LoadingStyleBox = styled.div`
             .loading-bar{
                 display: block;
 
-                // move 30% to the right
-                transform : translate(30%, 0);
-
                 width : ${props => Math.round(props.loadedValue) + '%'};
 
-                height: 6px;
+                height: 7px;
                 background-color: #FFFFFF;
                 border-radius: 10px;
                 transition:  width 1s;
-                margin: 10px;
+                margin: 3.5px;
             }
         }
     }
