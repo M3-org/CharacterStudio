@@ -1,8 +1,7 @@
-/* eslint-disable no-inline-styles/no-inline-styles */
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import Editor from "./Editor";
 import { TemplateModel } from "./Models";
 import Selector from "./Selector";
@@ -11,49 +10,32 @@ import { apiService, sceneService, Contract } from "../services";
 import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
-import { disconnect } from "process";
 import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
-import { FitParentContainer, TopRightMenu, BottomRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
-import AutoRotate from "./AutoRotate";
-import { useThree } from "@react-three/fiber";
+import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
 
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
-
 import logo from '../ui/weba.png'
-
-const ACCOUNT_DATA = {
-  EMAIL: 'email',
-  AVATAR: 'avatar',
-};
 
 export default function Scene() {
   const [showType, setShowType] = useState(false);
 
-  //const [camera, setCamera] = useState<object>(Object);
   const [connected, setConnected] = useState(false);
   const [ensName, setEnsName] = useState('');
-  const [autoRotate, setAutoRotate] = useState(true);
 
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden =  useHideStore((state) => state.ishidden)
   const avatar = useAvatar((state) => state.avatar)
   const scene = useScene((state) => state.scene)
-  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const model = useModel((state) => state.model)
   const setControls = useControls((state) => state.setControls)
   const setCamera = useCamera((state) => state.setCamera)
-  const camera = useCamera((state) => state.camera)
-  const controls = useControls((state) => state.controls)
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
-  const setMintCost = useMintStatus((state) => state.setMintCost)
-  const modelClass = useModelClass((state) => state.modelClass)
   const setModelClass = useModelClass((state) => state.setModelClass)
   const setEnd = useEnd((state) => state.setEnd)
   const formatModeling = useModelingStore((state) => state.formatModeling)
@@ -94,13 +76,13 @@ export default function Scene() {
 
   }, [account]);
 
-  const _setAddress = async (address:any) => {
-      const {name, avatar}: any = await getAccountDetails(address);
+  const _setAddress = async (address) => {
+      const {name, avatar} = await getAccountDetails(address);
       console.log("ens", name)
       setEnsName(name ? name.slice(0, 15) + "..." : '');
   };
 
-  const getAccountDetails = async (address: any) => {
+  const getAccountDetails = async (address) => {
     const provider = ethers.getDefaultProvider('mainnet', {
       alchemy: 'OOWUrxHDTRyPmbYOSGyq7izHNQB1QYOv'
     });
@@ -109,19 +91,6 @@ export default function Scene() {
     try {
       const name = await provider.lookupAddress(check);
       if (!name) return {};
-
-      // const resolver = await provider.getResolver(name);
-
-      // const accountDetails = {};
-
-      // await Promise.all(
-      //   Object.keys(ACCOUNT_DATA).map(async key => {
-      //     const data = await resolver.getText(ACCOUNT_DATA[key]);
-      //     accountDetails[ACCOUNT_DATA[key]] = data;
-      //   }),
-      // );
-
-      // return {...accountDetails, name};
       return {name};
     } catch (err) {
       console.warn(err.stack);
@@ -142,7 +111,7 @@ export default function Scene() {
     showType ? setShowType(false) : setShowType(true);
   }
 
-  const downLoad = (format : any) => {
+  const downLoad = (format ) => {
     sceneService.download(model, `CC_Model`, format, false);
   }
 
@@ -159,15 +128,15 @@ export default function Scene() {
         
         sceneService.getScreenShot().then(async (screenshot) => {
           if(screenshot) {
-            const imageHash: any = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
+            const imageHash = await apiService.saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
               .catch((reason)=>{
                 console.error(reason);
                 setMintStatus("Couldn't save to pinata")
                 setMintLoading(false);
               });
             sceneService.getModelFromScene().then(async (glb) => {
-              const glbHash : any = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
-              const attributes : any = getAvatarTraits();
+              const glbHash  = await apiService.saveFileToPinata(glb, "AvatarGlb_" + Date.now() + ".glb");
+              const attributes  = getAvatarTraits();
               const metadata = {
                 name : "Avatars",
                 description: "Creator Studio Avatars.",
@@ -176,7 +145,7 @@ export default function Scene() {
                 attributes
               }
               const str = JSON.stringify(metadata);
-              const metaDataHash :any = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
+              const metaDataHash  = await apiService.saveFileToPinata(new Blob([str]), "AvatarMetadata_" + Date.now() + ".json");
               await mintNFT("ipfs://" + metaDataHash.IpfsHash);
             })
           }
@@ -197,7 +166,7 @@ export default function Scene() {
     return metadataTraits;
   }
 
-  const mintNFT = async (metadataIpfs : any) => {
+  const mintNFT = async (metadataIpfs ) => {
     setMintStatus("Minting...")
     const chainId = 5; // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
     if (window.ethereum.networkVersion !== chainId) {
@@ -309,12 +278,6 @@ export default function Scene() {
               dampingFactor = { 0.1 }
               target={[0, 1.1, 0]}
             />
-           
-            {/* <Suspense fallback={null}>
-              <EffectComposer>
-                <Bloom />
-              </EffectComposer>
-            </Suspense> */}
             <PerspectiveCamera 
               ref ={setCamera}
               aspect={1200 / 600}
@@ -343,10 +306,10 @@ export default function Scene() {
         </ResizeableCanvas>
       </Background>
       <TopRightMenu>
-        {showType && <>
+        {showType && <Fragment>
             <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
-          </>
+          </Fragment>
         }
         
         <DownloadButton onClick={handleDownload}/>
@@ -365,9 +328,6 @@ export default function Scene() {
           <WalletImg/>
         </WalletButton>
       </TopRightMenu>
-      <BottomRightMenu right = {'140px'}>
-        <AutoRotate/>
-      </BottomRightMenu>
       <div>
         <Selector/>
         <Editor backCallback={reset} />

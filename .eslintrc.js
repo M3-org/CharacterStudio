@@ -13,16 +13,13 @@ module.exports = {
         "ecmaFeatures": {
             "jsx": true
         },
-        "ecmaVersion": 13,
         "sourceType": "module"
     },
     "plugins": [
         "react",
-        "@typescript-eslint",
         "eslint-plugin-no-inline-styles"
     ],
     "rules": {
-        "@typescript-eslint/no-explicit-any": 0,
         "no-inline-styles/no-inline-styles": 2
     }
 };

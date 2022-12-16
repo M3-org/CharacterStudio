@@ -7,12 +7,8 @@ import html2canvas from "html2canvas";
 import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
-import { LottieLoader } from "three/examples/jsm/loaders/LottieLoader";
 import { CullHiddenFaces} from '../library/cull-mesh.js'
 import { combine } from "../library/mesh-combination";
-
-import { OfflineShareTwoTone, Output } from "@mui/icons-material";
-import { renameMecanimBones } from "./bonesRename";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
@@ -28,29 +24,28 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-const lottieLoader =  new LottieLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const setAvatarModel = (newAvatar: VRM) => {
+const setAvatarModel = (newAvatar) => {
   avatarModel = newAvatar;
 }
 
 const getAvatarModel = () => avatarModel;
 
-const setScene = (newScene: any) => {
+const setScene = (newScene) => {
   scene = newScene;
 }
 const getScene = () => scene;
 
 let traits = {};
 
-const setTraits = (newTraits: any) => {
+const setTraits = (newTraits) => {
   traits = newTraits;
   cullHiddenMeshes();
 }
 
 
-const setAvatarTemplateInfo = (newAvatarTemplateInfo:any) =>{
+const setAvatarTemplateInfo = (newAvatarTemplateInfo) =>{
   avatarTemplateInfo = newAvatarTemplateInfo;
 }
 
@@ -109,28 +104,10 @@ const cullHiddenMeshes = () => {
 
 const getTraits = () => traits;
 
-async function loadTexture(location:string):Promise<THREE.Texture>{
+async function loadTexture(location) {
   const txt = textureLoader.load(location);
   return txt;
 }
-
-async function loadLottie(file:string, quality?:number, playAnimation?:boolean, onProgress?: (event: ProgressEvent) => void):Promise<THREE.Mesh>{
-  lottieLoader.setQuality( quality || 2 );
-  return lottieLoader.loadAsync(file, onProgress).then((lot) => {
-      playAnimation ? lot.animation.play():{};
-      const geometry = new THREE.CircleGeometry( 0.75, 32 );
-
-      // assign same uvs in lightmaps as main uvs
-      geometry.setAttribute("uv2", geometry.getAttribute('uv'));
-
-      const material = new THREE.MeshBasicMaterial( { map: lot, lightMap: lot, lightMapIntensity:2, side:THREE.BackSide, alphaTest: 0.5});
-      const mesh = new THREE.Mesh( geometry, material );
-      
-      return mesh;
-  })
-}
-
-
 
 async function getModelFromScene(format = 'glb') {
   if (format && format === 'glb') {
@@ -152,18 +129,18 @@ async function getModelFromScene(format = 'glb') {
     
     const avatar = await combine({ transparentColor:skinColor, avatar:avatarModel.scene.clone() });
     
-    const glb: any = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
+    const glb = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options))
     return new Blob([glb], { type: 'model/gltf-binary' })
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
-    const vrm: any = await new Promise((resolve) => exporter.parse(scene, resolve))
+    const vrm = await new Promise((resolve) => exporter.parse(scene, resolve))
     return new Blob([vrm], { type: 'model/gltf-binary' })
   } else {
     return console.error("Invalid format");
   }
 }
 
-async function getScreenShot(delay?) {
+async function getScreenShot(delay) {
   delay = delay || 0;
   await timeout(delay)
   return await getScreenShotByElementId("mint-scene")
@@ -186,7 +163,7 @@ async function getScreenShotByElementId(id) {
   });
 }
 
-async function saveScreenShotByElementId(id: string) {
+async function saveScreenShotByElementId(id) {
   setTimeout(() => {
     setTimeout(() => {
       getScreenShotByElementId(id).then((screenshot) => {
@@ -207,19 +184,19 @@ async function saveScreenShotByElementId(id: string) {
   }, 600);
 }
 
-async function getObjectValue(target: any, scene: any, value: any) {
+async function getObjectValue(target, scene, value) {
   if (target && scene) {
     const object = scene.getObjectByName(target);
     return object.material.color;
   }
 }
 
-async function getMesh(name: any, scene: any) {
+async function getMesh(name, scene) {
   const object = scene.getObjectByName(name);
   return object;
 }
 
-async function getSkinColor(scene:any, targets: any){
+async function getSkinColor(scene, targets){
   if (scene) {
     for (const target of targets) {
       const object = scene.getObjectByName(target);
@@ -243,7 +220,7 @@ async function getSkinColor(scene:any, targets: any){
     }
   }
 }
-async function setMaterialColor(scene: any, value: any, target: any) {
+async function setMaterialColor(scene, value, target) {
   if (scene && value) {
     const object = scene.getObjectByName(target);
     if (object != null){
@@ -258,7 +235,7 @@ async function setMaterialColor(scene: any, value: any, target: any) {
     }
   }
 }
-function setSkinColor(color:any){
+function setSkinColor(color){
   skinColor = new THREE.Color(color)
 }
 
@@ -266,9 +243,9 @@ const loader = new GLTFLoader();
 loader.register((parser) => {
   return new VRMLoaderPlugin(parser);
 });
-//loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
+//loadAsync(url, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
-async function loadModel(file: any, offset?: Array<float>, onProgress?: (event: ProgressEvent) => void):Promise<VRM> {
+async function loadModel(file, offset, onProgress) {
   return loader.loadAsync(file, onProgress).then((model) => {
     
     const vrm = model.userData.vrm;
@@ -285,13 +262,13 @@ async function loadModel(file: any, offset?: Array<float>, onProgress?: (event: 
 }
 
 //make sure to remove this data when downloading, as this data is only required while in edit mode
-function addModelData(model:any, data:any){
+function addModelData(model, data){
   if (model.data == null)
     model.data = data;
   else
     model.data = {...model.data, ...data};
 }
-function removeModelData(model:any, props?:Array<string>){
+function removeModelData(model, props){
   if (model.data == null)
     return;
 
@@ -306,14 +283,14 @@ function removeModelData(model:any, props?:Array<string>){
   }
 }
 
-function getModelProperty(model:any, property:string):any{
+function getModelProperty(model, property){
   if (model.data == null)
     return;
 
   return model.data[property];
 }
 
-function disposeVRM (vrm: any) {
+function disposeVRM (vrm) {
   const model = vrm.scene;
   const animationControl = (getModelProperty(vrm, "animationControl"));
   if (animationControl)
@@ -343,11 +320,8 @@ function disposeVRM (vrm: any) {
 }
 
 
-const createFaceNormals  = (geometry:THREE.BufferGeometry) => {
+const createFaceNormals  = (geometry) => {
   //create face normals
-
-
-
   const pos = geometry.attributes.position;
   const idx = geometry.index;
 
@@ -370,7 +344,7 @@ const createFaceNormals  = (geometry:THREE.BufferGeometry) => {
   geometry.userData.faceNormals = faceNormals;
 }
 
-const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
+const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
   const pos = geometry.attributes.position.array;
@@ -488,15 +462,16 @@ const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
 
 
 
-const renameVRMBones = (vrm:VRM) =>{
+const renameVRMBones = (vrm) =>{
   const bones = vrm.humanoid.humanBones;
   for (const boneName in bones) {
     bones[boneName].node.name = boneName;
   } 
 }
 
-function setupModel(vrm: VRM):void{
-  vrm.scene?.traverse((child:any)=>{
+function setupModel(vrm){
+  console.log('setting up model', vrm, new Error().stack);
+  vrm.scene?.traverse((child)=>{
 
     child.frustumCulled = false
 
@@ -512,13 +487,13 @@ function setupModel(vrm: VRM):void{
         createBoneDirection(child);
 
       if (child.material.length > 1){
-        child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
-        child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+        // child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+        // child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
       }
   }});
 }
 
-async function getMorphValue(key: any, scene: any, target: any) {
+async function getMorphValue(key, scene, target) {
   if (key && scene) {
     const mesh = scene.getObjectByName(target);
     const index = mesh.morphTargetDictionary[key];
@@ -531,13 +506,13 @@ async function getMorphValue(key: any, scene: any, target: any) {
 
 
 async function updateMorphValue(
-  key: any,
-  value: any,
-  scene: any,
-  targets: any
+  key,
+  value,
+  scene,
+  targets
 ) {
   if (key && targets && value) {
-    targets.map((target: any) => {
+    targets.map((target) => {
       const mesh = scene.getObjectByName(target);
       const index = mesh.morphTargetDictionary[key];
       if (index !== undefined) {
@@ -547,7 +522,7 @@ async function updateMorphValue(
   }
 }
 
-async function updatePose(name: any, value: any, axis: any, scene: any) {
+async function updatePose(name, value, axis, scene) {
   var bone = scene.getObjectByName(name);
   if (bone instanceof THREE.Bone) {
     switch (axis) {
@@ -567,11 +542,11 @@ async function updatePose(name: any, value: any, axis: any, scene: any) {
 }
 
 async function download(
-  model: any,
-  fileName: any,
-  format: any,
-  screenshot: any,
-  atlasSize:number = 4096
+  model,
+  fileName,
+  format,
+  screenshot,
+  atlasSize = 4096
 ) {
   // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
   // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
@@ -637,11 +612,11 @@ async function download(
     // change material array to the single atlas material
     avatarModel.materials = [avatar.userData.atlasMaterial];
 
-    exporter.parse(avatarModel, avatar, (vrm : ArrayBuffer) => {
+    exporter.parse(avatarModel, avatar, (vrm ) => {
       saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     });
 
-    // exporter.parse(avatarModel, avatar, (vrm : ArrayBuffer) => {
+    // exporter.parse(avatarModel, avatar, (vrm) => {
     //   saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
     // });
     console.log("finished")
@@ -650,7 +625,6 @@ async function download(
 
 export const sceneService = {
   loadTexture,
-  loadLottie,
   loadModel,
   updatePose,
   updateMorphValue,

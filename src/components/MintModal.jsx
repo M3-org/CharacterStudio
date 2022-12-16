@@ -1,20 +1,13 @@
 import React from "react";
-import CloseIcon from '@mui/icons-material/Close';
-import DownloadIcon from "@mui/icons-material/Download";
-import { Modal } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import { Box } from "@mui/system";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
-import { sceneService } from "../services";
 import { TemplateModel } from "./Models";
-import { useScene, useTemplateInfo, useModel } from "../store";
+import { useScene, useModel } from "../store";
 import { NoToneMapping } from 'three';
 
 const style = {
-  position: 'absolute' as 'absolute',
+  position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',

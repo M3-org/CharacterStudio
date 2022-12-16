@@ -1,6 +1,3 @@
-/* eslint-disable react/no-unknown-property */
-/* eslint-disable no-inline-styles/no-inline-styles */
-
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import useSound from 'use-sound';
@@ -8,42 +5,27 @@ import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
-import { LandingPop } from './LandingPop';
-import { useMuteStore, useModelingStore, useDefaultTemplates, usePreModelClass } from '../store'
+import { useModelingStore, usePreModelClass } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 import { Canvas } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
-import { NoToneMapping, TextureLoader } from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRM } from "@pixiv/three-vrm"
+import { NoToneMapping } from 'three';
 import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
 
 export default function Landing(props) {
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
-    const defaultTemplates = useDefaultTemplates((state) => state.defaultTemplates)
     const setPreModelClass = usePreModelClass((state) => state.setPreModelClass)
 
-    const [controls, setControls] = useState<object>(Object);
-    const [drophunter, setDrophunter] = useState<object>(Object);
-    const [neurohacker, setNeurohacker] = useState<object>(Object);
-
-    const [clicked, setClicked] = useState(false);
+    const [drophunter, setDrophunter] = useState(Object);
+    const [neurohacker, setNeurohacker] = useState(Object);
 
     const [isLoading, setIsLoading] = useState(false);
 
     const f_dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
-    const m_dropHunter = "../3d/models/landing/landing_m_drophunter.vrm"
-
-    const f_neuroHacker = "../3d/models/landing/f_neurohacker.vrm"
     const m_neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
-
-    const [cameraFov, setCameraFov] = useState(20);
-    const [cameraPositionX, setCameraPositionX] = useState(0);
-    const [cameraPositionY, setCameraPositionY] = useState(-1.45);
-    const [cameraPositionZ, setCameraPositionZ] = useState(3.1);
 
     const anim_female = "../3d/animations/idle_webaverse.fbx";
     const anim_male = "../3d/animations/idle_male.fbx";
@@ -75,9 +57,6 @@ export default function Landing(props) {
 
     ]);
 
-    const [backgroundAnimation, setBackgroundAnimation] = useState(false)
-    const [isHovering, setIsHovering] = useState(false);
-    const [musicStatus, setMusicStatus] = useState(false);
     const [loadingPercent, setLoadingPercent] = useState(0);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
@@ -178,7 +157,6 @@ export default function Landing(props) {
                 y: -window.innerHeight,
             }
         })
-        setBackgroundAnimation(true)
         setTimeout(() => {
             setPreModelClass(type)
         }, 500)
@@ -281,7 +259,7 @@ export default function Landing(props) {
                 </div>
                 <div className="subTitle" >
                     <div className='subTitle-text'>Pick a Class
-                        <div className="subTitle-desc"> You'll be able to customize in a moment.</div>
+                        <div className="subTitle-desc"> You will be able to customize in a moment.</div>
                     </div>
 
                 </div>
@@ -292,16 +270,13 @@ export default function Landing(props) {
             </div>
             <Canvas
                 style={{
-                    // width: "calc(100%)",
-                    // position: "absolute",
                     width: '100vw',
                     height: '100vh',
                     position: 'fixed',
                 }}
-                camera={{ fov: cameraFov }}
+                camera={{ fov: 20 }}
+                linear = {true}
                 gl={{ antialias: true, toneMapping: NoToneMapping }}
-            //linear
-            //className="canvas"
             >
             <ambientLight
               color={[1,1,1]}
@@ -309,9 +284,7 @@ export default function Landing(props) {
             />
             
             <directionalLight 
-              //castShadow = {true}
               intensity = {0.5} 
-              //color = {[0.5,0.5,0.5]}
               position = {[3, 1, 5]} 
               shadow-mapSize = {[1024, 1024]}>
               <orthographicCamera 
@@ -325,7 +298,7 @@ export default function Landing(props) {
                 <PerspectiveCamera
                     ref={camera}
                     fov={20}
-                    position={[cameraPositionX, cameraPositionY, cameraPositionZ]}
+                    position={[0, -1.45, 3.1]}
                     rotation={[-0, 0, 0]}
                     onUpdate={self => self.updateProjectionMatrix()}
                 >

@@ -32,14 +32,14 @@ function fetchCategoryList () { //need to update
   return categoryList;
 } 
 
-async function fetchTraitsByCategory(name: any) {
-  const filtered = modelTraits.filter((trait: any) => trait.trait === name);
+async function fetchTraitsByCategory(name) {
+  const filtered = modelTraits.filter((trait) => trait.trait === name);
   return filtered[0];
 }
 
-async function fetchTemplate(template:any,id: any) {
+async function fetchTemplate(template,id) {
   //console.log(template.indexOf(id));
-  const filtered = template.filter((templates: any) => templates.id === id);
+  const filtered = template.filter((templates) => templates.id === id);
   if (fetchedTemplate != id) {
     if (filtered[0] && filtered[0].traitsJsonPath) await fetchTraits(filtered[0].traitsJsonPath)
   }
@@ -48,7 +48,7 @@ async function fetchTemplate(template:any,id: any) {
 }
 
 
-async function fetchTraits(path: any) {
+async function fetchTraits(path) {
   modelTraits = await (await fetch(path)).json()
 }
 
@@ -56,7 +56,7 @@ async function fetchBones() {
   return bones;
 }
 
-async function filterElements(search: any, elements: any, category: any) {
+async function filterElements(search, elements, category) {
   if (elements && elements.length && category) {
     const value = search;
     const val = value.toString().toLowerCase();
@@ -78,7 +78,7 @@ async function filterElements(search: any, elements: any, category: any) {
   }
 }
 
-async function saveFileToPinata(fileData: any, fileName: any) {
+async function saveFileToPinata(fileData, fileName) {
 
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
   let data = new FormData();
@@ -95,7 +95,7 @@ async function saveFileToPinata(fileData: any, fileName: any) {
     return resultOfUpload.data;
 }
 
-async function saveMetaDataToPinata(metadata: any) {
+async function saveMetaDataToPinata(metadata) {
   // const response = await axios.post(`${BASE_URI_PROD}/save-metadata`, {
   //   ...metadata,
   // });

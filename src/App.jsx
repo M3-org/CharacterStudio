@@ -10,7 +10,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing";
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-// import '.././src/styles/landing.scss'
 import backgroundImg from '../src/ui/background.png'
 import bgm from "./sound/cc_bgm_balanced.wav"
 
@@ -46,7 +45,7 @@ function App() {
   const preModelClass = usePreModelClass((state) => state.preModelClass)
 
   setDefaultModel(defaultTemplates)
-  const getLibrary = (provider: any): Web3Provider => {
+  const getLibrary = (provider) => {
     const library = new Web3Provider(provider);
     library.pollingInterval = 12000;
     return library;
@@ -133,7 +132,7 @@ function App() {
         >
           <LoadingOverlayCircularStatic
             loadingModelProgress={(loadedTraits) }
-            title = {"Loading Selected Avatar"}
+            title = {"Loading"}
           />
         </div>
       }
@@ -182,7 +181,7 @@ function App() {
   )
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>

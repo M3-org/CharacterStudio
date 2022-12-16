@@ -1,5 +1,5 @@
 import Stack from "@mui/material/Stack"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
@@ -10,8 +10,7 @@ import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo,
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function Editor({backCallback}: {backCallback: () => void}) {
+export default function Editor({backCallback}) {
   const isMute = useMuteStore((state) => state.isMute)
   const sethidden = useHideStore((state) =>state.sethidden)
   const ishide = useHideStore((state) =>state.ishidden)
@@ -20,8 +19,6 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
   const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const templateInfo = useTemplateInfo((state) => state.templateInfo)
   const controls = useControls((state) => state.controls)
-  //const [itemClicked, setItemClicked] = useState(true)
-  //var optionArr = [];
   useEffect(()=> {
     sethidden(false);
   }, [category])
@@ -31,7 +28,7 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
     { volume: 1.0 }
   );
 
-  const selectOption = (option:any) =>{
+  const selectOption = (option) =>{
     if (option.name == category){ 
       if (ishide) {
         moveCamera(option.cameraTarget);
@@ -51,7 +48,7 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
     !isMute && play();
   }
 
-  const moveCamera = (value:any) => {
+  const moveCamera = (value) => {
     if (value){
 
       gsap.to(controls.target,{

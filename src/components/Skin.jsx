@@ -1,9 +1,10 @@
-import React from "react"
+import React, { Fragment } from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../ui/skinSelector/Vector.png'
 import { useColorStatus, useScene, useTemplateInfo } from "../store";
+
 function Skin({ category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
@@ -19,15 +20,12 @@ function Skin({ category, avatar}) {
     margin: "0.5rem 0"
   }
   const btn = {
-      width : "56.53px",
-      height : "56.54px",
-      display: "flex",
-      justifyContent:"center",
-      alignItems:"center",
-    // borderRadius: "50%",
-    // marginRight: "1rem",
+    width : "56.53px",
+    height : "56.54px",
+    display: "flex",
+    justifyContent:"center",
+    alignItems:"center",
     cursor: "pointer",
-    // border: "1px solid rgb(90, 93, 121)",
   }
 
   React.useEffect(() => {
@@ -45,7 +43,7 @@ function Skin({ category, avatar}) {
       return material;
   }
 
-  const handleChangeSkin = (value: string) => {
+  const handleChangeSkin = (value) => {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     let colorTargets;
@@ -65,7 +63,7 @@ function Skin({ category, avatar}) {
     }
   }
 
-  const handleColorPick = (color :any) => {
+  const handleColorPick = (color ) => {
     const col = "rgb(" + color.r + ', ' + color.g + ', ' + color.b + ")";
     handleChangeSkin(col)
   }
@@ -124,9 +122,9 @@ function Skin({ category, avatar}) {
         )
       )
     })}
-      <>
+      <Fragment>
       {!!colorPicker && <RgbColorPicker style = {{position:'absolute', zIndex : "99999"}} color={color} onChange={setColor} onClick={handleColorPick(color) } />}
-      </>
+      </Fragment>
     </div>
   )
 }
