@@ -3,14 +3,15 @@ import React, { useEffect, useState } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
-import shuffle from "../ui/traits/shuffle.png"
-import webaMark from "../ui/traits/webaMark.png"
+import shuffle from "../ui/traits/shuffle.png";
+import { BackButton } from "./BackButton";
 import optionClick from "../sound/option_click.wav"
 import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo, useControls} from '../store'
 
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
-export default function Editor() {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export default function Editor({backCallback}: {backCallback: () => void}) {
   const isMute = useMuteStore((state) => state.isMute)
   const sethidden = useHideStore((state) =>state.sethidden)
   const ishide = useHideStore((state) =>state.ishidden)
@@ -92,7 +93,9 @@ export default function Editor() {
     <Stack alignItems="center"> 
         
         <MenuTitle>
-          <MenuImg src={webaMark}/>
+        <BackButton onClick={() => {
+          backCallback();
+        }}/>
         </MenuTitle>
 
         <LineDivision bottom = {'20px'}/>
