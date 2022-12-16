@@ -2,9 +2,9 @@ import { StyledBackground,MintPriceBox, MintCost, StyledPopup,StyledContainer, T
 import React from "react";
 import {useAvatar, useConfirmWindow, useMintLoading, useMintStatus, useTemplateInfo, useColorStatus, useMintDone } from "../store";
 import MintModal from './MintModal';
-import walletErrorImage from '../ui/mint/walletError.png'
-import mintPopupImage from '../ui/mint/mintPopup.png'
-import polygonIcon from '../ui/mint/polygon.png'
+import walletErrorImage from '../../public/ui/mint/walletError.png'
+import mintPopupImage from '../../public/ui/mint/mintPopup.png'
+import polygonIcon from '../../public/ui/mint/polygon.png'
 import StyledButton from '../styles/ColorSelectButtonStyle';
 
 export default function MintPopup({

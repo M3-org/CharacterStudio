@@ -2,7 +2,7 @@ import React, { Fragment } from "react"
 import { sceneService } from "../services"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
-import skinSelector from '../ui/skinSelector/Vector.png'
+import skinSelector from '../../public/ui/skinSelector/Vector.png'
 import { useColorStatus, useScene, useTemplateInfo } from "../store";
 
 function Skin({ category, avatar}) {

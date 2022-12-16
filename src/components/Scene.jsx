@@ -18,7 +18,7 @@ import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, Wallet
 import { FitParentContainer, TopRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
 
-import logo from '../ui/weba.png'
+import logo from '../../public/ui/weba.png'
 
 export default function Scene() {
   const [showType, setShowType] = useState(false);

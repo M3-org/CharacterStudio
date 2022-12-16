@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { SquareButton } from './Globals.styled';
-import svgSoundOn from '../../src/ui/soundon.svg'
-import svgSoundOff from '../../src/ui/soundoff.svg'
+import svgSoundOn from '../../public/ui/soundon.svg'
+import svgSoundOff from '../../public/ui/soundoff.svg'
 
 export const MusicButton = styled(SquareButton)`
     z-index: 1000;
