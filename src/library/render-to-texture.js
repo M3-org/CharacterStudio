@@ -1,6 +1,3 @@
-// Render to texture
-import { rgbToHex } from "@mui/material";
-import { createImageData } from "canvas";
 import * as THREE from "three";
 
 let container;
