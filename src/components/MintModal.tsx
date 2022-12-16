@@ -67,7 +67,7 @@ export default function MintModal() {
             maxDistance={1.5}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
-            enablePan={false}
+            enablePan={true}
             target={[0, 0.9, 0]}
           />
           <PerspectiveCamera>

@@ -16,13 +16,11 @@ import { Canvas } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { NoToneMapping, TextureLoader } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRM  } from "@pixiv/three-vrm"
+import { VRM } from "@pixiv/three-vrm"
 import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
-import drophunterIcon from '../ui/DropHunter.svg'
-import neuralhackerIcon from '../ui/NeuralHacker.svg'
 
-export default function Landing(props){
+export default function Landing(props) {
 
     const isMute = useMuteStore((state) => state.isMute)
     const setMute = useMuteStore((state) => state.setMute)
@@ -39,7 +37,7 @@ export default function Landing(props){
     const [clicked, setClicked] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
-   
+
     const f_dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
     const m_dropHunter = "../3d/models/landing/landing_m_drophunter.vrm"
 
@@ -61,9 +59,9 @@ export default function Landing(props){
     const camera = React.useRef();
 
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
-     from: { x: 0, opacity : 1 },
+        from: { x: 0, opacity: 1 },
     }))
-    
+
     //should be included in templates
     const [modelArr, setModelArr] = useState([
         {
@@ -78,7 +76,7 @@ export default function Landing(props){
             text: 'Neurohacker',
             animation: anim_male
         },
-        
+
     ]);
 
     const [backgroundAnimation, setBackgroundAnimation] = useState(false)
@@ -87,7 +85,7 @@ export default function Landing(props){
     const [loadingPercent, setLoadingPercent] = useState(0);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
-     from: { y: 0 },
+        from: { y: 0 },
     }))
 
     const handleLoading = () => {
@@ -100,31 +98,31 @@ export default function Landing(props){
 
     useEffect(() => {
         (async () => {
-            async function createModel(item){
+            async function createModel(item) {
                 const animManager = new AnimationManager();
                 const vrm = await sceneService.loadModel(item.model);
                 await animManager.loadAnimations(item.animation);
-                return {vrm, animManager}
+                return { vrm, animManager }
             }
 
             await (async () => {
-                const {vrm, animManager} = await createModel(modelArr[0]);
+                const { vrm, animManager } = await createModel(modelArr[0]);
                 animManager.startAnimation(vrm)
                 setDrophunter(vrm.scene)
             })();
 
             await (async () => {
-                const {vrm, animManager} = await createModel(modelArr[1]);
+                const { vrm, animManager } = await createModel(modelArr[1]);
                 animManager.startAnimation(vrm)
                 setNeurohacker(vrm.scene)
             })();
 
 
             setIsLoading(false)
-            })()
-      }, [])
+        })()
+    }, [])
 
-      ////////////////////////////
+    ////////////////////////////
 
 
     useEffect(() => {
@@ -135,21 +133,21 @@ export default function Landing(props){
     useEffect(() => {
         let sum = 0;
         isModeling.map((item, idx) => {
-            if(item !== undefined)
-            sum += item;
+            if (item !== undefined)
+                sum += item;
         })
-        
+
         setLoadingPercent(sum / modelArr.length)
     }, [isModeling])
 
     useEffect(() => {
         let sum = 0;
         isComplete.map((item, idx) => {
-            if(item !== undefined)
-            sum += 1;
+            if (item !== undefined)
+                sum += 1;
         })
-        
-        if(sum === modelArr.length) {
+
+        if (sum === modelArr.length) {
             setIsLoading(false)
         }
     }, [isComplete])
@@ -157,37 +155,37 @@ export default function Landing(props){
     const [play] = useSound(
         passUrl,
         { volume: 1.0 }
-      );
+    );
 
     const [click] = useSound(
         clickUrl,
         { volume: 1.0 }
     );
 
-    const handleClick = (type)=> {
-        if(!isMute)
+    const handleClick = (type) => {
+        if (!isMute)
             click();
         setCardAnimation.start({
-          from: {
-            opacity : 1,
-            x: 0,
-          },
-          to: {
-            opacity : 0,
-            x: window.innerWidth,
-          }
+            from: {
+                opacity: 1,
+                x: 0,
+            },
+            to: {
+                opacity: 0,
+                x: window.innerWidth,
+            }
         })
         setTitleAnimation.start({
-          from: {
-            y: 0, 
-          },
-          to: {
-            y: -window.innerHeight,
-          }
+            from: {
+                y: 0,
+            },
+            to: {
+                y: -window.innerHeight,
+            }
         })
         setBackgroundAnimation(true)
         setTimeout(() => {
-            setPreModelClass(type)    
+            setPreModelClass(type)
         }, 500)
     }
     return (
@@ -201,126 +199,141 @@ export default function Landing(props){
                     />
                 )
             }
+            <div className='drophunter-container' style={{
+                position: "absolute",
+                right: "0px",
+                zIndex: 10,
+                marginTop: "30vh",
+                height: "70vh",
+                width: "40vw",
+            }}
 
-                    <div className="drophunter" style={{
-                        position: "absolute",
-                        bottom: "40px",
-                        right: "0px",
-                        opacity: hovering === 'neurohacker' ? 1 : 0.5,
-                        zIndex: 10
-                    }}
+                onMouseEnter={() => {
+                    setHovering('drophunter')
+                }}
 
-                    onMouseEnter={() => {
-                        setHovering('neurohacker')
-                    }}
+                onMouseLeave={() => {
+                    if (hovering === 'drophunter') {
+                        setHovering('');
+                    }
+                }}
 
-                    onMouseLeave={() => {
-                        if(hovering === 'neurohacker'){
-                            setHovering('');
-                        }
-                    }}
+                // on mouse click
+                onClick={() => {
+                    handleClick(1)
+                }}
+            >
+                <div className="drophunter" style={{
+                    position: "absolute",
+                    bottom: "40px",
+                    right: "0px",
+                    opacity: hovering === 'drophunter' ? 1 : 0.5,
+                }}
+                >
+                    <img
+                        style={{
+                            maxWidth: "30vh",
+                            minWidth: "30em"
+                        }}
+                        src={"public/DropHunter.svg"} />
+                </div>
+            </div>
+            <div className='neurohacker-container' style={{
+                position: "absolute",
+                bottom: "0px",
+                left: "0px",
+                zIndex: 10,
+                marginTop: "30vh",
+                height: "70vh",
+                width: "40vw",
+            }}
+                onMouseEnter={() => {
+                    setHovering('neurohacker')
+                }}
 
-                    // on mouse click
-                    onClick={() => {
-                        handleClick(1)
-                    }}
-                    >
-                        <img
-                            style={{
-                                maxWidth: "30vh",
-                                minWidth: "30em"
-                            }}
-                        src={drophunterIcon} />
+                onMouseLeave={() => {
+                    if (hovering === 'neurohacker') {
+                        setHovering('');
+                    }
+                }}
+
+                // on mouse click
+                onClick={() => {
+                    handleClick(2)
+                }}
+            >
+                <div className="neurohacker" style={{
+                    position: "absolute",
+                    bottom: "40px",
+                    opacity: hovering === 'neurohacker' ? 1 : 0.5,
+                }}
+                >
+                    <img
+                        style={{
+                            maxWidth: "30vh",
+                            minWidth: "30em"
+                        }}
+                        src={"public/Neurohacker.svg"}
+                    />
+                </div>
+            </div>
+
+            <animated.div style={{ ...titleAnimation }}>
+                <div className="topBanner" >
+
+                    <img className="webaverse-text" src={logo} />
+                    <div className='studio' >Character Studio</div>
+                </div>
+                <div className="subTitle" >
+                    <div className='subTitle-text'>Pick a Class
+                        <div className="subTitle-desc"> You'll be able to customize in a moment.</div>
                     </div>
 
-                    <div className="neurohacker" style={{
-                        position: "absolute",
-                        bottom: "40px",
-                        left: "0px",
-                        opacity: hovering === 'drophunter' ? 1 : 0.5,
-                        zIndex: 10
-                    }}
-                    
-                    onMouseEnter={() => {
-                        setHovering('drophunter')
-                    }}
-
-                    onMouseLeave={() => {
-                        if(hovering === 'drophunter'){
-                            setHovering('');
-                        }
-                    }}
-
-                    // on mouse click
-                    onClick={() => {
-                        handleClick(2)
-                    }}
-                    >
-                        <img
-                            style={{
-                                maxWidth: "30vh",
-                                minWidth: "30em"
-                            }}
-                            src={neuralhackerIcon}
-                        />
-                    </div>
-
-        <animated.div style = {{...titleAnimation}}>
-                    <div className="topBanner" >     
-
-                        <img className ="webaverse-text" src={logo} />
-                        <div className='studio' >Character Studio</div>
-                    </div>
-                    <div className="subTitle" >
-                        <div className='subTitle-text'>Pick a Class
-                            <div className="subTitle-desc"> You'll be able to customize in a moment.</div>
-                        </div>
-
-                    </div>
-        </animated.div>
+                </div>
+            </animated.div>
 
             {/* simple floating div with sliders to control setCameraFov and setCameraPosition */}
-            <div style={{position: "absolute", top: 0, left: 0, zIndex: 1000}}>
+            <div style={{ position: "absolute", top: 0, left: 0, zIndex: 1000 }}>
             </div>
-                <Canvas
-                style = {{
+            <Canvas
+                style={{
                     // width: "calc(100%)",
                     // position: "absolute",
-                    width : '100vw',
-                    height : '100vh',
+                    width: '100vw',
+                    height: '100vh',
                     position: 'fixed',
                 }}
                 camera={{ fov: cameraFov }}
                 gl={{ antialias: true, toneMapping: NoToneMapping }}
-                //linear
-                //className="canvas"
-                >
-                <directionalLight 
+            //linear
+            //className="canvas"
+            >
+                <directionalLight
                     //castShadow = {true}
-                    intensity = {1} 
-                    color = {[0.6,.8,1]}
-                    position = {[-2, 3, 6]} 
-                    intensity={.2}
-                    shadow-mapSize = {[1024, 1024]}>
+                    intensity={1}
+                    color={[0.6, .8, 1]}
+                    position={[-2, 3, 6]}
+                    shadow-mapSize={[1024, 1024]}>
                 </directionalLight>
                 <ambientLight
-                    color={[0.6,0.9,1]}
-                intensity={0.5}
+                    color={[0.6, 0.9, 1]}
+                    intensity={0.5}
                 />
                 <PerspectiveCamera
                     ref={camera}
                     fov={20}
-                    position = {[cameraPositionX, cameraPositionY, cameraPositionZ]}
-                    rotation = {[-0,0,0]}
-                    onUpdate = {self => self.updateProjectionMatrix()}
+                    position={[cameraPositionX, cameraPositionY, cameraPositionZ]}
+                    rotation={[-0, 0, 0]}
+                    onUpdate={self => self.updateProjectionMatrix()}
                 >
-                <mesh position={[.4, 0, 0]} rotation={[0, -1, 0]}>
-                    <primitive object={drophunter} />
-                </mesh>
-                <mesh position={[-.4, 0, 0]} rotation={[0, 1, 0]}>
-                <primitive object={neurohacker} />
-                </mesh>
+                    <mesh position={[.4, 0, 0]} rotation={[0, -1, 0]}>
+                        <primitive object={drophunter} />
+                    </mesh>
+                    <mesh position={[-.4, 0, 0]} rotation={[0, 1, 0]}>
+                        <primitive object={neurohacker} />
+                    </mesh>
 
                 </PerspectiveCamera>
             </Canvas>
-        </StyledLanding>)}
+        </StyledLanding>)
+}

@@ -1,3 +1,4 @@
+/* eslint-disable no-inline-styles/no-inline-styles */
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { Canvas } from "@react-three/fiber";
@@ -15,7 +16,6 @@ import { NoToneMapping } from 'three';
 import {
     ethers, BigNumber
 } from "ethers";
-import { BackButton } from "./BackButton";
 import { DownloadButton, MintButton, WalletButton, TextButton, WalletImg, WalletInfo, Background }from '../styles/Scene.styled'
 import { FitParentContainer, TopRightMenu, BottomRightMenu, ResizeableCanvas } from '../styles/Globals.styled'
 import AutoRotate from "./AutoRotate";
@@ -23,6 +23,8 @@ import { useThree } from "@react-three/fiber";
 import { useHideStore, useRotateStore, useAvatar, useEnd, useScene, useTemplateInfo, useModel, useControls, useCamera, useConfirmWindow, useMintLoading, useMintStatus, useModelClass, useModelingStore, useMintDone} from "../store";
 
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
+
+import logo from '../ui/weba.png'
 
 const ACCOUNT_DATA = {
   EMAIL: 'email',
@@ -64,6 +66,12 @@ export default function Scene() {
 
   const canvasStyle = {width: '100vw', display:'flex', position:'absolute'}
 
+  const reset = () => {
+    setModelClass(0);
+    setEnd(false);
+    formatModeling();
+    formatComplete();
+  }
 
   const connectWallet = async () => {
     try {
@@ -241,14 +249,33 @@ export default function Scene() {
   
   return (
     <FitParentContainer >
-      <Background >
+      <Background>
+      <div id={"webamark"} style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: "100vw",
+          height: "100vh",
+        }}
+          >
+            <img src={logo} style={{
+              // place in the center of the screen
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "100vh",
+              height: "100vh",
+              opacity: 0.05,
+              }}/>
+          </div>
         <ResizeableCanvas left = {0} right = {0}  >
           <Canvas
             id = "editor-scene"
             style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping}}
             linear = {true}
-            camera={{ fov: 30, position: [0, 1, 5] }}
+            camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
             <gridHelper
               args={[50, 25, "#101010", "#101010"]}
@@ -277,14 +304,15 @@ export default function Scene() {
             <OrbitControls
               ref = {setControls}
               minDistance={1}
-              maxDistance={5}
-              // maxPolarAngle={Math.PI / 2 - 0.1}
-              enablePan = { false }
+              maxDistance={4}
+              maxPolarAngle={Math.PI / 2 - 0.1}
+              enablePan = { true }
+
               autoRotate = {isRotate}
               autoRotateSpeed = { 5 }
               enableDamping = { true }
               dampingFactor = { 0.1 }
-              target={[0, 0.9, 0]}
+              target={[0, 1.1, 0]}
             />
            
             {/* <Suspense fallback={null}>
@@ -345,16 +373,9 @@ export default function Scene() {
       <BottomRightMenu right = {'140px'}>
         <AutoRotate/>
       </BottomRightMenu>
-
-      <BackButton onClick={() => {
-        setModelClass(0);
-        setEnd(false);
-        formatModeling();
-        formatComplete();
-      }}/>
       <div>
         <Selector/>
-        <Editor/>
+        <Editor backCallback={reset} />
       </div>
       <MintPopup 
         connected={connected}
