@@ -10,19 +10,11 @@ import { useRandomFlag, useAvatar, useLoadedTraits, useScene, useTemplateInfo, u
 export default function CharacterEditor(props) {
   const { theme } = props;
 
-  const [flagPass, setFlagPass] = useState(false)
-
   const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  
-  const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
-  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
-  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
   const avatar = useAvatar((state) => state.avatar)
   const setScene = useScene((state) => state.setScene)
   const model = useModel((state) => state.model)
   const setModel = useModel((state) => state.setModel)
-  const setLoading = useLoading((state) => state.setLoading)
-  const setEnd = useEnd((state) => state.setEnd)
 
   const defaultTheme = createTheme({
     palette: {
@@ -32,17 +24,6 @@ export default function CharacterEditor(props) {
       },
     },
   })
-
-  useEffect(()=>{
-    if (loadedTraits === true){
-      setTimeout (() => {
-        setLoading(false)
-        setEnd(true)
-      }, 1000)
-      setLoadedTraits(false)
-    }
-  }, [loadedTraits])
-
 
   useEffect(() => {
     if(avatar){
@@ -56,12 +37,6 @@ export default function CharacterEditor(props) {
     }
   }, [templateInfo])
 
-
-  const animatedStyle = useSpring({
-    from: { opacity: "0"},
-    to: { opacity: "1" },
-    config: { duration: "2500" }
-  })
   useEffect(() => {
     if(model)
     sceneService.setAvatarModel(model);
@@ -89,15 +64,17 @@ export default function CharacterEditor(props) {
 
               sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
               setModel(vrm);
-              setFlagPass(true)
             },50);
         })
     }
   }, [templateInfo.file])
 
-  useEffect(() => {
-    if(flagPass) setRandomFlag(1)
-  }, [flagPass])
+  const animatedStyle = useSpring({
+    from: { opacity: "0"},
+    to: { opacity: "1" },
+    config: { duration: "2500" }
+  })
+
  
   return (
     <Suspense fallback="loading...">

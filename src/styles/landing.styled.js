@@ -73,20 +73,6 @@ export const StyledLanding = styled.div `
                 animation-fill-mode: both;
                 user-selector : none;
                 position: relative;
-
-                .landingPop {
-                    display: none;
-                    height: fit-content;
-                    top: -40px !important;
-                    transition: all 0.5s;
-                }
-
-                :hover {
-                    .landingPop {
-                        display: block;
-                    }
-                }
-
         }
     }
     

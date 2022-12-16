@@ -5,7 +5,7 @@ import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../../public/ui/landing/logo.png'
 import passUrl from "../sound/class_pass.wav"
 import clickUrl from "../sound/class_click.wav"
-import { useModelingStore, usePreModelClass } from '../store'
+import { useModelingStore, useModelClass } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 import { Canvas } from "@react-three/fiber";
@@ -17,7 +17,7 @@ import { AnimationManager } from '../library/animations/animationManager';
 export default function Landing(props) {
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
-    const setPreModelClass = usePreModelClass((state) => state.setPreModelClass)
+    const setModelClass = useModelClass((state) => state.setModelClass)
 
     const [drophunter, setDrophunter] = useState(Object);
     const [neurohacker, setNeurohacker] = useState(Object);
@@ -30,7 +30,7 @@ export default function Landing(props) {
     const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
     const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
 
-    const [hovering, setHovering] = useState('');
+    const [hovering, setCurrentAvatar] = useState('');
 
     // get ref camera
 
@@ -157,9 +157,7 @@ export default function Landing(props) {
                 y: -window.innerHeight,
             }
         })
-        setTimeout(() => {
-            setPreModelClass(type)
-        }, 500)
+        setModelClass(type)
     }
     return (
         <StyledLanding>
@@ -182,12 +180,12 @@ export default function Landing(props) {
             }}
 
                 onMouseEnter={() => {
-                    setHovering('drophunter')
+                    setCurrentAvatar('drophunter')
                 }}
 
                 onMouseLeave={() => {
                     if (hovering === 'drophunter') {
-                        setHovering('');
+                        setCurrentAvatar('');
                     }
                 }}
 
@@ -221,12 +219,12 @@ export default function Landing(props) {
                 width: "40vw",
             }}
                 onMouseEnter={() => {
-                    setHovering('neurohacker')
+                    setCurrentAvatar('neurohacker')
                 }}
 
                 onMouseLeave={() => {
                     if (hovering === 'neurohacker') {
-                        setHovering('');
+                        setCurrentAvatar('');
                     }
                 }}
 

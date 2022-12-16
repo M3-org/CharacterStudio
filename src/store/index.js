@@ -196,14 +196,6 @@ const useModelClass = create((set) => ({
     }))
 }))
 
-const usePreModelClass = create((set) => ({
-    preModelClass: 0,
-    setPreModelClass: (value) => set((state) => ({
-        preModelClass: value
-    }))
-}))
-
-
 const useMintDone = create((set) => ({
     mintDone: false,
     setMintDone: (value) => set((state) => ({
@@ -234,6 +226,5 @@ export {
     useMintStatus,
     useLoading,
     useModelClass,
-    usePreModelClass,
     useMintDone
 };
