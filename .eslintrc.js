@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "env": {
         "browser": true,
         "es2021": true
@@ -6,23 +6,20 @@ module.exports = {
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
-        "plugin:@typescript-eslint/recommended"
     ],
-    "parser": "@typescript-eslint/parser",
+    "parser": "eslint-plugin-react",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
-        "ecmaVersion": 13,
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 13
     },
     "plugins": [
         "react",
-        "@typescript-eslint",
         "eslint-plugin-no-inline-styles"
     ],
     "rules": {
-        "@typescript-eslint/no-explicit-any": 0,
         "no-inline-styles/no-inline-styles": 2
     }
 };

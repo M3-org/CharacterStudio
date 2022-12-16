@@ -249,9 +249,7 @@ export default class VRMExporter {
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
         // const blendShapeMaster = {
-        //     // @ts-ignore: Unreachable code error
         //     blendShapeGroups: Object.values(blendShapeProxy._blendShapeGroups).map((blendShape) => ({
-        //         // @ts-ignore: Unreachable code error
         //         binds: blendShape._binds.map((bind) => ({
         //             index: bind.morphTargetIndex,
         //             mesh: outputMeshes
@@ -259,22 +257,16 @@ export default class VRMExporter {
         //                 .indexOf(bind.meshes[0].name),
         //             weight: bind.weight * 100,
         //         })),
-        //         // @ts-ignore: Unreachable code error
         //         isBinary: blendShape.isBinary,
-        //         // @ts-ignore: Unreachable code error
         //         materialValues: blendShape._materialValues,
-        //         // @ts-ignore: Unreachable code error
         //         name: blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""),
         //         presetName: Object.entries(blendShapeProxy.blendShapePresetMap).filter((x) => 
-        //         // @ts-ignore: Unreachable code error
         //         x[1] === blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""))[0][0],
         //     })),
         // };
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        // @ts-ignore: Unreachable code error
         //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
         const vrmLookAt = {
-          // @ts-ignore: Unreachable code error
           offsetFromHeadBone: [lookAt.offsetFromHeadBonex,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
           rangeMapHorizontalInner: {
               inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
@@ -296,50 +288,35 @@ export default class VRMExporter {
         };
         // const vrmFirstPerson = {
         //     firstPersonBone: nodeNames.indexOf(
-        //     // @ts-ignore: Unreachable code error
         //     lookAt.firstPerson._firstPersonBone.name),
-        //     // @ts-ignore: Unreachable code error
         //     firstPersonBoneOffset: lookAt.firstPerson._firstPersonBoneOffset,
         //     lookAtHorizontalInner: {
-        //         // @ts-ignore: Unreachable code error
         //         curve: lookAt.applyer._curveHorizontalInner.curve,
         //         xRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveHorizontalInner.curveXRangeDegree),
         //         yRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveHorizontalInner.curveYRangeDegree),
         //     },
         //     lookAtHorizontalOuter: {
-        //         // @ts-ignore: Unreachable code error
         //         curve: lookAt.applyer._curveHorizontalOuter.curve,
         //         xRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveHorizontalOuter.curveXRangeDegree),
         //         yRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveHorizontalOuter.curveYRangeDegree),
         //     },
-        //     // @ts-ignore: Unreachable code error
         //     lookAtTypeName: lookAt.applyer.type,
         //     lookAtVerticalDown: {
-        //         // @ts-ignore: Unreachable code error
         //         curve: lookAt.applyer._curveVerticalDown.curve,
         //         xRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveVerticalDown.curveXRangeDegree),
         //         yRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveVerticalDown.curveYRangeDegree),
         //     },
         //     lookAtVerticalUp: {
-        //         // @ts-ignore: Unreachable code error
         //         curve: lookAt.applyer._curveVerticalUp.curve,
         //         xRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveVerticalUp.curveXRangeDegree),
         //         yRange: radian2Degree(
-        //         // @ts-ignore: Unreachable code error
         //         lookAt.applyer._curveVerticalUp.curveYRangeDegree),
         //     },
         //     meshAnnotations: lookAt.firstPerson.meshAnnotations.map((annotation) => ({
