@@ -1,13 +1,9 @@
 import axios from "axios";
-
 import bones from "../library/bones";
-//import templates from "../data/base_models";
 
-const pinataApiKey = '05efa6dda750457f9c78';
-const pinataSecretApiKey = 'f2b51a2d960d6c2ab02163cd57979fe4e47b6287f048ae47ff8967f27623308b';
+const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY;
+const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY;
 
-// PINATA_API_KEY=4327cb1d2291c81e79ca
-// PINATA_SECRET_API_KEY=0a9c01fcafd1db1266325f52be4d135f0f578bd8d13b486d4bffbc2fb4325dcd
 export const apiService = {
   fetchBones,
   filterElements,
@@ -21,7 +17,7 @@ export const apiService = {
 let modelTraits = []
 let fetchedTemplate
 
-function fetchCategoryList () { //need to update 
+function fetchCategoryList () {
   const categoryList = [
     "chest",
     "head",
@@ -38,7 +34,6 @@ async function fetchTraitsByCategory(name) {
 }
 
 async function fetchTemplate(template,id) {
-  //console.log(template.indexOf(id));
   const filtered = template.filter((templates) => templates.id === id);
   if (fetchedTemplate != id) {
     if (filtered[0] && filtered[0].traitsJsonPath) await fetchTraits(filtered[0].traitsJsonPath)
@@ -79,7 +74,6 @@ async function filterElements(search, elements, category) {
 }
 
 async function saveFileToPinata(fileData, fileName) {
-
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
   let data = new FormData();
   data.append("file", fileData, fileName);
@@ -96,10 +90,6 @@ async function saveFileToPinata(fileData, fileName) {
 }
 
 async function saveMetaDataToPinata(metadata) {
-  // const response = await axios.post(`${BASE_URI_PROD}/save-metadata`, {
-  //   ...metadata,
-  // });
-  // return response.data;
   const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
   let resultOfUpload = await axios
     .post(url, metadata, {
