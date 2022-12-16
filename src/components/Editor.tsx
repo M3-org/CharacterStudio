@@ -39,7 +39,7 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
       }
       else{ 
         sethidden (true);
-        moveCamera({height:0.9, distance:2});
+        moveCamera({height:0.8, distance:3.2});
       }
     }
     else sethidden(false);
@@ -104,7 +104,6 @@ export default function Editor({backCallback}: {backCallback: () => void}) {
           // improve id
           <MenuOption
             onClick = {()=>{
-              console.log(item)
               selectOption(item)
             }} 
             selected = {category === item.name}
