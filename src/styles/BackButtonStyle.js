@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import backButton from '../../src/ui/backButton_gray.png'
-import hoverButton from '../../src/ui/backButton_white.png'
+import backButton from '../../public/ui/backButton_gray.png'
+import hoverButton from '../../public/ui/backButton_white.png'
 
 const style = styled.div`
     {   //'url(' + svgSoundOff + ');' : 

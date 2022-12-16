@@ -188,7 +188,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       vrmMaterial = material.clone();
     }
 
-    // check if bakeObjects as any objects that contain the material property with value of mesh.material
+    // check if bakeObjects objects that contain the material property with value of mesh.material
     let bakeObject = bakeObjects.find((bakeObject) => {
       bakeObject.material === material;
     });
