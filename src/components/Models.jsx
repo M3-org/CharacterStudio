@@ -1,8 +1,7 @@
 import * as React from "react";
-import * as THREE from "three";
 
-export function BaseModel(props: any) {
-  const { nodes, scene }: any = props;
+export function BaseModel(props) {
+  const { nodes, scene } = props;
   const models =
     nodes &&
     Object.keys(nodes).map((keyName, i) => {
@@ -10,11 +9,11 @@ export function BaseModel(props: any) {
         return (
           <mesh
             key={i}
-            geometry={nodes[keyName]?.geometry}
-            position={nodes[keyName]?.position}
+            geometry={nodes[keyName].geometry}
+            position={nodes[keyName].position}
           >
-            <meshPhysicalMaterial map={nodes[keyName]?.material?.map} />
-            <bufferGeometry attach="geometry" {...nodes[keyName]?.geometry} />
+            <meshPhysicalMaterial map={nodes[keyName].material && nodes[keyName].material.map} />
+            <bufferGeometry attach="geometry" {...(nodes[keyName] && nodes[keyName].geometry)} />
           </mesh>
         );
       } else {
@@ -29,8 +28,8 @@ export function BaseModel(props: any) {
   );
 }
 
-export function TemplateModel(props: any) {
-  const { scene }: any = props;
+export function TemplateModel(props) {
+  const { scene } = props;
   return (
     <mesh>
       <primitive object={scene} />
@@ -38,8 +37,8 @@ export function TemplateModel(props: any) {
   );
 }
 
-export function TemplateSnapshotModel(props: any) {
-  const { scene }: any = props;
+export function TemplateSnapshotModel(props) {
+  const { scene } = props;
   return (
     <mesh position={[0, 0.02, 0]}>
       <primitive object={scene} />

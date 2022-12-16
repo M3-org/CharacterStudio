@@ -1,13 +1,11 @@
-import { StyledBackground,MintPriceBox, MintCost, StyledPopup,StyledContainer, Button1, Title, Buttons, Header, ButtonPanel,TraitDetail, TraitImage,TraitText, TraitBox } from '../styles/MintPopup.styled.js'
-import React, { useState, useEffect } from "react";
-import {useAvatar, useConfirmWindow, useMintLoading, useMintStatus, useTemplateInfo, useColorStatus, useDefaultTemplates, useModelClass, useMintDone } from "../store";
+import { StyledBackground,MintPriceBox, MintCost, StyledPopup,StyledContainer, Title, Header, ButtonPanel,TraitDetail, TraitImage,TraitText, TraitBox } from '../styles/MintPopup.styled.js'
+import React from "react";
+import {useAvatar, useConfirmWindow, useMintLoading, useMintStatus, useTemplateInfo, useColorStatus, useMintDone } from "../store";
 import MintModal from './MintModal';
 import walletErrorImage from '../ui/mint/walletError.png'
 import mintPopupImage from '../ui/mint/mintPopup.png'
 import polygonIcon from '../ui/mint/polygon.png'
 import StyledButton from '../styles/ColorSelectButtonStyle';
-
-import { MeshReflectorMaterial } from '@react-three/drei/core/MeshReflectorMaterial'
 
 export default function MintPopup({
     connectWallet,
@@ -76,7 +74,7 @@ export default function MintPopup({
                             <Title fontSize = {'1rem'} padding = {'10px 0 20px'}>{mintStatus}</Title>
                             <ButtonPanel >
                                 <StyledButton onClick={() => setConfirmWindow(false)}> {!mintDone? "Cancel": "Ok" }</StyledButton>
-                               {!mintDone ? (<StyledButton onClick={() => onMintClick()} >Mint </StyledButton>) : <></>}
+                               {!mintDone ? (<StyledButton onClick={() => onMintClick()} >Mint </StyledButton>) : <Fragment></Fragment>}
                             </ButtonPanel>
                         </StyledPopup>
                     )

@@ -1,8 +1,7 @@
-import { AnimationMixer, AnimationClip, AnimationAction, Group, Vector3, NumberKeyframeTrack, VectorKeyframeTrack} from 'three'
+import { AnimationMixer, Vector3} from 'three'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { sceneService } from '../../services/scene'
-import { VRM } from '@pixiv/three-vrm'
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -14,13 +13,13 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  mixer:AnimationMixer 
-  actions:Array<AnimationAction>
-  to:AnimationAction
-  from:AnimationAction
-  animationManager: AnimationManager
+  mixer 
+  actions
+  to
+  from
+  animationManager
 
-  constructor(animationManager: AnimationManager, scene:Group, animations: Array<AnimationClip>, curIdx:number, lastIdx:number){
+  constructor(animationManager, scene, animations, curIdx, lastIdx){
     this.animationManager = animationManager;
     this.mixer = new AnimationMixer(scene);
     this.actions = [];
@@ -52,16 +51,16 @@ class AnimationControl {
 }
 
 export class AnimationManager{
-  lastAnimID: number
-  curAnimID: number
-  mainControl: AnimationControl
-  animationControls: Array<AnimationControl>
-  animations: Array<AnimationClip>
-  weightIn:number;
-  weightOut:number;
-  offset:Vector3;
+  lastAnimID;
+  curAnimID;
+  mainControl;
+  animationControls;
+  animations;
+  weightIn;
+  weightOut;
+  offset;
 
-  constructor (offset?:Array<number>){
+  constructor (offset){
 
     this.lastAnimID = -1;
     this.curAnimID = 0;
@@ -75,7 +74,7 @@ export class AnimationManager{
     }
     this.update();
   }
-  async loadAnimations(path:string):Promise<void>{
+  async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const anim = await loader.loadAsync(path);
     // offset hips
@@ -84,7 +83,7 @@ export class AnimationManager{
       this.offsetHips();
   }
 
-  offsetHips():void{
+  offsetHips(){
     this.animations.forEach(anim => {
       for (let i =0; i < anim.tracks.length; i++){
         const track = anim.tracks[i];
@@ -100,7 +99,7 @@ export class AnimationManager{
     });
   }
 
-  startAnimation(vrm: VRM):void{
+  startAnimation(vrm){
     //return
     if (!this.animations) {
       console.warn("no animations were preloaded, ignoring");
@@ -120,23 +119,23 @@ export class AnimationManager{
     }
   }
   
-  getFromActionTime():number{
+  getFromActionTime(){
     return this.mainControl.actions[this.lastAnimID].time;
   }
 
-  getToActionTime():number{
+  getToActionTime(){
     return this.mainControl ? this.mainControl.actions[this.curAnimID].time : 0.1;
   }
 
-  getWeightIn():number{
+  getWeightIn(){
     return this.weightIn;
   }
 
-  getWeightOut():number{
+  getWeightOut(){
     return this.weightOut;
   }
   
-  disposeAnimation(targetAnimControl:AnimationControl):void{
+  disposeAnimation(targetAnimControl){
     if (targetAnimControl != null){
       const ind = this.animationControls.indexOf(targetAnimControl);
       if (ind != -1)
@@ -144,22 +143,15 @@ export class AnimationManager{
     }
   }
 
-  dispose():void{
+  dispose(){
     this.animationControls.forEach(animControl => {
       animControl.dispose()
     });
     console.log("todo dispose animations")
   }
 
-  animRandomizer(yieldTime):void{
+  animRandomizer(yieldTime){
     const root = this.mainControl.mixer.getRoot();
-    //if (root.parent)
-      //console.log(root);
-    // if (this.mainControl) {
-    //   if (this.mainControl.mixer){
-        
-    //   }
-    // }
     setTimeout(() => {
       this.lastAnimID = this.curAnimID;
       this.curAnimID = getRandomInt(this.animations.length);
@@ -181,11 +173,10 @@ export class AnimationManager{
     }, (yieldTime * 1000));
   }
 
-  update():void{
+  update(){
     setInterval(() => {
       if (this.mainControl){
         if (this.weightIn < 1){ 
-          //if (this.mainControl.mixer.getRoot().parent)console.log(this.weightIn)
           this.weightIn += 1/(30*interpolationTime);
         }
         else this.weightIn = 1;  

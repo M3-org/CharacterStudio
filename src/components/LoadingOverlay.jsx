@@ -1,35 +1,16 @@
 import React from "react"
-import CircularProgress, {
-  CircularProgressProps,
-} from "@mui/material/CircularProgress"
-import Typography from "@mui/material/Typography"
-import Box from "@mui/material/Box"
-import { useSpring, animated } from "react-spring"
-import Lottie from "lottie-react"
-import lottie from "../data/lottie.json"
 import webaMark from "../ui/loading/webaMark.svg"
 import { LoadingStyleBox } from "../styles/LoadingOverlaystyle"
 
-function CircularProgressWithLabel(
-  props: CircularProgressProps & {
-    value: number
-    background: boolean
-    title: string
-  },
-) {
-  const [loadingAnimation, setLoadingAnimation] = useSpring(() => ({
-    from: { y: 100, opacity: 0 },
-    to: { y: 0, opacity: 1 },
-  }))
-
+function CircularProgressWithLabel({background, value, title}) {
   return (
     <LoadingStyleBox
       className="loading-container"
-      backgroundActive={props.background}
-      loadedValue = {props.value}
+      backgroundActive={background}
+      loadedValue = {value}
     >
       <span className = "loading-text" >
-        {props.title}
+        {title}
       </span>
         <div className="vh-centered">
           <div className="cover-loadingbar">
