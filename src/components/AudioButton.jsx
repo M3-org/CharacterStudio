@@ -53,11 +53,7 @@ const BottomRightMenu = styled.div`
 export default function AudioButton() {
   const {isMute, setMute} = useContext(AudioContext)
   const {currentView} = useContext(ViewContext)
-  const [backWav, {}] = useSound(bgm, { volume: 1.0, loop: true })
 
-  useEffect(() => {
-    backWav()
-  }, [])
   return currentView === ViewStates.CREATOR && (
     <BottomRightMenu>
       <StyledAudioButton

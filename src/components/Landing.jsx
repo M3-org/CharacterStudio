@@ -167,7 +167,7 @@ export default function Landing() {
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
     const { setCurrentView } = useContext(ViewContext);
-
+    const { isMute } = useContext(AudioContext);
     const { loadModel } = useContext(SceneContext);
     const camera = React.useRef();
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
@@ -202,7 +202,7 @@ export default function Landing() {
     );
 
     const handleClick = (type) => {
-            click();
+            if (!isMute) click();
         setTitleAnimation.start({
             from: {
                 y: 0,

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { ViewContext, ViewStates } from "../context/ViewContext";
 import { useWeb3React } from "@web3-react/core";
+import { AudioContext } from "../context/AudioContext";
 
 const GateStyleBox = styled.div`
     position: fixed;
@@ -81,11 +82,23 @@ export default function Gate() {
         supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
     });
     const { currentView, setCurrentView } = React.useContext(ViewContext);
+    
+    const { enableAudio, disableAudio } = React.useContext(AudioContext);
 
     const connectWallet = async () => {
         console.log('connectWallet')
         await activate(injected);
     };
+
+    const enterWithMusic = () => {
+        enableAudio()
+        setCurrentView("main")
+    }
+
+    const enterWithoutMusic = () => {
+        disableAudio()
+        setCurrentView("main")
+    }
 
     return currentView === ViewStates.INTRO && (
         <GateStyleBox>
@@ -104,10 +117,10 @@ export default function Gate() {
                 )}
                 {active && (
                     <div>
-                        <div className="vh-button" onClick={() => setCurrentView("main")}>
+                        <div className="vh-button" onClick={() => enterWithMusic()}>
                             ENTER WITH MUSIC
                         </div>
-                        <div className="vh-button" onClick={() => setCurrentView("main")}>
+                        <div className="vh-button" onClick={() => enterWithoutMusic()}>
                             ENTER WITHOUT MUSIC
                         </div>
                     </div>
