@@ -1,88 +1,65 @@
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { OrbitControls } from "@react-three/drei/core/OrbitControls"
-import { Canvas } from "@react-three/fiber"
-import React, { Fragment, useState, useEffect } from "react"
-import Editor from "./Editor"
-import { TemplateModel } from "./Models"
-import Selector from "./Selector"
-import MintPopup from "./MintPopup"
-import { apiService, sceneService, Contract } from "../services"
 import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMaterial"
+import { OrbitControls } from "@react-three/drei/core/OrbitControls"
+import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
+import { Canvas } from "@react-three/fiber"
 import { useWeb3React } from "@web3-react/core"
 import { InjectedConnector } from "@web3-react/injected-connector"
+import { BigNumber, ethers } from "ethers"
+import React, { Fragment, useContext, useEffect, useState } from "react"
 import { NoToneMapping } from "three"
-import { ethers, BigNumber } from "ethers"
+import { ApplicationContext } from "../ApplicationContext"
+import { apiService, Contract, sceneService } from "../services"
 import {
-  DownloadButton,
-  MintButton,
-  WalletButton,
-  TextButton,
-  WalletImg,
-  WalletInfo,
-  Background,
-} from "../styles/Scene.styled"
-import {
-  FitParentContainer,
-  TopRightMenu,
-  ResizeableCanvas,
+  FitParentContainer, ResizeableCanvas, TopRightMenu
 } from "../styles/Globals.styled"
 import {
-  useHideStore,
-  useRotateStore,
-  useAvatar,
-  useEnd,
-  useScene,
-  useTemplateInfo,
-  useModel,
-  useControls,
-  useCamera,
-  useConfirmWindow,
-  useMintLoading,
-  useMintStatus,
-  useModelClass,
-  useModelingStore,
-  useMintDone,
-  useLoading,
-} from "../store"
+  Background, DownloadButton,
+  MintButton, TextButton, WalletButton, WalletImg,
+  WalletInfo
+} from "../styles/Scene.styled"
+import Editor from "./Editor"
+import MintPopup from "./MintPopup"
+import { TemplateModel } from "./Models"
+import Selector from "./Selector"
 
 import logo from "../../public/ui/weba.png"
 
 export default function Scene({ type }) {
   const [showType, setShowType] = useState(false)
-
   const [connected, setConnected] = useState(false)
   const [ensName, setEnsName] = useState("")
-  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
-  const setLoading = useLoading((state) => state.setLoading)
-  const isRotate = useRotateStore((state) => state.isRotate)
-  const ishidden = useHideStore((state) => state.ishidden)
-  const avatar = useAvatar((state) => state.avatar)
-  const scene = useScene((state) => state.scene)
-  const model = useModel((state) => state.model)
-  const setControls = useControls((state) => state.setControls)
-  const setCamera = useCamera((state) => state.setCamera)
-  const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
-  const setMintLoading = useMintLoading((state) => state.setMintLoading)
-  const setMintStatus = useMintStatus((state) => state.setMintStatus)
-  const setSelectedCharacterClass = useModelClass((state) => state.setSelectedCharacterClass)
-  const setEnd = useEnd((state) => state.setEnd)
-  const formatModeling = useModelingStore((state) => state.formatModeling)
-  const formatComplete = useModelingStore((state) => state.formatComplete)
-  const setMintDone = useMintDone((state) => state.setMintDone)
+
   const { activate, deactivate, library, account } = useWeb3React()
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
+  const {
+    setTemplateInfo,
+    setLoading,
+    isRotate,
+    ishidden,
+    avatar,
+    scene,
+    model,
+    setControls,
+    setCamera,
+    setConfirmWindow,
+    setMintLoading,
+    setMintStatus,
+    setSelectedCharacterClass,
+    setEnd,
+    formatModeling,
+    formatComplete,
+    setMintDone,
+  } = useContext(ApplicationContext)
+
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
   const reset = () => {
-    setLoading(true);
-    setSelectedCharacterClass(0);
-    setEnd(false);
-    formatModeling();
-    formatComplete();
-    setTemplateInfo({file:null, format:null, bodyTarget:null})
+    setSelectedCharacterClass(null)
+    setEnd(false)
+    setTemplateInfo({ file: null, format: null, bodyTarget: null })
   }
 
   const connectWallet = async () => {
@@ -244,8 +221,6 @@ export default function Scene({ type }) {
       }
     }
   }
-  const leftPadding = ishidden ? 200 : 700
-
   return (
     <FitParentContainer>
       <Background>
@@ -275,9 +250,9 @@ export default function Scene({ type }) {
         </div>
         <ResizeableCanvas left={0} right={0}>
           <Canvas
-            id = "editor-scene"
-            style = {canvasStyle}
-            gl={{ antialias: true, toneMapping: NoToneMapping}}
+            id="editor-scene"
+            style={canvasStyle}
+            gl={{ antialias: true, toneMapping: NoToneMapping }}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
             <ambientLight color={[1, 1, 1]} intensity={0.5} />

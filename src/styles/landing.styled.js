@@ -3,10 +3,14 @@ import styled from "styled-components";
 export const StyledLanding = styled.div `
     height: 100vh;
     background-size : cover;
-    display : flex;
-    flex-direction : column;
+    display : fixed;
     align-items : center;
     overflow : hidden;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    overflow: hidden;
 
     .topBanner {
         background : radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%);

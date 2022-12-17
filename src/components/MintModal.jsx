@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { TemplateModel } from "./Models";
-import { useScene, useModel } from "../store";
-import { NoToneMapping } from 'three';
+import { ApplicationContext } from "../ApplicationContext";
 
 const style = {
   position: 'absolute',
@@ -33,14 +32,13 @@ const canvasStyle = {
 }
 
 export default function MintModal() {
-  const scene = useScene((state) => state.scene);
-  const model = useModel((state) => state.model);
+  const {scene, modal} = useContext(ApplicationContext);
   
   return (
         <Canvas
           style={canvasStyle}
           id="mint-scene"
-            gl={{ antialias: true, toneMapping: NoToneMapping,preserveDrawingBuffer:true }}
+            gl={{ antialias: true, preserveDrawingBuffer:true }}
             linear={false}
         >
           <ambientLight

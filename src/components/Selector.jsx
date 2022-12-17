@@ -1,5 +1,5 @@
 import { Avatar } from "@mui/material"
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { apiService, sceneService } from "../services"
 import useSound from "use-sound"
 import Skin from "./Skin"
@@ -9,43 +9,31 @@ import * as THREE from "three"
 
 import tick from "../../public/ui/selector/tick.svg"
 import sectionClick from "../../public/sound/section_click.wav"
-import {
-  useMuteStore,
-  useDefaultTemplates,
-  useHideStore,
-  useRandomFlag,
-  useAvatar,
-  useLoadedTraits,
-  useSetTemplate,
-  useScene,
-  useCategory,
-  useTemplateInfo,
-  useModel,
-  useControls,
-  useModelClass,
-} from "../store"
-
+import { ApplicationContext } from "../ApplicationContext"
 import FadeInOut from "./FadeAnimation"
 import { SelectorContainerPos } from "../styles/SelectorStyle"
+import defaultTemplates from "../data/base_models"
 
 export default function Selector() {
-  const isMute = useMuteStore((state) => state.isMute)
-  const isHide = useHideStore((state) => state.ishidden)
-  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
-  const randomFlag = useRandomFlag((state) => state.randomFlag)
-  const avatar = useAvatar((state) => state.avatar)
-  const setAvatar = useAvatar((state) => state.setAvatar)
-  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
-  const setTemplate = useSetTemplate((state) => state.setTemplate)
-  const template = useSetTemplate((state) => state.template)
-  const templates = useDefaultTemplates((state) => state.defaultTemplates)
-  const scene = useScene((state) => state.scene)
-  const category = useCategory((state) => state.category)
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
-  const model = useModel((state) => state.model)
-  const controls = useControls((state) => state.controls)
-  const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
+  const {
+    isMute,
+    isHide,
+    setRandomFlag,
+    randomFlag,
+    avatar,
+    setAvatar,
+    setLoadedTraits,
+    setTemplate,
+    template,
+    scene,
+    category,
+    templateInfo,
+    setTemplateInfo,
+    model,
+    controls,
+    selectedCharacterClass,
+  } = useContext(ApplicationContext)
+
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
   const [colorCategory, setColorCategory] = useState("color")
@@ -156,8 +144,8 @@ export default function Selector() {
   React.useEffect(() => {
     if (!scene) return
     async function _get() {
-      if (!loaded && selectedCharacterClass) {
-        await setTempInfo(templates[selectedCharacterClass - 1].id)
+      if (!loaded && selectedCharacterClass !== null) {
+        setTemplateInfo(defaultTemplates[selectedCharacterClass])
       }
     }
     _get()
@@ -234,11 +222,6 @@ export default function Selector() {
     })()
   }, [randomFlag])
 
-  const setTempInfo = (id) => {
-    apiService.fetchTemplate(templates, id).then((res) => {
-      setTemplateInfo(res)
-    })
-  }
 
   const selectTexture = (traitTexture) => {
     new THREE.TextureLoader().load(
@@ -432,7 +415,7 @@ export default function Selector() {
                 if (tData != null) {
                   if (tData.restrictedTypes) {
                     const restrictedTypeArray = tData.restrictedTypes
-                    
+
                     // make sure to include also typeRestrictions if they exist
                     // const restrictedTypeArray = !templateInfo.typeRestrictions?
                     //   tData.restrictedTypes :
@@ -470,17 +453,15 @@ export default function Selector() {
                   for (const property in avatar) {
                     if (property !== traitName) {
                       typeRestrictions.forEach((typeRestriction) => {
-                        if (avatar[property].traitInfo?.type){
-                          const types = avatar[property].traitInfo.type;
-                          for (let i=0;i<types.length;i++){
-                            if (
-                              types[i] === typeRestriction
-                            ) {
+                        if (avatar[property].traitInfo?.type) {
+                          const types = avatar[property].traitInfo.type
+                          for (let i = 0; i < types.length; i++) {
+                            if (types[i] === typeRestriction) {
                               newAvatarData[property] = {}
-                              break;
+                              break
                             }
-                          };
-                        }       
+                          }
+                        }
                       })
                       // check also if any of the current trait is of type
                       if (avatar[property].vrm) {
@@ -488,7 +469,6 @@ export default function Selector() {
                           avatar[property].traitInfo.type,
                         )
                         propertyTypes.forEach((t) => {
-                          
                           const typeRestrictionsSecondary = getAsArray(
                             templateInfo.typeRestrictions[t],
                           )

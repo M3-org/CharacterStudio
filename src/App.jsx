@@ -1,151 +1,141 @@
-import React, { Suspense, useState, useEffect, Fragment } from "react"
-import ReactDOM from "react-dom/client"
-import { Web3ReactProvider } from "@web3-react/core"
 import { Web3Provider } from "@ethersproject/providers"
-import defaultTemplates from "./data/base_models"
+import { Web3ReactProvider } from "@web3-react/core"
+import React, { Suspense, useContext, useEffect } from "react"
+import ReactDOM from "react-dom/client"
+import backgroundImg from "../public/ui/background.png"
+import {
+  ApplicationContext,
+  ApplicationContextProvider,
+} from "./ApplicationContext"
 import Landing from "./components/Landing"
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-import backgroundImg from '../public/ui/background.png'
-
-import {
-  useDefaultTemplates,
-  useLoading,
-  useLoadedTraits,
-  useScene,
-  useAvatar,
-  useTemplateInfo,
-  useModel,
-} from "./store"
 
 import AudioSettings from "./components/AudioSettings"
 
-import { sceneService } from "./services"
-import { AnimationManager } from "./library/animations/animationManager"
+import { animated, useSpring } from "react-spring"
 import Scene from "./components/Scene"
-import { useSpring, animated } from 'react-spring'
+import { AnimationManager } from "./library/animations/animationManager"
+import { sceneService } from "./services"
 
 function App() {
-  const setDefaultModel = useDefaultTemplates(
-    (state) => state.setDefaultTemplates,
-  )
-  const loading = useLoading((state) => state.loading)
-  const scene = useScene((state) => state.scene)
-  const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
-  setDefaultModel(defaultTemplates)
-  const getLibrary = (provider) => {
-    const library = new Web3Provider(provider)
-    library.pollingInterval = 12000
-    return library
-  }
-
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const avatar = useAvatar((state) => state.avatar)
-  const model = useModel((state) => state.model)
-  const setModel = useModel((state) => state.setModel)
+  const {
+    setDefaultModel,
+    loading,
+    scene,
+    loadedTraits,
+    templateInfo,
+    avatar,
+    model,
+    selectedCharacter,
+    setModel,
+  } = useContext(ApplicationContext)
 
   useEffect(() => {
-    if(avatar){
-      sceneService.setTraits(avatar);
+    if (avatar) {
+      sceneService.setTraits(avatar)
     }
   }, [avatar])
 
   useEffect(() => {
-    if(templateInfo){
-      sceneService.setAvatarTemplateInfo(templateInfo);
+    if (templateInfo) {
+      sceneService.setAvatarTemplateInfo(templateInfo)
     }
   }, [templateInfo])
 
   useEffect(() => {
-    if(model)
-    sceneService.setAvatarModel(model);
+    if (model) sceneService.setAvatarModel(model)
   }, [model])
-  
-  useEffect( () => {
-    if (!templateInfo.file) return;
-    sceneService.loadModel(templateInfo.file)
-      .then(async (vrm) => {
-        const animationManager = new AnimationManager(templateInfo.offset);
-        sceneService.addModelData(vrm, {animationManager:animationManager});
 
-        if (templateInfo.animationPath){
-          await animationManager.loadAnimations(templateInfo.animationPath);
-          animationManager.startAnimation(vrm);
-        }
-        sceneService.addModelData(vrm, {cullingLayer:0});
+  useEffect(() => {
+    if (!templateInfo.file) return
+    sceneService.loadModel(templateInfo.file).then(async (vrm) => {
+      const animationManager = new AnimationManager(templateInfo.offset)
+      sceneService.addModelData(vrm, { animationManager: animationManager })
 
-        sceneService.getSkinColor(vrm.scene,templateInfo.bodyTargets)
-        setModel(vrm);
+      if (templateInfo.animationPath) {
+        await animationManager.loadAnimations(templateInfo.animationPath)
+        animationManager.startAnimation(vrm)
+      }
+      sceneService.addModelData(vrm, { cullingLayer: 0 })
 
-        scene.add (vrm.scene);
+      sceneService.getSkinColor(vrm.scene, templateInfo.bodyTargets)
+      setModel(vrm)
 
-        // set vrm.scene to invisible
-        vrm.scene.visible = false;
+      scene.add(vrm.scene)
 
-          setTimeout(()=>{
-            vrm.scene.visible = true;
-          },50);
-      })
+      // set vrm.scene to invisible
+      vrm.scene.visible = false
+
+      setTimeout(() => {
+        vrm.scene.visible = true
+      }, 50)
+    })
   }, [templateInfo.file])
 
   const animatedStyle = useSpring({
-    from: { opacity: "0"},
+    from: { opacity: "0" },
     to: { opacity: "1" },
-    config: { duration: "2500" }
+    config: { duration: "2500" },
   })
 
   return (
-    <Fragment>
-        <div 
-          className='backgroundImg'
-          style = {{
-              backgroundImage : `url(${backgroundImg})`,
-              backgroundAttachment : 'fixed',
-              backgroundRepeat : "no-repeat",
-              backgroundPosition : "center center",
-              height: '100vh',
-              width: '100vw',
-              backgroundSize : 'cover',
-              display : 'flex',
-              flexDirection : 'column',
-              alignItems : 'center',
-              overflow : 'hidden',
-              position: 'absolute',
-              zIndex: 0,
-          }}
-        >
-          <div className="backgroundBlur">
-          </div>
+    <Suspense fallback="loading...">
+      <div
+        className="backgroundImg"
+        style={{
+          backgroundImage: `url(${backgroundImg})`,
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+          height: "100vh",
+          width: "100vw",
+          backgroundSize: "cover",
+          display: "fixed",
+          flexDirection: "column",
+          alignItems: "center",
+          overflow: "hidden",
+          position: "absolute",
+          zIndex: 0,
+        }}
+      >
+        <div className="backgroundBlur"></div>
+      </div>
+      {!selectedCharacter && <Landing />}
+      <AudioSettings />
+      {loading && (
+        <div>
+          <LoadingOverlayCircularStatic
+            style={{
+              position: "absolute",
+              zIndex: 100,
+            }}
+            loadingModelProgress={loadedTraits}
+            title={"Loading"}
+            background={"#000000"}
+          />
         </div>
-        <Landing />
-        <AudioSettings />
-        {loading && (
-          <div>
-            <LoadingOverlayCircularStatic
-              style={{
-                position: "absolute",
-                zIndex: 100,
-              }}
-              loadingModelProgress={loadedTraits}
-              title={"Loading"}
-              background={"#000000"}
-            />
-          </div>
-        )}
-        <Web3ReactProvider getLibrary={getLibrary}>
-          <Suspense fallback="loading...">
-              {templateInfo && (
-                  <animated.div style={animatedStyle} >
-                    <Scene type={templateInfo.name} />  
-                  </animated.div>
-              )}
-              </Suspense>
-          </Web3ReactProvider>
-        </Fragment>
+      )}
+      {templateInfo && (
+        <animated.div style={animatedStyle}>
+          <Scene type={templateInfo.name} />
+        </animated.div>
+      )}
+    </Suspense>
   )
+}
+
+const getLibrary = (provider) => {
+  const library = new Web3Provider(provider)
+  library.pollingInterval = 12000
+  return library
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 
 root.render(
-    <App />
+  <ApplicationContextProvider>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <App />
+    </Web3ReactProvider>
+  </ApplicationContextProvider>,
 )

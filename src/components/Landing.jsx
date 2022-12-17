@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useSpring, animated } from 'react-spring'
-import useSound from 'use-sound';
-import logo from '../../public/ui/landing/logo.png'
-import passUrl from "../../public/sound/class_pass.wav"
-import clickUrl from "../../public/sound/class_click.wav"
-import { useModelClass, useLoading } from '../store'
-import { StyledLanding } from '../styles/landing.styled.js'
+import { BrightnessContrast, EffectComposer, Glitch, Noise, ToneMapping, Vignette } from '@react-three/postprocessing';
+import { Scanline } from '@react-three/postprocessing'
+import { Environment } from "@react-three/drei";
+import { HueSaturation } from '@react-three/postprocessing'
 
-import { Canvas } from "@react-three/fiber";
+import { BlendFunction, GlitchMode } from 'postprocessing';
+import React, { useEffect, useContext, useState } from 'react';
+import { animated, useSpring } from 'react-spring';
+import useSound from 'use-sound';
+import clickUrl from "../../public/sound/class_click.wav";
+import passUrl from "../../public/sound/class_pass.wav";
+import logo from '../../public/ui/landing/logo.png';
+import { ApplicationContext } from "../ApplicationContext";
+import { StyledLanding } from '../styles/landing.styled.js';
+
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
-import { NoToneMapping } from 'three';
-import { sceneService } from '../services/scene'
+import { Canvas } from "@react-three/fiber";
 import { AnimationManager } from '../library/animations/animationManager';
+import { sceneService } from '../services/scene';
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
@@ -21,13 +26,13 @@ const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
 
 const models = [
   {
-      index: 1,
+      index: 0,
       model: dropHunter,
       text: 'Dropunter',
       animation: anim_drophunter
   },
   {
-      index: 2,
+      index: 1,
       model: neuroHacker,
       text: 'Neurohacker',
       animation: anim_neurohacker
@@ -35,9 +40,7 @@ const models = [
 ];
 
 export default function Landing() {
-    const setSelectedCharacterClass = useModelClass((state) => state.setSelectedCharacterClass)
-    const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
-    const setLoading = useLoading((state) => state.setLoading)
+    const {setSelectedCharacterClass, selectedCharacterClass, setLoading} = useContext(ApplicationContext);
     const [drophunter, setDrophunter] = useState(null);
     const [neurohacker, setNeurohacker] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
@@ -101,6 +104,7 @@ export default function Landing() {
                 y: -window.innerHeight,
             }
         })
+        console.log('setSelectedCharacterClass', type)
         setSelectedCharacterClass(type)
     }
 
@@ -109,7 +113,7 @@ export default function Landing() {
         setLoading(false)
     }, [neurohacker, drophunter])
 
-    return neurohacker && drophunter && !selectedCharacterClass && (
+    return neurohacker && drophunter && selectedCharacterClass === null && (
         <StyledLanding>
             <div className='drophunter-container' style={{
                 position: "absolute",
@@ -132,14 +136,14 @@ export default function Landing() {
 
                 // on mouse click
                 onClick={() => {
-                    handleClick(1)
+                    handleClick(0)
                 }}
             >
                 <div className="drophunter" style={{
                     position: "absolute",
                     bottom: "40px",
                     right: "0px",
-                    opacity: selectedAvatar === 'drophunter' ? 1 : 0.5,
+                    opacity: selectedAvatar === drophunter ? 1 : 0.5,
                 }}
                 >
                     <img
@@ -171,13 +175,13 @@ export default function Landing() {
 
                 // on mouse click
                 onClick={() => {
-                    handleClick(2)
+                    handleClick(1)
                 }}
             >
                 <div className="neurohacker" style={{
                     position: "absolute",
                     bottom: "40px",
-                    opacity: selectedAvatar === 'neurohacker' ? 1 : 0.5,
+                    opacity: selectedAvatar === neurohacker ? 1 : 0.5,
                 }}
                 >
                     <img
@@ -192,7 +196,6 @@ export default function Landing() {
 
             <animated.div style={{ ...titleAnimation }}>
                 <div className="topBanner" >
-
                     <img className="webaverse-text" src={logo} />
                     <div className='studio' >Character Studio</div>
                 </div>
@@ -204,9 +207,9 @@ export default function Landing() {
                 </div>
             </animated.div>
 
-            {/* simple floating div with sliders to control setCameraFov and setCameraPosition */}
             <div style={{ position: "absolute", top: 0, left: 0, zIndex: 1000 }}>
             </div>
+
             <Canvas
                 style={{
                     width: '100vw',
@@ -215,25 +218,29 @@ export default function Landing() {
                 }}
                 camera={{ fov: 20 }}
                 linear={false}
-                gl={{ antialias: true, toneMapping: NoToneMapping }}
+                gl={{ antialias: true }}
             >
-            <ambientLight
-              color={[1,1,1]}
-              intensity={0.5}
+
+            <EffectComposer>
+              <BrightnessContrast
+              brightness={0} // brightness. min: -1, max: 1
+              contrast={.2} // contrast: min -1, max: 1
             />
+                <Glitch
+                delay={[1.5, 6.0]} // min and max glitch delay
+                duration={[0.08, 0.3]} // min and max glitch duration
+                strength={[0.1, 0.3]} // min and max glitch strength
+                mode={GlitchMode.SPORADIC} // glitch mode
+                active // turn on/off the effect (switches between "mode" prop and GlitchMode.DISABLED)
+                ratio={0.3} // Threshold for strong glitches, 0 - no weak glitches, 1 - no strong glitches.
+            />
+            </EffectComposer>
             
             <directionalLight 
               intensity = {0.5} 
               position = {[3, 1, 5]} 
-              shadow-mapSize = {[1024, 1024]}>
-              <orthographicCamera 
-                attach="shadow-camera" 
-                left={-20} 
-                right={20} 
-                top={20} 
-                bottom={-20}/>
-            </directionalLight>
-            
+              shadow={false}
+            />            
                 <PerspectiveCamera
                     ref={camera}
                     fov={20}
@@ -247,7 +254,6 @@ export default function Landing() {
                     <mesh position={[-.4, 0, 0]} rotation={[0, 1, 0]}>
                         <primitive object={neurohacker} />
                     </mesh>
-
                 </PerspectiveCamera>
             </Canvas>
         </StyledLanding>)

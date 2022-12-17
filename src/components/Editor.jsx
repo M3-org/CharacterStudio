@@ -1,24 +1,17 @@
 import Stack from "@mui/material/Stack"
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../../public/sound/option_click.wav"
-import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo, useControls} from '../store'
-
+import { ApplicationContext } from "../ApplicationContext";
 import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
 
 export default function Editor({backCallback}) {
-  const isMute = useMuteStore((state) => state.isMute)
-  const sethidden = useHideStore((state) =>state.sethidden)
-  const ishide = useHideStore((state) =>state.ishidden)
-  const category = useCategory((state) => state.category);
-  const setCategory = useCategory((state) => state.setCategory);
-  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const controls = useControls((state) => state.controls)
+  const {isMute, sethidden, ishide, category, setCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
+
   useEffect(()=> {
     sethidden(false);
   }, [category])
