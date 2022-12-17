@@ -46,6 +46,7 @@ export default class VRMExporter {
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
+        const expressionsPreset = {};
         //console.log(vrm)
         //const blendShapeProxy = vrm.blendShapeProxy;
         const lookAt = vrm.lookAt;
@@ -156,37 +157,32 @@ export default class VRMExporter {
                 mesh.updateMorphTargets();
                 // throw new Error(mesh.name + " morphTargetDictionary is null");
             }
-            else{
-                // console.log(mesh.morphTargetDictionary)
-                // console.log(mesh.geometry.morphAttributes)
-                // console.log("it has")
-            }
-            const morphIndexPair = Object.entries(mesh.morphTargetDictionary);
+
             mesh.geometry.userData.targetNames = [];
-            for (const prop in mesh.morphTargetDictionary){
-                //mesh.geometry.userData.targetNames.push(prop);
+            
+            for (const prop in vrm.expressionManager.expressionMap){
+                const expression = vrm.expressionManager.expressionMap[prop];
+                const morphs = expression._binds.map(obj => ([{node:0, index:obj.index, weight:obj.weight  }]))
+                expressionsPreset[prop] = {
+                    morphTargetBinds:morphs,
+                    isBinary:expression.overrideBlink,
+                    overrideBlink:expression.overrideBlink,
+                    overrideLookAt:expression.overrideLookAt,
+                    overrideMouth:expression.overrideMouth,
 
-                
-               // console.log(mesh.morphTargetDictionary[prop]);
-               // console.log(prop)
-
-                // const morphIndex = mesh.morphTargetDictionary[prop];
-                // const morphAttribute = mesh.geometry.morphAttributes;
-
-                // meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
-                // meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
+                }
+                // to do, material target binds, and texture transform binds
             }
-            //console.log(mesh.geometry.userData.targetNames)
-            if (mesh.geometry.userData.targetNames) {
-                mesh.geometry.userData.targetNames.forEach((targetName, index) => {
-                    const morphIndex = morphIndexPair.filter((pair) => pair[0] === index.toString())[0][1];
-                    const morphAttribute = mesh.geometry.morphAttributes;
-                    // console.log(morphAttribute);
-                    // console.log(targetName)
-                    // console.log(index)
-                    meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
-                    meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + targetName));
-                }); 
+
+            for (const prop in mesh.morphTargetDictionary){
+
+                mesh.geometry.userData.targetNames.push(prop);
+
+                const morphIndex = mesh.morphTargetDictionary[prop];
+                const morphAttribute = mesh.geometry.morphAttributes;
+
+                meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
+                meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
             }
         });
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
@@ -409,7 +405,9 @@ export default class VRMExporter {
             bufferViews: outputBufferViews,
             extensions: {
                 VRMC_vrm: {
-                    //blendShapeMaster: blendShapeMaster,
+                    expressions: {
+                        preset:expressionsPreset
+                    },
                     exporterVersion: EXPORTER_VERSION,
                     //firstPerson: vrmFirstPerson,
                     humanoid: vrmHumanoid,
