@@ -5,6 +5,7 @@ import MintModal from './MintModal';
 import walletErrorImage from '../../public/ui/mint/walletError.png'
 import mintPopupImage from '../../public/ui/mint/mintPopup.png'
 import polygonIcon from '../../public/ui/mint/polygon.png'
+import ethereumIcon from '../../public/ui/mint/ethereum.png'
 import StyledButton from '../styles/ColorSelectButtonStyle';
 
 export default function MintPopup({
@@ -68,7 +69,7 @@ export default function MintPopup({
                             </TraitDetail>
                             <MintPriceBox >
                                 <MintCost >{"Mint Price: "}</MintCost>
-                                <TraitImage src = {polygonIcon} height = {'40%'}/>
+                                <TraitImage src = {ethereumIcon} height = {'40%'}/>
                                 <MintCost >{mintCost}</MintCost>
                             </MintPriceBox>
                             <Title fontSize = {'1rem'} padding = {'10px 0 20px'}>{mintStatus}</Title>
