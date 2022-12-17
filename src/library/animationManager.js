@@ -1,7 +1,7 @@
 import { AnimationMixer, Vector3} from 'three'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
-import { sceneService } from "./utils";
+import { addModelData } from "./utils";
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -111,7 +111,7 @@ export class AnimationManager{
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
-    sceneService.addModelData(vrm , {animationControl});
+    addModelData(vrm , {animationControl});
 
     if (this.mainControl == null){
       this.mainControl = animationControl;

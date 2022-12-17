@@ -1,5 +1,5 @@
 import React, { useContext, Fragment } from "react"
-import { ApplicationContext } from "../context/ApplicationContext"
+import { AudioContext } from "../context/AudioContext"
 import MintModal from "./MintModal"
 import walletErrorImage from "../../public/ui/mint/walletError.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
@@ -198,14 +198,14 @@ export default function MintPopup({ connectWallet, connected, mintAsset }) {
   const {
     confirmWindow,
     setConfirmWindow,
-    mintLoading,
-    mintStatus,
-    mintCost,
     templateInfo,
     avatar,
     colorStatus,
     mintDone,
-  } = useContext(ApplicationContext)
+  } = useContext(AudioContext)
+
+  const [mintStatus, setMintStatus] = useState("Please connect your wallet."); // move into the view
+  const [mintCost, setMintCost] = useState(0.1); // move into the mint view, pass as prop?
 
   const showTrait = (trait) => {
     if (trait.name in avatar) {

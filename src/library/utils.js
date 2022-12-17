@@ -78,9 +78,9 @@ export async function getModelFromScene(avatarScene, format = 'glb', skinColor =
   }
 }
 
-export async function getScreenShot(delay = 0) {
+export async function getScreenShot(elementId, delay = 0) {
   await new Promise(resolve => setTimeout(resolve, delay));
-  return await getScreenShotByElementId("mint-scene");
+  return await getScreenShotByElementId(elementId);
 }
 
 async function getScreenShotByElementId(id) {
@@ -119,17 +119,15 @@ export async function getSkinColor(scene, targets) {
 
 export async function setMaterialColor(scene, value, target) {
   const object = scene.getObjectByName(target);
-  if (object != null) {
-    const randColor = value;
-    const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
-    const mat = object.material.length ? object.material[0] : object.material;
-    mat.uniforms.litFactor.value.set(skinShade);
-    const hslSkin = { h: 0, s: 0, l: 0 };
-    skinShade.getHSL(hslSkin);
-  }
+  const randColor = value;
+  const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
+  const mat = object.material.length ? object.material[0] : object.material;
+  mat.uniforms.litFactor.value.set(skinShade);
+  const hslSkin = { h: 0, s: 0, l: 0 };
+  skinShade.getHSL(hslSkin);
 }
-//make sure to remove this data when downloading, as this data is only required while in edit mode
 
+//make sure to remove this data when downloading, as this data is only required while in edit mode
 export function addModelData(model, data) {
   if (model.data == null)
     model.data = data;

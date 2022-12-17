@@ -2,6 +2,8 @@ import React from "react"
 import styled from 'styled-components';
 import webaMark from "../../public/ui/loading/webaMark.svg"
 
+import { ViewContext } from "../context/ViewContext";
+
 export const LoadingStyleBox = styled.div`
     position: absolute;
     z-index: 1000;
@@ -79,12 +81,18 @@ export const LoadingStyleBox = styled.div`
 
 `
 
-function CircularProgressWithLabel({background, value, title}) {
-  return (
+export default function LoadingOverlayCircularStatic({
+  loadingProgress,
+  background = null,
+  title = "Loading"
+}) {
+  const { currentView } = React.useContext(ViewContext);
+  return currentView.includes('LOADING') &&
+  (
     <LoadingStyleBox
       className="loading-container"
       backgroundActive={background}
-      loadedValue = {value}
+      loadedValue = {loadingProgress}
     >
       <span className = "loading-text" >
         {title}
@@ -102,19 +110,5 @@ function CircularProgressWithLabel({background, value, title}) {
         <div className="logo-gradient"></div>
       </div>
     </LoadingStyleBox>
-  )
-}
-
-export default function LoadingOverlayCircularStatic({
-  loadingModelProgress,
-  background = null,
-  title = "Loading"
-}) {
-  return (
-    <CircularProgressWithLabel
-      value={loadingModelProgress}
-      background={background}
-      title = {title}
-    />
   )
 }

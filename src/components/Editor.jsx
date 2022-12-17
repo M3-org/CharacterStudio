@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../../public/sound/option_click.wav"
-import { ApplicationContext } from "../context/ApplicationContext";
+import { AudioContext } from "../context/AudioContext";
 import styled from 'styled-components'
 
 const SideMenu = styled.div`
@@ -65,7 +65,7 @@ const MenuTitle = styled.div`
 `
 
 export default function Editor({backCallback}) {
-  const {isMute, ishide, category, setSelectorCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
+  const {isMute, ishide, selectorCategory, setSelectorCategory, setRandomFlag, templateInfo, controls} = useContext(AudioContext);
 
   const [play] = useSound(
     optionClick,
@@ -73,7 +73,7 @@ export default function Editor({backCallback}) {
   );
 
   const selectOption = (option) =>{
-    if (option.name == category){ 
+    if (option.name == selectorCategory){ 
       if (ishide) {
         moveCamera(option.cameraTarget);
       }
@@ -82,7 +82,7 @@ export default function Editor({backCallback}) {
       }
     }
 
-    if (option.name != category)
+    if (option.name != selectorCategory)
       moveCamera(option.cameraTarget);
     setSelectorCategory(option.name)
     
@@ -128,9 +128,9 @@ export default function Editor({backCallback}) {
 
   const {
     setTemplateInfo,
-    setSelectedCharacterClass,
+    setCurrentTemplateId,
     setEnd,
-  } = useContext(ApplicationContext)
+  } = useContext(AudioContext)
 
   return(
   <SideMenu>
@@ -138,7 +138,7 @@ export default function Editor({backCallback}) {
         
         <MenuTitle>
         <BackButton onClick={() => {
-          setSelectedCharacterClass(null)
+          setCurrentTemplateId(null)
           setEnd(false)
           setTemplateInfo({ file: null, format: null, bodyTarget: null })
         }}/>
@@ -152,7 +152,7 @@ export default function Editor({backCallback}) {
             onClick = {()=>{
               selectOption(item)
             }} 
-            selected = {category === item.name}
+            selected = {selectorCategory === item.name}
             key = {index}>  
             <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
           </MenuOption>

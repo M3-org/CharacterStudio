@@ -6,12 +6,13 @@ import useSound from 'use-sound';
 import clickUrl from "../../public/sound/class_click.wav";
 import passUrl from "../../public/sound/class_pass.wav";
 import logo from '../../public/ui/landing/logo.png';
-import { ApplicationContext } from "../context/ApplicationContext";
+import { AudioContext } from "../context/AudioContext";
 
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { AnimationManager } from '../library/animationManager';
-import { sceneService } from "../library/utils";
+import { SceneContext } from "../context/SceneContext"
+import { ViewContext, ViewStates } from "../context/ViewContext"
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
@@ -159,19 +160,16 @@ const StyledLanding = styled.div `
 `
 
 export default function Landing() {
-    const {setSelectedCharacterClass, selectedCharacterClass, setLoading} = useContext(ApplicationContext);
+    const {setCurrentTemplateId, currentTemplateId} = useContext(SceneContext);
+    
     const [drophunter, setDrophunter] = useState(null);
     const [neurohacker, setNeurohacker] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
-    // get ref camera
+    const { setCurrentView } = useContext(ViewContext);
 
+    const { loadModel } = useContext(SceneContext);
     const camera = React.useRef();
-
-    const [cardAnimation, setCardAnimation] = useSpring(() => ({
-        from: { x: 0, opacity: 1 },
-    }))
-
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
         from: { y: 0 },
     }))
@@ -179,7 +177,7 @@ export default function Landing() {
     useEffect(() => {
         async function createModel(item) {
             const animManager = new AnimationManager();
-            const vrm = await sceneService.loadModel(item.model);
+            const vrm = await loadModel(item.model);
             await animManager.loadAnimations(item.animation);
             return { vrm, animManager }
         }
@@ -205,16 +203,6 @@ export default function Landing() {
 
     const handleClick = (type) => {
             click();
-        setCardAnimation.start({
-            from: {
-                opacity: 1,
-                x: 0,
-            },
-            to: {
-                opacity: 0,
-                x: window.innerWidth,
-            }
-        })
         setTitleAnimation.start({
             from: {
                 y: 0,
@@ -223,16 +211,16 @@ export default function Landing() {
                 y: -window.innerHeight,
             }
         })
-        console.log('setSelectedCharacterClass', type)
-        setSelectedCharacterClass(type)
+        setCurrentTemplateId(type)
+        setCurrentView(ViewStates.CREATOR_LOADING)
     }
 
     useEffect(() => {
         if(!neurohacker || !drophunter) return;
-        setLoading(false)
+       // setCurrentView(ViewStates.Landing) // TODO, replace with proper load?
     }, [neurohacker, drophunter])
 
-    return neurohacker && drophunter && selectedCharacterClass === null && (
+    return neurohacker && drophunter && currentTemplateId === null && (
         <StyledLanding>
             <div className='drophunter-container' style={{
                 position: "absolute",

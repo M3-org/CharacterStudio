@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React, { useEffect, useContext } from "react"
-import { ApplicationContext } from "../context/ApplicationContext"
+import { AudioContext } from "../context/AudioContext"
+import { ViewStates, ViewContext } from "../context/ViewContext"
 import useSound from "use-sound"
 import bgm from "../../public/sound/cc_bgm_balanced.wav"
 import svgSoundOn from '../../public/ui/soundon.svg'
@@ -50,14 +51,14 @@ const BottomRightMenu = styled.div`
 `
 
 export default function AudioButton() {
-  const {isMute, setMute} = useContext(ApplicationContext)
+  const {isMute, setMute} = useContext(AudioContext)
+  const {currentView} = useContext(ViewContext)
   const [backWav, {}] = useSound(bgm, { volume: 1.0, loop: true })
 
   useEffect(() => {
     backWav()
   }, [])
-
-  return (
+  return currentView === ViewStates.CREATOR && (
     <BottomRightMenu>
       <StyledAudioButton
         isMute={isMute}

@@ -1,21 +1,23 @@
 import React, { Fragment, useEffect, useContext } from "react"
-import { sceneService } from "../context"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../../public/ui/skinSelector/Vector.png'
-import { ApplicationContext } from "../context/ApplicationContext"
+import { AudioContext } from "../context/AudioContext"
+import { setMaterialColor } from "../library/utils"
 
-function Skin({ category, avatar}) {
+function Skin({ selectorCategory, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
 
   const {
+    skinColor,
+    setSkinColor,
     colorStatus,
     setColorStatus,
     scene,
     templateInfo
-  } = useContext(ApplicationContext);
+  } = useContext(AudioContext);
 
   const container = {
     display: "flex",
@@ -54,19 +56,19 @@ function Skin({ category, avatar}) {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     let colorTargets;
-    if(category === "head"){
+    if(selectorCategory === "head"){
       colorTargets = getHairMaterial();
     }
-    if(category === "eyeColor"){
+    if(selectorCategory === "eyeColor"){
       colorTargets = templateInfo.EyeTargets;
     }
-    if(category === "color"){
+    if(selectorCategory === "color"){
       colorTargets = templateInfo.bodyTargets;
     }
     for (const bodyTarget of colorTargets) {
-      sceneService.setMaterialColor(scene, value, bodyTarget)
+      setMaterialColor(scene, value, bodyTarget)
       setColorStatus(value)
-      sceneService.setSkinColor(value)
+      setSkinColor(value)
     }
   }
 
@@ -116,7 +118,7 @@ function Skin({ category, avatar}) {
         marginTop: '40px',
       }}
     >
-    {colorArray[category].map((row, i) => {
+    {colorArray[selectorCategory].map((row, i) => {
       return row.map((col, k) => 
         (
           <div 

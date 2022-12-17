@@ -3,7 +3,7 @@ import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { TemplateModel } from "./Models";
-import { ApplicationContext } from "../context/ApplicationContext";
+import { AudioContext } from "../context/AudioContext";
 
 const style = {
   position: 'absolute',
@@ -32,7 +32,7 @@ const canvasStyle = {
 }
 
 export default function MintModal() {
-  const {scene, modal} = useContext(ApplicationContext);
+  const {scene, modal} = useContext(AudioContext);
   
   return (
         <Canvas

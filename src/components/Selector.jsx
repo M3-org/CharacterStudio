@@ -3,15 +3,15 @@ import React, { useEffect, Fragment, useState, useContext } from "react"
 import * as THREE from "three"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
-import { apiService, sceneService } from "../context"
+import { disposeVRM } from "../library/utils"
 import Skin from "./Skin"
 
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
-import { ApplicationContext } from "../context/ApplicationContext"
-import defaultTemplates from "../data/base_models"
+import { AudioContext } from "../context/AudioContext"
 
 import styled from 'styled-components';
+import { SceneContext } from "../context/SceneContext"
 
 export const SelectorContainerPos = styled.div`
     {   
@@ -194,40 +194,34 @@ export const SelectorContainerPos = styled.div`
     }
 `
 
-export default function Selector() {
+export default function Selector({traits}) {
   const {
-    isMute,
-    isHide,
+    loadModel,
     setRandomFlag,
     randomFlag,
     categoryList,
     avatar,
     setAvatar,
-    loadedTraits,
     setLoadedTraits,
-    setTemplate,
-    template,
+    setCurrentTemplateId,
+    currentTemplateId,
     scene,
     setSelectorCategory,
     templateInfo,
-    setTemplateInfo,
     model,
-    selectedCharacterClass,
-  } = useContext(ApplicationContext)
+   } = useContext(SceneContext);
+
+  const {
+    isMute,
+
+  } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
 
   const [collection, setCollection] = useState([])
   const [traitName, setTraitName] = useState("")
-
-  const [loadingTrait, setLoadingTrait] = useState({ loaded: 0, total: 0 })
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
   const [noTrait, setNoTrait] = useState(true)
-  const [loaded, setLoaded] = useState(false)
-  let loadedPercent = Math.round(
-    (loadingTrait.loaded * 100) / loadingTrait.total,
-  )
-
   const [textureOptions, setTextureOptions] = useState([])
 
   const [play] = useSound(sectionClick, { volume: 1.0 })
@@ -259,36 +253,8 @@ export default function Selector() {
   }
 
   useEffect(() => {
-    if (!scene || !templateInfo) return
-    if (setSelectorCategory) {
-      // TODO: double check this is right
-        const traits = loadedTraits.filter((trait) => trait.trait === name)[0];
-        if (traits) {
-          setCollection(traits.collection)
-          setTraitName(traits.trait)
-        }
-    }
-  }, [setSelectorCategory, scene, templateInfo])
-
-  useEffect(() => {
     localStorage.removeItem("color")
-  }, [template])
-
-  useEffect(() => {
-    if (!scene) return
-    async function _get() {
-      if (!loaded && selectedCharacterClass !== null) {
-        setTemplateInfo(defaultTemplates[selectedCharacterClass])
-      }
-    }
-    _get()
-  }, [
-    loaded,
-    selectedCharacterClass,
-    scene,
-    templateInfo ? Object.keys(templateInfo).length : templateInfo,
-  ])
-  useEffect(() => {}, [isHide])
+  }, [currentTemplateId])
 
   useEffect(() => {
     ;(async () => {
@@ -299,29 +265,25 @@ export default function Selector() {
       let buffer = { ...avatar }
       let loaded = 0
       for (let i = 0; i < lists.length; i++) {
-        await apiService
-          .fetchTraitsByCategory(lists[i])
-          .then(async (traits) => {
-            if (traits) {
-              const collection = traits.collection
-              ranItem =
-                collection[Math.floor(Math.random() * collection.length)]
-              if (avatar[traits.trait]) {
-                if (avatar[traits.trait].traitInfo != ranItem) {
-                  const temp = await itemLoader(ranItem, traits, false)
-                  loaded += 100 / lists.length
-                  setLoadedTraits(loaded - 1)
-                  buffer = { ...buffer, ...temp }
-                }
-              }
+        // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
+        const traits = traits[lists[i]]
+          const collection = traits.collection
+          ranItem =
+            collection[Math.floor(Math.random() * collection.length)]
+          if (avatar[traits.trait]) {
+            if (avatar[traits.trait].traitInfo != ranItem) {
+              const temp = await itemLoader(ranItem, traits, false)
+              loaded += 100 / lists.length
+              setLoadedTraits(loaded - 1)
+              buffer = { ...buffer, ...temp }
             }
-          })
+          }
       }
       for (const property in buffer) {
         if (buffer[property].vrm) {
           if (avatar[property].vrm != buffer[property].vrm) {
             if (avatar[property].vrm != null) {
-              sceneService.disposeVRM(avatar[property].vrm)
+              disposeVRM(avatar[property].vrm)
             }
           }
           model.data.animationManager.startAnimation(buffer[property].vrm)
@@ -341,14 +303,14 @@ export default function Selector() {
 
   const selectTrait = (trait, textureIndex) => {
     if (trait.bodyTargets) {
-      setTemplate(trait.id)
+      setCurrentTemplateId(trait.id)
     }
     if (scene) {
       if (trait === "0") {
         setNoTrait(true)
         setTextureOptions([])
         if (avatar[traitName] && avatar[traitName].vrm) {
-          sceneService.disposeVRM(avatar[traitName].vrm)
+          disposeVRM(avatar[traitName].vrm)
           setAvatar({
             ...avatar,
             [traitName]: {},
@@ -356,7 +318,7 @@ export default function Selector() {
         }
       } else {
         if (trait.bodyTargets) {
-          setTemplate(trait.id)
+          setCurrentTemplateId(trait.id)
         } else {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
@@ -365,9 +327,7 @@ export default function Selector() {
               textureTraitLoader(item, trait)
             } else if (item.name === setSelectorCategory) {
               if (trait.textureCollection && textureIndex) {
-                apiService
-                  .fetchTraitsByCategory(trait.textureCollection)
-                  .then((txtrs) => {
+                const txtrs = traits[trait.textureCollection]
                     const localDir = txtrs.collection[textureIndex].directory
                     const texture = templateInfo.traitsDirectory + localDir
                     const loader = new THREE.TextureLoader()
@@ -376,8 +336,8 @@ export default function Selector() {
                       txt.flipY = false
                       itemLoader(trait, null, true, txt)
                     })
-                  })
               } else {
+                console.warn("no texture collection")
                 itemLoader(trait, null, true)
               }
             }
@@ -396,10 +356,10 @@ export default function Selector() {
     texture,
   ) => {
     let r_vrm
-    const vrm = await sceneService.loadModel(
+    const vrm = await loadModel(
       `${templateInfo.traitsDirectory}${item && item.directory}`,
     )
-    sceneService.addModelData(vrm, {
+    addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
     })
@@ -419,19 +379,9 @@ export default function Selector() {
       }
     })
 
-    setLoadingTrait({ ...loadingTrait })
-
-    // small timer to avoid quickly clicking
-    setTimeout(() => {
-      setLoadingTraitOverlay(false)
-    }, 500)
-
     if (addToScene) {
       if (model.data.animationManager)
         model.data.animationManager.startAnimation(vrm)
-      setTimeout(() => {
-        // wait for it to play
-
         if (texture) {
           vrm.scene.traverse((child) => {
             if (child.isMesh) {
@@ -587,11 +537,10 @@ export default function Selector() {
 
           for (const property in newAvatarData) {
             if (avatar[property].vrm) {
-              sceneService.disposeVRM(avatar[property].vrm)
+              disposeVRM(avatar[property].vrm)
             }
           }
         }
-      }, 200) // timeout for animations
     }
 
     return (

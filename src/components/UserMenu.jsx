@@ -9,8 +9,9 @@ import svgWallet from '../../public/ui/connectWallet.svg';
 import svgDiconnectWallet from '../../public/ui/diconnectWallet.svg';
 import svgDownload from '../../public/ui/download.svg';
 import svgMint from '../../public/ui/mint.svg';
-import { apiService, sceneService } from "../context";
-import { ApplicationContext } from "../context/ApplicationContext";
+import { AudioContext } from "../context/AudioContext";
+
+import { getScreenShot, getModelFromScene } from "../library/utils";
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY;
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY;
@@ -663,7 +664,7 @@ export const ButtonMenu = () => {
 
   const {
     avatar, skinColor, model, setConfirmWindow, setMintLoading, setMintStatus, setMintDone,
-  } = useContext(ApplicationContext);
+  } = useContext(AudioContext);
 
   useEffect(() => {
     if (account) {
@@ -709,10 +710,6 @@ export const ButtonMenu = () => {
 
   const handleDownload = () => {
     showType ? setShowType(false) : setShowType(true);
-  };
-
-  const download = (format, type) => {
-    sceneService.download(model, `UpstreetAvatars_${type}`, format, false);
   };
 
   const connectWallet = async () => {
@@ -764,20 +761,16 @@ async function saveFileToPinata(fileData, fileName) {
     setMintStatus("Uploading...");
     setMintLoading(true);
 
-    sceneService.getScreenShot().then(async (screenshot) => {
+    getScreenShot("mint-scene").then(async (screenshot) => {
       if (screenshot) {
-        const imageHash = await apiService
-          .saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
+        const imageHash = await saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
           .catch((reason) => {
             console.error(reason);
             setMintStatus("Couldn't save to pinata");
             setMintLoading(false);
           });
-        sceneService.getModelFromScene(avatar.scene.clone(), 'glb', skinColor).then(async (glb) => {
-          const glbHash = await saveFileToPinata(
-            glb,
-            "AvatarGlb_" + Date.now() + ".glb"
-          );
+        getModelFromScene(avatar.scene.clone(), 'glb', skinColor).then(async (glb) => {
+          const glbHash = await saveFileToPinata( glb, "AvatarGlb_" + Date.now() + ".glb" );
           const attributes = getAvatarTraits();
           const metadata = {
             name: "Avatars",
@@ -787,7 +780,7 @@ async function saveFileToPinata(fileData, fileName) {
             attributes,
           };
           const str = JSON.stringify(metadata);
-          const metaDataHash = await apiService.saveFileToPinata(
+          const metaDataHash = await saveFileToPinata(
             new Blob([str]),
             "AvatarMetadata_" + Date.now() + ".json"
           );
@@ -846,10 +839,10 @@ async function saveFileToPinata(fileData, fileName) {
     <TopRightMenu>
       {showType && (
         <Fragment>
-          <TextButton onClick={() => download("vrm", type)}>
+          <TextButton onClick={() => download(model, `UpstreetAvatar_${type}`, 'vrm', false)}>
             <span>VRM</span>
           </TextButton>
-          <TextButton onClick={() => download("glb", type)}>
+          <TextButton onClick={() => download(model, `UpstreetAvatar_${type}`, 'glb', false)}>
             <span>GLB</span>
           </TextButton>
         </Fragment>

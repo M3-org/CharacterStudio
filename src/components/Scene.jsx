@@ -2,12 +2,16 @@ import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMater
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 import { NoToneMapping } from "three"
-import { ApplicationContext } from "../context/ApplicationContext"
 import Editor from "./Editor"
 import { TemplateModel } from "./Models"
 import Selector from "./Selector"
+import { animated, useSpring } from "react-spring"
+
+import { SceneContext } from "../context/SceneContext"
+
+import { AnimationManager } from "../library/animationManager"
 
 import logo from "../../public/ui/weba.png"
 
@@ -36,42 +40,82 @@ const Background = styled(ScreenSizeContainer)`
   overflow: hidden;
 `
 
-export default function Scene() {
+export default function Scene({ template }) {
   const {
     scene,
     setControls,
     setCamera,
-  } = useContext(ApplicationContext)
+    templateInfo,
+    loadModel,
+  } = useContext(SceneContext)
+
+  useEffect(() => {
+    setTemplateInfo(defaultTemplates[currentTemplateId])
+  }, [])
+
+  useEffect(() => {
+    // move to scene service, loaded stuff in as props
+    if (!templateInfo.file) return
+    loadModel(templateInfo.file).then(async (vrm) => {
+      const animationManager = new AnimationManager(templateInfo.offset)
+      addModelData(vrm, { animationManager: animationManager })
+
+      if (templateInfo.animationPath) {
+        await animationManager.loadAnimations(templateInfo.animationPath)
+        animationManager.startAnimation(vrm)
+      }
+      addModelData(vrm, { cullingLayer: 0 })
+
+      getSkinColor(vrm.scene, templateInfo.bodyTargets)
+      setModel(vrm)
+
+      scene.add(vrm.scene)
+
+      // set vrm.scene to invisible
+      vrm.scene.visible = false
+
+      setTimeout(() => {
+        vrm.scene.visible = true
+      }, 50)
+    })
+  }, [templateInfo.file])
+
+  const animatedStyle = useSpring({
+    from: { opacity: "0" },
+    to: { opacity: "1" },
+    config: { duration: "2500" },
+  })
 
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
   return (
-    <FitParentContainer>
-      <Background>
-        <div
-          id={"webamark"}
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-          }}
-        >
-          <img
-            src={logo}
+    <animated.div style={animatedStyle}>
+      <FitParentContainer>
+        <Background>
+          <div
+            id={"webamark"}
             style={{
-              // place in the center of the screen
               position: "absolute",
-              left: "50%",
-              top: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "100vh",
+              left: 0,
+              top: 0,
+              width: "100vw",
               height: "100vh",
-              opacity: 0.05,
             }}
-          />
-        </div>
+          >
+            <img
+              src={logo}
+              style={{
+                // place in the center of the screen
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "100vh",
+                height: "100vh",
+                opacity: 0.05,
+              }}
+            />
+          </div>
           <Canvas
             id="editor-scene"
             style={canvasStyle}
@@ -129,10 +173,10 @@ export default function Scene() {
               </mesh>
             </PerspectiveCamera>
           </Canvas>
-      </Background>
-
-      <Selector />
-      <Editor />
-    </FitParentContainer>
+        </Background>
+        <Selector />
+        <Editor />
+      </FitParentContainer>
+    </animated.div>
   )
 }
