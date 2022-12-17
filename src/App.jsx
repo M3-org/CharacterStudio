@@ -13,21 +13,39 @@ import { SceneProvider } from "./context/SceneContext"
 
 import Gate from "./components/Gate"
 
+// dynamically import the manifest
+const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json";
+
 function App() {
-  return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <AudioProvider>
-        <SceneProvider>
-          <ViewProvider>
-            <Background />
-            <Gate />
-            <Landing />
-            <AudioButton />
-            {/* <Scene /> */}
-          </ViewProvider>
-        </SceneProvider>
-      </AudioProvider>
-    </Web3ReactProvider>
+  const [manifest, setManifest] = React.useState(null);
+
+  // fetch the manifest, then set it
+  React.useEffect(() => {
+    async function fetchManifest() {
+      const response = await fetch(assetImportPath);
+      const data = await response.json();
+      return data;
+    }
+
+    fetchManifest().then((data) => {
+      setManifest(data);
+    });
+  }, []);
+
+  return manifest && (
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <AudioProvider>
+          <SceneProvider manifest={manifest}>
+            <ViewProvider>
+              <Background />
+              <Gate />
+              <Landing manifest={manifest} />
+              <AudioButton />
+              {/* <Scene /> manifest={manifest} */}
+            </ViewProvider>
+          </SceneProvider>
+        </AudioProvider>
+      </Web3ReactProvider>
   )
 }
 
