@@ -19,7 +19,7 @@ function getTextureImage(material, textureName) {
 function getTextue(material, textureName){
   material = material.length == null ? material : material[0];
   const newTexture = material[textureName].clone();
-  newTexture.encoding = THREE.LinearEncoding;
+  newTexture.encoding = THREE.sRGBEncoding;
   return newTexture;
 }
 function getMaterialVRMData(material){

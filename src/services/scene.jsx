@@ -252,7 +252,7 @@ async function loadModel(file, offset, onProgress) {
     // iterate through and set srgb encoding on all textures
     model.scene.traverse((node) => {
       if (node.isMesh) {
-        node.material.map.encoding = THREE.LinearEncoding;
+        node.material.map.encoding = THREE.sRGBEncoding;
       }
     });
 
