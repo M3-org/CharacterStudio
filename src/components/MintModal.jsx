@@ -41,7 +41,7 @@ export default function MintModal() {
           style={canvasStyle}
           id="mint-scene"
             gl={{ antialias: true, toneMapping: NoToneMapping,preserveDrawingBuffer:true }}
-            linear = {true}
+            linear={false}
         >
           <ambientLight
               color={[1,1,1]}

@@ -494,11 +494,11 @@ function setupModel(vrm){
       if (child.isSkinnedMesh)
         createBoneDirection(child);
 
-        for (const mat in child.material){
-          if(!child.material[mat].uniforms) return;
-          child.material[mat].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
-          child.material[mat].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
-        }
+        // for (const mat in child.material){
+        //   if(!child.material[mat].uniforms) return;
+        //   child.material[mat].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+        //   child.material[mat].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+        // }
   }});
 }
 

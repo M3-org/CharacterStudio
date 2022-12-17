@@ -208,7 +208,7 @@ export default function Landing({models}) {
                     position: 'fixed',
                 }}
                 camera={{ fov: 20 }}
-                linear={true}
+                linear={false}
                 gl={{ antialias: true, toneMapping: NoToneMapping }}
             >
             <ambientLight
