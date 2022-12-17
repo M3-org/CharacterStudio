@@ -308,10 +308,10 @@ export default function Scene() {
         </ResizeableCanvas>
       </Background>
       <TopRightMenu>
-        {showType && <Fragment>
+        {showType && <React.Fragment>
             <TextButton onClick={() => downLoad('vrm')} ><span>VRM</span></TextButton>
             <TextButton onClick={() => downLoad('glb')} ><span>GLB</span></TextButton>
-          </Fragment>
+          </React.Fragment>
         }
         
         <DownloadButton onClick={handleDownload}/>
