@@ -45,7 +45,7 @@ export default function Selector() {
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
   const model = useModel((state) => state.model)
   const controls = useControls((state) => state.controls)
-  const modelClass = useModelClass((state) => state.modelClass)
+  const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
   const [selectValue, setSelectValue] = useState("0")
   const [hairCategory, setHairCategory] = useState("style")
   const [colorCategory, setColorCategory] = useState("color")
@@ -154,22 +154,16 @@ export default function Selector() {
   }, [template])
 
   React.useEffect(() => {
-    if (scene) {
-      sceneService.setScene(scene)
-    }
-  }, [scene])
-
-  React.useEffect(() => {
     if (!scene) return
     async function _get() {
-      if (!loaded && modelClass) {
-        await setTempInfo(templates[modelClass - 1].id)
+      if (!loaded && selectedCharacterClass) {
+        await setTempInfo(templates[selectedCharacterClass - 1].id)
       }
     }
     _get()
   }, [
     loaded,
-    modelClass,
+    selectedCharacterClass,
     scene,
     templateInfo ? Object.keys(templateInfo).length : templateInfo,
   ])
@@ -438,6 +432,7 @@ export default function Selector() {
                 if (tData != null) {
                   if (tData.restrictedTypes) {
                     const restrictedTypeArray = tData.restrictedTypes
+                    
                     // make sure to include also typeRestrictions if they exist
                     // const restrictedTypeArray = !templateInfo.typeRestrictions?
                     //   tData.restrictedTypes :
@@ -466,6 +461,7 @@ export default function Selector() {
                 // we should check every type this trait has
                 for (let i = 0; i < itemTypes.length; i++) {
                   const itemType = itemTypes[i]
+                  console.log(itemType)
                   // and get the restriction included in each array if exists
                   const typeRestrictions = getAsArray(
                     templateInfo.typeRestrictions[itemType],
@@ -474,20 +470,25 @@ export default function Selector() {
                   for (const property in avatar) {
                     if (property !== traitName) {
                       typeRestrictions.forEach((typeRestriction) => {
-                        if (
-                          avatar[property].traitInfo.type === typeRestriction
-                        ) {
-                          newAvatarData[property] = {}
-                        }
+                        if (avatar[property].traitInfo?.type){
+                          const types = avatar[property].traitInfo.type;
+                          for (let i=0;i<types.length;i++){
+                            if (
+                              types[i] === typeRestriction
+                            ) {
+                              newAvatarData[property] = {}
+                              break;
+                            }
+                          };
+                        }       
                       })
-
                       // check also if any of the current trait is of type
                       if (avatar[property].vrm) {
                         const propertyTypes = getAsArray(
                           avatar[property].traitInfo.type,
                         )
-
                         propertyTypes.forEach((t) => {
+                          
                           const typeRestrictionsSecondary = getAsArray(
                             templateInfo.typeRestrictions[t],
                           )
@@ -497,9 +498,6 @@ export default function Selector() {
                       }
                     }
                   }
-
-                  // if (typeRestriction.includes(itemType))
-                  //   newAvatarData[itemType] = {}
                 }
               }
             }

@@ -64,7 +64,7 @@ export default function Scene({ type }) {
   const setConfirmWindow = useConfirmWindow((state) => state.setConfirmWindow)
   const setMintLoading = useMintLoading((state) => state.setMintLoading)
   const setMintStatus = useMintStatus((state) => state.setMintStatus)
-  const setModelClass = useModelClass((state) => state.setModelClass)
+  const setSelectedCharacterClass = useModelClass((state) => state.setSelectedCharacterClass)
   const setEnd = useEnd((state) => state.setEnd)
   const formatModeling = useModelingStore((state) => state.formatModeling)
   const formatComplete = useModelingStore((state) => state.formatComplete)
@@ -78,7 +78,7 @@ export default function Scene({ type }) {
 
   const reset = () => {
     setLoading(true);
-    setModelClass(0);
+    setSelectedCharacterClass(0);
     setEnd(false);
     formatModeling();
     formatComplete();
@@ -275,10 +275,9 @@ export default function Scene({ type }) {
         </div>
         <ResizeableCanvas left={0} right={0}>
           <Canvas
-            id="editor-scene"
-            style={canvasStyle}
-            gl={{ antialias: true, toneMapping: NoToneMapping }}
-            linear={false}
+            id = "editor-scene"
+            style = {canvasStyle}
+            gl={{ antialias: true, toneMapping: NoToneMapping}}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
             <ambientLight color={[1, 1, 1]} intensity={0.5} />

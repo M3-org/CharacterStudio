@@ -4,7 +4,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import { VRM, VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import VRMExporter from "../library/VRM/VRMExporter";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import { CullHiddenFaces} from '../library/cull-mesh.js'
@@ -97,10 +97,6 @@ const cullHiddenMeshes = () => {
     }
   }
 }
-
-// const createScene = () => {
-//   scene = new THREE.Scene();
-// }
 
 const getTraits = () => traits;
 
@@ -260,11 +256,32 @@ async function loadModel(file, offset, onProgress) {
       }
     });
 
-
     // renameMecanimBones(vrm);
+    console.log('setting up model', vrm, new Error().stack);
+    vrm.scene?.traverse((child)=>{
+  
+      child.frustumCulled = false
+  
+      if (child.isMesh){
+        
+        //child.userData.origIndexBuffer = child.geometry.index;
+        if (child.geometry.boundsTree == null){
+          child.geometry.computeBoundsTree({strategy:SAH});
+        }
+        
+        createFaceNormals(child.geometry)
+        if (child.isSkinnedMesh)
+          createBoneDirection(child);
+  
+          // for (const mat in child.material){
+          //   if(!child.material[mat].uniforms) return;
+          //   child.material[mat].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+          //   child.material[mat].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+          // }
+    }
+  });
 
     // important to be after renaming bones!
-    setupModel(vrm);
     return vrm;
   });
 }
@@ -275,20 +292,6 @@ function addModelData(model, data){
     model.data = data;
   else
     model.data = {...model.data, ...data};
-}
-function removeModelData(model, props){
-  if (model.data == null)
-    return;
-
-  if (props){
-    props.forEach(prop => {
-      if (model.data[prop]!= null)
-        model.data[prop] = null;
-    });
-  }
-  else{
-    model.data = null;
-  }
 }
 
 function getModelProperty(model, property){
@@ -475,31 +478,6 @@ const renameVRMBones = (vrm) =>{
   for (const boneName in bones) {
     bones[boneName].node.name = boneName;
   } 
-}
-
-function setupModel(vrm){
-  console.log('setting up model', vrm, new Error().stack);
-  vrm.scene?.traverse((child)=>{
-
-    child.frustumCulled = false
-
-    if (child.isMesh){
-      
-      //child.userData.origIndexBuffer = child.geometry.index;
-      if (child.geometry.boundsTree == null){
-        child.geometry.computeBoundsTree({strategy:SAH});
-      }
-      
-      createFaceNormals(child.geometry)
-      if (child.isSkinnedMesh)
-        createBoneDirection(child);
-
-        // for (const mat in child.material){
-        //   if(!child.material[mat].uniforms) return;
-        //   child.material[mat].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
-        //   child.material[mat].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
-        // }
-  }});
 }
 
 async function getMorphValue(key, scene, target) {

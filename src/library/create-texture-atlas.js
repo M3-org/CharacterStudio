@@ -18,7 +18,9 @@ function getTextureImage(material, textureName) {
 }
 function getTextue(material, textureName){
   material = material.length == null ? material : material[0];
-  return material[textureName];
+  const newTexture = material[textureName].clone();
+  newTexture.encoding = THREE.LinearEncoding;
+  return newTexture;
 }
 function getMaterialVRMData(material){
   material = material.length == null ? material : material[0];

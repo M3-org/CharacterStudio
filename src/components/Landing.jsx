@@ -4,7 +4,7 @@ import useSound from 'use-sound';
 import logo from '../../public/ui/landing/logo.png'
 import passUrl from "../../public/sound/class_pass.wav"
 import clickUrl from "../../public/sound/class_click.wav"
-import { useModelingStore, useModelClass, useLoading } from '../store'
+import { useModelClass, useLoading } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 import { Canvas } from "@react-three/fiber";
@@ -13,12 +13,34 @@ import { NoToneMapping } from 'three';
 import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
 
-export default function Landing({models}) {
-    const setModelClass = useModelClass((state) => state.setModelClass)
+const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
+const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
+
+const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
+const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
+
+const models = [
+  {
+      index: 1,
+      model: dropHunter,
+      text: 'Dropunter',
+      animation: anim_drophunter
+  },
+  {
+      index: 2,
+      model: neuroHacker,
+      text: 'Neurohacker',
+      animation: anim_neurohacker
+  }
+];
+
+export default function Landing() {
+    const setSelectedCharacterClass = useModelClass((state) => state.setSelectedCharacterClass)
+    const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
     const setLoading = useLoading((state) => state.setLoading)
-    const [drophunter, setDrophunter] = useState(Object);
-    const [neurohacker, setNeurohacker] = useState(Object);
-    const [hovering, setCurrentAvatar] = useState('');
+    const [drophunter, setDrophunter] = useState(null);
+    const [neurohacker, setNeurohacker] = useState(null);
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
 
     // get ref camera
 
@@ -32,43 +54,21 @@ export default function Landing({models}) {
         from: { y: 0 },
     }))
 
-    
-    const [runOnce, setRunOnce] = useState(false);
-    let _runOnce = false;
     useEffect(() => {
-        if(runOnce) {
-            console.log('runOnce', runOnce)
-            Error.stackTraceLimit = 100;
-            const stack = new Error().stack;
-            console.log(stack);
+        async function createModel(item) {
+            const animManager = new AnimationManager();
+            const vrm = await sceneService.loadModel(item.model);
+            await animManager.loadAnimations(item.animation);
+            return { vrm, animManager }
         }
-        if(_runOnce) {
-            console.log('_runOnce', _runOnce)
-            Error.stackTraceLimit = 100;
-            const stack = new Error().stack;
-            console.log(stack);
-        }
-        _runOnce = true;
-        setRunOnce(true);
-        (async () => {
-            async function createModel(item) {
-                const animManager = new AnimationManager();
-                const vrm = await sceneService.loadModel(item.model);
-                await animManager.loadAnimations(item.animation);
-                return { vrm, animManager }
-            }
-            {
-                const { vrm, animManager } = await createModel(models[0]);
-                animManager.startAnimation(vrm)
-                setDrophunter(vrm.scene)
-            }
-            {
-                const { vrm, animManager } = await createModel(models[1]);
-                animManager.startAnimation(vrm)
-                setNeurohacker(vrm.scene)
-            }
-            setLoading(false)
-        })()
+        createModel(models[0]).then(({ vrm, animManager }) => {
+            animManager.startAnimation(vrm)
+            setDrophunter(vrm.scene)
+        });
+        createModel(models[1]).then(({ vrm, animManager }) => {
+            animManager.startAnimation(vrm)
+            setNeurohacker(vrm.scene)
+        });
     }, [])
 
     const [play] = useSound(
@@ -101,9 +101,15 @@ export default function Landing({models}) {
                 y: -window.innerHeight,
             }
         })
-        setModelClass(type)
+        setSelectedCharacterClass(type)
     }
-    return (
+
+    useEffect(() => {
+        if(!neurohacker || !drophunter) return;
+        setLoading(false)
+    }, [neurohacker, drophunter])
+
+    return neurohacker && drophunter && !selectedCharacterClass && (
         <StyledLanding>
             <div className='drophunter-container' style={{
                 position: "absolute",
@@ -115,12 +121,12 @@ export default function Landing({models}) {
             }}
 
                 onMouseEnter={() => {
-                    setCurrentAvatar('drophunter')
+                    setSelectedAvatar(drophunter)
                 }}
 
                 onMouseLeave={() => {
-                    if (hovering === 'drophunter') {
-                        setCurrentAvatar('');
+                    if (selectedAvatar === drophunter) {
+                        setSelectedAvatar(null);
                     }
                 }}
 
@@ -133,7 +139,7 @@ export default function Landing({models}) {
                     position: "absolute",
                     bottom: "40px",
                     right: "0px",
-                    opacity: hovering === 'drophunter' ? 1 : 0.5,
+                    opacity: selectedAvatar === 'drophunter' ? 1 : 0.5,
                 }}
                 >
                     <img
@@ -154,12 +160,12 @@ export default function Landing({models}) {
                 width: "40vw",
             }}
                 onMouseEnter={() => {
-                    setCurrentAvatar('neurohacker')
+                    setSelectedAvatar(neurohacker)
                 }}
 
                 onMouseLeave={() => {
-                    if (hovering === 'neurohacker') {
-                        setCurrentAvatar('');
+                    if (selectedAvatar === neurohacker) {
+                        setSelectedAvatar(null);
                     }
                 }}
 
@@ -171,7 +177,7 @@ export default function Landing({models}) {
                 <div className="neurohacker" style={{
                     position: "absolute",
                     bottom: "40px",
-                    opacity: hovering === 'neurohacker' ? 1 : 0.5,
+                    opacity: selectedAvatar === 'neurohacker' ? 1 : 0.5,
                 }}
                 >
                     <img

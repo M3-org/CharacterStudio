@@ -1,5 +1,6 @@
 
 import create from 'zustand';
+import * as THREE from 'three'
 
 const useMuteStore = create((set) => ({
     isMute: false,
@@ -115,7 +116,7 @@ const useSetTemplate = create((set) => ({
 }))
 
 const useScene = create((set) => ({
-    scene: {},
+    scene: new THREE.Scene(),
     setScene: (value) => set((state) => ({
         scene: value
     }))
@@ -190,9 +191,9 @@ const useLoading = create((set) => ({
 }))
 
 const useModelClass = create((set) => ({
-    modelClass: 0,
-    setModelClass: (value) => set((state) => ({
-        modelClass: value
+    selectedCharacterClass: 0,
+    setSelectedCharacterClass: (value) => set((state) => ({
+        selectedCharacterClass: value
     }))
 }))
 
