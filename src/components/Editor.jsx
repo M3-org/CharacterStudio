@@ -65,7 +65,7 @@ const MenuTitle = styled.div`
 `
 
 export default function Editor({backCallback}) {
-  const {isMute, ishide, category, setCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
+  const {isMute, ishide, category, setSelectorCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
 
   const [play] = useSound(
     optionClick,
@@ -84,7 +84,7 @@ export default function Editor({backCallback}) {
 
     if (option.name != category)
       moveCamera(option.cameraTarget);
-    setCategory(option.name)
+    setSelectorCategory(option.name)
     
     !isMute && play();
   }

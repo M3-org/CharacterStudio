@@ -11,7 +11,7 @@ import { ApplicationContext } from "../context/ApplicationContext";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { AnimationManager } from '../library/animationManager';
-import { sceneService } from '../context/scene';
+import { sceneService } from "../library/utils";
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"

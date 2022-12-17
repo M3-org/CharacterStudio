@@ -3,11 +3,12 @@ import {useState, createContext} from 'react';
 export const ApplicationContext = createContext();
 
 export const ApplicationContextProvider = ({ children }) => {
-    const [isMute, setMute] = useState(false);
+
     const [colorStatus, setColorStatus] = useState('');
     const [defaultModel, setDefaultModel] = useState(null);
-    const [randomFlag, setRandomFlag] = useState(-1);
-    const [avatar, setAvatar] = useState({
+    const [randomFlag, setRandomFlag] = useState(-1); // TODO: wtf?
+    const [skinColor, setSkinColor] = useState(new THREE.Color(1,1,1));
+    const [avatar, _setAvatar] = useState({
         skin:{},
         body:{},
         chest:{},
@@ -24,25 +25,46 @@ export const ApplicationContextProvider = ({ children }) => {
         outer:{},
         solo:{}
     });
-    const [loadedTraits, setLoadedTraits] = useState(false);
-    const [end, setEnd] = useState(false);
-    const [template, setTemplate] = useState(1);
+    const setAvatar = (state) => {
+        cullHiddenMeshes(avatar, scene, avatarTemplateSpec);
+        _setAvatar(state);
+    }
+    const [loadedTraits, setLoadedTraits] = useState(false);  // difference?
+    const [template, setTemplate] = useState(1); // difference from above? can derive one from other?
+    const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null }); // TODO: and this? 
+    const [avatarTemplateSpec, setAvatarTemplateSpec] = useState(null); // AND THISSSS??
+
+    const [categoryList, setSelectorCategoryList] = useState([
+            "chest",
+            "head",
+            "neck",
+            "legs",
+            "feet"
+          ]);
+
+    const [isMute, setMute] = useState(false);
+
+    const [end, setEnd] = useState(false); // replace with view state
+    const [mintDone, setMintDone] = useState(false); // TODO: replace with view state
+    const [confirmWindow, setConfirmWindow] = useState(false);  // TODO: replace with view state
+
     const [scene, useScene] = useState(new THREE.Scene());
-    const [category, setCategory] = useState({ category: "head" });
-    const [templateInfo, setTemplateInfo] = useState({ file: null, format: null, bodyTargets:null });
+    const [selectorCategory, setSelectorCategory] = useState({ selectorCategory: "head" });
     const [model, setModel] = useState({});
     const [controls, setControls] = useState({});
     const [camera, setCamera] = useState({});
-    const [confirmWindow, setConfirmWindow] = useState(false);
+
+    const [loading, setLoading] = useState(true);
+    const [selectedCharacterClass, setSelectedCharacterClass] = useState(null);
+
     const [mintLoading, setMintLoading] = useState(false);
     const [mintStatus, setMintStatus] = useState("Please connect your wallet.");
     const [mintCost, setMintCost] = useState(0.1);
-    const [loading, setLoading] = useState(true);
-    const [selectedCharacterClass, setSelectedCharacterClass] = useState(null);
-    const [mintDone, setMintDone] = useState(false);
     return (
         <ApplicationContext.Provider value={{
             isMute, setMute,
+            skinColor, setSkinColor,
+            categoryList, setSelectorCategoryList,
             colorStatus, setColorStatus,
             defaultModel, setDefaultModel,
             randomFlag, setRandomFlag,
@@ -51,7 +73,7 @@ export const ApplicationContextProvider = ({ children }) => {
             end, setEnd,
             template, setTemplate,
             scene, useScene,
-            category, setCategory,
+            selectorCategory, setSelectorCategory,
             templateInfo, setTemplateInfo,
             model, setModel,
             controls, setControls,

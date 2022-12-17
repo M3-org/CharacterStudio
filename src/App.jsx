@@ -16,10 +16,10 @@ import { animated, useSpring } from "react-spring"
 import Scene from "./components/Scene"
 import { AnimationManager } from "./library/animationManager"
 import { sceneService } from "./context"
+import { ViewProvider } from "./context/ViewContext"
 
 function App() {
   const {
-    setDefaultModel,
     loading,
     scene,
     loadedTraits,
@@ -28,17 +28,19 @@ function App() {
     model,
     selectedCharacter,
     setModel,
+    setAvatarTemplateSpec,
+    avatarTemplateSpec,
   } = useContext(ApplicationContext)
 
   useEffect(() => {
     if (avatar) {
-      sceneService.setTraits(avatar)
+      cullHiddenMeshes(avatar, scene, avatarTemplateSpec)
     }
   }, [avatar])
 
   useEffect(() => {
     if (templateInfo) {
-      sceneService.setAvatarTemplateInfo(templateInfo)
+      setAvatarTemplateSpec(templateInfo)
     }
   }, [templateInfo])
 
@@ -58,7 +60,7 @@ function App() {
       }
       sceneService.addModelData(vrm, { cullingLayer: 0 })
 
-      sceneService.getSkinColor(vrm.scene, templateInfo.bodyTargets)
+      getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
 
       scene.add(vrm.scene)
@@ -134,8 +136,10 @@ const root = ReactDOM.createRoot(document.getElementById("root"))
 
 root.render(
   <ApplicationContextProvider>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <App />
-    </Web3ReactProvider>
+    <ViewProvider>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <App />
+      </Web3ReactProvider>
+    </ViewProvider>
   </ApplicationContextProvider>,
 )

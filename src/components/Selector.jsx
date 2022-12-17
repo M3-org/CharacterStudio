@@ -200,13 +200,15 @@ export default function Selector() {
     isHide,
     setRandomFlag,
     randomFlag,
+    categoryList,
     avatar,
     setAvatar,
+    loadedTraits,
     setLoadedTraits,
     setTemplate,
     template,
     scene,
-    category,
+    setSelectorCategory,
     templateInfo,
     setTemplateInfo,
     model,
@@ -258,15 +260,15 @@ export default function Selector() {
 
   useEffect(() => {
     if (!scene || !templateInfo) return
-    if (category) {
-      apiService.fetchTraitsByCategory(category).then((traits) => {
+    if (setSelectorCategory) {
+      // TODO: double check this is right
+        const traits = loadedTraits.filter((trait) => trait.trait === name)[0];
         if (traits) {
           setCollection(traits.collection)
           setTraitName(traits.trait)
         }
-      })
     }
-  }, [category, scene, templateInfo])
+  }, [setSelectorCategory, scene, templateInfo])
 
   useEffect(() => {
     localStorage.removeItem("color")
@@ -292,7 +294,7 @@ export default function Selector() {
     ;(async () => {
       if (randomFlag === -1) return
 
-      const lists = apiService.fetchCategoryList()
+      const lists = categoryList
       let ranItem
       let buffer = { ...avatar }
       let loaded = 0
@@ -359,9 +361,9 @@ export default function Selector() {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           templateInfo.selectionTraits.map((item) => {
-            if (item.name === category && item.type === "texture") {
+            if (item.name === setSelectorCategory && item.type === "texture") {
               textureTraitLoader(item, trait)
-            } else if (item.name === category) {
+            } else if (item.name === setSelectorCategory) {
               if (trait.textureCollection && textureIndex) {
                 apiService
                   .fetchTraitsByCategory(trait.textureCollection)
@@ -666,16 +668,16 @@ export default function Selector() {
 
   const getActiveStatus = (item) => {
     return (
-      avatar[category] &&
-      avatar[category].traitInfo &&
-      avatar[category].traitInfo.id === item.id
+      avatar[setSelectorCategory] &&
+      avatar[setSelectorCategory].traitInfo &&
+      avatar[setSelectorCategory].traitInfo.id === item.id
     )
   }
   return (
     <SelectorContainerPos loadingOverlay={loadingTraitOverlay}>
       <div className="selector-container">
         <div className="traitPanel">
-          {category !== "head" ? (
+          {setSelectorCategory !== "head" ? (
             <Fragment>
               <div
                 className={noTrait ? "selectorButtonActive" : "selectorButton"}
@@ -774,7 +776,7 @@ export default function Selector() {
               </div>
             </Fragment>
           ) : (
-            <Skin category={category} avatar={avatar} />
+            <Skin setSelectorCategory={setSelectorCategory} avatar={avatar} />
           )}
         </div>
       </div>
