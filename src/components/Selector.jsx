@@ -471,9 +471,7 @@ export default function Selector() {
                     templateInfo.typeRestrictions[itemType],
                   )
                   // now check if the avatar properties include this restrictions to remove
-                  console.log(avatar)
                   for (const property in avatar) {
-                    
                     if (property !== traitName) {
                       typeRestrictions.forEach((typeRestriction) => {
                         if (avatar[property].traitInfo?.type){
@@ -488,10 +486,7 @@ export default function Selector() {
                           };
                         }       
                       })
-
                       // check also if any of the current trait is of type
-                      //console.log(property)
-                      //console.log(avatar[property])
                       if (avatar[property].vrm) {
                         const propertyTypes = getAsArray(
                           avatar[property].traitInfo.type,
@@ -507,9 +502,6 @@ export default function Selector() {
                       }
                     }
                   }
-
-                  // if (typeRestriction.includes(itemType))
-                  //   newAvatarData[itemType] = {}
                 }
               }
             }
