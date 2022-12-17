@@ -1,15 +1,12 @@
-import React, { useEffect } from "react"
+import React from "react"
 import ReactDOM from "react-dom/client"
 import { Web3ReactProvider } from "@web3-react/core"
 import { Web3Provider } from "@ethersproject/providers"
-
-import useSound from "use-sound"
 import CharacterEditor from "./components"
 import { createTheme } from "@mui/material"
 import defaultTemplates from "./data/base_models"
 import Landing from "./components/Landing"
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
-import bgm from "./sound/cc_bgm_balanced.wav"
 import backgroundImg from '../public/ui/background.png'
 
 import {
@@ -44,14 +41,7 @@ function App() {
     return library
   }
 
-  const [backWav, {  }] = useSound(bgm, { volume: 1.0, loop: true })
-
-  useEffect(() => {
-    backWav()
-  }, [])
-
   return (
-    <React.Fragment>
       <Web3ReactProvider getLibrary={getLibrary}>
         <AudioSettings />
         <div 
@@ -79,15 +69,19 @@ function App() {
         {loading && (
           <div>
             <LoadingOverlayCircularStatic
+              style={{
+                position: "absolute",
+                zIndex: 100,
+              }}
               loadingModelProgress={loadedTraits}
               title={"Loading"}
+              background={"#000000"}
             />
           </div>
         )}
         {!modelClass && <Landing />}
-        {modelClass && <CharacterEditor theme={defaultTheme} />}
+       {modelClass && <CharacterEditor theme={defaultTheme} />}
       </Web3ReactProvider>
-    </React.Fragment>
   )
 }
 

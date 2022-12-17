@@ -2,7 +2,7 @@
 import create from 'zustand';
 
 const useMuteStore = create((set) => ({
-    isMute: true,
+    isMute: false,
     setMute: (value) => set((state) => ({
         isMute: value
     }))
@@ -183,7 +183,7 @@ const useMintStatus = create((set) => ({
 }))
 
 const useLoading = create((set) => ({
-    loading: false,
+    loading: true,
     setLoading: (value) => set((state) => ({
         loading: value
     }))

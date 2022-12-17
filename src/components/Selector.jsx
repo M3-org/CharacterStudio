@@ -8,7 +8,7 @@ import gsap from "gsap"
 import * as THREE from "three"
 
 import tick from "../../public/ui/selector/tick.svg"
-import sectionClick from "../sound/section_click.wav"
+import sectionClick from "../../public/sound/section_click.wav"
 import {
   useMuteStore,
   useDefaultTemplates,

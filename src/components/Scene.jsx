@@ -42,6 +42,7 @@ import {
   useModelClass,
   useModelingStore,
   useMintDone,
+  useLoading,
 } from "../store"
 
 import logo from "../../public/ui/weba.png"
@@ -52,7 +53,7 @@ export default function Scene({ type }) {
   const [connected, setConnected] = useState(false)
   const [ensName, setEnsName] = useState("")
   const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
-
+  const setLoading = useLoading((state) => state.setLoading)
   const isRotate = useRotateStore((state) => state.isRotate)
   const ishidden = useHideStore((state) => state.ishidden)
   const avatar = useAvatar((state) => state.avatar)
@@ -76,12 +77,12 @@ export default function Scene({ type }) {
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
   const reset = () => {
-    setEnd(false)
-    setModelClass(0)
-    setEnd(false)
-    formatModeling()
-    formatComplete()
-    setTemplateInfo({ file: null, format: null, bodyTarget: null })
+    setLoading(true);
+    setModelClass(0);
+    setEnd(false);
+    formatModeling();
+    formatComplete();
+    setTemplateInfo({file:null, format:null, bodyTarget:null})
   }
 
   const connectWallet = async () => {

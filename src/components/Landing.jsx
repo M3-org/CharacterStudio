@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring'
 import useSound from 'use-sound';
-import LoadingOverlayCircularStatic from './LoadingOverlay';
 import logo from '../../public/ui/landing/logo.png'
-import passUrl from "../sound/class_pass.wav"
-import clickUrl from "../sound/class_click.wav"
-import { useModelingStore, useModelClass } from '../store'
+import passUrl from "../../public/sound/class_pass.wav"
+import clickUrl from "../../public/sound/class_click.wav"
+import { useModelingStore, useModelClass, useLoading } from '../store'
 import { StyledLanding } from '../styles/landing.styled.js'
 
 import { Canvas } from "@react-three/fiber";
@@ -18,11 +17,9 @@ export default function Landing(props) {
     const isModeling = useModelingStore((state) => state.isModeling)
     const isComplete = useModelingStore((state) => state.isComplete)
     const setModelClass = useModelClass((state) => state.setModelClass)
-
+    const setLoading = useLoading((state) => state.setLoading)
     const [drophunter, setDrophunter] = useState(Object);
     const [neurohacker, setNeurohacker] = useState(Object);
-
-    const [isLoading, setIsLoading] = useState(false);
 
     const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
     const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
@@ -63,15 +60,24 @@ export default function Landing(props) {
         from: { y: 0 },
     }))
 
-    const handleLoading = () => {
-        setIsLoading(false);
-        console.log("isloading")
-    }
-
-
-    /////////////////////////////
-
+    
+    const [runOnce, setRunOnce] = useState(false);
+    let _runOnce = false;
     useEffect(() => {
+        if(runOnce) {
+            console.log('runOnce', runOnce)
+            Error.stackTraceLimit = 100;
+            const stack = new Error().stack;
+            console.log(stack);
+        }
+        if(_runOnce) {
+            console.log('_runOnce', _runOnce)
+            Error.stackTraceLimit = 100;
+            const stack = new Error().stack;
+            console.log(stack);
+        }
+        _runOnce = true;
+        setRunOnce(true);
         (async () => {
             async function createModel(item) {
                 const animManager = new AnimationManager();
@@ -91,41 +97,9 @@ export default function Landing(props) {
                 animManager.startAnimation(vrm)
                 setNeurohacker(vrm.scene)
             })();
-
-
-            setIsLoading(false)
+            setLoading(false)
         })()
     }, [])
-
-    ////////////////////////////
-
-
-    useEffect(() => {
-        setIsLoading(true)
-        // window.addEventListener("load", handleLoading);
-    }, [])
-
-    useEffect(() => {
-        let sum = 0;
-        isModeling.map((item, idx) => {
-            if (item !== undefined)
-                sum += item;
-        })
-
-        setLoadingPercent(sum / modelArr.length)
-    }, [isModeling])
-
-    useEffect(() => {
-        let sum = 0;
-        isComplete.map((item, idx) => {
-            if (item !== undefined)
-                sum += 1;
-        })
-
-        if (sum === modelArr.length) {
-            setIsLoading(false)
-        }
-    }, [isComplete])
 
     const [play] = useSound(
         passUrl,
@@ -161,15 +135,6 @@ export default function Landing(props) {
     }
     return (
         <StyledLanding>
-            {
-                isLoading && (
-                    <LoadingOverlayCircularStatic
-                        loadingModelProgress={loadingPercent}
-                        background={true}
-                        title={"Loading..."}
-                    />
-                )
-            }
             <div className='drophunter-container' style={{
                 position: "absolute",
                 right: "0px",

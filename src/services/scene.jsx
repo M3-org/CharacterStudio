@@ -485,11 +485,6 @@ function setupModel(vrm){
       createFaceNormals(child.geometry)
       if (child.isSkinnedMesh)
         createBoneDirection(child);
-
-      if (child.material.length > 1){
-        // child.material[0].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
-        // child.material[0].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
-      }
   }});
 }
 
