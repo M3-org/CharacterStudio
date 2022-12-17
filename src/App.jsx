@@ -6,16 +6,16 @@ import backgroundImg from "../public/ui/background.png"
 import {
   ApplicationContext,
   ApplicationContextProvider,
-} from "./ApplicationContext"
+} from "./context/ApplicationContext"
 import Landing from "./components/Landing"
 import LoadingOverlayCircularStatic from "./components/LoadingOverlay"
 
-import AudioSettings from "./components/AudioSettings"
+import AudioButton from "./components/AudioButton"
 
 import { animated, useSpring } from "react-spring"
 import Scene from "./components/Scene"
-import { AnimationManager } from "./library/animations/animationManager"
-import { sceneService } from "./services"
+import { AnimationManager } from "./library/animationManager"
+import { sceneService } from "./context"
 
 function App() {
   const {
@@ -101,7 +101,7 @@ function App() {
         <div className="backgroundBlur"></div>
       </div>
       {!selectedCharacter && <Landing />}
-      <AudioSettings />
+      <AudioButton />
       {loading && (
         <div>
           <LoadingOverlayCircularStatic

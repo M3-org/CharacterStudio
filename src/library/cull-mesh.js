@@ -1,5 +1,5 @@
 import {Raycaster, Vector3, LineBasicMaterial, Line, Color, BufferGeometry, BufferAttribute} from "three";
-import { sceneService } from "../services";
+import { sceneService } from "../context";
 
 let origin = new Vector3();
 let direction = new Vector3();

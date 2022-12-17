@@ -6,15 +6,66 @@ import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../../public/sound/option_click.wav"
-import { ApplicationContext } from "../ApplicationContext";
-import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
+import { ApplicationContext } from "../context/ApplicationContext";
+import styled from 'styled-components'
+
+const SideMenu = styled.div`
+    position: absolute;
+    left: 50px;
+    top: 10%;
+    width: 100px;
+    background-color: rgba(23, 22, 31, 0.35);
+    border: 1px solid #38404E;
+    border-radius : 5px;
+    backdrop-filter: blur(22.5px); 
+    box-sizing : border-box;
+    transform: perspective(400px) rotateY(5deg);
+    user-select : none;
+`
+const LineDivision = styled.div`
+    border: 1px solid #3A7484;
+    width: 98%;
+    opacity: 0.5;
+    margin-bottom: ${props => props.bottom || '0'};
+    margin-top: ${props => props.top || '0'};
+`
+const MenuOption = styled.div`
+    display: inline-block;
+    margin: 5px auto 5px auto;
+    padding: 5px;
+    height: 3em;
+    width: 3em;
+    opacity: ${props => props.selected ? 1 : 0.3};
+    user-select: none;
+    text-align: center;
+    cursor:pointer;
+    border-right: ${props => props.selected ? '4px solid #61E5F9' : ''};
+`
+const MenuImg = styled.img`
+    margin:auto;
+    height: ${props => props.height || '100%'};
+    src: ${props => props.src || ''};
+   
+`
+const ShuffleOption = styled(MenuOption)`
+    border-right: '';
+    opacity: 1;
+    height: 30px;
+
+`
+const MenuTitle = styled.div`
+    display: inline-block;
+    text-align: center;
+    height: 70px;
+    width: 85%;
+    text-align: center;
+    margin: .25em auto .25em auto;
+    user-select: none;
+    
+`
 
 export default function Editor({backCallback}) {
-  const {isMute, sethidden, ishide, category, setCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
-
-  useEffect(()=> {
-    sethidden(false);
-  }, [category])
+  const {isMute, ishide, category, setCategory, setRandomFlag, templateInfo, controls} = useContext(ApplicationContext);
 
   const [play] = useSound(
     optionClick,
@@ -25,14 +76,11 @@ export default function Editor({backCallback}) {
     if (option.name == category){ 
       if (ishide) {
         moveCamera(option.cameraTarget);
-        sethidden(false);
       }
       else{ 
-        sethidden (true);
         moveCamera({height:0.8, distance:3.2});
       }
     }
-    else sethidden(false);
 
     if (option.name != category)
       moveCamera(option.cameraTarget);
@@ -78,13 +126,21 @@ export default function Editor({backCallback}) {
     }
   }
 
+  const {
+    setTemplateInfo,
+    setSelectedCharacterClass,
+    setEnd,
+  } = useContext(ApplicationContext)
+
   return(
   <SideMenu>
     <Stack alignItems="center"> 
         
         <MenuTitle>
         <BackButton onClick={() => {
-          backCallback();
+          setSelectedCharacterClass(null)
+          setEnd(false)
+          setTemplateInfo({ file: null, format: null, bodyTarget: null })
         }}/>
         </MenuTitle>
 

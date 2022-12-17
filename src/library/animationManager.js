@@ -1,7 +1,7 @@
 import { AnimationMixer, Vector3} from 'three'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
-import { sceneService } from '../../services/scene'
+import { sceneService } from '../context/scene'
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();

@@ -10,6 +10,10 @@
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.5.1",
+    "@web3-react/core": "^6.1.9",
+    "@web3-react/injected-connector": "^6.0.7",
+    "@web3-react/network-connector": "^6.1.9",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.5.1",
@@ -25,7 +29,6 @@
     "events": "^3.3.0",
     "gsap": "^3.11.3",
     "html2canvas": "^1.4.1",
-    "jsdom": "^20.0.0",
     "postprocessing": "^6.29.1",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
@@ -33,20 +36,13 @@
     "react-spring": "^9.6.1",
     "styled-components": "^5.3.6",
     "three": "^0.146.0",
-    "three-mesh-bvh": "^0.5.17",
-    "use-sound": "^4.0.1",
-    "zustand": "^4.1.3"
+    "use-sound": "^4.0.1"
   },
   "peerDependencies": {
     "three": "^0.146.0"
   },
   "devDependencies": {
-    "@ethersproject/providers": "^5.5.1",
     "@vitejs/plugin-react-swc": "^3.0.0",
-    "@web3-react/core": "^6.1.9",
-    "@web3-react/injected-connector": "^6.0.7",
-    "@web3-react/network-connector": "^6.1.9",
-    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-plugin-no-inline-styles": "^1.0.5",
     "eslint-plugin-react": "^7.31.11",

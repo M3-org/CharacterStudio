@@ -1,8 +1,9 @@
-import React, { Fragment } from "react"
-import { sceneService } from "../services"
+import React, { Fragment, useEffect, useContext } from "react"
+import { sceneService } from "../context"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../../public/ui/skinSelector/Vector.png'
+import { ApplicationContext } from "../context/ApplicationContext"
 
 function Skin({ category, avatar}) {
   const [color, setColor] = useState("#aabbcc");
@@ -31,13 +32,16 @@ function Skin({ category, avatar}) {
     cursor: "pointer",
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     setChecked(colorStatus)
   }, [templateInfo])
 
   const getHairMaterial = () => {
      let material = [];
      const hairModel = avatar.head.model;
+    console.log('hairModel', hairModel)
+    console.log('avatar.head', avatar.head)
+
       hairModel.traverse((o)=> {
         if(o.isSkinnedMesh){
           material = [...material, o.name]

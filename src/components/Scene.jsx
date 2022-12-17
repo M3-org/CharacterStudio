@@ -2,225 +2,49 @@ import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMater
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
-import { useWeb3React } from "@web3-react/core"
-import { InjectedConnector } from "@web3-react/injected-connector"
-import { BigNumber, ethers } from "ethers"
-import React, { Fragment, useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 import { NoToneMapping } from "three"
-import { ApplicationContext } from "../ApplicationContext"
-import { apiService, Contract, sceneService } from "../services"
-import {
-  FitParentContainer, ResizeableCanvas, TopRightMenu
-} from "../styles/Globals.styled"
-import {
-  Background, DownloadButton,
-  MintButton, TextButton, WalletButton, WalletImg,
-  WalletInfo
-} from "../styles/Scene.styled"
+import { ApplicationContext } from "../context/ApplicationContext"
 import Editor from "./Editor"
-import MintPopup from "./MintPopup"
 import { TemplateModel } from "./Models"
 import Selector from "./Selector"
 
 import logo from "../../public/ui/weba.png"
 
-export default function Scene({ type }) {
-  const [showType, setShowType] = useState(false)
-  const [connected, setConnected] = useState(false)
-  const [ensName, setEnsName] = useState("")
+import styled from 'styled-components';
+import pngMainBackground from "../../public/ui/mainBackground.png"
 
-  const { activate, deactivate, library, account } = useWeb3React()
-  const injected = new InjectedConnector({
-    supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
-  })
+const FitParentContainer = styled.div`
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow : hidden;
+`
 
+const ScreenSizeContainer = styled.div`
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+`
+
+const Background = styled(ScreenSizeContainer)`
+  background : url(${pngMainBackground});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow: hidden;
+`
+
+export default function Scene() {
   const {
-    setTemplateInfo,
-    setLoading,
-    isRotate,
-    ishidden,
-    avatar,
     scene,
-    model,
     setControls,
     setCamera,
-    setConfirmWindow,
-    setMintLoading,
-    setMintStatus,
-    setSelectedCharacterClass,
-    setEnd,
-    formatModeling,
-    formatComplete,
-    setMintDone,
   } = useContext(ApplicationContext)
 
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
-  const reset = () => {
-    setSelectedCharacterClass(null)
-    setEnd(false)
-    setTemplateInfo({ file: null, format: null, bodyTarget: null })
-  }
-
-  const connectWallet = async () => {
-    try {
-      await activate(injected)
-      setMintStatus("Your wallet has been connected.")
-    } catch (ex) {
-      console.log(ex)
-    }
-  }
-
-  useEffect(() => {
-    if (account) {
-      _setAddress(account)
-      setConnected(true)
-    } else {
-      setConnected(false)
-      setMintStatus("Please connect your wallet.")
-    }
-  }, [account])
-
-  const _setAddress = async (address) => {
-    const { name, avatar } = await getAccountDetails(address)
-    console.log("ens", name)
-    setEnsName(name ? name.slice(0, 15) + "..." : "")
-  }
-
-  const getAccountDetails = async (address) => {
-    const provider = ethers.getDefaultProvider("mainnet", {
-      alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
-    })
-    const check = ethers.utils.getAddress(address)
-
-    try {
-      const name = await provider.lookupAddress(check)
-      if (!name) return {}
-      return { name }
-    } catch (err) {
-      console.warn(err.stack)
-      return {}
-    }
-  }
-
-  const disConnectWallet = async () => {
-    try {
-      deactivate()
-      setConnected(false)
-    } catch (ex) {
-      console.log(ex)
-    }
-  }
-
-  const handleDownload = () => {
-    showType ? setShowType(false) : setShowType(true)
-  }
-
-  const download = (format, type) => {
-    sceneService.download(model, `UpstreetAvatars_${type}`, format, false)
-  }
-
-  const mintAsset = async () => {
-    if (account == undefined) {
-      setMintStatus("Please connect the wallet")
-      setConfirmWindow(true)
-      return
-    }
-    //setMintCost(10);
-    setConfirmWindow(true)
-    setMintStatus("Uploading...")
-    setMintLoading(true)
-
-    sceneService.getScreenShot().then(async (screenshot) => {
-      if (screenshot) {
-        const imageHash = await apiService
-          .saveFileToPinata(screenshot, "AvatarImage_" + Date.now() + ".png")
-          .catch((reason) => {
-            console.error(reason)
-            setMintStatus("Couldn't save to pinata")
-            setMintLoading(false)
-          })
-        sceneService.getModelFromScene().then(async (glb) => {
-          const glbHash = await apiService.saveFileToPinata(
-            glb,
-            "AvatarGlb_" + Date.now() + ".glb",
-          )
-          const attributes = getAvatarTraits()
-          const metadata = {
-            name: "Avatars",
-            description: "Creator Studio Avatars.",
-            image: `ipfs://${imageHash.IpfsHash}`,
-            animation_url: `ipfs://${glbHash.IpfsHash}`,
-            attributes,
-          }
-          const str = JSON.stringify(metadata)
-          const metaDataHash = await apiService.saveFileToPinata(
-            new Blob([str]),
-            "AvatarMetadata_" + Date.now() + ".json",
-          )
-          await mintNFT("ipfs://" + metaDataHash.IpfsHash)
-        })
-      }
-    })
-  }
-
-  const getAvatarTraits = () => {
-    let metadataTraits = []
-    Object.keys(avatar).map((trait) => {
-      if (Object.keys(avatar[trait]).length !== 0) {
-        metadataTraits.push({
-          trait_type: trait,
-          value: avatar[trait].traitInfo.name,
-        })
-      }
-    })
-    return metadataTraits
-  }
-
-  const mintNFT = async (metadataIpfs) => {
-    setMintStatus("Minting...")
-    const chainId = 5 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
-    if (window.ethereum.networkVersion !== chainId) {
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x5" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
-        })
-      } catch (err) {
-        // notifymessage("Please check the Ethereum mainnet", "error");
-        setMintStatus("Please check the Polygon mainnet")
-        setMintLoading(false)
-        return false
-      }
-    }
-    const signer = new ethers.providers.Web3Provider(
-      window.ethereum,
-    ).getSigner()
-    const contract = new ethers.Contract(Contract.address, Contract.abi, signer)
-    const isActive = await contract.saleIsActive()
-    if (!isActive) {
-      setMintStatus("Mint isn't Active now!")
-      setMintLoading(false)
-    } else {
-      const tokenPrice = await contract.tokenPrice()
-      try {
-        const options = {
-          value: BigNumber.from(tokenPrice).mul(1),
-          from: account,
-        }
-        const tx = await contract.mintToken(1, metadataIpfs, options)
-        let res = await tx.wait()
-        if (res.transactionHash) {
-          setMintStatus("Mint success!")
-          setMintDone(true)
-          setMintLoading(false)
-        }
-      } catch (err) {
-        setMintStatus("Public Mint failed! Please check your wallet.")
-        setMintLoading(false)
-      }
-    }
-  }
   return (
     <FitParentContainer>
       <Background>
@@ -248,7 +72,6 @@ export default function Scene({ type }) {
             }}
           />
         </div>
-        <ResizeableCanvas left={0} right={0}>
           <Canvas
             id="editor-scene"
             style={canvasStyle}
@@ -258,9 +81,7 @@ export default function Scene({ type }) {
             <ambientLight color={[1, 1, 1]} intensity={0.5} />
 
             <directionalLight
-              //castShadow = {true}
               intensity={0.5}
-              //color = {[0.5,0.5,0.5]}
               position={[3, 1, 5]}
               shadow-mapSize={[1024, 1024]}
             >
@@ -279,7 +100,6 @@ export default function Scene({ type }) {
               maxDistance={4}
               maxPolarAngle={Math.PI / 2 - 0.1}
               enablePan={true}
-              autoRotate={isRotate}
               autoRotateSpeed={5}
               enableDamping={true}
               dampingFactor={0.1}
@@ -309,49 +129,10 @@ export default function Scene({ type }) {
               </mesh>
             </PerspectiveCamera>
           </Canvas>
-        </ResizeableCanvas>
       </Background>
-      <TopRightMenu>
-        {showType && (
-          <Fragment>
-            <TextButton onClick={() => download("vrm", type)}>
-              <span>VRM</span>
-            </TextButton>
-            <TextButton onClick={() => download("glb", type)}>
-              <span>GLB</span>
-            </TextButton>
-          </Fragment>
-        )}
 
-        <DownloadButton onClick={handleDownload} />
-        <MintButton
-          onClick={() => {
-            setConfirmWindow(true)
-          }}
-        />
-        <WalletButton
-          connected={connected}
-          onClick={connected ? disConnectWallet : connectWallet}
-        >
-          {connected ? (
-            <WalletInfo ens={ensName}>
-              {ensName ? ensName : account ? account.slice(0, 15) + "..." : ""}
-            </WalletInfo>
-          ) : (
-            ""
-          )}
-          <WalletImg />
-        </WalletButton>
-      </TopRightMenu>
-      <div>
-        <Selector />
-        <Editor backCallback={reset} />
-      </div>
-      <MintPopup
-        connected={connected}
-        connectWallet={connectWallet}
-        mintAsset={mintAsset}
-      />
+      <Selector />
+      <Editor />
     </FitParentContainer>
   )
 }

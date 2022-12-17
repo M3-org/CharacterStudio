@@ -1,22 +1,17 @@
-import { BrightnessContrast, EffectComposer, Glitch, Noise, ToneMapping, Vignette } from '@react-three/postprocessing';
-import { Scanline } from '@react-three/postprocessing'
-import { Environment } from "@react-three/drei";
-import { HueSaturation } from '@react-three/postprocessing'
-
-import { BlendFunction, GlitchMode } from 'postprocessing';
+import { BrightnessContrast, EffectComposer, Glitch } from '@react-three/postprocessing';
+import { GlitchMode } from 'postprocessing';
 import React, { useEffect, useContext, useState } from 'react';
 import { animated, useSpring } from 'react-spring';
 import useSound from 'use-sound';
 import clickUrl from "../../public/sound/class_click.wav";
 import passUrl from "../../public/sound/class_pass.wav";
 import logo from '../../public/ui/landing/logo.png';
-import { ApplicationContext } from "../ApplicationContext";
-import { StyledLanding } from '../styles/landing.styled.js';
+import { ApplicationContext } from "../context/ApplicationContext";
 
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
-import { AnimationManager } from '../library/animations/animationManager';
-import { sceneService } from '../services/scene';
+import { AnimationManager } from '../library/animationManager';
+import { sceneService } from '../context/scene';
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
@@ -38,6 +33,130 @@ const models = [
       animation: anim_neurohacker
   }
 ];
+
+import styled from "styled-components";
+
+const StyledLanding = styled.div `
+    height: 100vh;
+    width: 100vw;
+    background-size : cover; 
+    position : fixed;
+    align-items : center;
+    overflow : hidden;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    overflow: hidden;
+
+    .topBanner {
+        background : radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%);
+        width : 1377px;
+        top : 0px;
+        display : flex;
+        flex-direction : column;
+        animation: fadeIn 1s ease-in both;
+        user-selector : none;
+    
+        .webaverse-text {
+            width: calc(400vh * 0.118);
+            height: calc(148.83vh * 0.118);
+            display: inline-block;
+            margin: 41px auto auto;
+            userSelect : none
+        }
+    
+        .studio { 
+            color : #61E5F9;
+            font-family : 'Proxima';
+            font-style : normal; 
+            font-weight : 800;
+            font-size : calc(30vh * 0.118);
+            line-height : calc(49vh * 0.118);
+            text-align : center;
+            margin-top : calc(12vh * 0.118);
+        }
+    }
+    .subTitle{
+        color : white;
+        font-family : Proxima;
+        font-style : normal;
+        font-weight : 400;
+        font-size : calc(30vh * 0.118);
+        line-height : calc(49vh * 0.118);
+        text-align : center;
+        margin-top : calc(20vh * 0.118);
+        animation: fadeIn 1s ease-in both;
+        user-selector : none;
+    
+        .subTitle-text{
+            font-weight : 1200;
+            user-select : none;
+
+            .subTitle-desc {
+                font-size : calc(20vh * 0.118);
+                line-height : calc(37vh * 0.118);
+                font-style: normal;
+                font-weight: 400;
+            }
+        }
+    }
+
+    .imgs{
+        display : flex;
+        user-select : none;                        
+        margin-top: 30px;
+        
+        .characterGroup {
+                animation-name : fadeleft;
+                animation-duration: 0.5s;
+                animation-timing-function: ease-in-out; 
+                animation-fill-mode: both;
+                user-selector : none;
+                position: relative;
+        }
+    }
+    
+    @font-face {
+        font-family: 'Proxima';
+        src: url('./font/Proxima/Proxima.otf')  format("opentype");
+      }
+     
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -50%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    @keyframes fadeleft {
+        from {
+            opacity: 0;
+            transform: translate3d(-100%, 0, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    @keyframes fadeRight {
+        from {
+            opacity: 1;
+            transform: skewX(-15deg);
+            transform: translate3d(0%, 0, 0);
+        }
+        to {
+            opacity: 0;
+            transform: translate3d(1005, 0, 0);
+            transform: skewX(-15deg);
+        }
+    }
+`
 
 export default function Landing() {
     const {setSelectedCharacterClass, selectedCharacterClass, setLoading} = useContext(ApplicationContext);

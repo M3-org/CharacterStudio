@@ -4,9 +4,7 @@ export const ApplicationContext = createContext();
 
 export const ApplicationContextProvider = ({ children }) => {
     const [isMute, setMute] = useState(false);
-    const [isRotate, setRotate] = useState(false);
     const [colorStatus, setColorStatus] = useState('');
-    const [ishidden, sethidden] = useState(true);
     const [defaultModel, setDefaultModel] = useState(null);
     const [randomFlag, setRandomFlag] = useState(-1);
     const [avatar, setAvatar] = useState({
@@ -45,9 +43,7 @@ export const ApplicationContextProvider = ({ children }) => {
     return (
         <ApplicationContext.Provider value={{
             isMute, setMute,
-            isRotate, setRotate,
             colorStatus, setColorStatus,
-            ishidden, sethidden,
             defaultModel, setDefaultModel,
             randomFlag, setRandomFlag,
             avatar, setAvatar,

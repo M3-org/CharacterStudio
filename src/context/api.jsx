@@ -42,7 +42,6 @@ async function fetchTemplate(template,id) {
   return filtered[0];
 }
 
-
 async function fetchTraits(path) {
   modelTraits = await (await fetch(path)).json()
 }

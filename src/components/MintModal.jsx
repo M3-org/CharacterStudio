@@ -3,7 +3,7 @@ import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { TemplateModel } from "./Models";
-import { ApplicationContext } from "../ApplicationContext";
+import { ApplicationContext } from "../context/ApplicationContext";
 
 const style = {
   position: 'absolute',

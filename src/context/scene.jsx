@@ -5,10 +5,9 @@ import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
-import VRMExporter from "../library/VRM/VRMExporter";
-import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
+import VRMExporter from "../library/VRMExporter";
 import { CullHiddenFaces} from '../library/cull-mesh.js'
-import { combine } from "../library/mesh-combination";
+import { combine } from "../library/merge-geometry";
 
 function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
@@ -19,10 +18,6 @@ let avatarModel = null;
 let skinColor = new THREE.Color(1,1,1);
 
 let avatarTemplateInfo = null;
-
-THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -240,7 +235,6 @@ const loader = new GLTFLoader();
 loader.register((parser) => {
   return new VRMLoaderPlugin(parser);
 });
-//loadAsync(url, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>;
 
 async function loadModel(file, offset, onProgress) {
   return loader.loadAsync(file, onProgress).then((model) => {
@@ -264,10 +258,9 @@ async function loadModel(file, offset, onProgress) {
   
       if (child.isMesh){
         
-        //child.userData.origIndexBuffer = child.geometry.index;
-        if (child.geometry.boundsTree == null){
-          child.geometry.computeBoundsTree({strategy:SAH});
-        }
+        // if (child.geometry.boundsTree == null){
+        //   child.geometry.computeBoundsTree({strategy:SAH});
+        // }
         
         createFaceNormals(child.geometry)
         if (child.isSkinnedMesh)
@@ -306,7 +299,6 @@ function disposeVRM (vrm) {
   const animationControl = (getModelProperty(vrm, "animationControl"));
   if (animationControl)
     animationControl.dispose();
-  //disposeAnimation(getModelProperty(model, "animControl"));
   
   model.traverse((o)=>{
     
@@ -400,8 +392,6 @@ const createBoneDirection = (skinMesh) => {
       bonesArrange[i] = 0; 
   }
 
-
-
   for( let f = 0; f < (bnIdx.length/4); f++ ){
     const idxBnBase = f * 4;
     // get the highest weight value
@@ -467,8 +457,6 @@ const createBoneDirection = (skinMesh) => {
     boneDirections.push(dir)
   }
   geometry.userData.boneDirections = boneDirections;
-
-  //console.log(geometry)
 }
 
 
@@ -489,8 +477,6 @@ async function getMorphValue(key, scene, target) {
     }
   }
 }
-
-
 
 async function updateMorphValue(
   key,
@@ -532,7 +518,6 @@ async function download(
   model,
   fileName,
   format,
-  screenshot,
   atlasSize = 4096
 ) {
   // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
