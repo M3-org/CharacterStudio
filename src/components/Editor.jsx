@@ -64,8 +64,8 @@ const MenuTitle = styled.div`
     
 `
 
-export default function Editor({backCallback}) {
-  const {isMute, ishide, selectorCategory, setSelectorCategory, setRandomFlag, templateInfo, controls} = useContext(AudioContext);
+export default function Editor({templateInfo}) {
+  const {isMute, ishide, selectorCategory, setSelectorCategory, setRandomFlag, controls} = useContext(AudioContext);
 
   const [play] = useSound(
     optionClick,
@@ -127,7 +127,6 @@ export default function Editor({backCallback}) {
   }
 
   const {
-    setTemplateInfo,
     setCurrentTemplateId,
     setEnd,
   } = useContext(AudioContext)
@@ -140,7 +139,6 @@ export default function Editor({backCallback}) {
         <BackButton onClick={() => {
           setCurrentTemplateId(null)
           setEnd(false)
-          setTemplateInfo({ file: null, format: null, bodyTarget: null })
         }}/>
         </MenuTitle>
 

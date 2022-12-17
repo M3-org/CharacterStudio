@@ -84,11 +84,6 @@ export const SceneProvider = (props) => {
   }
 
   const [currentTemplateId, setCurrentTemplateId] = useState(null)
-  const [templateInfo, setTemplateInfo] = useState({
-    file: null,
-    format: null,
-    bodyTargets: null,
-  })
   return (
     <SceneContext.Provider
       value={{
@@ -113,8 +108,6 @@ export const SceneProvider = (props) => {
         setAvatar,
         currentTemplateId,
         setCurrentTemplateId,
-        templateInfo,
-        setTemplateInfo,
         categoryList,
         setSelectorCategoryList,
       }}

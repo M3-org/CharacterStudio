@@ -8,6 +8,7 @@ import Editor from "./Editor"
 import { TemplateModel } from "./Models"
 import Selector from "./Selector"
 import { animated, useSpring } from "react-spring"
+import { addModelData, getSkinColor } from "../library/utils"
 
 import { SceneContext } from "../context/SceneContext"
 
@@ -40,22 +41,21 @@ const Background = styled(ScreenSizeContainer)`
   overflow: hidden;
 `
 
-export default function Scene({ template }) {
+export default function Scene({template}) {
   const {
     scene,
     setControls,
     setCamera,
-    templateInfo,
     loadModel,
+    currentTemplateId,
+    setModel,
   } = useContext(SceneContext)
 
-  useEffect(() => {
-    setTemplateInfo(defaultTemplates[currentTemplateId])
-  }, [])
+  const templateInfo = template[0]
+  console.log("template", template)
+  console.log("currentTemplateId", currentTemplateId)
 
   useEffect(() => {
-    // move to scene service, loaded stuff in as props
-    if (!templateInfo.file) return
     loadModel(templateInfo.file).then(async (vrm) => {
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
@@ -78,7 +78,7 @@ export default function Scene({ template }) {
         vrm.scene.visible = true
       }, 50)
     })
-  }, [templateInfo.file])
+  }, [templateInfo])
 
   const animatedStyle = useSpring({
     from: { opacity: "0" },
@@ -174,8 +174,8 @@ export default function Scene({ template }) {
             </PerspectiveCamera>
           </Canvas>
         </Background>
-        <Selector />
-        <Editor />
+        <Selector templateInfo={templateInfo} />
+        <Editor templateInfo={templateInfo} />
       </FitParentContainer>
     </animated.div>
   )

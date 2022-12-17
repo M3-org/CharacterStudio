@@ -194,7 +194,7 @@ export const SelectorContainerPos = styled.div`
     }
 `
 
-export default function Selector({traits}) {
+export default function Selector({templateInfo}) {
   const {
     loadModel,
     setRandomFlag,
@@ -207,7 +207,6 @@ export default function Selector({traits}) {
     currentTemplateId,
     scene,
     setSelectorCategory,
-    templateInfo,
     model,
    } = useContext(SceneContext);
 
@@ -266,7 +265,7 @@ export default function Selector({traits}) {
       let loaded = 0
       for (let i = 0; i < lists.length; i++) {
         // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
-        const traits = traits[lists[i]]
+        const traits = templateInfo[lists[i]]
           const collection = traits.collection
           ranItem =
             collection[Math.floor(Math.random() * collection.length)]
@@ -725,7 +724,7 @@ export default function Selector({traits}) {
               </div>
             </Fragment>
           ) : (
-            <Skin setSelectorCategory={setSelectorCategory} avatar={avatar} />
+            <Skin templateInfo={templateInfo} setSelectorCategory={setSelectorCategory} avatar={avatar} />
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers"
 import { Web3ReactProvider } from "@web3-react/core"
-import React from "react"
+import React, { useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import Background from "./components/Background"
 import { AudioProvider } from "./context/AudioContext"
@@ -15,33 +15,31 @@ import Gate from "./components/Gate"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json";
-
+  
 function App() {
-  const [manifest, setManifest] = React.useState(null);
-
-  // fetch the manifest, then set it
-  React.useEffect(() => {
-    async function fetchManifest() {
-      const response = await fetch(assetImportPath);
-      const data = await response.json();
-      return data;
-    }
-
-    fetchManifest().then((data) => {
-      setManifest(data);
-    });
-  }, []);
-
-  return manifest && (
+  const [templateInfo, setTemplateInfo] = React.useState(null);
+    // fetch the manifest, then set it
+    useEffect(() => {
+      async function fetchManifest() {
+        const response = await fetch(assetImportPath);
+        const data = await response.json();
+        return data;
+      }
+  
+      fetchManifest().then((data) => {
+        setTemplateInfo(data)
+      });
+    }, []);
+  return templateInfo && (
       <Web3ReactProvider getLibrary={getLibrary}>
         <AudioProvider>
-          <SceneProvider manifest={manifest}>
+          <SceneProvider>
             <ViewProvider>
               <Background />
               <Gate />
-              <Landing manifest={manifest} />
+              <Landing  />
               <AudioButton />
-              {/* <Scene /> manifest={manifest} */}
+             <Scene template={templateInfo} />
             </ViewProvider>
           </SceneProvider>
         </AudioProvider>

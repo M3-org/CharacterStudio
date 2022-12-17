@@ -5,7 +5,7 @@ import skinSelector from '../../public/ui/skinSelector/Vector.png'
 import { AudioContext } from "../context/AudioContext"
 import { setMaterialColor } from "../library/utils"
 
-function Skin({ selectorCategory, avatar}) {
+function Skin({ templateInfo, selectorCategory, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
@@ -16,7 +16,6 @@ function Skin({ selectorCategory, avatar}) {
     colorStatus,
     setColorStatus,
     scene,
-    templateInfo
   } = useContext(AudioContext);
 
   const container = {
