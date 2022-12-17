@@ -13,20 +13,11 @@ import { NoToneMapping } from 'three';
 import { sceneService } from '../services/scene'
 import { AnimationManager } from '../library/animations/animationManager';
 
-export default function Landing(props) {
-    const isModeling = useModelingStore((state) => state.isModeling)
-    const isComplete = useModelingStore((state) => state.isComplete)
+export default function Landing({models}) {
     const setModelClass = useModelClass((state) => state.setModelClass)
     const setLoading = useLoading((state) => state.setLoading)
     const [drophunter, setDrophunter] = useState(Object);
     const [neurohacker, setNeurohacker] = useState(Object);
-
-    const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
-    const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
-
-    const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
-    const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
-
     const [hovering, setCurrentAvatar] = useState('');
 
     // get ref camera
@@ -36,25 +27,6 @@ export default function Landing(props) {
     const [cardAnimation, setCardAnimation] = useSpring(() => ({
         from: { x: 0, opacity: 1 },
     }))
-
-    //should be included in templates
-    const [modelArr, setModelArr] = useState([
-        {
-            index: 1,
-            model: dropHunter,
-            text: 'Dropunter',
-            animation: anim_drophunter
-        },
-        {
-            index: 2,
-            model: neuroHacker,
-            text: 'Neurohacker',
-            animation: anim_neurohacker
-        },
-
-    ]);
-
-    const [loadingPercent, setLoadingPercent] = useState(0);
 
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
         from: { y: 0 },
@@ -85,18 +57,16 @@ export default function Landing(props) {
                 await animManager.loadAnimations(item.animation);
                 return { vrm, animManager }
             }
-
-            await (async () => {
-                const { vrm, animManager } = await createModel(modelArr[0]);
+            {
+                const { vrm, animManager } = await createModel(models[0]);
                 animManager.startAnimation(vrm)
                 setDrophunter(vrm.scene)
-            })();
-
-            await (async () => {
-                const { vrm, animManager } = await createModel(modelArr[1]);
+            }
+            {
+                const { vrm, animManager } = await createModel(models[1]);
                 animManager.startAnimation(vrm)
                 setNeurohacker(vrm.scene)
-            })();
+            }
             setLoading(false)
         })()
     }, [])
@@ -238,7 +208,7 @@ export default function Landing(props) {
                     position: 'fixed',
                 }}
                 camera={{ fov: 20 }}
-                linear = {true}
+                linear={true}
                 gl={{ antialias: true, toneMapping: NoToneMapping }}
             >
             <ambientLight

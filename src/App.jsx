@@ -25,6 +25,26 @@ const defaultTheme = createTheme({
     },
   },
 })
+const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
+const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
+
+const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
+const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
+
+    const models = [
+      {
+          index: 1,
+          model: dropHunter,
+          text: 'Dropunter',
+          animation: anim_drophunter
+      },
+      {
+          index: 2,
+          model: neuroHacker,
+          text: 'Neurohacker',
+          animation: anim_neurohacker
+      }
+    ];
 
 function App() {
   const setDefaultModel = useDefaultTemplates(
@@ -33,7 +53,6 @@ function App() {
   const loading = useLoading((state) => state.loading)
   const modelClass = useModelClass((state) => state.modelClass)
   const loadedTraits = useLoadedTraits((state) => state.loadedTraits)
-
   setDefaultModel(defaultTemplates)
   const getLibrary = (provider) => {
     const library = new Web3Provider(provider)
@@ -79,7 +98,7 @@ function App() {
             />
           </div>
         )}
-        {!modelClass && <Landing />}
+        {!modelClass && <Landing models={models} />}
        {modelClass && <CharacterEditor theme={defaultTheme} />}
       </Web3ReactProvider>
   )

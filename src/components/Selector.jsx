@@ -251,6 +251,7 @@ export default function Selector() {
       `${templateInfo.traitsDirectory}${traitTexture.directory}`,
       (txt) => {
         txt.flipY = false
+        txt.encoding = THREE.sRGBEncoding
         avatar[category].model.traverse((child) => {
           if (child.isMesh) {
             child.material[0].map = txt
@@ -301,6 +302,7 @@ export default function Selector() {
                     const texture = templateInfo.traitsDirectory + localDir
                     const loader = new THREE.TextureLoader()
                     loader.load(texture, (txt) => {
+                      txt.encoding = THREE.sRGBEncoding
                       txt.flipY = false
                       itemLoader(trait, null, true, txt)
                     })
@@ -597,6 +599,7 @@ export default function Selector() {
               trait.directory[trait.directory.length - 1]
 
           new THREE.TextureLoader().load(texture, (txt) => {
+            txt.encoding = THREE.sRGBEncoding
             txt.flipY = false
             object.material[0].map = txt
             object.material[0].shadeMultiplyTexture = txt
@@ -607,6 +610,7 @@ export default function Selector() {
         } else {
           const texture = templateInfo.traitsDirectory + trait.directory
           new THREE.TextureLoader().load(texture, (txt) => {
+            txt.encoding = THREE.sRGBEncoding
             txt.flipY = false
             object.material[0].map = txt
             setTimeout(() => {
@@ -622,6 +626,7 @@ export default function Selector() {
           ? templateInfo.traitsDirectory + trait.directory
           : templateInfo.traitsDirectory + trait.directory[0]
       new THREE.TextureLoader().load(texture, (txt) => {
+        txt.encoding = THREE.sRGBEncoding
         txt.flipY = false
         object.material[0].map = txt
         setTimeout(() => {
@@ -629,17 +634,6 @@ export default function Selector() {
         }, 500)
       })
     }
-
-    // if (trait.directory.length != null){
-    //   for (let i =0; i < trait.directory.length ; i++){
-    //     const eyeTexture = templateInfo.traitsDirectory + trait.directory[i];
-    //     object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
-    //   }
-    // }
-    // else{
-    //   const eyeTexture = templateInfo.traitsDirectory + trait.directory;
-    //   object.material[0].map = new THREE.TextureLoader().load(eyeTexture, (txt)=>{txt.flipY = false; setTimeout(() => {setLoadingTraitOverlay(false)},500)})
-    // }
   }
 
   const getActiveStatus = (item) => {

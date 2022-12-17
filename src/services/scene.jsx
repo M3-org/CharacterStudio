@@ -106,6 +106,7 @@ const getTraits = () => traits;
 
 async function loadTexture(location) {
   const txt = textureLoader.load(location);
+  txt.encoding = THREE.sRGBEncoding
   return txt;
 }
 
@@ -231,7 +232,7 @@ async function setMaterialColor(scene, value, target) {
       const hslSkin = { h: 0, s: 0, l: 0 };
       skinShade.getHSL(hslSkin);
 
-      mat.uniforms.shadeColorFactor.value.setRGB(skinShade.r,skinShade.g,skinShade.b)
+      // mat.uniforms.shadeColorFactor.value.setRGB(skinShade.r,skinShade.g,skinShade.b)
     }
   }
 }
@@ -251,6 +252,13 @@ async function loadModel(file, offset, onProgress) {
     const vrm = model.userData.vrm;
     // setup for vrm
     renameVRMBones(vrm);
+
+    // iterate through and set srgb encoding on all textures
+    model.scene.traverse((node) => {
+      if (node.isMesh) {
+        node.material.map.encoding = THREE.LinearEncoding;
+      }
+    });
 
 
     // renameMecanimBones(vrm);
@@ -485,6 +493,12 @@ function setupModel(vrm){
       createFaceNormals(child.geometry)
       if (child.isSkinnedMesh)
         createBoneDirection(child);
+
+        for (const mat in child.material){
+          if(!child.material[mat].uniforms) return;
+          child.material[mat].uniforms.litFactor.value = child.material[0].uniforms.litFactor.value.convertLinearToSRGB();
+          child.material[mat].uniforms.shadeColorFactor.value = child.material[0].uniforms.shadeColorFactor.value.convertLinearToSRGB();
+        }
   }});
 }
 
