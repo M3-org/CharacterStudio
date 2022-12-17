@@ -245,7 +245,7 @@ export default function Scene() {
             id = "editor-scene"
             style = {canvasStyle}
             gl={{ antialias: true, toneMapping: NoToneMapping}}
-            linear = {true}
+            //linear = {true}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
             <ambientLight
