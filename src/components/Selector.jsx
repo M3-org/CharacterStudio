@@ -436,6 +436,7 @@ export default function Selector() {
                 if (tData != null) {
                   if (tData.restrictedTypes) {
                     const restrictedTypeArray = tData.restrictedTypes
+                    
                     // make sure to include also typeRestrictions if they exist
                     // const restrictedTypeArray = !templateInfo.typeRestrictions?
                     //   tData.restrictedTypes :
@@ -464,28 +465,39 @@ export default function Selector() {
                 // we should check every type this trait has
                 for (let i = 0; i < itemTypes.length; i++) {
                   const itemType = itemTypes[i]
+                  console.log(itemType)
                   // and get the restriction included in each array if exists
                   const typeRestrictions = getAsArray(
                     templateInfo.typeRestrictions[itemType],
                   )
                   // now check if the avatar properties include this restrictions to remove
+                  console.log(avatar)
                   for (const property in avatar) {
+                    
                     if (property !== traitName) {
                       typeRestrictions.forEach((typeRestriction) => {
-                        if (
-                          avatar[property].traitInfo.type === typeRestriction
-                        ) {
-                          newAvatarData[property] = {}
-                        }
+                        if (avatar[property].traitInfo?.type){
+                          const types = avatar[property].traitInfo.type;
+                          for (let i=0;i<types.length;i++){
+                            if (
+                              types[i] === typeRestriction
+                            ) {
+                              newAvatarData[property] = {}
+                              break;
+                            }
+                          };
+                        }       
                       })
 
                       // check also if any of the current trait is of type
+                      //console.log(property)
+                      //console.log(avatar[property])
                       if (avatar[property].vrm) {
                         const propertyTypes = getAsArray(
                           avatar[property].traitInfo.type,
                         )
-
                         propertyTypes.forEach((t) => {
+                          
                           const typeRestrictionsSecondary = getAsArray(
                             templateInfo.typeRestrictions[t],
                           )
