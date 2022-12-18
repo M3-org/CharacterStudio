@@ -160,15 +160,14 @@ const StyledLanding = styled.div `
 `
 
 export default function Landing() {
-    const {setCurrentTemplate, currentTemplate} = useContext(SceneContext);
-    
+    const {setCurrentTemplate, currentTemplate, loadModel} = useContext(SceneContext);
+    const { currentView, setCurrentView } = useContext(ViewContext);
+    const { isMute } = useContext(AudioContext);
+
     const [drophunter, setDrophunter] = useState(null);
     const [neurohacker, setNeurohacker] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
-    const { currentView, setCurrentView } = useContext(ViewContext);
-    const { isMute } = useContext(AudioContext);
-    const { loadModel } = useContext(SceneContext);
     const camera = React.useRef();
     const [titleAnimation, setTitleAnimation] = useSpring(() => ({
         from: { y: 0 },

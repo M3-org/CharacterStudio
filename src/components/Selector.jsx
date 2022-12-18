@@ -197,11 +197,8 @@ export const SelectorContainerPos = styled.div`
 export default function Selector({templateInfo}) {
   const {
     loadModel,
-    setRandomFlag,
-    randomFlag,
     avatar,
     setAvatar,
-    setLoadedTraits,
     currentTemplate,
     scene,
     setCurrentTrait,
@@ -216,10 +213,7 @@ export default function Selector({templateInfo}) {
     return categories;
   }
 
-  const {
-    isMute,
-
-  } = useContext(AudioContext)
+  const { isMute } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
 
@@ -258,14 +252,9 @@ export default function Selector({templateInfo}) {
   }
 
   useEffect(() => {
+    if (!templateInfo || !templateInfo[currentTemplate.index]) return;
     localStorage.removeItem("color")
-  }, [currentTemplate])
-
-  useEffect(() => {
-    if (!templateInfo || !templateInfo[currentTemplate.index]) return
-    ;(async () => {
-      if (randomFlag === -1) return
-
+    (async () => {
       const lists = getCategoriesFromTemplate(templateInfo[currentTemplate.index])
       let ranItem
       let buffer = { ...avatar }
@@ -280,7 +269,6 @@ export default function Selector({templateInfo}) {
             if (avatar[traits.trait].traitInfo != ranItem) {
               const temp = await itemLoader(ranItem, traits, false)
               loaded += 100 / lists.length
-              setLoadedTraits(loaded - 1)
               buffer = { ...buffer, ...temp }
             }
           }
@@ -300,12 +288,8 @@ export default function Selector({templateInfo}) {
         ...avatar,
         ...buffer,
       })
-      if (randomFlag == 1) {
-        setLoadedTraits(true)
-      }
-      setRandomFlag(-1)
     })()
-  }, [randomFlag])
+  }, [currentTemplate])
 
   const selectTrait = (trait, textureIndex) => {
     if (trait.bodyTargets) {

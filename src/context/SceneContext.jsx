@@ -45,7 +45,6 @@ export const SceneProvider = (props) => {
   const [camera, setCamera] = useState({})
 
   const [colorStatus, setColorStatus] = useState("")
-  const [randomFlag, setRandomFlag] = useState(-1) // TODO: wtf?
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
   // {
@@ -87,8 +86,6 @@ export const SceneProvider = (props) => {
         setCamera,
         colorStatus,
         setColorStatus,
-        randomFlag,
-        setRandomFlag,
         skinColor,
         setSkinColor,
         avatar,

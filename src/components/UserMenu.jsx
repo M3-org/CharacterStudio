@@ -5,173 +5,21 @@ import { BigNumber, ethers } from "ethers"
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import styled from "styled-components"
 
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import svgWallet from "../../public/ui/connectWallet.svg"
 import svgDiconnectWallet from "../../public/ui/diconnectWallet.svg"
 import svgDownload from "../../public/ui/download.svg"
 import svgMint from "../../public/ui/mint.svg"
 import { SceneContext } from "../context/SceneContext"
-
-import { getScreenShot, getModelFromScene } from "../library/utils"
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
-import VRMExporter from "../library/VRMExporter";
-import { combine } from "../library/merge-geometry";
-
+import { ViewStates, ViewContext } from "../context/ViewContext"
+import { combine } from "../library/merge-geometry"
+import { getModelFromScene, getScreenShot } from "../library/utils"
+import VRMExporter from "../library/VRMExporter"
+import { Contract } from "./Contract"
+import MintPopup from "./MintPopup"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
-
-export const API_URL = "http://localhost:8081"
-export const Contract = {
-  owner: "0x634B0510C5062CFf8009eAAc2435eB93bc4764ad",
-  // address: "0x69341F01C2113E2d09Cd4837bbF1786dfbBc41d7", // Polygon mainet
-  address: "0x1bCb97c2242A66CD3FC6875d979fD11CF9Feedd0", // Goerli testnet
-  abi: [
-    {
-      inputs: [
-        {
-          internalType: "bytes4",
-          name: "interfaceId",
-          type: "bytes4",
-        },
-      ],
-      name: "supportsInterface",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "symbol",
-      outputs: [
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "index",
-          type: "uint256",
-        },
-      ],
-      name: "tokenByIndex",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "owner",
-          type: "address",
-        },
-        {
-          internalType: "uint256",
-          name: "index",
-          type: "uint256",
-        },
-      ],
-      name: "tokenOfOwnerByIndex",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-
-    {
-      inputs: [],
-      name: "tokenPrice",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "tokenId",
-          type: "uint256",
-        },
-      ],
-      name: "tokenURI",
-      outputs: [
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-
-    {
-      inputs: [],
-      name: "totalSupply",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "numberOfTokens",
-          type: "uint256",
-        },
-        {
-          internalType: "string",
-          name: "_tokenURI",
-          type: "string",
-        },
-      ],
-      name: "mintToken",
-      outputs: [],
-      stateMutability: "payable",
-      type: "function",
-    },
-  ],
-}
-
-import MintPopup from "./MintPopup"
 
 const SquareButton = styled.div`
   transition: 0.3s;
@@ -251,7 +99,7 @@ const TextButton = styled(SquareButton)`
   width: 106px;
 `
 
-export const UserMenu = () => {
+export const UserMenu = ({template}) => {
   const type = "CHANGEME" // class type
 
   const [showType, setShowType] = useState(false)
@@ -263,12 +111,9 @@ export const UserMenu = () => {
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
-  const {
-    avatar,
-    skinColor,
-    model,
-    setConfirmWindow,
-  } = useContext(SceneContext)
+  const { avatar, skinColor, model } = useContext(SceneContext)
+
+  const {currentView, setCurrentView} = useContext(ViewContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
@@ -347,8 +192,7 @@ export const UserMenu = () => {
     Object.keys(avatar).map((trait) => {
       if (Object.keys(avatar[trait]).length !== 0) {
         metadataTraits.push({
-          trait_type: trait,
-          value: avatar[trait].traitInfo.name,
+          traisetCurrentView: avatar[trait].traitInfo.name,
         })
       }
     })
@@ -427,16 +271,12 @@ export const UserMenu = () => {
         let res = await tx.wait()
         if (res.transactionHash) {
           setMintStatus("Mint success!")
-          setCurrectView(ViewStates.MINT_COMPLETE)
+          setCurrentView(ViewStates.MINT_COMPLETE)
         }
       } catch (err) {
         setMintStatus("Public Mint failed! Please check your wallet.")
       }
     }
-  }
-
-  const mintNFT = async (metadataIpfs) => {
-
   }
 
   async function download(
@@ -514,8 +354,8 @@ export const UserMenu = () => {
       console.log("finished")
     }
   }
-  function getArrayBuffer(buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
+  function getArrayBuffer(buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
   return (
     <TopRightMenu>
@@ -546,7 +386,7 @@ export const UserMenu = () => {
       <DownloadButton onClick={handleDownload} />
       <MintButton
         onClick={() => {
-          setConfirmWindow(true)
+          setCurrentView(ViewStates.MINT_CONFIRM)
         }}
       />
       <WalletButton
@@ -566,6 +406,7 @@ export const UserMenu = () => {
           connectWallet={connectWallet}
           mintAsset={mintAsset}
           mintStatus={mintStatus}
+          template={template}
         />
       </WalletButton>
     </TopRightMenu>

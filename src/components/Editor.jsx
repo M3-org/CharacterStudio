@@ -67,7 +67,7 @@ const MenuTitle = styled.div`
 `
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTrait, setCurrentTrait, setRandomFlag} = useContext(SceneContext);
+  const {currentTrait, setCurrentTrait} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -170,7 +170,7 @@ export default function Editor({templateInfo, controls}) {
 
         <ShuffleOption 
           onClick={() => {
-            setRandomFlag(0);
+            console.log("TOOD: shuffle")
             !isMute && play();
           }}>
           <MenuImg src = {shuffle} />

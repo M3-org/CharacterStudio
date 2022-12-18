@@ -33,18 +33,12 @@ function App() {
     }, []);
   return templateInfo && (
       <Web3ReactProvider getLibrary={getLibrary}>
-        <AudioProvider>
-          <SceneProvider>
-            <ViewProvider>
               <Background />
               <Gate />
               <Landing  />
               <AudioButton />
               <Scene template={templateInfo} />
-              <UserMenu />
-            </ViewProvider>
-          </SceneProvider>
-        </AudioProvider>
+              <UserMenu template={templateInfo} />
       </Web3ReactProvider>
   )
 }
@@ -55,4 +49,12 @@ const getLibrary = (provider) => {
   return library
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />)
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <AudioProvider>
+  <SceneProvider>
+    <ViewProvider>
+      <App />
+  </ViewProvider>
+  </SceneProvider>
+</AudioProvider>
+  )

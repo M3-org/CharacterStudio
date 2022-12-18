@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useContext } from "react"
 import { RgbColorPicker  } from "react-colorful";
 import { useState } from "react"
 import skinSelector from '../../public/ui/skinSelector/Vector.png'
-import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
 import { setMaterialColor } from "../library/utils"
 
 function Skin({ templateInfo, currentTrait, avatar}) {
@@ -18,7 +18,7 @@ function Skin({ templateInfo, currentTrait, avatar}) {
     colorStatus,
     setColorStatus,
     scene,
-  } = useContext(AudioContext);
+  } = useContext(SceneContext);
 
   const container = {
     display: "flex",

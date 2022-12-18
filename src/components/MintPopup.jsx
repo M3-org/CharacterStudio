@@ -8,6 +8,8 @@ import styled from "styled-components"
 import { SceneContext } from "../context/SceneContext"
 import { ViewStates, ViewContext } from "../context/ViewContext"
 
+const mintCost = 0.0
+
 const StyledButton = styled.div`
    {
     background: rgba(81, 90, 116, 0.25);
@@ -175,8 +177,9 @@ export default function MintPopup({
   connected,
   mintAsset,
   mintStatus,
+  template
 }) {
-  const { templateInfo, avatar, colorStatus } = useContext(SceneContext)
+  const { avatar, colorStatus } = useContext(SceneContext)
 
   const { currentView, setCurrentView } = useContext(ViewContext)
 
@@ -224,11 +227,11 @@ export default function MintPopup({
         </Header>
         <MintModal />
         <TraitDetail>
-          {templateInfo.selectionTraits &&
-            templateInfo.selectionTraits.map((item, index) => (
+          {template.selectionTraits &&
+            template.selectionTraits.map((item, index) => (
               <TraitBox key={index}>
                 <TraitImage
-                  src={templateInfo.traitIconsDirectory + item.icon}
+                  src={template.traitIconsDirectory + item.icon}
                 />
                 <TraitText>{showTrait(item)}</TraitText>
               </TraitBox>
@@ -245,12 +248,10 @@ export default function MintPopup({
         <ButtonPanel>
           <StyledButton onClick={() => setCurrentView(ViewStates.CREATOR)}>
             {" "}
-            {!mintDone ? "Cancel" : "Ok"}
+            {currentView === ViewStates.MINT_COMPLETE ? "Ok" : "Cancel"}
           </StyledButton>
-          {!mintDone ? (
-            <StyledButton onClick={() => onMintClick()}>Mint </StyledButton>
-          ) : (
-            <Fragment></Fragment>
+          {currentView !== ViewStates.MINT_COMPLETE && (
+            <StyledButton onClick={() => onMintClick()}>Mint</StyledButton>
           )}
         </ButtonPanel>
       </StyledPopup>
