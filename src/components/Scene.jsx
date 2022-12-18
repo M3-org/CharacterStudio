@@ -83,16 +83,9 @@ export default function Scene({template}) {
       scene.add(vrm.scene)
 
       setCurrentView(ViewStates.CREATOR)
-
-      // vrm.scene.visible = false
-
-      // setTimeout(() => {
-      //   vrm.scene.visible = true
-      // }, 50)
     })
     
     return () => {
-      // clear all parents and remove from scene
       if(model) {
         setModel(null)
         setScene(new THREE.Scene())
