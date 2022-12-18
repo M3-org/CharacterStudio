@@ -4,20 +4,6 @@ import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 import { SceneContext } from "../context/SceneContext";
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3,
-};
-
 const canvasStyle = {
   right: '0',
   width: '390px',
@@ -30,8 +16,9 @@ const canvasStyle = {
   marginTop:'10px'
 }
 
-export default function MintModal() {
-  const { model } = useContext(SceneContext);
+export default function MintModal({model}) {
+  if(!model) return null
+  console.log('model', model)
     return (
         <Canvas
           style={canvasStyle}

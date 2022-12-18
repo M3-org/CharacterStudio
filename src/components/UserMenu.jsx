@@ -1,7 +1,7 @@
 import { useWeb3React } from "@web3-react/core"
 import { InjectedConnector } from "@web3-react/injected-connector"
 import axios from "axios"
-import { BigNumber, ethers } from "ethers"
+import { ethers } from "ethers"
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import styled from "styled-components"
 
@@ -13,13 +13,9 @@ import svgMint from "../../public/ui/mint.svg"
 import { SceneContext } from "../context/SceneContext"
 import { ViewStates, ViewContext } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
-import { getModelFromScene, getScreenShot } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
-import { Contract } from "./Contract"
-import MintPopup from "./MintPopup"
+import { AccountContext } from "../context/AccountContext"
 
-const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
-const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
 
 const SquareButton = styled.div`
   transition: 0.3s;
@@ -102,11 +98,10 @@ const TextButton = styled(SquareButton)`
 export const UserMenu = ({template}) => {
   const type = "CHANGEME" // class type
 
-  const [showType, setShowType] = useState(false)
-  const [connected, setConnected] = useState(false)
-  const [ensName, setEnsName] = useState("")
-
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false)
+  const { ensName, setEnsName, connected, setConnected } = useContext(AccountContext)
   const { activate, deactivate, library, account } = useWeb3React()
+
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
@@ -159,7 +154,7 @@ export const UserMenu = ({template}) => {
   }
 
   const handleDownload = () => {
-    showType ? setShowType(false) : setShowType(true)
+    showDownloadOptions ? setShowDownloadOptions(false) : setShowDownloadOptions(true)
   }
 
   const connectWallet = async () => {
@@ -168,114 +163,6 @@ export const UserMenu = ({template}) => {
       setMintStatus("Your wallet has been connected.")
     } catch (ex) {
       console.log(ex)
-    }
-  }
-
-  async function saveFileToPinata(fileData, fileName) {
-    const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
-    let data = new FormData()
-    data.append("file", fileData, fileName)
-    let resultOfUpload = await axios.post(url, data, {
-      maxContentLength: "Infinity", //this is needed to prevent axios from erroring out with large files
-      maxBodyLength: "Infinity", //this is needed to prevent axios from erroring out with large files
-      headers: {
-        "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-        pinata_api_key: pinataApiKey,
-        pinata_secret_api_key: pinataSecretApiKey,
-      },
-    })
-    return resultOfUpload.data
-  }
-
-  const getAvatarTraits = () => {
-    let metadataTraits = []
-    Object.keys(avatar).map((trait) => {
-      if (Object.keys(avatar[trait]).length !== 0) {
-        metadataTraits.push({
-          traisetCurrentView: avatar[trait].traitInfo.name,
-        })
-      }
-    })
-    return metadataTraits
-  }
-
-  const mintAsset = async () => {
-    if (account == undefined) {
-      setMintStatus("Please connect the wallet")
-      return
-    }
-    setCurrentView(ViewStates.MINT_CONFIRM)
-    setMintStatus("Uploading...")
-
-    const screenshot = await getScreenShot("mint-scene");
-    if (!screenshot) {
-      throw new Error("Unable to get screenshot");
-    } 
-
-    const imageHash = await saveFileToPinata(
-      screenshot,
-      "AvatarImage_" + Date.now() + ".png",
-    ).catch((reason) => {
-      console.error(reason)
-      setMintStatus("Couldn't save to pinata")
-    })
-    const glb = getModelFromScene(avatar.scene.clone(), "glb", skinColor)
-    const glbHash = await saveFileToPinata(
-      glb,
-      "AvatarGlb_" + Date.now() + ".glb",
-    )
-    const attributes = getAvatarTraits()
-    const metadata = {
-      name: "Avatars",
-      description: "Creator Studio Avatars.",
-      image: `ipfs://${imageHash.IpfsHash}`,
-      animation_url: `ipfs://${glbHash.IpfsHash}`,
-      attributes,
-    }
-    const str = JSON.stringify(metadata)
-    const metaDataHash = await saveFileToPinata(
-      new Blob([str]),
-      "AvatarMetadata_" + Date.now() + ".json",
-    )
-    const metadataIpfs = metaDataHash.IpfsHash
-
-    setMintStatus("Minting...")
-    const chainId = 5 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
-    if (window.ethereum.networkVersion !== chainId) {
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x5" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
-        })
-      } catch (err) {
-        // notifymessage("Please check the Ethereum mainnet", "error");
-        setMintStatus("Please check the Polygon mainnet")
-        return false
-      }
-    }
-    const signer = new ethers.providers.Web3Provider(
-      window.ethereum,
-    ).getSigner()
-    const contract = new ethers.Contract(Contract.address, Contract.abi, signer)
-    const isActive = await contract.saleIsActive()
-    if (!isActive) {
-      setMintStatus("Mint isn't Active now!")
-    } else {
-      const tokenPrice = await contract.tokenPrice()
-      try {
-        const options = {
-          value: BigNumber.from(tokenPrice).mul(1),
-          from: account,
-        }
-        const tx = await contract.mintToken(1, metadataIpfs, options)
-        let res = await tx.wait()
-        if (res.transactionHash) {
-          setMintStatus("Mint success!")
-          setCurrentView(ViewStates.MINT_COMPLETE)
-        }
-      } catch (err) {
-        setMintStatus("Public Mint failed! Please check your wallet.")
-      }
     }
   }
 
@@ -359,36 +246,39 @@ export const UserMenu = ({template}) => {
 
   return (
     <TopRightMenu>
-      {showType && (
-        <Fragment>
-          <TextButton
-            onClick={() => {
+    {currentView.includes('CREATOR') && (
+      <Fragment>
+        {showDownloadOptions && (
+          <Fragment>
+            <TextButton
+              onClick={() => {
 
-              console.log('model is', model)
-              download(model, `UpstreetAvatar_${type}`, "vrm")
-            }
-            }
-          >
-            <span>VRM</span>
-          </TextButton>
-          <TextButton
-            onClick={() => {
-              console.log('model is', model)
-              download(model, `UpstreetAvatar_${type}`, "glb")
-            }
-            }
-          >
-            <span>GLB</span>
-          </TextButton>
-        </Fragment>
-      )}
-
-      <DownloadButton onClick={handleDownload} />
-      <MintButton
-        onClick={() => {
-          setCurrentView(ViewStates.MINT_CONFIRM)
-        }}
-      />
+                console.log('model is', model)
+                download(model, `UpstreetAvatar_${type}`, "vrm")
+              }
+              }
+            >
+              <span>VRM</span>
+            </TextButton>
+            <TextButton
+              onClick={() => {
+                console.log('model is', model)
+                download(model, `UpstreetAvatar_${type}`, "glb")
+              }
+              }
+            >
+              <span>GLB</span>
+            </TextButton>
+          </Fragment>
+        )}
+        <DownloadButton onClick={handleDownload} />
+        <MintButton
+          onClick={() => {
+            setCurrentView(ViewStates.MINT)
+          }}
+        />
+      </Fragment>
+    )}
       <WalletButton
         connected={connected}
         onClick={connected ? disconnectWallet : connectWallet}
@@ -401,13 +291,6 @@ export const UserMenu = ({template}) => {
           ""
         )}
         <WalletImg />
-        <MintPopup
-          connected={connected}
-          connectWallet={connectWallet}
-          mintAsset={mintAsset}
-          mintStatus={mintStatus}
-          template={template}
-        />
       </WalletButton>
     </TopRightMenu>
   )

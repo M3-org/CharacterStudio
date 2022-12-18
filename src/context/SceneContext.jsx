@@ -41,8 +41,8 @@ export const SceneProvider = (props) => {
 
   const [scene, setScene] = useState(new THREE.Scene())
   const [currentTrait, setCurrentTrait] = useState(null)
-  const [model, setModel] = useState({})
-  const [camera, setCamera] = useState({})
+  const [model, setModel] = useState(null)
+  const [camera, setCamera] = useState(null)
 
   const [colorStatus, setColorStatus] = useState("")
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))

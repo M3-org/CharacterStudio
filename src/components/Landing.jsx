@@ -239,7 +239,9 @@ export default function Landing() {
        console.log('ViewStates.LANDER', ViewStates.LANDER)
     }, [neurohacker, drophunter, currentView])
 
-    return neurohacker && drophunter && currentTemplate === null && (
+    console.log('currentView', currentView)
+
+    return currentView && neurohacker && drophunter && currentTemplate === null && currentView.includes('LANDER') && (
         <StyledLanding>
             <div className='drophunter-container' style={{
                 position: "absolute",

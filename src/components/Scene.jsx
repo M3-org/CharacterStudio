@@ -67,6 +67,8 @@ export default function Scene({template}) {
       return
     }
 
+    console.log('templateInfo changed', templateInfo)
+
     loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
@@ -104,8 +106,7 @@ export default function Scene({template}) {
 
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
-  return (
-  currentView === ViewStates.CREATOR) && (
+  return templateInfo && (
     <animated.div style={animatedStyle}>
       <FitParentContainer>
         <Background>

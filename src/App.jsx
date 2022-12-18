@@ -11,6 +11,8 @@ import AudioButton from "./components/AudioButton"
 import Scene from "./components/Scene"
 import { ViewProvider } from "./context/ViewContext"
 import { SceneProvider } from "./context/SceneContext"
+import { AccountProvider } from "./context/AccountContext"
+import MintPopup from "./components/MintPopup"
 
 import Gate from "./components/Gate"
 
@@ -33,12 +35,21 @@ function App() {
     }, []);
   return templateInfo && (
       <Web3ReactProvider getLibrary={getLibrary}>
-              <Background />
-              <Gate />
-              <Landing  />
-              <AudioButton />
-              <Scene template={templateInfo} />
-              <UserMenu template={templateInfo} />
+        <AccountProvider>
+          <AudioProvider>
+            <SceneProvider>
+                <ViewProvider>
+                <Background />
+                <Gate />
+                <Landing  />
+                <AudioButton />
+                <Scene template={templateInfo} />
+                <MintPopup template={templateInfo} />
+                <UserMenu template={templateInfo} />
+                </ViewProvider>
+              </SceneProvider>
+          </AudioProvider>
+        </AccountProvider>
       </Web3ReactProvider>
   )
 }
@@ -50,11 +61,5 @@ const getLibrary = (provider) => {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <AudioProvider>
-  <SceneProvider>
-    <ViewProvider>
       <App />
-  </ViewProvider>
-  </SceneProvider>
-</AudioProvider>
   )
