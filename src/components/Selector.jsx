@@ -281,7 +281,10 @@ export default function Selector({templateInfo}) {
             }
           }
           model.data.animationManager.startAnimation(buffer[property].vrm)
-          model.scene.add(buffer[property].vrm.scene)
+          // wait one frame before adding to scene so animation doesn't glitch
+          setTimeout(() => {
+            model.scene.add(buffer[property].vrm.scene)
+          }, 1)
         }
       }
       setAvatar({
@@ -354,20 +357,6 @@ export default function Selector({templateInfo}) {
       cullingDistance: item.cullingDistance || null,
     })
     r_vrm = vrm
-    new Promise((resolve) => {
-      // if scene, resolve immediately
-      if (scene && scene.add) {
-        resolve()
-      } else {
-        // if scene is null, wait for it to be set
-        const interval = setInterval(() => {
-          if (scene && scene.add) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      }
-    })
 
     if (addToScene) {
       if (model.data.animationManager)
@@ -380,8 +369,7 @@ export default function Selector({templateInfo}) {
             }
           })
         }
-        //texture area
-        model.scene.add(vrm.scene)
+
         if (avatar[traitName]) {
           const traitData = templateInfo.selectionTraits.find(
             (element) => element.name === traitName,
@@ -531,6 +519,10 @@ export default function Selector({templateInfo}) {
             }
           }
         }
+        //texture area
+        setTimeout(() => {
+          model.scene.add(vrm.scene)
+        }, 1)
     }
 
     return (

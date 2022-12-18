@@ -81,9 +81,9 @@ export default function Scene({template}) {
 
       getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
-
+      setTimeout(() => {
       scene.add(vrm.scene)
-
+      }, 1)
       setCurrentView(ViewStates.CREATOR)
     })
     

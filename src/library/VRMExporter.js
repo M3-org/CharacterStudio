@@ -42,7 +42,6 @@ const GLTF_VERSION = 2;
 const HEADER_SIZE = 12;
 export default class VRMExporter {
     parse(vrm, avatar, onDone) {
-        const scene = avatar;
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
@@ -57,8 +56,8 @@ export default class VRMExporter {
             version: "2.0",
         };
         // TODO: とりあえず全部ある想定で進める
-        if (!scene) {
-            throw new Error("scene is undefined or null");
+        if (!avatar) {
+            throw new Error("avatar is undefined or null");
         }
         else if (!humanoid) {
             throw new Error("humanoid is undefined or null");
@@ -108,7 +107,7 @@ export default class VRMExporter {
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
         const outputMaterials = toOutputMaterials(uniqueMaterials, images);
-        const rootNode = scene.children.filter((child) => child.children.length > 0 &&
+        const rootNode = avatar.children.filter((child) => child.children.length > 0 &&
             child.children[0].type === VRMObjectType.Bone)[0];
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
         const nodeNames = nodes.map((node) => node.name);
@@ -127,7 +126,7 @@ export default class VRMExporter {
             translation: [node.position.x, node.position.y, node.position.z],
         }));
         const outputAccessors = [];
-        const meshes = scene.children.filter((child) => child.type === VRMObjectType.Group ||
+        const meshes = avatar.children.filter((child) => child.type === VRMObjectType.Group ||
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
         meshes.forEach((object) => {
@@ -222,7 +221,7 @@ export default class VRMExporter {
             });
         });
         // secondary
-        // const secondaryRootNode = scene.children.filter((child) => child.name === "secondary")[0];
+        // const secondaryRootNode = avatar.children.filter((child) => child.name === "secondary")[0];
         // outputNodes.push({
         //     name: secondaryRootNode.name,
         //     rotation: [
@@ -393,7 +392,7 @@ export default class VRMExporter {
             }
             return value;
         });
-        const outputScenes = toOutputScenes(scene, outputNodes);
+        const outputScenes = toOutputScenes(avatar, outputNodes);
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,
@@ -429,7 +428,7 @@ export default class VRMExporter {
             meshes: outputMeshes,
             nodes: outputNodes,
             samplers: outputSamplers,
-            scene: 0,
+            avatar: 0,
             scenes: outputScenes,
             skins: outputSkins,
             textures: outputTextures,
@@ -792,11 +791,11 @@ const toOutputTextures = (outputImages) => {
         source: index, // TODO: 全パターンでindexなのか不明
     }));
 };
-const toOutputScenes = (scene, outputNodes) => {
+const toOutputScenes = (avatar, outputNodes) => {
     const nodeNames = outputNodes.map((node) => node.name);
     return [
         {
-            nodes: scene.children
+            nodes: avatar.children
                 .filter((child) => child.type === VRMObjectType.Object3D ||
                 child.type === VRMObjectType.SkinnedMesh ||
                 child.type === VRMObjectType.Group ||

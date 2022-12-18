@@ -5,7 +5,6 @@ import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
 
 export function cloneSkeleton(skinnedMesh) {
-    skinnedMesh.skeleton.pose();
     const boneClones = new Map();
     for (const bone of skinnedMesh.skeleton.bones) {
         const clone = bone.clone(false);
@@ -23,7 +22,9 @@ export function cloneSkeleton(skinnedMesh) {
             if (ch)clone.add(ch);
         }
     });
-    return new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+    const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+    newSkeleton.pose();
+    return newSkeleton;
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
@@ -47,6 +48,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
             delete geometry.attributes[`morphNormal${i}`];
         }
     });
+    
     const { source, dest } = mergeGeometry({ meshes });
     const geometry = new THREE.BufferGeometry();
     geometry.attributes = dest.attributes;
@@ -68,11 +70,15 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
+
     const skeleton = cloneSkeleton(meshes[0]);
+    
     mesh.bind(skeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
+
+
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
     group.animations = dest.animations;

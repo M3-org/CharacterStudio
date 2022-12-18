@@ -78,7 +78,8 @@ export default function Editor({templateInfo, controls}) {
     { volume: 1.0 }
   );
 
-  const selectOption = (option) =>{
+  const selectOption = (option) => {
+    console.log('selectOption', option.name, currentTrait)
     if (option.name == currentTrait){ 
       if (cameraFocused) {
         moveCamera(option.cameraTarget);

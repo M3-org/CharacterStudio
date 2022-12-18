@@ -56,6 +56,7 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
   renderer.setRenderTarget(rtTexture);
   renderer.clear();
   renderer.render(sceneRTT, cameraRTT);
+  renderer.setRenderTarget(null);
 
   let buffer = new Uint8ClampedArray(rtTexture.width * rtTexture.height * 4)
   renderer.readRenderTargetPixels(rtTexture, 0, 0, width, height, buffer);

@@ -106,7 +106,7 @@ export const UserMenu = ({template}) => {
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
-  const { avatar, skinColor, model } = useContext(SceneContext)
+  const { avatar, scene, skinColor, model } = useContext(SceneContext)
 
   const {currentView, setCurrentView} = useContext(ViewContext)
 
@@ -190,27 +190,15 @@ export const UserMenu = ({template}) => {
     function saveArrayBuffer(buffer, filename) {
       save(getArrayBuffer(buffer), filename);
     }
-
     // Specifying the name of the downloadable model
-    const downloadFileName = `${fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
-      }`;
+    const downloadFileName = `${fileName && fileName !== "" ? fileName : "AvatarCreatorModel"}`;
+      
+    const avatarToCombine = avatarToDownload.scene.clone();
 
-    if (format && format === "glb") {
-      const exporter = new GLTFExporter();
-      const options = {
-        trs: false,
-        onlyVisible: false,
-        truncateDrawRange: true,
-        binary: true,
-        forcePowerOfTwoTextures: false,
-        maxTextureSize: 1024 || Infinity
-      };
-
-      const avatar = await combine({ transparentColor: skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
-
-      exporter.parse(
-        avatar,
-        function (result) {
+    const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter();
+    const avatar = await combine({ transparentColor: skinColor, avatar: avatarToCombine, atlasSize });
+    if (format === "glb") {
+      exporter.parse(avatar, (result) => {
           if (result instanceof ArrayBuffer) {
             saveArrayBuffer(result, `${downloadFileName}.glb`);
           } else {
@@ -219,26 +207,20 @@ export const UserMenu = ({template}) => {
           }
         },
         (error) => { console.error("Error parsing", error) },
-        options
+        {
+          trs: false,
+          onlyVisible: false,
+          truncateDrawRange: true,
+          binary: true,
+          forcePowerOfTwoTextures: false,
+          maxTextureSize: 1024 || Infinity
+        }
       );
-    } else if (format && format === "vrm") {
-      const exporter = new VRMExporter();
-
-      console.log("working...")
-
-      const avatar = await combine({ transparentColor: skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
-      // change material array to the single atlas material
+    } else {
       avatarToDownload.materials = [avatar.userData.atlasMaterial];
-
       exporter.parse(avatarToDownload, avatar, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
       });
-
-
-      // exporter.parse(avatarModel, avatar, (vrm) => {
-      //   saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
-      // });
-      console.log("finished")
     }
   }
 
@@ -252,8 +234,6 @@ export const UserMenu = ({template}) => {
           <Fragment>
             <TextButton
               onClick={() => {
-
-                console.log('model is', model)
                 download(model, `UpstreetAvatar_${type}`, "vrm")
               }
               }
@@ -262,7 +242,6 @@ export const UserMenu = ({template}) => {
             </TextButton>
             <TextButton
               onClick={() => {
-                console.log('model is', model)
                 download(model, `UpstreetAvatar_${type}`, "glb")
               }
               }
