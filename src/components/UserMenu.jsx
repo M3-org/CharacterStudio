@@ -9,9 +9,13 @@ import svgWallet from "../../public/ui/connectWallet.svg"
 import svgDiconnectWallet from "../../public/ui/diconnectWallet.svg"
 import svgDownload from "../../public/ui/download.svg"
 import svgMint from "../../public/ui/mint.svg"
-import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
 
 import { getScreenShot, getModelFromScene } from "../library/utils"
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import VRMExporter from "../library/VRMExporter";
+import { combine } from "../library/merge-geometry";
+
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
@@ -264,7 +268,7 @@ export const UserMenu = () => {
     skinColor,
     model,
     setConfirmWindow,
-  } = useContext(AudioContext)
+  } = useContext(SceneContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
@@ -437,20 +441,104 @@ export const UserMenu = () => {
     }
   }
 
+  async function download(
+    avatarToDownload,
+    fileName,
+    format,
+    atlasSize = 4096
+  ) {
+    // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
+    // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
+    const link = document.createElement("a");
+    link.style.display = "none";
+    document.body.appendChild(link);
+    function save(blob, filename) {
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+  
+    function saveString(text, filename) {
+      save(new Blob([text], { type: "text/plain" }), filename);
+    }
+  
+    function saveArrayBuffer(buffer, filename) {
+      save(getArrayBuffer(buffer), filename);
+    }
+  
+    // Specifying the name of the downloadable model
+    const downloadFileName = `${
+      fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
+    }`;
+  
+    if (format && format === "glb") {
+      const exporter = new GLTFExporter();
+      const options = {
+        trs: false,
+        onlyVisible: false,
+        truncateDrawRange: true,
+        binary: true,
+        forcePowerOfTwoTextures: false,
+        maxTextureSize: 1024 || Infinity
+      };
+  
+      const avatar = await combine({ transparentColor:skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
+      
+      exporter.parse(
+        avatar,
+        function (result) {
+          if (result instanceof ArrayBuffer) {
+            saveArrayBuffer(result, `${downloadFileName}.glb`);
+          } else {
+            const output = JSON.stringify(result, null, 2);
+            saveString(output, `${downloadFileName}.gltf`);
+          }
+        },
+        (error) => { console.error("Error parsing", error)},
+        options
+      );
+    } else if (format && format === "vrm") {
+      const exporter = new VRMExporter();
+      
+      console.log("working...")      
+  
+      const avatar = await combine({transparentColor:skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });  
+      // change material array to the single atlas material
+      avatarToDownload.materials = [avatar.userData.atlasMaterial];
+  
+      exporter.parse(avatarToDownload, avatar, (vrm ) => {
+        saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+      });
+      
+  
+      // exporter.parse(avatarModel, avatar, (vrm) => {
+      //   saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
+      // });
+      console.log("finished")
+    }
+  }
+  function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
+
+
   return (
     <TopRightMenu>
       {showType && (
         <Fragment>
           <TextButton
-            onClick={() =>
-              download(model, `UpstreetAvatar_${type}`, "vrm", false)
+            onClick={() => {
+
+              console.log('model is', model)
+              download(model, `UpstreetAvatar_${type}`, "vrm")
+            }
             }
           >
             <span>VRM</span>
           </TextButton>
           <TextButton
-            onClick={() =>
-              download(model, `UpstreetAvatar_${type}`, "glb", false)
+            onClick={() => {
+              console.log('model is', model)
+              download(model, `UpstreetAvatar_${type}`, "glb")
+            }
             }
           >
             <span>GLB</span>

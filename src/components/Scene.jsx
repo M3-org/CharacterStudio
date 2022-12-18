@@ -92,8 +92,6 @@ export default function Scene({template}) {
       }
       setModel(null)
       setScene(new THREE.Scene())
-      
-
     }
 
   }, [templateInfo])
