@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client"
 import Background from "./components/Background"
 import { AudioProvider } from "./context/AudioContext"
 import Landing from "./components/Landing"
+import { UserMenu } from "./components/UserMenu"
 
 import AudioButton from "./components/AudioButton"
 import Scene from "./components/Scene"
@@ -39,7 +40,8 @@ function App() {
               <Gate />
               <Landing  />
               <AudioButton />
-             <Scene template={templateInfo} />
+              <Scene template={templateInfo} />
+              <UserMenu />
             </ViewProvider>
           </SceneProvider>
         </AudioProvider>

@@ -199,16 +199,22 @@ export default function Selector({templateInfo}) {
     loadModel,
     setRandomFlag,
     randomFlag,
-    categoryList,
     avatar,
     setAvatar,
     setLoadedTraits,
-    setCurrentTemplateId,
     currentTemplateId,
     scene,
-    setSelectorCategory,
+    setCurrentTrait,
+    currentTrait,
     model,
    } = useContext(SceneContext);
+
+  function getCategoriesFromTemplate(template) {
+    const categories = template.attributes.map((attribute) => {
+      return attribute.trait_type;
+    });
+    return categories;
+  }
 
   const {
     isMute,
@@ -256,10 +262,11 @@ export default function Selector({templateInfo}) {
   }, [currentTemplateId])
 
   useEffect(() => {
+    if (!templateInfo || !templateInfo[currentTemplateId]) return
     ;(async () => {
       if (randomFlag === -1) return
 
-      const lists = categoryList
+      const lists = getCategoriesFromTemplate(templateInfo[currentTemplateId])
       let ranItem
       let buffer = { ...avatar }
       let loaded = 0
@@ -302,7 +309,7 @@ export default function Selector({templateInfo}) {
 
   const selectTrait = (trait, textureIndex) => {
     if (trait.bodyTargets) {
-      setCurrentTemplateId(trait.id)
+      setCurrentTrait(trait.id)
     }
     if (scene) {
       if (trait === "0") {
@@ -317,14 +324,14 @@ export default function Selector({templateInfo}) {
         }
       } else {
         if (trait.bodyTargets) {
-          setCurrentTemplateId(trait.id)
+          setCurrentTrait(trait.id)
         } else {
           setLoadingTraitOverlay(true)
           setNoTrait(false)
           templateInfo.selectionTraits.map((item) => {
-            if (item.name === setSelectorCategory && item.type === "texture") {
+            if (item.name === currentTrait && item.type === "texture") {
               textureTraitLoader(item, trait)
-            } else if (item.name === setSelectorCategory) {
+            } else if (item.name === currentTrait) {
               if (trait.textureCollection && textureIndex) {
                 const txtrs = traits[trait.textureCollection]
                     const localDir = txtrs.collection[textureIndex].directory
@@ -616,16 +623,16 @@ export default function Selector({templateInfo}) {
 
   const getActiveStatus = (item) => {
     return (
-      avatar[setSelectorCategory] &&
-      avatar[setSelectorCategory].traitInfo &&
-      avatar[setSelectorCategory].traitInfo.id === item.id
+      avatar[currentTrait] &&
+      avatar[currentTrait].traitInfo &&
+      avatar[currentTrait].traitInfo.id === item.id
     )
   }
   return (
     <SelectorContainerPos loadingOverlay={loadingTraitOverlay}>
       <div className="selector-container">
         <div className="traitPanel">
-          {setSelectorCategory !== "head" ? (
+          {currentTrait !== "head" ? (
             <Fragment>
               <div
                 className={noTrait ? "selectorButtonActive" : "selectorButton"}
@@ -724,7 +731,7 @@ export default function Selector({templateInfo}) {
               </div>
             </Fragment>
           ) : (
-            <Skin templateInfo={templateInfo} setSelectorCategory={setSelectorCategory} avatar={avatar} />
+            <Skin templateInfo={templateInfo} avatar={avatar} />
           )}
         </div>
       </div>

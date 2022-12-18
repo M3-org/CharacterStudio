@@ -39,44 +39,33 @@ export const SceneProvider = (props) => {
     })
   }
 
-  const [scene, useScene] = useState(new THREE.Scene())
-  const [selectorCategory, setSelectorCategory] = useState({
-    selectorCategory: "head", // should default to categoryList[0]
-  })
+  const [scene, setScene] = useState(new THREE.Scene())
+  const [currentTrait, setCurrentTrait] = useState(null)
   const [model, setModel] = useState({})
-  const [controls, setControls] = useState({})
   const [camera, setCamera] = useState({})
 
   const [colorStatus, setColorStatus] = useState("")
   const [randomFlag, setRandomFlag] = useState(-1) // TODO: wtf?
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
-  const [avatar, _setAvatar] = useState({
-    // should be loaded from JSON
-    skin: {},
-    body: {},
-    chest: {},
-    head: {},
-    neck: {},
-    hand: {},
-    ring: {},
-    waist: {},
-    weapon: {},
-    legs: {},
-    feet: {},
-    accessories: {},
-    eyes: {},
-    outer: {},
-    solo: {},
-  })
-
-  const [categoryList, setSelectorCategoryList] = useState([
-    // LOAD from JSON
-    "chest",
-    "head",
-    "neck",
-    "legs",
-    "feet",
-  ])
+  const [avatar, _setAvatar] = useState(null);
+  // {
+  //   // should be loaded from JSON
+  //   skin: {},
+  //   body: {},
+  //   chest: {},
+  //   head: {},
+  //   neck: {},
+  //   hand: {},
+  //   ring: {},
+  //   waist: {},
+  //   weapon: {},
+  //   legs: {},
+  //   feet: {},
+  //   accessories: {},
+  //   eyes: {},
+  //   outer: {},
+  //   solo: {},
+  // })
 
   const setAvatar = (state) => {
     cullHiddenMeshes(avatar, scene, templateInfo)
@@ -88,14 +77,12 @@ export const SceneProvider = (props) => {
     <SceneContext.Provider
       value={{
         scene,
-        useScene,
-        selectorCategory,
-        setSelectorCategory,
+        setScene,
+        currentTrait,
+        setCurrentTrait,
         loadModel,
         model,
         setModel,
-        controls,
-        setControls,
         camera,
         setCamera,
         colorStatus,
@@ -108,8 +95,6 @@ export const SceneProvider = (props) => {
         setAvatar,
         currentTemplateId,
         setCurrentTemplateId,
-        categoryList,
-        setSelectorCategoryList,
       }}
     >
       {props.children}

@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
-import { TemplateModel } from "./Models";
 import { AudioContext } from "../context/AudioContext";
 
 const style = {
@@ -62,7 +61,9 @@ export default function MintModal() {
             target={[0, 0.9, 0]}
           />
           <PerspectiveCamera>
-            <TemplateModel scene={model.scene.clone()} />
+          <mesh>
+            <primitive object={model.scene.clone()} />
+          </mesh>
           </PerspectiveCamera>
         </Canvas>
   );

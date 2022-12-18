@@ -105,8 +105,6 @@ export class AnimationManager{
       console.warn("no animations were preloaded, ignoring");
       return
     }
-    // important to do* check mixers and remove those that are no longer active in the scene
-    //cleanupMixers();
 
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);

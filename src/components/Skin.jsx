@@ -5,10 +5,12 @@ import skinSelector from '../../public/ui/skinSelector/Vector.png'
 import { AudioContext } from "../context/AudioContext"
 import { setMaterialColor } from "../library/utils"
 
-function Skin({ templateInfo, selectorCategory, avatar}) {
+function Skin({ templateInfo, currentTrait, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
+
+  console.log('currentTrait', currentTrait)
 
   const {
     skinColor,
@@ -55,13 +57,13 @@ function Skin({ templateInfo, selectorCategory, avatar}) {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     let colorTargets;
-    if(selectorCategory === "head"){
+    if(currentTrait === "head"){
       colorTargets = getHairMaterial();
     }
-    if(selectorCategory === "eyeColor"){
+    if(currentTrait === "eyeColor"){
       colorTargets = templateInfo.EyeTargets;
     }
-    if(selectorCategory === "color"){
+    if(currentTrait === "color"){
       colorTargets = templateInfo.bodyTargets;
     }
     for (const bodyTarget of colorTargets) {
@@ -106,7 +108,11 @@ function Skin({ templateInfo, selectorCategory, avatar}) {
       throw new Error('Bad Hex');
   }
 
-  return (
+  console.log('currentTrait', currentTrait);
+  console.log('colorArray', colorArray);
+  console.log('colorArray[currentTrait]', colorArray[currentTrait])
+
+  return currentTrait && (
     <div 
       style={{ 
         ...container,
@@ -117,7 +123,7 @@ function Skin({ templateInfo, selectorCategory, avatar}) {
         marginTop: '40px',
       }}
     >
-    {colorArray[selectorCategory].map((row, i) => {
+    {colorArray[currentTrait].map((row, i) => {
       return row.map((col, k) => 
         (
           <div 

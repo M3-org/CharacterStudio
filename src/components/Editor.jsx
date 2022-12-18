@@ -6,15 +6,17 @@ import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../../public/sound/option_click.wav"
+import { ViewContext } from "../context/ViewContext";
 import { AudioContext } from "../context/AudioContext";
+import { SceneContext } from "../context/SceneContext";
 import styled from 'styled-components'
+import { ViewStates } from "../context/ViewContext";
 
 const SideMenu = styled.div`
     position: absolute;
     left: 50px;
     top: 10%;
     width: 100px;
-    background-color: rgba(23, 22, 31, 0.35);
     border: 1px solid #38404E;
     border-radius : 5px;
     backdrop-filter: blur(22.5px); 
@@ -64,8 +66,12 @@ const MenuTitle = styled.div`
     
 `
 
-export default function Editor({templateInfo}) {
-  const {isMute, ishide, selectorCategory, setSelectorCategory, setRandomFlag, controls} = useContext(AudioContext);
+export default function Editor({templateInfo, controls}) {
+  const {currentTrait, setCurrentTrait, setRandomFlag} = useContext(SceneContext);
+
+  const {isMute} = useContext(AudioContext);
+
+  const [cameraFocused, setCameraFocused] = React.useState(false);
 
   const [play] = useSound(
     optionClick,
@@ -73,18 +79,20 @@ export default function Editor({templateInfo}) {
   );
 
   const selectOption = (option) =>{
-    if (option.name == selectorCategory){ 
-      if (ishide) {
+    if (option.name == currentTrait){ 
+      if (cameraFocused) {
         moveCamera(option.cameraTarget);
+        setCameraFocused(false);
       }
       else{ 
         moveCamera({height:0.8, distance:3.2});
+        setCameraFocused(true);
       }
     }
 
-    if (option.name != selectorCategory)
+    if (option.name != currentTrait)
       moveCamera(option.cameraTarget);
-    setSelectorCategory(option.name)
+    setCurrentTrait(option.name)
     
     !isMute && play();
   }
@@ -126,10 +134,11 @@ export default function Editor({templateInfo}) {
     }
   }
 
+  const { setCurrentView } = useContext(ViewContext)
+
   const {
     setCurrentTemplateId,
-    setEnd,
-  } = useContext(AudioContext)
+  } = useContext(SceneContext)
 
   return(
   <SideMenu>
@@ -138,7 +147,8 @@ export default function Editor({templateInfo}) {
         <MenuTitle>
         <BackButton onClick={() => {
           setCurrentTemplateId(null)
-          setEnd(false)
+          setCurrentView(ViewStates.LANDER_LOADING)
+          console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
         }}/>
         </MenuTitle>
 
@@ -150,7 +160,7 @@ export default function Editor({templateInfo}) {
             onClick = {()=>{
               selectOption(item)
             }} 
-            selected = {selectorCategory === item.name}
+            selected = {currentTrait === item.name}
             key = {index}>  
             <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
           </MenuOption>

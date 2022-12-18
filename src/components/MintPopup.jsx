@@ -1,4 +1,4 @@
-import React, { useContext, Fragment } from "react"
+import React, { useState, useContext, Fragment } from "react"
 import { AudioContext } from "../context/AudioContext"
 import MintModal from "./MintModal"
 import walletErrorImage from "../../public/ui/mint/walletError.png"
@@ -6,6 +6,8 @@ import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import polygonIcon from "../../public/ui/mint/polygon.png"
 
 import styled from 'styled-components';
+import { SceneContext } from "../context/SceneContext"
+import { ViewContext } from "../context/ViewContext"
 
 const StyledButton = styled.div`
     {
@@ -194,18 +196,18 @@ const MintPriceBox = styled.div`
         align-items: center;
 `
 
-export default function MintPopup({ connectWallet, connected, mintAsset }) {
+export default function MintPopup({ connectWallet, connected, mintAsset, mintStatus }) {
   const {
     confirmWindow,
     setConfirmWindow,
     templateInfo,
     avatar,
     colorStatus,
-    mintDone,
   } = useContext(AudioContext)
 
-  const [mintStatus, setMintStatus] = useState("Please connect your wallet."); // move into the view
-  const [mintCost, setMintCost] = useState(0.1); // move into the mint view, pass as prop?
+  const {
+    
+  } = useContext(ViewContext)
 
   const showTrait = (trait) => {
     if (trait.name in avatar) {

@@ -2,14 +2,13 @@ import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMater
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
-import React, { useContext, useEffect } from "react"
+import React, { useRef, useState, useContext, useEffect } from "react"
 import { NoToneMapping } from "three"
 import Editor from "./Editor"
-import { TemplateModel } from "./Models"
 import Selector from "./Selector"
 import { animated, useSpring } from "react-spring"
 import { addModelData, getSkinColor } from "../library/utils"
-
+import * as THREE from "three"
 import { SceneContext } from "../context/SceneContext"
 
 import { AnimationManager } from "../library/animationManager"
@@ -18,6 +17,7 @@ import logo from "../../public/ui/weba.png"
 
 import styled from 'styled-components';
 import pngMainBackground from "../../public/ui/mainBackground.png"
+import { ViewContext, ViewStates } from "../context/ViewContext"
 
 const FitParentContainer = styled.div`
     width: 100vw;
@@ -44,18 +44,29 @@ const Background = styled(ScreenSizeContainer)`
 export default function Scene({template}) {
   const {
     scene,
-    setControls,
+    setScene,
     setCamera,
     loadModel,
     currentTemplateId,
+    model,
     setModel,
   } = useContext(SceneContext)
+  const {currentView, setCurrentView} = useContext(ViewContext)
 
-  const templateInfo = template[0]
-  console.log("template", template)
-  console.log("currentTemplateId", currentTemplateId)
+  const [loading, setLoading] = useState(false)
+  const controls = useRef()
+  const templateInfo = template && template[currentTemplateId]
+
+  // if currentView is CREATOR_LOADING, show loading screen
+  // load the assets
+  // once templateInfo, currentTemplateId, and models are loaded, move to CREATOR view
 
   useEffect(() => {
+    if(!templateInfo || currentTemplateId === null || currentView !== ViewStates.CREATOR_LOADING) {
+      if(!loading) setLoading(true)
+      return
+    }
+
     loadModel(templateInfo.file).then(async (vrm) => {
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
@@ -71,14 +82,24 @@ export default function Scene({template}) {
 
       scene.add(vrm.scene)
 
-      // set vrm.scene to invisible
-      vrm.scene.visible = false
+      setCurrentView(ViewStates.CREATOR)
 
-      setTimeout(() => {
-        vrm.scene.visible = true
-      }, 50)
+      // vrm.scene.visible = false
+
+      // setTimeout(() => {
+      //   vrm.scene.visible = true
+      // }, 50)
     })
-  }, [templateInfo])
+    
+    return () => {
+      // clear all parents and remove from scene
+      if(model) {
+        setModel(null)
+        setScene(new THREE.Scene())
+      }
+    }
+
+  }, [templateInfo, currentTemplateId])
 
   const animatedStyle = useSpring({
     from: { opacity: "0" },
@@ -89,6 +110,7 @@ export default function Scene({template}) {
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
   return (
+  currentView === ViewStates.CREATOR) && (
     <animated.div style={animatedStyle}>
       <FitParentContainer>
         <Background>
@@ -139,7 +161,7 @@ export default function Scene({template}) {
             </directionalLight>
 
             <OrbitControls
-              ref={setControls}
+              ref={controls}
               minDistance={1}
               maxDistance={4}
               maxPolarAngle={Math.PI / 2 - 0.1}
@@ -149,13 +171,18 @@ export default function Scene({template}) {
               dampingFactor={0.1}
               target={[0, 1.1, 0]}
             />
+
             <PerspectiveCamera
               ref={setCamera}
               aspect={1200 / 600}
               fov={30}
               onUpdate={(self) => self.updateProjectionMatrix()}
             >
-              <TemplateModel scene={scene} />
+
+            <mesh>
+              <primitive object={scene} />
+            </mesh>
+
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
                 <circleGeometry args={[0.6, 64]} />
                 <MeshReflectorMaterial
@@ -175,7 +202,8 @@ export default function Scene({template}) {
           </Canvas>
         </Background>
         <Selector templateInfo={templateInfo} />
-        <Editor templateInfo={templateInfo} />
+        <Editor templateInfo={templateInfo} controls={controls.current} />
+
       </FitParentContainer>
     </animated.div>
   )

@@ -166,7 +166,7 @@ export default function Landing() {
     const [neurohacker, setNeurohacker] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
-    const { setCurrentView } = useContext(ViewContext);
+    const { currentView, setCurrentView } = useContext(ViewContext);
     const { isMute } = useContext(AudioContext);
     const { loadModel } = useContext(SceneContext);
     const camera = React.useRef();
@@ -189,6 +189,23 @@ export default function Landing() {
             animManager.startAnimation(vrm)
             setNeurohacker(vrm.scene)
         });
+        return () => {
+            // cleanup the models from the scene
+            // remove drop hunter
+            if(drophunter) {
+                const { scene } = drophunter;
+                scene.parent.remove(scene);
+            }
+
+            // remove neurohacker
+            if(neurohacker) {
+                const { scene } = neurohacker;
+                scene.parent.remove(scene);
+            }
+
+            setDrophunter(null);
+            setNeurohacker(null);
+        }
     }, [])
 
     const [play] = useSound(
@@ -211,14 +228,17 @@ export default function Landing() {
                 y: -window.innerHeight,
             }
         })
+        console.log('type is', type)
         setCurrentTemplateId(type)
+        console.log('ViewStates.CREATOR_LOADING', ViewStates.CREATOR_LOADING)
         setCurrentView(ViewStates.CREATOR_LOADING)
     }
 
     useEffect(() => {
-        if(!neurohacker || !drophunter) return;
-       // setCurrentView(ViewStates.Landing) // TODO, replace with proper load?
-    }, [neurohacker, drophunter])
+        if(!neurohacker || !drophunter || currentView !== ViewStates.LANDER_LOADING) return;
+       setCurrentView(ViewStates.LANDER)
+       console.log('ViewStates.LANDER', ViewStates.LANDER)
+    }, [neurohacker, drophunter, currentView])
 
     return neurohacker && drophunter && currentTemplateId === null && (
         <StyledLanding>
