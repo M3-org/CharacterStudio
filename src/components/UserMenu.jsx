@@ -233,9 +233,9 @@ const WalletButton = styled(SquareButton)`
   justify-content: space-between;
   &:hover ${WalletImg} {
     background: ${(props) =>
-      props.connected
-        ? "url(" + svgDiconnectWallet + ") center center no-repeat"
-        : "url(" + svgWallet + ") center center no-repeat"};
+    props.connected
+      ? "url(" + svgDiconnectWallet + ") center center no-repeat"
+      : "url(" + svgWallet + ") center center no-repeat"};
   }
 `
 
@@ -358,49 +358,43 @@ export const UserMenu = () => {
   const mintAsset = async () => {
     if (account == undefined) {
       setMintStatus("Please connect the wallet")
-      setConfirmWindow(true)
       return
     }
-    //setMintCost(10);
-    setConfirmWindow(true)
+    setCurrentView(ViewStates.MINT_CONFIRM)
     setMintStatus("Uploading...")
 
-    getScreenShot("mint-scene").then(async (screenshot) => {
-      if (screenshot) {
-        const imageHash = await saveFileToPinata(
-          screenshot,
-          "AvatarImage_" + Date.now() + ".png",
-        ).catch((reason) => {
-          console.error(reason)
-          setMintStatus("Couldn't save to pinata")
-        })
-        getModelFromScene(avatar.scene.clone(), "glb", skinColor).then(
-          async (glb) => {
-            const glbHash = await saveFileToPinata(
-              glb,
-              "AvatarGlb_" + Date.now() + ".glb",
-            )
-            const attributes = getAvatarTraits()
-            const metadata = {
-              name: "Avatars",
-              description: "Creator Studio Avatars.",
-              image: `ipfs://${imageHash.IpfsHash}`,
-              animation_url: `ipfs://${glbHash.IpfsHash}`,
-              attributes,
-            }
-            const str = JSON.stringify(metadata)
-            const metaDataHash = await saveFileToPinata(
-              new Blob([str]),
-              "AvatarMetadata_" + Date.now() + ".json",
-            )
-            await mintNFT("ipfs://" + metaDataHash.IpfsHash)
-          },
-        )
-      }
-    })
-  }
+    const screenshot = await getScreenShot("mint-scene");
+    if (!screenshot) {
+      throw new Error("Unable to get screenshot");
+    } 
 
-  const mintNFT = async (metadataIpfs) => {
+    const imageHash = await saveFileToPinata(
+      screenshot,
+      "AvatarImage_" + Date.now() + ".png",
+    ).catch((reason) => {
+      console.error(reason)
+      setMintStatus("Couldn't save to pinata")
+    })
+    const glb = getModelFromScene(avatar.scene.clone(), "glb", skinColor)
+    const glbHash = await saveFileToPinata(
+      glb,
+      "AvatarGlb_" + Date.now() + ".glb",
+    )
+    const attributes = getAvatarTraits()
+    const metadata = {
+      name: "Avatars",
+      description: "Creator Studio Avatars.",
+      image: `ipfs://${imageHash.IpfsHash}`,
+      animation_url: `ipfs://${glbHash.IpfsHash}`,
+      attributes,
+    }
+    const str = JSON.stringify(metadata)
+    const metaDataHash = await saveFileToPinata(
+      new Blob([str]),
+      "AvatarMetadata_" + Date.now() + ".json",
+    )
+    const metadataIpfs = metaDataHash.IpfsHash
+
     setMintStatus("Minting...")
     const chainId = 5 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
     if (window.ethereum.networkVersion !== chainId) {
@@ -441,6 +435,10 @@ export const UserMenu = () => {
     }
   }
 
+  const mintNFT = async (metadataIpfs) => {
+
+  }
+
   async function download(
     avatarToDownload,
     fileName,
@@ -457,20 +455,19 @@ export const UserMenu = () => {
       link.download = filename;
       link.click();
     }
-  
+
     function saveString(text, filename) {
       save(new Blob([text], { type: "text/plain" }), filename);
     }
-  
+
     function saveArrayBuffer(buffer, filename) {
       save(getArrayBuffer(buffer), filename);
     }
-  
+
     // Specifying the name of the downloadable model
-    const downloadFileName = `${
-      fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
-    }`;
-  
+    const downloadFileName = `${fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
+      }`;
+
     if (format && format === "glb") {
       const exporter = new GLTFExporter();
       const options = {
@@ -481,9 +478,9 @@ export const UserMenu = () => {
         forcePowerOfTwoTextures: false,
         maxTextureSize: 1024 || Infinity
       };
-  
-      const avatar = await combine({ transparentColor:skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
-      
+
+      const avatar = await combine({ transparentColor: skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
+
       exporter.parse(
         avatar,
         function (result) {
@@ -494,30 +491,30 @@ export const UserMenu = () => {
             saveString(output, `${downloadFileName}.gltf`);
           }
         },
-        (error) => { console.error("Error parsing", error)},
+        (error) => { console.error("Error parsing", error) },
         options
       );
     } else if (format && format === "vrm") {
       const exporter = new VRMExporter();
-      
-      console.log("working...")      
-  
-      const avatar = await combine({transparentColor:skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });  
+
+      console.log("working...")
+
+      const avatar = await combine({ transparentColor: skinColor, avatar: avatarToDownload.scene.clone(), atlasSize });
       // change material array to the single atlas material
       avatarToDownload.materials = [avatar.userData.atlasMaterial];
-  
-      exporter.parse(avatarToDownload, avatar, (vrm ) => {
+
+      exporter.parse(avatarToDownload, avatar, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
       });
-      
-  
+
+
       // exporter.parse(avatarModel, avatar, (vrm) => {
       //   saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
       // });
       console.log("finished")
     }
   }
-  function getArrayBuffer (buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
+  function getArrayBuffer(buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
 
   return (
