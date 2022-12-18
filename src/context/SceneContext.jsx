@@ -72,7 +72,7 @@ export const SceneProvider = (props) => {
     _setAvatar(state)
   }
 
-  const [currentTemplateId, setCurrentTemplateId] = useState(null)
+  const [currentTemplate, setCurrentTemplate] = useState(null)
   return (
     <SceneContext.Provider
       value={{
@@ -93,8 +93,8 @@ export const SceneProvider = (props) => {
         setSkinColor,
         avatar,
         setAvatar,
-        currentTemplateId,
-        setCurrentTemplateId,
+        currentTemplate,
+        setCurrentTemplate,
       }}
     >
       {props.children}

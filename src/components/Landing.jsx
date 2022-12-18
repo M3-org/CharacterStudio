@@ -20,20 +20,20 @@ const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
 const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
 const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
 
-const models = [
-  {
+const Classes = {
+  DROPHUNTER: {
       index: 0,
       model: dropHunter,
       text: 'Dropunter',
       animation: anim_drophunter
   },
-  {
+  NEUROHACKER: {
       index: 1,
       model: neuroHacker,
       text: 'Neurohacker',
       animation: anim_neurohacker
   }
-];
+}
 
 import styled from "styled-components";
 
@@ -160,7 +160,7 @@ const StyledLanding = styled.div `
 `
 
 export default function Landing() {
-    const {setCurrentTemplateId, currentTemplateId} = useContext(SceneContext);
+    const {setCurrentTemplate, currentTemplate} = useContext(SceneContext);
     
     const [drophunter, setDrophunter] = useState(null);
     const [neurohacker, setNeurohacker] = useState(null);
@@ -181,24 +181,24 @@ export default function Landing() {
             await animManager.loadAnimations(item.animation);
             return { vrm, animManager }
         }
-        createModel(models[0]).then(({ vrm, animManager }) => {
+        createModel(Classes.DROPHUNTER).then(({ vrm, animManager }) => {
             animManager.startAnimation(vrm)
             setDrophunter(vrm.scene)
         });
-        createModel(models[1]).then(({ vrm, animManager }) => {
+        createModel(Classes.NEUROHACKER).then(({ vrm, animManager }) => {
             animManager.startAnimation(vrm)
             setNeurohacker(vrm.scene)
         });
         return () => {
             // cleanup the models from the scene
             // remove drop hunter
-            if(drophunter) {
+            if(drophunter !== null) {
                 const { scene } = drophunter;
                 scene.parent.remove(scene);
             }
 
             // remove neurohacker
-            if(neurohacker) {
+            if(neurohacker !== null) {
                 const { scene } = neurohacker;
                 scene.parent.remove(scene);
             }
@@ -229,7 +229,7 @@ export default function Landing() {
             }
         })
         console.log('type is', type)
-        setCurrentTemplateId(type)
+        setCurrentTemplate(type)
         console.log('ViewStates.CREATOR_LOADING', ViewStates.CREATOR_LOADING)
         setCurrentView(ViewStates.CREATOR_LOADING)
     }
@@ -240,7 +240,7 @@ export default function Landing() {
        console.log('ViewStates.LANDER', ViewStates.LANDER)
     }, [neurohacker, drophunter, currentView])
 
-    return neurohacker && drophunter && currentTemplateId === null && (
+    return neurohacker && drophunter && currentTemplate === null && (
         <StyledLanding>
             <div className='drophunter-container' style={{
                 position: "absolute",
@@ -263,7 +263,7 @@ export default function Landing() {
 
                 // on mouse click
                 onClick={() => {
-                    handleClick(0)
+                    handleClick(Classes.DROPHUNTER)
                 }}
             >
                 <div className="drophunter" style={{
@@ -302,7 +302,7 @@ export default function Landing() {
 
                 // on mouse click
                 onClick={() => {
-                    handleClick(1)
+                    handleClick(Classes.NEUROHACKER)
                 }}
             >
                 <div className="neurohacker" style={{

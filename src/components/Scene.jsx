@@ -47,7 +47,7 @@ export default function Scene({template}) {
     setScene,
     setCamera,
     loadModel,
-    currentTemplateId,
+    currentTemplate,
     model,
     setModel,
   } = useContext(SceneContext)
@@ -55,19 +55,19 @@ export default function Scene({template}) {
 
   const [loading, setLoading] = useState(false)
   const controls = useRef()
-  const templateInfo = template && template[currentTemplateId]
+  const templateInfo = template && currentTemplate && template[currentTemplate.index]
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
-  // once templateInfo, currentTemplateId, and models are loaded, move to CREATOR view
+  // once templateInfo, currentTemplate, and models are loaded, move to CREATOR view
 
   useEffect(() => {
-    if(!templateInfo || currentTemplateId === null || currentView !== ViewStates.CREATOR_LOADING) {
+    if(!templateInfo) {
       if(!loading) setLoading(true)
       return
     }
 
-    loadModel(templateInfo.file).then(async (vrm) => {
+    loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
 
@@ -86,13 +86,17 @@ export default function Scene({template}) {
     })
     
     return () => {
-      if(model) {
-        setModel(null)
-        setScene(new THREE.Scene())
+      if(model !== null) {
+        scene.remove(model.scene)
+
       }
+      setModel(null)
+      setScene(new THREE.Scene())
+      
+
     }
 
-  }, [templateInfo, currentTemplateId])
+  }, [templateInfo])
 
   const animatedStyle = useSpring({
     from: { opacity: "0" },

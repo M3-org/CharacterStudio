@@ -202,7 +202,7 @@ export default function Selector({templateInfo}) {
     avatar,
     setAvatar,
     setLoadedTraits,
-    currentTemplateId,
+    currentTemplate,
     scene,
     setCurrentTrait,
     currentTrait,
@@ -259,14 +259,14 @@ export default function Selector({templateInfo}) {
 
   useEffect(() => {
     localStorage.removeItem("color")
-  }, [currentTemplateId])
+  }, [currentTemplate])
 
   useEffect(() => {
-    if (!templateInfo || !templateInfo[currentTemplateId]) return
+    if (!templateInfo || !templateInfo[currentTemplate.index]) return
     ;(async () => {
       if (randomFlag === -1) return
 
-      const lists = getCategoriesFromTemplate(templateInfo[currentTemplateId])
+      const lists = getCategoriesFromTemplate(templateInfo[currentTemplate.index])
       let ranItem
       let buffer = { ...avatar }
       let loaded = 0

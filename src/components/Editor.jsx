@@ -137,7 +137,7 @@ export default function Editor({templateInfo, controls}) {
   const { setCurrentView } = useContext(ViewContext)
 
   const {
-    setCurrentTemplateId,
+    setCurrentTemplate,
   } = useContext(SceneContext)
 
   return(
@@ -146,7 +146,7 @@ export default function Editor({templateInfo, controls}) {
         
         <MenuTitle>
         <BackButton onClick={() => {
-          setCurrentTemplateId(null)
+          setCurrentTemplate(null)
           setCurrentView(ViewStates.LANDER_LOADING)
           console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
         }}/>
