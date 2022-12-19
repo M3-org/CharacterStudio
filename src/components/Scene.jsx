@@ -143,7 +143,7 @@ export default function Scene({template}) {
               </mesh>
             </PerspectiveCamera>
           </Canvas>
-        <Selector templateInfo={templateInfo} />
+          {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
         <Editor templateInfo={templateInfo} controls={controls.current} />
       </div>
   )
