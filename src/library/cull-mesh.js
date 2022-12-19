@@ -1,5 +1,4 @@
 import {Raycaster, Vector3, LineBasicMaterial, Line, Color, BufferGeometry, BufferAttribute} from "three";
-import { sceneService } from "../services";
 
 let origin = new Vector3();
 let direction = new Vector3();
@@ -49,12 +48,8 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
-
-                const boneDirections = mesh.geometry.userData.boneDirections;
                 
                 mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance));
-                
-                //mesh.geometry.setIndex(getIndexBufferByBoneDirection(index,vertexData, boneDirections, hitArr, mesh.userData.cullDistance));
             }
         }
         hitArr = [...hitArr, ...culls[i]]
@@ -85,53 +80,6 @@ const getDistanceInOut = (distanceArr) => {
     return [distIn, distOut]
 }
 
-const getIndexBufferByBoneDirection = (index, vertexData, boneDirections, intersectModels, distanceArr, debug=false) =>{
-    const indexCustomArr = [];
-
-    const distArr = getDistanceInOut(distanceArr);
-    let distIn = distArr[0];
-    let distOut = distArr[1];
-    
-    raycaster.far = distIn + distOut;
-    
-    for (let i =0; i < index.length/3 ;i++){
-
-        const idxBase = i * 3;
-        //if at least 1 vertex collides with nothing, it is visible
-        for (let j = 0; j < 3 ; j++){
-            // reset intersections
-            intersections.length = 0;
-
-            // vi = vertex index, mutliplied by 3 as it refers to a vector3 saved as a float array
-            const vi = index[idxBase+j] * 3;
-
-            // bi = bones index, bones are an array of vector3 non buffer, so no need to muliply here
-            const bi = index[idxBase+j];  
-            const direction = boneDirections[bi];
-
-            // move the origin away to have the raycast being casted from outside
-            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distIn))
-            
-            //invert the direction of the raycaster as we moved it away from its origin
-            raycaster.set( origin, direction.clone().multiplyScalar(-1));
-            
-            // if it hits it means vertex is visible
-            if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
-                if (debug)DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
-                for (let k = 0; k < 3 ; k++){
-                    indexCustomArr.push(index[idxBase+k])
-                }
-                break;
-            }
-             else{
-                 //if (debug)DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
-             }
-        }
-    }
-
-    const indexArr = new Uint32Array(indexCustomArr);
-    return new BufferAttribute(indexArr,1,false);
-}
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr) =>{
     const indexCustomArr = [];
     // we should make this data editable by user
@@ -176,9 +124,6 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 }
                 break;
             }
-            // else{
-            //     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,sceneService.getScene() );
-            // }
         }
     }
 

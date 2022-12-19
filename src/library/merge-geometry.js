@@ -1,6 +1,100 @@
 import * as THREE from "three";
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
+import { findChildrenByType } from "./utils.js";
+import { createTextureAtlas } from "./create-texture-atlas.js";
+
+export function cloneSkeleton(skinnedMesh) {
+    const boneClones = new Map();
+    for (const bone of skinnedMesh.skeleton.bones) {
+        const clone = bone.clone(false);
+        boneClones.set(bone, clone);
+    }
+    // Preserve original bone structure
+    // Assume bones[0] is root bone
+    skinnedMesh.skeleton.bones[0].traverse((o) => {
+        if (o.type !== "Bone")
+            return;
+            
+        const clone = boneClones.get(o);
+        for (const child of o.children) {
+            const ch = boneClones.get(child);
+            if (ch)clone.add(ch);
+        }
+    });
+    const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+    newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
+    newSkeleton.pose();
+    return newSkeleton;
+}
+
+export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
+    const { bakeObjects, textures, uvs, vrmMaterial } = 
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+    // if (vrmMaterial != null)
+    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
+        
+    
+    const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+    meshes.forEach((mesh) => {
+        const geometry = mesh.geometry;
+        if (!geometry.attributes.uv2) {
+            geometry.attributes.uv2 = geometry.attributes.uv;
+        }
+        // Exlude the currently "activated" morph attributes before merging.
+        // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
+        // and the influences remain in `mesh.morphTargetInfluences`.
+        for (let i = 0; i < 8; i++) {
+            delete geometry.attributes[`morphTarget${i}`];
+            delete geometry.attributes[`morphNormal${i}`];
+        }
+    });
+    
+    const { source, dest } = mergeGeometry({ meshes });
+    const geometry = new THREE.BufferGeometry();
+    geometry.attributes = dest.attributes;
+    geometry.morphAttributes = dest.morphAttributes;
+    geometry.morphTargetsRelative = true;
+    geometry.setIndex(dest.index);
+    const material = new THREE.MeshStandardMaterial({
+        map: textures["diffuse"],
+    });
+    vrmMaterial.uniforms.map = textures["diffuse"];
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+
+    material.userData.vrmMaterial = vrmMaterial;
+    const mesh = new THREE.SkinnedMesh(geometry, material);
+    mesh.name = "CombinedMesh";
+    mesh.morphTargetInfluences = dest.morphTargetInfluences;
+    mesh.morphTargetDictionary = dest.morphTargetDictionary;
+    // Add unmerged meshes
+    // const clones = meshesToExclude.map((o) => {
+    //   return o.clone(false);
+    // });
+
+    const skeleton = cloneSkeleton(meshes[0]);
+    
+    mesh.bind(skeleton);
+    // clones.forEach((clone) => {
+    //   clone.bind(skeleton);
+    // });
+
+
+    const group = new THREE.Object3D();
+    group.name = "AvatarRoot";
+    group.animations = dest.animations;
+    group.add(mesh);
+    group.add(skeleton.bones[0]);
+    // clones.forEach((clone) => {
+    //   group.add(clone);
+    // });
+
+    // save material as property to get it later
+    material.userData.shadeTexture = textures["uniformColor"];
+    group.userData.atlasMaterial = material;
+    return group;
+}
+
 function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, destMorphTargetDictionary }) {
     const destMorphTargetInfluences = [];
     Object.entries(destMorphTargetDictionary).map(([morphName, destIndex]) => {

@@ -1,0 +1,107 @@
+.GateStyleBox {
+    position: fixed;
+    z-index: 10000;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction :column;
+    align-items: center;
+    justify-content: center;
+    user-select : none;
+    overflow: hidden;
+    background-color: #000000;
+    background-image: url("/main-background.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.GateStyleBox * {
+    font-family: Proxima !important;
+}
+
+.vh-centered {
+    background-color: #060b0f;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    position: absolute;
+    padding: 24px;
+    box-sizing: border-box;
+    text-align: center;
+    max-width: 480px;
+}
+
+.vh-centered::before {
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 0;
+    left: -20px;
+    height: 100%;
+    width: 40px;
+    transform: skewX(4deg);
+    background-color: #060b0f;
+    z-index: 0;
+}
+
+.vh-centered::after {
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: -20px;
+    height: 100%;
+    width: 40px;
+    transform: skewX(-4deg);
+    background-color: #060b0f;
+    z-index: 0;
+}
+
+.vh-centered .modalContentWrap {
+    position: relative;
+    z-index: 1;
+}
+
+
+.vh-header {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    position: relative;
+    line-height: 32px;
+    text-align: center;
+    color: #FCC000;
+}
+
+.vh-paragraph {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    position: relative;
+    line-height: 18px;
+    text-align: center;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+}
+
+.vh-button {
+    margin-bottom: -32px;
+    margin-top: 24px;
+}
+
+.vh-button button {
+    margin: 0 8px !important;
+}
+
+.logo-container {
+    bottom: 0;
+    position: absolute;
+}

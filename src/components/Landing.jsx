@@ -1,254 +1,231 @@
-import React, { useState, useEffect } from 'react';
-import { useSpring, animated } from 'react-spring'
-import useSound from 'use-sound';
-import logo from '../../public/ui/landing/logo.png'
-import passUrl from "../../public/sound/class_pass.wav"
+import {
+  BrightnessContrast,
+  EffectComposer,
+  Glitch,
+} from "@react-three/postprocessing"
+import { GlitchMode } from "postprocessing"
+import React, { useEffect, useContext, useState } from "react"
+import useSound from "use-sound"
 import clickUrl from "../../public/sound/class_click.wav"
-import { useModelClass, useLoading } from '../store'
-import { StyledLanding } from '../styles/landing.styled.js'
+import passUrl from "../../public/sound/class_pass.wav"
+import logo from "../../public/ui/landing/logo.png"
+import { AudioContext } from "../context/AudioContext"
 
-import { Canvas } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
-import { NoToneMapping } from 'three';
-import { sceneService } from '../services/scene'
-import { AnimationManager } from '../library/animations/animationManager';
+import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
+import { Canvas } from "@react-three/fiber"
+import { AnimationManager } from "../library/animationManager"
+import { SceneContext } from "../context/SceneContext"
+import { ViewContext, ViewStates } from "../context/ViewContext"
+
+import styles from "./Landing.module.css"
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
 
-const anim_drophunter = "../3d/animations/idle_drophunter.fbx";
-const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx";
+const anim_drophunter = "../3d/animations/idle_drophunter.fbx"
+const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx"
 
-const models = [
-  {
-      index: 1,
-      model: dropHunter,
-      text: 'Dropunter',
-      animation: anim_drophunter
+const Classes = {
+  DROPHUNTER: {
+    index: 0,
+    model: dropHunter,
+    text: "Dropunter",
+    animation: anim_drophunter,
   },
-  {
-      index: 2,
-      model: neuroHacker,
-      text: 'Neurohacker',
-      animation: anim_neurohacker
-  }
-];
+  NEUROHACKER: {
+    index: 1,
+    model: neuroHacker,
+    text: "Neurohacker",
+    animation: anim_neurohacker,
+  },
+}
 
 export default function Landing() {
-    const setSelectedCharacterClass = useModelClass((state) => state.setSelectedCharacterClass)
-    const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
-    const setLoading = useLoading((state) => state.setLoading)
-    const [drophunter, setDrophunter] = useState(null);
-    const [neurohacker, setNeurohacker] = useState(null);
-    const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const { setCurrentTemplate, currentTemplate, loadModel } =
+    useContext(SceneContext)
+  const { currentView, setCurrentView } = useContext(ViewContext)
+  const { isMute } = useContext(AudioContext)
 
-    // get ref camera
+  const [drophunter, setDrophunter] = useState(null)
+  const [neurohacker, setNeurohacker] = useState(null)
+  const [selectedAvatar, setSelectedAvatar] = useState(null)
 
-    const camera = React.useRef();
+  const camera = React.useRef()
 
-    const [cardAnimation, setCardAnimation] = useSpring(() => ({
-        from: { x: 0, opacity: 1 },
-    }))
-
-    const [titleAnimation, setTitleAnimation] = useSpring(() => ({
-        from: { y: 0 },
-    }))
-
-    useEffect(() => {
-        async function createModel(item) {
-            const animManager = new AnimationManager();
-            const vrm = await sceneService.loadModel(item.model);
-            await animManager.loadAnimations(item.animation);
-            return { vrm, animManager }
-        }
-        createModel(models[0]).then(({ vrm, animManager }) => {
-            animManager.startAnimation(vrm)
-            setDrophunter(vrm.scene)
-        });
-        createModel(models[1]).then(({ vrm, animManager }) => {
-            animManager.startAnimation(vrm)
-            setNeurohacker(vrm.scene)
-        });
-    }, [])
-
-    const [play] = useSound(
-        passUrl,
-        { volume: 1.0 }
-    );
-
-    const [click] = useSound(
-        clickUrl,
-        { volume: 1.0 }
-    );
-
-    const handleClick = (type) => {
-            click();
-        setCardAnimation.start({
-            from: {
-                opacity: 1,
-                x: 0,
-            },
-            to: {
-                opacity: 0,
-                x: window.innerWidth,
-            }
-        })
-        setTitleAnimation.start({
-            from: {
-                y: 0,
-            },
-            to: {
-                y: -window.innerHeight,
-            }
-        })
-        setSelectedCharacterClass(type)
+  useEffect(() => {
+    async function createModel(item) {
+      const animManager = new AnimationManager()
+      const vrm = await loadModel(item.model)
+      await animManager.loadAnimations(item.animation)
+      return { vrm, animManager }
     }
+    createModel(Classes.DROPHUNTER).then(({ vrm, animManager }) => {
+      animManager.startAnimation(vrm)
+      setDrophunter(vrm.scene)
+    })
+    createModel(Classes.NEUROHACKER).then(({ vrm, animManager }) => {
+      animManager.startAnimation(vrm)
+      setNeurohacker(vrm.scene)
+    })
+    return () => {
+      // cleanup the models from the scene
+      // remove drop hunter
+      if (drophunter !== null) {
+        const { scene } = drophunter
+        scene.parent.remove(scene)
+      }
 
-    useEffect(() => {
-        if(!neurohacker || !drophunter) return;
-        setLoading(false)
-    }, [neurohacker, drophunter])
+      // remove neurohacker
+      if (neurohacker !== null) {
+        const { scene } = neurohacker
+        scene.parent.remove(scene)
+      }
 
-    return neurohacker && drophunter && !selectedCharacterClass && (
-        <StyledLanding>
-            <div className='drophunter-container' style={{
-                position: "absolute",
-                right: "0px",
-                zIndex: 10,
-                marginTop: "30vh",
-                height: "70vh",
-                width: "40vw",
-            }}
+      setDrophunter(null)
+      setNeurohacker(null)
+    }
+  }, [])
 
-                onMouseEnter={() => {
-                    setSelectedAvatar(drophunter)
-                }}
+  const [play] = useSound(passUrl, { volume: 1.0 })
 
-                onMouseLeave={() => {
-                    if (selectedAvatar === drophunter) {
-                        setSelectedAvatar(null);
-                    }
-                }}
+  const [click] = useSound(clickUrl, { volume: 1.0 })
 
-                // on mouse click
-                onClick={() => {
-                    handleClick(1)
-                }}
-            >
-                <div className="drophunter" style={{
-                    position: "absolute",
-                    bottom: "40px",
-                    right: "0px",
-                    opacity: selectedAvatar === 'drophunter' ? 1 : 0.5,
-                }}
-                >
-                    <img
-                        style={{
-                            maxWidth: "30vh",
-                            minWidth: "30em"
-                        }}
-                        src={"./DropHunter.svg"} />
-                </div>
-            </div>
-            <div className='neurohacker-container' style={{
-                position: "absolute",
-                bottom: "0px",
-                left: "0px",
-                zIndex: 10,
-                marginTop: "30vh",
-                height: "70vh",
-                width: "40vw",
-            }}
-                onMouseEnter={() => {
-                    setSelectedAvatar(neurohacker)
-                }}
+  const handleClick = (type) => {
+    if (!isMute) click()
+    console.log("type is", type)
+    setCurrentTemplate(type)
+    console.log("ViewStates.CREATOR_LOADING", ViewStates.CREATOR_LOADING)
+    setCurrentView(ViewStates.CREATOR_LOADING)
+  }
 
-                onMouseLeave={() => {
-                    if (selectedAvatar === neurohacker) {
-                        setSelectedAvatar(null);
-                    }
-                }}
+  useEffect(() => {
+    if (
+      !neurohacker ||
+      !drophunter ||
+      currentView !== ViewStates.LANDER_LOADING
+    )
+      return
+    setCurrentView(ViewStates.LANDER)
+    console.log("ViewStates.LANDER", ViewStates.LANDER)
+  }, [neurohacker, drophunter, currentView])
 
-                // on mouse click
-                onClick={() => {
-                    handleClick(2)
-                }}
-            >
-                <div className="neurohacker" style={{
-                    position: "absolute",
-                    bottom: "40px",
-                    opacity: selectedAvatar === 'neurohacker' ? 1 : 0.5,
-                }}
-                >
-                    <img
-                        style={{
-                            maxWidth: "30vh",
-                            minWidth: "30em"
-                        }}
-                        src={"./Neurohacker.svg"}
-                    />
-                </div>
-            </div>
+  console.log("currentView", currentView)
 
-            <animated.div style={{ ...titleAnimation }}>
-                <div className="topBanner" >
-
-                    <img className="webaverse-text" src={logo} />
-                    <div className='studio' >Character Studio</div>
-                </div>
-                <div className="subTitle" >
-                    <div className='subTitle-text'>Pick a Class
-                        <div className="subTitle-desc"> You will be able to customize in a moment.</div>
-                    </div>
-
-                </div>
-            </animated.div>
-
-            {/* simple floating div with sliders to control setCameraFov and setCameraPosition */}
-            <div style={{ position: "absolute", top: 0, left: 0, zIndex: 1000 }}>
-            </div>
-            <Canvas
-                style={{
-                    width: '100vw',
-                    height: '100vh',
-                    position: 'fixed',
-                }}
-                camera={{ fov: 20 }}
-                linear={false}
-                gl={{ antialias: true, toneMapping: NoToneMapping }}
-            >
-            <ambientLight
-              color={[1,1,1]}
-              intensity={0.5}
+  return (
+    currentView &&
+    neurohacker &&
+    drophunter &&
+    currentTemplate === null &&
+    currentView.includes("LANDER") && (
+      <div className={styles["StyledLanding"]}>
+        <div
+          className={styles["drophunter-container"]}
+          onMouseEnter={() => {
+            setSelectedAvatar(drophunter)
+          }}
+          onMouseLeave={() => {
+            if (selectedAvatar === drophunter) {
+              setSelectedAvatar(null)
+            }
+          }}
+          // on mouse click
+          onClick={() => {
+            handleClick(Classes.DROPHUNTER)
+          }}
+        >
+          <div className={styles["drophunter"]}>
+            <img
+              style={{
+                opacity: selectedAvatar === drophunter ? 1 : 0.5,
+                maxWidth: "30vh",
+                minWidth: "30em",
+              }}
+              src={"./DropHunter.svg"}
             />
-            
-            <directionalLight 
-              intensity = {0.5} 
-              position = {[3, 1, 5]} 
-              shadow-mapSize = {[1024, 1024]}>
-              <orthographicCamera 
-                attach="shadow-camera" 
-                left={-20} 
-                right={20} 
-                top={20} 
-                bottom={-20}/>
-            </directionalLight>
-            
-                <PerspectiveCamera
-                    ref={camera}
-                    fov={20}
-                    position={[0, -1.45, 3.1]}
-                    rotation={[-0, 0, 0]}
-                    onUpdate={self => self.updateProjectionMatrix()}
-                >
-                    <mesh position={[.4, 0, 0]} rotation={[0, -1, 0]}>
-                        <primitive object={drophunter} />
-                    </mesh>
-                    <mesh position={[-.4, 0, 0]} rotation={[0, 1, 0]}>
-                        <primitive object={neurohacker} />
-                    </mesh>
+          </div>
+        </div>
+        <div
+          className={styles["neurohacker-container"]}
+          onMouseEnter={() => {
+            setSelectedAvatar(neurohacker)
+          }}
+          onMouseLeave={() => {
+            if (selectedAvatar === neurohacker) {
+              setSelectedAvatar(null)
+            }
+          }}
+          // on mouse click
+          onClick={() => {
+            handleClick(Classes.NEUROHACKER)
+          }}
+        >
+          <div className={styles["neurohacker"]}>
+            <img src={"./Neurohacker.svg"} />
+          </div>
+        </div>
 
-                </PerspectiveCamera>
-            </Canvas>
-        </StyledLanding>)
+        <div className={styles["titleAnimation"]}>
+          <div className={styles["topBanner"]}>
+            <img className={styles["webaverse-text"]} src={logo} />
+            <div className={styles["studio"]}>Character Studio</div>
+          </div>
+          <div className={styles["subTitle"]}>
+            <div className={styles["subTitle-text"]}>
+              Pick a Class
+              <div className={styles["subTitle-desc"]}>
+                {" "}
+                You will be able to customize in a moment.
+              </div>
+            </div>
+          </div>
+        </div>
+        <Canvas
+          style={{
+            width: "100vw",
+            height: "100vh",
+            position: "fixed",
+            top: 0
+          }}
+          camera={{ fov: 20 }}
+          linear={false}
+          gl={{ antialias: true }}
+        >
+          <EffectComposer>
+            <BrightnessContrast
+              brightness={0} // brightness. min: -1, max: 1
+              contrast={0.2} // contrast: min -1, max: 1
+            />
+            <Glitch
+              delay={[1.5, 6.0]} // min and max glitch delay
+              duration={[0.08, 0.3]} // min and max glitch duration
+              strength={[0.1, 0.3]} // min and max glitch strength
+              mode={GlitchMode.SPORADIC} // glitch mode
+              active // turn on/off the effect (switches between "mode" prop and GlitchMode.DISABLED)
+              ratio={0.3} // Threshold for strong glitches, 0 - no weak glitches, 1 - no strong glitches.
+            />
+          </EffectComposer>
+
+          <directionalLight
+            intensity={0.5}
+            position={[3, 1, 5]}
+            shadow={false}
+          />
+          <PerspectiveCamera
+            ref={camera}
+            fov={20}
+            position={[0, -1.45, 3.1]}
+            rotation={[-0, 0, 0]}
+            onUpdate={(self) => self.updateProjectionMatrix()}
+          >
+            <mesh position={[0.4, 0, 0]} rotation={[0, -1, 0]}>
+              <primitive object={drophunter} />
+            </mesh>
+            <mesh position={[-0.4, 0, 0]} rotation={[0, 1, 0]}>
+              <primitive object={neurohacker} />
+            </mesh>
+          </PerspectiveCamera>
+        </Canvas>
+      </div>
+    )
+  )
 }

@@ -1,12 +1,9 @@
-import StyleWarapper from '../styles/BackButtonStyle';
 import React from "react"
+import styles from './BackButton.module.css'
 
-export const BackButton = (props) =>{
+export const BackButton = ({onClick}) =>{
     return (
-        <StyleWarapper 
-            className = {props.className}
-            {...props}
-        >
-        </StyleWarapper>
+        <div onClick={onClick} className={styles['StyledBackButton']}>
+        </div>
     )
 }

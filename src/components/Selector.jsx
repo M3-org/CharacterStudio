@@ -1,297 +1,76 @@
-import { Avatar } from "@mui/material"
-import React, { useState } from "react"
-import { apiService, sceneService } from "../services"
-import useSound from "use-sound"
-import Skin from "./Skin"
-import cancel from "../../public/ui/selector/cancel.png"
-import gsap from "gsap"
+import React, { useEffect, Fragment, useState, useContext } from "react"
 import * as THREE from "three"
+import useSound from "use-sound"
+import cancel from "../../public/ui/selector/cancel.png"
+import { disposeVRM } from "../library/utils"
+import Skin from "./Skin"
 
-import tick from "../../public/ui/selector/tick.svg"
 import sectionClick from "../../public/sound/section_click.wav"
-import {
-  useMuteStore,
-  useDefaultTemplates,
-  useHideStore,
-  useRandomFlag,
-  useAvatar,
-  useLoadedTraits,
-  useSetTemplate,
-  useScene,
-  useCategory,
-  useTemplateInfo,
-  useModel,
-  useControls,
-  useModelClass,
-} from "../store"
+import tick from "../../public/ui/selector/tick.svg"
+import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
 
-import FadeInOut from "./FadeAnimation"
-import { SelectorContainerPos } from "../styles/SelectorStyle"
+import styles from './Selector.module.css'
 
 export default function Selector() {
-  const isMute = useMuteStore((state) => state.isMute)
-  const isHide = useHideStore((state) => state.ishidden)
-  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
-  const randomFlag = useRandomFlag((state) => state.randomFlag)
-  const avatar = useAvatar((state) => state.avatar)
-  const setAvatar = useAvatar((state) => state.setAvatar)
-  const setLoadedTraits = useLoadedTraits((state) => state.setLoadedTraits)
-  const setTemplate = useSetTemplate((state) => state.setTemplate)
-  const template = useSetTemplate((state) => state.template)
-  const templates = useDefaultTemplates((state) => state.defaultTemplates)
-  const scene = useScene((state) => state.scene)
-  const category = useCategory((state) => state.category)
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const setTemplateInfo = useTemplateInfo((state) => state.setTemplateInfo)
-  const model = useModel((state) => state.model)
-  const controls = useControls((state) => state.controls)
-  const selectedCharacterClass = useModelClass((state) => state.selectedCharacterClass)
-  const [selectValue, setSelectValue] = useState("0")
-  const [hairCategory, setHairCategory] = useState("style")
-  const [colorCategory, setColorCategory] = useState("color")
-
-  const [collection, setCollection] = useState([])
-  const [traitName, setTraitName] = useState("")
-
-  const [loadingTrait, setLoadingTrait] = useState({ loaded: 0, total: 0 })
-  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
-  const [noTrait, setNoTrait] = useState(true)
-  const [loaded, setLoaded] = useState(false)
-  let loadedPercent = Math.round(
-    (loadingTrait.loaded * 100) / loadingTrait.total,
-  )
-
-  const [textureOptions, setTextureOptions] = useState([])
-  const [selectionMode, setSelectionMode] = useState(0) // 0 base, 1 texture, 2 color
-
-  const [inverse, setInverse] = useState(false)
-  const container = React.useRef()
-  const [play] = useSound(sectionClick, { volume: 1.0 })
-  const iconPath = "./3d/icons-gradient/" + category + ".svg"
-
-  const selectorButton = {
-    display: "flex",
-    justifyContent: "center",
-    cursor: "pointer",
-    width: "4em",
-    height: "4em",
-    padding: "1em",
-
-    background: "rgba(81, 90, 116, 0.2)",
-    backdropFilter: "blur(22.5px)",
-    borderRadius: "5px",
-  }
-
-  const selectorButtonActive = {
-    display: "flex",
-    justifyContent: "center",
-    cursor: "pointer",
-    width: "4em",
-    height: "4em",
-    padding: "1em",
-    background: "rgba(81, 90, 116, 0.2)",
-    backdropFilter: "blur(22.5px)",
-    borderRadius: "5px",
-    borderBottom: "4px solid #61E5F9",
-  }
-
-  const selectOption = (option) => {
-    moveCamera(option.cameraTarget)
-    !isMute && play()
-  }
-
-  const moveCamera = (value) => {
-    if (value) {
-      setInverse(!inverse)
-
-      gsap.to(controls.target, {
-        y: value.height,
-        duration: 1,
-      })
-
-      gsap
-        .fromTo(
-          controls,
-          {
-            maxDistance: controls.getDistance(),
-            minDistance: controls.getDistance(),
-            minPolarAngle: controls.getPolarAngle(),
-            minAzimuthAngle: controls.getAzimuthalAngle(),
-            maxAzimuthAngle: controls.getAzimuthalAngle(),
-          },
-          {
-            maxDistance: value.distance,
-            minDistance: value.distance,
-            minPolarAngle: Math.PI / 2 - 0.11,
-            minAzimuthAngle: inverse ? -0.78 : 0.78,
-            maxAzimuthAngle: inverse ? -0.78 : 0.78,
-            duration: 1,
-          },
-        )
-        .then(() => {
-          controls.minPolarAngle = 0
-          controls.minDistance = 0.5
-          controls.maxDistance = 2.0
-          controls.minAzimuthAngle = Infinity
-          controls.maxAzimuthAngle = Infinity
-        })
-    }
-  }
-  React.useEffect(() => {
-    if (!scene || !templateInfo) return
-    if (category) {
-      apiService.fetchTraitsByCategory(category).then((traits) => {
-        if (traits) {
-          setCollection(traits.collection)
-          setTraitName(traits.trait)
-        }
-      })
-    }
-  }, [category, scene, templateInfo])
-
-  React.useEffect(() => {
-    localStorage.removeItem("color")
-  }, [template])
-
-  React.useEffect(() => {
-    if (!scene) return
-    async function _get() {
-      if (!loaded && selectedCharacterClass) {
-        await setTempInfo(templates[selectedCharacterClass - 1].id)
-      }
-    }
-    _get()
-  }, [
-    loaded,
-    selectedCharacterClass,
+  const {
+    loadModel,
+    avatar,
+    setAvatar,
+    currentTemplate,
     scene,
-    templateInfo ? Object.keys(templateInfo).length : templateInfo,
-  ])
-  React.useEffect(() => {}, [isHide])
+    setCurrentTrait,
+    currentTrait,
+    template,
+    model,
+   } = useContext(SceneContext);
+   console.log('selector currentTemplate is', currentTemplate)
+    console.log('selector currentTrait is', currentTrait)
+    console.log('selector templateInfo is', template)
+   // cast currentTemplate.index to int
+    const currentTemplateIndex = parseInt(currentTemplate.index)
+   console.log('currentTemplateIndex is', currentTemplateIndex)
+   const templateInfo = template[currentTemplate.index];
+   const traits = templateInfo.traits
+   console.log('state traits is', traits)
+   const traitTypes = templateInfo.traits.map((trait) => trait.type);
 
-  React.useEffect(() => {
-    ;(async () => {
-      if (randomFlag === -1) return
+   console.log('selector traits is', traits)
 
-      const lists = apiService.fetchCategoryList()
-      let ranItem
-      //Object.entries(avatar).map((props ) => {
-      //let traitName = props[0];
+  const { isMute } = useContext(AudioContext)
 
-      // if (avatar[traitName] && avatar[traitName].vrm) {
-      //   sceneService.disposeVRM(avatar[traitName].vrm)
-      //   setAvatar({
-      //     ...avatar,
-      //     [traitName]: {}
-      //   })
-      // }
+  const [selectValue, setSelectValue] = useState("0")
 
-      //scene.remove(avatar[traitName].model);
-      //})
-      let buffer = { ...avatar }
-      //const total = lists.length;
-      //let loaded = 0;
-      let loaded = 0
-      for (let i = 0; i < lists.length; i++) {
-        await apiService
-          .fetchTraitsByCategory(lists[i])
-          .then(async (traits) => {
-            if (traits) {
-              const collection = traits.collection
-              ranItem =
-                collection[Math.floor(Math.random() * collection.length)]
-              if (avatar[traits.trait]) {
-                if (avatar[traits.trait].traitInfo != ranItem) {
-                  const temp = await itemLoader(ranItem, traits, false)
-                  loaded += 100 / lists.length
-                  setLoadedTraits(loaded - 1)
-                  buffer = { ...buffer, ...temp }
-                }
-              }
-            }
-          })
-      }
-      for (const property in buffer) {
-        if (buffer[property].vrm) {
-          if (avatar[property].vrm != buffer[property].vrm) {
-            if (avatar[property].vrm != null) {
-              sceneService.disposeVRM(avatar[property].vrm)
-            }
-          }
-          model.data.animationManager.startAnimation(buffer[property].vrm)
-          model.scene.add(buffer[property].vrm.scene)
-        }
-      }
-      //with random
-      setAvatar({
-        ...avatar,
-        ...buffer,
-      })
-      if (randomFlag == 1) {
-        setLoadedTraits(true)
-      }
-      setRandomFlag(-1)
-    })()
-  }, [randomFlag])
+  const [traitName, setTraitName] = useState("")
+  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
 
-  const setTempInfo = (id) => {
-    apiService.fetchTemplate(templates, id).then((res) => {
-      setTemplateInfo(res)
-    })
+  const getAsArray = (target) => {
+    if (target == null) return []
+  
+    return Array.isArray(target) ? target : [target]
   }
-
-  const selectTexture = (traitTexture) => {
-    new THREE.TextureLoader().load(
-      `${templateInfo.traitsDirectory}${traitTexture.directory}`,
-      (txt) => {
-        txt.flipY = false
-        txt.encoding = THREE.sRGBEncoding
-        avatar[category].model.traverse((child) => {
-          if (child.isMesh) {
-            child.material[0].map = txt
-            child.material[0].shadeMultiplyTexture = txt
-          }
+  
+  const selectTrait = (trait, textureIndex, templateInfo, setLoadingTraitOverlay, setSelectValue, setAvatar) => {
+    if (trait === null) {
+      if (avatar[traitName] && avatar[traitName].vrm) {
+        disposeVRM(avatar[traitName].vrm)
+        setAvatar({
+          ...avatar,
+          [traitName]: {},
         })
-      },
-    )
-  }
-
-  const selectTrait = (trait, textureIndex) => {
-    if (trait.bodyTargets) {
-      setTemplate(trait.id)
-    }
-    if (scene) {
-      if (trait === "0") {
-        setNoTrait(true)
-        setTextureOptions([])
-        if (avatar[traitName] && avatar[traitName].vrm) {
-          sceneService.disposeVRM(avatar[traitName].vrm)
-          setAvatar({
-            ...avatar,
-            [traitName]: {},
-          })
-        }
-        //sceneService.
-      } else {
-        // if (trait.textures){
-        //   setTextureOptions(trait.textures);
-        // }
-        // else{
-        //   setTextureOptions([]);
-        // }
+      }
+      return;
+    } 
         if (trait.bodyTargets) {
-          setTemplate(trait.id)
+          setCurrentTrait(trait.id)
         } else {
           setLoadingTraitOverlay(true)
-          setNoTrait(false)
-          templateInfo.selectionTraits.map((item) => {
-            if (item.name === category && item.type === "texture") {
-              textureTraitLoader(item, trait)
-            } else if (item.name === category) {
+          templateInfo.traits.map((item) => {
+            if (item.name === currentTrait && item.type === "texture") {
+              textureTraitLoader(item, trait, templateInfo, setLoadingTraitOverlay)
+            } else if (item.name === currentTrait) {
               if (trait.textureCollection && textureIndex) {
-                apiService
-                  .fetchTraitsByCategory(trait.textureCollection)
-                  .then((txtrs) => {
+                const txtrs = traits[trait.textureCollection]
                     const localDir = txtrs.collection[textureIndex].directory
                     const texture = templateInfo.traitsDirectory + localDir
                     const loader = new THREE.TextureLoader()
@@ -300,63 +79,34 @@ export default function Selector() {
                       txt.flipY = false
                       itemLoader(trait, null, true, txt)
                     })
-                  })
               } else {
+                console.warn("no texture collection")
                 itemLoader(trait, null, true)
               }
             }
           })
         }
-      }
-    }
     setSelectValue(trait && trait.id)
   }
-  let loading
-
+  
   const itemLoader = async (
     item,
-    traits = null,
+    trait,
     addToScene = true,
-    texture,
   ) => {
     let r_vrm
-    const vrm = await sceneService.loadModel(
+    const vrm = await loadModel(
       `${templateInfo.traitsDirectory}${item && item.directory}`,
     )
-    //console.log(item)
-    sceneService.addModelData(vrm, {
+    addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
     })
     r_vrm = vrm
-    new Promise((resolve) => {
-      // if scene, resolve immediately
-      if (scene && scene.add) {
-        resolve()
-      } else {
-        // if scene is null, wait for it to be set
-        const interval = setInterval(() => {
-          if (scene && scene.add) {
-            clearInterval(interval)
-            resolve()
-          }
-        }, 100)
-      }
-    })
-
-    setLoadingTrait({ ...loadingTrait })
-
-    // small timer to avoid quickly clicking
-    setTimeout(() => {
-      setLoadingTraitOverlay(false)
-    }, 500)
-
+  
     if (addToScene) {
       if (model.data.animationManager)
         model.data.animationManager.startAnimation(vrm)
-      setTimeout(() => {
-        // wait for it to play
-
         if (texture) {
           vrm.scene.traverse((child) => {
             if (child.isMesh) {
@@ -365,13 +115,12 @@ export default function Selector() {
             }
           })
         }
-        //texture area
-        model.scene.add(vrm.scene)
+  
         if (avatar[traitName]) {
-          const traitData = templateInfo.selectionTraits.find(
+          const traitData = templateInfo.traits.find(
             (element) => element.name === traitName,
           )
-
+  
           // set the new trait
           const newAvatarData = {}
           newAvatarData[traitName] = {
@@ -379,7 +128,7 @@ export default function Selector() {
             model: vrm.scene,
             vrm: vrm,
           }
-
+  
           // search in the trait data for restricted traits and restricted types  => (todo)
           if (traitData) {
             if (traitData.restrictedTraits) {
@@ -388,15 +137,9 @@ export default function Selector() {
                   newAvatarData[restrictTrait] = {}
               })
             }
-
-            // 2 exists:
-            // traitInfo that comes from the user and
-            // traitData the comes from the setup
-
+  
             // first check for every trait type in avatar properties if we have restricted types
             if (traitData.restrictedTypes) {
-              // check every property in avatar for restricted types
-              // also check if current trait has restricted type
               for (const property in avatar) {
                 console.log("property", avatar[property])
                 if (
@@ -407,10 +150,10 @@ export default function Selector() {
                 const itemTypes = Array.isArray(avatar[property].traitInfo.type)
                   ? avatar[property].traitInfo.type
                   : [avatar[property].traitInfo.type]
-
+  
                 for (let i = 0; i < traitData.restrictedTypes.length; i++) {
                   const restrictedType = traitData.restrictedTypes[i]
-
+  
                   // remove if  its type is restricted
                   for (let j = 0; j < itemTypes.length; j++) {
                     const itemType = itemTypes[j]
@@ -426,25 +169,15 @@ export default function Selector() {
             if (item.type) {
               const itemTypes = getAsArray(item.type)
               for (const property in avatar) {
-                const tData = templateInfo.selectionTraits.find(
+                const tData = templateInfo.traits.find(
                   (element) => element.name === property,
                 )
                 if (tData != null) {
                   if (tData.restrictedTypes) {
                     const restrictedTypeArray = tData.restrictedTypes
-                    
-                    // make sure to include also typeRestrictions if they exist
-                    // const restrictedTypeArray = !templateInfo.typeRestrictions?
-                    //   tData.restrictedTypes :
-                    //   [...tData.restrictedTypes, ... getAsArray(templateInfo.typeRestrictions[item.type])]
-
-                    // console.log("here");
-                    // console.log(restrictedTypeArray)
-                    // console.log(tData.restrictedTypes)
-
                     for (let i = 0; i < restrictedTypeArray.length; i++) {
                       const restrictedType = tData.restrictedTypes[i]
-
+  
                       for (let j = 0; j < itemTypes.length; j++) {
                         const itemType = itemTypes[j]
                         if (itemType === restrictedType) {
@@ -470,17 +203,15 @@ export default function Selector() {
                   for (const property in avatar) {
                     if (property !== traitName) {
                       typeRestrictions.forEach((typeRestriction) => {
-                        if (avatar[property].traitInfo?.type){
-                          const types = avatar[property].traitInfo.type;
-                          for (let i=0;i<types.length;i++){
-                            if (
-                              types[i] === typeRestriction
-                            ) {
+                        if (avatar[property].traitInfo?.type) {
+                          const types = avatar[property].traitInfo.type
+                          for (let i = 0; i < types.length; i++) {
+                            if (types[i] === typeRestriction) {
                               newAvatarData[property] = {}
-                              break;
+                              break
                             }
-                          };
-                        }       
+                          }
+                        }
                       })
                       // check also if any of the current trait is of type
                       if (avatar[property].vrm) {
@@ -488,7 +219,6 @@ export default function Selector() {
                           avatar[property].traitInfo.type,
                         )
                         propertyTypes.forEach((t) => {
-                          
                           const typeRestrictionsSecondary = getAsArray(
                             templateInfo.typeRestrictions[t],
                           )
@@ -502,19 +232,16 @@ export default function Selector() {
               }
             }
           }
-
-          // combine current data with new data
+  
           const newAvatar = {
             ...avatar,
             ...newAvatarData,
           }
-
-          // now compare others with thair restricted traits, if they have a restriction with
-          // current selected trait, !must be removed the other one, not this one
+  
           for (const property in newAvatar) {
             if (property !== traitName) {
               if (newAvatar[property].vrm) {
-                const tdata = templateInfo.selectionTraits.find(
+                const tdata = templateInfo.traits.find(
                   (element) => element.name === property,
                 )
                 const restricted = tdata.restrictedTraits
@@ -531,62 +258,37 @@ export default function Selector() {
             }
           }
           setAvatar({ ...newAvatar, ...newAvatarData })
-
+  
           for (const property in newAvatarData) {
             if (avatar[property].vrm) {
-              sceneService.disposeVRM(avatar[property].vrm)
+              disposeVRM(avatar[property].vrm)
             }
           }
-          // if (avatar[traitName].vrm) {
-          //     sceneService.disposeVRM(avatar[traitName].vrm);
-          // }
         }
-      }, 200) // timeout for animations
+        //texture area
+        setTimeout(() => {
+          model.scene.add(vrm.scene)
+        }, 1)
     }
-
-    console.log("************** TRAIT IS", traits)
-
-    return (
-      traits && {
-        [traits.trait]: {
+  
+    return ({
+        [trait.trait]: {
           traitInfo: item,
           model: r_vrm.scene,
           vrm: r_vrm,
         },
       }
     )
-    // });
   }
-  // always return an array
-  const getAsArray = (target) => {
-    if (target == null) return []
-
-    return Array.isArray(target) ? target : [target]
-  }
-
-  const checkRestrictedTraits = (avatar, traitData, restrict = true) => {
-    const newAvatarData = {}
-
-    if (traitData) {
-      if (traitData.restrictedTraits) {
-        traitData.restrictedTraits.forEach((restrict) => {
-          if (avatar[restrict] !== undefined) {
-            if (restrict) {
-              newAvatarData[restrict] = {}
-            }
-          }
-        })
-      }
-    }
-  }
-
+  
   const textureTraitLoader = (props, trait) => {
+    console.log('typeof props.target is', typeof props.target)
     if (typeof props.target != "string") {
       for (let i = 0; i < props.target.length; i++) {
         const object = scene.getObjectByName(props.target[i])
         if (typeof trait.directory != "string") {
           let texture = ""
-
+  
           if (trait.directory[i] != null)
             //grab the texture with same object position
             texture = templateInfo.traitsDirectory + trait.directory[i]
@@ -595,7 +297,7 @@ export default function Selector() {
             texture =
               templateInfo.traitsDirectory +
               trait.directory[trait.directory.length - 1]
-
+  
           new THREE.TextureLoader().load(texture, (txt) => {
             txt.encoding = THREE.sRGBEncoding
             txt.flipY = false
@@ -620,9 +322,9 @@ export default function Selector() {
     } else {
       const object = scene.getObjectByName(props.target)
       const texture =
-        typeof trait.directory === "string"
-          ? templateInfo.traitsDirectory + trait.directory
-          : templateInfo.traitsDirectory + trait.directory[0]
+        (typeof trait.directory === "string")
+          ? (templateInfo.traitsDirectory + trait.directory)
+          : (templateInfo.traitsDirectory + trait.directory[0])
       new THREE.TextureLoader().load(texture, (txt) => {
         txt.encoding = THREE.sRGBEncoding
         txt.flipY = false
@@ -634,183 +336,141 @@ export default function Selector() {
     }
   }
 
-  const getActiveStatus = (item) => {
-    return (
-      avatar[category] &&
-      avatar[category].traitInfo &&
-      avatar[category].traitInfo.id === item.id
-    )
-  }
-  return (
-    <FadeInOut show={!isHide} duration={300}>
-      <SelectorContainerPos loadingOverlay={loadingTraitOverlay}>
-        <div className="selector-container">
-          <div className="traitPanel">
-            {templateInfo.traitsDirectory && (
-              <div className="traits">
-                {category !== "head" || hairCategory !== "color" ? (
-                  <React.Fragment>
-                    <div
-                      className={
-                        noTrait ? "selectorButtonActive" : "selectorButton"
-                      }
-                      onClick={() => {
-                        selectTrait("0")
-                        !isMute && play()
-                      }}
-                    >
-                      <img
-                        className="icon"
-                        src={cancel}
-                        style={{
-                          width: "3em",
-                          height: "3em",
-                        }}
-                      />
-                    </div>
-                    {selectionMode === 0 &&
-                      collection &&
-                      collection.map((item, index) => {
-                        return !item.thumbnailOverrides ? (
-                          <div
-                            key={index}
-                            style={
-                              getActiveStatus(item)
-                                ? selectorButtonActive
-                                : selectorButton
-                            }
-                            className={`selector-button coll-${traitName} ${
-                              selectValue === item.id ? "active" : ""
-                            }`}
-                            onClick={() => {
-                              !isMute && play()
-                              selectTrait(item)
-                            }}
-                          >
-                            <img
-                              className="trait-icon"
-                              src={
-                                item.thumbnailsDirectory
-                                  ? item.thumbnail
-                                  : `${templateInfo.thumbnailsDirectory}${item.thumbnail}`
-                              }
-                            />
-                            <img
-                              src={tick}
-                              className={
-                                getActiveStatus(item)
-                                  ? "tickStyle"
-                                  : "tickStyleInActive"
-                              }
-                            />
-                            {selectValue === item.id && loadedPercent > 0 && (
-                              <div className="loading-trait">
-                                {loadedPercent}%
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          item.thumbnailOverrides.map((icn, icnindex) => {
-                            return (
-                              <div
-                                key={index + "_" + icnindex}
-                                style={selectorButton}
-                                //style={getActiveStatus(icn) ? selectorButtonActive : selectorButton }
-                                className={`selector-button coll-${traitName} ${
-                                  selectValue === item.id ? "active" : ""
-                                }`}
-                                onClick={() => {
-                                  !isMute && play()
-                                  selectTrait(item, icnindex)
-                                }}
-                              >
-                                <img
-                                  className="trait-icon"
-                                  src={`${templateInfo.thumbnailsDirectory}${icn}`}
-                                />
-                                <img
-                                  src={tick}
-                                  className={
-                                    getActiveStatus(item)
-                                      ? "tickStyle"
-                                      : "tickStyleInActive"
-                                  }
-                                />
-                                {selectValue === item.id &&
-                                  loadedPercent > 0 && (
-                                    <div className="loading-trait">
-                                      {loadedPercent}%
-                                    </div>
-                                  )}
-                              </div>
-                            )
-                          })
-                        )
-                      })}
-                    {/* to - do, set this to be with a fn rather than duplicating */}
-                    {selectionMode === 1 &&
-                      collection &&
-                      textureOptions.map((item, index) => {
-                        return (
-                          <div
-                            key={index}
-                            style={
-                              getActiveStatus(item)
-                                ? selectorButtonActive
-                                : selectorButton
-                            }
-                            className={`selector-button coll-${traitName} ${
-                              selectValue === item.id ? "active" : ""
-                            }`}
-                            onClick={() => {
-                              !isMute && play()
-                              selectTexture(item)
-                              //selectTrait(item)
-                            }}
-                          >
-                            <img
-                              className="trait-icon"
-                              src={
-                                item.thumbnailsDirectory
-                                  ? item.thumbnail
-                                  : `${templateInfo.thumbnailsDirectory}${item.thumbnail}`
-                              }
-                            />
-                            <img
-                              src={tick}
-                              className={
-                                getActiveStatus(item)
-                                  ? "tickStyle"
-                                  : "tickStyleInActive"
-                              }
-                            />
-                            {selectValue === item.id && loadedPercent > 0 && (
-                              <div className="loading-trait">
-                                {loadedPercent}%
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    <div className="icon-hidden">
-                      <Avatar className="icon" />
-                    </div>
-                  </React.Fragment>
-                ) : (
-                  <Skin category={category} avatar={avatar} />
-                )}
-              </div>
-            )}
-          </div>
-          <div
-            className={
-              loadingTraitOverlay
-                ? "loading-trait-overlay"
-                : "loading-trait-overlay-show"
+  const [play] = useSound(sectionClick, { volume: 1.0 })
+
+  useEffect(() => {
+    console.log('')
+
+    console.log('templateInfo.traits is', templateInfo.traits)
+    console.log('traitTypes is', traitTypes)
+    let ranItem
+    let buffer = { ...(avatar ?? {}) };
+
+    (async () => {
+      let newAvatar = {}
+      // for trait in traits
+      for (let trait of traits) {
+        console.log("setting rando trait", trait);
+        // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
+          const collection = trait.collection
+          ranItem = collection[Math.floor(Math.random() * collection.length)]
+              const temp = await itemLoader(ranItem, traits, false)
+              loaded += 100 / traitTypes.length
+              newAvatar[trait.name] = temp
+      }
+      for (const property in buffer) {
+        if (buffer[property].vrm) {
+          if (newAvatar[property].vrm != buffer[property].vrm) {
+            if (newAvatar[property].vrm != null) {
+              disposeVRM(newAvatar[property].vrm)
             }
-          />
-        </div>
-      </SelectorContainerPos>
-    </FadeInOut>
+          }
+          model.data.animationManager.startAnimation(buffer[property].vrm)
+          // wait one frame before adding to scene so animation doesn't glitch
+          setTimeout(() => {
+            model.scene.add(buffer[property].vrm.scene)
+          }, 1)
+        }
+      }
+      setAvatar({
+        ...avatar,
+        ...buffer,
+      })
+    })()
+  }, [])
+  
+  // if head <Skin templateInfo={templateInfo} avatar={avatar} />
+
+
+  return (
+    <div className={styles['SelectorContainerPos']}>
+      <div className={styles["selector-container"]}>
+              <div className={!currentTrait ? styles["selectorButtonActive"] : styles["selectorButton"]}
+                onClick={() => {
+                  selectTrait(null)
+                  !isMute && play()
+                }}>
+                <img className={styles["icon"]} src={cancel} style={{ width: "3em", height: "3em", }} />
+              </div>
+              {currentTrait && currentTrait.collection &&
+                currentTrait.collection.map((item, index) => {
+                  if (!item.thumbnailOverrides) {
+                    return (
+                      <div
+                        key={index}
+                        classname={
+                          avatar[currentTrait].traitInfo.id === item.id
+                            ? 'selectorButtonActive'
+                            : 'selectorButton'
+                        }
+                        className={`selector-button coll-${traitName} ${
+                          selectValue === item.id ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          !isMute && play()
+                          console.log('select trait', item)
+                          selectTrait(item)
+                        }}
+                      >
+                        <img
+                          className={styles["trait-icon"]}
+                          src={
+                            item.thumbnailsDirectory
+                              ? item.thumbnail
+                              : `${templateInfo.thumbnailsDirectory}${item.thumbnail}`
+                          }
+                        />
+                        <img
+                          src={tick}
+                          className={
+                            avatar[currentTrait].traitInfo.id === item.id
+                            ? styles["tickStyle"]
+                              : styles["tickStyleInActive"]
+                          }
+                        />
+                        {selectValue === item.id && loadedPercent > 0 && (
+                          <div className={styles["loading-trait"]}>{loadedPercent}%</div>
+                        )}
+                      </div>
+                    )
+                  } else {
+                    item.thumbnailOverrides.map((icn, icnindex) => {
+                      return (
+                        <div
+                          key={index + "_" + icnindex}
+                          style={selectorButton}
+                          className={`selector-button coll-${traitName} ${
+                            selectValue === item.id ? "active" : ""
+                          }`}
+                          onClick={() => {
+                            !isMute && play()
+                            console.log('select trait', item)
+                            selectTrait(item, icnindex)
+                          }}
+                        >
+                          <img
+                            className={styles["trait-icon"]}
+                            src={`${templateInfo.thumbnailsDirectory}${icn}`}
+                          />
+                          <img
+                            src={tick}
+                            className={
+                              avatar[currentTrait].traitInfo.id === item.id
+                              ? styles["tickStyle"]
+                                : styles["tickStyleInActive"]
+                            }
+                          />
+                          {selectValue === item.id && loadedPercent > 0 && (
+                            <div className={styles["loading-trait"]}>
+                              {loadedPercent}%
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                  }
+                })}
+      </div>
+    </div>
   )
 }

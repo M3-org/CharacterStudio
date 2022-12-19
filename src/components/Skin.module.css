@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0;
+  display: 'grid';
+  grid-template-columns: repeat(8, 1fr);
+  grid-gap: '0px';
+  margin: 'auto';
+  margin-top: '40px';
+}
+
+.btn {
+  width : 56.53px;
+  height : 56.54px;
+  display: flex;
+  justify-content:center;
+  align-items:center;
+  cursor: pointer;
+}

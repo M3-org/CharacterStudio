@@ -1,56 +1,48 @@
-import Stack from "@mui/material/Stack"
-import React, { useEffect } from "react"
+import React, { useContext } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
 import { BackButton } from "./BackButton";
 import optionClick from "../../public/sound/option_click.wav"
-import {useMuteStore, useHideStore, useRandomFlag, useCategory, useTemplateInfo, useControls} from '../store'
+import { ViewContext } from "../context/ViewContext";
+import { AudioContext } from "../context/AudioContext";
+import { SceneContext } from "../context/SceneContext";
+import { ViewStates } from "../context/ViewContext";
 
-import {SideMenu, LineDivision, MenuOption, MenuImg, MenuTitle, ShuffleOption} from '../styles/Editor.styled'
+import styles from './Editor.module.css'
 
-export default function Editor({backCallback}) {
-  const isMute = useMuteStore((state) => state.isMute)
-  const sethidden = useHideStore((state) =>state.sethidden)
-  const ishide = useHideStore((state) =>state.ishidden)
-  const category = useCategory((state) => state.category);
-  const setCategory = useCategory((state) => state.setCategory);
-  const setRandomFlag = useRandomFlag((state) => state.setRandomFlag)
-  const templateInfo = useTemplateInfo((state) => state.templateInfo)
-  const controls = useControls((state) => state.controls)
-  useEffect(()=> {
-    sethidden(false);
-  }, [category])
+export default function Editor({templateInfo, controls}) {
+  const {currentTrait, setCurrentTrait} = useContext(SceneContext);
+
+  const {isMute} = useContext(AudioContext);
+
+  const [cameraFocused, setCameraFocused] = React.useState(false);
 
   const [play] = useSound(
     optionClick,
     { volume: 1.0 }
   );
 
-  const selectOption = (option) =>{
-    if (option.name == category){ 
-      if (ishide) {
+  const selectOption = (option) => {
+    if (option.name == currentTrait){ 
+      if (cameraFocused) {
         moveCamera(option.cameraTarget);
-        sethidden(false);
+        setCameraFocused(false);
       }
       else{ 
-        sethidden (true);
         moveCamera({height:0.8, distance:3.2});
+        setCameraFocused(true);
       }
     }
-    else sethidden(false);
 
-    if (option.name != category)
-      moveCamera(option.cameraTarget);
-    setCategory(option.name)
+    moveCamera(option.cameraTarget);
+    setCurrentTrait(option.name)
     
     !isMute && play();
   }
 
   const moveCamera = (value) => {
-    if (value){
-
       gsap.to(controls.target,{
         y:value.height,
         duration: 1,
@@ -82,42 +74,39 @@ export default function Editor({backCallback}) {
         controls.minAzimuthAngle = Infinity;
         controls.maxAzimuthAngle = Infinity;
       })
-    }
   }
 
+  const { setCurrentView } = useContext(ViewContext)
+
+  const {
+    setCurrentTemplate,
+  } = useContext(SceneContext)
+
   return(
-  <SideMenu>
-    <Stack alignItems="center"> 
-        
-        <MenuTitle>
-        <BackButton onClick={() => {
-          backCallback();
-        }}/>
-        </MenuTitle>
+  <div className={styles['SideMenu']}>
+        <div className={styles['MenuTitle']}>
+          <BackButton onClick={() => {
+            console.log('BackButton')
+            setCurrentTemplate(null)
+            setCurrentView(ViewStates.LANDER_LOADING)
+            console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
+          }}/>
+        </div>
 
-        <LineDivision bottom = {'20px'}/>
+        <div className={styles['LineDivision']} bottom = {'20px'}/>
 
-        { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
-          // improve id
-          <MenuOption
+        {templateInfo.traits && templateInfo.traits.map((item, index) => (
+          <div className={styles['MenuOption']}
             onClick = {()=>{
               selectOption(item)
             }} 
-            selected = {category === item.name}
-            key = {index}>  
-            <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
-          </MenuOption>
+            active={currentTrait === item.name}
+            key = {index}>
+            <img className={styles['MenuImg']} src={templateInfo.traitIconsDirectory + item.icon} />
+          </div>
         ))}
 
-        <LineDivision top = {'20px'}/>
-
-        <ShuffleOption 
-          onClick={() => {
-            setRandomFlag(0);
-            !isMute && play();
-          }}>
-          <MenuImg src = {shuffle} />
-        </ShuffleOption>
-    </Stack>
-  </SideMenu>);
+        <div className={styles['LineDivision']} top = {'20px'}/>
+        <img className={styles['ShuffleOption']} onClick={() => {!isMute && play(); }} src={shuffle} />
+  </div>);
 }

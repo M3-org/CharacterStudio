@@ -1,43 +1,35 @@
 import React from "react"
 import webaMark from "../../public/ui/loading/webaMark.svg"
-import { LoadingStyleBox } from "../styles/LoadingOverlaystyle"
 
-function CircularProgressWithLabel({background, value, title}) {
-  return (
-    <LoadingStyleBox
-      className="loading-container"
+import { ViewContext } from "../context/ViewContext";
+
+import styles from './LoadingOverlay.module.css'
+
+export default function LoadingOverlayCircularStatic({
+  loadingProgress,
+  background = null,
+  title = "Loading"
+}) {
+  const { currentView } = React.useContext(ViewContext);
+  return currentView.includes('LOADING') &&
+  (
+    <div className={styles['LoadingStyleBox']}
       backgroundActive={background}
-      loadedValue = {value}
+      loadedValue = {loadingProgress}
     >
       <span className = "loading-text" >
         {title}
       </span>
-        <div className="vh-centered">
-          <div className="cover-loadingbar">
-            <div className="loading-bar" >
+        <div className={styles["vh-centered"]}>
+          <div className={styles["cover-loadingbar"]}>
+            <div className={styles["loading-bar"]}>
             </div>
           </div>
         </div>
-      <div className = "logo-container">
-          <img className="webamark"
-            src={webaMark}
-          />
-        <div className="logo-gradient"></div>
+      <div className={styles["logo-container"]}>
+          <img className={styles["webamark"]} src={webaMark} />
+        <div className={styles["logo-gradient"]}></div>
       </div>
-    </LoadingStyleBox>
-  )
-}
-
-export default function LoadingOverlayCircularStatic({
-  loadingModelProgress,
-  background = null,
-  title = "Loading"
-}) {
-  return (
-    <CircularProgressWithLabel
-      value={loadingModelProgress}
-      background={background}
-      title = {title}
-    />
+    </div>
   )
 }
