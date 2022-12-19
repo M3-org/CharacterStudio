@@ -77,7 +77,7 @@ export default function Scene() {
       <div className={styles["FitParentContainer"]}>
       <div className={styles["Background"]}>
           <div className={styles["webamark"]} >
-            <img src={logo} />
+            <img src={logo} className={styles["logo"]} />
           </div>
       </div>
           <Canvas

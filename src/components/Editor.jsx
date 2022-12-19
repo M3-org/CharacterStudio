@@ -90,11 +90,11 @@ export default function Editor({templateInfo, controls}) {
   return(
   <div className={styles['SideMenu']}>
         <div className={styles['MenuTitle']}>
-        <BackButton onClick={() => {
-          setCurrentTemplate(null)
-          setCurrentView(ViewStates.LANDER_LOADING)
-          console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
-        }}/>
+          <BackButton onClick={() => {
+            setCurrentTemplate(null)
+            setCurrentView(ViewStates.LANDER_LOADING)
+            console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
+          }}/>
         </div>
 
         <div className={styles['LineDivision']} bottom = {'20px'}/>

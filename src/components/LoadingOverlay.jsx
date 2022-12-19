@@ -13,7 +13,7 @@ export default function LoadingOverlayCircularStatic({
   const { currentView } = React.useContext(ViewContext);
   return currentView.includes('LOADING') &&
   (
-    <div className={'LoadingStyleBox'}
+    <div className={styles['LoadingStyleBox']}
       backgroundActive={background}
       loadedValue = {loadingProgress}
     >
