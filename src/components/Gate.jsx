@@ -22,6 +22,10 @@ export default function Gate() {
 
   const [ pass, setPass ] =  useState(false)
 
+  const [loading, setLoading] =  useState(true)
+
+
+
   const { walletAddress, setWalletAddress, OTTokens, setOTTokens, ensName, setEnsName, connected, setConnected } = React.useContext(AccountContext)
 
   const connectWallet = async () => {
@@ -77,6 +81,8 @@ export default function Gate() {
     else if(await checkEternalProxyPass()) setPass(true)
     else if(await checkElegateCashPass()) setPass(true)
     else setPass(false)
+
+    setLoading(false);
   }
 
   const checkOTPass = async (account) => {
@@ -128,10 +134,9 @@ export default function Gate() {
   return (
     currentView === ViewStates.INTRO && (
       <div className={styles["GateStyleBox"]}>
-        <div className={styles["vh-centered"]}>
           {/*if the user is not logged in, show connect wallet, else show enter with music and enter without music*/}
           {!active && (
-            <>
+            <div className={styles["vh-centered"]}>
               <div className={styles["vh-header"]}>
                 GENESIS PASS HOLDERS ONLY
               </div>
@@ -150,10 +155,10 @@ export default function Gate() {
                   onClick={connectWallet}
                 />
               </div>
-            </>
+            </div>
           )}
-          {active && !pass && (
-            <>
+          {!loading && active && !pass && (
+            <div className={styles["vh-centered"]}>
               <div className={styles["vh-header"]}>
                 GENESIS PASS HOLDERS ONLY
               </div>
@@ -163,10 +168,10 @@ export default function Gate() {
               <div className={styles["vh-paragraph"]}>
                 If you are concerned with adding a cold storage wallet, we recommend that you register with delegate.cash or EternalProxy
               </div>
-            </>
+            </div>
           )}
-          {active && pass && (
-            <>
+          {!loading && active && pass && (
+            <div className={styles["vh-centered"]}>
               <div className={styles["vh-header"]}>WELCOME, FRIEND</div>
               <div className={styles["vh-paragraph"]}>
                 We have located your Genesis Pass. LFG!
@@ -189,9 +194,8 @@ export default function Gate() {
                   onClick={() => enterWithoutMusic()}
                 />
               </div>
-            </>
+            </div>
           )}
-        </div>
       </div>
     )
   )
