@@ -12,299 +12,6 @@ import { SceneContext } from "../context/SceneContext"
 
 import styles from './Selector.module.css'
 
-const getAsArray = (target) => {
-  if (target == null) return []
-
-  return Array.isArray(target) ? target : [target]
-}
-
-const selectTrait = (trait, textureIndex, templateInfo, setLoadingTraitOverlay, setSelectValue, setAvatar) => {
-  if (trait === null) {
-    if (avatar[traitName] && avatar[traitName].vrm) {
-      disposeVRM(avatar[traitName].vrm)
-      setAvatar({
-        ...avatar,
-        [traitName]: {},
-      })
-    }
-    return;
-  } 
-      if (trait.bodyTargets) {
-        setCurrentTrait(trait.id)
-      } else {
-        setLoadingTraitOverlay(true)
-        templateInfo.traits.map((item) => {
-          if (item.name === currentTrait && item.type === "texture") {
-            textureTraitLoader(item, trait, templateInfo, setLoadingTraitOverlay)
-          } else if (item.name === currentTrait) {
-            if (trait.textureCollection && textureIndex) {
-              const txtrs = traits[trait.textureCollection]
-                  const localDir = txtrs.collection[textureIndex].directory
-                  const texture = templateInfo.traitsDirectory + localDir
-                  const loader = new THREE.TextureLoader()
-                  loader.load(texture, (txt) => {
-                    txt.encoding = THREE.sRGBEncoding
-                    txt.flipY = false
-                    itemLoader(trait, null, true, txt)
-                  })
-            } else {
-              console.warn("no texture collection")
-              itemLoader(trait, null, true)
-            }
-          }
-        })
-      }
-  setSelectValue(trait && trait.id)
-}
-
-const itemLoader = async (
-  item,
-  traits = null,
-  addToScene = true,
-  texture,
-) => {
-  let r_vrm
-  const vrm = await loadModel(
-    `${templateInfo.traitsDirectory}${item && item.directory}`,
-  )
-  addModelData(vrm, {
-    cullingLayer: item.cullingLayer || -1,
-    cullingDistance: item.cullingDistance || null,
-  })
-  r_vrm = vrm
-
-  if (addToScene) {
-    if (model.data.animationManager)
-      model.data.animationManager.startAnimation(vrm)
-      if (texture) {
-        vrm.scene.traverse((child) => {
-          if (child.isMesh) {
-            child.material[0].map = texture
-            child.material[0].shadeMultiplyTexture = texture
-          }
-        })
-      }
-
-      if (avatar[traitName]) {
-        const traitData = templateInfo.traits.find(
-          (element) => element.name === traitName,
-        )
-
-        // set the new trait
-        const newAvatarData = {}
-        newAvatarData[traitName] = {
-          traitInfo: item,
-          model: vrm.scene,
-          vrm: vrm,
-        }
-
-        // search in the trait data for restricted traits and restricted types  => (todo)
-        if (traitData) {
-          if (traitData.restrictedTraits) {
-            traitData.restrictedTraits.forEach((restrictTrait) => {
-              if (avatar[restrictTrait] !== undefined)
-                newAvatarData[restrictTrait] = {}
-            })
-          }
-
-          // first check for every trait type in avatar properties if we have restricted types
-          if (traitData.restrictedTypes) {
-            for (const property in avatar) {
-              console.log("property", avatar[property])
-              if (
-                !avatar[property].traitInfo ||
-                !avatar[property].traitInfo.type
-              )
-                continue
-              const itemTypes = Array.isArray(avatar[property].traitInfo.type)
-                ? avatar[property].traitInfo.type
-                : [avatar[property].traitInfo.type]
-
-              for (let i = 0; i < traitData.restrictedTypes.length; i++) {
-                const restrictedType = traitData.restrictedTypes[i]
-
-                // remove if  its type is restricted
-                for (let j = 0; j < itemTypes.length; j++) {
-                  const itemType = itemTypes[j]
-                  if (itemType === restrictedType) {
-                    newAvatarData[property] = {}
-                    break
-                  }
-                }
-              }
-            }
-          }
-          // now check inside every property if they dont have this type as restriction keep going
-          if (item.type) {
-            const itemTypes = getAsArray(item.type)
-            for (const property in avatar) {
-              const tData = templateInfo.traits.find(
-                (element) => element.name === property,
-              )
-              if (tData != null) {
-                if (tData.restrictedTypes) {
-                  const restrictedTypeArray = tData.restrictedTypes
-                  for (let i = 0; i < restrictedTypeArray.length; i++) {
-                    const restrictedType = tData.restrictedTypes[i]
-
-                    for (let j = 0; j < itemTypes.length; j++) {
-                      const itemType = itemTypes[j]
-                      if (itemType === restrictedType) {
-                        newAvatarData[property] = {}
-                        break
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            // this array include the names of the traits as property and the types it cannot include
-            if (templateInfo.typeRestrictions) {
-              // we should check every type this trait has
-              for (let i = 0; i < itemTypes.length; i++) {
-                const itemType = itemTypes[i]
-                console.log(itemType)
-                // and get the restriction included in each array if exists
-                const typeRestrictions = getAsArray(
-                  templateInfo.typeRestrictions[itemType],
-                )
-                // now check if the avatar properties include this restrictions to remove
-                for (const property in avatar) {
-                  if (property !== traitName) {
-                    typeRestrictions.forEach((typeRestriction) => {
-                      if (avatar[property].traitInfo?.type) {
-                        const types = avatar[property].traitInfo.type
-                        for (let i = 0; i < types.length; i++) {
-                          if (types[i] === typeRestriction) {
-                            newAvatarData[property] = {}
-                            break
-                          }
-                        }
-                      }
-                    })
-                    // check also if any of the current trait is of type
-                    if (avatar[property].vrm) {
-                      const propertyTypes = getAsArray(
-                        avatar[property].traitInfo.type,
-                      )
-                      propertyTypes.forEach((t) => {
-                        const typeRestrictionsSecondary = getAsArray(
-                          templateInfo.typeRestrictions[t],
-                        )
-                        if (typeRestrictionsSecondary.includes(itemType))
-                          newAvatarData[property] = {}
-                      })
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        const newAvatar = {
-          ...avatar,
-          ...newAvatarData,
-        }
-
-        for (const property in newAvatar) {
-          if (property !== traitName) {
-            if (newAvatar[property].vrm) {
-              const tdata = templateInfo.traits.find(
-                (element) => element.name === property,
-              )
-              const restricted = tdata.restrictedTraits
-              if (restricted) {
-                for (let i = 0; i < restricted.length; i++) {
-                  if (restricted[i] === traitName) {
-                    // if one of their restrcited elements match, remove him and break
-                    newAvatarData[property] = {}
-                    break
-                  }
-                }
-              }
-            }
-          }
-        }
-        setAvatar({ ...newAvatar, ...newAvatarData })
-
-        for (const property in newAvatarData) {
-          if (avatar[property].vrm) {
-            disposeVRM(avatar[property].vrm)
-          }
-        }
-      }
-      //texture area
-      setTimeout(() => {
-        model.scene.add(vrm.scene)
-      }, 1)
-  }
-
-  return ({
-      [traits.trait]: {
-        traitInfo: item,
-        model: r_vrm.scene,
-        vrm: r_vrm,
-      },
-    }
-  )
-}
-
-const textureTraitLoader = (props, trait, templateInfo, setLoadingTraitOverlay) => {
-  console.log('typeof props.target is', typeof props.target)
-  if (typeof props.target != "string") {
-    for (let i = 0; i < props.target.length; i++) {
-      const object = scene.getObjectByName(props.target[i])
-      if (typeof trait.directory != "string") {
-        let texture = ""
-
-        if (trait.directory[i] != null)
-          //grab the texture with same object position
-          texture = templateInfo.traitsDirectory + trait.directory[i]
-        //else grab the latest texture in the array
-        else
-          texture =
-            templateInfo.traitsDirectory +
-            trait.directory[trait.directory.length - 1]
-
-        new THREE.TextureLoader().load(texture, (txt) => {
-          txt.encoding = THREE.sRGBEncoding
-          txt.flipY = false
-          object.material[0].map = txt
-          object.material[0].shadeMultiplyTexture = txt
-          setTimeout(() => {
-            setLoadingTraitOverlay(false)
-          }, 500)
-        })
-      } else {
-        const texture = templateInfo.traitsDirectory + trait.directory
-        new THREE.TextureLoader().load(texture, (txt) => {
-          txt.encoding = THREE.sRGBEncoding
-          txt.flipY = false
-          object.material[0].map = txt
-          setTimeout(() => {
-            setLoadingTraitOverlay(false)
-          }, 500)
-        })
-      }
-    }
-  } else {
-    const object = scene.getObjectByName(props.target)
-    const texture =
-      typeof trait.directory === "string"
-        ? templateInfo.traitsDirectory + trait.directory
-        : templateInfo.traitsDirectory + trait.directory[0]
-    new THREE.TextureLoader().load(texture, (txt) => {
-      txt.encoding = THREE.sRGBEncoding
-      txt.flipY = false
-      object.material[0].map = txt
-      setTimeout(() => {
-        setLoadingTraitOverlay(false)
-      }, 500)
-    })
-  }
-}
-
 export default function Selector() {
   const {
     loadModel,
@@ -337,6 +44,299 @@ export default function Selector() {
   const [traitName, setTraitName] = useState("")
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
 
+  const getAsArray = (target) => {
+    if (target == null) return []
+  
+    return Array.isArray(target) ? target : [target]
+  }
+  
+  const selectTrait = (trait, textureIndex, templateInfo, setLoadingTraitOverlay, setSelectValue, setAvatar) => {
+    if (trait === null) {
+      if (avatar[traitName] && avatar[traitName].vrm) {
+        disposeVRM(avatar[traitName].vrm)
+        setAvatar({
+          ...avatar,
+          [traitName]: {},
+        })
+      }
+      return;
+    } 
+        if (trait.bodyTargets) {
+          setCurrentTrait(trait.id)
+        } else {
+          setLoadingTraitOverlay(true)
+          templateInfo.traits.map((item) => {
+            if (item.name === currentTrait && item.type === "texture") {
+              textureTraitLoader(item, trait, templateInfo, setLoadingTraitOverlay)
+            } else if (item.name === currentTrait) {
+              if (trait.textureCollection && textureIndex) {
+                const txtrs = traits[trait.textureCollection]
+                    const localDir = txtrs.collection[textureIndex].directory
+                    const texture = templateInfo.traitsDirectory + localDir
+                    const loader = new THREE.TextureLoader()
+                    loader.load(texture, (txt) => {
+                      txt.encoding = THREE.sRGBEncoding
+                      txt.flipY = false
+                      itemLoader(trait, null, true, txt)
+                    })
+              } else {
+                console.warn("no texture collection")
+                itemLoader(trait, null, true)
+              }
+            }
+          })
+        }
+    setSelectValue(trait && trait.id)
+  }
+  
+  const itemLoader = async (
+    item,
+    traits = null,
+    addToScene = true,
+    texture,
+  ) => {
+    let r_vrm
+    const vrm = await loadModel(
+      `${templateInfo.traitsDirectory}${item && item.directory}`,
+    )
+    addModelData(vrm, {
+      cullingLayer: item.cullingLayer || -1,
+      cullingDistance: item.cullingDistance || null,
+    })
+    r_vrm = vrm
+  
+    if (addToScene) {
+      if (model.data.animationManager)
+        model.data.animationManager.startAnimation(vrm)
+        if (texture) {
+          vrm.scene.traverse((child) => {
+            if (child.isMesh) {
+              child.material[0].map = texture
+              child.material[0].shadeMultiplyTexture = texture
+            }
+          })
+        }
+  
+        if (avatar[traitName]) {
+          const traitData = templateInfo.traits.find(
+            (element) => element.name === traitName,
+          )
+  
+          // set the new trait
+          const newAvatarData = {}
+          newAvatarData[traitName] = {
+            traitInfo: item,
+            model: vrm.scene,
+            vrm: vrm,
+          }
+  
+          // search in the trait data for restricted traits and restricted types  => (todo)
+          if (traitData) {
+            if (traitData.restrictedTraits) {
+              traitData.restrictedTraits.forEach((restrictTrait) => {
+                if (avatar[restrictTrait] !== undefined)
+                  newAvatarData[restrictTrait] = {}
+              })
+            }
+  
+            // first check for every trait type in avatar properties if we have restricted types
+            if (traitData.restrictedTypes) {
+              for (const property in avatar) {
+                console.log("property", avatar[property])
+                if (
+                  !avatar[property].traitInfo ||
+                  !avatar[property].traitInfo.type
+                )
+                  continue
+                const itemTypes = Array.isArray(avatar[property].traitInfo.type)
+                  ? avatar[property].traitInfo.type
+                  : [avatar[property].traitInfo.type]
+  
+                for (let i = 0; i < traitData.restrictedTypes.length; i++) {
+                  const restrictedType = traitData.restrictedTypes[i]
+  
+                  // remove if  its type is restricted
+                  for (let j = 0; j < itemTypes.length; j++) {
+                    const itemType = itemTypes[j]
+                    if (itemType === restrictedType) {
+                      newAvatarData[property] = {}
+                      break
+                    }
+                  }
+                }
+              }
+            }
+            // now check inside every property if they dont have this type as restriction keep going
+            if (item.type) {
+              const itemTypes = getAsArray(item.type)
+              for (const property in avatar) {
+                const tData = templateInfo.traits.find(
+                  (element) => element.name === property,
+                )
+                if (tData != null) {
+                  if (tData.restrictedTypes) {
+                    const restrictedTypeArray = tData.restrictedTypes
+                    for (let i = 0; i < restrictedTypeArray.length; i++) {
+                      const restrictedType = tData.restrictedTypes[i]
+  
+                      for (let j = 0; j < itemTypes.length; j++) {
+                        const itemType = itemTypes[j]
+                        if (itemType === restrictedType) {
+                          newAvatarData[property] = {}
+                          break
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              // this array include the names of the traits as property and the types it cannot include
+              if (templateInfo.typeRestrictions) {
+                // we should check every type this trait has
+                for (let i = 0; i < itemTypes.length; i++) {
+                  const itemType = itemTypes[i]
+                  console.log(itemType)
+                  // and get the restriction included in each array if exists
+                  const typeRestrictions = getAsArray(
+                    templateInfo.typeRestrictions[itemType],
+                  )
+                  // now check if the avatar properties include this restrictions to remove
+                  for (const property in avatar) {
+                    if (property !== traitName) {
+                      typeRestrictions.forEach((typeRestriction) => {
+                        if (avatar[property].traitInfo?.type) {
+                          const types = avatar[property].traitInfo.type
+                          for (let i = 0; i < types.length; i++) {
+                            if (types[i] === typeRestriction) {
+                              newAvatarData[property] = {}
+                              break
+                            }
+                          }
+                        }
+                      })
+                      // check also if any of the current trait is of type
+                      if (avatar[property].vrm) {
+                        const propertyTypes = getAsArray(
+                          avatar[property].traitInfo.type,
+                        )
+                        propertyTypes.forEach((t) => {
+                          const typeRestrictionsSecondary = getAsArray(
+                            templateInfo.typeRestrictions[t],
+                          )
+                          if (typeRestrictionsSecondary.includes(itemType))
+                            newAvatarData[property] = {}
+                        })
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+  
+          const newAvatar = {
+            ...avatar,
+            ...newAvatarData,
+          }
+  
+          for (const property in newAvatar) {
+            if (property !== traitName) {
+              if (newAvatar[property].vrm) {
+                const tdata = templateInfo.traits.find(
+                  (element) => element.name === property,
+                )
+                const restricted = tdata.restrictedTraits
+                if (restricted) {
+                  for (let i = 0; i < restricted.length; i++) {
+                    if (restricted[i] === traitName) {
+                      // if one of their restrcited elements match, remove him and break
+                      newAvatarData[property] = {}
+                      break
+                    }
+                  }
+                }
+              }
+            }
+          }
+          setAvatar({ ...newAvatar, ...newAvatarData })
+  
+          for (const property in newAvatarData) {
+            if (avatar[property].vrm) {
+              disposeVRM(avatar[property].vrm)
+            }
+          }
+        }
+        //texture area
+        setTimeout(() => {
+          model.scene.add(vrm.scene)
+        }, 1)
+    }
+  
+    return ({
+        [traits.trait]: {
+          traitInfo: item,
+          model: r_vrm.scene,
+          vrm: r_vrm,
+        },
+      }
+    )
+  }
+  
+  const textureTraitLoader = (props, trait, templateInfo, setLoadingTraitOverlay) => {
+    console.log('typeof props.target is', typeof props.target)
+    if (typeof props.target != "string") {
+      for (let i = 0; i < props.target.length; i++) {
+        const object = scene.getObjectByName(props.target[i])
+        if (typeof trait.directory != "string") {
+          let texture = ""
+  
+          if (trait.directory[i] != null)
+            //grab the texture with same object position
+            texture = templateInfo.traitsDirectory + trait.directory[i]
+          //else grab the latest texture in the array
+          else
+            texture =
+              templateInfo.traitsDirectory +
+              trait.directory[trait.directory.length - 1]
+  
+          new THREE.TextureLoader().load(texture, (txt) => {
+            txt.encoding = THREE.sRGBEncoding
+            txt.flipY = false
+            object.material[0].map = txt
+            object.material[0].shadeMultiplyTexture = txt
+            setTimeout(() => {
+              setLoadingTraitOverlay(false)
+            }, 500)
+          })
+        } else {
+          const texture = templateInfo.traitsDirectory + trait.directory
+          new THREE.TextureLoader().load(texture, (txt) => {
+            txt.encoding = THREE.sRGBEncoding
+            txt.flipY = false
+            object.material[0].map = txt
+            setTimeout(() => {
+              setLoadingTraitOverlay(false)
+            }, 500)
+          })
+        }
+      }
+    } else {
+      const object = scene.getObjectByName(props.target)
+      const texture =
+        typeof trait.directory === "string"
+          ? templateInfo.traitsDirectory + trait.directory
+          : templateInfo.traitsDirectory + trait.directory[0]
+      new THREE.TextureLoader().load(texture, (txt) => {
+        txt.encoding = THREE.sRGBEncoding
+        txt.flipY = false
+        object.material[0].map = txt
+        setTimeout(() => {
+          setLoadingTraitOverlay(false)
+        }, 500)
+      })
+    }
+  }
+
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
   useEffect(() => {
@@ -348,26 +348,22 @@ export default function Selector() {
     let buffer = { ...(avatar ?? {}) };
 
     (async () => {
-
+      let newAvatar = {}
       // for trait in traits
-      for (let trait in traits) {
+      for (let trait of traits) {
+        console.log("setting rando trait", trait);
         // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
-          const collection = traits.collection
-          ranItem =
-            collection[Math.floor(Math.random() * collection.length)]
-          if (avatar[traits.trait]) {
-            if (avatar[traits.trait].traitInfo != ranItem) {
+          const collection = trait.collection
+          ranItem = collection[Math.floor(Math.random() * collection.length)]
               const temp = await itemLoader(ranItem, traits, false)
               loaded += 100 / traitTypes.length
-              buffer = { ...buffer, ...temp }
-            }
-          }
+              newAvatar[trait.name] = temp
       }
       for (const property in buffer) {
         if (buffer[property].vrm) {
-          if (avatar[property].vrm != buffer[property].vrm) {
-            if (avatar[property].vrm != null) {
-              disposeVRM(avatar[property].vrm)
+          if (newAvatar[property].vrm != buffer[property].vrm) {
+            if (newAvatar[property].vrm != null) {
+              disposeVRM(newAvatar[property].vrm)
             }
           }
           model.data.animationManager.startAnimation(buffer[property].vrm)
@@ -382,7 +378,7 @@ export default function Selector() {
         ...buffer,
       })
     })()
-  }, [currentTemplate])
+  }, [])
   
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 

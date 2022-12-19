@@ -25,7 +25,6 @@ export default function Editor({templateInfo, controls}) {
   );
 
   const selectOption = (option) => {
-    console.log('selectOption', option.name, currentTrait)
     if (option.name == currentTrait){ 
       if (cameraFocused) {
         moveCamera(option.cameraTarget);
@@ -37,16 +36,13 @@ export default function Editor({templateInfo, controls}) {
       }
     }
 
-    if (option.name != currentTrait)
-      moveCamera(option.cameraTarget);
+    moveCamera(option.cameraTarget);
     setCurrentTrait(option.name)
     
     !isMute && play();
   }
 
   const moveCamera = (value) => {
-    if (value){
-
       gsap.to(controls.target,{
         y:value.height,
         duration: 1,
@@ -78,7 +74,6 @@ export default function Editor({templateInfo, controls}) {
         controls.minAzimuthAngle = Infinity;
         controls.maxAzimuthAngle = Infinity;
       })
-    }
   }
 
   const { setCurrentView } = useContext(ViewContext)
@@ -101,17 +96,17 @@ export default function Editor({templateInfo, controls}) {
         <div className={styles['LineDivision']} bottom = {'20px'}/>
 
         {templateInfo.traits && templateInfo.traits.map((item, index) => (
-          <div className={[styles['MenuOption'], (currentTrait === item.name ? styles['SelectedOption'] : '')]}
+          <div className={styles['MenuOption']}
             onClick = {()=>{
               selectOption(item)
             }} 
-            key = {index}>  
+            active={currentTrait === item.name}
+            key = {index}>
             <img className={styles['MenuImg']} src={templateInfo.traitIconsDirectory + item.icon} />
           </div>
         ))}
 
         <div className={styles['LineDivision']} top = {'20px'}/>
-
         <img className={styles['ShuffleOption']} onClick={() => {!isMute && play(); }} src={shuffle} />
   </div>);
 }
