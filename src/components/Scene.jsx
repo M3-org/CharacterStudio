@@ -17,7 +17,7 @@ import { ViewContext, ViewStates } from "../context/ViewContext"
 
 import styles from "./Scene.module.css"
 
-export default function Scene({template}) {
+export default function Scene() {
   const {
     scene,
     setScene,
@@ -25,6 +25,7 @@ export default function Scene({template}) {
     loadModel,
     currentTemplate,
     model,
+    template,
     setModel,
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
@@ -72,13 +73,11 @@ export default function Scene({template}) {
 
   }, [templateInfo])
 
-  const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
-
   return templateInfo && (
       <div className={styles["FitParentContainer"]}>
       <div className={styles["Background"]}>
           <div className={styles["webamark"]} >
-            <img src={logo} />
+            <img src={logo} className={styles["logo"]} />
           </div>
       </div>
           <Canvas
@@ -143,7 +142,7 @@ export default function Scene({template}) {
               </mesh>
             </PerspectiveCamera>
           </Canvas>
-        <Selector templateInfo={templateInfo} />
+          {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
         <Editor templateInfo={templateInfo} controls={controls.current} />
       </div>
   )

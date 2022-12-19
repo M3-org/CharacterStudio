@@ -90,24 +90,25 @@ export default function Editor({templateInfo, controls}) {
   return(
   <div className={styles['SideMenu']}>
         <div className={styles['MenuTitle']}>
-        <BackButton onClick={() => {
-          setCurrentTemplate(null)
-          setCurrentView(ViewStates.LANDER_LOADING)
-          console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
-        }}/>
+          <BackButton onClick={() => {
+            console.log('BackButton')
+            setCurrentTemplate(null)
+            setCurrentView(ViewStates.LANDER_LOADING)
+            console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
+          }}/>
         </div>
 
         <div className={styles['LineDivision']} bottom = {'20px'}/>
 
         { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
-          // improve id
-          <div className={styles['MenuOption']}
+          <div className={[styles['MenuOption'], (currentTrait === item.name ? styles['SelectedOption'] : '')]}
             onClick = {()=>{
               selectOption(item)
             }} 
-            selected = {currentTrait === item.name}
             key = {index}>  
-            <div className={styles['MenuImg']} src = {templateInfo.traitIconsDirectory + item.icon} />
+            <div className={styles['MenuImg']}>
+              <img src={templateInfo.traitIconsDirectory + item.icon} />
+            </div>
           </div>
         ))}
 

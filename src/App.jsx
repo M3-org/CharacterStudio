@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers"
 import { Web3ReactProvider } from "@web3-react/core"
-import React, { useEffect } from "react"
+import React, { Fragment, useContext, useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import Background from "./components/Background"
 import { AudioProvider } from "./context/AudioContext"
@@ -10,47 +10,41 @@ import { UserMenu } from "./components/UserMenu"
 import AudioButton from "./components/AudioButton"
 import Scene from "./components/Scene"
 import { ViewProvider } from "./context/ViewContext"
-import { SceneProvider } from "./context/SceneContext"
+import { SceneContext, SceneProvider } from "./context/SceneContext"
 import { AccountProvider } from "./context/AccountContext"
 import MintPopup from "./components/MintPopup"
 
 import Gate from "./components/Gate"
 
 // dynamically import the manifest
-const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json";
-  
+const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+
 function App() {
-  const [templateInfo, setTemplateInfo] = React.useState(null);
-    // fetch the manifest, then set it
-    useEffect(() => {
-      async function fetchManifest() {
-        const response = await fetch(assetImportPath);
-        const data = await response.json();
-        return data;
-      }
-  
-      fetchManifest().then((data) => {
-        setTemplateInfo(data)
-      });
-    }, []);
-  return templateInfo && (
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <AccountProvider>
-          <AudioProvider>
-            <SceneProvider>
-                <ViewProvider>
-                <Background />
-                <Gate />
-                <Landing  />
-                <AudioButton />
-                <Scene template={templateInfo} />
-                <MintPopup template={templateInfo} />
-                <UserMenu template={templateInfo} />
-                </ViewProvider>
-              </SceneProvider>
-          </AudioProvider>
-        </AccountProvider>
-      </Web3ReactProvider>
+  const { template, setTemplate } = useContext(SceneContext)
+  // fetch the manifest, then set it
+  useEffect(() => {
+    async function fetchManifest() {
+      const response = await fetch(assetImportPath)
+      const data = await response.json()
+      return data
+    }
+
+    fetchManifest().then((data) => {
+      setTemplate(data)
+    })
+  }, [])
+  return (
+    template && (
+      <Fragment>
+        <Background />
+        <Gate />
+        <Landing />
+        <AudioButton />
+        <Scene />
+        <MintPopup />
+        <UserMenu />
+      </Fragment>
+    )
   )
 }
 
@@ -60,6 +54,22 @@ const getLibrary = (provider) => {
   return library
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-      <App />
+function AppContainer(){
+  return (
+  <AccountProvider>
+  <AudioProvider>
+    <ViewProvider>
+      <SceneProvider>
+        <App />
+      </SceneProvider>
+    </ViewProvider>
+  </AudioProvider>
+</AccountProvider>
   )
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <Web3ReactProvider getLibrary={getLibrary}>
+    <AppContainer />
+  </Web3ReactProvider>,
+)

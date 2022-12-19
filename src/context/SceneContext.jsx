@@ -2,6 +2,7 @@ import { createContext, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { cullHiddenMeshes } from "../library/utils"
 import {
   renameVRMBones,
   createFaceNormals,
@@ -33,6 +34,7 @@ export const SceneProvider = (props) => {
     })
   }
 
+  const [template, setTemplate] = useState(null)
   const [scene, setScene] = useState(new THREE.Scene())
   const [currentTrait, setCurrentTrait] = useState(null)
   const [model, setModel] = useState(null)
@@ -41,27 +43,8 @@ export const SceneProvider = (props) => {
   const [colorStatus, setColorStatus] = useState("")
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
-  // {
-  //   // should be loaded from JSON
-  //   skin: {},
-  //   body: {},
-  //   chest: {},
-  //   head: {},
-  //   neck: {},
-  //   hand: {},
-  //   ring: {},
-  //   waist: {},
-  //   weapon: {},
-  //   legs: {},
-  //   feet: {},
-  //   accessories: {},
-  //   eyes: {},
-  //   outer: {},
-  //   solo: {},
-  // })
-
   const setAvatar = (state) => {
-    cullHiddenMeshes(avatar, scene, templateInfo)
+    cullHiddenMeshes(avatar, scene, template)
     _setAvatar(state)
   }
 
@@ -86,6 +69,8 @@ export const SceneProvider = (props) => {
         setAvatar,
         currentTemplate,
         setCurrentTemplate,
+        template,
+        setTemplate,
       }}
     >
       {props.children}
