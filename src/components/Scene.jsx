@@ -74,11 +74,6 @@ export default function Scene() {
 
   return templateInfo && (
       <div className={styles["FitParentContainer"]}>
-      <div className={styles["Background"]}>
-          <div className={styles["webamark"]} >
-            <img src={logo} className={styles["logo"]} />
-          </div>
-      </div>
           <Canvas
             id="editor-scene"
             className={styles["canvasStyle"]}

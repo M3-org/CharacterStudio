@@ -184,6 +184,7 @@ export default function Landing() {
             width: "100vw",
             height: "100vh",
             position: "fixed",
+            top: 0
           }}
           camera={{ fov: 20 }}
           linear={false}
