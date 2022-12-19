@@ -65,7 +65,6 @@ export default function Scene() {
     return () => {
       if(model !== null) {
         scene.remove(model.scene)
-
       }
       setModel(null)
       setScene(new THREE.Scene())
