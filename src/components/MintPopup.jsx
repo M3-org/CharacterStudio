@@ -10,7 +10,7 @@ import axios from "axios"
 import { BigNumber, ethers } from "ethers"
 import { SceneContext } from "../context/SceneContext"
 import { getModelFromScene, getScreenShot } from "../library/utils"
-import { Contract } from "./Contract"
+import { CharacterContract } from "./Contract"
 import { AccountContext } from "../context/AccountContext"
 
 import styles from "./MintPopup.module.css"
@@ -170,7 +170,7 @@ export default function MintPopup({ template }) {
     const signer = new ethers.providers.Web3Provider(
       window.ethereum,
     ).getSigner()
-    const contract = new ethers.Contract(Contract.address, Contract.abi, signer)
+    const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
     const isActive = await contract.saleIsActive()
     if (!isActive) {
       setMintStatus("Mint isn't Active now!")
