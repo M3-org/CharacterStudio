@@ -91,9 +91,8 @@ export default function Selector() {
   
   const itemLoader = async (
     item,
-    traits = null,
+    trait,
     addToScene = true,
-    texture,
   ) => {
     let r_vrm
     const vrm = await loadModel(
@@ -273,7 +272,7 @@ export default function Selector() {
     }
   
     return ({
-        [traits.trait]: {
+        [trait.trait]: {
           traitInfo: item,
           model: r_vrm.scene,
           vrm: r_vrm,
@@ -282,7 +281,7 @@ export default function Selector() {
     )
   }
   
-  const textureTraitLoader = (props, trait, templateInfo, setLoadingTraitOverlay) => {
+  const textureTraitLoader = (props, trait) => {
     console.log('typeof props.target is', typeof props.target)
     if (typeof props.target != "string") {
       for (let i = 0; i < props.target.length; i++) {
@@ -323,9 +322,9 @@ export default function Selector() {
     } else {
       const object = scene.getObjectByName(props.target)
       const texture =
-        typeof trait.directory === "string"
-          ? templateInfo.traitsDirectory + trait.directory
-          : templateInfo.traitsDirectory + trait.directory[0]
+        (typeof trait.directory === "string")
+          ? (templateInfo.traitsDirectory + trait.directory)
+          : (templateInfo.traitsDirectory + trait.directory[0])
       new THREE.TextureLoader().load(texture, (txt) => {
         txt.encoding = THREE.sRGBEncoding
         txt.flipY = false
