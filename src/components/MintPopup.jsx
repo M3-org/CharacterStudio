@@ -1,11 +1,8 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import MintModal from "./MintModal"
-import walletErrorImage from "../../public/ui/mint/walletError.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import polygonIcon from "../../public/ui/mint/polygon.png"
 import { ViewStates, ViewContext } from "../context/ViewContext"
-import { useWeb3React } from "@web3-react/core"
-import { InjectedConnector } from "@web3-react/injected-connector"
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
 import { SceneContext } from "../context/SceneContext"
@@ -22,67 +19,12 @@ const mintCost = 0.0
 
 export default function MintPopup({ template }) {
   const { currentView, setCurrentView } = useContext(ViewContext)
-  const { ensName, setEnsName, connected, setConnected } =
+  const { walletAddress, connected } =
     useContext(AccountContext)
-
-  const { activate, deactivate, library, account } = useWeb3React()
-  const injected = new InjectedConnector({
-    supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
-  })
 
   const { avatar, skinColor, model } = useContext(SceneContext)
 
   const [mintStatus, setMintStatus] = useState("")
-
-  useEffect(() => {
-    if (account) {
-      _setAddress(account)
-      setConnected(true)
-    } else {
-      setConnected(false)
-      setMintStatus("Please connect your wallet.")
-    }
-  }, [account])
-
-  const _setAddress = async (address) => {
-    const { name } = await getAccountDetails(address)
-    console.log("ens", name)
-    setEnsName(name ? name.slice(0, 15) + "..." : "")
-  }
-
-  const getAccountDetails = async (address) => {
-    const provider = ethers.getDefaultProvider("mainnet", {
-      alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
-    })
-    const check = ethers.utils.getAddress(address)
-
-    try {
-      const name = await provider.lookupAddress(check)
-      if (!name) return {}
-      return { name }
-    } catch (err) {
-      console.warn(err.stack)
-      return {}
-    }
-  }
-
-  const disconnectWallet = async () => {
-    try {
-      deactivate()
-      setConnected(false)
-    } catch (ex) {
-      console.log(ex)
-    }
-  }
-
-  const connectWallet = async () => {
-    try {
-      await activate(injected)
-      setMintStatus("Your wallet has been connected.")
-    } catch (ex) {
-      console.log(ex)
-    }
-  }
 
   async function saveFileToPinata(fileData, fileName) {
     if (!fileData) return cosnole.warn("Error saving to pinata: No file data")
@@ -114,10 +56,6 @@ export default function MintPopup({ template }) {
   }
 
   const mintAsset = async (avatar) => {
-    if (account == undefined) {
-      setMintStatus("Please connect the wallet")
-      return
-    }
     setCurrentView(ViewStates.MINT_CONFIRM)
     setMintStatus("Uploading...")
 
@@ -179,7 +117,7 @@ export default function MintPopup({ template }) {
       try {
         const options = {
           value: BigNumber.from(tokenPrice).mul(1),
-          from: account,
+          from: walletAddress,
         }
         const tx = await contract.mintToken(1, metadataIpfs, options)
         let res = await tx.wait()
@@ -206,25 +144,6 @@ export default function MintPopup({ template }) {
       <div className={styles["StyledContainer"]}>
         <div className={styles["StyledBackground"]} />
         <div className={styles["StyledPopup"]}>
-          {!connected && (
-            <Fragment>
-              <div className={styles["Header"]}>
-                <img src={walletErrorImage} className={mintStatus} />
-              </div>
-              <div className={styles["Title"]}>{mintStatus}</div>
-              <div className={styles["ButtonPanel"]}>
-                <div
-                  className={styles["StyledButton"]}
-                  onClick={() => setCurrentView(ViewStates.CREATOR)}
-                >
-                  Cancel{" "}
-                </div>
-                <div className={styles["StyledButton"]} onClick={() => connectWallet()}>
-                  Connect Wallet{" "}
-                </div>
-              </div>
-            </Fragment>
-          )}
           {connected && (
             <Fragment>
             <div className={styles["Header"]}>

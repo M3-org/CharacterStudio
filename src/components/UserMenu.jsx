@@ -1,6 +1,3 @@
-import { useWeb3React } from "@web3-react/core"
-import { InjectedConnector } from "@web3-react/injected-connector"
-import { ethers } from "ethers"
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { SceneContext } from "../context/SceneContext"
@@ -15,12 +12,7 @@ export const UserMenu = ({template}) => {
   const type = "CHANGEME" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
-  const { ensName, setEnsName, connected, setConnected, walletAddress } = useContext(AccountContext)
-  // const { activate, deactivate, library, account } = useWeb3React()
-
-  const injected = new InjectedConnector({
-    supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
-  })
+  const { ensName, connected, walletAddress } = useContext(AccountContext)
 
   const { avatar, scene, skinColor, model } = useContext(SceneContext)
 
@@ -28,59 +20,9 @@ export const UserMenu = ({template}) => {
 
   const [mintStatus, setMintStatus] = useState("")
 
-  // useEffect(() => {
-  //   if (account) {
-  //     _setAddress(account)
-  //     setConnected(true)
-  //   } else {
-  //     setConnected(false)
-  //     setMintStatus("Please connect your wallet.")
-  //   }
-  // }, [account])
-
-  // const _setAddress = async (address) => {
-  //   const { name, avatar } = await getAccountDetails(address)
-  //   console.log("ens", name)
-  //   setEnsName(name ? name.slice(0, 15) + "..." : "")
-  // }
-
-  // const getAccountDetails = async (address) => {
-  //   const provider = ethers.getDefaultProvider("mainnet", {
-  //     alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
-  //   })
-  //   const check = ethers.utils.getAddress(address)
-
-  //   try {
-  //     const name = await provider.lookupAddress(check)
-  //     if (!name) return {}
-  //     return { name }
-  //   } catch (err) {
-  //     console.warn(err.stack)
-  //     return {}
-  //   }
-  // }
-
-  // const disconnectWallet = async () => {
-  //   try {
-  //     deactivate()
-  //     setConnected(false)
-  //   } catch (ex) {
-  //     console.log(ex)
-  //   }
-  // }
-
   const handleDownload = () => {
     showDownloadOptions ? setShowDownloadOptions(false) : setShowDownloadOptions(true)
   }
-
-  // const connectWallet = async () => {
-  //   try {
-  //     await activate(injected)
-  //     setMintStatus("Your wallet has been connected.")
-  //   } catch (ex) {
-  //     console.log(ex)
-  //   }
-  // }
 
   async function download(
     avatarToDownload,
@@ -175,7 +117,6 @@ export const UserMenu = ({template}) => {
       </Fragment>
     )}
       <div className={styles['WalletButton']}
-        // onClick={connected ? disconnectWallet : connectWallet}
       >
         {connected ? (
           <div className={styles['WalletInfo']} ens={ensName}>
