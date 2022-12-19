@@ -136,10 +136,10 @@ export default function Gate() {
                 GENESIS PASS HOLDERS ONLY
               </div>
               <div className={styles["vh-paragraph"]}>
-                This version of the character creator is only for holders of the
-                <strong>Webaverse Genesis Pass</strong>. Please connect your
-                wallet. We also check for delegated wallets with
-                <strong>EternalProxy</strong> and <strong>delegate.cash</strong>
+                This version of the character creator is only for holders of the 
+                <strong> Webaverse Genesis Pass</strong>. Please connect your
+                wallet. We also check for delegated wallets with 
+                <strong> EternalProxy</strong> and <strong>delegate.cash</strong>
               </div>
               <div className={styles["vh-button"]} onClick={connectWallet}>
                 <CustomButton
