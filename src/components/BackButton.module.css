@@ -1,0 +1,20 @@
+.StyledBackButton {
+    background: url(ui/backButton_gray.png) center center no-repeat;
+    background-size: 45% 55%;
+    width: 74px;
+    height: 74px;
+    backdrop-filter: blur(22.5px);
+    border-radius: 5px;
+    box-sizing: border-box;
+    opacity: 0.4;
+    user-select: none;
+    position: absolute;
+
+}
+
+.StyledBackButton:hover {
+    opacity: 1.0;
+    cursor: pointer;
+    background: url(ui/backButton_white.png) center center no-repeat;
+    background-size: 45% 55%;
+}

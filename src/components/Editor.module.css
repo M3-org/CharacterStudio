@@ -1,0 +1,55 @@
+.SideMenu {
+    position: absolute;
+    left: 50px;
+    top: 10%;
+    width: 100px;
+    border: 1px solid #38404E;
+    border-radius : 5px;
+    backdrop-filter: blur(22.5px); 
+    box-sizing : border-box;
+    transform: perspective(400px) rotateY(5deg);
+    user-select : none;
+}
+
+.LineDivision {
+    border: 1px solid #3A7484;
+    width: 98%;
+    opacity: 0.5;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.MenuOption {
+    display: inline-block;
+    margin: 5px auto 5px auto;
+    padding: 5px;
+    height: 3em;
+    width: 3em;
+    opacity: 0.3;
+    user-select: none;
+    text-align: center;
+    cursor:pointer;
+    border-right: '';
+}
+
+.MenuImg {
+    margin:auto;
+    height: 100%;
+    src: '';
+}
+
+.ShuffleOption {
+    border-right: '';
+    opacity: 1;
+    height: 30px;
+}
+
+.MenuTitle {
+    display: inline-block;
+    text-align: center;
+    height: 70px;
+    width: 85%;
+    text-align: center;
+    margin: .25em auto .25em auto;
+    user-select: none;
+}

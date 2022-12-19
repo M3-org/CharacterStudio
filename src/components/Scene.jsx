@@ -6,7 +6,6 @@ import React, { useRef, useState, useContext, useEffect } from "react"
 import { NoToneMapping } from "three"
 import Editor from "./Editor"
 import Selector from "./Selector"
-import { animated, useSpring } from "react-spring"
 import { addModelData, getSkinColor } from "../library/utils"
 import * as THREE from "three"
 import { SceneContext } from "../context/SceneContext"
@@ -14,32 +13,9 @@ import { SceneContext } from "../context/SceneContext"
 import { AnimationManager } from "../library/animationManager"
 
 import logo from "../../public/ui/weba.png"
-
-import styled from 'styled-components';
-import pngMainBackground from "../../public/ui/mainBackground.png"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 
-const FitParentContainer = styled.div`
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    overflow : hidden;
-`
-
-const ScreenSizeContainer = styled.div`
-    height: 100vh;
-    width: 100vw;
-    position: absolute;
-    top: 0;
-`
-
-const Background = styled(ScreenSizeContainer)`
-  background : url(${pngMainBackground});
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  overflow: hidden;
-`
+import styles from "./Scene.module.css"
 
 export default function Scene({template}) {
   const {
@@ -66,8 +42,6 @@ export default function Scene({template}) {
       if(!loading) setLoading(true)
       return
     }
-
-    console.log('templateInfo changed', templateInfo)
 
     loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
@@ -98,45 +72,18 @@ export default function Scene({template}) {
 
   }, [templateInfo])
 
-  const animatedStyle = useSpring({
-    from: { opacity: "0" },
-    to: { opacity: "1" },
-    config: { duration: "2500" },
-  })
-
   const canvasStyle = { width: "100vw", display: "flex", position: "absolute" }
 
   return templateInfo && (
-    <animated.div style={animatedStyle}>
-      <FitParentContainer>
-        <Background>
-          <div
-            id={"webamark"}
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: "100vw",
-              height: "100vh",
-            }}
-          >
-            <img
-              src={logo}
-              style={{
-                // place in the center of the screen
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "100vh",
-                height: "100vh",
-                opacity: 0.05,
-              }}
-            />
+      <div className={styles["FitParentContainer"]}>
+      <div className={styles["Background"]}>
+          <div className={styles["webamark"]} >
+            <img src={logo} />
           </div>
+      </div>
           <Canvas
             id="editor-scene"
-            style={canvasStyle}
+            className={styles["canvasStyle"]}
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
@@ -196,11 +143,8 @@ export default function Scene({template}) {
               </mesh>
             </PerspectiveCamera>
           </Canvas>
-        </Background>
         <Selector templateInfo={templateInfo} />
         <Editor templateInfo={templateInfo} controls={controls.current} />
-
-      </FitParentContainer>
-    </animated.div>
+      </div>
   )
 }

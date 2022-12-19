@@ -1,5 +1,4 @@
-import Stack from "@mui/material/Stack"
-import React, { useContext, useEffect } from "react"
+import React, { useContext } from "react"
 
 import useSound from 'use-sound';
 import gsap from 'gsap';
@@ -9,62 +8,9 @@ import optionClick from "../../public/sound/option_click.wav"
 import { ViewContext } from "../context/ViewContext";
 import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
-import styled from 'styled-components'
 import { ViewStates } from "../context/ViewContext";
 
-const SideMenu = styled.div`
-    position: absolute;
-    left: 50px;
-    top: 10%;
-    width: 100px;
-    border: 1px solid #38404E;
-    border-radius : 5px;
-    backdrop-filter: blur(22.5px); 
-    box-sizing : border-box;
-    transform: perspective(400px) rotateY(5deg);
-    user-select : none;
-`
-const LineDivision = styled.div`
-    border: 1px solid #3A7484;
-    width: 98%;
-    opacity: 0.5;
-    margin-bottom: ${props => props.bottom || '0'};
-    margin-top: ${props => props.top || '0'};
-`
-const MenuOption = styled.div`
-    display: inline-block;
-    margin: 5px auto 5px auto;
-    padding: 5px;
-    height: 3em;
-    width: 3em;
-    opacity: ${props => props.selected ? 1 : 0.3};
-    user-select: none;
-    text-align: center;
-    cursor:pointer;
-    border-right: ${props => props.selected ? '4px solid #61E5F9' : ''};
-`
-const MenuImg = styled.img`
-    margin:auto;
-    height: ${props => props.height || '100%'};
-    src: ${props => props.src || ''};
-   
-`
-const ShuffleOption = styled(MenuOption)`
-    border-right: '';
-    opacity: 1;
-    height: 30px;
-
-`
-const MenuTitle = styled.div`
-    display: inline-block;
-    text-align: center;
-    height: 70px;
-    width: 85%;
-    text-align: center;
-    margin: .25em auto .25em auto;
-    user-select: none;
-    
-`
+import styles from './Editor.module.css'
 
 export default function Editor({templateInfo, controls}) {
   const {currentTrait, setCurrentTrait} = useContext(SceneContext);
@@ -142,40 +88,37 @@ export default function Editor({templateInfo, controls}) {
   } = useContext(SceneContext)
 
   return(
-  <SideMenu>
-    <Stack alignItems="center"> 
-        
-        <MenuTitle>
+  <div className={styles['SideMenu']}>
+        <div className={styles['MenuTitle']}>
         <BackButton onClick={() => {
           setCurrentTemplate(null)
           setCurrentView(ViewStates.LANDER_LOADING)
           console.log('ViewStates.LANDER_LOADING', ViewStates.LANDER_LOADING)
         }}/>
-        </MenuTitle>
+        </div>
 
-        <LineDivision bottom = {'20px'}/>
+        <div className={styles['LineDivision']} bottom = {'20px'}/>
 
         { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
           // improve id
-          <MenuOption
+          <div className={styles['MenuOption']}
             onClick = {()=>{
               selectOption(item)
             }} 
             selected = {currentTrait === item.name}
             key = {index}>  
-            <MenuImg src = {templateInfo.traitIconsDirectory + item.icon} />
-          </MenuOption>
+            <div className={styles['MenuImg']} src = {templateInfo.traitIconsDirectory + item.icon} />
+          </div>
         ))}
 
-        <LineDivision top = {'20px'}/>
+        <div className={styles['LineDivision']} top = {'20px'}/>
 
-        <ShuffleOption 
+        <div className={styles['ShuffleOption']} 
           onClick={() => {
-            console.log("TOOD: shuffle")
+            console.log("TODO: shuffle")
             !isMute && play();
           }}>
-          <MenuImg src = {shuffle} />
-        </ShuffleOption>
-    </Stack>
-  </SideMenu>);
+          <div className={styles['MenuImg']} src = {shuffle} />
+        </div>
+  </div>);
 }

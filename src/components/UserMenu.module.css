@@ -1,0 +1,80 @@
+.SquareButton {
+  transition: 0.3s;
+  font-family: Proxima;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: auto;
+  color: rgba(255, 255, 255, 0.5);
+  width: "74px";
+  height: "74px";
+  border: 1px solid #434b58;
+  backdrop-filter: blur(22.5px);
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  opacity: 0.8;
+  user-select: none;
+  cursor: pointer;
+}
+
+.SquareButton:hover {
+  backdrop-filter: blur(1.5px);
+  border-color: white;
+  opacity: 1;
+  color: white;
+}
+
+.TopRightMenu {
+  display: flex;
+  top: 37px;
+  right: 44px;
+  position: absolute;
+  gap: 20px;
+  z-index: 1000px;
+  position: fixed;
+}
+
+.WalletInfo {
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  width: 164px;
+  font-size: 14px;
+  margin: auto;
+  margin-left: -10px;
+}
+
+.WalletImg {
+  width: 74px;
+  height: 74px;
+  background: url('/ui/connectWallet.svg') center center no-repeat;
+}
+
+.WalletButton {
+  transition: all 0.1s;
+  width: "74px";
+  justify-content: space-between;
+}
+
+.WalletButton:hover .WalletImg {
+  background: url('/ui/connectWallet.svg') center center no-repeat;
+}
+
+.DownloadButton {
+  width: 74px;
+  height: 74px;
+  background: url('/ui/download.svg') center center no-repeat;
+}
+
+.MintButton {
+  width: 74px;
+  height: 74px;
+  background: url('/ui/mint.svg') center center no-repeat;
+}
+
+.TextButton {
+  width: 106px;
+}

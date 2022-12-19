@@ -1,0 +1,187 @@
+.StyledButton {
+  background: rgba(81, 90, 116, 0.25);
+  border: 2px solid #434b58;
+  border-radius: 78px;
+  box-sizing: border-box;
+  width: 180px;
+  height: 50px;
+  text-align: center;
+  font-family: "Proxima";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 50px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.StyledButton:hover {
+  border: 2px solid #4eb0c0;
+  color: #ffffff;
+}
+
+.Styledbutton.selected {
+  border: 2px solid #4EB0C0;
+  color: #FFFFFF;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.StyledContainer {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.Title {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-size: "1.2rem";
+  padding: "45px";
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.StyledBackground {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  background-color: #000000;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.StyledPopup {
+  width: 550px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #1716168d;
+  border-color: #38404e;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  align-items: center;
+  margin: auto;
+  padding: 10px 0 30px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  justify-content: space-evenly;
+  display: flex;
+  flex-flow: column wrap;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.Header {
+  border-bottom: 3px solid #3a7484;
+  width: 100%;
+  padding: 5px 0px;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+}
+
+.Header.mintStatus {
+  display: flex;
+}
+
+.Header.mintTitle {
+  font-family: "Proxima";
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 32px;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.ButtonPanel {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin: 10px;
+}
+
+
+/* TASK: rewrite the above styled component with CSS */
+
+.TraitDetail {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 20px 10px 20px;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.TraitImage {
+  height: "100%";
+  src: "";
+  padding: 5px;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.TraitText {
+  font-family: "Proxima";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  margin: 5px;
+  line-height: 91.3%;
+  color: #ffffff;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.MintCost {
+  font-family: "Proxima";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  margin: 0px;
+  line-height: 91.3%;
+  color: #ffffff;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.TraitBox {
+  width: 190px;
+  height: 40px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+/* TASK: rewrite the above styled component with CSS */
+
+.MintPriceBox {
+  width: 390px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

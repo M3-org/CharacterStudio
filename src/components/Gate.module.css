@@ -1,0 +1,67 @@
+.GateStyleBox {
+    position: fixed;
+    z-index: 10000;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction :column;
+    align-items: center;
+    justify-content: center;
+    user-select : none;
+    overflow: hidden;
+    background-color: #000000;
+}
+
+.vh-centered {
+    position: absolute;
+}
+
+.vh-header {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    position: relative;
+    top: -1em;
+    line-height: 32px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.vh-paragraph {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    position: relative;
+    top: -1em;
+    line-height: 32px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.vh-button {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    position: relative;
+    top: -1em;
+    line-height: 32px;
+    text-align: center;
+    color: #FFFFFF;
+    background: #645D8D;
+    border-radius: 10px;
+    padding: 10px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 10em;
+    cursor: pointer;
+}
+
+.logo-container {
+    bottom: 0;
+    position: absolute;
+}

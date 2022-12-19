@@ -1,27 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
-import { SceneContext } from "../context/SceneContext";
 
-const canvasStyle = {
-  right: '0',
-  width: '390px',
-  color: "#999999",
-  height: "220px",
-  background: "#40455A",
-  border: "1px solid #303949",
-  backdropFilter: "blur(22.5px)",
-  borderRadius: '5px',
-  marginTop:'10px'
-}
+import styles from './MintModal.module.css'
 
 export default function MintModal({model}) {
   if(!model) return null
   console.log('model', model)
     return (
-        <Canvas
-          style={canvasStyle}
+        <Canvas className={styles['canvasStyle']}
           id="mint-scene"
             gl={{ antialias: true, preserveDrawingBuffer:true }}
             linear={false}

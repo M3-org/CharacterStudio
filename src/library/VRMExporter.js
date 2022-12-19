@@ -1,6 +1,4 @@
 import { BufferAttribute, } from "three";
-import { createCanvas } from "canvas";
-import { ConnectingAirportsOutlined } from "@mui/icons-material";
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
         allowedUserName: vrmMeta.allowedUserName,
@@ -453,7 +451,9 @@ function getNodes(parentNode) {
     return [parentNode].concat(parentNode.children.map((child) => getNodes(child)).flat());
 }
 function imageBitmap2png(image) {
-    const canvas = createCanvas(image.width, image.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
     canvas.getContext("2d").drawImage(image, 0, 0);
     // rewrite the above code using node.js and buffer. you cannot use the canvas object anymore.
     const pngUrl = canvas.toDataURL("image/png");

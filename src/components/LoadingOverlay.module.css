@@ -1,0 +1,91 @@
+/* TASK: rewrite the above styled component to use CSS modules. instead of nesting classes, format them with CSS to be individual classes. use the default values instead of props */
+
+.LoadingStyleBox {
+    z-index: 1000;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    overflow: hidden;
+    background: "black"
+}
+}
+
+.loading-text {
+    font-family: Proxima;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    position: relative;
+    top: -1em;
+    line-height: 32px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.loading-bar {
+    display: block;
+    width: '50%';
+    height: 7px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    transition: width 1s;
+    margin: 3.5px;
+}
+
+.cover-loadingbar {
+    display: block;
+    align-items: center;
+    justify-content: start;
+    width: 50vw;
+    margin-left: auto;
+    margin-right: auto;
+    height: 14px;
+    border: 2px solid #645D8D;
+    border-radius: 10px;
+
+}
+
+.vh-centered {
+    position: absolute;
+}
+
+.loading-bar {
+    display: block;
+    width: '50%';
+    height: 7px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    transition: width 1s;
+    margin: 3.5px;
+}
+
+.logo-container {
+    bottom: 0;
+    position: absolute;
+
+
+}
+
+.webamark {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 100px;
+
+}
+
+.logo-gradient {
+    height: 20vh;
+    width: 100vw;
+    background: radial-gradient(49.5% 173.11% at 50.84% -79.89%, #95414E 30.36%, rgba(137, 61, 73, 0) 100%);
+    display: flex;
+    flex-direction: column;
+    transform: rotate(-180deg);
+    bottom: 0;
+}

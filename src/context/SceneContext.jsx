@@ -21,12 +21,6 @@ export const SceneProvider = (props) => {
       const vrm = model.userData.vrm
       renameVRMBones(vrm)
 
-      model.scene.traverse((node) => {
-        if (node.isMesh) {
-          node.material.map.encoding = THREE.sRGBEncoding
-        }
-      })
-
       vrm.scene?.traverse((child) => {
         child.frustumCulled = false
 

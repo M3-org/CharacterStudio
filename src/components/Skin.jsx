@@ -5,6 +5,8 @@ import skinSelector from '../../public/ui/skinSelector/Vector.png'
 import { SceneContext } from "../context/SceneContext"
 import { setMaterialColor } from "../library/utils"
 
+import styles from './Skin.module.css'
+
 function Skin({ templateInfo, currentTrait, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
@@ -19,21 +21,6 @@ function Skin({ templateInfo, currentTrait, avatar}) {
     setColorStatus,
     scene,
   } = useContext(SceneContext);
-
-  const container = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: "0.5rem 0"
-  }
-  const btn = {
-    width : "56.53px",
-    height : "56.54px",
-    display: "flex",
-    justifyContent:"center",
-    alignItems:"center",
-    cursor: "pointer",
-  }
 
   useEffect(() => {
     setChecked(colorStatus)
@@ -113,24 +100,11 @@ function Skin({ templateInfo, currentTrait, avatar}) {
   console.log('colorArray[currentTrait]', colorArray[currentTrait])
 
   return currentTrait && (
-    <div 
-      style={{ 
-        ...container,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(8, 1fr)',
-        gridGap: '0px',
-        margin: 'auto',
-        marginTop: '40px',
-      }}
-    >
+    <div className={styles['container']} >
     {colorArray[currentTrait].map((row, i) => {
       return row.map((col, k) => 
         (
-          <div 
-            style={{
-              ...btn,
-              backgroundColor: col,
-            }}  onClick={() => handleChangeSkin(col)} key={i * row.length + k}>
+          <div className={styles['btn']} style={{ backgroundColor: col}} onClick={() => handleChangeSkin(col)} key={i * row.length + k}>
            {(checked == col) && <img src={skinSelector}/>}
           </div>
         )

@@ -1,0 +1,11 @@
+.canvasStyle {
+    right: 0;
+    width: 390px;
+    color: #999999;
+    height: 220px;
+    background: #40455A;
+    border: 1px solid #303949;
+    backdrop-filter: blur(22.5px);
+    border-radius: 5px;
+    margin-top: 10px;
+  }

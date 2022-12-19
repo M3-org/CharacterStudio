@@ -1,99 +1,15 @@
 import { useWeb3React } from "@web3-react/core"
 import { InjectedConnector } from "@web3-react/injected-connector"
-import axios from "axios"
 import { ethers } from "ethers"
 import React, { Fragment, useContext, useEffect, useState } from "react"
-import styled from "styled-components"
-
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
-import svgWallet from "../../public/ui/connectWallet.svg"
-import svgDiconnectWallet from "../../public/ui/diconnectWallet.svg"
-import svgDownload from "../../public/ui/download.svg"
-import svgMint from "../../public/ui/mint.svg"
 import { SceneContext } from "../context/SceneContext"
 import { ViewStates, ViewContext } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
 import VRMExporter from "../library/VRMExporter"
 import { AccountContext } from "../context/AccountContext"
 
-
-const SquareButton = styled.div`
-  transition: 0.3s;
-  font-family: Proxima;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin: auto;
-  color: rgba(255, 255, 255, 0.5);
-  width: ${(props) => props.width || "74px"};
-  height: ${(props) => props.height || "74px"};
-  border: 1px solid #434b58;
-  backdrop-filter: blur(22.5px);
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-  opacity: 0.8;
-  user-select: none;
-  cursor: pointer;
-  &:hover {
-    backdrop-filter: blur(1.5px);
-    border-color: white;
-    opacity: 1;
-    color: white;
-  }
-`
-
-const TopRightMenu = styled.div`
-  display: flex;
-  top: 37px;
-  right: 44px;
-  position: absolute;
-  gap: 20px;
-  z-index: 1000px;
-  position: fixed;
-`
-
-const WalletInfo = styled.div`
-  overflow: hidden;
-  text-align: right;
-  text-overflow: ellipsis;
-  text-transform: ${(props) => (props.ens ? "uppercase" : "none")};
-  width: 164px;
-  font-size: 14px;
-  margin: auto;
-  margin-left: -10px;
-`
-
-const WalletImg = styled.div`
-  width: 74px;
-  height: 74px;
-  background: url(${svgWallet}) center center no-repeat;
-`
-
-const WalletButton = styled(SquareButton)`
-  transition: all 0.1s;
-  width: ${(props) => (props.connected ? "225px" : "74px")};
-  justify-content: space-between;
-  &:hover ${WalletImg} {
-    background: ${(props) =>
-    props.connected
-      ? "url(" + svgDiconnectWallet + ") center center no-repeat"
-      : "url(" + svgWallet + ") center center no-repeat"};
-  }
-`
-
-const DownloadButton = styled(SquareButton)`
-  background: url(${svgDownload}) center center no-repeat;
-`
-
-const MintButton = styled(SquareButton)`
-  background: url(${svgMint}) center center no-repeat;
-`
-
-const TextButton = styled(SquareButton)`
-  width: 106px;
-`
+import styles from "./UserMenu.module.css"
 
 export const UserMenu = ({template}) => {
   const type = "CHANGEME" // class type
@@ -227,50 +143,49 @@ export const UserMenu = ({template}) => {
   function getArrayBuffer(buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
 
   return (
-    <TopRightMenu>
+    <div className={styles['TopRightMenu']}>
     {currentView.includes('CREATOR') && (
       <Fragment>
         {showDownloadOptions && (
           <Fragment>
-            <TextButton
+            <div className={styles['TextButton']}
               onClick={() => {
                 download(model, `UpstreetAvatar_${type}`, "vrm")
               }
               }
             >
               <span>VRM</span>
-            </TextButton>
-            <TextButton
+            </div>
+            <div className={styles['TextButton']}
               onClick={() => {
                 download(model, `UpstreetAvatar_${type}`, "glb")
               }
               }
             >
               <span>GLB</span>
-            </TextButton>
+            </div>
           </Fragment>
         )}
-        <DownloadButton onClick={handleDownload} />
-        <MintButton
+        <div className={styles['DownloadButton']} onClick={handleDownload} />
+        <div className={styles['MintButton']}
           onClick={() => {
             setCurrentView(ViewStates.MINT)
           }}
         />
       </Fragment>
     )}
-      <WalletButton
-        connected={connected}
+      <div className={styles['WalletButton']}
         onClick={connected ? disconnectWallet : connectWallet}
       >
         {connected ? (
-          <WalletInfo ens={ensName}>
+          <div className={styles['WalletInfo']} ens={ensName}>
             {ensName ? ensName : account ? account.slice(0, 15) + "..." : ""}
-          </WalletInfo>
+          </div>
         ) : (
           ""
         )}
-        <WalletImg />
-      </WalletButton>
-    </TopRightMenu>
+        <div className={styles['WalletImg']} />
+      </div>
+    </div>
   )
 }

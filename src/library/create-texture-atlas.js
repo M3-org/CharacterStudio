@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { createCanvas, createImageData } from 'canvas';
 import { mergeGeometry } from "./merge-geometry.js";
 
 let container, cameraRTT, sceneRTT, material, quad, renderer, rtTexture;
@@ -56,7 +55,6 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
   renderer.setRenderTarget(rtTexture);
   renderer.clear();
   renderer.render(sceneRTT, cameraRTT);
-  renderer.setRenderTarget(null);
 
   let buffer = new Uint8ClampedArray(rtTexture.width * rtTexture.height * 4)
   renderer.readRenderTargetPixels(rtTexture, 0, 0, width, height, buffer);
@@ -66,7 +64,9 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
 }
 
 function createContext({ width, height }) {
-  const canvas = createCanvas(width, height);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext("2d");
   context.fillStyle = "white";
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -77,10 +77,9 @@ function getTextureImage(material, textureName) {
   material = material.length == null ? material : material[0];
   return material[textureName] && material[textureName].image;
 }
-function getTextue(material, textureName) {
+function getTexture(material, textureName) {
   material = material.length == null ? material : material[0];
   const newTexture = material[textureName].clone();
-  newTexture.encoding = THREE.sRGBEncoding;
   return newTexture;
 }
 function getMaterialVRMData(material) {
@@ -167,8 +166,10 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
       if (image !== '' && image !== undefined) {
         try {
           const imageData = new Uint8ClampedArray(image.data);
-          const arr = createImageData(imageData, xTileSize, yTileSize);
-          const tempcanvas = createCanvas(tileSize, tileSize);
+          const arr = new ImageData(imageData, xTileSize, yTileSize);
+          const tempcanvas = document.createElement("canvas");
+          tempcanvas.width = xTileSize;
+          tempcanvas.height = yTileSize;
           const tempctx = tempcanvas.getContext("2d");
 
           tempctx.putImageData(arr, 0, 0);
@@ -209,7 +210,6 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
   // Create textures from canvases
   const textures = Object.fromEntries(await Promise.all(IMAGE_NAMES.map(async (name) => {
     const texture = new THREE.Texture(contexts[name].canvas);
-    texture.encoding = THREE.sRGBEncoding;
     texture.flipY = false;
     return [name, texture];
   })));
@@ -343,7 +343,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       }
 
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
-      let texture = getTextue(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
+      let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
       const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX);
 
       createImageBitmap(imgData)
@@ -386,8 +386,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     await Promise.all(
       IMAGE_NAMES.map(async (name) => {
         const texture = new THREE.Texture(contexts[name].canvas)
-        // TODO: What is encoding?
-        texture.encoding = THREE.sRGBEncoding;
         texture.flipY = false;
         return [name, texture];
       })

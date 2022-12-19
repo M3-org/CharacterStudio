@@ -3,7 +3,6 @@ import MintModal from "./MintModal"
 import walletErrorImage from "../../public/ui/mint/walletError.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import polygonIcon from "../../public/ui/mint/polygon.png"
-import styled from "styled-components"
 import { ViewStates, ViewContext } from "../context/ViewContext"
 import { useWeb3React } from "@web3-react/core"
 import { InjectedConnector } from "@web3-react/injected-connector"
@@ -14,171 +13,17 @@ import { getModelFromScene, getScreenShot } from "../library/utils"
 import { Contract } from "./Contract"
 import { AccountContext } from "../context/AccountContext"
 
+import styles from "./MintPopup.module.css"
+
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
 
 const mintCost = 0.0
 
-const StyledButton = styled.div`
-   {
-    background: rgba(81, 90, 116, 0.25);
-    border: 2px solid #434b58;
-    border-radius: 78px;
-    box-sizing: border-box;
-    width: 180px;
-    height: 50px;
-    text-align: center;
-    font-family: "Proxima";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 50px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.3);
-    :hover {
-      border: 2px solid #4eb0c0;
-      color: #ffffff;
-    }
-    ${(props) =>
-      props.selected &&
-      `
-            border: 2px solid #4EB0C0;
-            color: #FFFFFF;
-        `}
-  }
-`
-const StyledContainer = styled.div`
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index:10000;
-`
-const Title = styled.div`
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-  font-size: 1.2rem;
-  font-size: ${(props) => props.fontSize || "1.2rem"};
-  padding: ${(props) => props.padding || "45px"};
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-`
-const StyledBackground = styled.div`
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  background-color: #000000;
-`
-const StyledPopup = styled.div`
-  width: 550px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background-color: #1716168d;
-  border-color: #38404e;
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 5px;
-  align-items: center;
-  margin: auto;
-  padding: 10px 0 30px;
-  border-radius: 10px;
-  color: white;
-  text-align: center;
-  justify-content: space-evenly;
-  display: flex;
-  flex-flow: column wrap;
-`
-const Header = styled.div`
-  border-bottom: 3px solid #3a7484;
-  width: 100%;
-  padding: 5px 0px;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  .mintStatus {
-    display: flex;
-  }
-  .mintTitle {
-    font-family: "Proxima";
-    font-weight: 800;
-    font-size: 20px;
-    line-height: 32px;
-  }
-`
-const ButtonPanel = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin: 10px;
-`
-const TraitDetail = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin: 20px 20px 10px 20px;
-`
-
-const TraitImage = styled.img`
-  height: ${(props) => props.height || "100%"};
-  src: ${(props) => props.src || ""};
-  padding: 5px;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-`
-
-const TraitText = styled.span`
-  font-family: "Proxima";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  margin: 5px;
-  line-height: 91.3%;
-  color: #ffffff;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-`
-
-const MintCost = styled.span`
-  font-family: "Proxima";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 20px;
-  margin: 0px;
-  line-height: 91.3%;
-  color: #ffffff;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-`
-
-const TraitBox = styled.div`
-  width: 190px;
-  height: 40px;
-  display: flex;
-  justify-content: left;
-  align-items: center;
-`
-
-const MintPriceBox = styled.div`
-  width: 390px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-export default function MintPopup({
-  template
-}) {
+export default function MintPopup({ template }) {
   const { currentView, setCurrentView } = useContext(ViewContext)
-  const { ensName, setEnsName, connected, setConnected } = useContext(AccountContext)
+  const { ensName, setEnsName, connected, setConnected } =
+    useContext(AccountContext)
 
   const { activate, deactivate, library, account } = useWeb3React()
   const injected = new InjectedConnector({
@@ -240,7 +85,7 @@ export default function MintPopup({
   }
 
   async function saveFileToPinata(fileData, fileName) {
-    if(!fileData) return cosnole.warn("Error saving to pinata: No file data")
+    if (!fileData) return cosnole.warn("Error saving to pinata: No file data")
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
     let data = new FormData()
     data.append("file", fileData, fileName)
@@ -276,10 +121,10 @@ export default function MintPopup({
     setCurrentView(ViewStates.MINT_CONFIRM)
     setMintStatus("Uploading...")
 
-    const screenshot = await getScreenShot("mint-scene");
+    const screenshot = await getScreenShot("mint-scene")
     if (!screenshot) {
-      throw new Error("Unable to get screenshot");
-    } 
+      throw new Error("Unable to get screenshot")
+    }
 
     const imageHash = await saveFileToPinata(
       screenshot,
@@ -356,68 +201,85 @@ export default function MintPopup({
     } else return colorStatusmodel
   }
 
-  return currentView.includes('MINT') && (
-    <StyledContainer>
-      <StyledBackground />
-      <StyledPopup>
-        {!connected && (
-          <Fragment>
-            <Header>
-              <img src={walletErrorImage} className={mintStatus} />
-            </Header>
-            <Title>{mintStatus}</Title>
-            <ButtonPanel>
-              <StyledButton onClick={() => setCurrentView(ViewStates.CREATOR)}>
-                Cancel{" "}
-              </StyledButton>
-              <StyledButton onClick={() => connectWallet()}>
-                Connect Wallet{" "}
-              </StyledButton>
-            </ButtonPanel>
-          </Fragment>
-        )}
-        {connected && (
-          <Fragment>
-            <Header>
+  return (
+    currentView.includes("MINT") && (
+      <div className={styles["StyledContainer"]}>
+        <div className={styles["StyledBackground"]} />
+        <div className={styles["StyledPopup"]}>
+          {!connected && (
+            <Fragment>
+              <div className={styles["Header"]}>
+                <img src={walletErrorImage} className={mintStatus} />
+              </div>
+              <div className={styles["Title"]}>{mintStatus}</div>
+              <div className={styles["ButtonPanel"]}>
+                <div
+                  className={styles["StyledButton"]}
+                  onClick={() => setCurrentView(ViewStates.CREATOR)}
+                >
+                  Cancel{" "}
+                </div>
+                <div className={styles["StyledButton"]} onClick={() => connectWallet()}>
+                  Connect Wallet{" "}
+                </div>
+              </div>
+            </Fragment>
+          )}
+          {connected && (
+            <Fragment>
+            <div className={styles["Header"]}>
               <img
-                src={mintPopupImage}
-                className={mintStatus}
-                height={"50px"}
-              />
-              <div className="mintTitle">Mint Avatar</div>
-            </Header>
-            <MintModal model={model} />
-            <TraitDetail>
-              {template.selectionTraits &&
-                template.selectionTraits.map((item, index) => (
-                  <TraitBox key={index}>
-                    <TraitImage
-                      src={template.traitIconsDirectory + item.icon}
-                    />
-                    <TraitText>{showTrait(item)}</TraitText>
-                  </TraitBox>
-                ))}
-            </TraitDetail>
-            <MintPriceBox>
-              <MintCost>{"Mint Price: "}</MintCost>
-              <TraitImage src={polygonIcon} height={"40%"} />
-              <MintCost>{mintCost}</MintCost>
-            </MintPriceBox>
-            <Title fontSize={"1rem"} padding={"10px 0 20px"}>
-              {mintStatus}
-            </Title>
-            <ButtonPanel>
-              <StyledButton onClick={() => setCurrentView(ViewStates.CREATOR)}>
-                {" "}
-                {currentView === ViewStates.MINT_COMPLETE ? "Ok" : "Cancel"}
-              </StyledButton>
-              {currentView !== ViewStates.MINT_COMPLETE && (
-                <StyledButton onClick={() => mintAsset(model)}>Mint</StyledButton>
-              )}
-            </ButtonPanel>
-          </Fragment>
-        )}
-      </StyledPopup>
-    </StyledContainer>
+                  src={mintPopupImage}
+                  className={mintStatus}
+                  height={"50px"}
+                />
+                <div className={styles["mintTitle"]}>Mint Avatar</div>
+              </div>
+              <MintModal model={model} />
+              <div className={styles["TraitDetail"]}>
+                {template.selectionTraits &&
+                  template.selectionTraits.map((item, index) => (
+                    <TraitBox key={index}>
+                      <div className={styles["TraitImage"]} />
+                      <img src={template.traitIconsDirectory + item.icon} />
+                      <div className={styles["TraitText"]}>{showTrait(item)}</div>
+                    </TraitBox>
+                  ))}
+              </div>
+              <div className={styles["MintPriceBox"]}>
+                <div className={styles["MintCost"]}>
+                  {"Mint Price: "}
+                </div>
+                <div className={styles["TraitImage"]} />
+                <img src={polygonIcon} height={"40%"} />
+                <div className={styles["MintCost"]}>
+                  {mintCost}
+                </div>
+              </div>
+              <div className={styles["Title"]} fontSize={"1rem"} padding={"10px 0 20px"}>
+                {mintStatus}
+              </div>
+              <div className={styles["ButtonPanel"]}>
+                <div
+                  className={styles["StyledButton"]}
+                  onClick={() => setCurrentView(ViewStates.CREATOR)}
+                >
+                  {" "}
+                  {currentView === ViewStates.MINT_COMPLETE ? "Ok" : "Cancel"}
+                </div>
+                {currentView !== ViewStates.MINT_COMPLETE && (
+                  <div
+                    className={styles["StyledButton"]}
+                    onClick={() => mintAsset(model)}
+                  >
+                    Mint
+                  </div>
+                )}
+              </div>
+            </Fragment>
+          )}
+        </div>
+      </div>
+    )
   )
 }

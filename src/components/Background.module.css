@@ -1,0 +1,15 @@
+.backgroundImg {
+    background-image: url('ui/background.png');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 100vh;
+    width: 100vw;
+    background-size: cover;
+    display: fixed;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
