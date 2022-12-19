@@ -2,7 +2,7 @@ import React, { useEffect, Fragment, useState, useContext } from "react"
 import * as THREE from "three"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
-import { disposeVRM } from "../library/utils"
+import { disposeVRM, addModelData } from "../library/utils"
 import Skin from "./Skin"
 
 import sectionClick from "../../public/sound/section_click.wav"
@@ -35,13 +35,12 @@ export default function Selector() {
    console.log('state traits is', traits)
    const traitTypes = templateInfo.traits.map((trait) => trait.type);
 
-   console.log('selector traits is', traits)
+   console.log('selector traitTypes is', traitTypes)
 
   const { isMute } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
-
-  const [traitName, setTraitName] = useState("")
+   const [loadingPercentage, setLoadingPercentage] = useState(0)
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
 
   const getAsArray = (target) => {
@@ -50,13 +49,13 @@ export default function Selector() {
     return Array.isArray(target) ? target : [target]
   }
   
-  const selectTrait = (trait, textureIndex, templateInfo, setLoadingTraitOverlay, setSelectValue, setAvatar) => {
+  const selectTrait = (trait, textureIndex) => {
     if (trait === null) {
-      if (avatar[traitName] && avatar[traitName].vrm) {
-        disposeVRM(avatar[traitName].vrm)
+      if (avatar[currentTrait] && avatar[currentTrait].vrm) {
+        disposeVRM(avatar[currentTrait].vrm)
         setAvatar({
           ...avatar,
-          [traitName]: {},
+          [currentTrait]: {},
         })
       }
       return;
@@ -95,6 +94,8 @@ export default function Selector() {
     addToScene = true,
   ) => {
     let r_vrm
+    console.log('itemLoader item is', item)
+
     const vrm = await loadModel(
       `${templateInfo.traitsDirectory}${item && item.directory}`,
     )
@@ -116,14 +117,14 @@ export default function Selector() {
           })
         }
   
-        if (avatar[traitName]) {
+        if (avatar[currentTrait]) {
           const traitData = templateInfo.traits.find(
-            (element) => element.name === traitName,
+            (element) => element.name === currentTrait,
           )
   
           // set the new trait
           const newAvatarData = {}
-          newAvatarData[traitName] = {
+          newAvatarData[currentTrait] = {
             traitInfo: item,
             model: vrm.scene,
             vrm: vrm,
@@ -201,7 +202,7 @@ export default function Selector() {
                   )
                   // now check if the avatar properties include this restrictions to remove
                   for (const property in avatar) {
-                    if (property !== traitName) {
+                    if (property !== currentTrait) {
                       typeRestrictions.forEach((typeRestriction) => {
                         if (avatar[property].traitInfo?.type) {
                           const types = avatar[property].traitInfo.type
@@ -239,7 +240,7 @@ export default function Selector() {
           }
   
           for (const property in newAvatar) {
-            if (property !== traitName) {
+            if (property !== currentTrait) {
               if (newAvatar[property].vrm) {
                 const tdata = templateInfo.traits.find(
                   (element) => element.name === property,
@@ -247,7 +248,7 @@ export default function Selector() {
                 const restricted = tdata.restrictedTraits
                 if (restricted) {
                   for (let i = 0; i < restricted.length; i++) {
-                    if (restricted[i] === traitName) {
+                    if (restricted[i] === currentTrait) {
                       // if one of their restrcited elements match, remove him and break
                       newAvatarData[property] = {}
                       break
@@ -349,15 +350,15 @@ export default function Selector() {
     (async () => {
       let newAvatar = {}
       // for trait in traits
-      for (let trait of traits) {
-        console.log("setting rando trait", trait);
-        // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
-          const collection = trait.collection
-          ranItem = collection[Math.floor(Math.random() * collection.length)]
-              const temp = await itemLoader(ranItem, traits, false)
-              loaded += 100 / traitTypes.length
-              newAvatar[trait.name] = temp
-      }
+      // for (let trait of traits) {
+      //   console.log("setting rando trait", trait);
+      //   // TODO: this may be throwing errors, we need to pass the traits parsed tom the json
+      //     const collection = trait.collection
+      //     ranItem = collection[Math.floor(Math.random() * collection.length)]
+      //         const temp = await itemLoader(ranItem, traits, false)
+      //         setLoadingPercentage(loadingPercentage + 100 / traitTypes.length)
+      //         newAvatar[trait.name] = temp
+      // }
       for (const property in buffer) {
         if (buffer[property].vrm) {
           if (newAvatar[property].vrm != buffer[property].vrm) {
@@ -394,6 +395,7 @@ export default function Selector() {
               </div>
               {currentTrait && currentTrait.collection &&
                 currentTrait.collection.map((item, index) => {
+                  console.log('item is', item)
                   if (!item.thumbnailOverrides) {
                     return (
                       <div
@@ -403,7 +405,7 @@ export default function Selector() {
                             ? 'selectorButtonActive'
                             : 'selectorButton'
                         }
-                        className={`selector-button coll-${traitName} ${
+                        className={`selector-button coll-${currentTrait} ${
                           selectValue === item.id ? "active" : ""
                         }`}
                         onClick={() => {
@@ -439,7 +441,7 @@ export default function Selector() {
                         <div
                           key={index + "_" + icnindex}
                           style={selectorButton}
-                          className={`selector-button coll-${traitName} ${
+                          className={`selector-button coll-${currentTrait} ${
                             selectValue === item.id ? "active" : ""
                           }`}
                           onClick={() => {

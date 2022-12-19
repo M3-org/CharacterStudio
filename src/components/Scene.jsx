@@ -11,8 +11,6 @@ import * as THREE from "three"
 import { SceneContext } from "../context/SceneContext"
 
 import { AnimationManager } from "../library/animationManager"
-
-import logo from "../../public/ui/weba.png"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 
 import styles from "./Scene.module.css"
