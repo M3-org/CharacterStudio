@@ -80,17 +80,17 @@ export default function Gate() {
   }
 
   const checkOTPass = async (account) => {
-    // const testaccount = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104';
+    const testaccount = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104';
     const network = "ETHEREUM"
-    const OTTokenList = await fetch(`https://serverless-backend-blue.vercel.app/api/getOpenSeaNFTCollection?walletAddress=${account}&collectionAddress=${OTCollectionAddress}&network=${network}`,
+    const OTTokenList = await fetch(`https://serverless-backend-blue.vercel.app/api/getOpenSeaNFTCollection?walletAddress=${testaccount}&collectionAddress=${OTCollectionAddress}&network=${network}`,
     {
             method: 'get',
             redirect: 'follow'
     }).then(response => response.json())
-    console.log(OTTokenList)
     if(OTTokenList.nftList.totalCount) {
-        setOTTokens(OTTokenList.ownedNfts);
-        return true;
+      const OTTokenIds = OTTokenList.nftList.ownedNfts.map((token) => parseInt(token.id.tokenId))
+      setOTTokens(OTTokenIds);
+      return true;
     } else return false;
   }
 
