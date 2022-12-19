@@ -23,6 +23,7 @@ export function cloneSkeleton(skinnedMesh) {
         }
     });
     const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+    newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
     newSkeleton.pose();
     return newSkeleton;
 }
