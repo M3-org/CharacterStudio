@@ -42,6 +42,8 @@
     border-right: '';
     opacity: 1;
     height: 30px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .MenuTitle {

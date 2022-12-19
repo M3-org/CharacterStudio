@@ -33,13 +33,11 @@ const selectTrait = (trait, textureIndex, templateInfo, setLoadingTraitOverlay, 
         setCurrentTrait(trait.id)
       } else {
         setLoadingTraitOverlay(true)
-        templateInfo.selectionTraits.map((item) => {
+        templateInfo.traits.map((item) => {
           if (item.name === currentTrait && item.type === "texture") {
             textureTraitLoader(item, trait, templateInfo, setLoadingTraitOverlay)
           } else if (item.name === currentTrait) {
             if (trait.textureCollection && textureIndex) {
-              
-              
               const txtrs = traits[trait.textureCollection]
                   const localDir = txtrs.collection[textureIndex].directory
                   const texture = templateInfo.traitsDirectory + localDir
@@ -88,7 +86,7 @@ const itemLoader = async (
       }
 
       if (avatar[traitName]) {
-        const traitData = templateInfo.selectionTraits.find(
+        const traitData = templateInfo.traits.find(
           (element) => element.name === traitName,
         )
 
@@ -140,7 +138,7 @@ const itemLoader = async (
           if (item.type) {
             const itemTypes = getAsArray(item.type)
             for (const property in avatar) {
-              const tData = templateInfo.selectionTraits.find(
+              const tData = templateInfo.traits.find(
                 (element) => element.name === property,
               )
               if (tData != null) {
@@ -212,7 +210,7 @@ const itemLoader = async (
         for (const property in newAvatar) {
           if (property !== traitName) {
             if (newAvatar[property].vrm) {
-              const tdata = templateInfo.selectionTraits.find(
+              const tdata = templateInfo.traits.find(
                 (element) => element.name === property,
               )
               const restricted = tdata.restrictedTraits
@@ -307,7 +305,7 @@ const textureTraitLoader = (props, trait, templateInfo, setLoadingTraitOverlay) 
   }
 }
 
-export default function Selector({templateInfo}) {
+export default function Selector() {
   const {
     loadModel,
     avatar,
@@ -316,23 +314,21 @@ export default function Selector({templateInfo}) {
     scene,
     setCurrentTrait,
     currentTrait,
+    template,
     model,
    } = useContext(SceneContext);
-
    console.log('selector currentTemplate is', currentTemplate)
-
     console.log('selector currentTrait is', currentTrait)
-    console.log('selector templateInfo is', templateInfo)
-
+    console.log('selector templateInfo is', template)
    // cast currentTemplate.index to int
     const currentTemplateIndex = parseInt(currentTemplate.index)
-
    console.log('currentTemplateIndex is', currentTemplateIndex)
+   const templateInfo = template[currentTemplate.index];
+   const traits = templateInfo.traits
+   console.log('state traits is', traits)
+   const traitTypes = templateInfo.traits.map((trait) => trait.type);
 
-   const traits = templateInfo.selectionTraits
-   
    console.log('selector traits is', traits)
-
 
   const { isMute } = useContext(AudioContext)
 
@@ -347,11 +343,9 @@ export default function Selector({templateInfo}) {
     console.log('')
 
     console.log('templateInfo.traits is', templateInfo.traits)
-    const traitTypes = templateInfo.traits.map((trait) => trait.type);
     console.log('traitTypes is', traitTypes)
     let ranItem
-    let buffer = { ...avatar }
-    let loaded = 0;
+    let buffer = { ...(avatar ?? {}) };
 
     (async () => {
 

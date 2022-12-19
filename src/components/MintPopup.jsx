@@ -237,8 +237,8 @@ export default function MintPopup({ template }) {
               </div>
               <MintModal model={model} />
               <div className={styles["TraitDetail"]}>
-                {template.selectionTraits &&
-                  template.selectionTraits.map((item, index) => (
+                {template.traits &&
+                  template.traits.map((item, index) => (
                     <TraitBox key={index}>
                       <div className={styles["TraitImage"]} />
                       <img src={template.traitIconsDirectory + item.icon} />

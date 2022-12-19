@@ -100,26 +100,18 @@ export default function Editor({templateInfo, controls}) {
 
         <div className={styles['LineDivision']} bottom = {'20px'}/>
 
-        { templateInfo.selectionTraits && templateInfo.selectionTraits.map((item, index) => (
+        {templateInfo.traits && templateInfo.traits.map((item, index) => (
           <div className={[styles['MenuOption'], (currentTrait === item.name ? styles['SelectedOption'] : '')]}
             onClick = {()=>{
               selectOption(item)
             }} 
             key = {index}>  
-            <div className={styles['MenuImg']}>
-              <img src={templateInfo.traitIconsDirectory + item.icon} />
-            </div>
+            <img className={styles['MenuImg']} src={templateInfo.traitIconsDirectory + item.icon} />
           </div>
         ))}
 
         <div className={styles['LineDivision']} top = {'20px'}/>
 
-        <div className={styles['ShuffleOption']} 
-          onClick={() => {
-            console.log("TODO: shuffle")
-            !isMute && play();
-          }}>
-          <div className={styles['MenuImg']} src = {shuffle} />
-        </div>
+        <img className={styles['ShuffleOption']} onClick={() => {!isMute && play(); }} src={shuffle} />
   </div>);
 }
