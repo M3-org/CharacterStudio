@@ -28,6 +28,10 @@ export default function Scene() {
     camera
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
+  const neckMovement = 30;
+  const spineMovement = 5;
+  const leftEyeMovement = 80;
+  const rightEyeMovement = 80;
 
   const [loading, setLoading] = useState(false)
   const controls = useRef()
@@ -80,19 +84,22 @@ export default function Scene() {
 
   const handleMouseMove = (event) => {
     if (neck && spine) {
-      moveJoint(event, neck, 30);
-      moveJoint(event, spine, 5);
-      moveJoint(event, left, 80);
-      moveJoint(event, right, 80);
+      moveJoint(event, neck, neckMovement);
+      moveJoint(event, spine, spineMovement);
+      moveJoint(event, left, leftEyeMovement);
+      moveJoint(event, right, rightEyeMovement);
     }
   };
-  window.addEventListener('mousemove', handleMouseMove);
-  
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [handleMouseMove]);
+
   const moveJoint = (mouse, joint, degreeLimit) => {
     if(Object.keys(joint).length !== 0 ){
       let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit);
-      joint.rotation.y = THREE.MathUtils.degToRad(degrees.x);
-      joint.rotation.x = THREE.MathUtils.degToRad(degrees.y);
+        joint.rotation.y = THREE.MathUtils.degToRad(degrees.x);
+        joint.rotation.x = THREE.MathUtils.degToRad(degrees.y);
     }
   }
 
@@ -131,7 +138,7 @@ export default function Scene() {
           setRight(o);
         }
         });
-      
+
       getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
       setTimeout(() => {
