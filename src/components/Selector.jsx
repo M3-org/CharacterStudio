@@ -88,6 +88,11 @@ export default function Selector() {
 
         console.log('texture', texture)
 
+        // if avatar has a trait, dispose it
+        if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
+          disposeVRM(avatar[currentTraitName].vrm)
+        }
+
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
         textureLoader.load(texture, (texture) => {
@@ -259,6 +264,7 @@ export default function Selector() {
           }
         }
       }
+
       //texture area
       setTimeout(() => {
         model.scene.add(vrm.scene)
