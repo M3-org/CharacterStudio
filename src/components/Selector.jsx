@@ -42,7 +42,6 @@ export default function Selector() {
   }
 
   const selectTrait = (trait, textureIndex) => {
-    setSelectValue(trait && trait.id)
     // clear the trait
     if (
       trait === null &&
@@ -54,6 +53,7 @@ export default function Selector() {
         ...avatar,
         [currentTraitName]: {},
       })
+      setSelectValue(trait && trait.id)
       return;
     }
     // filter by item.name === currentTraitName
@@ -67,27 +67,25 @@ export default function Selector() {
 
         const currentTrait = traits.find((t) => t.name === currentTraitName);
         // find the key that matches the current trait.textureCollection
-        const newTexture = currentTrait.collection.find((t) => {
+        const newModel = currentTrait.collection.find((t) => {
           console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
           return t.textureCollection === trait.textureCollection
         })
 
-        const localDir = newTexture.directory
-        const texture = templateInfo.traitsDirectory + localDir
-        const loader = new THREE.TextureLoader()
-        loader.load(texture, (txt) => {
-          txt.encoding = THREE.sRGBEncoding
-          txt.flipY = false
-          itemLoader(trait, txt)
+        console.log('newModel', newModel)
+
+        const localDir = newModel.directory
+        const model = templateInfo.traitsDirectory + localDir
+
+        itemLoader(model).then((newTrait) => {
+          setAvatar({...avatar, ...newTrait});
         })
       })
   }
 
   const itemLoader = async (item, texture) => {
     let r_vrm
-    const vrm = await loadModel(
-      `${templateInfo.traitsDirectory}${item && item.directory}`,
-    )
+    const vrm = await loadModel(item)
     addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
@@ -99,12 +97,12 @@ export default function Selector() {
       }
 
         // add texture
-        vrm.scene.traverse((child) => {
-          if (child.isMesh) {
-            child.material[0].map = texture
-            child.material[0].shadeMultiplyTexture = texture
-          }
-        })
+        // vrm.scene.traverse((child) => {
+        //   if (child.isMesh) {
+        //     child.material[0].map = texture
+        //     child.material[0].shadeMultiplyTexture = texture
+        //   }
+        // })
 
       const traitData = templateInfo.traits.find(
         (element) => element.name === currentTraitName,
@@ -113,12 +111,14 @@ export default function Selector() {
       if(!traitData) throw new Error('Trait data not found')
 
       // set the new trait
-      const newAvatarData = {}
+      const newAvatarData = { ...avatar }
       newAvatarData[currentTraitName] = {
         traitInfo: item,
         model: vrm.scene,
         vrm: vrm,
       }
+
+      console.log('doing stuff')
 
       // search in the trait data for restricted traits and restricted types  => (todo)
         if (traitData.restrictedTraits) {
@@ -241,7 +241,6 @@ export default function Selector() {
           }
         }
       }
-      setAvatar({ ...newAvatar, ...newAvatarData })
 
       for (const property in newAvatarData) {
         if (avatar[property] && avatar[property].vrm) {
