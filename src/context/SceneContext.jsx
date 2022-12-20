@@ -36,7 +36,7 @@ export const SceneProvider = (props) => {
 
   const [template, setTemplate] = useState(null)
   const [scene, setScene] = useState(new THREE.Scene())
-  const [currentTrait, setCurrentTrait] = useState(null)
+  const [currentTraitName, setCurrentTraitName] = useState(null)
   const [model, setModel] = useState(null)
   const [camera, setCamera] = useState(null)
 
@@ -54,8 +54,8 @@ export const SceneProvider = (props) => {
       value={{
         scene,
         setScene,
-        currentTrait,
-        setCurrentTrait,
+        currentTraitName,
+        setCurrentTraitName,
         loadModel,
         model,
         setModel,

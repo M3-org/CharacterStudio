@@ -13,7 +13,7 @@ import { ViewStates } from "../context/ViewContext";
 import styles from './Editor.module.css'
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTrait, setCurrentTrait} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -25,7 +25,7 @@ export default function Editor({templateInfo, controls}) {
   );
 
   const selectOption = (option) => {
-    if (option.name == currentTrait){ 
+    if (option.name == currentTraitName){ 
       if (cameraFocused) {
         moveCamera(option.cameraTarget);
         setCameraFocused(false);
@@ -37,7 +37,7 @@ export default function Editor({templateInfo, controls}) {
     }
 
     moveCamera(option.cameraTarget);
-    setCurrentTrait(option.name)
+    setCurrentTraitName(option.name)
     
     !isMute && play();
   }
@@ -100,7 +100,7 @@ export default function Editor({templateInfo, controls}) {
             onClick = {()=>{
               selectOption(item)
             }} 
-            active={currentTrait === item.name}
+            active={currentTraitName === item.name}
             key = {index}>
             <img className={styles['MenuImg']} src={templateInfo.traitIconsDirectory + item.icon} />
           </div>

@@ -91,12 +91,12 @@
   grid-template-columns: repeat(1, 1fr);
 }
 
-.traitPanel.traits.sub-category.sub-category-header {
+.sub-category.sub-category-header {
   display: flex;
   gap: 20px;
 }
 
-.traitPanel.traits.selectorButtonActive {
+.selectorButtonActive {
   display: flex;
   justify-content: center;
   cursor: pointer;
@@ -111,7 +111,7 @@
   border-bottom: 4px solid #61E5F9;
 }
 
-.traitPanel.traits.selectorButtonActive.icon {
+.selectorButtonActive.icon {
   max-width: auto;
   height: 60%;
   text-align: center;
@@ -122,7 +122,7 @@
   margin: .25em;
 }
 
-.traitPanel.traits.selectorButton {
+.selectorButton {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -136,31 +136,31 @@
   border-radius: 5px;
 }
 
-.traitPanel.traits.selectorButton.icon {
+.selectorButton.icon {
   max-width: auto;
   height: 60%;
   text-align: center;
   margin: auto;
 }
 
-.traitPanel.traits.trait-icon {
+.trait-icon {
   max-width: auto;
   height: 4em;
   margin: auto;
 }
 
-.traitPanel.traits.tickStyle {
+.tickStyle {
   width: 20%;
   position: absolute;
   right: -15px;
   top: -15px;
 }
 
-.traitPanel.traits.tickStyleInActive {
+.tickStyleInActive {
   display: none;
 }
 
-.traitPanel.traits.loading-trait {
+.loading-trait {
   height: 52px;
   width: 52px;
   text-align: center;
@@ -173,7 +173,7 @@
   top: 0;
 }
 
-.traitPanel.traits.icon-hidden {
+.icon-hidden {
   visibility: hidden;
 }
 
