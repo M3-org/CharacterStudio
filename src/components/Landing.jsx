@@ -18,6 +18,7 @@ import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 
 import styles from "./Landing.module.css"
+import CustomButton from "./custom-button"
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
@@ -119,7 +120,7 @@ export default function Landing() {
     currentView.includes("LANDER") && (
       <div className={styles["StyledLanding"]}>
         <div
-          className={styles["drophunter-container"]}
+          className={[styles["selection-box"], styles["right"]].join(" ")}
           onMouseEnter={() => {
             setSelectedAvatar(drophunter)
           }}
@@ -128,24 +129,28 @@ export default function Landing() {
               setSelectedAvatar(null)
             }
           }}
-          // on mouse click
-          onClick={() => {
-            handleClick(Classes.DROPHUNTER)
-          }}
         >
-          <div className={styles["drophunter"]}>
-            <img
-              style={{
-                opacity: selectedAvatar === drophunter ? 1 : 0.5,
-                maxWidth: "30vh",
-                minWidth: "30em",
+          <div className={styles.backdrop} />
+          <div className={styles["box"]}>
+            <h2>Drop Hunter</h2>
+            <p>
+              The Drop Hunters are a infamous group of hunters who hunt Drops
+              from the Stress Zone, which is the 5th to 10th floors of The
+              Citadel.
+            </p>
+            <CustomButton
+              theme="light"
+              text="Select"
+              icon="classDropHunter"
+              size={16}
+              onClick={() => {
+                handleClick(Classes.DROPHUNTER)
               }}
-              src={"./DropHunter.svg"}
             />
           </div>
         </div>
         <div
-          className={styles["neurohacker-container"]}
+          className={[styles["selection-box"], styles["left"]].join(" ")}
           onMouseEnter={() => {
             setSelectedAvatar(neurohacker)
           }}
@@ -154,29 +159,32 @@ export default function Landing() {
               setSelectedAvatar(null)
             }
           }}
-          // on mouse click
-          onClick={() => {
-            handleClick(Classes.NEUROHACKER)
-          }}
         >
-          <div className={styles["neurohacker"]}>
-            <img src={"./Neurohacker.svg"} />
+          <div className={styles.backdrop} />
+          <div className={styles["box"]}>
+            <h2>Neuro Hacker</h2>
+            <p>
+              The Neuro Hackers (NEH) are an elite group of hackers who solve
+              problems discreetly. They are based in The City, and are shrouded
+              in mystery.
+            </p>
+            <CustomButton
+              theme="light"
+              text="Select"
+              icon="classNeuralHacker"
+              size={16}
+              onClick={() => {
+                handleClick(Classes.NEUROHACKER)
+              }}
+            />
           </div>
         </div>
 
-        <div className={styles["titleAnimation"]}>
-          <div className={styles["topBanner"]}>
-            <img className={styles["webaverse-text"]} src={logo} />
-            <div className={styles["studio"]}>Character Studio</div>
-          </div>
-          <div className={styles["subTitle"]}>
-            <div className={styles["subTitle-text"]}>
-              Pick a Class
-              <div className={styles["subTitle-desc"]}>
-                {" "}
-                You will be able to customize in a moment.
-              </div>
-            </div>
+        <div className={styles["subTitle-text"]}>
+          Pick a Class
+          <div className={styles["subTitle-desc"]}>
+            {" "}
+            You will be able to customize in a moment.
           </div>
         </div>
         <Canvas

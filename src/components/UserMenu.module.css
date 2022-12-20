@@ -78,3 +78,144 @@
 .TextButton {
   width: 106px;
 }
+
+
+
+
+
+
+
+
+.userBoxWrap {
+  height: 34px;
+  background-color: #0d1a22;
+  min-width: 40px;
+  position: fixed;
+  top: 24px;
+  right: 40px;
+  z-index: 2;
+}
+
+.userBoxWrap * {
+  font-family: Proxima !important;
+}
+
+.userBoxWrap .leftCorner {
+  position: absolute;
+  left: -14px;
+  height: 34px;
+  width: 40px;
+  transform: skewX(-18deg);
+  background-color: #0d1a22;
+}
+
+.userBoxWrap .rightCorner {
+  position: absolute;
+  right: -14px;
+  height: 34px;
+  width: 40px;
+  transform: skewX(-18deg);
+  background-color: #0d1a22;
+}
+
+.userBoxWrap .profileImage {
+  border: 2px solid #000000;
+}
+
+.userBoxWrap .image {
+  border: 2px solid #FFFFFF;
+  width: 48px;
+  height: 48px;
+  background-color: #0d1a22;
+}
+.userBoxWrap .image img {
+  width: 100%;
+}
+
+.userBoxWrap ul {
+  display: block;
+  margin: -4px 0 0 0;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.userBoxWrap ul:after {
+  display: block;
+  content: " ";
+  clear: both;
+}
+
+.userBoxWrap ul li {
+  display: block;
+  margin: 0 8px 0 0;
+  padding: 0;
+  float: left;
+  position: relative;
+}
+
+.userBoxWrap ul li .dropDown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+}
+
+.userBoxWrap ul li .dropDown button {
+  min-width: 180px;
+  margin-right: 3px;
+  margin-bottom: 4px;
+}
+
+.userBoxWrap .loggedOutText {
+  text-transform: uppercase;
+  font-family: "TTSC-Bold";
+  margin-top: 9px;
+  color: #C7DCD0;
+  text-align: center;
+  font-size: 10px;
+  width: 90px;
+  margin-left: -10px;
+}
+
+.userBoxWrap .loginButton {
+  position: absolute;
+  top: 0;
+  right: -26px;
+}
+
+.userBoxWrap .loggedInText {
+  text-transform: uppercase;
+  font-family: "TTSC-Bold";
+  margin-top: 0px;
+  color: #C7DCD0;
+  text-align: center;
+  font-size: 10px;
+  width: 90px;
+  margin-left: -8px;
+}
+
+.userBoxWrap .chainName {
+  background-color: #FFFFFF;
+  border: 2px solid #000000;
+  padding: 3px 6px 2px 6px;
+  text-align: left;
+  width: 64px;
+  margin-left: 4px;
+  margin-bottom: 3px;
+  color: #000000;
+}
+
+.userBoxWrap .walletAddress {
+  margin-left: -2px;
+}
+
+.userBoxWrap .chainTitle {
+  text-transform: uppercase;
+  font-family: "TTSC-Bold";
+  margin-top: 10px;
+  color: #C7DCD0;
+  text-align: center;
+  font-size: 10px;
+  width: 90px;
+  margin-left: -8px;
+}

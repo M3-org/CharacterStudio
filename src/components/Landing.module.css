@@ -4,7 +4,7 @@
     src: url('./font/Proxima/Proxima.otf')  format("opentype");
   }
  
-@keyframes fadeIn {
+@keyframes fadeIn { 
     from {
         opacity: 0;
         transform: translate3d(0, -50%, 0);
@@ -93,8 +93,20 @@
 }
 
 .subTitle-text {
-    font-weight : 1200;
-    user-select : none;
+    color : white;
+    font-family : Proxima;
+    font-style : normal;
+    font-weight : 400;
+    font-size : calc(30vh * 0.118);
+    line-height : calc(49vh * 0.118);
+    text-align : center;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    position: absolute;
+    z-index: 20;
 }
 
 .subTitle-desc {
@@ -118,32 +130,88 @@
     position: relative;
 }
 
-.drophunter-container {
-    position: absolute;
-    right: 0px;
+
+.selection-box {
+    background-color: transparent;
     z-index: 10;
-    margin-top: 30vh;
-    height: 70vh;
+    bottom: 48px;
     width: 40vw;
+    position: absolute;
+    padding: 8px 12px 24px 12px;
+    text-align: center;
+    max-width: 440px;
 }
 
-.neurohacker-container {
-    position: absolute;
-    left: 0px;
-    z-index: 10;
-    margin-top: 30vh;
-    height: 70vh;
-    width: 40vw;
+.selection-box * {
+    font-family: 'Proxima' !important;
 }
 
-.drophunter {
-    position: absolute;
-    bottom: 40px;
-    right: 0px;
+.selection-box.right {
+    right: 48px;
 }
 
-.neurohacker {
+.selection-box.left {
+    left: 48px;
+}
+
+.selection-box .backdrop {
+    background: #060b0f;
     position: absolute;
-    bottom: 40px;
-    left: 0px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.8;
+}
+
+.selection-box .backdrop::before {
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 0;
+    left: -20px;
+    height: 100%;
+    width: 40px;
+    transform: skewX(4deg);
+    background-color: #060b0f;
+    z-index: 0;
+}
+
+.selection-box .backdrop::after {
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: -20px;
+    height: 100%;
+    width: 40px;
+    transform: skewX(-4deg);
+    background-color: #060b0f;
+    z-index: 0;
+}
+
+.selection-box .box {
+    position: relative;
+    z-index: 2;
+}
+
+.selection-box h2 {
+    text-transform: uppercase;
+    color: #FCC000;
+    margin-bottom: 0px;
+}
+
+.selection-box p {
+    color: #FFFFFF;
+    line-height: 20px;
+}
+
+.selection-box .box button {
+    left: 50%;
+    bottom: -52px;
+    position: absolute;
+    -ms-transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
 }

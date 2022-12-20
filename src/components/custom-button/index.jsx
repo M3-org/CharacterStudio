@@ -31,7 +31,7 @@ export default function CustomButton(props) {
         }
       });
     }
-  }, []);
+  }, [icon]);
 
   if (type && type === 'login') {
     return (

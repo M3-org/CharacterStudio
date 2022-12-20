@@ -79,4 +79,40 @@ export const IconCollection = [
     name: 'minus',
     file: '/assets/icons/minus.svg',
   },
+  {
+    name: 'mint',
+    file: '/assets/icons/mint.svg',
+  },
+  {
+    name: 'download',
+    file: '/assets/icons/download.svg',
+  },
+  {
+    name: 'classDropHunter',
+    file: '/assets/icons/class-drop-hunter.svg',
+  },
+  {
+    name: 'classEndineer',
+    file: '/assets/icons/class-engineer.svg',
+  },
+  {
+    name: 'classCustom',
+    file: '/assets/icons/class-custom.svg',
+  },
+  {
+    name: 'classNeuralHacker',
+    file: '/assets/icons/class-neural-hacker.svg',
+  },
+  {
+    name: 'classLiskWitch',
+    file: '/assets/icons/class-lisk-witch.svg',
+  },
+  {
+    name: 'classBruiser',
+    file: '/assets/icons/class-bruiser.svg',
+  },
+  {
+    name: 'classBeastPainter',
+    file: '/assets/icons/class-beast-painter.svg',
+  }
 ];

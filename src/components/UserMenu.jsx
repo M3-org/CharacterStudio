@@ -8,15 +8,20 @@ import { ViewStates, ViewContext } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
 import VRMExporter from "../library/VRMExporter"
 import { AccountContext } from "../context/AccountContext"
+import CustomButton from "./custom-button"
+import classnames from "classnames"
 
 import styles from "./UserMenu.module.css"
 
-export const UserMenu = ({template}) => {
+export const UserMenu = ({ template }) => {
   const type = "CHANGEME" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
-  const { ensName, setEnsName, connected, setConnected } = useContext(AccountContext)
+  const { ensName, setEnsName, connected, setConnected } =
+    useContext(AccountContext)
   const { activate, deactivate, library, account } = useWeb3React()
+
+  const [loggedIn, seLoggedIn] = useState(false)
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -24,7 +29,7 @@ export const UserMenu = ({template}) => {
 
   const { avatar, scene, skinColor, model } = useContext(SceneContext)
 
-  const {currentView, setCurrentView} = useContext(ViewContext)
+  const { currentView, setCurrentView } = useContext(ViewContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
@@ -70,7 +75,9 @@ export const UserMenu = ({template}) => {
   }
 
   const handleDownload = () => {
-    showDownloadOptions ? setShowDownloadOptions(false) : setShowDownloadOptions(true)
+    showDownloadOptions
+      ? setShowDownloadOptions(false)
+      : setShowDownloadOptions(true)
   }
 
   const connectWallet = async () => {
@@ -86,106 +93,189 @@ export const UserMenu = ({template}) => {
     avatarToDownload,
     fileName,
     format,
-    atlasSize = 4096
+    atlasSize = 4096,
   ) {
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
-    const link = document.createElement("a");
-    link.style.display = "none";
-    document.body.appendChild(link);
+    const link = document.createElement("a")
+    link.style.display = "none"
+    document.body.appendChild(link)
     function save(blob, filename) {
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
     }
 
     function saveString(text, filename) {
-      save(new Blob([text], { type: "text/plain" }), filename);
+      save(new Blob([text], { type: "text/plain" }), filename)
     }
 
     function saveArrayBuffer(buffer, filename) {
-      save(getArrayBuffer(buffer), filename);
+      save(getArrayBuffer(buffer), filename)
     }
     // Specifying the name of the downloadable model
-    const downloadFileName = `${fileName && fileName !== "" ? fileName : "AvatarCreatorModel"}`;
-      
-    const avatarToCombine = avatarToDownload.scene.clone();
+    const downloadFileName = `${
+      fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
+    }`
 
-    const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter();
-    const avatar = await combine({ transparentColor: skinColor, avatar: avatarToCombine, atlasSize });
+    const avatarToCombine = avatarToDownload.scene.clone()
+
+    const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
+    const avatar = await combine({
+      transparentColor: skinColor,
+      avatar: avatarToCombine,
+      atlasSize,
+    })
     if (format === "glb") {
-      exporter.parse(avatar, (result) => {
+      exporter.parse(
+        avatar,
+        (result) => {
           if (result instanceof ArrayBuffer) {
-            saveArrayBuffer(result, `${downloadFileName}.glb`);
+            saveArrayBuffer(result, `${downloadFileName}.glb`)
           } else {
-            const output = JSON.stringify(result, null, 2);
-            saveString(output, `${downloadFileName}.gltf`);
+            const output = JSON.stringify(result, null, 2)
+            saveString(output, `${downloadFileName}.gltf`)
           }
         },
-        (error) => { console.error("Error parsing", error) },
+        (error) => {
+          console.error("Error parsing", error)
+        },
         {
           trs: false,
           onlyVisible: false,
           truncateDrawRange: true,
           binary: true,
           forcePowerOfTwoTextures: false,
-          maxTextureSize: 1024 || Infinity
-        }
-      );
+          maxTextureSize: 1024 || Infinity,
+        },
+      )
     } else {
-      avatarToDownload.materials = [avatar.userData.atlasMaterial];
+      avatarToDownload.materials = [avatar.userData.atlasMaterial]
       exporter.parse(avatarToDownload, avatar, (vrm) => {
-        saveArrayBuffer(vrm, `${downloadFileName}.vrm`);
-      });
+        saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
+      })
     }
   }
 
-  function getArrayBuffer(buffer) { return new Blob([buffer], { type: "application/octet-stream" }); }
+  function getArrayBuffer(buffer) {
+    return new Blob([buffer], { type: "application/octet-stream" })
+  }
 
   return (
-    <div className={styles['TopRightMenu']}>
-    {currentView.includes('CREATOR') && (
-      <Fragment>
-        {showDownloadOptions && (
-          <Fragment>
-            <div className={styles['TextButton']}
-              onClick={() => {
-                download(model, `UpstreetAvatar_${type}`, "vrm")
-              }
-              }
-            >
-              <span>VRM</span>
-            </div>
-            <div className={styles['TextButton']}
-              onClick={() => {
-                download(model, `UpstreetAvatar_${type}`, "glb")
-              }
-              }
-            >
-              <span>GLB</span>
-            </div>
-          </Fragment>
+    <div className={classnames(styles.userBoxWrap)}>
+      <div className={styles.leftCorner} />
+      <div className={styles.rightCorner} />
+      <ul>
+        {currentView.includes("CREATOR") && (
+          <React.Fragment>
+            <li>
+              <CustomButton
+                type="icon"
+                theme="light"
+                icon={showDownloadOptions ? "close" : "download" }
+                size={32}
+                onClick={handleDownload}
+              />
+              {showDownloadOptions && (
+                <div className={styles.dropDown}>
+                  <CustomButton
+                    theme="light"
+                    text="Download GLB"
+                    icon="download"
+                    size={14}
+                    onClick={() => {
+                      download(model, `UpstreetAvatar_${type}`, "glb")
+                    }}
+                  />
+                  <CustomButton
+                    theme="light"
+                    text="Download VRM"
+                    icon="download"
+                    size={14}
+                    onClick={() => {
+                      download(model, `UpstreetAvatar_${type}`, "vrm")
+                    }}
+                  />
+                </div>
+              )}
+            </li>
+            <li>
+              <CustomButton
+                type="icon"
+                theme="light"
+                icon="mint"
+                size={32}
+                onClick={() => {
+                  setCurrentView(ViewStates.MINT)
+                }}
+              />
+            </li>
+          </React.Fragment>
         )}
-        <div className={styles['DownloadButton']} onClick={handleDownload} />
-        <div className={styles['MintButton']}
-          onClick={() => {
-            setCurrentView(ViewStates.MINT)
-          }}
-        />
-      </Fragment>
-    )}
-      <div className={styles['WalletButton']}
-        onClick={connected ? disconnectWallet : connectWallet}
-      >
         {connected ? (
-          <div className={styles['WalletInfo']} ens={ensName}>
-            {ensName ? ensName : account ? account.slice(0, 15) + "..." : ""}
-          </div>
+          <React.Fragment>
+            <li>
+              <div className={styles.profileImage}>
+                <div className={styles.image}>
+                  <img
+                    src={"/assets/profile-no-image.png"}
+                    crossOrigin="Anonymous"
+                  />
+                </div>
+              </div>
+            </li>
+            <li>
+              <div className={styles.loggedInText}>
+                <div className={styles.chainName}>Polygon</div>
+                {connected ? (
+                  <div className={styles.walletAddress} ens={ensName}>
+                    {ensName
+                      ? ensName
+                      : account
+                      ? account.slice(0, 5) + "..." + account.slice(37, 50)
+                      : ""}
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
+              <CustomButton
+                type="login"
+                theme="dark"
+                icon="logout"
+                onClick={disconnectWallet}
+                size={28}
+                className={styles.loginButton}
+              />
+            </li>
+          </React.Fragment>
         ) : (
-          ""
+          <React.Fragment>
+            <li>
+              <div className={styles.profileImage}>
+                <div className={styles.image}>
+                  <img src={"/assets/profile-no-image.png"} />
+                </div>
+              </div>
+            </li>
+            <li>
+              <div className={styles.loggedOutText}>
+                Not
+                <br />
+                Logged In
+              </div>
+              <CustomButton
+                type="login"
+                theme="dark"
+                icon="login"
+                onClick={connectWallet}
+                size={28}
+                className={styles.loginButton}
+              />
+            </li>
+          </React.Fragment>
         )}
-        <div className={styles['WalletImg']} />
-      </div>
+      </ul>
     </div>
   )
 }
