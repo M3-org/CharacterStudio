@@ -22,6 +22,10 @@ export default function Selector() {
     currentTraitName,
     template,
     model,
+    traitsNecks,
+    setTraitsNecks,
+    traitsSpines,
+    setTraitsSpines
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -113,7 +117,8 @@ export default function Selector() {
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
         textureLoader.load(texture, (t) => {
-        itemLoader(model, t).then((newTrait) => {
+          t.flipY = false;
+          itemLoader(model, t).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
       })
@@ -123,7 +128,11 @@ export default function Selector() {
   const itemLoader = async (item, texture) => {
     let r_vrm
     const vrm = await loadModel(item)
+    if(Object.keys(vrm).length !== 0) {
+      vrm.scene.traverse(o => {
 
+      });
+    }
     // 1 
 
     addModelData(vrm, {
@@ -136,11 +145,17 @@ export default function Selector() {
         model.data.animationManager.startAnimation(vrm)
       }
 
-        // add texture
+        // add texture and neck and spine bone to context
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.material[0].map = texture
             child.material[0].shadeMultiplyTexture = texture
+          }
+          if (child.isBone && child.name == 'neck') { 
+            setTraitsNecks(current => [...current , child])
+           }
+          if (child.isBone && child.name == 'spine') { 
+            setTraitsSpines(current => [...current , child])
           }
         })
 
@@ -401,6 +416,7 @@ export default function Selector() {
                 })
               } else {
                 console.log("avatar", avatar)
+
                 console.log("currentTraitName", currentTraitName)
                 console.log(
                   "avatar[currentTraitName]",

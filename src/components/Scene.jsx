@@ -25,13 +25,17 @@ export default function Scene() {
     model,
     template,
     setModel,
-    camera
+    camera,
+    traitsSpines,
+    traitsNecks,
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
-  const neckMovement = 30;
-  const spineMovement = 5;
-  const leftEyeMovement = 80;
-  const rightEyeMovement = 80;
+  const maxLookPercent = {
+    neck : 30,
+    spine : 5,
+    left : 70,
+    right : 70,
+  }
 
   const [loading, setLoading] = useState(false)
   const controls = useRef()
@@ -83,11 +87,19 @@ export default function Scene() {
   }
 
   const handleMouseMove = (event) => {
-    if (neck && spine) {
-      moveJoint(event, neck, neckMovement);
-      moveJoint(event, spine, spineMovement);
-      moveJoint(event, left, leftEyeMovement);
-      moveJoint(event, right, rightEyeMovement);
+    if (neck && spine && left && right) {
+      moveJoint(event, neck, maxLookPercent.neck);
+      moveJoint(event, spine, maxLookPercent.spine);
+      moveJoint(event, left, maxLookPercent.left);
+      moveJoint(event, right, maxLookPercent.right);
+    }
+    if(traitsNecks.length !== 0 && traitsSpines.length !== 0){
+      traitsNecks.map((neck) => {
+        moveJoint(event, neck, maxLookPercent.neck);
+      })
+      traitsSpines.map((spine) => {
+        moveJoint(event, spine, maxLookPercent.spine);
+      })
     }
   };
   useEffect(() => {

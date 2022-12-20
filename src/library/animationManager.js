@@ -22,7 +22,12 @@ class AnimationControl {
   constructor(animationManager, scene, animations, curIdx, lastIdx){
     this.animationManager = animationManager;
     this.mixer = new AnimationMixer(scene);
-    animations[0].tracks.splice(8, 4);
+    animations[0].tracks.map((track, index) => {
+      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
+        animations[0].tracks.splice(index, 1)
+      }
+    })
+    // animations[0].tracks.splice(9, 2);
     this.actions = [];
     for (let i =0; i < animations.length;i++){
       this.actions.push(this.mixer.clipAction(animations[i]));
