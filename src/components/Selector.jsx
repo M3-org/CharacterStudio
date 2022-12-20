@@ -76,10 +76,12 @@ export default function Selector() {
         }
 
         // get the textureCollection
-        const textureCollection = model.textureCollection
+        const textureCollection = newAsset.textureCollection
+        console.log('model is', model, 'newAsset is', newAsset)
 
         // if there is no texture collection, just load the model-- the texture is on the model
         if(!textureCollection) {
+          console.log('no texture collection, setting avatar')
           itemLoader(model).then((newTrait) => {
             setAvatar({...avatar, ...newTrait});
           })
@@ -88,14 +90,30 @@ export default function Selector() {
 
         // if there is a texture collection, there are multiple textures to choose from
         const textureCollectionData = templateInfo.textureCollections.find((t) => {
-          return t.name === textureCollection
-        }).collection;
-        const texture = templateInfo.traitsDirectory + textureCollectionData[textureIndex].directory
+          return t.trait === textureCollection
+        });
+
+        if(!textureCollectionData) 
+        {
+          console.log('templateInfo.textureCollections', templateInfo.textureCollections)
+          console.log('textureCollection', textureCollection)
+          console.log('textureCollectionData', textureCollectionData)
+          debugger;
+          console.log('no texture collection 2, setting avatar')
+          itemLoader(model).then((newTrait) => {
+            setAvatar({...avatar, ...newTrait});
+          })
+          return;
+        }
+      
+        const collection = textureCollectionData.collection
+
+        const texture = collection[textureIndex] && (templateInfo.traitsDirectory + collection[textureIndex].directory)
 
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
-        textureLoader.load(texture, (texture) => {
-        itemLoader(model, texture).then((newTrait) => {
+        textureLoader.load(texture, (t) => {
+        itemLoader(model, t).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
       })
@@ -264,10 +282,9 @@ export default function Selector() {
         }
       }
 
-      //texture area
       setTimeout(() => {
         model.scene.add(vrm.scene)
-      }, 1)
+      }, 60)
     console.log("trait is", currentTraitName)
     return {
       [currentTraitName]: {
