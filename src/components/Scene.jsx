@@ -77,7 +77,7 @@ export default function Scene() {
 
   const handleMouseMove = (event) => {
     if (neck && spine) {
-      moveJoint(event, neck, 50);
+      moveJoint(event, neck, 30);
       moveJoint(event, spine, 30);
     }
   };
