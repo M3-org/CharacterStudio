@@ -33,6 +33,8 @@ export default function Scene() {
   const templateInfo = template && currentTemplate && template[currentTemplate.index]
   const [neck, setNeck] = useState({});
   const [spine, setSpine] = useState({});
+  const [left, setLeft] = useState({});
+  const [right, setRight] = useState({});
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -77,8 +79,10 @@ export default function Scene() {
 
   const handleMouseMove = (event) => {
     if (neck && spine) {
-      moveJoint(event, neck, 30);
-      moveJoint(event, spine, 30);
+      moveJoint(event, neck, 20);
+      moveJoint(event, spine, 25);
+      moveJoint(event, left, 60);
+      moveJoint(event, right, 60);
     }
   };
   window.addEventListener('mousemove', handleMouseMove);
@@ -112,6 +116,7 @@ export default function Scene() {
             o.castShadow = true;
             o.receiveShadow = true;
           }
+          if(o.isBone)console.log('aaaaaaaaaaaa', o)
           // Reference the neck and spine bones
           if (o.isBone && o.name === 'neck') { 
             setNeck(o);
@@ -119,6 +124,12 @@ export default function Scene() {
           if (o.isBone && o.name === 'spine') { 
              setSpine(o);
           }
+          if (o.isBone && o.name === 'leftEye') { 
+            setLeft(o);
+         }
+         if (o.isBone && o.name === 'rightEye') { 
+          setRight(o);
+        }
         });
 
 
