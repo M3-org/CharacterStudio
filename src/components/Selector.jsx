@@ -67,31 +67,30 @@ export default function Selector() {
           return t.textureCollection === trait.textureCollection
         })
 
-        console.log('newModel', newAsset)
-
         const localDir = newAsset.directory
         const model = templateInfo.traitsDirectory + localDir
-
-        // get the textureCollection
-        const textureCollection = model.textureCollection
-        console.log('textureCollection', textureCollection)
-
-        console.log('templateInfo.textureCollections', templateInfo.textureCollections)
-
-        const textureCollectionData = templateInfo.textureCollections.find((t) => {
-          return t.name === textureCollection
-        }).collection;
-
-        console.log('textureCollectionData', textureCollectionData)
-
-        const texture = templateInfo.traitsDirectory + textureCollectionData[textureIndex].directory
-
-        console.log('texture', texture)
 
         // if avatar has a trait, dispose it
         if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
           disposeVRM(avatar[currentTraitName].vrm)
         }
+
+        // get the textureCollection
+        const textureCollection = model.textureCollection
+
+        // if there is no texture collection, just load the model-- the texture is on the model
+        if(!textureCollection) {
+          itemLoader(model).then((newTrait) => {
+            setAvatar({...avatar, ...newTrait});
+          })
+          return;
+        }
+
+        // if there is a texture collection, there are multiple textures to choose from
+        const textureCollectionData = templateInfo.textureCollections.find((t) => {
+          return t.name === textureCollection
+        }).collection;
+        const texture = templateInfo.traitsDirectory + textureCollectionData[textureIndex].directory
 
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
@@ -100,7 +99,7 @@ export default function Selector() {
           setAvatar({...avatar, ...newTrait});
         })
       })
-      })
+    })
   }
 
   const itemLoader = async (item, texture) => {
