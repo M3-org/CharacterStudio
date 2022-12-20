@@ -18,6 +18,13 @@
   flex-direction: column;
   user-select: none;
 
+  overflow-y: auto;
+  flex: 1;
+
+  /* make the scrollbar transparent and cyberpunk looking */
+  scrollbar-color: #3A7484 #3A7484;
+  scrollbar-width: thin;
+
   --webkit-mask-image: -webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
   mask-image: linear-gradient(to bottom,
       rgba(0, 0, 0, 1) 0px,
@@ -55,38 +62,28 @@
 }
 
 
-.traitPanel {
-  overflow-y: auto;
-  flex: 1;
-  height: 80vh;
-
-  /* make the scrollbar transparent and cyberpunk looking */
-  scrollbar-color: #3A7484 #3A7484;
-  scrollbar-width: thin;
-}
-
-.traitPanel::-webkit-scrollbar {
+.selector-container::-webkit-scrollbar {
   width: 10px;
 }
 
 /* Track */
-.traitPanel::-webkit-scrollbar-track {
+.selector-container::-webkit-scrollbar-track {
   background: #3A7484;
 }
 
 /* Handle */
-.traitPanel::-webkit-scrollbar-thumb {
+.selector-container::-webkit-scrollbar-thumb {
   background: #3A7484;
 }
 
 /* Handle on hover */
-.traitPanel::-webkit-scrollbar-thumb:hover {
+.selector-container::-webkit-scrollbar-thumb:hover {
   background: #3A7484;
 }
 
 
 
-.traitPanel.traits {
+.selector-container.traits {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
 }
