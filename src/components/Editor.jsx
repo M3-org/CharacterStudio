@@ -102,7 +102,7 @@ export default function Editor({templateInfo, controls}) {
             }} 
             active={currentTraitName === item.name}
             key = {index}>
-            <img className={styles['MenuImg']} src={templateInfo.traitIconsDirectory + item.icon} />
+            <img className={currentTraitName !== item.name ? styles['MenuImg'] : styles['MenuImgActive']} src={templateInfo.traitIconsDirectory + item.icon} />
           </div>
         ))}
 

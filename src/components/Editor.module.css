@@ -43,8 +43,33 @@
     opacity: 1;
 }
 
-.MenuImg:active {
+.MenuOption {
+    width: 100%;
+}
+
+.MenuOptionSelected {
     opacity: 1;
+    width: 100%;
+}
+
+.MenuImgActive {
+    opacity: 1;
+    display: inline-block;
+    width: 100%;
+    user-select: none;
+    text-align: center;
+    cursor:pointer;
+    border-right: '';
+
+    margin:auto;
+    src: '';
+    display: flex;
+    height: 6em;
+    width: 6em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: .25em;
+    margin-top: .25em;
 }
 
 .ShuffleOption {

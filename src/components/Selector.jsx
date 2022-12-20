@@ -2,9 +2,7 @@ import React, { useEffect, Fragment, useState, useContext } from "react"
 import * as THREE from "three"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
-import { disposeVRM } from "../library/utils"
-import Skin from "./Skin"
-import { addModelData, getSkinColor } from "../library/utils"
+import { disposeVRM, addModelData } from "../library/utils"
 
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
@@ -34,7 +32,6 @@ export default function Selector() {
   const [texture, setTexture] = useState(null)
 
   const [selectValue, setSelectValue] = useState("0")
-
   const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
   const [loadedPercent, setLoadedPercent] = useState(0)
 
@@ -45,6 +42,7 @@ export default function Selector() {
   }
 
   const selectTrait = (trait, textureIndex) => {
+    setSelectValue(trait && trait.id)
     // clear the trait
     if (
       trait === null &&
@@ -56,7 +54,7 @@ export default function Selector() {
         ...avatar,
         [currentTraitName]: {},
       })
-      return
+      return;
     }
     // filter by item.name === currentTraitName
     traits
@@ -67,40 +65,26 @@ export default function Selector() {
           return
         }
 
-        if (
-          !trait.textureCollection ||
-          textureIndex === null ||
-          textureIndex === undefined
-        ) {
-          console.warn("no texture collection")
-          itemLoader(trait, null, true)
-          return
-        }
+        const currentTrait = traits.find((t) => t.name === currentTraitName);
+        // find the key that matches the current trait.textureCollection
+        const newTexture = currentTrait.collection.find((t) => {
+          console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
+          return t.textureCollection === trait.textureCollection
+        })
 
-        // TODO: This is broken
-
-        const txtrs = traits[trait.textureCollection]
-        const txtr = txtrs.collection[textureIndex]
-        const localDir = txtr.directory
+        const localDir = newTexture.directory
         const texture = templateInfo.traitsDirectory + localDir
         const loader = new THREE.TextureLoader()
         loader.load(texture, (txt) => {
           txt.encoding = THREE.sRGBEncoding
           txt.flipY = false
-          itemLoader(trait, null, true, txt)
+          itemLoader(trait, txt)
         })
       })
-
-    // explain the above map function
-    // the map function is used to loop through the traits array
-    // and check if the current trait name is equal to the name of the trait in the array
-
-    setSelectValue(trait && trait.id)
   }
 
-  const itemLoader = async (item, trait, addToScene = true) => {
+  const itemLoader = async (item, texture) => {
     let r_vrm
-    console.log("loading model", item, trait)
     const vrm = await loadModel(
       `${templateInfo.traitsDirectory}${item && item.directory}`,
     )
@@ -110,21 +94,23 @@ export default function Selector() {
     })
     r_vrm = vrm
 
-    if (addToScene) {
-      if (model.data.animationManager)
+      if (model.data.animationManager){
         model.data.animationManager.startAnimation(vrm)
-      if (texture) {
+      }
+
+        // add texture
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.material[0].map = texture
             child.material[0].shadeMultiplyTexture = texture
           }
         })
-      }
 
       const traitData = templateInfo.traits.find(
         (element) => element.name === currentTraitName,
       )
+
+      if(!traitData) throw new Error('Trait data not found')
 
       // set the new trait
       const newAvatarData = {}
@@ -135,7 +121,6 @@ export default function Selector() {
       }
 
       // search in the trait data for restricted traits and restricted types  => (todo)
-      if (traitData) {
         if (traitData.restrictedTraits) {
           traitData.restrictedTraits.forEach((restrictTrait) => {
             if (avatar[restrictTrait] !== undefined)
@@ -231,7 +216,6 @@ export default function Selector() {
             }
           }
         }
-      }
 
       const newAvatar = {
         ...avatar,
@@ -268,7 +252,6 @@ export default function Selector() {
       setTimeout(() => {
         model.scene.add(vrm.scene)
       }, 1)
-    }
     console.log("trait is", currentTraitName)
     return {
       [currentTraitName]: {
