@@ -113,7 +113,8 @@ export default function Selector() {
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
         textureLoader.load(texture, (t) => {
-        itemLoader(model, t).then((newTrait) => {
+          t.flipY = false;
+          itemLoader(model, t).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
       })
