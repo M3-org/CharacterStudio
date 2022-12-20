@@ -41,6 +41,8 @@ export const SceneProvider = (props) => {
   const [camera, setCamera] = useState(null)
 
   const [colorStatus, setColorStatus] = useState("")
+  const [hairNeck, setHairNeck] = useState({})
+  const [hairSpine, setHairSpine] = useState({})
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
   const setAvatar = (state) => {
@@ -71,6 +73,10 @@ export const SceneProvider = (props) => {
         setCurrentTemplate,
         template,
         setTemplate,
+        hairNeck,
+        setHairNeck,
+        hairSpine,
+        setHairSpine
       }}
     >
       {props.children}

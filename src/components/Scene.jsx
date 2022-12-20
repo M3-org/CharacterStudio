@@ -25,7 +25,9 @@ export default function Scene() {
     model,
     template,
     setModel,
-    camera
+    camera,
+    hairNeck,
+    hairSpine
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
   const neckMovement = 30;
@@ -83,9 +85,11 @@ export default function Scene() {
   }
 
   const handleMouseMove = (event) => {
-    if (neck && spine) {
+    if (neck && spine && hairNeck && hairSpine) {
       moveJoint(event, neck, neckMovement);
+      moveJoint(event, hairNeck, neckMovement);
       moveJoint(event, spine, spineMovement);
+      moveJoint(event, hairSpine, spineMovement);
       moveJoint(event, left, leftEyeMovement);
       moveJoint(event, right, rightEyeMovement);
     }

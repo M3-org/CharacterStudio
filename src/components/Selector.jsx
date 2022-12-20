@@ -22,6 +22,8 @@ export default function Selector() {
     currentTraitName,
     template,
     model,
+    setHairNeck,
+    setHairSpine
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -402,6 +404,16 @@ export default function Selector() {
                 })
               } else {
                 console.log("avatar", avatar)
+                if(Object.keys(avatar).length !== 0) {
+                  avatar[currentTraitName].vrm.scene.traverse(o => {
+                    if (o.isBone && o.name == 'neck') { 
+                     setHairNeck(o)
+                    }
+                    if (o.isBone && o.name == 'spine') { 
+                     setHairSpine(o)
+                    }
+                  });
+                }
                 console.log("currentTraitName", currentTraitName)
                 console.log(
                   "avatar[currentTraitName]",
