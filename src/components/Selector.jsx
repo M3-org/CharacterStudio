@@ -375,11 +375,11 @@ export default function Selector() {
     )
   }
 
-  return (
+  return !!currentTraitName && (
     <div className={styles['SelectorContainerPos']}>
       <div className={styles["selector-container"]}>
-        {/* <ClearTraitButton /> */}
-              {currentTraitName && templateInfo.traits.find((trait) => trait.name === currentTraitName).collection.map((item, index) => {
+        <ClearTraitButton />
+              {templateInfo.traits.find((trait) => trait.name === currentTraitName).collection.map((item, index) => {
                 console.log('mapping item, index', item, index)  
                 if (item.thumbnailOverrides) {
                   return item.thumbnailOverrides.map((icn, icnindex) => {
