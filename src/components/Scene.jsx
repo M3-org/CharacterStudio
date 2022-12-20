@@ -33,8 +33,8 @@ export default function Scene() {
   const maxLookPercent = {
     neck : 30,
     spine : 5,
-    left : 80,
-    right : 80,
+    left : 70,
+    right : 70,
   }
 
   const [loading, setLoading] = useState(false)
@@ -94,7 +94,6 @@ export default function Scene() {
       moveJoint(event, right, maxLookPercent.right);
     }
     if(traitsNecks.length !== 0 && traitsSpines.length !== 0){
-      console.log('traitsNecks', traitsNecks)
       traitsNecks.map((neck) => {
         moveJoint(event, neck, maxLookPercent.neck);
       })
