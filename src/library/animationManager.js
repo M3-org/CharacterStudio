@@ -22,6 +22,7 @@ class AnimationControl {
   constructor(animationManager, scene, animations, curIdx, lastIdx){
     this.animationManager = animationManager;
     this.mixer = new AnimationMixer(scene);
+    animations[0].tracks.splice(8, 4);
     this.actions = [];
     for (let i =0; i < animations.length;i++){
       this.actions.push(this.mixer.clipAction(animations[i]));

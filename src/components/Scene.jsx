@@ -31,10 +31,65 @@ export default function Scene() {
   const [loading, setLoading] = useState(false)
   const controls = useRef()
   const templateInfo = template && currentTemplate && template[currentTemplate.index]
+  const [neck, setNeck] = useState({});
+  const [spine, setSpine] = useState({});
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
   // once templateInfo, currentTemplate, and models are loaded, move to CREATOR view
+
+  const  getMouseDegrees = (x, y, degreeLimit) =>  {
+      let dx = 0,
+          dy = 0,
+          xdiff,
+          xPercentage,
+          ydiff,
+          yPercentage;
+    
+      let w = { x: window.innerWidth, y: window.innerHeight };
+    
+   
+      if (x <= w.x / 2) {
+        // 2. Get the difference between middle of screen and cursor position
+        xdiff = w.x / 2 - x;  
+        // 3. Find the percentage of that difference (percentage toward edge of screen)
+        xPercentage = (xdiff / (w.x / 2)) * 100;
+        // 4. Convert that to a percentage of the maximum rotation we allow for the neck
+        dx = ((degreeLimit * xPercentage) / 100) * -1; }
+      if (x >= w.x / 2) {
+        xdiff = x - w.x / 2;
+        xPercentage = (xdiff / (w.x / 2)) * 100;
+        dx = (degreeLimit * xPercentage) / 100;
+      }
+      if (y <= w.y / 2) {
+        ydiff = w.y / 2 - y;
+        yPercentage = (ydiff / (w.y / 2)) * 100;
+        // Note that I cut degreeLimit in half when she looks up
+        dy = (((degreeLimit * 0.5) * yPercentage) / 100) * -1;
+        }
+      if (y >= w.y / 2) {
+        ydiff = y - w.y / 2;
+        yPercentage = (ydiff / (w.y / 2)) * 100;
+        dy = (degreeLimit * yPercentage) / 100;
+      }
+      return { x: dx, y: dy };
+  }
+
+  const handleMouseMove = (event) => {
+    if (neck && spine) {
+      moveJoint(event, neck, 50);
+      moveJoint(event, spine, 30);
+    }
+  };
+  window.addEventListener('mousemove', handleMouseMove);
+  
+  const moveJoint = (mouse, joint, degreeLimit) => {
+    if(Object.keys(joint).length !== 0 ){
+      let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit);
+      joint.rotation.y = THREE.MathUtils.degToRad(degrees.x);
+      joint.rotation.x = THREE.MathUtils.degToRad(degrees.y);
+    }
+  }
 
   useEffect(() => {
     if(!templateInfo) {
@@ -51,6 +106,21 @@ export default function Scene() {
         animationManager.startAnimation(vrm)
       }
       addModelData(vrm, { cullingLayer: 0 })
+
+      vrm.scene.traverse(o => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+          }
+          // Reference the neck and spine bones
+          if (o.isBone && o.name === 'neck') { 
+            setNeck(o);
+          }
+          if (o.isBone && o.name === 'spine') { 
+             setSpine(o);
+          }
+        });
+
 
       getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
