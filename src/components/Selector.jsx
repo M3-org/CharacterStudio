@@ -22,8 +22,10 @@ export default function Selector() {
     currentTraitName,
     template,
     model,
-    setHairNeck,
-    setHairSpine
+    traitsNecks,
+    setTraitsNecks,
+    traitsSpines,
+    setTraitsSpines
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -126,7 +128,11 @@ export default function Selector() {
   const itemLoader = async (item, texture) => {
     let r_vrm
     const vrm = await loadModel(item)
+    if(Object.keys(vrm).length !== 0) {
+      vrm.scene.traverse(o => {
 
+      });
+    }
     // 1 
 
     addModelData(vrm, {
@@ -139,11 +145,17 @@ export default function Selector() {
         model.data.animationManager.startAnimation(vrm)
       }
 
-        // add texture
+        // add texture and neck and spine bone to context
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.material[0].map = texture
             child.material[0].shadeMultiplyTexture = texture
+          }
+          if (child.isBone && child.name == 'neck') { 
+            setTraitsNecks(current => [...current , child])
+           }
+          if (child.isBone && child.name == 'spine') { 
+            setTraitsSpines(current => [...current , child])
           }
         })
 
@@ -404,16 +416,7 @@ export default function Selector() {
                 })
               } else {
                 console.log("avatar", avatar)
-                if(Object.keys(avatar).length !== 0) {
-                  avatar[currentTraitName].vrm.scene.traverse(o => {
-                    if (o.isBone && o.name == 'neck') { 
-                     setHairNeck(o)
-                    }
-                    if (o.isBone && o.name == 'spine') { 
-                     setHairSpine(o)
-                    }
-                  });
-                }
+
                 console.log("currentTraitName", currentTraitName)
                 console.log(
                   "avatar[currentTraitName]",
