@@ -60,32 +60,50 @@ export default function Selector() {
     traits
       .filter((item) => item.name === currentTraitName)
       .map((item) => {
-        if (item.type === "texture") {
-          textureTraitLoader(item, trait, templateInfo, setLoadingTraitOverlay)
-          return
-        }
-
         const currentTrait = traits.find((t) => t.name === currentTraitName);
         // find the key that matches the current trait.textureCollection
-        const newModel = currentTrait.collection.find((t) => {
+        const newAsset = currentTrait.collection.find((t) => {
           console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
           return t.textureCollection === trait.textureCollection
         })
 
-        console.log('newModel', newModel)
+        console.log('newModel', newAsset)
 
-        const localDir = newModel.directory
+        const localDir = newAsset.directory
         const model = templateInfo.traitsDirectory + localDir
 
-        itemLoader(model).then((newTrait) => {
+        // get the textureCollection
+        const textureCollection = model.textureCollection
+        console.log('textureCollection', textureCollection)
+
+        console.log('templateInfo.textureCollections', templateInfo.textureCollections)
+
+        const textureCollectionData = templateInfo.textureCollections.find((t) => {
+          return t.name === textureCollection
+        }).collection;
+
+        console.log('textureCollectionData', textureCollectionData)
+
+        const texture = templateInfo.traitsDirectory + textureCollectionData[textureIndex].directory
+
+        console.log('texture', texture)
+
+        // load the texture with THREE.TextureLoader
+        const textureLoader = new THREE.TextureLoader()
+        textureLoader.load(texture, (texture) => {
+        itemLoader(model, texture).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
+      })
       })
   }
 
   const itemLoader = async (item, texture) => {
     let r_vrm
     const vrm = await loadModel(item)
+
+    // 1 
+
     addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
@@ -97,12 +115,12 @@ export default function Selector() {
       }
 
         // add texture
-        // vrm.scene.traverse((child) => {
-        //   if (child.isMesh) {
-        //     child.material[0].map = texture
-        //     child.material[0].shadeMultiplyTexture = texture
-        //   }
-        // })
+        vrm.scene.traverse((child) => {
+          if (child.isMesh) {
+            child.material[0].map = texture
+            child.material[0].shadeMultiplyTexture = texture
+          }
+        })
 
       const traitData = templateInfo.traits.find(
         (element) => element.name === currentTraitName,
@@ -241,12 +259,6 @@ export default function Selector() {
           }
         }
       }
-
-      for (const property in newAvatarData) {
-        if (avatar[property] && avatar[property].vrm) {
-          disposeVRM(avatar[property].vrm)
-        }
-      }
       //texture area
       setTimeout(() => {
         model.scene.add(vrm.scene)
@@ -258,62 +270,6 @@ export default function Selector() {
         model: r_vrm.scene,
         vrm: r_vrm,
       },
-    }
-  }
-
-  const textureTraitLoader = (props, trait) => {
-    console.log("typeof props.target is", typeof props.target)
-    if (typeof props.target != "string") {
-      for (let i = 0; i < props.target.length; i++) {
-        const object = scene.getObjectByName(props.target[i])
-        if (typeof trait.directory != "string") {
-          let texture = ""
-
-          if (trait.directory[i] != null)
-            //grab the texture with same object position
-            texture = templateInfo.traitsDirectory + trait.directory[i]
-          //else grab the latest texture in the array
-          else
-            texture =
-              templateInfo.traitsDirectory +
-              trait.directory[trait.directory.length - 1]
-
-          new THREE.TextureLoader().load(texture, (txt) => {
-            txt.encoding = THREE.sRGBEncoding
-            txt.flipY = false
-            object.material[0].map = txt
-            object.material[0].shadeMultiplyTexture = txt
-            setTimeout(() => {
-              setLoadingTraitOverlay(false)
-            }, 500)
-            setTexture(txt)
-          })
-        } else {
-          const texture = templateInfo.traitsDirectory + trait.directory
-          new THREE.TextureLoader().load(texture, (txt) => {
-            txt.encoding = THREE.sRGBEncoding
-            txt.flipY = false
-            object.material[0].map = txt
-            setTimeout(() => {
-              setLoadingTraitOverlay(false)
-            }, 500)
-          })
-        }
-      }
-    } else {
-      const object = scene.getObjectByName(props.target)
-      const texture =
-        typeof trait.directory === "string"
-          ? templateInfo.traitsDirectory + trait.directory
-          : templateInfo.traitsDirectory + trait.directory[0]
-      new THREE.TextureLoader().load(texture, (txt) => {
-        txt.encoding = THREE.sRGBEncoding
-        txt.flipY = false
-        object.material[0].map = txt
-        setTimeout(() => {
-          setLoadingTraitOverlay(false)
-        }, 500)
-      })
     }
   }
 
@@ -383,7 +339,6 @@ export default function Selector() {
           {templateInfo.traits
             .find((trait) => trait.name === currentTraitName)
             .collection.map((item, index) => {
-              console.log("mapping item, index", item, index)
               if (item.thumbnailOverrides) {
                 return item.thumbnailOverrides.map((icn, icnindex) => {
                   const active = selectValue === item.id
@@ -435,14 +390,11 @@ export default function Selector() {
                 return (
                   <div
                     key={index}
-                    classname={
-                      traitActive
+                    className={
+                      `${(traitActive
                         ? styles["selectorButtonActive"]
-                        : styles["selectorButton"]
+                        : styles["selectorButton"])} ${selectValue === item.id ? "active" : ""}`
                     }
-                    className={`selector-button coll-${currentTraitName} ${
-                      selectValue === item.id ? "active" : ""
-                    }`}
                     onClick={() => {
                       !isMute && play()
                       console.log("select trait", item)
@@ -460,7 +412,7 @@ export default function Selector() {
                     <img
                       src={tick}
                       className={
-                        avatar[currentTraitName].item.id === item.id
+                        traitActive
                           ? styles["tickStyle"]
                           : styles["tickStyleInActive"]
                       }
