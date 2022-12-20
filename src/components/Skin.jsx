@@ -7,12 +7,12 @@ import { setMaterialColor } from "../library/utils"
 
 import styles from './Skin.module.css'
 
-function Skin({ templateInfo, currentTrait, avatar}) {
+function Skin({ templateInfo, currentTraitName, avatar}) {
   const [color, setColor] = useState("#aabbcc");
   const [checked, setChecked] = useState();
   const [colorPicker, setColorPick] = useState(false);
 
-  console.log('currentTrait', currentTrait)
+  console.log('currentTraitName', currentTraitName)
 
   const {
     skinColor,
@@ -44,13 +44,13 @@ function Skin({ templateInfo, currentTrait, avatar}) {
     setChecked(value)
     const rgbColor = hexToRgbA(value)
     let colorTargets;
-    if(currentTrait === "head"){
+    if(currentTraitName === "head"){
       colorTargets = getHairMaterial();
     }
-    if(currentTrait === "eyeColor"){
+    if(currentTraitName === "eyeColor"){
       colorTargets = templateInfo.EyeTargets;
     }
-    if(currentTrait === "color"){
+    if(currentTraitName === "color"){
       colorTargets = templateInfo.bodyTargets;
     }
     for (const bodyTarget of colorTargets) {
@@ -95,13 +95,13 @@ function Skin({ templateInfo, currentTrait, avatar}) {
       throw new Error('Bad Hex');
   }
 
-  console.log('currentTrait', currentTrait);
+  console.log('currentTraitName', currentTraitName);
   console.log('colorArray', colorArray);
-  console.log('colorArray[currentTrait]', colorArray[currentTrait])
+  console.log('colorArray[currentTraitName]', colorArray[currentTraitName])
 
-  return currentTrait && (
+  return currentTraitName && (
     <div className={styles['container']} >
-    {colorArray[currentTrait].map((row, i) => {
+    {colorArray[currentTraitName].map((row, i) => {
       return row.map((col, k) => 
         (
           <div className={styles['btn']} style={{ backgroundColor: col}} onClick={() => handleChangeSkin(col)} key={i * row.length + k}>
