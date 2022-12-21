@@ -134,9 +134,7 @@ export default function Landing() {
           <div className={styles["box"]}>
             <h2>Drop Hunter</h2>
             <p>
-              The Drop Hunters are a infamous group of hunters who hunt Drops
-              from the Stress Zone, which is the 5th to 10th floors of The
-              Citadel.
+              +ATK +SPD // SUPERCHARGER
             </p>
             <CustomButton
               theme="light"
@@ -164,9 +162,7 @@ export default function Landing() {
           <div className={styles["box"]}>
             <h2>Neuro Hacker</h2>
             <p>
-              The Neuro Hackers (NEH) are an elite group of hackers who solve
-              problems discreetly. They are based in The City, and are shrouded
-              in mystery.
+              +ATK +SPR // STEALTH ATTACK
             </p>
             <CustomButton
               theme="light"

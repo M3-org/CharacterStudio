@@ -1,8 +1,7 @@
 .SelectorContainerPos {
   position: absolute;
-  left: 10em;
-  bottom: 5em;
-  top: 6.5em;
+  left: 8em;
+  top: 10vh;
 }
 
 .selector-container {
@@ -13,12 +12,12 @@
   backdrop-filter: blur(22.5px);
   border-bottom: 2px solid rgb(58, 116, 132);
   transform: perspective(400px) rotateY(5deg);
-  border-radius: 10px;
+  border-radius: .25em;
   display: flex;
   flex-direction: column;
   user-select: none;
 
-  overflow-y: auto;
+  overflow-y: scroll;
   flex: 1;
 
   /* make the scrollbar transparent and cyberpunk looking */
@@ -127,7 +126,6 @@
   width: 4em;
   height: 4em;
   margin: .25em;
-  padding: 1em;
   background: rgba(81, 90, 116, 0.2);
   backdrop-filter: blur(22.5px);
   border-radius: 5px;

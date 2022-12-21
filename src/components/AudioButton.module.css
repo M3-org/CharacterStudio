@@ -32,10 +32,10 @@
 }
 
 .AudioOn {
-  background-image: url(/ui/soundon.svg);
+  background-image: url('/ui/soundon.svg');
 }
 
 .AudioOff {
-  background-image: url(/ui/soundoff.svg);
+  background-image: url('/ui/soundoff.svg');
 
 }

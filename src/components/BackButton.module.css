@@ -1,8 +1,10 @@
 .StyledBackButton {
     background: url(ui/backButton_gray.png) center center no-repeat;
     background-size: 45% 55%;
-    width: 74px;
-    height: 74px;
+    height: 4em;
+    width: 4em;
+    margin-left: auto;
+    margin-right: auto;
     backdrop-filter: blur(22.5px);
     border-radius: 5px;
     box-sizing: border-box;
