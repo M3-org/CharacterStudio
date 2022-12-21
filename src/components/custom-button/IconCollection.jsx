@@ -114,5 +114,13 @@ export const IconCollection = [
   {
     name: 'classBeastPainter',
     file: '/assets/icons/class-beast-painter.svg',
-  }
+  },
+  {
+    name: 'soundon',
+    file: '/assets/icons/soundon.svg',
+  },
+  {
+    name: 'soundoff',
+    file: '/assets/icons/soundoff.svg',
+  },
 ];

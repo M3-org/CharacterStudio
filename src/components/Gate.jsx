@@ -150,7 +150,7 @@ export default function Gate() {
                 <CustomButton
                   theme="light"
                   icon="metamask"
-                  text="Connect Wallet"
+                  text="Connect"
                   size={16}
                   onClick={connectWallet}
                 />
@@ -181,17 +181,19 @@ export default function Gate() {
                 song just for this experience!
               </div>
               <div className={styles["vh-button"]}>
+              <CustomButton
+                theme="light"
+                text="SILENT"
+                icon="soundoff"
+                size={16}
+                onClick={() => enterWithoutMusic()}
+              />
                 <CustomButton
                   theme="light"
                   text="MUSIC"
+                  icon="soundon"
                   size={16}
                   onClick={() => enterWithMusic()}
-                />
-                <CustomButton
-                  theme="light"
-                  text="NO MUSIC"
-                  size={16}
-                  onClick={() => enterWithoutMusic()}
                 />
               </div>
             </div>
