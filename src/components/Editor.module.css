@@ -1,13 +1,14 @@
 .SideMenu {
     position: absolute;
     left: 2em;
-    top: 15vh;
-    height: 70vh;
+    top: 20vh;
+    height: 60vh;
     border: 1px solid #38404E;
     border-radius : 5px;
     backdrop-filter: blur(22.5px); 
     box-sizing : border-box;
-    transform: perspective(70vh) rotateY(12deg);
+    transform: perspective(70vh) rotateY(5deg);
+    backdrop-filter: blur(22.5px);
     user-select : none;
 }
 

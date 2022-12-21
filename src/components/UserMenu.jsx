@@ -215,16 +215,6 @@ export const UserMenu = ({ template }) => {
         {connected ? (
           <React.Fragment>
             <li>
-              <div className={styles.profileImage}>
-                <div className={styles.image}>
-                  <img
-                    src={"/assets/profile-no-image.png"}
-                    crossOrigin="Anonymous"
-                  />
-                </div>
-              </div>
-            </li>
-            <li>
               <div className={styles.loggedInText}>
                 <div className={styles.chainName}>Mainnet</div>
                 {connected ? (
@@ -251,13 +241,6 @@ export const UserMenu = ({ template }) => {
           </React.Fragment>
         ) : (
           <React.Fragment>
-            <li>
-              <div className={styles.profileImage}>
-                <div className={styles.image}>
-                  <img src={"/assets/profile-no-image.png"} />
-                </div>
-              </div>
-            </li>
             <li>
               <div className={styles.loggedOutText}>
                 Not

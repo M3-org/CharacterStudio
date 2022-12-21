@@ -46,13 +46,6 @@ export const UserBox = ({className, setLoginFrom}) => {
         {!loggedIn && (
           <Fragment>
             <li>
-              <div className={styles.profileImage}>
-                <div className={styles.image}>
-                  <img src={"/assets/backgrounds/profile-no-image.png"} />
-                </div>
-              </div>
-            </li>
-            <li>
               <div className={styles.loggedOutText}>
                 Not
                 <br />
@@ -70,18 +63,6 @@ export const UserBox = ({className, setLoginFrom}) => {
         )}
         {loggedIn && (
           <Fragment>
-            <li>
-              <div className={styles.profileImage}>
-                <div className={styles.image}>
-                  <img
-                    src={
-                      avatarUrl || "/assets/backgrounds/profile-no-image.png"
-                    }
-                    crossOrigin="Anonymous"
-                  />
-                </div>
-              </div>
-            </li>
             <li>
               <div className={styles.loggedInText}>
                 <div className={styles.chainName}>Polygon</div>

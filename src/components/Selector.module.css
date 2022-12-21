@@ -1,14 +1,14 @@
 .SelectorContainerPos {
   position: absolute;
-  top: 16vh;
-  left: 7em;
-  height: 68vh;
+  top: 20vh;
+  right: 2em;
+  height: 60vh;
   overflow-y: scroll;
   overflow-x: none;
   border: 1px solid #38404E;
   border-radius : 5px;
   backdrop-filter: blur(22.5px);
-  transform: perspective(65vh) rotateY(12deg);
+  transform: perspective(70vh) rotateY(-5deg);
 }
 
 .selector-container {
