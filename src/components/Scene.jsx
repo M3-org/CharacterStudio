@@ -1,6 +1,7 @@
 import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMaterial"
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
+import { Environment } from "@react-three/drei/core/Environment"
 import { Canvas } from "@react-three/fiber"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
@@ -13,6 +14,7 @@ import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 import AudioButton from "./AudioButton"
 
@@ -46,6 +48,7 @@ export default function Scene() {
   const [spine, setSpine] = useState({});
   const [left, setLeft] = useState({});
   const [right, setRight] = useState({});
+  const [platform, setPlatform] = useState(null);
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -123,6 +126,31 @@ export default function Scene() {
       return
     }
 
+    // load a gltf using react three fiber
+
+    const modelPath = "/3d/Platform.glb";
+
+    const loader = new GLTFLoader();
+    // load the modelPath
+    loader.load(modelPath, (gltf) => {
+      // setPlatform on the gltf, and play the first animation
+      setPlatform(gltf.scene);
+      
+
+      const animationMixer = new THREE.AnimationMixer(gltf.scene);
+
+      // for each animation in the gltf, add it to the animation mixer
+      gltf.animations.forEach((clip) => {
+        animationMixer.clipAction(clip).play();
+      }
+      );
+
+      setInterval(() => {
+        animationMixer.update(0.0005);
+      });
+
+    });
+
     loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
@@ -171,7 +199,7 @@ export default function Scene() {
 
   }, [templateInfo])
 
-  return templateInfo && (
+  return templateInfo && platform && (
       <div className={styles["FitParentContainer"]}>
         <BackButton onClick={() => {
           setCurrentTemplate(null)
@@ -185,6 +213,7 @@ export default function Scene() {
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
+          <Environment files="/city.hdr" />
             <ambientLight color={[1, 1, 1]} intensity={0.5} />
 
             <directionalLight
@@ -224,22 +253,10 @@ export default function Scene() {
               <primitive object={scene} />
             </mesh>
 
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-                <circleGeometry args={[0.6, 64]} />
-                <MeshReflectorMaterial
-                  blur={[100, 100]}
-                  opacity={.5}
-                  resolution={1024}
-                  transparent={true}
-                  mixBlur={0}
-                  mixStrength={10}
-                  depthScale={0.5}
-                  minDepthThreshold={1}
-                  color="#ffffff"
-                  metalness={0.9}
-                  roughness={0}
-                />
-              </mesh>
+            <mesh>
+              <primitive object={platform} />
+            </mesh>
+
             </PerspectiveCamera>
           </Canvas>
           {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}

@@ -79,7 +79,7 @@ function getTextureImage(material, textureName) {
 }
 function getTexture(material, textureName) {
   material = material.length == null ? material : material[0];
-  const newTexture = material[textureName].clone();
+  const newTexture = material[textureName] && material[textureName].clone();
   return newTexture;
 }
 function getMaterialVRMData(material) {
