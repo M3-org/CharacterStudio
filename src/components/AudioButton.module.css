@@ -1,22 +1,21 @@
 .SquareButton {
+  position: absolute;
+  bottom: 2em;
+  right: 2em;
     transition : .3s;
-    font-family : Proxima;
+    background-size: 1.5em;
     background-repeat: no-repeat;
     background-position: center;
-    margin: auto;
     color : rgba(255, 255, 255, 0.5);
-    width: '74px';
-    height: '74px';
+    width: 3em;
+    height: 3em;
     border: 1px solid #434B58;
     backdrop-filter: blur(22.5px);
     border-radius: 5px;
-    display : flex;
-    justify-content : center;
-    align-items : center;
-    box-sizing: border-box;
-    opacity : 0.8;
+    opacity : 0.5;
     user-select : none;
     cursor:pointer;
+    z-index:1000;
   }
 
   .SquareButton:hover {
@@ -28,7 +27,6 @@
 
 .StyledAudioButton {
     z-index: 1000;
-    background-size: 35px;
 }
 
 .AudioOn {

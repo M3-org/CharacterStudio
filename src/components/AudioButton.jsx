@@ -8,7 +8,7 @@ export default function AudioButton() {
   const {currentView} = useContext(ViewContext)
 
   return currentView === ViewStates.CREATOR && (
-      <div className={[styles['SquareButton'], (isMute ? styles['AudioOff'] : styles['AudioOn'])]}
+      <div className={`${styles['SquareButton']} ${isMute ? styles['AudioOff'] : styles['AudioOn']}`}
         onClick={() => {
           if (isMute) enableAudio()
           else

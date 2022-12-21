@@ -7,7 +7,6 @@ import { AudioProvider } from "./context/AudioContext"
 import Landing from "./components/Landing"
 import { UserMenu } from "./components/UserMenu"
 
-import AudioButton from "./components/AudioButton"
 import Scene from "./components/Scene"
 import { ViewProvider } from "./context/ViewContext"
 import { SceneContext, SceneProvider } from "./context/SceneContext"
@@ -39,7 +38,6 @@ function App() {
         <Background />
         <Gate />
         <Landing />
-        <AudioButton />
         <Scene />
         <MintPopup />
         <UserMenu />

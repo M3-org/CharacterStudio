@@ -3,14 +3,16 @@
     background-size: 45% 55%;
     height: 4em;
     width: 4em;
-    margin-left: auto;
-    margin-right: auto;
     backdrop-filter: blur(22.5px);
     border-radius: 5px;
     box-sizing: border-box;
     opacity: 0.4;
     user-select: none;
     position: absolute;
+    z-index: 100000;
+    margin-left: 2em;
+    margin-top: 2em;
+    border: 1px solid #38404E;
 
 }
 

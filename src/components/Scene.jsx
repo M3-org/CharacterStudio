@@ -2,18 +2,19 @@ import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMater
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
-import React, { useRef, useState, useContext, useEffect } from "react"
-import { NoToneMapping } from "three"
-import Editor from "./Editor"
-import Selector from "./Selector"
-import { addModelData, getSkinColor } from "../library/utils"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
+import { NoToneMapping } from "three"
 import { SceneContext } from "../context/SceneContext"
-
-import { AnimationManager } from "../library/animationManager"
 import { ViewContext, ViewStates } from "../context/ViewContext"
-
+import { AnimationManager } from "../library/animationManager"
+import { addModelData, getSkinColor } from "../library/utils"
+import { BackButton } from "./BackButton"
+import Editor from "./Editor"
 import styles from "./Scene.module.css"
+import Selector from "./Selector"
+
+import AudioButton from "./AudioButton"
 
 export default function Scene() {
   const {
@@ -28,6 +29,7 @@ export default function Scene() {
     camera,
     traitsSpines,
     traitsNecks,
+    setCurrentTemplate,
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
@@ -171,6 +173,12 @@ export default function Scene() {
 
   return templateInfo && (
       <div className={styles["FitParentContainer"]}>
+        <BackButton onClick={() => {
+          setCurrentTemplate(null)
+          setCurrentView(ViewStates.LANDER_LOADING)
+        }}/>
+        <AudioButton />
+
           <Canvas
             id="editor-scene"
             className={styles["canvasStyle"]}
