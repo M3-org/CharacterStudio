@@ -25,7 +25,9 @@ export default function Editor({templateInfo, controls}) {
   );
 
   const selectOption = (option) => {
-    if (option.name == currentTraitName){ 
+    !isMute && play();
+    if (option.name === currentTraitName){ 
+      console.log('option.name === currentTraitName')
       if (cameraFocused) {
         moveCamera(option.cameraTarget);
         setCameraFocused(false);
@@ -34,12 +36,15 @@ export default function Editor({templateInfo, controls}) {
         moveCamera({height:0.8, distance:3.2});
         setCameraFocused(true);
       }
+      setCurrentTraitName(null)
+      return;
+    } else {
+      console.log('optoin.name !== currentTraitName', option.name, currentTraitName)
     }
 
     moveCamera(option.cameraTarget);
     setCurrentTraitName(option.name)
     
-    !isMute && play();
   }
 
   const moveCamera = (value) => {

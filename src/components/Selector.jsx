@@ -362,7 +362,7 @@ export default function Selector() {
         <img
           className={styles["icon"]}
           src={cancel}
-          style={{ width: "3em", height: "3em" }}
+          style={{ width: "4em", height: "4em" }}
         />
       </div>
     )
@@ -381,12 +381,10 @@ export default function Selector() {
                   const active = selectValue === item.id
                   return (
                     <div
-                      key={index + "_" + icnindex}
+                      key={currentTraitName + "_" + index + "_" + icnindex}
                       className={`${styles["selectorButton"]} ${
                         styles["selector-button"]
-                      } ${styles[`coll-${currentTraitName}`]} ${
-                        active ? styles["active"] : ""
-                      }`}
+                      } ${active ? styles["active"] : ""}`}
                       onClick={() => {
                         !isMute && play()
                         console.log("select trait", item)

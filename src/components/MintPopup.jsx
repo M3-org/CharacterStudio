@@ -17,7 +17,8 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
 
 const mintCost = 0.0
 
-export default function MintPopup({ template }) {
+export default function MintPopup() {
+  const { template } = useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
   const { walletAddress, connected } =
     useContext(AccountContext)

@@ -220,15 +220,16 @@ export default function Scene() {
                 <circleGeometry args={[0.6, 64]} />
                 <MeshReflectorMaterial
                   blur={[100, 100]}
-                  opacity={1}
+                  opacity={.5}
                   resolution={1024}
+                  transparent={true}
                   mixBlur={0}
                   mixStrength={10}
                   depthScale={0.5}
                   minDepthThreshold={1}
                   color="#ffffff"
                   metalness={0.9}
-                  roughness={1}
+                  roughness={0}
                 />
               </mesh>
             </PerspectiveCamera>

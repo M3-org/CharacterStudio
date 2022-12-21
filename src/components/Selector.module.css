@@ -1,147 +1,65 @@
 .SelectorContainerPos {
   position: absolute;
-  left: 8em;
-  top: 10vh;
+  top: 16vh;
+  left: 7em;
+  height: 68vh;
+  overflow-y: scroll;
+  overflow-x: none;
+  border: 1px solid #38404E;
+  border-radius : 5px;
+  backdrop-filter: blur(22.5px);
+  transform: perspective(65vh) rotateY(12deg);
 }
 
 .selector-container {
-  height: 80vh;
-  box-sizing: border-box;
-  padding: .5em !important;
   background: rgba(56, 64, 78, 0.1);
-  backdrop-filter: blur(22.5px);
-  border-bottom: 2px solid rgb(58, 116, 132);
-  transform: perspective(400px) rotateY(5deg);
   border-radius: .25em;
-  display: flex;
-  flex-direction: column;
   user-select: none;
 
-  overflow-y: scroll;
   flex: 1;
-
-  /* make the scrollbar transparent and cyberpunk looking */
-  scrollbar-color: #3A7484 #3A7484;
-  scrollbar-width: thin;
-
-  --webkit-mask-image: -webkit-gradient(linear, 70% 80%, 70% 100%, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
-  mask-image: linear-gradient(to bottom,
-      rgba(0, 0, 0, 1) 0px,
-      rgba(0, 0, 0, 1) 300px,
-      rgba(0, 0, 0, 0));
-}
-
-.selector-container-header {
-  height: 3em;
-  border-bottom: 2px solid #3A7484;
-  position: relative;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  justify-content: space-between;
-}
-
-
-.categoryTitle {
-  display: inline-block;
-  font-family: Proxima;
-  font-style: normal;
-  font-weight: 800;
-  font-size: 35px;
-  line-height: 91.3%;
-  color: #FFFFFF;
-  padding-left: .5em;
-  user-select: none;
-}
-
-.titleIcon {
-  width: 3em;
-  right: 0px;
-  top: 0px;
-}
-
-
-.selector-container::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Track */
-.selector-container::-webkit-scrollbar-track {
-  background: #3A7484;
-}
-
-/* Handle */
-.selector-container::-webkit-scrollbar-thumb {
-  background: #3A7484;
-}
-
-/* Handle on hover */
-.selector-container::-webkit-scrollbar-thumb:hover {
-  background: #3A7484;
-}
-
-
-
-.selector-container.traits {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-}
-
-.sub-category.sub-category-header {
-  display: flex;
-  gap: 20px;
-}
-
-.selectorButtonActive {
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  padding: 1em;
-  gap: 1em;
-  width: 4em;
-  height: 4em;
-  margin: .25em;
-  background: rgba(81, 90, 116, 0.2);
-  backdrop-filter: blur(22.5px);
-  border-radius: 5px;
-  border-bottom: 4px solid #61E5F9;
-}
-
-.selectorButtonActive.icon {
-  max-width: auto;
-  height: 60%;
-  text-align: center;
-  margin: auto;
 }
 
 .selector-button {
-  margin: .25em;
+  opacity: 0.5;
+}
+
+.selector-button:hover {
+  opacity: 1;
+}
+
+.active {
+  opacity: 1;
+}
+
+.SelectorContainerPos::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Track */
+.SelectorContainerPos::-webkit-scrollbar-track {
+  background: none;
+}
+
+/* Handle */
+.SelectorContainerPos::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .25);
+}
+
+/* Handle on hover */
+.SelectorContainerPos::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .5);
 }
 
 .selectorButton {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  width: 4em;
-  height: 4em;
-  margin: .25em;
-  background: rgba(81, 90, 116, 0.2);
-  backdrop-filter: blur(22.5px);
-  border-radius: 5px;
-}
-
-.selectorButton.icon {
-  max-width: auto;
-  height: 60%;
-  text-align: center;
-  margin: auto;
+  padding: .25em;
+  display: block;
 }
 
 .trait-icon {
-  max-width: auto;
-  height: 4em;
-  margin: auto;
+    height: 4em;
+    margin: auto;
+    user-select: none;
 }
 
 .tickStyle {
@@ -184,33 +102,4 @@
 
 .loading-trait-overlay-show {
   display: none;
-}
-
-/* TASK: rewrite the above styled component with CSS */
-
-
-
-.selectorButton {
-  display: "flex";
-  justify-content: "center";
-  cursor: "pointer";
-  width: "4em";
-  height: "4em";
-  padding: "1em";
-  background: "rgba(81, 90, 116, 0.2)";
-  backdrop-filter: "blur(22.5px)";
-  border-radius: "5px";
-}
-
-.selectorButtonActive {
-  display: "flex";
-  justify-content: "center";
-  cursor: "pointer";
-  width: "4em";
-  height: "4em";
-  padding: "1em";
-  background: "rgba(81, 90, 116, 0.2)";
-  backdrop-filter: "blur(22.5px)";
-  border-radius: "5px";
-  border-bottom: "4px solid #61E5F9",
 }
