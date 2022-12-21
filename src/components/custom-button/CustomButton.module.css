@@ -126,6 +126,7 @@
 .buttonWrap .innerWrap {
     border: 1px solid #FFFFFF;
     font-family: "TTSC-Bold";
+    font-weight: 800;
     background: #FFFFFF;
     color: #000000;
     padding: 8px 14px 6px 14px !important;

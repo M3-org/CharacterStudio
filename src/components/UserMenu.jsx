@@ -226,7 +226,7 @@ export const UserMenu = ({ template }) => {
             </li>
             <li>
               <div className={styles.loggedInText}>
-                <div className={styles.chainName}>Polygon</div>
+                <div className={styles.chainName}>Mainnet</div>
                 {connected ? (
                   <div className={styles.walletAddress} ens={ensName}>
                     {ensName
