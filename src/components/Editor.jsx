@@ -13,7 +13,7 @@ import { ViewStates } from "../context/ViewContext";
 import styles from './Editor.module.css'
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTraitName, setCurrentTraitName} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, currentOptions} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -43,21 +43,20 @@ export default function Editor({templateInfo, controls}) {
     }
 
     moveCamera(option.cameraTarget);
-    setTraitOptions(option);
-    setCurrentTraitName(option.name)
-
-
+    setCurrentOptions(getTraitOptions(option));
     
+
+    setCurrentTraitName(option.name)
+    console.log(currentOptions);
+    console.log(currentTraitName);
+
   }
 
-  const setTraitOptions = (trait) => {
-
-    // console.log("trait is: ", trait)
-    // console.log("trait name is: ", trait.name)
-    // console.log("trait collection is: ", trait.collection)
+  const getTraitOptions = (trait) => {
 
     const traitOptions = [];
     trait.collection.map((item,index)=>{
+
       const textureTraits = templateInfo.textureCollections.find(texture => 
         texture.trait === item.textureCollection
       )
@@ -70,23 +69,26 @@ export default function Editor({templateInfo, controls}) {
         const key = trait.name + "_" + index;
         traitOptions.push(getOption(key,item,item.thumbnail))
       }
-      if (textureTraits != null){
+
+      // in case we find collections of subtraits, add them as menu items
+      if (textureTraits?.collection.length > 0){
         textureTraits.collection.map((textureTrait,txtrIndex)=>{
           const key = trait.name + "_" + index + "_txt" + txtrIndex;
           const thumbnail = getThumbnail (item, textureTrait,txtrIndex)
           traitOptions.push(getOption(key,item,thumbnail,null,textureTrait))
         })
       }
-      if (colorTraits != null){
+      if (colorTraits?.collection.length > 0){
         colorTraits.collection.map((colorTrait,colIndex)=>{
           const key = trait.name + "_" + index + "_col" + colIndex;
           const thumbnail = getThumbnail (item, colorTrait,colIndex)
+          // icons in color should be colored to avoid creating an icon per model
           traitOptions.push(getOption(key,item,thumbnail,colorTrait.value, null, colorTrait))
         })
       }
       
     })
-    console.log("OPTIONS ARE: ", traitOptions);
+    return traitOptions;
   }
 
   const getThumbnail = (item, subtrait, index) => {

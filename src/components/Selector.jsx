@@ -21,6 +21,7 @@ export default function Selector() {
     setCurrentTraitName,
     currentTraitName,
     template,
+    currentOptions,
     model,
     traitsNecks,
     setTraitsNecks,
@@ -373,7 +374,40 @@ export default function Selector() {
       <div className={styles["SelectorContainerPos"]}>
         <div className={styles["selector-container"]}>
           <ClearTraitButton />
-          {templateInfo.traits
+          {currentOptions.map((option) =>{
+            const active = selectValue === option.item.id
+            return(<div
+              key={option.key}
+              className={`${styles["selectorButton"]} ${
+                styles["selector-button"]
+              } ${active ? styles["active"] : ""}`}
+              onClick={() => {
+                !isMute && play()
+                console.log("select trait", option)
+                //selectTrait(item, icnindex)
+              }}
+            >
+              <img
+                className={styles["trait-icon"]}
+                src={`${templateInfo.thumbnailsDirectory}${option.icon}`}
+              />
+              <img
+                src={tick}
+                className={
+                  avatar[currentTraitName] &&
+                  avatar[currentTraitName].id === option.item.id  // todo (pending fix): this only considers the item id and not the subtraits id
+                    ? styles["tickStyle"]
+                    : styles["tickStyleInActive"]
+                }
+              />
+              {selectValue === option.item.id && loadedPercent > 0 && (
+                <div className={styles["loading-trait"]}>
+                  {loadedPercent}%
+                </div>
+              )}
+            </div>)
+          })}
+          {/* {templateInfo.traits
             .find((trait) => trait.name === currentTraitName)
             .collection.map((item, index) => {
               if (item.thumbnailOverrides) {
@@ -461,7 +495,7 @@ export default function Selector() {
                   </div>
                 )
               }
-            })}
+            })} */}
         </div>
       </div>
     )
