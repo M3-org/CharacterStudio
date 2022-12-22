@@ -46,9 +46,10 @@ export default function Selector() {
     return Array.isArray(target) ? target : [target]
   }
 
-  const selectTrait = (option, textureIndex) => {
+  const selectTrait = (option) => {
     const trait = option?.item;
     console.log(option)
+    console.log("TRAIT IS: " , trait)
 
     // clear the trait
     if (
@@ -65,44 +66,36 @@ export default function Selector() {
       return;
     }
     // filter by item.name === currentTraitName
-    traits
-    .filter((item) => item.name === currentTraitName)
-    .map((item) => {
-      const currentTrait = traits.find((t) => t.name === currentTraitName);
-      // find the key that matches the current trait.textureCollection
-      const newAsset = currentTrait.collection.find((t) => {
-        console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
-        return t.textureCollection === trait.textureCollection
-      })
+    const currentTrait = traits.find((t) => t.name === currentTraitName);
+    // find the key that matches the current trait.textureCollection
 
-      const localDir = newAsset.directory
-      const model = templateInfo.traitsDirectory + localDir
+    const localDir = option.item.directory;
+    const model = templateInfo.traitsDirectory + localDir
+    console.log("model location is: ", model)
+    // if avatar has a trait, dispose it
+    if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
+      disposeVRM(avatar[currentTraitName].vrm)
+    }
 
-      // if avatar has a trait, dispose it
-      if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
-        disposeVRM(avatar[currentTraitName].vrm)
-      }
-
-      // check if option has set texture trait
-      if(option.textureTrait) {
-        const textureLocation =  templateInfo.traitsDirectory + option.textureTrait.directory
-        // load the texture with THREE.TextureLoader
-        const textureLoader = new THREE.TextureLoader()
-        textureLoader.load(textureLocation, (t) => {
-          t.flipY = false;
-          itemLoader(model, t).then((newTrait) => {
-            setAvatar({...avatar, ...newTrait});
-          })
+    // check if option has set texture trait
+    if(option.textureTrait) {
+      const textureLocation =  templateInfo.traitsDirectory + option.textureTrait.directory
+      // load the texture with THREE.TextureLoader
+      const textureLoader = new THREE.TextureLoader()
+      textureLoader.load(textureLocation, (t) => {
+        t.flipY = false;
+        itemLoader(model, t).then((newTrait) => {
+          setAvatar({...avatar, ...newTrait});
         })
-        return;
-      }
-
-      // if there is no texture trait, load it normally, but also check for colorTrait
-      itemLoader(model,null, option.colorTrait?.value).then((newTrait) => {
-        setAvatar({...avatar, ...newTrait});
       })
+      return;
+    }
 
+    // if there is no texture trait, load it normally, but also check for colorTrait
+    itemLoader(model,null, option.colorTrait?.value).then((newTrait) => {
+      setAvatar({...avatar, ...newTrait});
     })
+
   }
 
   const itemLoader = async (item, texture, color) => {
@@ -369,12 +362,18 @@ export default function Selector() {
               } ${active ? styles["active"] : ""}`}
               onClick={() => {
                 !isMute && play()
-                console.log("select trait", option)
+                console.log("select trait", option.item)
+                console.log(option.iconHSL)
                 selectTrait(option)
               }}
             >
               <img
                 className={styles["trait-icon"]}
+                style={option.iconHSL ? {filter: "brightness("+((option.iconHSL.l)+0.5)+") hue-rotate("+(option.iconHSL.h * 360)+"deg) saturate("+(option.iconHSL.s * 100)+"%)"} : {}}
+                // style={option.iconHSL ? 
+                //   `filter: brightness(${option.iconHSL.l}) 
+                //   saturate(${option.iconHSL.s * 100}%) 
+                //   hue(${option.iconHSL.s * 360}deg);`:""}
                 src={`${templateInfo.thumbnailsDirectory}${option.icon}`}
               />
               <img
@@ -393,95 +392,6 @@ export default function Selector() {
               )}
             </div>)
           })}
-          {/* {templateInfo.traits
-            .find((trait) => trait.name === currentTraitName)
-            .collection.map((item, index) => {
-              if (item.thumbnailOverrides) {
-                return item.thumbnailOverrides.map((icn, icnindex) => {
-                  const active = selectValue === item.id
-                  return (
-                    <div
-                      key={currentTraitName + "_" + index + "_" + icnindex}
-                      className={`${styles["selectorButton"]} ${
-                        styles["selector-button"]
-                      } ${active ? styles["active"] : ""}`}
-                      onClick={() => {
-                        !isMute && play()
-                        console.log("select trait", item)
-                        selectTrait(item, icnindex)
-                      }}
-                    >
-                      <img
-                        className={styles["trait-icon"]}
-                        src={`${templateInfo.thumbnailsDirectory}${icn}`}
-                      />
-                      <img
-                        src={tick}
-                        className={
-                          avatar[currentTraitName] &&
-                          avatar[currentTraitName].id === item.id
-                            ? styles["tickStyle"]
-                            : styles["tickStyleInActive"]
-                        }
-                      />
-                      {selectValue === item.id && loadedPercent > 0 && (
-                        <div className={styles["loading-trait"]}>
-                          {loadedPercent}%
-                        </div>
-                      )}
-                    </div>
-                  )
-                })
-              } else {
-                console.log("avatar", avatar)
-
-                console.log("currentTraitName", currentTraitName)
-                console.log(
-                  "avatar[currentTraitName]",
-                  avatar[currentTraitName],
-                )
-                const traitActive =
-                  avatar[currentTraitName] &&
-                  avatar[currentTraitName].traitInfo.id === item.id
-                return (
-                  <div
-                    key={index}
-                    className={
-                      `${(traitActive
-                        ? styles["selectorButtonActive"]
-                        : styles["selectorButton"])} ${selectValue === item.id ? "active" : ""}`
-                    }
-                    onClick={() => {
-                      !isMute && play()
-                      console.log("select trait", item)
-                      selectTrait(item)
-                    }}
-                  >
-                    <img
-                      className={styles["trait-icon"]}
-                      src={
-                        item.thumbnailsDirectory
-                          ? item.thumbnail
-                          : `${templateInfo.thumbnailsDirectory}${item.thumbnail}`
-                      }
-                    />
-                    <img
-                      src={tick}
-                      className={
-                        traitActive
-                          ? styles["tickStyle"]
-                          : styles["tickStyleInActive"]
-                      }
-                    />
-                    {selectValue === item.id && loadedPercent > 0 && (
-                      <div className={styles["loading-trait"]}>
-                        {loadedPercent}%
-                      </div>
-                    )}
-                  </div>
-                )
-              }
-            })} */}
         </div>
       </div>
     )

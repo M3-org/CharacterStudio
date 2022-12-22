@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-
+import * as THREE from "three"
 import useSound from 'use-sound';
 import gsap from 'gsap';
 import shuffle from "../../public/ui/traits/shuffle.png";
@@ -79,7 +79,7 @@ export default function Editor({templateInfo, controls}) {
           const key = trait.name + "_" + index + "_col" + colIndex;
           const thumbnail = getThumbnail (item, colorTrait,colIndex)
           // icons in color should be colored to avoid creating an icon per model
-          traitOptions.push(getOption(key,item,thumbnail,colorTrait.value, null, colorTrait))
+          traitOptions.push(getOption(key,item,thumbnail,getHSL(colorTrait.value[0]), null, colorTrait))
         })
       }
       
@@ -97,12 +97,19 @@ export default function Editor({templateInfo, controls}) {
     return subtrait.thumbnail || item.thumbnail;
   }
 
-  const getOption = (key,item, icon, iconColor=null, textureTrait=null, colorTrait=null) => {
+  const getHSL = (hex) => {
+    const color = new THREE.Color(hex);
+    const hsl = { h: 0, s: 0, l: 0 };
+    color.getHSL(hsl)
+    return hsl;
+  }
+
+  const getOption = (key,item, icon, iconHSL=null, textureTrait=null, colorTrait=null) => {
     return {
       key,
       item,
       icon,
-      iconColor,
+      iconHSL,
       textureTrait,
       colorTrait
     }
