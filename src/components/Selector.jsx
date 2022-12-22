@@ -66,68 +66,46 @@ export default function Selector() {
     }
     // filter by item.name === currentTraitName
     traits
-      .filter((item) => item.name === currentTraitName)
-      .map((item) => {
-        const currentTrait = traits.find((t) => t.name === currentTraitName);
-        // find the key that matches the current trait.textureCollection
-        const newAsset = currentTrait.collection.find((t) => {
-          console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
-          return t.textureCollection === trait.textureCollection
-        })
+    .filter((item) => item.name === currentTraitName)
+    .map((item) => {
+      const currentTrait = traits.find((t) => t.name === currentTraitName);
+      // find the key that matches the current trait.textureCollection
+      const newAsset = currentTrait.collection.find((t) => {
+        console.log('evaluating', t.textureCollection, '===', trait.textureCollection, '')
+        return t.textureCollection === trait.textureCollection
+      })
 
-        const localDir = newAsset.directory
-        const model = templateInfo.traitsDirectory + localDir
+      const localDir = newAsset.directory
+      const model = templateInfo.traitsDirectory + localDir
 
-        // if avatar has a trait, dispose it
-        if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
-          disposeVRM(avatar[currentTraitName].vrm)
-        }
+      // if avatar has a trait, dispose it
+      if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
+        disposeVRM(avatar[currentTraitName].vrm)
+      }
 
-        // get the textureCollection
-        const textureCollection = newAsset.textureCollection
-        console.log('model is', model, 'newAsset is', newAsset)
-
-        // if there is no texture collection, just load the model-- the texture is on the model
-        if(!textureCollection) {
-          console.log('no texture collection, setting avatar')
-          itemLoader(model).then((newTrait) => {
-            setAvatar({...avatar, ...newTrait});
-          })
-          return;
-        }
-
-        // if there is a texture collection, there are multiple textures to choose from
-        const textureCollectionData = templateInfo.textureCollections.find((t) => {
-          return t.trait === textureCollection
-        });
-
-        if(!textureCollectionData) 
-        {
-          console.log('templateInfo.textureCollections', templateInfo.textureCollections)
-          console.log('textureCollection', textureCollection)
-          console.log('textureCollectionData', textureCollectionData)
-          debugger;
-          console.log('no texture collection 2, setting avatar')
-          itemLoader(model).then((newTrait) => {
-            setAvatar({...avatar, ...newTrait});
-          })
-          return;
-        }
-      
-        const texture =  templateInfo.traitsDirectory + option.textureTrait.directory
-
+      // check if option has set texture trait
+      if(option.textureTrait) {
+        const textureLocation =  templateInfo.traitsDirectory + option.textureTrait.directory
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
-        textureLoader.load(texture, (t) => {
+        textureLoader.load(textureLocation, (t) => {
           t.flipY = false;
           itemLoader(model, t).then((newTrait) => {
-          setAvatar({...avatar, ...newTrait});
+            setAvatar({...avatar, ...newTrait});
+          })
         })
+        return;
+      }
+
+      // if there is no texture trait, load it normally, but also check for colorTrait
+      itemLoader(model,null, option.colorTrait?.value).then((newTrait) => {
+        setAvatar({...avatar, ...newTrait});
       })
+
     })
   }
 
-  const itemLoader = async (item, texture) => {
+  const itemLoader = async (item, texture, color) => {
     let r_vrm
     const vrm = await loadModel(item)
     if(Object.keys(vrm).length !== 0) {
@@ -146,12 +124,19 @@ export default function Selector() {
       if (model.data.animationManager){
         model.data.animationManager.startAnimation(vrm)
       }
-
+        console.log(color)
         // add texture and neck and spine bone to context
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
-            child.material[0].map = texture
-            child.material[0].shadeMultiplyTexture = texture
+            if (texture){
+              child.material[0].map = texture
+              child.material[0].shadeMultiplyTexture = texture
+            }
+            if (color){
+              const newColor = new THREE.Color( color[0] )
+              child.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
+              child.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
+            }
           }
           if (child.isBone && child.name == 'neck') { 
             setTraitsNecks(current => [...current , child])

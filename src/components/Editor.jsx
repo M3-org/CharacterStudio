@@ -44,12 +44,8 @@ export default function Editor({templateInfo, controls}) {
 
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
-    
-
     setCurrentTraitName(option.name)
-    console.log(currentOptions);
-    console.log(currentTraitName);
-
+    
   }
 
   const getTraitOptions = (trait) => {
