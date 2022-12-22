@@ -46,7 +46,10 @@ export default function Selector() {
     return Array.isArray(target) ? target : [target]
   }
 
-  const selectTrait = (trait, textureIndex) => {
+  const selectTrait = (option, textureIndex) => {
+    const trait = option?.item;
+    console.log(option)
+
     // clear the trait
     if (
       trait === null &&
@@ -111,9 +114,7 @@ export default function Selector() {
           return;
         }
       
-        const collection = textureCollectionData.collection
-
-        const texture = collection[textureIndex] && (templateInfo.traitsDirectory + collection[textureIndex].directory)
+        const texture =  templateInfo.traitsDirectory + option.textureTrait.directory
 
         // load the texture with THREE.TextureLoader
         const textureLoader = new THREE.TextureLoader()
@@ -384,7 +385,7 @@ export default function Selector() {
               onClick={() => {
                 !isMute && play()
                 console.log("select trait", option)
-                //selectTrait(item, icnindex)
+                selectTrait(option)
               }}
             >
               <img
