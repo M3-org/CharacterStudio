@@ -43,9 +43,73 @@ export default function Editor({templateInfo, controls}) {
     }
 
     moveCamera(option.cameraTarget);
+    setTraitOptions(option);
     setCurrentTraitName(option.name)
+
+
     
   }
+
+  const setTraitOptions = (trait) => {
+
+    // console.log("trait is: ", trait)
+    // console.log("trait name is: ", trait.name)
+    // console.log("trait collection is: ", trait.collection)
+
+    const traitOptions = [];
+    trait.collection.map((item,index)=>{
+      const textureTraits = templateInfo.textureCollections.find(texture => 
+        texture.trait === item.textureCollection
+      )
+      const colorTraits = templateInfo.colorCollections.find(color => 
+        color.trait === item.colorCollection  
+      )
+
+      // if no there is no collection defined for textures and colors, just grab the base option
+      if (textureTraits == null && colorTraits == null){
+        const key = trait.name + "_" + index;
+        traitOptions.push(getOption(key,item,item.thumbnail))
+      }
+      if (textureTraits != null){
+        textureTraits.collection.map((textureTrait,txtrIndex)=>{
+          const key = trait.name + "_" + index + "_txt" + txtrIndex;
+          const thumbnail = getThumbnail (item, textureTrait,txtrIndex)
+          traitOptions.push(getOption(key,item,thumbnail,null,textureTrait))
+        })
+      }
+      if (colorTraits != null){
+        colorTraits.collection.map((colorTrait,colIndex)=>{
+          const key = trait.name + "_" + index + "_col" + colIndex;
+          const thumbnail = getThumbnail (item, colorTrait,colIndex)
+          traitOptions.push(getOption(key,item,thumbnail,colorTrait.value, null, colorTrait))
+        })
+      }
+      
+    })
+    console.log("OPTIONS ARE: ", traitOptions);
+  }
+
+  const getThumbnail = (item, subtrait, index) => {
+    // thumbnail override is the most important, check if its defined
+    if (item.thumbnailOverrides)
+      if (item.thumbnailOverrides[index])
+        return item.thumbnailOverrides[index];
+
+    // if not, check if its defined in the subtrait (texture collection or color collection) or just grab the base thumbnail from the item
+    return subtrait.thumbnail || item.thumbnail;
+  }
+
+  const getOption = (key,item, icon, iconColor=null, textureTrait=null, colorTrait=null) => {
+    return {
+      key,
+      item,
+      icon,
+      iconColor,
+      textureTrait,
+      colorTrait
+    }
+  }
+
 
   const moveCamera = (value) => {
       gsap.to(controls.target,{
