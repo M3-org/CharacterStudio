@@ -10,3 +10,4 @@ package-lock.json
 loot-assets
 character-assets
 .eslint-cache
+.env

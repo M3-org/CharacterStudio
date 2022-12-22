@@ -135,7 +135,6 @@ export default function Scene() {
     loader.load(modelPath, (gltf) => {
       // setPlatform on the gltf, and play the first animation
       setPlatform(gltf.scene);
-      
 
       const animationMixer = new THREE.AnimationMixer(gltf.scene);
 
