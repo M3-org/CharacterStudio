@@ -13,7 +13,7 @@ import { AccountContext } from "../context/AccountContext"
 import styles from "./MintPopup.module.css"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
-const pinataSecretApiKey = import.meta.env.VITE_PINATA_SECRET_API_KEY
+const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.0
 
@@ -28,9 +28,15 @@ export default function MintPopup() {
   const [mintStatus, setMintStatus] = useState("")
 
   async function saveFileToPinata(fileData, fileName) {
+    console.log('pinataApiKey', pinataApiKey)
+    console.log('pinataSecretApiKey', pinataSecretApiKey)
     if (!fileData) return cosnole.warn("Error saving to pinata: No file data")
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
     let data = new FormData()
+
+    console.log('fileData', fileData)
+    console.log('fileName', fileName)
+
     data.append("file", fileData, fileName)
     let resultOfUpload = await axios.post(url, data, {
       maxContentLength: "Infinity", //this is needed to prevent axios from erroring out with large files
@@ -60,6 +66,8 @@ export default function MintPopup() {
     setCurrentView(ViewStates.MINT_CONFIRM)
     setMintStatus("Uploading...")
 
+    console.log('avatar in mintAsset', avatar)
+
     const screenshot = await getScreenShot("mint-scene")
     if (!screenshot) {
       throw new Error("Unable to get screenshot")
@@ -72,7 +80,7 @@ export default function MintPopup() {
       console.error(reason)
       setMintStatus("Couldn't save to pinata")
     })
-    const glb = getModelFromScene(avatar.scene.clone(), "glb", skinColor)
+    const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
     const glbHash = await saveFileToPinata(
       glb,
       "AvatarGlb_" + Date.now() + ".glb",
@@ -110,10 +118,10 @@ export default function MintPopup() {
       window.ethereum,
     ).getSigner()
     const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
-    const isActive = await contract.saleIsActive()
-    if (!isActive) {
-      setMintStatus("Mint isn't Active now!")
-    } else {
+    // const isActive = await contract.saleIsActive()
+    // if (!isActive) {
+    //   setMintStatus("Mint isn't Active now!")
+    // } else {
       const tokenPrice = await contract.tokenPrice()
       try {
         const options = {
@@ -129,7 +137,7 @@ export default function MintPopup() {
       } catch (err) {
         setMintStatus("Public Mint failed! Please check your wallet.")
       }
-    }
+   // }
   }
 
   const showTrait = (trait) => {
