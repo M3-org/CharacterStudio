@@ -123,8 +123,8 @@ export default function Selector() {
 
       });
     }
+    
     // 1 
-    console.log("TEXTURES ARE: ", textures)
     addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
@@ -134,17 +134,14 @@ export default function Selector() {
       if (model.data.animationManager){
         model.data.animationManager.startAnimation(vrm)
       }
-      console.log("VRM IS: ", vrm)
       // if user defined target meshes, assign the textures depending on their selection
       if (item.textureTargets){
         const targets = getAsArray(item.textureTargets) 
         for (let i =0 ; i < targets.length ; i++){
           const obj = vrm.scene.getObjectByName ( targets[i] )
-          console.log(targets[i])
           if (obj == null) console.warn("Mesh with name " + targets[i] + ", was not found")
           if (obj && textures){
             if (obj.isMesh && textures[i] != null){
-              console.log(obj)
               obj.material[0].map = textures[i]
               obj.material[0].shadeMultiplyTexture = textures[i]
             }
