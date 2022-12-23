@@ -15,6 +15,12 @@ import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import {
+  BrightnessContrast,
+  EffectComposer,
+  Glitch,
+  Bloom
+} from "@react-three/postprocessing"
 
 import AudioButton from "./AudioButton"
 
@@ -212,8 +218,19 @@ export default function Scene() {
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
+
+          <EffectComposer>
+          <Bloom luminancThreshold={1} mipmapBlur />
+            <BrightnessContrast
+              brightness={0} // brightness. min: -1, max: 1
+              contrast={0.2} // contrast: min -1, max: 1
+            />
+          </EffectComposer>
+
           <Environment files="/city.hdr" />
             <ambientLight color={[1, 1, 1]} intensity={0.5} />
+
+
 
             <directionalLight
               intensity={0.5}
@@ -247,7 +264,6 @@ export default function Scene() {
               fov={30}
               onUpdate={(self) => self.updateProjectionMatrix()}
             >
-
             <mesh>
               <primitive object={scene} />
             </mesh>
