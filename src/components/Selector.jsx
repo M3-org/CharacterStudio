@@ -113,14 +113,13 @@ export default function Selector() {
 
   }
 
-  const itemLoader = async (item, textures, color) => {
+  const itemLoader = async (item, textures, colors) => {
     let r_vrm
     const itemDirectory = templateInfo.traitsDirectory + item.directory;
     console.log(itemDirectory)
     const vrm = await loadModel(itemDirectory)
     if(Object.keys(vrm).length !== 0) {
       vrm.scene.traverse(o => {
-
       });
     }
 
@@ -134,50 +133,41 @@ export default function Selector() {
       if (model.data.animationManager){
         model.data.animationManager.startAnimation(vrm)
       }
-      // if user defined target meshes, assign the textures depending on their selection
+
+      // mesh targets to apply textures or colors 
+      const meshTargets = [];
       if (item.meshTargets){
-        const targets = getAsArray(item.meshTargets) 
-        for (let i =0 ; i < targets.length ; i++){
-          const obj = vrm.scene.getObjectByName ( targets[i] )
-          if (obj == null) console.warn("Mesh with name " + targets[i] + ", was not found")
-          if (obj && textures){
-            if (obj.isMesh && textures[i] != null){
-              obj.material[0].map = textures[i]
-              obj.material[0].shadeMultiplyTexture = textures[i]
-            }
-          }
-          if (obj && color){
-            if (obj.isMesh && color[i] != null){
-              const newColor = new THREE.Color( color[i] )
-              obj.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
-              obj.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
-            }
-          }
-        }
-      }
-      // if not assign to every single mesh
-      else{
-        vrm.scene.traverse((child) => {
-          if (child.isMesh) {
-            if (textures){
-              child.material[0].map = textures[0]
-              child.material[0].shadeMultiplyTexture = textures[0]
-            }
-            if (color){
-              const newColor = new THREE.Color( color[0] )
-              child.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
-              child.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
-            }
-          }
+        getAsArray(item.meshTargets).map((target) => {
+          const mesh = vrm.scene.getObjectByName ( target )
+          if (mesh?.isMesh) meshTargets.push(mesh);
         })
       }
-      // add neck and spine bone to context
+      // when mesh targets are not defined by user, grab all mesh children of vrm scene
       vrm.scene.traverse((child) => {
+        if (!item.meshTargets && child.isMesh)
+          meshTargets.push(child);
+
         if (child.isBone && child.name == 'neck') { 
           setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
+        }
+      })
+
+      meshTargets.map((mesh, index)=>{
+        if (textures){
+          if (textures[index] != null){
+            mesh.material[0].map = textures[index]
+            mesh.material[0].shadeMultiplyTexture = textures[index]
+          }
+        }
+        if (colors){
+          if (colors[index] != null){
+            const newColor = new THREE.Color( color[index] )
+            obj.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
+            obj.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
+          }
         }
       })
 
@@ -279,7 +269,7 @@ export default function Selector() {
                   })
                   // check also if any of the current trait is of type
                   if (avatar[property] && avatar[property].vrm) {
-                    const propertyTypes = getAsArray(avatar[property].item.type)
+                    const propertyTypes = getAsArray(avatar[property].item?.type)
                     propertyTypes.forEach((t) => {
                       const typeRestrictionsSecondary = getAsArray(
                         templateInfo.typeRestrictions[t],
