@@ -123,7 +123,7 @@ export default function Selector() {
 
       });
     }
-    
+
     // 1 
     addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
@@ -135,8 +135,8 @@ export default function Selector() {
         model.data.animationManager.startAnimation(vrm)
       }
       // if user defined target meshes, assign the textures depending on their selection
-      if (item.textureTargets){
-        const targets = getAsArray(item.textureTargets) 
+      if (item.meshTargets){
+        const targets = getAsArray(item.meshTargets) 
         for (let i =0 ; i < targets.length ; i++){
           const obj = vrm.scene.getObjectByName ( targets[i] )
           if (obj == null) console.warn("Mesh with name " + targets[i] + ", was not found")
