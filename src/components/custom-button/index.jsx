@@ -1,7 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {IconCollection} from './IconCollection';
-import styles from './CustomButton.module.css';
 import classnames from 'classnames';
+import React, { useEffect, useRef } from 'react';
+import styles from './CustomButton.module.css';
+import { IconCollection } from './IconCollection';
 
 async function getSVG(iconName) {
   const icon = IconCollection.find(item => item.name === iconName);

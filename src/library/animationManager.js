@@ -13,13 +13,12 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  mixer 
-  actions
-  to
-  from
-  animationManager
-
   constructor(animationManager, scene, animations, curIdx, lastIdx){
+    this.mixer = null;
+    this.actions = [];
+    this.to = null;
+    this.from = null;
+    this.animationManager = null;
     this.animationManager = animationManager;
     this.mixer = new AnimationMixer(scene);
     animations[0].tracks.map((track, index) => {
@@ -57,17 +56,15 @@ class AnimationControl {
 }
 
 export class AnimationManager{
-  lastAnimID;
-  curAnimID;
-  mainControl;
-  animationControls;
-  animations;
-  weightIn;
-  weightOut;
-  offset;
-
   constructor (offset){
-
+    this.lastAnimID = null;
+    this.curAnimID = null;
+    this.mainControl = null;
+    this.animationControl  = null;
+    this.animations = null;
+    this.weightIn = null;
+    this.weightOut = null;
+    this.offset = null;
     this.lastAnimID = -1;
     this.curAnimID = 0;
     this.animationControls = [];
@@ -155,7 +152,6 @@ export class AnimationManager{
   }
 
   animRandomizer(yieldTime){
-    const root = this.mainControl.mixer.getRoot();
     setTimeout(() => {
       this.lastAnimID = this.curAnimID;
       this.curAnimID = getRandomInt(this.animations.length);

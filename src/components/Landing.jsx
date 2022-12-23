@@ -1,24 +1,24 @@
+/* eslint-disable react/no-unknown-property */
 import {
   BrightnessContrast,
   EffectComposer,
-  Glitch,
+  Glitch
 } from "@react-three/postprocessing"
 import { GlitchMode } from "postprocessing"
-import React, { useEffect, useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import useSound from "use-sound"
 import clickUrl from "../../public/sound/class_click.wav"
 import passUrl from "../../public/sound/class_pass.wav"
-import logo from "../../public/ui/landing/logo.png"
 import { AudioContext } from "../context/AudioContext"
 
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
-import { AnimationManager } from "../library/animationManager"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
+import { AnimationManager } from "../library/animationManager"
 
-import styles from "./Landing.module.css"
 import CustomButton from "./custom-button"
+import styles from "./Landing.module.css"
 
 const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
 const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"

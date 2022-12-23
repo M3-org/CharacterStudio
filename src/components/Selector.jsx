@@ -1,8 +1,8 @@
-import React, { useEffect, Fragment, useState, useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
-import { disposeVRM, addModelData } from "../library/utils"
+import { addModelData, disposeVRM } from "../library/utils"
 
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
@@ -17,14 +17,10 @@ export default function Selector() {
     avatar,
     setAvatar,
     currentTemplate,
-    scene,
-    setCurrentTraitName,
     currentTraitName,
     template,
     model,
-    traitsNecks,
     setTraitsNecks,
-    traitsSpines,
     setTraitsSpines
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
@@ -33,11 +29,7 @@ export default function Selector() {
   const traitTypes = templateInfo.traits.map((trait) => trait.name)
   const { isMute } = useContext(AudioContext)
 
-  const [texture, setTexture] = useState(null)
-
   const [selectValue, setSelectValue] = useState("0")
-  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
-  const [loadedPercent, setLoadedPercent] = useState(0)
 
   const getAsArray = (target) => {
     if (target == null) return []
@@ -63,7 +55,7 @@ export default function Selector() {
     // filter by item.name === currentTraitName
     traits
       .filter((item) => item.name === currentTraitName)
-      .map((item) => {
+      .map(() => {
         const currentTrait = traits.find((t) => t.name === currentTraitName);
         // find the key that matches the current trait.textureCollection
         const newAsset = currentTrait.collection.find((t) => {
@@ -99,11 +91,6 @@ export default function Selector() {
 
         if(!textureCollectionData) 
         {
-          console.log('templateInfo.textureCollections', templateInfo.textureCollections)
-          console.log('textureCollection', textureCollection)
-          console.log('textureCollectionData', textureCollectionData)
-          debugger;
-          console.log('no texture collection 2, setting avatar')
           itemLoader(model).then((newTrait) => {
             setAvatar({...avatar, ...newTrait});
           })
@@ -128,11 +115,6 @@ export default function Selector() {
   const itemLoader = async (item, texture) => {
     let r_vrm
     const vrm = await loadModel(item)
-    if(Object.keys(vrm).length !== 0) {
-      vrm.scene.traverse(o => {
-
-      });
-    }
     // 1 
 
     addModelData(vrm, {
@@ -404,11 +386,6 @@ export default function Selector() {
                             : styles["tickStyleInActive"]
                         }
                       />
-                      {selectValue === item.id && loadedPercent > 0 && (
-                        <div className={styles["loading-trait"]}>
-                          {loadedPercent}%
-                        </div>
-                      )}
                     </div>
                   )
                 })
@@ -453,11 +430,6 @@ export default function Selector() {
                           : styles["tickStyleInActive"]
                       }
                     />
-                    {selectValue === item.id && loadedPercent > 0 && (
-                      <div className={styles["loading-trait"]}>
-                        {loadedPercent}%
-                      </div>
-                    )}
                   </div>
                 )
               }

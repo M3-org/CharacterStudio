@@ -1,17 +1,17 @@
-import React, {useState, useEffect} from "react"
-import { InjectedConnector } from "@web3-react/injected-connector"
-import { ViewContext, ViewStates } from "../context/ViewContext"
 import { useWeb3React } from "@web3-react/core"
-import { AudioContext } from "../context/AudioContext"
-import { AccountContext } from "../context/AccountContext"
+import { InjectedConnector } from "@web3-react/injected-connector"
 import { ethers } from "ethers"
+import React, { useEffect, useState } from "react"
+import { AccountContext } from "../context/AccountContext"
+import { AudioContext } from "../context/AudioContext"
+import { ViewContext, ViewStates } from "../context/ViewContext"
+import { DelegateCashContract, EternalProxyContract, OTCollectionAddress } from "./Contract"
 import CustomButton from "./custom-button"
-import { OTCollectionAddress, EternalProxyContract, DelegateCashContract } from "./Contract"
 
 import styles from "./Gate.module.css"
 
 export default function Gate() {
-  const { active, account, library, connector, activate, deactivate } =
+  const { active, account, activate } =
     useWeb3React()
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -24,38 +24,13 @@ export default function Gate() {
 
   const [loading, setLoading] =  useState(true)
 
-
-
-  const { walletAddress, setWalletAddress, OTTokens, setOTTokens, ensName, setEnsName, connected, setConnected } = React.useContext(AccountContext)
+  const { setWalletAddress, setOTTokens, setConnected } = React.useContext(AccountContext)
 
   const connectWallet = async () => {
     console.log("connectWallet")
     await activate(injected)
     setConnected(true);
     setWalletAddress(account)
-    // _setAddress(account)
-  }
-
-  const _setAddress = async (address) => {
-    const { name } = await getAccountDetails(address)
-    console.log("ens", name)
-    setEnsName(name ? name.slice(0, 15) + "..." : "")
-  }
-
-  const getAccountDetails = async (address) => {
-    const provider = ethers.getDefaultProvider("mainnet", {
-      alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
-    })
-    const check = ethers.utils.getAddress(address)
-
-    try {
-      const name = await provider.lookupAddress(check)
-      if (!name) return {}
-      return { name }
-    } catch (err) {
-      console.warn(err.stack)
-      return {}
-    }
   }
 
   const enterWithMusic = () => {
@@ -85,7 +60,7 @@ export default function Gate() {
     setLoading(false);
   }
 
-  const checkOTPass = async (account) => {
+  const checkOTPass = async () => {
     const testaccount = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104';
     const network = "ETHEREUM"
     const OTTokenList = await fetch(`https://serverless-backend-blue.vercel.app/api/getOpenSeaNFTCollection?walletAddress=${testaccount}&collectionAddress=${OTCollectionAddress}&network=${network}`,

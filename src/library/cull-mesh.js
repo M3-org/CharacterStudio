@@ -1,4 +1,4 @@
-import {Raycaster, Vector3, LineBasicMaterial, Line, Color, BufferGeometry, BufferAttribute} from "three";
+import { BufferAttribute, Raycaster, Vector3 } from "three";
 
 let origin = new Vector3();
 let direction = new Vector3();
@@ -131,7 +131,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     return new BufferAttribute(indexArr,1,false);
 }
 
-export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
+export const DisplayMeshIfVisible = async(mesh, traitModel) => {
 
     if (mesh.userData.origIndexBuffer == null)
         mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
@@ -214,54 +214,4 @@ export const DisplayMeshIfVisible = async(mesh, traitModel, greed = 10) => {
     mesh.geometry.setIndex(buffer);
 
     //mesh.visible = !hidden;
-}
-
-
-function clearRays(scene){
-    if (scene.lines){
-        scene.lines.forEach(line => {
-            line.visible = false;
-            line.parent = null;
-            line.geometry.dispose();
-        });
-        scene.lines.length = 0;
-    }
-}
-function DebugRay(origin, direction, length, color, scene){
-    //console.log("tt")
-    if (scene.lines == null)
-        scene.lines = [];
-    else{
-        // scene.lines.forEach(line => {
-        //     line.visible = false;
-        // });
-        // scene.lines.length = 0;
-    }
-
-    let endPoint = new Vector3();
-    endPoint.addVectors ( origin, direction.clone().multiplyScalar( length ) );
-
-    //geometry.vertexColors.
-    
-    const points = []
-    points.push( origin );
-    points.push( endPoint );
-    const geometry = new BufferGeometry().setFromPoints( points );
-
-    const cols = [];
-    cols.push(new Color(0x000000));
-    cols.push(new Color(0xffffff)); 
-
-    // geometry.setAttribute(
-    //     'color',
-    //     new BufferAttribute(new Float32Array(cols), 2));
-
-    let material = new LineBasicMaterial( {color:color } );
-    var line = new Line( geometry, material );
-
-    
-
-    line.renderOrder = 100;
-    scene.parent.add( line );
-    scene.lines.push(line);
 }

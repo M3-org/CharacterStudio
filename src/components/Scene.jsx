@@ -1,11 +1,16 @@
-import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMaterial"
+/* eslint-disable react/no-unknown-property */
+import { Environment } from "@react-three/drei/core/Environment"
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Environment } from "@react-three/drei/core/Environment"
 import { Canvas } from "@react-three/fiber"
+import {
+  Bloom, BrightnessContrast,
+  EffectComposer
+} from "@react-three/postprocessing"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { NoToneMapping } from "three"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
@@ -14,13 +19,6 @@ import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import {
-  BrightnessContrast,
-  EffectComposer,
-  Glitch,
-  Bloom
-} from "@react-three/postprocessing"
 
 import AudioButton from "./AudioButton"
 
@@ -34,12 +32,11 @@ export default function Scene() {
     model,
     template,
     setModel,
-    camera,
     traitsSpines,
     traitsNecks,
     setCurrentTemplate,
   } = useContext(SceneContext)
-  const {currentView, setCurrentView} = useContext(ViewContext)
+  const {setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
     neck : 30,
     spine : 5,
@@ -229,8 +226,6 @@ export default function Scene() {
 
           <Environment files="/city.hdr" />
             <ambientLight color={[1, 1, 1]} intensity={0.5} />
-
-
 
             <directionalLight
               intensity={0.5}

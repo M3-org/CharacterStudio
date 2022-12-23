@@ -1,33 +1,31 @@
 import { useWeb3React } from "@web3-react/core"
 import { InjectedConnector } from "@web3-react/injected-connector"
+import classnames from "classnames"
 import { ethers } from "ethers"
-import React, { Fragment, useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
+import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { ViewStates, ViewContext } from "../context/ViewContext"
+import { ViewContext, ViewStates } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
 import VRMExporter from "../library/VRMExporter"
-import { AccountContext } from "../context/AccountContext"
 import CustomButton from "./custom-button"
-import classnames from "classnames"
 
 import styles from "./UserMenu.module.css"
 
-export const UserMenu = ({ template }) => {
-  const type = "CHANGEME" // class type
+export const UserMenu = () => {
+  const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
-  const { activate, deactivate, library, account } = useWeb3React()
-
-  const [loggedIn, seLoggedIn] = useState(false)
+  const { activate, deactivate, account } = useWeb3React()
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
-  const { avatar, scene, skinColor, model } = useContext(SceneContext)
+  const { skinColor, model } = useContext(SceneContext)
 
   const { currentView, setCurrentView } = useContext(ViewContext)
 
@@ -44,7 +42,7 @@ export const UserMenu = ({ template }) => {
   }, [account])
 
   const _setAddress = async (address) => {
-    const { name, avatar } = await getAccountDetails(address)
+    const { name } = await getAccountDetails(address)
     console.log("ens", name)
     setEnsName(name ? name.slice(0, 15) + "..." : "")
   }
@@ -218,7 +216,7 @@ export const UserMenu = ({ template }) => {
               <div className={styles.loggedInText}>
                 <div className={styles.chainName}>Mainnet</div>
                 {connected ? (
-                  <div className={styles.walletAddress} ens={ensName}>
+                  <div className={styles.walletAddress}>
                     {ensName
                       ? ensName
                       : account

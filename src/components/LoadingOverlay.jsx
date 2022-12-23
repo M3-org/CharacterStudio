@@ -6,17 +6,12 @@ import { ViewContext } from "../context/ViewContext";
 import styles from './LoadingOverlay.module.css'
 
 export default function LoadingOverlayCircularStatic({
-  loadingProgress,
-  background = null,
   title = "Loading"
 }) {
   const { currentView } = React.useContext(ViewContext);
   return currentView.includes('LOADING') &&
   (
-    <div className={styles['LoadingStyleBox']}
-      backgroundActive={background}
-      loadedValue = {loadingProgress}
-    >
+    <div className={styles['LoadingStyleBox']}>
       <span className = "loading-text" >
         {title}
       </span>
