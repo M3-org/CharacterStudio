@@ -69,9 +69,9 @@ export default function Selector() {
     const currentTrait = traits.find((t) => t.name === currentTraitName);
     // find the key that matches the current trait.textureCollection
 
-    const localDir = option.item.directory;
-    const model = templateInfo.traitsDirectory + localDir
-    console.log("model location is: ", model)
+    //const localDir = option.item.directory;
+    //const model = templateInfo.traitsDirectory + localDir
+    //console.log("model location is: ", model)
     // if avatar has a trait, dispose it
     if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
       disposeVRM(avatar[currentTraitName].vrm)
@@ -79,35 +79,52 @@ export default function Selector() {
 
     // check if option has set texture trait
     if(option.textureTrait) {
-      const textureLocation =  templateInfo.traitsDirectory + option.textureTrait.directory
-      // load the texture with THREE.TextureLoader
-      const textureLoader = new THREE.TextureLoader()
-      textureLoader.load(textureLocation, (t) => {
-        t.flipY = false;
-        itemLoader(model, t).then((newTrait) => {
+      const textureLocations = getAsArray(option.textureTrait.directory)
+
+      const textures = []
+      const textureLoadManager = new THREE.LoadingManager()
+      const textureLoader = new THREE.TextureLoader(textureLoadManager)
+
+      textureLoadManager.onLoad = function ( ) {
+        itemLoader(trait, textures).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
-      })
+      }
+      textureLoadManager.onError = function ( url ) {
+        console.log( 'There was an error loading ' + url );
+      }
+      
+      console.log(textureLocations.length)
+      
+      for (let i =0; i < textureLocations.length;i++)
+      {
+        textureLoader.load(templateInfo.traitsDirectory + textureLocations[i],(txt)=>{
+          txt.flipY = false;
+          textures[i] = (txt)
+        })
+      }
       return;
     }
 
     // if there is no texture trait, load it normally, but also check for colorTrait
-    itemLoader(model,null, option.colorTrait?.value).then((newTrait) => {
+    itemLoader(trait,null, option.colorTrait?.value).then((newTrait) => {
       setAvatar({...avatar, ...newTrait});
     })
 
   }
 
-  const itemLoader = async (item, texture, color) => {
+  const itemLoader = async (item, textures, color) => {
     let r_vrm
-    const vrm = await loadModel(item)
+    const itemDirectory = templateInfo.traitsDirectory + item.directory;
+    console.log(itemDirectory)
+    const vrm = await loadModel(itemDirectory)
     if(Object.keys(vrm).length !== 0) {
       vrm.scene.traverse(o => {
 
       });
     }
     // 1 
-
+    console.log("TEXTURES ARE: ", textures)
     addModelData(vrm, {
       cullingLayer: item.cullingLayer || -1,
       cullingDistance: item.cullingDistance || null,
@@ -117,13 +134,37 @@ export default function Selector() {
       if (model.data.animationManager){
         model.data.animationManager.startAnimation(vrm)
       }
-        console.log(color)
-        // add texture and neck and spine bone to context
+      console.log("VRM IS: ", vrm)
+      // if user defined target meshes, assign the textures depending on their selection
+      if (item.textureTargets){
+        const targets = getAsArray(item.textureTargets) 
+        for (let i =0 ; i < targets.length ; i++){
+          const obj = vrm.scene.getObjectByName ( targets[i] )
+          console.log(targets[i])
+          if (obj == null) console.warn("Mesh with name " + targets[i] + ", was not found")
+          if (obj && textures){
+            if (obj.isMesh && textures[i] != null){
+              console.log(obj)
+              obj.material[0].map = textures[i]
+              obj.material[0].shadeMultiplyTexture = textures[i]
+            }
+          }
+          if (obj && color){
+            if (obj.isMesh && color[i] != null){
+              const newColor = new THREE.Color( color[i] )
+              obj.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
+              obj.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
+            }
+          }
+        }
+      }
+      // if not assign to every single mesh
+      else{
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
-            if (texture){
-              child.material[0].map = texture
-              child.material[0].shadeMultiplyTexture = texture
+            if (textures){
+              child.material[0].map = textures[0]
+              child.material[0].shadeMultiplyTexture = textures[0]
             }
             if (color){
               const newColor = new THREE.Color( color[0] )
@@ -131,13 +172,17 @@ export default function Selector() {
               child.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
             }
           }
-          if (child.isBone && child.name == 'neck') { 
-            setTraitsNecks(current => [...current , child])
-           }
-          if (child.isBone && child.name == 'spine') { 
-            setTraitsSpines(current => [...current , child])
-          }
         })
+      }
+      // add neck and spine bone to context
+      vrm.scene.traverse((child) => {
+        if (child.isBone && child.name == 'neck') { 
+          setTraitsNecks(current => [...current , child])
+        }
+        if (child.isBone && child.name == 'spine') { 
+          setTraitsSpines(current => [...current , child])
+        }
+      })
 
       const traitData = templateInfo.traits.find(
         (element) => element.name === currentTraitName,
