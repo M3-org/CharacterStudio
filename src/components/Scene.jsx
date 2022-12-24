@@ -4,7 +4,7 @@ import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
 import {
-  Bloom, BrightnessContrast,
+  Bloom,
   EffectComposer
 } from "@react-three/postprocessing"
 import React, { useContext, useEffect, useRef, useState } from "react"
@@ -19,8 +19,10 @@ import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
+import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
 
 import AudioButton from "./AudioButton"
+import { LipSync } from '../library/lipsync'
 
 export default function Scene() {
   const {
@@ -35,6 +37,7 @@ export default function Scene() {
     traitsSpines,
     traitsNecks,
     setCurrentTemplate,
+    setLipSync,
   } = useContext(SceneContext)
   const {setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
@@ -114,7 +117,6 @@ export default function Scene() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove]);
-
   const moveJoint = (mouse, joint, degreeLimit) => {
     if(Object.keys(joint).length !== 0 ){
       let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit);
@@ -163,6 +165,11 @@ export default function Scene() {
       }
       addModelData(vrm, { cullingLayer: 0 })
 
+      console.log('vrm', vrm)
+
+      setLipSync(new LipSync(vrm));
+
+
       vrm.scene.traverse(o => {
           if (o.isMesh) {
             o.castShadow = true;
@@ -186,8 +193,8 @@ export default function Scene() {
       getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
       setTimeout(() => {
-      scene.add(vrm.scene)
-      }, 1)
+      scene.add(vrm.scene)      
+    }, 1)
       setCurrentView(ViewStates.CREATOR)
     })
     
@@ -217,11 +224,7 @@ export default function Scene() {
           >
 
           <EffectComposer>
-          <Bloom luminancThreshold={1} mipmapBlur />
-            <BrightnessContrast
-              brightness={0} // brightness. min: -1, max: 1
-              contrast={0.2} // contrast: min -1, max: 1
-            />
+          <Bloom luminanceThreshold={0.99} luminanceSmoothing={0.9} radius={1} />
           </EffectComposer>
 
           <Environment files="/city.hdr" />
@@ -269,8 +272,8 @@ export default function Scene() {
 
             </PerspectiveCamera>
           </Canvas>
+          <Editor templateInfo={templateInfo} controls={controls.current} />
           {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
-        <Editor templateInfo={templateInfo} controls={controls.current} />
       </div>
   )
 }

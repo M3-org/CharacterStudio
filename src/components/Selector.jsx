@@ -306,7 +306,7 @@ export default function Selector() {
       // for trait in traits
       for (const property in buffer) {
         if (buffer[property].vrm) {
-          if (newAvatar[property].vrm != buffer[property].vrm) {
+          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
             if (newAvatar[property].vrm != null) {
               disposeVRM(newAvatar[property].vrm)
             }
