@@ -13,7 +13,6 @@ import { SceneContext, SceneProvider } from "./context/SceneContext"
 import { AccountProvider } from "./context/AccountContext"
 import MintPopup from "./components/MintPopup"
 // import Gate from "./components/Gate"
-import ChatComponent from "./components/ChatComponent"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -39,7 +38,6 @@ function App() {
       <Fragment>
         <Background />
         {/* <Gate /> */}
-        <ChatComponent />
 
         <Landing />
         <Scene />

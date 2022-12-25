@@ -1,15 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { SceneContext } from "../context/SceneContext";
+import styles from "./ChatBox.module.css";
 
 export default function ChatBox() {
 
     const {lipSync} = React.useContext(SceneContext);
+    const [input, setInput] = React.useState("");
     
     const [messages, setMessages] = React.useState([]);
     const handleChange = async (event) => {
         event.preventDefault();
+        setInput(event.target.value);
     };
+
+
+    // if user presses ctrl c, clear the messages
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.ctrlKey && event.key === 'c') {
+                setMessages([]);
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [])
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         // Get the value of the input element
@@ -21,9 +39,15 @@ export default function ChatBox() {
         const channelId = "three";
         const entity = 11;
         const speaker = "moon";
-        const agent = "eliza";
+        const agent = "Eliza";
         const channel = "homepage";
         const spell_handler = "eliza_0.1.0";
+
+        // get the first 5 messages
+        const newMessages = [...messages];
+        newMessages.push("Speaker: " + value)
+        setInput("");
+        setMessages(newMessages);
 
         try {
             const url = encodeURI(`https://localhost:8001/spells/${spell_handler}`)
@@ -59,10 +83,7 @@ export default function ChatBox() {
                     lipSync.startFromAudioFile(arrayBuffer);
                 });
 
-                // get the first 5 messages
-                const newMessages = messages.slice(-5);
-
-                setMessages([...newMessages, output]);
+                setMessages([...newMessages, agent + ": " + output]);
             });
         } catch (error) {
             console.error(error);
@@ -70,16 +91,16 @@ export default function ChatBox() {
     };
 
     return (
-        <div style={{zIndex: 1000000, opacity: 0.3, position: "absolute", width: "300px", fontSize: ".5rem", right: "100px", bottom: "20px", padding: "1em", margin: "1em", color: "#fff", backgroundColor: "#000"}}>
-            <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "auto" }}>
+        <div className={styles['chatBox']}>
+            <div className={styles["messages"]}>
                 {messages.map((message, index) => (
                     <div key={index}>{message}</div>
                 ))}
             </div>
 
-            <form style={{ display: "flex" }} onSubmit={handleSubmit}>
-                <input type="text" name="message" onInput={handleChange} onChange={handleChange} />
-                <button type="submit">Send</button>
+            <form className={styles['send']} onSubmit={handleSubmit}>
+                <input autoComplete="off" type="text" name="message" value={input} onInput={handleChange} onChange={handleChange} />
+                <button className={styles["button"]} onSubmit={handleSubmit} type="submit">Send</button>
             </form>
         </div>
     );

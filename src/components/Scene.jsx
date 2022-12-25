@@ -20,6 +20,7 @@ import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
 import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
+import ChatComponent from "./ChatComponent"
 
 import AudioButton from "./AudioButton"
 import { LipSync } from '../library/lipsync'
@@ -55,6 +56,23 @@ export default function Scene() {
   const [left, setLeft] = useState({});
   const [right, setRight] = useState({});
   const [platform, setPlatform] = useState(null);
+
+  const [showChat, setShowChat] = useState(false);
+
+  useEffect(() => {
+    // if user presses ctrl h, show chat
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        setShowChat(!showChat);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+
+  }, [])
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -272,8 +290,9 @@ export default function Scene() {
 
             </PerspectiveCamera>
           </Canvas>
-          <Editor templateInfo={templateInfo} controls={controls.current} />
-          {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
+          {showChat && <ChatComponent />}
+          {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
+          {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
       </div>
   )
 }
