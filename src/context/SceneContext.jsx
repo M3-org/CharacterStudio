@@ -12,26 +12,52 @@ import {
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
-  const loader = new GLTFLoader()
+  const loadingManager = new THREE.LoadingManager();
+
+  const loader = new GLTFLoader(loadingManager)
   loader.register((parser) => {
     return new VRMLoaderPlugin(parser)
   })
 
+  async function loadModels(files){
+    return new Promise((resolve) => {
+      const models = [];
+      loadingManager.onLoad = function (){
+        //console.log(models)
+        resolve(models);
+      };
+      loadingManager.onError = function (url){
+        console.warn("error loading "+url)
+      }
+      
+      files.forEach(file => {
+        loader.loadAsync(file).then((model) => {
+          models.push(addModel(model))
+        })
+      })
+    });
+  }
+
   async function loadModel(file, onProgress) {
     return loader.loadAsync(file, onProgress).then((model) => {
-      const vrm = model.userData.vrm
-      renameVRMBones(vrm)
-
-      vrm.scene?.traverse((child) => {
-        child.frustumCulled = false
-
-        if (child.isMesh) {
-          createFaceNormals(child.geometry)
-          if (child.isSkinnedMesh) createBoneDirection(child)
-        }
-      })
-      return vrm
+      return addModel(model);
     })
+  }
+
+  // separated to call it after load manager finishes
+  function addModel(model){
+    const vrm = model.userData.vrm
+    renameVRMBones(vrm)
+
+    vrm.scene?.traverse((child) => {
+      child.frustumCulled = false
+
+      if (child.isMesh) {
+        createFaceNormals(child.geometry)
+        if (child.isSkinnedMesh) createBoneDirection(child)
+      }
+    })
+    return vrm
   }
 
   const [template, setTemplate] = useState(null)
@@ -67,6 +93,8 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         loadModel,
+        loadModels,
+        addModel,
         model,
         setModel,
         camera,

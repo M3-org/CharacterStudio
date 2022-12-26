@@ -32,6 +32,8 @@ export default function Scene() {
     setScene,
     setCamera,
     loadModel,
+    loadModels,
+    addModel,
     currentTemplate,
     model,
     template,
@@ -64,6 +66,7 @@ export default function Scene() {
     // if user presses ctrl h, show chat
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'h') {
+        console.log("pressed h")
         e.preventDefault();
         setShowChat(!showChat);
       }
@@ -150,6 +153,38 @@ export default function Scene() {
       return
     }
 
+    console.log("TEMPLATE INFO IS: ", templateInfo)
+    const primary = templateInfo.primaryTrait ? 
+      templateInfo.traits.find((elem)=>elem.trait === templateInfo.primaryTrait) : templateInfo.traits[0]
+
+    if (primary == null)
+      console.error(`No trait ${templateInfo.primaryTrait} was found, please check manifest`)
+    
+    console.log("PRIMARY TRAIT IS:", primary)
+
+    // add primary trait to initialLoad
+    const initialLoad = [primary]
+
+    // add required traitrs to intial load, avoid repeating
+    templateInfo.traits.map((trait)=>{
+      if (trait.required && !initialLoad.includes(trait))
+        return initialLoad.push(trait)
+    })
+
+    // add initial traits to tinital load, avoid repeating
+    if (templateInfo.initialTraits){
+      templateInfo.initialTraits.forEach(name => {
+        const trait = templateInfo.traits.find((elem)=>elem.trait === name)
+        if (trait && !initialLoad.includes(trait))
+          initialLoad.push(trait);
+      });
+    }
+
+    console.log(initialLoad)
+    const dirs = initialLoad.map((trait) =>  templateInfo.traitsDirectory + trait.collection[0].directory)
+    console.log(dirs)
+    console.log("directories are :", dirs)
+    
     // load a gltf using react three fiber
 
     const modelPath = "/3d/Platform.glb";
@@ -174,6 +209,21 @@ export default function Scene() {
 
     });
 
+    console.log(addModel)
+
+
+    loadModels(dirs).then(async (vrms) => {
+      console.log("Loaded vrm are: ", vrms)
+      const animationManager = new AnimationManager(templateInfo.offset)
+      addModelData(vrms[0], { animationManager: animationManager })
+
+      if (templateInfo.animationPath) await animationManager.loadAnimations(templateInfo.animationPath)
+
+      //animationManager.startAnimation(vrms[0])
+
+      
+      
+    })
     loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })

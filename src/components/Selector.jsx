@@ -59,7 +59,7 @@ export default function Selector() {
     }
     // filter by item.name === currentTraitName
 
-    const currentTrait = traits.find((t) => t.name === currentTraitName);
+    //const currentTrait = traits.find((t) => t.name === currentTraitName);
     // find the key that matches the current trait.textureCollection
 
     //const localDir = option.item.directory;
@@ -154,9 +154,9 @@ export default function Selector() {
         }
         if (colors){
           if (colors[index] != null){
-            const newColor = new THREE.Color( color[index] )
-            obj.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
-            obj.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
+            const newColor = new THREE.Color( colors[index] )
+            mesh.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
+            mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
           }
         }
       })
@@ -167,11 +167,13 @@ export default function Selector() {
 
       if(!traitData) throw new Error('Trait data not found')
 
+        console.log(item)
+
       // set the new trait
       const newAvatarData = { ...avatar }
       newAvatarData[currentTraitName] = {
         traitInfo: item,
-        name: newAsset.name,
+        name: item.name,
         model: vrm.scene,
         vrm: vrm,
       }
@@ -303,7 +305,7 @@ export default function Selector() {
     return {
       [currentTraitName]: {
         traitInfo: item,
-        name: newAsset.name,
+        name: item.name,
         model: r_vrm.scene,
         vrm: r_vrm,
       },
@@ -401,11 +403,11 @@ export default function Selector() {
                     : styles["tickStyleInActive"]
                 }
               />
-              {selectValue === option.item.id && loadedPercent > 0 && (
+              {/* {selectValue === option.item.id && loadedPercent > 0 && (
                 <div className={styles["loading-trait"]}>
                   {loadedPercent}%
                 </div>
-              )}
+              )} */}
             </div>)
           })}
         </div>
