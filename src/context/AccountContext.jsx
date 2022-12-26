@@ -1,4 +1,4 @@
-import { createContext, useState } from "react"
+import React, { createContext, useState } from "react"
 export const AccountContext = createContext()
 
 export const AccountProvider = (props) => {

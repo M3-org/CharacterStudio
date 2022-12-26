@@ -1,8 +1,8 @@
-import React, { useEffect, Fragment, useState, useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
-import { disposeVRM, addModelData } from "../library/utils"
+import { addModelData, disposeVRM } from "../library/utils"
 
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
@@ -17,15 +17,11 @@ export default function Selector() {
     avatar,
     setAvatar,
     currentTemplate,
-    scene,
-    setCurrentTraitName,
     currentTraitName,
     template,
     currentOptions,
     model,
-    traitsNecks,
     setTraitsNecks,
-    traitsSpines,
     setTraitsSpines
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
@@ -34,11 +30,7 @@ export default function Selector() {
   const traitTypes = templateInfo.traits.map((trait) => trait.name)
   const { isMute } = useContext(AudioContext)
 
-  const [texture, setTexture] = useState(null)
-
   const [selectValue, setSelectValue] = useState("0")
-  const [loadingTraitOverlay, setLoadingTraitOverlay] = useState(false)
-  const [loadedPercent, setLoadedPercent] = useState(0)
 
   const getAsArray = (target) => {
     if (target == null) return []
@@ -66,6 +58,7 @@ export default function Selector() {
       return;
     }
     // filter by item.name === currentTraitName
+
     const currentTrait = traits.find((t) => t.name === currentTraitName);
     // find the key that matches the current trait.textureCollection
 
@@ -80,6 +73,7 @@ export default function Selector() {
     // check if option has set texture trait
     if(option.textureTrait) {
       const textureLocations = getAsArray(option.textureTrait.directory)
+
 
       const textures = []
       const textureLoadManager = new THREE.LoadingManager()
@@ -113,15 +107,11 @@ export default function Selector() {
 
   }
 
+
   const itemLoader = async (item, textures, colors) => {
     let r_vrm
     const itemDirectory = templateInfo.traitsDirectory + item.directory;
-    console.log(itemDirectory)
     const vrm = await loadModel(itemDirectory)
-    if(Object.keys(vrm).length !== 0) {
-      vrm.scene.traverse(o => {
-      });
-    }
 
     // 1 
     addModelData(vrm, {
@@ -181,11 +171,10 @@ export default function Selector() {
       const newAvatarData = { ...avatar }
       newAvatarData[currentTraitName] = {
         traitInfo: item,
+        name: newAsset.name,
         model: vrm.scene,
         vrm: vrm,
       }
-
-      console.log('doing stuff')
 
       // search in the trait data for restricted traits and restricted types  => (todo)
         if (traitData.restrictedTraits) {
@@ -248,7 +237,6 @@ export default function Selector() {
             // we should check every type this trait has
             for (let i = 0; i < itemTypes.length; i++) {
               const itemType = itemTypes[i]
-              console.log(itemType)
               // and get the restriction included in each array if exists
               const typeRestrictions = getAsArray(
                 templateInfo.typeRestrictions[itemType],
@@ -312,10 +300,10 @@ export default function Selector() {
       setTimeout(() => {
         model.scene.add(vrm.scene)
       }, 60)
-    console.log("trait is", currentTraitName)
     return {
       [currentTraitName]: {
         traitInfo: item,
+        name: newAsset.name,
         model: r_vrm.scene,
         vrm: r_vrm,
       },
@@ -325,10 +313,6 @@ export default function Selector() {
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
   useEffect(() => {
-    console.log("")
-
-    console.log("templateInfo.traits is", templateInfo.traits)
-    console.log("traitTypes is", traitTypes)
     let buffer = { ...(avatar ?? {}) }
 
     ;(async () => {
@@ -336,7 +320,7 @@ export default function Selector() {
       // for trait in traits
       for (const property in buffer) {
         if (buffer[property].vrm) {
-          if (newAvatar[property].vrm != buffer[property].vrm) {
+          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
             if (newAvatar[property].vrm != null) {
               disposeVRM(newAvatar[property].vrm)
             }
@@ -379,12 +363,12 @@ export default function Selector() {
       </div>
     )
   }
-
   return (
     !!currentTraitName && (
       <div className={styles["SelectorContainerPos"]}>
         <div className={styles["selector-container"]}>
           <ClearTraitButton />
+
           {currentOptions.map((option) =>{
             const active = selectValue === option.item.id
             return(<div

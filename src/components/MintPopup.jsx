@@ -1,41 +1,40 @@
-import React, { Fragment, useContext, useEffect, useState } from "react"
-import MintModal from "./MintModal"
-import mintPopupImage from "../../public/ui/mint/mintPopup.png"
-import polygonIcon from "../../public/ui/mint/polygon.png"
-import { ViewStates, ViewContext } from "../context/ViewContext"
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
+import React, { Fragment, useContext, useState } from "react"
+import mintPopupImage from "../../public/ui/mint/mintPopup.png"
+import polygonIcon from "../../public/ui/mint/polygon.png"
+import ethereumIcon from "../../public/ui/mint/ethereum.png"
+import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
+import { ViewContext, ViewStates } from "../context/ViewContext"
 import { getModelFromScene, getScreenShot } from "../library/utils"
 import { CharacterContract } from "./Contract"
-import { AccountContext } from "../context/AccountContext"
+import MintModal from "./MintModal"
 
 import styles from "./MintPopup.module.css"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
-const mintCost = 0.0
+const mintCost = 0.01
 
 export default function MintPopup() {
-  const { template } = useContext(SceneContext)
+  const { template, avatar, skinColor, model, currentTemplate } = useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
   const { walletAddress, connected } =
     useContext(AccountContext)
 
-  const { avatar, skinColor, model } = useContext(SceneContext)
+  // const {  } = useContext(SceneContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
+  const currentTemplateIndex = parseInt(currentTemplate.index === undefined ? currentTemplate.index : 1)
+  const templateInfo = template[currentTemplateIndex]
+
   async function saveFileToPinata(fileData, fileName) {
-    console.log('pinataApiKey', pinataApiKey)
-    console.log('pinataSecretApiKey', pinataSecretApiKey)
-    if (!fileData) return cosnole.warn("Error saving to pinata: No file data")
+    if (!fileData) return console.warn("Error saving to pinata: No file data")
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
     let data = new FormData()
-
-    console.log('fileData', fileData)
-    console.log('fileName', fileName)
 
     data.append("file", fileData, fileName)
     let resultOfUpload = await axios.post(url, data, {
@@ -55,7 +54,8 @@ export default function MintPopup() {
     Object.keys(avatar).map((trait) => {
       if (Object.keys(avatar[trait]).length !== 0) {
         metadataTraits.push({
-          traits: avatar[trait].traitInfo.name,
+          trait_type: trait,
+          value: avatar[trait].name,
         })
       }
     })
@@ -143,13 +143,13 @@ export default function MintPopup() {
   const showTrait = (trait) => {
     if (trait.name in avatar) {
       if ("traitInfo" in avatar[trait.name]) {
-        return avatar[trait.name].traitInfo.name
+        return avatar[trait.name].name
       } else return "Default " + trait.name
-    } else return colorStatusmodel
+    } else return "No set"
   }
 
   return (
-    currentView.includes("MINT") && (
+    // currentView.includes("MINT") && (
       <div className={styles["StyledContainer"]}>
         <div className={styles["StyledBackground"]} />
         <div className={styles["StyledPopup"]}>
@@ -165,13 +165,13 @@ export default function MintPopup() {
               </div>
               <MintModal model={model} />
               <div className={styles["TraitDetail"]}>
-                {template.traits &&
-                  template.traits.map((item, index) => (
-                    <TraitBox key={index}>
+                {templateInfo.traits &&
+                  templateInfo.traits.map((item, index) => (
+                    <div className={styles["TraitBox"]} key={index}>
                       <div className={styles["TraitImage"]} />
-                      <img src={template.traitIconsDirectory + item.icon} />
+                      <img src={templateInfo.traitIconsDirectory + item.icon} />
                       <div className={styles["TraitText"]}>{showTrait(item)}</div>
-                    </TraitBox>
+                    </div>
                   ))}
               </div>
               <div className={styles["MintPriceBox"]}>
@@ -179,12 +179,12 @@ export default function MintPopup() {
                   {"Mint Price: "}
                 </div>
                 <div className={styles["TraitImage"]} />
-                <img src={polygonIcon} height={"40%"} />
+                <img src={ethereumIcon} height={"40%"} />
                 <div className={styles["MintCost"]}>
-                  {mintCost}
+                  &nbsp;{mintCost}
                 </div>
               </div>
-              <div className={styles["Title"]} fontSize={"1rem"} padding={"10px 0 20px"}>
+              <div className={styles["Title"]} fontSize={"1rem"}>
                 {mintStatus}
               </div>
               <div className={styles["ButtonPanel"]}>
@@ -208,6 +208,6 @@ export default function MintPopup() {
           )}
         </div>
       </div>
-    )
+    // )
   )
 }

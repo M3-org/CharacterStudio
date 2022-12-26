@@ -3,6 +3,45 @@
 export const API_URL = "http://localhost:8081";
 export const OTCollectionAddress = "0x543D43F390b7d681513045e8a85707438c463d80"
 
+export const CHAINS = {
+  Mainnet: {
+    chainName: 'Ethereum Mainnet',
+    name: 'Ethereum',
+    blockExplorerUrls: ['https://etherscan.io'],
+    chainId: '1',
+    symbol: 'ETH',
+    rpcUrls: ['https://mainnet.infura.io/v3/d9606cb27e59432190a37d607726eb09'],
+    contract_name: 'mainnet',
+    previewLink: 'https://etherscan.io/address/',
+    brandColor: 'rgb(63,123,228)',
+  },
+  Polygon: {
+    chainName: 'Polygon Mainnet',
+    name: 'Polygon',
+    blockExplorerUrls: ['https://polygonscan.com/'],
+    chainId: '137',
+    symbol: 'MATIC',
+    rpcUrls: ['https://polygon-rpc.com'],
+    decimals: 18,
+    contract_name: 'polygon',
+    previewLink: 'https://polygonscan.com/address/',
+    brandColor: 'rgb(123,63,228)',
+  },
+  Goerli: {
+    chainName: 'Goerli Testnet',
+    name: 'Goerli',
+    blockExplorerUrls: ['https://goerli.etherscan.io/'],
+    chainId: '5',
+    symbol: 'GOERLI',
+    rpcUrls: [
+      'https://rpc.ankr.com/eth_goerli'],
+    decimals: 18,
+    contract_name: 'goerlitestnet',
+    previewLink: 'https://goerli.etherscan.io//address/',
+    brandColor: 'rgb(123,63,228)',
+  },
+};
+
 export const CharacterContract = {
   owner: "0x634B0510C5062CFf8009eAAc2435eB93bc4764ad",
   // address: "0x69341F01C2113E2d09Cd4837bbF1786dfbBc41d7", // Polygon mainet

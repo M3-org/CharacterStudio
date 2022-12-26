@@ -1,16 +1,14 @@
-import React, { useContext } from "react"
+import React, { useContext } from "react";
+
 import * as THREE from "three"
-import useSound from 'use-sound';
 import gsap from 'gsap';
+import useSound from 'use-sound';
+import optionClick from "../../public/sound/option_click.wav";
 import shuffle from "../../public/ui/traits/shuffle.png";
-import { BackButton } from "./BackButton";
-import optionClick from "../../public/sound/option_click.wav"
-import { ViewContext } from "../context/ViewContext";
 import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
-import { ViewStates } from "../context/ViewContext";
 
-import styles from './Editor.module.css'
+import styles from './Editor.module.css';
 
 export default function Editor({templateInfo, controls}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, currentOptions} = useContext(SceneContext);
@@ -150,12 +148,6 @@ export default function Editor({templateInfo, controls}) {
       })
   }
 
-  const { setCurrentView } = useContext(ViewContext)
-
-  const {
-    setCurrentTemplate,
-  } = useContext(SceneContext)
-
   return(
   <div className={styles['SideMenu']}>
         {templateInfo.traits && templateInfo.traits.map((item, index) => (
@@ -163,13 +155,12 @@ export default function Editor({templateInfo, controls}) {
             onClick = {()=>{
               selectOption(item)
             }} 
-            active={currentTraitName === item.name}
             key = {index}>
             <img className={currentTraitName !== item.name ? styles['MenuImg'] : styles['MenuImgActive']} src={templateInfo.traitIconsDirectory + item.icon} />
           </div>
         ))}
 
-        <div className={styles['LineDivision']} top = {'20px'}/>
+        <div className={styles['LineDivision']}/>
         <img className={styles['ShuffleOption']} onClick={() => {!isMute && play(); }} src={shuffle} />
   </div>);
 }

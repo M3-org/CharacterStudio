@@ -1,11 +1,16 @@
-import { MeshReflectorMaterial } from "@react-three/drei/core/MeshReflectorMaterial"
+/* eslint-disable react/no-unknown-property */
+import { Environment } from "@react-three/drei/core/Environment"
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Environment } from "@react-three/drei/core/Environment"
 import { Canvas } from "@react-three/fiber"
+import {
+  Bloom,
+  EffectComposer
+} from "@react-three/postprocessing"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { NoToneMapping } from "three"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
@@ -14,15 +19,12 @@ import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import {
-  BrightnessContrast,
-  EffectComposer,
-  Glitch,
-  Bloom
-} from "@react-three/postprocessing"
+import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
+import ChatComponent from "./ChatComponent"
 
 import AudioButton from "./AudioButton"
+import { LipSync } from '../library/lipsync'
+import MintPopup from "./MintPopup"
 
 export default function Scene() {
   const {
@@ -34,10 +36,10 @@ export default function Scene() {
     model,
     template,
     setModel,
-    camera,
     traitsSpines,
     traitsNecks,
     setCurrentTemplate,
+    setLipSync,
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
@@ -55,6 +57,23 @@ export default function Scene() {
   const [left, setLeft] = useState({});
   const [right, setRight] = useState({});
   const [platform, setPlatform] = useState(null);
+
+  const [showChat, setShowChat] = useState(false);
+
+  useEffect(() => {
+    // if user presses ctrl h, show chat
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        setShowChat(!showChat);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+
+  }, [])
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -117,7 +136,6 @@ export default function Scene() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove]);
-
   const moveJoint = (mouse, joint, degreeLimit) => {
     if(Object.keys(joint).length !== 0 ){
       let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit);
@@ -166,6 +184,11 @@ export default function Scene() {
       }
       addModelData(vrm, { cullingLayer: 0 })
 
+      console.log('vrm', vrm)
+
+      setLipSync(new LipSync(vrm));
+
+
       vrm.scene.traverse(o => {
           if (o.isMesh) {
             o.castShadow = true;
@@ -189,8 +212,8 @@ export default function Scene() {
       getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
       setTimeout(() => {
-      scene.add(vrm.scene)
-      }, 1)
+      scene.add(vrm.scene)      
+    }, 1)
       setCurrentView(ViewStates.CREATOR)
     })
     
@@ -220,17 +243,11 @@ export default function Scene() {
           >
 
           <EffectComposer>
-          <Bloom luminancThreshold={1} mipmapBlur />
-            <BrightnessContrast
-              brightness={0} // brightness. min: -1, max: 1
-              contrast={0.2} // contrast: min -1, max: 1
-            />
+          <Bloom luminanceThreshold={0.99} luminanceSmoothing={0.9} radius={1} />
           </EffectComposer>
 
           <Environment files="/city.hdr" />
             <ambientLight color={[1, 1, 1]} intensity={0.5} />
-
-
 
             <directionalLight
               intensity={0.5}
@@ -274,8 +291,10 @@ export default function Scene() {
 
             </PerspectiveCamera>
           </Canvas>
-          {currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
-        <Editor templateInfo={templateInfo} controls={controls.current} />
+          { currentView.includes("MINT") && <MintPopup />}
+          {showChat && <ChatComponent />}
+          {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
+          {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
       </div>
   )
 }

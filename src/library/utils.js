@@ -71,7 +71,7 @@ export async function getModelFromScene(avatarScene, format = 'glb', skinColor =
     return new Blob([glb], { type: 'model/gltf-binary' });
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
-    const vrm = await new Promise((resolve) => exporter.parse(scene, resolve));
+    const vrm = await new Promise((resolve) => exporter.parse(avatarScene, resolve));
     return new Blob([vrm], { type: 'model/gltf-binary' });
   } else {
     return console.error("Invalid format");

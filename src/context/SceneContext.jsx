@@ -1,4 +1,4 @@
-import { createContext, useState } from "react"
+import React, { createContext, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
@@ -46,6 +46,9 @@ export const SceneProvider = (props) => {
   const [traitsSpines, setTraitsSpines] = useState([])
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
+
+  const [lipSync, setLipSync] = useState(null);
+
   const setAvatar = (state) => {
     cullHiddenMeshes(avatar, scene, template)
     _setAvatar(state)
@@ -55,6 +58,8 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        lipSync,
+        setLipSync,
         scene,
         setScene,
         currentTraitName,

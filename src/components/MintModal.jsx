@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React from "react";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
@@ -14,7 +15,8 @@ export default function MintModal({model}) {
             gl={{ antialias: true, preserveDrawingBuffer:true }}
             linear={false}
         >
-          <ambientLight
+
+        <ambientLight
               color={[1,1,1]}
               intensity={0.5}
             />
@@ -34,7 +36,8 @@ export default function MintModal({model}) {
             enablePan={true}
             target={[0, 0.9, 0]}
           />
-          <PerspectiveCamera>
+          <PerspectiveCamera args={[20, null, 1, 100000]}>
+          <fog attach="fog" color="hotpink" near={1} far={10} />
           <mesh>
             <primitive object={model.scene.clone()} />
           </mesh>
