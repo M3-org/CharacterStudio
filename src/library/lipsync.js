@@ -1,4 +1,4 @@
-import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
+import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 
 const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800]
 const BoundingFrequencyFem = [0, 500, 700, 3000, 6000]
@@ -75,7 +75,7 @@ export class LipSync {
     return this.audioContext?.close().catch(() => {}) || Promise.resolve()
   }
 
-  update(deltaTime, elapsedTime) {
+  update(deltaTime) {
     if (this.meter) {
         
       const { volume } = this.meter
@@ -89,10 +89,6 @@ export class LipSync {
 
         const {ah, oh, ee} = this.update2();
 
-
-        // const next = (Math.sin(elapsedTime * 30) + 1.0) * 0.25
-        // console.log('next', next)
-        
         this.vrm.expressionManager.setValue(VRMExpressionPresetName.Oh, oh)
         this.vrm.expressionManager.setValue(VRMExpressionPresetName.Ah, ah)
         this.vrm.expressionManager.setValue(VRMExpressionPresetName.Ee, ee)

@@ -2,7 +2,7 @@
 import { Environment } from "@react-three/drei/core/Environment"
 import { OrbitControls } from "@react-three/drei/core/OrbitControls"
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Canvas } from "@react-three/fiber"
+import { Canvas, useFrame } from "@react-three/fiber"
 import {
   Bloom,
   EffectComposer
@@ -19,11 +19,21 @@ import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
 import Selector from "./Selector"
-import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
 import ChatComponent from "./ChatComponent"
+import Blinker from "./Blinker"
 
 import AudioButton from "./AudioButton"
 import { LipSync } from '../library/lipsync'
+
+
+
+
+function FrameUpdate({updateBlinker}) {
+  useFrame(() => {
+    updateBlinker();
+  })
+  return null;
+}
 
 export default function Scene() {
   const {
@@ -56,8 +66,18 @@ export default function Scene() {
   const [left, setLeft] = useState({});
   const [right, setRight] = useState({});
   const [platform, setPlatform] = useState(null);
+  const [blinker, setBlinker] = useState(null);
 
   const [showChat, setShowChat] = useState(false);
+
+  const updateBlinker = () => {
+    if(blinker){
+      blinker.update(Date.now());
+    } else {
+      console.log('no blinker')
+    }
+  }
+
 
   useEffect(() => {
     // if user presses ctrl h, show chat
@@ -186,7 +206,8 @@ export default function Scene() {
       console.log('vrm', vrm)
 
       setLipSync(new LipSync(vrm));
-
+      
+      setBlinker(new Blinker(vrm));
 
       vrm.scene.traverse(o => {
           if (o.isMesh) {
@@ -240,6 +261,7 @@ export default function Scene() {
             gl={{ antialias: true, toneMapping: NoToneMapping }}
             camera={{ fov: 30, position: [0, 1.3, 2] }}
           >
+          <FrameUpdate updateBlinker={updateBlinker} />
 
           <EffectComposer>
           <Bloom luminanceThreshold={0.99} luminanceSmoothing={0.9} radius={1} />
@@ -278,7 +300,7 @@ export default function Scene() {
               ref={setCamera}
               aspect={1200 / 600}
               fov={30}
-              onUpdate={(self) => self.updateProjectionMatrix()}
+              onUpdate={(self) => { self.updateProjectionMatrix()}}
             >
             <mesh>
               <primitive object={scene} />
