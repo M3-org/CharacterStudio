@@ -10,6 +10,7 @@ import { ViewContext, ViewStates } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
+import { CHAINS } from "./Contract"
 
 import styles from "./UserMenu.module.css"
 
@@ -19,7 +20,7 @@ export const UserMenu = () => {
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
-  const { activate, deactivate, account } = useWeb3React()
+  const { activate, deactivate, account, chainId } = useWeb3React()
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -43,7 +44,6 @@ export const UserMenu = () => {
 
   const _setAddress = async (address) => {
     const { name } = await getAccountDetails(address)
-    console.log("ens", name)
     setEnsName(name ? name.slice(0, 15) + "..." : "")
   }
 
@@ -61,6 +61,15 @@ export const UserMenu = () => {
       console.warn(err.stack)
       return {}
     }
+  }
+
+  const getChainName = () => {
+    const chainIDMap = Object.keys(CHAINS).reduce((acc, key) => {
+      acc[CHAINS[key].chainId] = key;
+      return acc;
+    }, {})
+    const chainName = chainIDMap[chainId];
+    return chainName;
   }
 
   const disconnectWallet = async () => {
@@ -214,7 +223,7 @@ export const UserMenu = () => {
           <React.Fragment>
             <li>
               <div className={styles.loggedInText}>
-                <div className={styles.chainName}>Mainnet</div>
+                <div className={styles.chainName}>{getChainName()}</div>
                 {connected ? (
                   <div className={styles.walletAddress}>
                     {ensName

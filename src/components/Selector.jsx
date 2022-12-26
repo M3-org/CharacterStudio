@@ -78,7 +78,7 @@ export default function Selector() {
         // if there is no texture collection, just load the model-- the texture is on the model
         if(!textureCollection) {
           console.log('no texture collection, setting avatar')
-          itemLoader(model).then((newTrait) => {
+          itemLoader(model, newAsset).then((newTrait) => {
             setAvatar({...avatar, ...newTrait});
           })
           return;
@@ -91,7 +91,7 @@ export default function Selector() {
 
         if(!textureCollectionData) 
         {
-          itemLoader(model).then((newTrait) => {
+          itemLoader(model, newAsset).then((newTrait) => {
             setAvatar({...avatar, ...newTrait});
           })
           return;
@@ -105,14 +105,14 @@ export default function Selector() {
         const textureLoader = new THREE.TextureLoader()
         textureLoader.load(texture, (t) => {
           t.flipY = false;
-          itemLoader(model, t).then((newTrait) => {
+          itemLoader(model, newAsset, t).then((newTrait) => {
           setAvatar({...avatar, ...newTrait});
         })
       })
     })
   }
 
-  const itemLoader = async (item, texture) => {
+  const itemLoader = async (item, newAsset, texture) => {
     let r_vrm
     const vrm = await loadModel(item)
     // 1 
@@ -151,11 +151,10 @@ export default function Selector() {
       const newAvatarData = { ...avatar }
       newAvatarData[currentTraitName] = {
         traitInfo: item,
+        name: newAsset.name,
         model: vrm.scene,
         vrm: vrm,
       }
-
-      console.log('doing stuff')
 
       // search in the trait data for restricted traits and restricted types  => (todo)
         if (traitData.restrictedTraits) {
@@ -218,7 +217,6 @@ export default function Selector() {
             // we should check every type this trait has
             for (let i = 0; i < itemTypes.length; i++) {
               const itemType = itemTypes[i]
-              console.log(itemType)
               // and get the restriction included in each array if exists
               const typeRestrictions = getAsArray(
                 templateInfo.typeRestrictions[itemType],
@@ -282,10 +280,10 @@ export default function Selector() {
       setTimeout(() => {
         model.scene.add(vrm.scene)
       }, 60)
-    console.log("trait is", currentTraitName)
     return {
       [currentTraitName]: {
         traitInfo: item,
+        name: newAsset.name,
         model: r_vrm.scene,
         vrm: r_vrm,
       },
@@ -295,10 +293,6 @@ export default function Selector() {
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
   useEffect(() => {
-    console.log("")
-
-    console.log("templateInfo.traits is", templateInfo.traits)
-    console.log("traitTypes is", traitTypes)
     let buffer = { ...(avatar ?? {}) }
 
     ;(async () => {
@@ -369,7 +363,6 @@ export default function Selector() {
                       } ${active ? styles["active"] : ""}`}
                       onClick={() => {
                         !isMute && play()
-                        console.log("select trait", item)
                         selectTrait(item, icnindex)
                       }}
                     >
@@ -390,13 +383,6 @@ export default function Selector() {
                   )
                 })
               } else {
-                console.log("avatar", avatar)
-
-                console.log("currentTraitName", currentTraitName)
-                console.log(
-                  "avatar[currentTraitName]",
-                  avatar[currentTraitName],
-                )
                 const traitActive =
                   avatar[currentTraitName] &&
                   avatar[currentTraitName].traitInfo.id === item.id

@@ -24,6 +24,7 @@ import ChatComponent from "./ChatComponent"
 
 import AudioButton from "./AudioButton"
 import { LipSync } from '../library/lipsync'
+import MintPopup from "./MintPopup"
 
 export default function Scene() {
   const {
@@ -40,7 +41,7 @@ export default function Scene() {
     setCurrentTemplate,
     setLipSync,
   } = useContext(SceneContext)
-  const {setCurrentView} = useContext(ViewContext)
+  const {currentView, setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
     neck : 30,
     spine : 5,
@@ -290,6 +291,7 @@ export default function Scene() {
 
             </PerspectiveCamera>
           </Canvas>
+          { currentView.includes("MINT") && <MintPopup />}
           {showChat && <ChatComponent />}
           {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
           {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}

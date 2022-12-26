@@ -41,7 +41,7 @@ function App() {
 
         <Landing />
         <Scene />
-        <MintPopup />
+        {/* <MintPopup /> */}
         <UserMenu />
       </Fragment>
     )
