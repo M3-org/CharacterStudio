@@ -11,7 +11,7 @@ import { SceneContext } from "../context/SceneContext";
 import styles from './Editor.module.css';
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, currentOptions} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -39,11 +39,27 @@ export default function Editor({templateInfo, controls}) {
     } else {
       console.log('optoin.name !== currentTraitName', option.name, currentTraitName)
     }
-
+    console.log(option)
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
     
+  }
+
+  const getMultipleRandomTraits = (traitNames) =>{
+    
+    const resultTraitOptions = [];
+    traitNames.map((traitName)=>{
+       const traitFound = templateInfo.traits.find(trait => trait.trait === traitName);
+       if (traitFound)
+       {
+        const options = getTraitOptions(traitFound);
+        if (options?.length > 0)
+          resultTraitOptions.push(options[Math.floor(Math.random()*options.length)])
+       }
+    })
+    console.log(resultTraitOptions)
+    return resultTraitOptions
   }
 
   const getTraitOptions = (trait) => {
@@ -61,7 +77,7 @@ export default function Editor({templateInfo, controls}) {
       // if no there is no collection defined for textures and colors, just grab the base option
       if (textureTraits == null && colorTraits == null){
         const key = trait.name + "_" + index;
-        traitOptions.push(getOption(key,item,item.thumbnail))
+        traitOptions.push(getOption(key,trait,item,item.thumbnail))
       }
 
       // in case we find collections of subtraits, add them as menu items
@@ -69,7 +85,7 @@ export default function Editor({templateInfo, controls}) {
         textureTraits.collection.map((textureTrait,txtrIndex)=>{
           const key = trait.name + "_" + index + "_txt" + txtrIndex;
           const thumbnail = getThumbnail (item, textureTrait,txtrIndex)
-          traitOptions.push(getOption(key,item,thumbnail,null,textureTrait))
+          traitOptions.push(getOption(key,trait,item,thumbnail,null,textureTrait))
         })
       }
       if (colorTraits?.collection.length > 0){
@@ -77,7 +93,7 @@ export default function Editor({templateInfo, controls}) {
           const key = trait.name + "_" + index + "_col" + colIndex;
           const thumbnail = getThumbnail (item, colorTrait,colIndex)
           // icons in color should be colored to avoid creating an icon per model
-          traitOptions.push(getOption(key,item,thumbnail,getHSL(colorTrait.value[0]), null, colorTrait))
+          traitOptions.push(getOption(key,trait,item,thumbnail,getHSL(colorTrait.value[0]), null, colorTrait))
         })
       }
       
@@ -85,6 +101,7 @@ export default function Editor({templateInfo, controls}) {
     return traitOptions;
   }
 
+  // gets where to get the thumbnail
   const getThumbnail = (item, subtrait, index) => {
     // thumbnail override is the most important, check if its defined
     if (item.thumbnailOverrides)
@@ -102,9 +119,10 @@ export default function Editor({templateInfo, controls}) {
     return hsl;
   }
 
-  const getOption = (key,item, icon, iconHSL=null, textureTrait=null, colorTrait=null) => {
+  const getOption = (key,trait,item, icon, iconHSL=null, textureTrait=null, colorTrait=null) => {
     return {
       key,
+      trait,
       item,
       icon,
       iconHSL,
@@ -161,6 +179,9 @@ export default function Editor({templateInfo, controls}) {
         ))}
 
         <div className={styles['LineDivision']}/>
-        <img className={styles['ShuffleOption']} onClick={() => {!isMute && play(); }} src={shuffle} />
+        <img className={styles['ShuffleOption']} onClick={() => {
+            !isMute && play();
+            setSelectedOptions(getMultipleRandomTraits(templateInfo.randomTraits))
+          }} src={shuffle} />
   </div>);
 }

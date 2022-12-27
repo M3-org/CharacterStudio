@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react"
+import React, { createContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
@@ -12,34 +12,15 @@ import {
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
-  const loadingManager = new THREE.LoadingManager();
+  const loadingManager = new THREE.LoadingManager()
 
-  const loader = new GLTFLoader(loadingManager)
-  loader.register((parser) => {
+  const gltfLoader = new GLTFLoader(loadingManager)
+  gltfLoader.register((parser) => {
     return new VRMLoaderPlugin(parser)
   })
 
-  async function loadModels(files){
-    return new Promise((resolve) => {
-      const models = [];
-      loadingManager.onLoad = function (){
-        //console.log(models)
-        resolve(models);
-      };
-      loadingManager.onError = function (url){
-        console.warn("error loading "+url)
-      }
-      
-      files.forEach(file => {
-        loader.loadAsync(file).then((model) => {
-          models.push(addModel(model))
-        })
-      })
-    });
-  }
-
   async function loadModel(file, onProgress) {
-    return loader.loadAsync(file, onProgress).then((model) => {
+    return gltfLoader.loadAsync(file, onProgress).then((model) => {
       return addModel(model);
     })
   }
@@ -67,6 +48,8 @@ export const SceneProvider = (props) => {
   const [model, setModel] = useState(null)
   const [camera, setCamera] = useState(null)
 
+  const [selectedOptions, setSelectedOptions] = useState([])
+
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
   const [traitsSpines, setTraitsSpines] = useState([])
@@ -74,11 +57,19 @@ export const SceneProvider = (props) => {
   const [avatar, _setAvatar] = useState(null);
 
   const [lipSync, setLipSync] = useState(null);
-
+  
   const setAvatar = (state) => {
-    cullHiddenMeshes(avatar, scene, template)
+    //console.log(state)
+    //cullHiddenMeshes(avatar, scene, template)
     _setAvatar(state)
+    //console.log(avatar)
   }
+  useEffect(()=>{
+    if (avatar){
+      console.log("WIP[PENDING")
+      cullHiddenMeshes(avatar, scene, template)
+    }
+  },[avatar])
 
   const [currentTemplate, setCurrentTemplate] = useState(null)
   return (
@@ -93,7 +84,8 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         loadModel,
-        loadModels,
+        setSelectedOptions,
+        selectedOptions,
         addModel,
         model,
         setModel,

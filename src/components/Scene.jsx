@@ -32,8 +32,6 @@ export default function Scene() {
     setScene,
     setCamera,
     loadModel,
-    loadModels,
-    addModel,
     currentTemplate,
     model,
     template,
@@ -209,21 +207,6 @@ export default function Scene() {
 
     });
 
-    console.log(addModel)
-
-
-    loadModels(dirs).then(async (vrms) => {
-      console.log("Loaded vrm are: ", vrms)
-      const animationManager = new AnimationManager(templateInfo.offset)
-      addModelData(vrms[0], { animationManager: animationManager })
-
-      if (templateInfo.animationPath) await animationManager.loadAnimations(templateInfo.animationPath)
-
-      //animationManager.startAnimation(vrms[0])
-
-      
-      
-    })
     loadModel(templateInfo.file).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })

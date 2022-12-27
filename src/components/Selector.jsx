@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
@@ -8,6 +10,11 @@ import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
+import {
+  renameVRMBones,
+  createFaceNormals,
+  createBoneDirection,
+} from "../library/utils"
 
 import styles from "./Selector.module.css"
 
@@ -20,93 +27,274 @@ export default function Selector() {
     currentTraitName,
     template,
     currentOptions,
+    selectedOptions,
     model,
     setTraitsNecks,
     setTraitsSpines
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
-  const traits = templateInfo.traits
-  const traitTypes = templateInfo.traits.map((trait) => trait.name)
   const { isMute } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
 
   const getAsArray = (target) => {
     if (target == null) return []
-
     return Array.isArray(target) ? target : [target]
   }
 
-  const selectTrait = (option) => {
-    const trait = option?.item;
-    console.log(option)
-    console.log("TRAIT IS: " , trait)
+  // options are selected by random or start
+  useEffect(() => {
+    console.log("SELECTED OPTIONS: ", selectedOptions)
 
-    // clear the trait
-    if (
-      trait === null &&
-      avatar[currentTraitName] &&
-      avatar[currentTraitName].vrm
-    ) {
-      disposeVRM(avatar[currentTraitName].vrm)
-      setAvatar({
-        ...avatar,
-        [currentTraitName]: {},
+    
+    loadOptions(selectedOptions).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setSelectValue(trait && trait.id)
-      return;
-    }
-    // filter by item.name === currentTraitName
-
-    //const currentTrait = traits.find((t) => t.name === currentTraitName);
-    // find the key that matches the current trait.textureCollection
-
-    //const localDir = option.item.directory;
-    //const model = templateInfo.traitsDirectory + localDir
-    //console.log("model location is: ", model)
-    // if avatar has a trait, dispose it
-    if (avatar[currentTraitName] && avatar[currentTraitName].vrm) {
-      disposeVRM(avatar[currentTraitName].vrm)
-    }
-
-    // check if option has set texture trait
-    if(option.textureTrait) {
-      const textureLocations = getAsArray(option.textureTrait.directory)
-
-
-      const textures = []
-      const textureLoadManager = new THREE.LoadingManager()
-      const textureLoader = new THREE.TextureLoader(textureLoadManager)
-
-      textureLoadManager.onLoad = function ( ) {
-        itemLoader(trait, textures).then((newTrait) => {
-          setAvatar({...avatar, ...newTrait});
-        })
-      }
-      textureLoadManager.onError = function ( url ) {
-        console.log( 'There was an error loading ' + url );
-      }
-      
-      console.log(textureLocations.length)
-      
-      for (let i =0; i < textureLocations.length;i++)
-      {
-        textureLoader.load(templateInfo.traitsDirectory + textureLocations[i],(txt)=>{
-          txt.flipY = false;
-          textures[i] = (txt)
-        })
-      }
-      return;
-    }
-
-    // if there is no texture trait, load it normally, but also check for colorTrait
-    itemLoader(trait,null, option.colorTrait?.value).then((newTrait) => {
-      setAvatar({...avatar, ...newTrait});
+      setAvatar({...avatar, ...newAvatar})
     })
 
+  },[selectedOptions])
+
+  // user selects an option
+  const selectTraitOption = (option) => {
+    if (option == null){
+      option = {
+        item:null,
+        trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+      }
+    }
+
+    
+    loadOptions([option]).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      setAvatar({...avatar, ...newAvatar})
+    })
+
+    return;
   }
 
+  // load options first
+  const loadOptions = (options) => {
+
+    // validate if there is at least a non null option
+    let nullOptions = true;
+    options.map((option)=>{
+      if(option.item != null)
+        nullOptions = false;
+    })
+    if (nullOptions === true){
+      console.log("has null options")
+      return new Promise((resolve) => {
+        resolve(options)
+      });
+    }
+
+    //create the manager for all the options
+    const loadingManager = new THREE.LoadingManager()
+
+    //create a gltf loader for the 3d models
+    const gltfLoader = new GLTFLoader(loadingManager)
+    gltfLoader.register((parser) => {
+      return new VRMLoaderPlugin(parser)
+    })
+
+    // and a texture loaders for all the textures
+    const textureLoader = new THREE.TextureLoader(loadingManager)
+
+    
+
+    // return a promise, resolve = once everything is loaded
+    return new Promise((resolve) => {
+
+      // resultData will hold all the results in the array that was given this function
+      const resultData = [];
+      loadingManager.onLoad = function (){
+        resolve(resultData);
+      };
+      loadingManager.onError = function (url){
+        console.warn("error loading " + url)
+      }
+
+      const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
+      
+      // load necesary assets for the options
+      options.map((option, index)=>{
+        console.log("option is: ", option)
+
+        if (option == null){
+          console.log("ïs null")
+          resultData[index] = null;
+          return;
+        }
+        // load model trait
+        const loadedModels = []; 
+        getAsArray(option?.item.directory).map((modelDir, i)=>{
+          gltfLoader.loadAsync (baseDir + modelDir).then((mod)=>{
+            loadedModels[i] = mod;
+          })
+        })
+        
+        // load texture trait
+        const loadedTextures = []; 
+        getAsArray(option?.textureTrait?.directory).map((textureDir, i)=>{
+          textureLoader.load(baseDir + textureDir,(txt)=>{
+            txt.flipY = false;
+            loadedTextures[i] = (txt)
+          })
+        })
+
+        // and just create colors
+        const loadedColors = [];
+        getAsArray(option?.colorTrait?.value).map((colorValue, i)=>{
+          loadedColors[i] = new THREE.Color(colorValue);
+        })
+        resultData[index] = {
+          item:option?.item,
+          trait:option?.trait,
+          models:loadedModels,          
+          textures:loadedTextures, 
+          colors:loadedColors      
+        }
+      })
+    });
+  }
+
+  // once loaded, assign
+  const itemAssign = (itemData) => {
+
+    const item = itemData.item;
+    const traitData = itemData.trait;
+    const models = itemData.models;
+    const textures = itemData.textures;
+    const colors = itemData.colors;
+
+    // null section (when user selects to remove an option)
+    if ( item == null) {
+      if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
+        disposeVRM(avatar[traitData.name].vrm)
+        // setAvatar({
+        //   ...avatar,
+        //   [traitData.name]: {},
+        // })
+        setSelectValue(item && item.id)
+      }
+      return {
+        [traitData.name]: {}
+      }
+    }
+
+    // save an array of mesh targets
+    const meshTargets = [];
+    
+
+    // add culling data to each model TODO,  if user defines target culling meshes set them before here
+    // models are vrm in some cases!, beware
+    let vrm = null
+    models.map((m)=>{
+      console.log(m)
+      // basic vrm setup (only if model is vrm)
+      vrm = m.userData.vrm;
+      renameVRMBones(vrm)
+
+      // animation setup section
+      // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
+      if (model.data.animationManager){
+        model.data.animationManager.startAnimation(m)
+      }
+
+      // culling layers setup section
+      addModelData(vrm, {
+        cullingLayer: item.cullingLayer || -1,
+        cullingDistance: item.cullingDistance || null,
+      })
+      
+
+      // mesh target setup section
+      if (item.meshTargets){
+        getAsArray(item.meshTargets).map((target) => {
+          const mesh = vrm.scene.getObjectByName ( target )
+          if (mesh?.isMesh) meshTargets.push(mesh);
+        })
+      }
+      
+      vrm.scene.traverse((child) => {
+        // mesh target setup secondary swection
+        if (!item.meshTargets && child.isMesh) meshTargets.push(child);
+
+        // basic setup
+        child.frustumCulled = false
+        if (child.isMesh) {
+          createFaceNormals(child.geometry)
+          if (child.isSkinnedMesh) createBoneDirection(child)
+        }
+        
+        if (child.isBone && child.name == 'neck') { 
+          setTraitsNecks(current => [...current , child])
+        }
+        if (child.isBone && child.name == 'spine') { 
+          setTraitsSpines(current => [...current , child])
+        }
+      })
+
+      
+    })
+
+    // once the setup is done, assign them
+    meshTargets.map((mesh, index)=>{
+      if (textures){
+        const txt = textures[index] || textures[0]
+        if (txt != null){
+          mesh.material[0].map = txt
+          mesh.material[0].shadeMultiplyTexture = txt
+        }
+      }
+      if (colors){
+        const col = colors[index] || colors[0]
+        if (col != null){
+          mesh.material[0].uniforms.litFactor.value = col
+          mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color( col.r*0.8, col.g*0.8, col.b*0.8 )
+        }
+      }
+    })
+    
+    
+    //trait data
+    console.log(traitData.name)
+
+    //finally set avatar 
+    console.log("THE AVATAR IS: ", avatar)
+    console.log(avatar[traitData.name])
+    // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
+    if (avatar[traitData.name] && avatar[traitData.name].vrm) {
+      console.log("SETTING PREVIOUS TO NULL")
+      //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
+        disposeVRM(avatar[traitData.name].vrm)
+    }
+
+    // add the now model to the current scene
+    model.scene.add(vrm.scene)
+    
+    // and then add the new avatar data
+    // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
+    return {
+      [traitData.name]: {
+        traitInfo: item,
+        name: item.name,
+        model: vrm.scene,
+        vrm: vrm,
+      }
+    }
+    //setAvatar({...avatar, ...newTrait})
+
+    //console.log("AVATAR IS: ", avatar)
+
+  }
 
   const itemLoader = async (item, textures, colors) => {
     let r_vrm
@@ -166,8 +354,6 @@ export default function Selector() {
       )
 
       if(!traitData) throw new Error('Trait data not found')
-
-        console.log(item)
 
       // set the new trait
       const newAvatarData = { ...avatar }
@@ -308,7 +494,7 @@ export default function Selector() {
         name: item.name,
         model: r_vrm.scene,
         vrm: r_vrm,
-      },
+      }
     }
   }
 
@@ -353,7 +539,7 @@ export default function Selector() {
             : styles["selectorButton"]
         }
         onClick={() => {
-          selectTrait(null)
+          selectTraitOption(null)
           !isMute && play()
         }}
       >
@@ -382,7 +568,7 @@ export default function Selector() {
                 !isMute && play()
                 console.log("select trait", option.item)
                 console.log(option.iconHSL)
-                selectTrait(option)
+                selectTraitOption(option)
               }}
             >
               <img
