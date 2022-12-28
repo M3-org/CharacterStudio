@@ -20,6 +20,8 @@ export const UserMenu = () => {
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
+  const { avatar } =
+    useContext(SceneContext)
   const { activate, deactivate, account, chainId } = useWeb3React()
 
   const injected = new InjectedConnector({
@@ -128,14 +130,14 @@ export const UserMenu = () => {
     const avatarToCombine = avatarToDownload.clone()
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
-    const avatar = await combine({
+    const avatarModel = await combine({
       transparentColor: skinColor,
       avatar: avatarToCombine,
       atlasSize,
     })
     if (format === "glb") {
       exporter.parse(
-        avatar,
+        avatarModel,
         (result) => {
           if (result instanceof ArrayBuffer) {
             saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -158,11 +160,24 @@ export const UserMenu = () => {
       )
     } else {
       // this is now a scene, the children hold the information of vrm
-      console.log(avatarToDownload)
-      avatarToDownload.materials = [avatar.userData.atlasMaterial]
-      exporter.parse(avatarToDownload, avatar, (vrm) => {
+      console.log("AVATAR DATA IS: ", avatar)
+      avatarToDownload.materials = [avatarModel.userData.atlasMaterial]
+      const vrmData = getAvatarVRMData();
+      console.log("ATLAS MATERIAL IS:", avatarModel.userData.atlasMaterial)
+      vrmData.materials = [avatarModel.userData.atlasMaterial]
+      console.log(vrmData)
+
+      exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
+    }
+  }
+
+  function getAvatarVRMData(){
+    // to do, merge data from all vrms, not to get only the first one
+    for (const prop in avatar){
+      if (avatar[prop].vrm)
+        return avatar[prop].vrm
     }
   }
 
