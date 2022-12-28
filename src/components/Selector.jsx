@@ -44,6 +44,70 @@ export default function Selector() {
     return Array.isArray(target) ? target : [target]
   }
 
+  const getRestrictions = () => {
+    
+    const traitRestrictions = templateInfo.traitRestrictions
+    const typeRestrictions = {};
+
+    for (const prop in traitRestrictions){
+
+      // create the counter restrcitions traits
+      getAsArray(traitRestrictions[prop].restrictedTraits).map((traitName)=>{
+
+        // check if the trait restrictions exists for the other trait, if not add it
+        if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
+        // make sure to have an array setup, if there is none, create a new empty one
+        if (traitRestrictions[traitName].restrictedTraits == null) traitRestrictions[traitName].restrictedTraits = []
+
+        // finally merge existing and new restrictions
+        traitRestrictions[traitName].restrictedTraits = [...new Set([
+          ...traitRestrictions[traitName].restrictedTraits ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
+
+      // do the same for the types
+      getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
+        console.log("TYPE NAME IS: ", typeName)
+        //notice were adding the new data to typeRestrictions and not trait
+        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+        //create the restricted trait in this type
+        if (typeRestrictions[typeName].restrictedTraits == null) typeRestrictions[typeName].restrictedTraits = []
+
+        typeRestrictions[typeName].restrictedTraits = [...new Set([
+          ...typeRestrictions[typeName].restrictedTraits ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
+    }
+
+    // now merge defined type to type restrictions
+    for (const prop in templateInfo.typeRestrictions){
+      // check if it already exsits
+      if (typeRestrictions[prop] == null) typeRestrictions[prop] = {}
+      if (typeRestrictions[prop].restrictedTypes == null) typeRestrictions[prop].restrictedTypes = []
+      typeRestrictions[prop].restrictedTypes = [...new Set([
+        ...typeRestrictions[prop].restrictedTypes ,
+        ...getAsArray(templateInfo.typeRestrictions[prop])])]  
+
+      // now that we have setup the type restrictions, lets counter create for the other traits
+      getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
+        // prop = boots
+        // typeName = pants
+        console.log(prop)
+        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+        if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
+        typeRestrictions[typeName].restrictedTypes = [...new Set([
+          ...typeRestrictions[typeName].restrictedTypes ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
+    }
+
+    return {
+      traitRestrictions,
+      typeRestrictions
+    }
+  }
+  const restrictions = getRestrictions()
+
   // options are selected by random or start
   useEffect(() => {
     console.log("SELECTED OPTIONS: ", selectedOptions)
@@ -68,30 +132,7 @@ export default function Selector() {
       }
     }
 
-    console.log(templateInfo.traitRestrictions)
-    const traitRestrictions = templateInfo.traitRestrictions
-
-    for (const prop in traitRestrictions){
-      getAsArray(traitRestrictions[prop].traits).map((traitName)=>{
-
-        // check if the trait restrictions exists for the other trait, if not add it
-        if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
-        // make sure to have an array setup, if there is none, create a new empty one
-        if (traitRestrictions[traitName].traits == null) traitRestrictions[traitName].traits = []
-
-        // finally merge existing and new restrictions
-        traitRestrictions[traitName].traits = [...new Set([
-          ...traitRestrictions[traitName].traits ,
-          ...[prop]])]
-      })
-    }
-
-    console.log(traitRestrictions)
-    //start body
-    //got head
-    //
-
-
+    console.log(restrictions)
 
     loadOptions([option]).then((loadedData)=>{
       let newAvatar = {};
