@@ -49,6 +49,7 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  white-space: pre-wrap;
 }
 
 /* TASK: rewrite the above styled component with CSS */

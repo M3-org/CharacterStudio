@@ -18,7 +18,7 @@ export const UserMenu = () => {
   const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
-  const { ensName, setEnsName, connected, setConnected } =
+  const { ensName, setEnsName, connected, setConnected, setWalletAddress } =
     useContext(AccountContext)
   const { activate, deactivate, account, chainId } = useWeb3React()
 
@@ -36,8 +36,10 @@ export const UserMenu = () => {
     if (account) {
       _setAddress(account)
       setConnected(true)
+      setWalletAddress(account)
     } else {
       setConnected(false)
+      setWalletAddress(false)
       setMintStatus("Please connect your wallet.")
     }
   }, [account])
@@ -213,7 +215,7 @@ export const UserMenu = () => {
                 icon="mint"
                 size={32}
                 onClick={() => {
-                  if(connected) setCurrentView(ViewStates.MINT)
+                  setCurrentView(ViewStates.MINT)
                 }}
               />
             </li>

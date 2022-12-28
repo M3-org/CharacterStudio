@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 import { AccountContext } from "../context/AccountContext"
 import { AudioContext } from "../context/AudioContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
-import { DelegateCashContract, EternalProxyContract, OTCollectionAddress } from "./Contract"
+import { DelegateCashContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 import CustomButton from "./custom-button"
 
 import styles from "./Gate.module.css"
@@ -63,7 +63,7 @@ export default function Gate() {
   const checkOTPass = async () => {
     const testaccount = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104';
     const network = "ETHEREUM"
-    const OTTokenList = await fetch(`https://serverless-backend-blue.vercel.app/api/getOpenSeaNFTCollection?walletAddress=${testaccount}&collectionAddress=${OTCollectionAddress}&network=${network}`,
+    const OTTokenList = await fetch(`https://serverless-backend-blue.vercel.app/api/getOpenSeaNFTCollection?walletAddress=${testaccount}&collectionAddress=${webaverseGenesisAddress}&network=${network}`,
     {
             method: 'get',
             redirect: 'follow'
@@ -97,7 +97,7 @@ export default function Gate() {
     if(ElegationData === []) return false
     else {
       const ElegationOTToken = ElegationData.map((delegation) => {
-        if(delegation.type === 'TOKEN' && delegation.contract === OTCollectionAddress) return delegation.tokenId
+        if(delegation.type === 'TOKEN' && delegation.contract === webaverseGenesisAddress) return delegation.tokenId
       })
       if(ElegationOTToken.length) {
         setOTTokens(ElegationOTToken)
