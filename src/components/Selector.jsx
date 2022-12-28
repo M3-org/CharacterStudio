@@ -29,6 +29,7 @@ export default function Selector() {
     currentOptions,
     selectedOptions,
     model,
+    animationManager,
     setTraitsNecks,
     setTraitsSpines
   } = useContext(SceneContext)
@@ -204,8 +205,9 @@ export default function Selector() {
 
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
-      if (model.data.animationManager){
-        model.data.animationManager.startAnimation(m)
+      console.log("ANIMATION MANAGER IS:", animationManager)
+      if (animationManager){
+        animationManager.startAnimation(vrm)
       }
 
       // culling layers setup section
@@ -278,7 +280,8 @@ export default function Selector() {
     }
 
     // add the now model to the current scene
-    model.scene.add(vrm.scene)
+    console.log("EXISTING MODEL IS:",model)
+    model.add(vrm.scene)
     
     // and then add the new avatar data
     // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
@@ -308,8 +311,8 @@ export default function Selector() {
     })
     r_vrm = vrm
 
-      if (model.data.animationManager){
-        model.data.animationManager.startAnimation(vrm)
+      if (animationManager){
+        animationManager.startAnimation(vrm)
       }
 
       // mesh targets to apply textures or colors 
@@ -486,7 +489,7 @@ export default function Selector() {
       }
 
       setTimeout(() => {
-        model.scene.add(vrm.scene)
+        model.add(vrm.scene)
       }, 60)
     return {
       [currentTraitName]: {
@@ -500,32 +503,32 @@ export default function Selector() {
 
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
-  useEffect(() => {
-    let buffer = { ...(avatar ?? {}) }
+  // useEffect(() => {
+  //   let buffer = { ...(avatar ?? {}) }
 
-    ;(async () => {
-      let newAvatar = {}
-      // for trait in traits
-      for (const property in buffer) {
-        if (buffer[property].vrm) {
-          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
-            if (newAvatar[property].vrm != null) {
-              disposeVRM(newAvatar[property].vrm)
-            }
-          }
-          model.data.animationManager.startAnimation(buffer[property].vrm)
-          // wait one frame before adding to scene so animation doesn't glitch
-          setTimeout(() => {
-            model.scene.add(buffer[property].vrm.scene)
-          }, 1)
-        }
-      }
-      setAvatar({
-        ...avatar,
-        ...buffer,
-      })
-    })()
-  }, [])
+  //   ;(async () => {
+  //     let newAvatar = {}
+  //     // for trait in traits
+  //     for (const property in buffer) {
+  //       if (buffer[property].vrm) {
+  //         if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
+  //           if (newAvatar[property].vrm != null) {
+  //             disposeVRM(newAvatar[property].vrm)
+  //           }
+  //         }
+  //         animationManager.startAnimation(buffer[property].vrm)
+  //         // wait one frame before adding to scene so animation doesn't glitch
+  //         setTimeout(() => {
+  //           model.add(buffer[property].vrm.scene)
+  //         }, 1)
+  //       }
+  //     }
+  //     setAvatar({
+  //       ...avatar,
+  //       ...buffer,
+  //     })
+  //   })()
+  // }, [])
 
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 

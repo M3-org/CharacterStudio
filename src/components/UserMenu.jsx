@@ -125,7 +125,7 @@ export const UserMenu = () => {
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
     }`
 
-    const avatarToCombine = avatarToDownload.scene.clone()
+    const avatarToCombine = avatarToDownload.clone()
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
     const avatar = await combine({
@@ -157,6 +157,8 @@ export const UserMenu = () => {
         },
       )
     } else {
+      // this is now a scene, the children hold the information of vrm
+      console.log(avatarToDownload)
       avatarToDownload.materials = [avatar.userData.atlasMaterial]
       exporter.parse(avatarToDownload, avatar, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)

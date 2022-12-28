@@ -46,9 +46,11 @@ export const SceneProvider = (props) => {
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
   const [model, setModel] = useState(null)
+  const [animationManager, setAnimationManager] = useState(null)
   const [camera, setCamera] = useState(null)
 
   const [selectedOptions, setSelectedOptions] = useState([])
+  const [selectedRandomTraits, setSelectedRandomTraits] = React.useState([])
 
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
@@ -86,9 +88,13 @@ export const SceneProvider = (props) => {
         loadModel,
         setSelectedOptions,
         selectedOptions,
+        setSelectedRandomTraits,
+        selectedRandomTraits,
         addModel,
         model,
         setModel,
+        animationManager,
+        setAnimationManager,
         camera,
         setCamera,
         colorStatus,

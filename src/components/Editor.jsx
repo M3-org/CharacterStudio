@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext } from "react";
 
 import * as THREE from "three"
 import gsap from 'gsap';
@@ -11,16 +11,24 @@ import { SceneContext } from "../context/SceneContext";
 import styles from './Editor.module.css';
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setSelectedRandomTraits, selectedRandomTraits} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
-  const [cameraFocused, setCameraFocused] = React.useState(false);
+  const [cameraFocused, setCameraFocused] = React.useState(false)
 
   const [play] = useSound(
     optionClick,
     { volume: 1.0 }
   );
+
+    // options are selected by random or start
+  useEffect(() => {
+    if (selectedRandomTraits.length > 0){
+      console.log("SELECTED RANDOM TRAITS ARE: ", selectedRandomTraits)
+      setSelectedOptions (getMultipleRandomTraits(selectedRandomTraits))
+    }
+  },[selectedRandomTraits])
 
   const selectOption = (option) => {
     !isMute && play();
@@ -181,7 +189,7 @@ export default function Editor({templateInfo, controls}) {
         <div className={styles['LineDivision']}/>
         <img className={styles['ShuffleOption']} onClick={() => {
             !isMute && play();
-            setSelectedOptions(getMultipleRandomTraits(templateInfo.randomTraits))
+            setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
           }} src={shuffle} />
   </div>);
 }

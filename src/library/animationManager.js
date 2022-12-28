@@ -14,13 +14,13 @@ const getRandomInt = (max) => {
 
 class AnimationControl {
   constructor(animationManager, scene, animations, curIdx, lastIdx){
-    this.mixer = null;
+    this.mixer = new AnimationMixer(scene);
+    console.log(scene)
     this.actions = [];
     this.to = null;
     this.from = null;
     this.animationManager = null;
     this.animationManager = animationManager;
-    this.mixer = new AnimationMixer(scene);
     animations[0].tracks.map((track, index) => {
       if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
         animations[0].tracks.splice(index, 1)
@@ -29,6 +29,8 @@ class AnimationControl {
     // animations[0].tracks.splice(9, 2);
     this.actions = [];
     for (let i =0; i < animations.length;i++){
+      console.log(animations[i])
+      console.log(this.mixer)
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
 
@@ -68,6 +70,7 @@ export class AnimationManager{
     this.lastAnimID = -1;
     this.curAnimID = 0;
     this.animationControls = [];
+    this.started = false;
     if (offset){
       this.offset = new Vector3(
         offset[0],
@@ -80,10 +83,16 @@ export class AnimationManager{
   async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const anim = await loader.loadAsync(path);
+    console.log("ANIM IS: ", anim)
     // offset hips
     this.animations = anim.animations;
     if (this.offset)
       this.offsetHips();
+
+
+    this.mainControl = new AnimationControl(this, anim, anim.animations, this.curAnimID, this.lastAnimID)
+    this.animationControls.push(this.mainControl)
+  
   }
 
   offsetHips(){
@@ -103,19 +112,19 @@ export class AnimationManager{
   }
 
   startAnimation(vrm){
+    console.log("VRM IS:", vrm)
     //return
     if (!this.animations) {
       console.warn("no animations were preloaded, ignoring");
       return
     }
-
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
     addModelData(vrm , {animationControl});
 
-    if (this.mainControl == null){
-      this.mainControl = animationControl;
+    if (this.started === false){
+      this.started = true;
       this.animRandomizer(this.animations[this.curAnimID].duration);
     }
   }
