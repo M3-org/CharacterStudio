@@ -153,10 +153,10 @@ export default function MintPopup() {
       <div className={styles["StyledContainer"]}>
         <div className={styles["StyledBackground"]} />
         <div className={styles["StyledPopup"]}>
-          {connected && (
+          {/* {connected && ( */}
             <Fragment>
-            <div className={styles["Header"]}>
-              <img
+              <div className={styles["Header"]}>
+                <img
                   src={mintPopupImage}
                   className={mintStatus}
                   height={"50px"}
@@ -205,7 +205,7 @@ export default function MintPopup() {
                 )}
               </div>
             </Fragment>
-          )}
+          {/* )} */}
         </div>
       </div>
     // )

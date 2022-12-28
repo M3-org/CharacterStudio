@@ -213,7 +213,7 @@ export const UserMenu = () => {
                 icon="mint"
                 size={32}
                 onClick={() => {
-                  setCurrentView(ViewStates.MINT)
+                  if(connected) setCurrentView(ViewStates.MINT)
                 }}
               />
             </li>
