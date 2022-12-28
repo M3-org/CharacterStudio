@@ -159,11 +159,8 @@ export const UserMenu = () => {
         },
       )
     } else {
-      // this is now a scene, the children hold the information of vrm
-      console.log("AVATAR DATA IS: ", avatar)
-      avatarToDownload.materials = [avatarModel.userData.atlasMaterial]
+
       const vrmData = getAvatarVRMData();
-      console.log("ATLAS MATERIAL IS:", avatarModel.userData.atlasMaterial)
       vrmData.materials = [avatarModel.userData.atlasMaterial]
       console.log(vrmData)
 
