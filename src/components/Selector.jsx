@@ -68,9 +68,34 @@ export default function Selector() {
       }
     }
 
-    
+    console.log(templateInfo.traitRestrictions)
+    const traitRestrictions = templateInfo.traitRestrictions
+
+    for (const prop in traitRestrictions){
+      getAsArray(traitRestrictions[prop].traits).map((traitName)=>{
+
+        // check if the trait restrictions exists for the other trait, if not add it
+        if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
+        // make sure to have an array setup, if there is none, create a new empty one
+        if (traitRestrictions[traitName].traits == null) traitRestrictions[traitName].traits = []
+
+        // finally merge existing and new restrictions
+        traitRestrictions[traitName].traits = [...new Set([
+          ...traitRestrictions[traitName].traits ,
+          ...[prop]])]
+      })
+    }
+
+    console.log(traitRestrictions)
+    //start body
+    //got head
+    //
+
+
+
     loadOptions([option]).then((loadedData)=>{
       let newAvatar = {};
+      
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
@@ -266,23 +291,17 @@ export default function Selector() {
     })
     
     
-    //trait data
-    console.log(traitData.name)
-
-    //finally set avatar 
-    console.log("THE AVATAR IS: ", avatar)
-    console.log(avatar[traitData.name])
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar[traitData.name] && avatar[traitData.name].vrm) {
-      console.log("SETTING PREVIOUS TO NULL")
       //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         disposeVRM(avatar[traitData.name].vrm)
     }
 
     // add the now model to the current scene
-    console.log("EXISTING MODEL IS:",model)
     model.add(vrm.scene)
     
+    
+
     // and then add the new avatar data
     // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
     return {
@@ -366,6 +385,7 @@ export default function Selector() {
         model: vrm.scene,
         vrm: vrm,
       }
+
 
       // search in the trait data for restricted traits and restricted types  => (todo)
         if (traitData.restrictedTraits) {
