@@ -24,8 +24,6 @@ export default function MintPopup() {
   const { walletAddress, connected } =
     useContext(AccountContext)
 
-  // const {  } = useContext(SceneContext)
-
   const [mintStatus, setMintStatus] = useState("")
 
   const currentTemplateIndex = parseInt(currentTemplate.index === undefined ? currentTemplate.index : 1)
