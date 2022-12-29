@@ -66,7 +66,6 @@ export default function Selector() {
 
       // do the same for the types
       getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
-        console.log("TYPE NAME IS: ", typeName)
         //notice were adding the new data to typeRestrictions and not trait
         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
         //create the restricted trait in this type
@@ -91,7 +90,6 @@ export default function Selector() {
       getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
         // prop = boots
         // typeName = pants
-        console.log(prop)
         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
         if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
         typeRestrictions[typeName].restrictedTypes = [...new Set([
@@ -110,9 +108,6 @@ export default function Selector() {
 
   // options are selected by random or start
   useEffect(() => {
-    console.log("SELECTED OPTIONS: ", selectedOptions)
-
-    
     loadOptions(selectedOptions).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -131,8 +126,6 @@ export default function Selector() {
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
-
-    console.log(restrictions)
 
     loadOptions([option]).then((loadedData)=>{
       let newAvatar = {};
@@ -159,7 +152,6 @@ export default function Selector() {
         nullOptions = false;
     })
     if (nullOptions === true){
-      console.log("has null options")
       return new Promise((resolve) => {
         resolve(options)
       });
@@ -376,6 +368,13 @@ export default function Selector() {
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
         }
+        // if (child.isBone && child.name === 'leftEye') { 
+        //   setLeft(child);
+        // }
+        // if (child.isBone && child.name === 'rightEye') { 
+        //   setRight(child);
+        // }
+        
       })
 
       
@@ -466,8 +465,6 @@ export default function Selector() {
               } ${active ? styles["active"] : ""}`}
               onClick={() => {
                 !isMute && play()
-                console.log("select trait", option.item)
-                console.log(option.iconHSL)
                 selectTraitOption(option)
               }}
             >

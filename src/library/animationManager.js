@@ -15,7 +15,6 @@ const getRandomInt = (max) => {
 class AnimationControl {
   constructor(animationManager, scene, animations, curIdx, lastIdx){
     this.mixer = new AnimationMixer(scene);
-    console.log(scene)
     this.actions = [];
     this.to = null;
     this.from = null;
@@ -29,8 +28,6 @@ class AnimationControl {
     // animations[0].tracks.splice(9, 2);
     this.actions = [];
     for (let i =0; i < animations.length;i++){
-      console.log(animations[i])
-      console.log(this.mixer)
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
 
@@ -53,7 +50,7 @@ class AnimationControl {
 
   dispose(){
     this.animationManager.disposeAnimation(this);
-    console.log("todo dispose animation control")
+    //console.log("todo dispose animation control")
   }
 }
 
@@ -83,7 +80,6 @@ export class AnimationManager{
   async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const anim = await loader.loadAsync(path);
-    console.log("ANIM IS: ", anim)
     // offset hips
     this.animations = anim.animations;
     if (this.offset)
@@ -112,7 +108,6 @@ export class AnimationManager{
   }
 
   startAnimation(vrm){
-    console.log("VRM IS:", vrm)
     //return
     if (!this.animations) {
       console.warn("no animations were preloaded, ignoring");
@@ -157,7 +152,7 @@ export class AnimationManager{
     this.animationControls.forEach(animControl => {
       animControl.dispose()
     });
-    console.log("todo dispose animations")
+    //console.log("todo dispose animations")
   }
 
   animRandomizer(yieldTime){

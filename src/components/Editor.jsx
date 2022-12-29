@@ -66,7 +66,6 @@ export default function Editor({templateInfo, controls}) {
           resultTraitOptions.push(options[Math.floor(Math.random()*options.length)])
        }
     })
-    console.log(resultTraitOptions)
     return resultTraitOptions
   }
 

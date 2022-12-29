@@ -68,7 +68,7 @@ export const SceneProvider = (props) => {
   }
   useEffect(()=>{
     if (avatar){
-      console.log("WIP[PENDING")
+      console.log("WIP[PENDING] cull meshes")
       cullHiddenMeshes(avatar, scene, template)
     }
   },[avatar])
