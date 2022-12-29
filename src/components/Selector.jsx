@@ -106,6 +106,7 @@ export default function Selector() {
       typeRestrictions
     }
   }
+
   const restrictions = getRestrictions()
 
   // options are selected by random or start
@@ -146,8 +147,11 @@ export default function Selector() {
     return;
   }
 
+  
   // load options first
   const loadOptions = (options) => {
+    // filter options by restrictions
+    options = filterRestrictedOptions(options);
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -192,16 +196,14 @@ export default function Selector() {
       
       // load necesary assets for the options
       options.map((option, index)=>{
-        console.log("option is: ", option)
 
         if (option == null){
-          console.log("ïs null")
           resultData[index] = null;
           return;
         }
         // load model trait
         const loadedModels = []; 
-        getAsArray(option?.item.directory).map((modelDir, i)=>{
+        getAsArray(option?.item?.directory).map((modelDir, i)=>{
           gltfLoader.loadAsync (baseDir + modelDir).then((mod)=>{
             loadedModels[i] = mod;
           })
@@ -230,6 +232,77 @@ export default function Selector() {
         }
       })
     });
+  }
+
+  const filterRestrictedOptions = (options) =>{
+    let removeTraits = [];
+    for (let i =0; i < options.length;i++){
+      const option = options[i];
+      
+     //if this option is not already in the remove traits list then:
+     if (!removeTraits.includes(option.trait.name)){
+        // type restrictions = what `type` cannot go wit this trait or this type
+        getAsArray(option.item?.type).map((t)=>{
+          //combine to array
+          removeTraits = [...new Set([
+            ...removeTraits , // get previous remove traits
+            ...findTraitsWithTypes(getAsArray(restrictions.typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
+            ...getAsArray(restrictions.typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
+
+        })
+
+        // trait restrictions = what `trait` cannot go wit this trait or this type
+        removeTraits = [...new Set([
+          ...removeTraits,
+          ...findTraitsWithTypes(getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTypes)),
+          ...getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTraits),
+
+        ])]
+      }
+      console.log(" ============================= REMOVE TRAITS ARE:", removeTraits) 
+    }
+
+    // now update uptions
+    removeTraits.forEach(trait => {
+      let removed = false;
+      console.log(trait)
+      
+      for (let i =0; i < options.length;i++){
+        // find an option with the trait name 
+        if (options[i].trait?.name === trait){
+          options[i] = {
+            item:null,
+            trait:templateInfo.traits.find((t) => t.name === trait)
+          }
+          removed = true;
+          break;
+        }
+      }
+      // if no option setup was found, add a null option to remove in case user had it added before
+      if (!removed){
+        options.push({
+          item:null,
+          trait:templateInfo.traits.find((t) => t.name === trait)
+        })
+      }
+    });
+   
+    return options;
+  }
+
+  const findTraitsWithTypes = (types) => {
+    const typeTraits = [];
+    for (const prop in avatar){
+      for (let i = 0; i < types.length; i++){
+        const t = types[i]
+       
+        if (avatar[prop].traitInfo?.type?.includes(t)){
+          typeTraits.push(prop);
+          break;
+        }
+      }
+    }
+    return typeTraits;
   }
 
   // once loaded, assign
