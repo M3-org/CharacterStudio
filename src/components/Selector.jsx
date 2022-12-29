@@ -20,7 +20,6 @@ import styles from "./Selector.module.css"
 
 export default function Selector() {
   const {
-    loadModel,
     avatar,
     setAvatar,
     currentTemplate,
@@ -259,13 +258,11 @@ export default function Selector() {
 
         ])]
       }
-      console.log(" ============================= REMOVE TRAITS ARE:", removeTraits) 
     }
 
     // now update uptions
     removeTraits.forEach(trait => {
       let removed = false;
-      console.log(trait)
       
       for (let i =0; i < options.length;i++){
         // find an option with the trait name 
@@ -337,14 +334,12 @@ export default function Selector() {
     // models are vrm in some cases!, beware
     let vrm = null
     models.map((m)=>{
-      console.log(m)
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
 
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
-      console.log("ANIMATION MANAGER IS:", animationManager)
       if (animationManager){
         animationManager.startAnimation(vrm)
       }
@@ -432,239 +427,7 @@ export default function Selector() {
 
   }
 
-  const itemLoader = async (item, textures, colors) => {
-    let r_vrm
-    const itemDirectory = templateInfo.traitsDirectory + item.directory;
-    const vrm = await loadModel(itemDirectory)
-
-    // 1 
-    addModelData(vrm, {
-      cullingLayer: item.cullingLayer || -1,
-      cullingDistance: item.cullingDistance || null,
-    })
-    r_vrm = vrm
-
-      if (animationManager){
-        animationManager.startAnimation(vrm)
-      }
-
-      // mesh targets to apply textures or colors 
-      const meshTargets = [];
-      if (item.meshTargets){
-        getAsArray(item.meshTargets).map((target) => {
-          const mesh = vrm.scene.getObjectByName ( target )
-          if (mesh?.isMesh) meshTargets.push(mesh);
-        })
-      }
-      // when mesh targets are not defined by user, grab all mesh children of vrm scene
-      vrm.scene.traverse((child) => {
-        if (!item.meshTargets && child.isMesh)
-          meshTargets.push(child);
-
-        if (child.isBone && child.name == 'neck') { 
-          setTraitsNecks(current => [...current , child])
-        }
-        if (child.isBone && child.name == 'spine') { 
-          setTraitsSpines(current => [...current , child])
-        }
-      })
-
-      meshTargets.map((mesh, index)=>{
-        if (textures){
-          if (textures[index] != null){
-            mesh.material[0].map = textures[index]
-            mesh.material[0].shadeMultiplyTexture = textures[index]
-          }
-        }
-        if (colors){
-          if (colors[index] != null){
-            const newColor = new THREE.Color( colors[index] )
-            mesh.material[0].uniforms.litFactor.value = newColor; // to do: right now it only takes the first color of array, this is an array in case user target more than one mesh
-            mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color( newColor.r*0.8, newColor.g*0.8, newColor.b*0.8 )
-          }
-        }
-      })
-
-      const traitData = templateInfo.traits.find(
-        (element) => element.name === currentTraitName,
-      )
-
-      if(!traitData) throw new Error('Trait data not found')
-
-      // set the new trait
-      const newAvatarData = { ...avatar }
-      newAvatarData[currentTraitName] = {
-        traitInfo: item,
-        name: item.name,
-        model: vrm.scene,
-        vrm: vrm,
-      }
-
-
-      // search in the trait data for restricted traits and restricted types  => (todo)
-        if (traitData.restrictedTraits) {
-          traitData.restrictedTraits.forEach((restrictTrait) => {
-            if (avatar[restrictTrait] !== undefined)
-              newAvatarData[restrictTrait] = {}
-          })
-        }
-
-        // first check for every trait type in avatar properties if we have restricted types
-        if (traitData.restrictedTypes) {
-          for (const property in avatar) {
-            console.log("property", avatar[property])
-            if (!avatar[property].traitInfo || !avatar[property].traitInfo.type)
-              continue
-            const itemTypes = Array.isArray(avatar[property].traitInfo.type)
-              ? avatar[property].traitInfo.type
-              : [avatar[property].traitInfo.type]
-
-            for (let i = 0; i < traitData.restrictedTypes.length; i++) {
-              const restrictedType = traitData.restrictedTypes[i]
-
-              // remove if  its type is restricted
-              for (let j = 0; j < itemTypes.length; j++) {
-                const itemType = itemTypes[j]
-                if (itemType === restrictedType) {
-                  newAvatarData[property] = {}
-                  break
-                }
-              }
-            }
-          }
-        }
-        // now check inside every property if they dont have this type as restriction keep going
-        if (item.type) {
-          const itemTypes = getAsArray(item.type)
-          for (const property in avatar) {
-            const tData = templateInfo.traits.find(
-              (element) => element.name === property,
-            )
-            if (tData != null) {
-              if (tData.restrictedTypes) {
-                const restrictedTypeArray = tData.restrictedTypes
-                for (let i = 0; i < restrictedTypeArray.length; i++) {
-                  const restrictedType = tData.restrictedTypes[i]
-
-                  for (let j = 0; j < itemTypes.length; j++) {
-                    const itemType = itemTypes[j]
-                    if (itemType === restrictedType) {
-                      newAvatarData[property] = {}
-                      break
-                    }
-                  }
-                }
-              }
-            }
-          }
-          // this array include the names of the traits as property and the types it cannot include
-          if (templateInfo.typeRestrictions) {
-            // we should check every type this trait has
-            for (let i = 0; i < itemTypes.length; i++) {
-              const itemType = itemTypes[i]
-              // and get the restriction included in each array if exists
-              const typeRestrictions = getAsArray(
-                templateInfo.typeRestrictions[itemType],
-              )
-              // now check if the avatar properties include this restrictions to remove
-              for (const property in avatar) {
-                if (property !== currentTraitName) {
-                  typeRestrictions.forEach((typeRestriction) => {
-                    if (avatar[property].traitInfo?.type) {
-                      const types = avatar[property].traitInfo.type
-                      for (let i = 0; i < types.length; i++) {
-                        if (types[i] === typeRestriction) {
-                          newAvatarData[property] = {}
-                          break
-                        }
-                      }
-                    }
-                  })
-                  // check also if any of the current trait is of type
-                  if (avatar[property] && avatar[property].vrm) {
-                    const propertyTypes = getAsArray(avatar[property].item?.type)
-                    propertyTypes.forEach((t) => {
-                      const typeRestrictionsSecondary = getAsArray(
-                        templateInfo.typeRestrictions[t],
-                      )
-                      if (typeRestrictionsSecondary.includes(itemType))
-                        newAvatarData[property] = {}
-                    })
-                  }
-                }
-              }
-            }
-          }
-        }
-
-      const newAvatar = {
-        ...avatar,
-        ...newAvatarData,
-      }
-
-      for (const property in newAvatar) {
-        if (property !== currentTraitName) {
-          if (newAvatar[property].vrm) {
-            const tdata = templateInfo.traits.find(
-              (element) => element.name === property,
-            )
-            const restricted = tdata.restrictedTraits
-            if (restricted) {
-              for (let i = 0; i < restricted.length; i++) {
-                if (restricted[i] === currentTraitName) {
-                  // if one of their restrcited elements match, remove him and break
-                  newAvatarData[property] = {}
-                  break
-                }
-              }
-            }
-          }
-        }
-      }
-
-      setTimeout(() => {
-        model.add(vrm.scene)
-      }, 60)
-    return {
-      [currentTraitName]: {
-        traitInfo: item,
-        name: item.name,
-        model: r_vrm.scene,
-        vrm: r_vrm,
-      }
-    }
-  }
-
   const [play] = useSound(sectionClick, { volume: 1.0 })
-
-  // useEffect(() => {
-  //   let buffer = { ...(avatar ?? {}) }
-
-  //   ;(async () => {
-  //     let newAvatar = {}
-  //     // for trait in traits
-  //     for (const property in buffer) {
-  //       if (buffer[property].vrm) {
-  //         if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
-  //           if (newAvatar[property].vrm != null) {
-  //             disposeVRM(newAvatar[property].vrm)
-  //           }
-  //         }
-  //         animationManager.startAnimation(buffer[property].vrm)
-  //         // wait one frame before adding to scene so animation doesn't glitch
-  //         setTimeout(() => {
-  //           model.add(buffer[property].vrm.scene)
-  //         }, 1)
-  //       }
-  //     }
-  //     setAvatar({
-  //       ...avatar,
-  //       ...buffer,
-  //     })
-  //   })()
-  // }, [])
-
-  // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function ClearTraitButton() {
     // clear the current trait
