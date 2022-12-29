@@ -5,6 +5,7 @@ import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
@@ -17,6 +18,10 @@ import {
 } from "../library/utils"
 
 import styles from "./Selector.module.css"
+
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 export default function Selector() {
   const {
@@ -330,6 +335,8 @@ export default function Selector() {
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
 
+      
+
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
@@ -337,12 +344,19 @@ export default function Selector() {
       }
 
       // culling layers setup section
-      addModelData(vrm, {
-        cullingLayer: item.cullingLayer || -1,
-        cullingDistance: item.cullingDistance || null,
-      })
-      
 
+      addModelData(vrm, {
+        cullingLayer: 
+          item.cullingLayer != null ? item.cullingLayer: 
+          traitData.cullingLayer != null ? traitData.cullingLayer: 
+          templateInfo.defaultCullingLayer != null?templateInfo.defaultCullingLayer: -1,
+        cullingDistance: 
+          item.cullingDistance != null ? item.cullingDistance: 
+          traitData.cullingDistance != null ? traitData.cullingDistance:
+          templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
+      })  
+      console.log(vrm.data)
+      
       // mesh target setup section
       if (item.meshTargets){
         getAsArray(item.meshTargets).map((target) => {
@@ -352,12 +366,16 @@ export default function Selector() {
       }
       
       vrm.scene.traverse((child) => {
+        
         // mesh target setup secondary swection
         if (!item.meshTargets && child.isMesh) meshTargets.push(child);
 
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
+          if (child.geometry.boundsTree == null)
+            child.geometry.computeBoundsTree({strategy:SAH});
+
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
         }

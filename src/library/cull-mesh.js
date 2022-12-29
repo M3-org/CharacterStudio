@@ -50,11 +50,12 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
-                
+                console.log(hitArr)
                 mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance));
             }
         }
         hitArr = [...hitArr, ...culls[i]]
+        
     }
 }
 
@@ -84,9 +85,8 @@ const getDistanceInOut = (distanceArr) => {
 
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr) =>{
     const indexCustomArr = [];
-    // we should make this data editable by user
-
     const distArr = getDistanceInOut(distanceArr);
+    
     let distIn = distArr[0];
     let distOut = distArr[1];
 
