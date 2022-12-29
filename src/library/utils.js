@@ -8,6 +8,9 @@ import { combine } from "./merge-geometry";
 
 export const cullHiddenMeshes = (avatar, scene, avatarTemplateSpec) => {
   const models = [];
+  console.log("AVATAR IS:",avatar)
+  console.log("SCENE IS:",scene)
+  console.log("AVATAR TEMPLATE SPEC IS:", avatarTemplateSpec)
   for (const property in avatar) {
     const vrm = avatar[property].vrm;
 

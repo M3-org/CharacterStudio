@@ -14,6 +14,8 @@ export const CullHiddenFaces = async(meshes) => {
     //clearRays();
     // make a 2 dimensional array that will hold the layers
     const culls = [];
+
+    console.log("cull hidden meshes: ", meshes)
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
         if (mesh.userData.cullLayer != null){

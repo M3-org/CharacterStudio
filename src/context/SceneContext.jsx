@@ -67,9 +67,13 @@ export const SceneProvider = (props) => {
     //console.log(avatar)
   }
   useEffect(()=>{
+   
     if (avatar){
-      console.log("WIP[PENDING] cull meshes")
-      cullHiddenMeshes(avatar, scene, template)
+     if(Object.keys(avatar).length > 0){
+        console.log("WIP[PENDING] cull meshes")
+        const currentTemplateIndex = parseInt(currentTemplate.index)
+        cullHiddenMeshes(avatar, scene, template[currentTemplateIndex])
+     }
     }
   },[avatar])
 
