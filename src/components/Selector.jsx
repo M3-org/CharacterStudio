@@ -33,6 +33,7 @@ export default function Selector() {
     template,
     currentOptions,
     selectedOptions,
+    setSelectedOptions,
     model,
     animationManager,
     setTraitsNecks,
@@ -114,13 +115,16 @@ export default function Selector() {
 
   // options are selected by random or start
   useEffect(() => {
-    loadOptions(selectedOptions).then((loadedData)=>{
-      let newAvatar = {};
-      loadedData.map((data)=>{
-        newAvatar = {...newAvatar, ...itemAssign(data)}
+    if (selectedOptions.length > 0){
+      loadOptions(selectedOptions).then((loadedData)=>{
+        let newAvatar = {};
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
+        })
+        setAvatar({...avatar, ...newAvatar})
       })
-      setAvatar({...avatar, ...newAvatar})
-    })
+      setSelectedOptions([]);
+    }
 
   },[selectedOptions])
   // user selects an option
@@ -318,13 +322,9 @@ export default function Selector() {
     const textures = itemData.textures;
     const colors = itemData.colors;
     // null section (when user selects to remove an option)
-    if ( item == null) {
+    if ( item == null && avatar) {
       if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
         disposeVRM(avatar[traitData.name].vrm)
-        // setAvatar({
-        //   ...avatar,
-        //   [traitData.name]: {},
-        // })
         setSelectValue("")
       }
       return {
@@ -421,9 +421,11 @@ export default function Selector() {
     })
     
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
-    if (avatar[traitData.name] && avatar[traitData.name].vrm) {
-      //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        disposeVRM(avatar[traitData.name].vrm)
+    if (avatar){
+      if (avatar[traitData.name] && avatar[traitData.name].vrm) {
+        //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
+          disposeVRM(avatar[traitData.name].vrm)
+      }
     }
 
     // add the now model to the current scene
