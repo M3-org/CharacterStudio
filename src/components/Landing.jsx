@@ -93,7 +93,6 @@ export default function Landing() {
 
   const handleClick = (type) => {
     if (!isMute) click()
-    console.log("type is", type)
     setCurrentTemplate(type)
     console.log("ViewStates.CREATOR_LOADING", ViewStates.CREATOR_LOADING)
     setCurrentView(ViewStates.CREATOR_LOADING)

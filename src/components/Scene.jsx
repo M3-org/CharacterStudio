@@ -33,7 +33,9 @@ export default function Scene() {
     setCamera,
     loadModel,
     currentTemplate,
+    setSelectedRandomTraits,
     model,
+    setAnimationManager,
     template,
     setModel,
     traitsSpines,
@@ -64,6 +66,7 @@ export default function Scene() {
     // if user presses ctrl h, show chat
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'h') {
+        console.log("pressed h")
         e.preventDefault();
         setShowChat(!showChat);
       }
@@ -150,7 +153,37 @@ export default function Scene() {
       return
     }
 
-    // load a gltf using react three fiber
+    // create animation manager
+    async function fetchAssets() {
+      if(model != null && scene != null) {
+        scene.remove(model)
+      }
+      // model holds only the elements that will be exported
+      const avatarModel = new THREE.Scene()
+      setModel(avatarModel)
+      // scene hold all the elements cinluding model
+      const newScene = new THREE.Scene();
+      setScene(newScene)
+
+      newScene.add(avatarModel)  
+
+      // create an animation manager for all the traits that will be loaded
+      const newAnimationManager = new AnimationManager(templateInfo.offset)
+      setAnimationManager(newAnimationManager);
+      if (templateInfo.animationPath)
+        await newAnimationManager.loadAnimations(templateInfo.animationPath)
+
+      // load assets
+      const initialTraits = [...new Set([...templateInfo.requiredTraits, ...templateInfo.randomTraits])]
+      setSelectedRandomTraits(initialTraits);
+
+      setCurrentView(ViewStates.CREATOR)
+    }
+    fetchAssets();
+    
+    
+
+    // load environment
 
     const modelPath = "/3d/Platform.glb";
 
@@ -174,21 +207,25 @@ export default function Scene() {
 
     });
 
+
+    // old load
+
     loadModel(templateInfo.file).then(async (vrm) => { 
-      const animationManager = new AnimationManager(templateInfo.offset)
-      addModelData(vrm, { animationManager: animationManager })
+      //const animationManager = new AnimationManager(templateInfo.offset)
+      //addModelData(vrm, { animationManager: animationManager })
 
-      if (templateInfo.animationPath) {
-        await animationManager.loadAnimations(templateInfo.animationPath)
-        animationManager.startAnimation(vrm)
-      }
-      addModelData(vrm, { cullingLayer: 0 })
+      //if (templateInfo.animationPath) {
+        //await animationManager.loadAnimations(templateInfo.animationPath)
+        //animationManager.startAnimation(vrm)
+      //}
+      //addModelData(vrm, { cullingLayer: 0 })
 
-      console.log('vrm', vrm)
+      //console.log('vrm', vrm)
 
+      // move to selector
       setLipSync(new LipSync(vrm));
 
-
+      // move to selector
       vrm.scene.traverse(o => {
           if (o.isMesh) {
             o.castShadow = true;
@@ -209,21 +246,24 @@ export default function Scene() {
         }
         });
 
-      getSkinColor(vrm.scene, templateInfo.bodyTargets)
-      setModel(vrm)
+      //remove
+      //getSkinColor(vrm.scene, templateInfo.bodyTargets)
+
+      //set an empty scene for models, there is no longer a base model
+      //setModel(vrm)
       setTimeout(() => {
       scene.add(vrm.scene)      
     }, 1)
-      setCurrentView(ViewStates.CREATOR)
+      //setCurrentView(ViewStates.CREATOR)
     })
     
-    return () => {
-      if(model !== null) {
-        scene.remove(model.scene)
-      }
-      setModel(null)
-      setScene(new THREE.Scene())
-    }
+    //return () => {
+      //if(model !== null) {
+        //scene.remove(model.scene)
+      //}
+      //setModel(null)
+      //setScene(new THREE.Scene())
+    //}
 
   }, [templateInfo])
 
