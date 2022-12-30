@@ -37,7 +37,7 @@ export default function Selector() {
     setTraitsNecks,
     setTraitsSpines,
     setTraitsLeftEye,
-    setTraitsRightEye
+    setTraitsRightEye,
     getAsArray
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
