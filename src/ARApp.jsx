@@ -7,12 +7,13 @@ import { AudioProvider } from "./context/AudioContext"
 import Landing from "./components/Landing"
 import { UserMenu } from "./components/UserMenu"
 
-import Scene from "./components/Scene"
+import Scene from "./components/ARScene"
 import { ViewProvider, ViewContext, ViewStates } from "./context/ViewContext"
 import { SceneContext, SceneProvider } from "./context/SceneContext"
 import { AccountProvider } from "./context/AccountContext"
 import MintPopup from "./components/MintPopup"
 // import Gate from "./components/Gate"
+
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -58,13 +59,13 @@ function App() {
   return (
     template && (
       <Fragment>
-        <Background />
-        {/* <Gate /> */}
-
+        {/*<Background />
+         <Gate /> 
         <Landing />
-        <Scene />
         <MintPopup />
-        <UserMenu />
+        <UserMenu />*/}
+        <Scene />
+
       </Fragment>
     )
   )
