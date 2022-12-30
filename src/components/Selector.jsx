@@ -16,6 +16,7 @@ import {
   createFaceNormals,
   createBoneDirection,
 } from "../library/utils"
+import { LipSync } from '../library/lipsync'
 
 import styles from "./Selector.module.css"
 
@@ -38,7 +39,8 @@ export default function Selector() {
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye,
-    getAsArray
+    getAsArray,
+    setLipSync
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -340,6 +342,7 @@ export default function Selector() {
     models.map((m)=>{
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
+      setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option

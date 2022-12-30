@@ -205,7 +205,7 @@ export default function Scene() {
 
     });
     // move to selector
-    setLipSync(new LipSync(vrm));
+    //setLipSync(new LipSync(vrm));
     
   }, [templateInfo])
 
