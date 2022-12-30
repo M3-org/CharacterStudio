@@ -237,23 +237,29 @@ export default function Selector() {
       
      //if this option is not already in the remove traits list then:
      if (!removeTraits.includes(option.trait.name)){
+        const typeRestrictions = restrictions?.typeRestrictions;
         // type restrictions = what `type` cannot go wit this trait or this type
-        getAsArray(option.item?.type).map((t)=>{
-          //combine to array
-          removeTraits = [...new Set([
-            ...removeTraits , // get previous remove traits
-            ...findTraitsWithTypes(getAsArray(restrictions.typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
-            ...getAsArray(restrictions.typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
+        if (typeRestrictions){
+          getAsArray(option.item?.type).map((t)=>{
+            //combine to array
+            removeTraits = [...new Set([
+              ...removeTraits , // get previous remove traits
+              ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
+              ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
 
-        })
+          })
+        }
 
         // trait restrictions = what `trait` cannot go wit this trait or this type
-        removeTraits = [...new Set([
-          ...removeTraits,
-          ...findTraitsWithTypes(getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTypes)),
-          ...getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTraits),
+        const traitRestrictions = restrictions?.traitRestrictions;
+        if (traitRestrictions){
+          removeTraits = [...new Set([
+            ...removeTraits,
+            ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
+            ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
 
-        ])]
+          ])]
+        }
       }
     }
 
