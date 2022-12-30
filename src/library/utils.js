@@ -8,19 +8,11 @@ import { combine } from "./merge-geometry";
 
 export const cullHiddenMeshes = (avatar, scene, avatarTemplateSpec) => {
   const models = [];
-  console.log("AVATAR IS:",avatar)
-  console.log("SCENE IS:",scene)
-  console.log("AVATAR TEMPLATE SPEC IS:", avatarTemplateSpec)
   for (const property in avatar) {
     const vrm = avatar[property].vrm;
-    
     if (vrm) {
-      if (property === 'body'){
-        console.log("culling layers is: ", vrm.data.cullingLayer)
-        console.log("culling distance is: ", vrm.data.cullingDistance)
-      }
       const cullLayer = vrm.data.cullingLayer;
-      if (cullLayer >= 0) {
+      if (cullLayer >= 0) { 
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.userData.cullLayer = cullLayer;
