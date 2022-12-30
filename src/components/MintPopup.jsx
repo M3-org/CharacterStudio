@@ -72,7 +72,7 @@ export default function MintPopup() {
         throw new Error("Unable to get screenshot")
       }
 
-      const imageName = "AvatarImage_" + Date.now() + ".png";
+      let imageName = "AvatarImage_" + Date.now() + ".png";
       const imageHash = await saveFileToPinata(
         screenshot,
         imageName
@@ -81,7 +81,7 @@ export default function MintPopup() {
         setMintStatus("Couldn't save to pinata")
       })
       const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
-      const glbName = "AvatarGlb_" + Date.now() + ".glb";
+      let glbName = "AvatarGlb_" + Date.now() + ".vrm";
       const glbHash = await saveFileToPinata(
         glb,
         glbName
@@ -90,8 +90,8 @@ export default function MintPopup() {
       const metadata = {
         name: "Avatars",
         description: "Creator Studio Avatars.",
-        image: `ipfs://${imageHash.IpfsHash}/${imageName}`,
-        animation_url: `ipfs://${glbHash.IpfsHash}/${glbName}`,
+        image: `ipfs://${imageHash.IpfsHash}`,
+        animation_url: `ipfs://${glbHash.IpfsHash}`,
         attributes,
       }
       const str = JSON.stringify(metadata)
@@ -102,12 +102,12 @@ export default function MintPopup() {
       const metadataIpfs = metaDataHash.IpfsHash
 
       setMintStatus("Minting...")
-      const chainId = 5 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
+      const chainId = 137 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
       if (window.ethereum.networkVersion !== chainId) {
         try {
           await window.ethereum.request({
             method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x5" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
+            params: [{ chainId: "0x89" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
           })
         } catch (err) {
           // notifymessage("Please check the Ethereum mainnet", "error");
@@ -141,8 +141,7 @@ export default function MintPopup() {
 
   const checkOT = async (address) => {
     if(address) {
-      // const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
-      const chainId = 1 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
+      const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
       const ethersigner = ethers.getDefaultProvider("mainnet", {
         alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
       })

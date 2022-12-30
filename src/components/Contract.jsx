@@ -44,8 +44,8 @@ export const CHAINS = {
 
 export const CharacterContract = {
   owner: "0x634B0510C5062CFf8009eAAc2435eB93bc4764ad",
-  // address: "0x69341F01C2113E2d09Cd4837bbF1786dfbBc41d7", // Polygon mainet
-  address: "0x1bCb97c2242A66CD3FC6875d979fD11CF9Feedd0",
+  address: "0x69341F01C2113E2d09Cd4837bbF1786dfbBc41d7", // Polygon mainet
+  // address: "0x1bCb97c2242A66CD3FC6875d979fD11CF9Feedd0",
   abi: [
     {
       inputs: [
