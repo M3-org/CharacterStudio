@@ -50,8 +50,6 @@ export default function Scene() {
   const [blinker, setBlinker] = useState(null);
   const [animationMixer, setAnimationMixer] = useState(null);
 
-  const [showChat, setShowChat] = useState(false);
-
   const updateBlinker = () => {
     if(blinker){
       blinker.update(Date.now());
@@ -61,14 +59,7 @@ export default function Scene() {
   }
 
 
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
-    }
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -285,17 +276,5 @@ export default function Scene() {
 
   }, [templateInfo])
 
-  return templateInfo && platform && (
-      <div className={styles["FitParentContainer"]}>
-        <BackButton onClick={() => {
-          setCurrentTemplate(null)
-          setCurrentView(ViewStates.LANDER_LOADING)
-        }}/>
-        <AudioButton />
-
-        {showChat && <ChatComponent />}
-          {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
-          {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
-      </div>
-  )
+  return <></>
 }

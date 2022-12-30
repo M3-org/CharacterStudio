@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
@@ -7,7 +7,6 @@ import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
 import { addModelData, getSkinColor } from "../library/utils"
 import Blinker from "./Blinker"
-import styles from "./Scene.module.css"
 
 import { LipSync } from '../library/lipsync'
 
@@ -37,7 +36,6 @@ export default function Scene() {
   }
 
   const [loading, setLoading] = useState(false)
-  const controls = useRef()
   const templateInfo = template && currentTemplate && template[currentTemplate.index]
   const [neck, setNeck] = useState({});
   const [spine, setSpine] = useState({});
@@ -157,6 +155,7 @@ export default function Scene() {
 
     // add the ambient light to the scene
     scene.add(ambientLight);
+
 
     const modelPath = "/3d/Platform.glb";
 

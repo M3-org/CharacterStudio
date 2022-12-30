@@ -46,6 +46,8 @@ export const SceneProvider = (props) => {
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
 
+  const [controls, setControls] = useState(null)
+
   const [lipSync, setLipSync] = useState(null);
 
   const setAvatar = (state) => {
@@ -81,7 +83,9 @@ export const SceneProvider = (props) => {
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
-        setTraitsSpines
+        setTraitsSpines,
+        controls,
+        setControls,
       }}
     >
       {props.children}
