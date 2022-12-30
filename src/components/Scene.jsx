@@ -152,7 +152,6 @@ export default function Scene() {
     const update = () => {
       updateBlinker();
       animationMixer?.update(frameRate);
-      updateBlinker();
     };
 
     // set a 30 fps interval

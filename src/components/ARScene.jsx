@@ -47,33 +47,21 @@ export default function Scene() {
   const [blinker, setBlinker] = useState(null);
   const [animationMixer, setAnimationMixer] = useState(null);
 
-  const [showChat, setShowChat] = useState(false);
 
-  const [stage, setStage] = useState(null);
+  // useEffect(() => {
+  //   // if user presses ctrl h, show chat
+  //   const handleKeyDown = (e) => {
+  //     if (e.ctrlKey && e.key === 'h') {
+  //       e.preventDefault();
+  //       setShowChat(!showChat);
+  //     }
+  //   }
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   }
 
-  const updateBlinker = () => {
-    if(blinker){
-      blinker.update(Date.now());
-    } else {
-     // console.log('no blinker')
-    }
-  }
-
-
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    }
-
-  }, [])
+  // }, [])
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -148,16 +136,15 @@ export default function Scene() {
     const frameRate = 1000/30;
     // start an update loop
     const update = () => {
-      updateBlinker();
+      blinker?.update(Date.now());
       animationMixer?.update(frameRate);
-      updateBlinker();
     };
 
     // set a 30 fps interval
     const interval = setInterval(update, frameRate);
 
-    // add an equirectangular environment map to the scene using THREE (public/city.hdr)
-    const envMap = new THREE.TextureLoader().load("/city.hdr");
+    // // add an equirectangular environment map to the scene using THREE (public/city.hdr)
+    // const envMap = new THREE.TextureLoader().load("/city.hdr");
 
     // add an ambient light to the scene with an intensity of 0.5
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -170,55 +157,6 @@ export default function Scene() {
 
     // add the ambient light to the scene
     scene.add(ambientLight);
-
-    // add a camera to the scene
-    const camera = new THREE.PerspectiveCamera(
-      30,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-
-    // set the camera position
-    camera.position.set(0, 1.3, 2);
-    
-    // TODO make sure to kill the interval
-
-      // find editor-scene canvas
-      const canvasRef = document.getElementById("editor-scene");
-
-    // create a new renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvasRef,
-      antialias: true,
-      alpha: true,
-    });
-
-    // set the renderer size
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // set the renderer pixel ratio
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    // set the renderer output encoding
-    renderer.outputEncoding = THREE.sRGBEncoding;
-
-    // start animation frame loop to render
-    const animate = () => {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-      if(stage) {
-        // if scene is not a child of stage, add it
-        if(!stage.children.includes(scene)) {
-          stage.add(scene);
-        }
-      }
-    };
-
-    // start the animation loop
-    animate();
-    onxrloaded();
-
 
     const modelPath = "/3d/Platform.glb";
 
@@ -235,7 +173,7 @@ export default function Scene() {
         am.clipAction(clip).play();
       }
       );
-
+      scene.add(gltf.scene);
     });
 
     loadModel(templateInfo.file).then(async (vrm) => { 
@@ -293,6 +231,10 @@ export default function Scene() {
 
 
   }, [templateInfo])
+  useEffect (() => {
+    onxrloaded();
+
+  }, [])
 
 
 // Copyright (c) 2018 8th Wall, Inc.
@@ -307,7 +249,6 @@ const placegroundScenePipelineModule = () => {
   // Populates some object into an XR scene and sets the initial camera position. The scene and
   // camera come from xr3js, and are only available in the camera loop lifecycle onStart() or later.
   const initXrScene = ({ scene, camera }) => {
-    console.log('initXrScene')
     surface = new THREE.Mesh(
       new THREE.PlaneGeometry( 100, 100, 1, 1 ),
       new THREE.MeshBasicMaterial({
@@ -321,15 +262,6 @@ const placegroundScenePipelineModule = () => {
     surface.rotateX(-Math.PI / 2)
     surface.position.set(0, 0, 0)
     scene.add(surface)
-    setStage(scene)
-
-    scene.add(new THREE.AmbientLight( 0x404040, 5 ))  // Add soft white light to the scene.
-
-      // add cube
-      const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-      const cube = new THREE.Mesh( geometry, material );
-      scene.add( cube );
 
     // Set the initial camera position relative to the scene we just laid out. This must be at a
     // height greater than y=0.
@@ -370,6 +302,9 @@ const placegroundScenePipelineModule = () => {
 
     if (intersects.length == 1 && intersects[0].object == surface) {
       placeObject(intersects[0].point.x, intersects[0].point.z)
+      console.log('placing object', intersects[0].point.x, intersects[0].point.z)
+    } else {
+      console.log('no intersection')
     }
   }
 
@@ -382,17 +317,11 @@ const placegroundScenePipelineModule = () => {
     // XR8.Threejs.pipelineModule()'s onStart method.
     onStart: ({canvas}) => {
       const XR8 = window.XR8
-      const {scene, camera} = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
-
-      initXrScene({ scene, camera }) // Add objects to the scene and set starting camera position.
+      const {scene: stage, camera} = XR8.Threejs.xrScene()  // Get the 3js sceen from xr3js.
+      stage.add(scene);
+      initXrScene({ scene: stage, camera }) // Add objects to the scene and set starting camera position.
 
       canvas.addEventListener('touchstart', placeObjectTouchHandler, true)  // Add touch listener.
-
-      // Enable TWEEN animations.
-      animate()
-      function animate() {
-        requestAnimationFrame(animate)
-      }
 
       // Sync the xr controller's 6DoF position and camera paremeters with our scene.
       XR8.XrController.updateCameraProjectionMatrix({
@@ -422,9 +351,5 @@ const onxrloaded = () => {
   }
 }
 
-  return templateInfo && platform && (
-      <div className={styles["FitParentContainer"]}>
-      asdfasdf
-      </div>
-  )
+  return <></>
 }

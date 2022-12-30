@@ -2,7 +2,7 @@
   "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build --watch",
     "serve": "vite preview",
     "lint": "npm run lint:js && npm run lint:prettier",
