@@ -443,32 +443,6 @@ export default function Selector() {
 
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
-  useEffect(() => {
-    let buffer = { ...(avatar ?? {}) }
-
-    ;(async () => {
-      let newAvatar = {}
-      // for trait in traits
-      for (const property in buffer) {
-        if (buffer[property].vrm) {
-          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
-            if (newAvatar[property].vrm != null) {
-              disposeVRM(newAvatar[property].vrm)
-            }
-          }
-          model.data.animationManager.startAnimation(buffer[property].vrm)
-          // wait one frame before adding to scene so animation doesn't glitch
-          setTimeout(() => {
-            model.scene.add(buffer[property].vrm.scene)
-          }, 1)
-        }
-      }
-      setAvatar({
-        ...avatar,
-        ...buffer,
-      })
-    })()
-  }, [])
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function ClearTraitButton() {
