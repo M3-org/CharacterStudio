@@ -10,10 +10,9 @@ export const cullHiddenMeshes = (avatar, scene, avatarTemplateSpec) => {
   const models = [];
   for (const property in avatar) {
     const vrm = avatar[property].vrm;
-
     if (vrm) {
       const cullLayer = vrm.data.cullingLayer;
-      if (cullLayer >= 0) {
+      if (cullLayer >= 0) { 
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.userData.cullLayer = cullLayer;

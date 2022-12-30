@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext } from "react";
 
 import * as THREE from "three"
 import gsap from 'gsap';
@@ -11,21 +11,27 @@ import { SceneContext } from "../context/SceneContext";
 import styles from './Editor.module.css';
 
 export default function Editor({templateInfo, controls}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setSelectedRandomTraits, selectedRandomTraits} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
-  const [cameraFocused, setCameraFocused] = React.useState(false);
+  const [cameraFocused, setCameraFocused] = React.useState(false)
 
   const [play] = useSound(
     optionClick,
     { volume: 1.0 }
   );
 
+    // options are selected by random or start
+  useEffect(() => {
+    if (selectedRandomTraits.length > 0){
+      setSelectedOptions (getMultipleRandomTraits(selectedRandomTraits))
+    }
+  },[selectedRandomTraits])
+
   const selectOption = (option) => {
     !isMute && play();
     if (option.name === currentTraitName){ 
-      console.log('option.name === currentTraitName')
       if (cameraFocused) {
         moveCamera(option.cameraTarget);
         setCameraFocused(false);
@@ -36,10 +42,8 @@ export default function Editor({templateInfo, controls}) {
       }
       setCurrentTraitName(null)
       return;
-    } else {
-      console.log('optoin.name !== currentTraitName', option.name, currentTraitName)
-    }
-    console.log(option)
+    } 
+
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
@@ -58,7 +62,6 @@ export default function Editor({templateInfo, controls}) {
           resultTraitOptions.push(options[Math.floor(Math.random()*options.length)])
        }
     })
-    console.log(resultTraitOptions)
     return resultTraitOptions
   }
 
@@ -181,7 +184,7 @@ export default function Editor({templateInfo, controls}) {
         <div className={styles['LineDivision']}/>
         <img className={styles['ShuffleOption']} onClick={() => {
             !isMute && play();
-            setSelectedOptions(getMultipleRandomTraits(templateInfo.randomTraits))
+            setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
           }} src={shuffle} />
   </div>);
 }
