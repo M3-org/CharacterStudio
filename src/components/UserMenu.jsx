@@ -18,7 +18,7 @@ export const UserMenu = () => {
   const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
-  const { ensName, setEnsName, connected, setConnected } =
+  const { ensName, setEnsName, connected, setConnected, setWalletAddress } =
     useContext(AccountContext)
   const { avatar } =
     useContext(SceneContext)
@@ -38,8 +38,10 @@ export const UserMenu = () => {
     if (account) {
       _setAddress(account)
       setConnected(true)
+      setWalletAddress(account)
     } else {
       setConnected(false)
+      setWalletAddress(false)
       setMintStatus("Please connect your wallet.")
     }
   }, [account])
