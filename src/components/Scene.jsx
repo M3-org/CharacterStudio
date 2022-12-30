@@ -212,6 +212,7 @@ export default function Scene() {
     // old load
 
     loadModel(templateInfo.file).then(async (vrm) => { 
+      console.log("STILL LOADING")
       //const animationManager = new AnimationManager(templateInfo.offset)
       //addModelData(vrm, { animationManager: animationManager })
 
@@ -252,9 +253,9 @@ export default function Scene() {
 
       //set an empty scene for models, there is no longer a base model
       //setModel(vrm)
-      setTimeout(() => {
-      scene.add(vrm.scene)      
-    }, 1)
+    //   setTimeout(() => {
+    //   scene.add(vrm.scene)      
+    // }, 1)
       //setCurrentView(ViewStates.CREATOR)
     })
     

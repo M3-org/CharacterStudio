@@ -339,9 +339,7 @@ export default function Selector() {
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
-
       
-
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
