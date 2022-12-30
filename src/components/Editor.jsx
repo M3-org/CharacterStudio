@@ -25,7 +25,6 @@ export default function Editor({templateInfo, controls}) {
     // options are selected by random or start
   useEffect(() => {
     if (selectedRandomTraits.length > 0){
-      console.log("SELECTED RANDOM TRAITS ARE: ", selectedRandomTraits)
       setSelectedOptions (getMultipleRandomTraits(selectedRandomTraits))
     }
   },[selectedRandomTraits])
@@ -33,7 +32,6 @@ export default function Editor({templateInfo, controls}) {
   const selectOption = (option) => {
     !isMute && play();
     if (option.name === currentTraitName){ 
-      console.log('option.name === currentTraitName')
       if (cameraFocused) {
         moveCamera(option.cameraTarget);
         setCameraFocused(false);
@@ -44,10 +42,8 @@ export default function Editor({templateInfo, controls}) {
       }
       setCurrentTraitName(null)
       return;
-    } else {
-      console.log('optoin.name !== currentTraitName', option.name, currentTraitName)
-    }
-    console.log(option)
+    } 
+
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
