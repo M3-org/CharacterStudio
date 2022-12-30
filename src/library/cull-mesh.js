@@ -11,11 +11,9 @@ const distance = 0.03;
 const distanceAfter = 0.03;
 
 export const CullHiddenFaces = async(meshes) => {
-    //clearRays();
     // make a 2 dimensional array that will hold the layers
     const culls = [];
 
-    console.log("cull hidden meshes: ", meshes)
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
         if (mesh.userData.cullLayer != null){
@@ -26,6 +24,9 @@ export const CullHiddenFaces = async(meshes) => {
                 culls [mesh.userData.cullLayer] = [];
 
             culls [mesh.userData.cullLayer].push(mesh);
+
+            // reset to original before doing raycasts, modified geom has issues with raycasts
+            mesh.geometry.setIndex(mesh.userData.origIndexBuffer);
         }
     });
 
@@ -36,6 +37,8 @@ export const CullHiddenFaces = async(meshes) => {
     }
     // this array will hold all possible mesh colliders
     let hitArr = [];
+    // store in an array new indixes, chanbging them on the go, produces errors
+    const geomsIndices = [];
     // go from top to bottom to increase array size of collide meshes
     // lowest layer should consider all meshes
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
@@ -50,13 +53,19 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
-                console.log(hitArr)
-                mesh.geometry.setIndex(getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance));
+                geomsIndices.push({
+                    geom: mesh.geometry,
+                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance, i ===0)
+                })
             }
         }
         hitArr = [...hitArr, ...culls[i]]
         
     }
+
+    geomsIndices.forEach(elem => {
+        elem.geom.setIndex(elem.index)
+    });
 }
 
 const getDistanceInOut = (distanceArr) => {
