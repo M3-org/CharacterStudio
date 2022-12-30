@@ -76,8 +76,7 @@ export const SceneProvider = (props) => {
    
     if (avatar){
      if(Object.keys(avatar).length > 0){
-        const currentTemplateIndex = parseInt(currentTemplate.index)
-        cullHiddenMeshes(avatar, scene, template[currentTemplateIndex])
+        cullHiddenMeshes(avatar)
      }
     }
   },[avatar])
