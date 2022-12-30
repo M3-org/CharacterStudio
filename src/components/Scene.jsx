@@ -153,7 +153,6 @@ export default function Scene() {
       return
     }
 
-    console.log("STARTE")
     // create animation manager
     async function fetchAssets() {
       if(model != null && scene != null) {
@@ -166,7 +165,6 @@ export default function Scene() {
       const newScene = new THREE.Scene();
       setScene(newScene)
 
-      console.log(scene)
       newScene.add(avatarModel)  
 
       // create an animation manager for all the traits that will be loaded
@@ -175,10 +173,8 @@ export default function Scene() {
       if (templateInfo.animationPath)
         await newAnimationManager.loadAnimations(templateInfo.animationPath)
 
-      console.log("ANIMATION MANAGER IS: ", newAnimationManager)
       // load assets
       const initialTraits = [...new Set([...templateInfo.requiredTraits, ...templateInfo.randomTraits])]
-      console.log("INITIAL TRAITS ARE: ", initialTraits)
       setSelectedRandomTraits(initialTraits);
 
       setCurrentView(ViewStates.CREATOR)
