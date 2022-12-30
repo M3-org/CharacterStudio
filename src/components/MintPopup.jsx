@@ -72,24 +72,26 @@ export default function MintPopup() {
         throw new Error("Unable to get screenshot")
       }
 
+      const imageName = "AvatarImage_" + Date.now() + ".png";
       const imageHash = await saveFileToPinata(
         screenshot,
-        "AvatarImage_" + Date.now() + ".png",
+        imageName
       ).catch((reason) => {
         console.error(reason)
         setMintStatus("Couldn't save to pinata")
       })
       const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
+      const glbName = "AvatarGlb_" + Date.now() + ".glb";
       const glbHash = await saveFileToPinata(
         glb,
-        "AvatarGlb_" + Date.now() + ".glb",
+        glbName
       )
       const attributes = getAvatarTraits()
       const metadata = {
         name: "Avatars",
         description: "Creator Studio Avatars.",
-        image: `ipfs://${imageHash.IpfsHash}`,
-        animation_url: `ipfs://${glbHash.IpfsHash}`,
+        image: `ipfs://${imageHash.IpfsHash}/${imageName}`,
+        animation_url: `ipfs://${glbHash.IpfsHash}/${glbName}`,
         attributes,
       }
       const str = JSON.stringify(metadata)
