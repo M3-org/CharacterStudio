@@ -37,7 +37,7 @@ export default function Selector() {
   const { isMute } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
-
+  const [loadPercentage, setLoadPercentage] = useState(1)
   const getAsArray = (target) => {
     if (target == null) return []
     return Array.isArray(target) ? target : [target]
@@ -46,8 +46,6 @@ export default function Selector() {
   // options are selected by random or start
   useEffect(() => {
     console.log("SELECTED OPTIONS: ", selectedOptions)
-
-    
     loadOptions(selectedOptions).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -57,7 +55,6 @@ export default function Selector() {
     })
 
   },[selectedOptions])
-
   // user selects an option
   const selectTraitOption = (option) => {
     if (option == null){
@@ -67,7 +64,6 @@ export default function Selector() {
       }
     }
 
-    
     loadOptions([option]).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -106,19 +102,23 @@ export default function Selector() {
 
     // and a texture loaders for all the textures
     const textureLoader = new THREE.TextureLoader(loadingManager)
-
-    
-
+    loadingManager.onProgress = function(url, loaded, total){
+      setLoadPercentage(Math.round(loaded/total * 100 ))
+    }
     // return a promise, resolve = once everything is loaded
     return new Promise((resolve) => {
 
       // resultData will hold all the results in the array that was given this function
       const resultData = [];
       loadingManager.onLoad = function (){
+        setLoadPercentage(0)
         resolve(resultData);
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
+      }
+      loadingManager.onProgress = function(url, loaded, total){
+        setLoadPercentage(Math.round(loaded/total * 100 ))
       }
 
       const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
@@ -126,7 +126,7 @@ export default function Selector() {
       // load necesary assets for the options
       options.map((option, index)=>{
         console.log("option is: ", option)
-
+        setSelectValue(option.key)
         if (option == null){
           console.log("ïs null")
           resultData[index] = null;
@@ -173,7 +173,6 @@ export default function Selector() {
     const models = itemData.models;
     const textures = itemData.textures;
     const colors = itemData.colors;
-
     // null section (when user selects to remove an option)
     if ( item == null) {
       if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
@@ -182,7 +181,7 @@ export default function Selector() {
         //   ...avatar,
         //   [traitData.name]: {},
         // })
-        setSelectValue(item && item.id)
+        setSelectValue("")
       }
       return {
         [traitData.name]: {}
@@ -262,7 +261,6 @@ export default function Selector() {
         }
       }
     })
-    
     
     //trait data
     console.log(traitData.name)
@@ -526,7 +524,6 @@ export default function Selector() {
       })
     })()
   }, [])
-
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function ClearTraitButton() {
@@ -558,17 +555,17 @@ export default function Selector() {
           <ClearTraitButton />
 
           {currentOptions.map((option) =>{
-            const active = selectValue === option.item.id
-            return(<div
+            const active = option.key === selectValue
+            return(
+            <div
               key={option.key}
               className={`${styles["selectorButton"]} ${
                 styles["selector-button"]
-              } ${active ? styles["active"] : ""}`}
+              } ${ active ? styles["active"] : ""}`}
               onClick={() => {
                 !isMute && play()
-                console.log("select trait", option.item)
-                console.log(option.iconHSL)
                 selectTraitOption(option)
+                setLoadPercentage(1)
               }}
             >
               <img
@@ -589,11 +586,11 @@ export default function Selector() {
                     : styles["tickStyleInActive"]
                 }
               />
-              {/* {selectValue === option.item.id && loadedPercent > 0 && (
+              {active && loadPercentage > 0 && loadPercentage < 100 && (
                 <div className={styles["loading-trait"]}>
-                  {loadedPercent}%
+                  {loadPercentage}%
                 </div>
-              )} */}
+              )}
             </div>)
           })}
         </div>
