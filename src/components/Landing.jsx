@@ -11,6 +11,10 @@ import clickUrl from "../../public/sound/class_click.wav"
 import passUrl from "../../public/sound/class_pass.wav"
 import { AudioContext } from "../context/AudioContext"
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { renameVRMBones } from "../library/utils"
+
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
 import { Canvas } from "@react-three/fiber"
 import { SceneContext } from "../context/SceneContext"
@@ -41,8 +45,26 @@ const Classes = {
   },
 }
 
+
+const gltfLoader = new GLTFLoader()
+gltfLoader.register((parser) => {
+  return new VRMLoaderPlugin(parser)
+})
+
+async function loadModel(file, onProgress) {
+  return gltfLoader.loadAsync(file, onProgress).then((model) => {
+    const vrm = model.userData.vrm
+    renameVRMBones(vrm)
+
+    vrm.scene?.traverse((child) => {
+      child.frustumCulled = false
+    })
+    return vrm
+  })
+}
+
 export default function Landing() {
-  const { setCurrentTemplate, currentTemplate, loadModel } =
+  const { setCurrentTemplate, currentTemplate } =
     useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
   const { isMute } = useContext(AudioContext)
@@ -54,6 +76,12 @@ export default function Landing() {
   const camera = React.useRef()
 
   useEffect(() => {
+
+    const gltfLoader = new GLTFLoader()
+    gltfLoader.register((parser) => {
+      return new VRMLoaderPlugin(parser)
+    })
+
     async function createModel(item) {
       const animManager = new AnimationManager()
       const vrm = await loadModel(item.model)

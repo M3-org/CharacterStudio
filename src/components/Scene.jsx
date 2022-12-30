@@ -40,26 +40,24 @@ export default function Scene() {
     setModel,
     traitsSpines,
     traitsNecks,
+    traitsLeftEye,
+    traitsRightEye,
     setCurrentTemplate,
     setLipSync,
+    getAsArray
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
     neck : 30,
     spine : 5,
-    left : 70,
-    right : 70,
+    left : 60,
+    right : 60,
   }
 
   const [loading, setLoading] = useState(false)
   const controls = useRef()
   const templateInfo = template && currentTemplate && template[currentTemplate.index]
-  const [neck, setNeck] = useState({});
-  const [spine, setSpine] = useState({});
-  const [left, setLeft] = useState({});
-  const [right, setRight] = useState({});
   const [platform, setPlatform] = useState(null);
-
   const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
@@ -120,18 +118,18 @@ export default function Scene() {
   }
 
   const handleMouseMove = (event) => {
-    if (neck && spine && left && right) {
-      moveJoint(event, neck, maxLookPercent.neck);
-      moveJoint(event, spine, maxLookPercent.spine);
-      moveJoint(event, left, maxLookPercent.left);
-      moveJoint(event, right, maxLookPercent.right);
-    }
-    if(traitsNecks.length !== 0 && traitsSpines.length !== 0){
+    if(traitsNecks.length !== 0 && traitsSpines.length !== 0 && traitsLeftEye.length !==0 && traitsLeftEye !== 0){
       traitsNecks.map((neck) => {
         moveJoint(event, neck, maxLookPercent.neck);
       })
       traitsSpines.map((spine) => {
         moveJoint(event, spine, maxLookPercent.spine);
+      })
+      traitsLeftEye.map((leftEye) => {
+        moveJoint(event, leftEye, maxLookPercent.left);
+      })
+      traitsRightEye.map((rightEye) => {
+        moveJoint(event, rightEye, maxLookPercent.right);
       })
     }
   };
@@ -174,7 +172,7 @@ export default function Scene() {
         await newAnimationManager.loadAnimations(templateInfo.animationPath)
 
       // load assets
-      const initialTraits = [...new Set([...templateInfo.requiredTraits, ...templateInfo.randomTraits])]
+      const initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
       setSelectedRandomTraits(initialTraits);
 
       setCurrentView(ViewStates.CREATOR)
@@ -206,65 +204,9 @@ export default function Scene() {
       });
 
     });
-
-
-    // old load
-
-    loadModel(templateInfo.file).then(async (vrm) => { 
-      //const animationManager = new AnimationManager(templateInfo.offset)
-      //addModelData(vrm, { animationManager: animationManager })
-
-      //if (templateInfo.animationPath) {
-        //await animationManager.loadAnimations(templateInfo.animationPath)
-        //animationManager.startAnimation(vrm)
-      //}
-      //addModelData(vrm, { cullingLayer: 0 })
-
-      //console.log('vrm', vrm)
-
-      // move to selector
-      setLipSync(new LipSync(vrm));
-
-      // move to selector
-      vrm.scene.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true;
-            o.receiveShadow = true;
-          }
-          // Reference the neck and spine bones
-          if (o.isBone && o.name === 'neck') { 
-            setNeck(o);
-          }
-          if (o.isBone && o.name === 'spine') { 
-             setSpine(o);
-          }
-          if (o.isBone && o.name === 'leftEye') { 
-            setLeft(o);
-         }
-         if (o.isBone && o.name === 'rightEye') { 
-          setRight(o);
-        }
-        });
-
-      //remove
-      //getSkinColor(vrm.scene, templateInfo.bodyTargets)
-
-      //set an empty scene for models, there is no longer a base model
-      //setModel(vrm)
-      setTimeout(() => {
-      scene.add(vrm.scene)      
-    }, 1)
-      //setCurrentView(ViewStates.CREATOR)
-    })
+    // move to selector
+    //setLipSync(new LipSync(vrm));
     
-    //return () => {
-      //if(model !== null) {
-        //scene.remove(model.scene)
-      //}
-      //setModel(null)
-      //setScene(new THREE.Scene())
-    //}
-
   }, [templateInfo])
 
   return templateInfo && platform && (

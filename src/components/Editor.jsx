@@ -26,6 +26,7 @@ export default function Editor({templateInfo, controls}) {
   useEffect(() => {
     if (selectedRandomTraits.length > 0){
       setSelectedOptions (getMultipleRandomTraits(selectedRandomTraits))
+      setSelectedRandomTraits([])
     }
   },[selectedRandomTraits])
 
@@ -53,6 +54,7 @@ export default function Editor({templateInfo, controls}) {
   const getMultipleRandomTraits = (traitNames) =>{
     
     const resultTraitOptions = [];
+    
     traitNames.map((traitName)=>{
        const traitFound = templateInfo.traits.find(trait => trait.trait === traitName);
        if (traitFound)

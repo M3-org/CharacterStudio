@@ -16,6 +16,7 @@ import {
   createFaceNormals,
   createBoneDirection,
 } from "../library/utils"
+import { LipSync } from '../library/lipsync'
 
 import styles from "./Selector.module.css"
 
@@ -32,10 +33,15 @@ export default function Selector() {
     template,
     currentOptions,
     selectedOptions,
+    setSelectedOptions,
     model,
     animationManager,
     setTraitsNecks,
-    setTraitsSpines
+    setTraitsSpines,
+    setTraitsLeftEye,
+    setTraitsRightEye,
+    getAsArray,
+    setLipSync
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -43,10 +49,6 @@ export default function Selector() {
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
-  const getAsArray = (target) => {
-    if (target == null) return []
-    return Array.isArray(target) ? target : [target]
-  }
 
   const getRestrictions = () => {
     
@@ -113,13 +115,16 @@ export default function Selector() {
 
   // options are selected by random or start
   useEffect(() => {
-    loadOptions(selectedOptions).then((loadedData)=>{
-      let newAvatar = {};
-      loadedData.map((data)=>{
-        newAvatar = {...newAvatar, ...itemAssign(data)}
+    if (selectedOptions.length > 0){
+      loadOptions(selectedOptions).then((loadedData)=>{
+        let newAvatar = {};
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
+        })
+        setAvatar({...avatar, ...newAvatar})
       })
-      setAvatar({...avatar, ...newAvatar})
-    })
+      setSelectedOptions([]);
+    }
 
   },[selectedOptions])
   // user selects an option
@@ -240,23 +245,29 @@ export default function Selector() {
       
      //if this option is not already in the remove traits list then:
      if (!removeTraits.includes(option.trait.name)){
+        const typeRestrictions = restrictions?.typeRestrictions;
         // type restrictions = what `type` cannot go wit this trait or this type
-        getAsArray(option.item?.type).map((t)=>{
-          //combine to array
-          removeTraits = [...new Set([
-            ...removeTraits , // get previous remove traits
-            ...findTraitsWithTypes(getAsArray(restrictions.typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
-            ...getAsArray(restrictions.typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
+        if (typeRestrictions){
+          getAsArray(option.item?.type).map((t)=>{
+            //combine to array
+            removeTraits = [...new Set([
+              ...removeTraits , // get previous remove traits
+              ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
+              ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
 
-        })
+          })
+        }
 
         // trait restrictions = what `trait` cannot go wit this trait or this type
-        removeTraits = [...new Set([
-          ...removeTraits,
-          ...findTraitsWithTypes(getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTypes)),
-          ...getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTraits),
+        const traitRestrictions = restrictions?.traitRestrictions;
+        if (traitRestrictions){
+          removeTraits = [...new Set([
+            ...removeTraits,
+            ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
+            ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
 
-        ])]
+          ])]
+        }
       }
     }
 
@@ -311,13 +322,9 @@ export default function Selector() {
     const textures = itemData.textures;
     const colors = itemData.colors;
     // null section (when user selects to remove an option)
-    if ( item == null) {
+    if ( item == null && avatar) {
       if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
         disposeVRM(avatar[traitData.name].vrm)
-        // setAvatar({
-        //   ...avatar,
-        //   [traitData.name]: {},
-        // })
         setSelectValue("")
       }
       return {
@@ -335,10 +342,8 @@ export default function Selector() {
     models.map((m)=>{
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
+      setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
-
-      
-
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
@@ -380,20 +385,18 @@ export default function Selector() {
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
-        
         if (child.isBone && child.name == 'neck') { 
           setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
         }
-        // if (child.isBone && child.name === 'leftEye') { 
-        //   setLeft(child);
-        // }
-        // if (child.isBone && child.name === 'rightEye') { 
-        //   setRight(child);
-        // }
-        
+        if (child.isBone && child.name === 'leftEye') { 
+          setTraitsLeftEye(current => [...current , child])
+        }
+        if (child.isBone && child.name === 'rightEye') { 
+          setTraitsRightEye(current => [...current , child])
+        }
       })
 
       
@@ -418,9 +421,11 @@ export default function Selector() {
     })
     
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
-    if (avatar[traitData.name] && avatar[traitData.name].vrm) {
-      //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        disposeVRM(avatar[traitData.name].vrm)
+    if (avatar){
+      if (avatar[traitData.name] && avatar[traitData.name].vrm) {
+        //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
+          disposeVRM(avatar[traitData.name].vrm)
+      }
     }
 
     // add the now model to the current scene
@@ -446,32 +451,6 @@ export default function Selector() {
 
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
-  useEffect(() => {
-    let buffer = { ...(avatar ?? {}) }
-
-    ;(async () => {
-      let newAvatar = {}
-      // for trait in traits
-      for (const property in buffer) {
-        if (buffer[property].vrm) {
-          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
-            if (newAvatar[property].vrm != null) {
-              disposeVRM(newAvatar[property].vrm)
-            }
-          }
-          model.data.animationManager.startAnimation(buffer[property].vrm)
-          // wait one frame before adding to scene so animation doesn't glitch
-          setTimeout(() => {
-            model.scene.add(buffer[property].vrm.scene)
-          }, 1)
-        }
-      }
-      setAvatar({
-        ...avatar,
-        ...buffer,
-      })
-    })()
-  }, [])
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function ClearTraitButton() {
@@ -536,7 +515,7 @@ export default function Selector() {
               />
               {active && loadPercentage > 0 && loadPercentage < 100 && (
                 <div className={styles["loading-trait"]}>
-                  {loadPercentage}%
+                  Loading...
                 </div>
               )}
             </div>)

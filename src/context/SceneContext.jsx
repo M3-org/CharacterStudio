@@ -1,44 +1,14 @@
 import React, { createContext, useEffect, useState } from "react"
 import * as THREE from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { cullHiddenMeshes } from "../library/utils"
-import {
-  renameVRMBones,
-  createFaceNormals,
-  createBoneDirection,
-} from "../library/utils"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
-  const loadingManager = new THREE.LoadingManager()
 
-  const gltfLoader = new GLTFLoader(loadingManager)
-  gltfLoader.register((parser) => {
-    return new VRMLoaderPlugin(parser)
-  })
-
-  async function loadModel(file, onProgress) {
-    return gltfLoader.loadAsync(file, onProgress).then((model) => {
-      return addModel(model);
-    })
-  }
-
-  // separated to call it after load manager finishes
-  function addModel(model){
-    const vrm = model.userData.vrm
-    renameVRMBones(vrm)
-
-    vrm.scene?.traverse((child) => {
-      child.frustumCulled = false
-
-      if (child.isMesh) {
-        createFaceNormals(child.geometry)
-        if (child.isSkinnedMesh) createBoneDirection(child)
-      }
-    })
-    return vrm
+  function getAsArray(target){
+    if (target == null) return []
+    return Array.isArray(target) ? target : [target]
   }
 
   const [template, setTemplate] = useState(null)
@@ -55,24 +25,21 @@ export const SceneProvider = (props) => {
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
   const [traitsSpines, setTraitsSpines] = useState([])
+  const [traitsLeftEye, setTraitsLeftEye] = useState([])
+  const [traitsRightEye, setTraitsRightEye] = useState([])
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null);
 
   const [lipSync, setLipSync] = useState(null);
   
   const setAvatar = (state) => {
-    //console.log(state)
-    //cullHiddenMeshes(avatar, scene, template)
     _setAvatar(state)
-    //console.log(avatar)
   }
   useEffect(()=>{
    
     if (avatar){
      if(Object.keys(avatar).length > 0){
-        console.log("WIP[PENDING] cull meshes")
-        const currentTemplateIndex = parseInt(currentTemplate.index)
-        cullHiddenMeshes(avatar, scene, template[currentTemplateIndex])
+        cullHiddenMeshes(avatar)
      }
     }
   },[avatar])
@@ -81,6 +48,7 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        getAsArray,
         lipSync,
         setLipSync,
         scene,
@@ -89,12 +57,10 @@ export const SceneProvider = (props) => {
         setCurrentTraitName,
         currentOptions,
         setCurrentOptions,
-        loadModel,
         setSelectedOptions,
         selectedOptions,
         setSelectedRandomTraits,
         selectedRandomTraits,
-        addModel,
         model,
         setModel,
         animationManager,
@@ -114,7 +80,11 @@ export const SceneProvider = (props) => {
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
-        setTraitsSpines
+        setTraitsSpines,
+        traitsLeftEye,
+        setTraitsLeftEye,
+        traitsRightEye,
+        setTraitsRightEye
       }}
     >
       {props.children}
