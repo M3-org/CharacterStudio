@@ -26,6 +26,7 @@ export default function Editor({templateInfo, controls}) {
   useEffect(() => {
     if (selectedRandomTraits.length > 0){
       setSelectedOptions (getMultipleRandomTraits(selectedRandomTraits))
+      setSelectedRandomTraits([])
     }
   },[selectedRandomTraits])
 

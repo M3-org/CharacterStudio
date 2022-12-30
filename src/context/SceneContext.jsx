@@ -40,6 +40,10 @@ export const SceneProvider = (props) => {
     })
     return vrm
   }
+  function getAsArray(target){
+    if (target == null) return []
+    return Array.isArray(target) ? target : [target]
+  }
 
   const [template, setTemplate] = useState(null)
   const [scene, setScene] = useState(new THREE.Scene())
@@ -72,7 +76,6 @@ export const SceneProvider = (props) => {
    
     if (avatar){
      if(Object.keys(avatar).length > 0){
-        console.log("WIP[PENDING] cull meshes")
         const currentTemplateIndex = parseInt(currentTemplate.index)
         cullHiddenMeshes(avatar, scene, template[currentTemplateIndex])
      }
@@ -83,6 +86,7 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        getAsArray,
         lipSync,
         setLipSync,
         scene,

@@ -38,6 +38,7 @@ export default function Selector() {
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye
+    getAsArray
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -45,10 +46,6 @@ export default function Selector() {
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
-  const getAsArray = (target) => {
-    if (target == null) return []
-    return Array.isArray(target) ? target : [target]
-  }
 
   const getRestrictions = () => {
     
@@ -242,23 +239,29 @@ export default function Selector() {
       
      //if this option is not already in the remove traits list then:
      if (!removeTraits.includes(option.trait.name)){
+        const typeRestrictions = restrictions?.typeRestrictions;
         // type restrictions = what `type` cannot go wit this trait or this type
-        getAsArray(option.item?.type).map((t)=>{
-          //combine to array
-          removeTraits = [...new Set([
-            ...removeTraits , // get previous remove traits
-            ...findTraitsWithTypes(getAsArray(restrictions.typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
-            ...getAsArray(restrictions.typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
+        if (typeRestrictions){
+          getAsArray(option.item?.type).map((t)=>{
+            //combine to array
+            removeTraits = [...new Set([
+              ...removeTraits , // get previous remove traits
+              ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
+              ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
 
-        })
+          })
+        }
 
         // trait restrictions = what `trait` cannot go wit this trait or this type
-        removeTraits = [...new Set([
-          ...removeTraits,
-          ...findTraitsWithTypes(getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTypes)),
-          ...getAsArray(restrictions.traitRestrictions[option.trait.name]?.restrictedTraits),
+        const traitRestrictions = restrictions?.traitRestrictions;
+        if (traitRestrictions){
+          removeTraits = [...new Set([
+            ...removeTraits,
+            ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
+            ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
 
-        ])]
+          ])]
+        }
       }
     }
 
@@ -338,7 +341,6 @@ export default function Selector() {
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
-
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
@@ -444,32 +446,6 @@ export default function Selector() {
 
   const [play] = useSound(sectionClick, { volume: 1.0 })
 
-  useEffect(() => {
-    let buffer = { ...(avatar ?? {}) }
-
-    ;(async () => {
-      let newAvatar = {}
-      // for trait in traits
-      for (const property in buffer) {
-        if (buffer[property].vrm) {
-          if (newAvatar[property] && newAvatar[property].vrm != buffer[property].vrm) {
-            if (newAvatar[property].vrm != null) {
-              disposeVRM(newAvatar[property].vrm)
-            }
-          }
-          model.data.animationManager.startAnimation(buffer[property].vrm)
-          // wait one frame before adding to scene so animation doesn't glitch
-          setTimeout(() => {
-            model.scene.add(buffer[property].vrm.scene)
-          }, 1)
-        }
-      }
-      setAvatar({
-        ...avatar,
-        ...buffer,
-      })
-    })()
-  }, [])
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function ClearTraitButton() {
