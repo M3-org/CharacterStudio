@@ -42,6 +42,7 @@ export default function Scene() {
     traitsNecks,
     setCurrentTemplate,
     setLipSync,
+    getAsArray
   } = useContext(SceneContext)
   const {currentView, setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
@@ -174,7 +175,7 @@ export default function Scene() {
         await newAnimationManager.loadAnimations(templateInfo.animationPath)
 
       // load assets
-      const initialTraits = [...new Set([...templateInfo.requiredTraits, ...templateInfo.randomTraits])]
+      const initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
       setSelectedRandomTraits(initialTraits);
 
       setCurrentView(ViewStates.CREATOR)

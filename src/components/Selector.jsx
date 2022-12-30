@@ -35,7 +35,8 @@ export default function Selector() {
     model,
     animationManager,
     setTraitsNecks,
-    setTraitsSpines
+    setTraitsSpines,
+    getAsArray
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -43,10 +44,6 @@ export default function Selector() {
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
-  const getAsArray = (target) => {
-    if (target == null) return []
-    return Array.isArray(target) ? target : [target]
-  }
 
   const getRestrictions = () => {
     
