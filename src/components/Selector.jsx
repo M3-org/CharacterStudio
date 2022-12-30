@@ -35,7 +35,9 @@ export default function Selector() {
     model,
     animationManager,
     setTraitsNecks,
-    setTraitsSpines
+    setTraitsSpines,
+    setTraitsLeftEye,
+    setTraitsRightEye
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
   const templateInfo = template[currentTemplateIndex]
@@ -337,8 +339,6 @@ export default function Selector() {
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
 
-      
-
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
@@ -380,20 +380,18 @@ export default function Selector() {
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
-        
         if (child.isBone && child.name == 'neck') { 
           setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
         }
-        // if (child.isBone && child.name === 'leftEye') { 
-        //   setLeft(child);
-        // }
-        // if (child.isBone && child.name === 'rightEye') { 
-        //   setRight(child);
-        // }
-        
+        if (child.isBone && child.name === 'leftEye') { 
+          setTraitsLeftEye(current => [...current , child])
+        }
+        if (child.isBone && child.name === 'rightEye') { 
+          setTraitsRightEye(current => [...current , child])
+        }
       })
 
       
