@@ -67,10 +67,7 @@ export const SceneProvider = (props) => {
   const [lipSync, setLipSync] = useState(null);
   
   const setAvatar = (state) => {
-    //console.log(state)
-    //cullHiddenMeshes(avatar, scene, template)
     _setAvatar(state)
-    //console.log(avatar)
   }
   useEffect(()=>{
    
