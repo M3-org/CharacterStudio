@@ -12,3 +12,4 @@ character-assets
 .eslint-cache
 .env
 .eslintcache
+lerna-debug.log

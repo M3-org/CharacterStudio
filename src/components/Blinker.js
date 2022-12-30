@@ -6,17 +6,13 @@ export default class Blinker {
     this.mode = 'ready';
     this.waitTime = 0;
     this.lastTimestamp = 0;
-    console.log('************ CONSTRUCTED BLNKER ************')
   }
 
   update(now) {
     let val = 0;
     if(!this.vrm) return
     const setBlink = (blinkVal) => {
-        console.log('setting blink', blinkVal)
-        console.log('blinkVal', blinkVal)
         this.vrm.expressionManager.setValue(VRMExpressionPresetName.Blink, blinkVal)
-        // update the expression
         this.vrm.expressionManager.update(0)
     }
 
@@ -66,6 +62,7 @@ export default class Blinker {
         break;
       }
     }
+
     setBlink(val);
   }
 }
