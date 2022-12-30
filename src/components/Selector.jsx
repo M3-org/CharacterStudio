@@ -36,6 +36,8 @@ export default function Selector() {
     animationManager,
     setTraitsNecks,
     setTraitsSpines,
+    setTraitsLeftEye,
+    setTraitsRightEye
     getAsArray
   } = useContext(SceneContext)
   const currentTemplateIndex = parseInt(currentTemplate.index)
@@ -339,7 +341,6 @@ export default function Selector() {
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       renameVRMBones(vrm)
-      
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       if (animationManager){
@@ -381,20 +382,18 @@ export default function Selector() {
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
-        
         if (child.isBone && child.name == 'neck') { 
           setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
         }
-        // if (child.isBone && child.name === 'leftEye') { 
-        //   setLeft(child);
-        // }
-        // if (child.isBone && child.name === 'rightEye') { 
-        //   setRight(child);
-        // }
-        
+        if (child.isBone && child.name === 'leftEye') { 
+          setTraitsLeftEye(current => [...current , child])
+        }
+        if (child.isBone && child.name === 'rightEye') { 
+          setTraitsRightEye(current => [...current , child])
+        }
       })
 
       
@@ -511,7 +510,7 @@ export default function Selector() {
               />
               {active && loadPercentage > 0 && loadPercentage < 100 && (
                 <div className={styles["loading-trait"]}>
-                  {loadPercentage}%
+                  Loading...
                 </div>
               )}
             </div>)
