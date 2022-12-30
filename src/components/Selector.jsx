@@ -534,7 +534,7 @@ export default function Selector() {
               />
               {active && loadPercentage > 0 && loadPercentage < 100 && (
                 <div className={styles["loading-trait"]}>
-                  {loadPercentage}%
+                  Loading...
                 </div>
               )}
             </div>)
