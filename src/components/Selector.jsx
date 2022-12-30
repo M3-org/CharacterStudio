@@ -355,8 +355,7 @@ export default function Selector() {
           traitData.cullingDistance != null ? traitData.cullingDistance:
           templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
       })  
-      console.log(vrm.data)
-      
+
       // mesh target setup section
       if (item.meshTargets){
         getAsArray(item.meshTargets).map((target) => {
