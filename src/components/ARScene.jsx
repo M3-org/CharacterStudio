@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { addModelData, getSkinColor } from "../library/utils"
+import { addModelData } from "../library/utils"
 import Blinker from "./Blinker"
 
 import { LipSync } from '../library/lipsync'
@@ -15,8 +15,6 @@ window.THREE = THREE
 export default function Scene() {
   const {
     scene,
-    setScene,
-    setCamera,
     loadModel,
     currentTemplate,
     model,
@@ -24,7 +22,6 @@ export default function Scene() {
     setModel,
     traitsSpines,
     traitsNecks,
-    setCurrentTemplate,
     setLipSync,
   } = useContext(SceneContext)
   const {setCurrentView} = useContext(ViewContext)
@@ -211,7 +208,7 @@ export default function Scene() {
         }
         });
 
-      getSkinColor(vrm.scene, templateInfo.bodyTargets)
+      // getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
       setTimeout(() => {
       scene.add(vrm.scene)      
@@ -224,6 +221,9 @@ export default function Scene() {
         scene.remove(model.scene)
       }
       setModel(null)
+      if(interval) {
+        clearInterval(interval);
+      }
     }
 
 

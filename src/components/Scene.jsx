@@ -1,28 +1,20 @@
 /* eslint-disable react/no-unknown-property */
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { addModelData, getSkinColor } from "../library/utils"
+import { addModelData } from "../library/utils"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-import { BackButton } from "./BackButton"
-import Editor from "./Editor"
-import styles from "./Scene.module.css"
-import Selector from "./Selector"
-import ChatComponent from "./ChatComponent"
 import Blinker from "./Blinker"
-
-import AudioButton from "./AudioButton"
 import { LipSync } from '../library/lipsync'
 
 export default function Scene() {
   const {
     scene,
     setScene,
-    setCamera,
     loadModel,
     currentTemplate,
     model,
@@ -30,7 +22,6 @@ export default function Scene() {
     setModel,
     traitsSpines,
     traitsNecks,
-    controls,
     setControls,
     setLipSync,
   } = useContext(SceneContext)
@@ -42,7 +33,6 @@ export default function Scene() {
     right : 70,
   }
 
-  const [loading, setLoading] = useState(false)
   const templateInfo = template && template[currentTemplate.index]
   console.log('currentTemplate', currentTemplate)
   console.log('currentTemplate.index', currentTemplate.index)
@@ -288,7 +278,7 @@ export default function Scene() {
         }
         });
 
-      getSkinColor(vrm.scene, templateInfo.bodyTargets)
+      // getSkinColor(vrm.scene, templateInfo.bodyTargets)
       setModel(vrm)
       setTimeout(() => {
       scene.add(vrm.scene)      
@@ -300,6 +290,7 @@ export default function Scene() {
       if(model !== null) {
         scene.remove(model.scene)
       }
+      if(interval) clearInterval(interval)
       setModel(null)
     }
 
