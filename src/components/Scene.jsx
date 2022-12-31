@@ -6,6 +6,8 @@ import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
 import { addModelData, getSkinColor } from "../library/utils"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+
 import { BackButton } from "./BackButton"
 import Editor from "./Editor"
 import styles from "./Scene.module.css"
@@ -28,7 +30,8 @@ export default function Scene() {
     setModel,
     traitsSpines,
     traitsNecks,
-    setCurrentTemplate,
+    controls,
+    setControls,
     setLipSync,
   } = useContext(SceneContext)
   const {setCurrentView} = useContext(ViewContext)
@@ -40,8 +43,10 @@ export default function Scene() {
   }
 
   const [loading, setLoading] = useState(false)
-  const controls = useRef()
-  const templateInfo = template && currentTemplate && template[currentTemplate.index]
+  const templateInfo = template && template[currentTemplate.index]
+  console.log('currentTemplate', currentTemplate)
+  console.log('currentTemplate.index', currentTemplate.index)
+  console.log('templateInfo', templateInfo)
   const [neck, setNeck] = useState({});
   const [spine, setSpine] = useState({});
   const [left, setLeft] = useState({});
@@ -49,6 +54,8 @@ export default function Scene() {
   const [platform, setPlatform] = useState(null);
   const [blinker, setBlinker] = useState(null);
   const [animationMixer, setAnimationMixer] = useState(null);
+
+  const [showChat, setShowChat] = useState(false);
 
   const updateBlinker = () => {
     if(blinker){
@@ -59,7 +66,14 @@ export default function Scene() {
   }
 
 
-
+  useEffect(() => {
+    // if user presses ctrl h, show chat
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        setShowChat(!showChat);
+      }
+    }
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -143,6 +157,7 @@ export default function Scene() {
     const update = () => {
       updateBlinker();
       animationMixer?.update(frameRate);
+      if(controls) controls.update();
     };
 
     // set a 30 fps interval
@@ -173,7 +188,7 @@ export default function Scene() {
 
     // set the camera position
     camera.position.set(0, 1.3, 2);
-    
+
     // TODO make sure to kill the interval
 
       // find editor-scene canvas
@@ -195,9 +210,21 @@ export default function Scene() {
     // set the renderer output encoding
     renderer.outputEncoding = THREE.sRGBEncoding;
 
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 1.5;
+    controls.maxDistance = 1.5;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI / 2 - 0.1;
+    controls.enablePan = true;
+    controls.target = new THREE.Vector3(0, 0.9, 0);
+    
+   
+    setControls(controls);
+
     // start animation frame loop to render
     const animate = () => {
       requestAnimationFrame(animate);
+      controls?.update();
       renderer.render(scene, camera);
     };
 
@@ -223,7 +250,9 @@ export default function Scene() {
 
     });
 
-    loadModel(templateInfo.file).then(async (vrm) => { 
+    console.log('currentTemplate.model is', currentTemplate.model)
+
+    loadModel(currentTemplate.model).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
 

@@ -4,20 +4,25 @@ import React, { Fragment, useContext, useState, useEffect, useRef} from "react"
 import ReactDOM from "react-dom/client"
 import { AudioProvider } from "./context/AudioContext"
 
-import Scene from "./components/ARScene"
+import Scene from "./components/Scene"
+import ARScene from "./components/ARScene"
 import { AccountProvider } from "./context/AccountContext"
 import { SceneContext, SceneProvider } from "./context/SceneContext"
-import { ViewContext, ViewProvider, ViewStates } from "./context/ViewContext"
+import { CameraMode, ViewContext, ViewProvider, ViewStates } from "./context/ViewContext"
 // import Gate from "./components/Gate"
 
 /* eslint-disable react/no-unknown-property */
 import { BackButton } from "./components/BackButton"
 import ChatComponent from "./components/ChatComponent"
 import Editor from "./components/Editor"
-import styles from "./components/Scene.module.css"
 import Selector from "./components/Selector"
+// import MintPopup from "./components/MintPopup"
 
 import AudioButton from "./components/AudioButton"
+import Background from "./components/Background"
+
+// import Landing from "./components/Landing"
+import { UserMenu } from "./components/UserMenu"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -44,7 +49,7 @@ const Classes = {
 
 function App() {
   const { template, setTemplate, currentTemplate, setCurrentTemplate } = useContext(SceneContext)
-  const { setCurrentView } = useContext(ViewContext)
+  const { setCurrentView, currentCameraMode } = useContext(ViewContext)
 
   const controls = useRef()
   const templateInfo = template && currentTemplate && template[currentTemplate.index]
@@ -62,6 +67,9 @@ function App() {
       console.log('data', data)
       setTemplate(data)
       setCurrentTemplate(Classes.DROPHUNTER)
+      console.log('template', data)
+      console.log('currentTemplate', Classes.DROPHUNTER)
+
     })
   }, [])
 
@@ -84,13 +92,14 @@ function App() {
   return (
     template && (
       <Fragment>
-        {/*<Background />
-         <Gate /> 
-        <Landing />
-        <MintPopup />
-        <UserMenu />*/}
-        <Scene />
-        <div className={styles["FitParentContainer"]}>
+        <Background />
+        {/* <Gate /> 
+        <Landing />so far ARGs have only been demonstrated as
+        <MintPopup />*/}
+        <UserMenu />
+        {templateInfo && template && currentTemplate && currentCameraMode !== CameraMode.AR && <Scene />}
+
+
         <BackButton onClick={() => {
           setCurrentTemplate(null)
           setCurrentView(ViewStates.LANDER_LOADING)
@@ -100,7 +109,6 @@ function App() {
         {showChat && <ChatComponent />}
           {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
           {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
-      </div>
       </Fragment>
     )
   )

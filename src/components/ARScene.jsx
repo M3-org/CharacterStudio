@@ -175,7 +175,7 @@ export default function Scene() {
       scene.add(gltf.scene);
     });
 
-    loadModel(templateInfo.file).then(async (vrm) => { 
+    loadModel(currentTemplate.model).then(async (vrm) => { 
       const animationManager = new AnimationManager(templateInfo.offset)
       addModelData(vrm, { animationManager: animationManager })
 
