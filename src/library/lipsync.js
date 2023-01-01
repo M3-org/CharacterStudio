@@ -9,12 +9,10 @@ const samplingFrequency = 44100
 
 for (let m = 0; m < BoundingFrequencyMasc.length; m++) {
     IndicesFrequencyMale[m] = Math.round(((2 * FFT_SIZE) / samplingFrequency) * BoundingFrequencyMasc[m])
-    console.log('IndicesFrequencyMale[', m, ']', IndicesFrequencyMale[m])
   }
 
   for (let m = 0; m < BoundingFrequencyFem.length; m++) {
     IndicesFrequencyFemale[m] = Math.round(((2 * FFT_SIZE) / samplingFrequency) * BoundingFrequencyFem[m])
-    console.log('IndicesFrequencyMale[', m, ']', IndicesFrequencyMale[m])
   }
 
 export class LipSync {

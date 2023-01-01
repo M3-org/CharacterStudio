@@ -1,30 +1,28 @@
-/* eslint-disable react/no-unknown-property */
 import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
-import { ViewContext, ViewStates } from "../context/ViewContext"
+import { CameraMode, ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { LipSync } from "../library/lipsync"
-import { addModelData, prepareModel } from "../library/utils"
-import Blinker from "./Blinker"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 export default function Scene({templateInfo}) {
   const {
     scene,
     setScene,
+    currentCameraMode,
     setSelectedRandomTraits,
     model,
     setAnimationManager,
+    template,
     setModel,
     traitsSpines,
     traitsNecks,
-    setControls,
     traitsLeftEye,
     traitsRightEye,
-    setLipSync,
-    getAsArray
+    initializeScene,
+    getAsArray,
+    setControls
   } = useContext(SceneContext)
   const {setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
@@ -34,44 +32,29 @@ export default function Scene({templateInfo}) {
     right : 60,
   }
 
-  console.log('templateInfo', templateInfo)
-
-  const [neck, setNeck] = useState({});
-  const [spine, setSpine] = useState({});
-  const [left, setLeft] = useState({});
-  const [right, setRight] = useState({});
-  const [blinker, setBlinker] = useState(null);
-  const [animationMixer, setAnimationMixer] = useState(null);
-
-  const [loading, setLoading] = useState(false)
   const [platform, setPlatform] = useState(null);
   const [showChat, setShowChat] = useState(false);
 
-  const updateBlinker = () => {
-    if(blinker){
-      blinker.update(Date.now());
-    } else {
-     // console.log('no blinker')
-    }
-  }
+  // useEffect(() => {
+  //   // if user presses ctrl h, show chat
+  //   const handleKeyDown = (e) => {
+  //     if (e.ctrlKey && e.key === 'h') {
+  //       console.log("pressed h")
+  //       e.preventDefault();
+  //       setShowChat(!showChat);
+  //     }
+  //   }
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   }
 
+  // }, [])
 
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        console.log("pressed h")
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    }
+  // if currentView is CREATOR_LOADING, show loading screen
+  // load the assets
+  // once templateInfo, currentTemplate, and models are loaded, move to CREATOR view
 
-  }, [])
-  
   const  getMouseDegrees = (x, y, degreeLimit) =>  {
       let dx = 0,
           dy = 0,
@@ -138,33 +121,6 @@ export default function Scene({templateInfo}) {
   }
 
   useEffect(() => {
-    setScene(new THREE.Scene());
-    const frameRate = 1000/30;
-    // start an update loop
-    const update = () => {
-      updateBlinker();
-      animationMixer?.update(frameRate);
-      if(controls) controls.update();
-    };
-
-    // set a 30 fps interval
-    const interval = setInterval(update, frameRate);
-
-    // add an equirectangular environment map to the scene using THREE (public/city.hdr)
-    // const envMap = new THREE.TextureLoader().load("/city.hdr");
-
-    // add an ambient light to the scene with an intensity of 0.5
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-
-    // add a directional light to the scene with an intensity of 0.5
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-
-    // add the directional light to the scene
-    scene.add(directionalLight);
-
-    // add the ambient light to the scene
-    scene.add(ambientLight);
-
     // add a camera to the scene
     const camera = new THREE.PerspectiveCamera(
       30,
@@ -213,26 +169,26 @@ export default function Scene({templateInfo}) {
     // start animation frame loop to render
     const animate = () => {
       requestAnimationFrame(animate);
-      controls?.update();
-      renderer.render(scene, camera);
+      if(currentCameraMode !== CameraMode.AR){
+
+        controls?.update();
+        renderer.render(scene, camera);
+      }
     };
 
     // start the animation loop
     animate();
 
     // create animation manager
-    (async () => {
+    async function fetchAssets() {
       if(model != null && scene != null) {
         scene.remove(model)
       }
       // model holds only the elements that will be exported
-      const avatarModel = new THREE.Scene()
+      const avatarModel = new THREE.Object3D()
       setModel(avatarModel)
-      // scene hold all the elements cinluding model
-      const newScene = new THREE.Scene();
-      setScene(newScene)
 
-      newScene.add(avatarModel)  
+      scene.add(avatarModel)  
 
       // create an animation manager for all the traits that will be loaded
       const newAnimationManager = new AnimationManager(templateInfo.offset)
@@ -245,6 +201,8 @@ export default function Scene({templateInfo}) {
       setSelectedRandomTraits(initialTraits);
 
       setCurrentView(ViewStates.CREATOR)
+    }
+    fetchAssets();
 
     // load environment
 
@@ -255,67 +213,25 @@ export default function Scene({templateInfo}) {
     loader.load(modelPath, (gltf) => {
       // setPlatform on the gltf, and play the first animation
       setPlatform(gltf.scene);
-      const am = new THREE.AnimationMixer(gltf.scene);
-      setAnimationMixer(am);
+      scene.add(gltf.scene)
+
+      const animationMixer = new THREE.AnimationMixer(gltf.scene);
 
       // for each animation in the gltf, add it to the animation mixer
       gltf.animations.forEach((clip) => {
-        am.clipAction(clip).play();
+        animationMixer.clipAction(clip).play();
       }
       );
 
+      setInterval(() => {
+        animationMixer.update(0.0005);
+      });
+
     });
-
-  //   prepareModel(templateInfo).then(async (vrm) => { 
-  //     const animationManager = new AnimationManager(templateInfo.offset)
-  //     addModelData(vrm, { animationManager: animationManager })
-
-  //     if (templateInfo.animationPath) {
-  //       await animationManager.loadAnimations(templateInfo.animationPath)
-  //       animationManager.startAnimation(vrm)
-  //     }
-  //     addModelData(vrm, { cullingLayer: 0 })
-
-  //     console.log('vrm', vrm)
-
-  //     setLipSync(new LipSync(vrm));
-      
-  //     setBlinker(new Blinker(vrm));
-
-  //     vrm.scene.traverse(o => {
-  //         if (o.isMesh) {
-  //           o.castShadow = true;
-  //           o.receiveShadow = true;
-  //         }
-  //         // Reference the neck and spine bones
-  //         if (o.isBone && o.name === 'neck') { 
-  //           setNeck(o);
-  //         }
-  //         if (o.isBone && o.name === 'spine') { 
-  //            setSpine(o);
-  //         }
-  //         if (o.isBone && o.name === 'leftEye') { 
-  //           setLeft(o);
-  //        }
-  //        if (o.isBone && o.name === 'rightEye') { 
-  //         setRight(o);
-  //       }
-  //       });
-
-  //     // getSkinColor(vrm.scene, templateInfo.bodyTargets)
-  //     setModel(vrm)
-  //     setTimeout(() => {
-  //     scene.add(vrm.scene)      
-  //   }, 1)
-  //     setCurrentView(ViewStates.CREATOR)
-  //   })
-  })()
-
-    return () => {
-      if(interval) clearInterval(interval)
-    }
-
-  }, [templateInfo])
+    // move to selector
+    //setLipSync(new LipSync(vrm));
+    
+  }, [])
 
   return <></>
 }

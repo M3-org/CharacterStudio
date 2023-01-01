@@ -20,18 +20,18 @@ const getLibrary = (provider) => {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-  <Web3ReactProvider getLibrary={getLibrary}>
-    <AccountProvider>
-    <AudioProvider>
-      <ViewProvider>
-        <SceneProvider>
-        <Suspense fallback={<LoadingOverlay />}>
-            <App />
-          </Suspense>
-        </SceneProvider>
-      </ViewProvider>
-    </AudioProvider>
-  </AccountProvider>
-  </Web3ReactProvider>
-  </React.StrictMode>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <AccountProvider>
+        <AudioProvider>
+          <ViewProvider>
+            <SceneProvider>
+              <Suspense fallback={<LoadingOverlay />}>
+                <App />
+              </Suspense>
+            </SceneProvider>
+          </ViewProvider>
+        </AudioProvider>
+      </AccountProvider>
+    </Web3ReactProvider>
+  </React.StrictMode>,
 )

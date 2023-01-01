@@ -1,6 +1,5 @@
 import React, { Fragment, Suspense, useContext } from "react"
 
-import ARScene from "./components/ARScene"
 import Scene from "./components/Scene"
 import { CameraMode, ViewContext, ViewStates } from "./context/ViewContext"
 
@@ -20,7 +19,6 @@ const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 
 async function fetchManifest () {
   const response = await fetch(assetImportPath)
-  console.log('response', response)
   const data = await response.json()
   return data
 }
@@ -32,8 +30,6 @@ async function fetchManifest () {
 // }
 
 const fetchData = () => {
-  // react suspense handler
-  console.log('fetchData', assetImportPath)
   let status, result
 
   const manifestPromise = fetchManifest()
@@ -65,16 +61,10 @@ const resource = fetchData()
 
 export default function App() {
   const manifest = resource.read()
-
-  const { setCurrentView, currentCameraMode } = useContext(ViewContext)
-
-  console.log('manifest', manifest)
   
   // randomly roll a number between 0 and the data length
   const randomIndex = Math.floor(Math.random() * manifest.length)
   const templateInfo = manifest && manifest[randomIndex]
-
-  console.log('templateInfo', templateInfo)
 
 //   // fetch the manifest, then set it
 //   useEffect(() => {
@@ -100,18 +90,12 @@ export default function App() {
 return (
   <Suspense fallback={<LoadingOverlay />}>
   <Fragment>
-  
-        <Background />
-        {currentCameraMode !== CameraMode.AR && <Scene templateInfo={templateInfo} />}
-        {currentCameraMode === CameraMode.AR && <ARScene templateInfo={templateInfo} />}
-
-        <BackButton onClick={() => {
-          setCurrentView(ViewStates.LANDER)
-        }}/>
         <ARButton />
         <AudioButton />
+        <Background />
+        <Scene templateInfo={templateInfo} />
 
-        {<ChatComponent />}
+        {false && <ChatComponent />}
         {<Editor templateInfo={templateInfo} />}
       </Fragment>
     </Suspense>

@@ -10,7 +10,19 @@ function getAsArray(target) {
 }
 
 export const SceneProvider = (props) => {
-  const [scene, setScene] = useState(new THREE.Scene())
+  const initializeScene = () => {
+    const scene = new THREE.Scene()
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    scene.add(directionalLight);
+
+    return scene;
+  }
+
+  const [scene, setScene] = useState(initializeScene())
+
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
   const [model, setModel] = useState(new THREE.Object3D())
@@ -81,6 +93,7 @@ export const SceneProvider = (props) => {
         setTraitsLeftEye,
         traitsRightEye,
         setTraitsRightEye,
+        initializeScene
       }}
     >
       {props.children}
