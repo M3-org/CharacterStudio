@@ -1,18 +1,10 @@
 /* eslint-disable react/no-unknown-property */
-import {
-  BrightnessContrast,
-  EffectComposer,
-  Glitch
-} from "@react-three/postprocessing"
-import { GlitchMode } from "postprocessing"
 import React, { useContext, useEffect, useState } from "react"
 import useSound from "use-sound"
 import clickUrl from "../../public/sound/class_click.wav"
 import passUrl from "../../public/sound/class_pass.wav"
 import { AudioContext } from "../context/AudioContext"
 
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Canvas } from "@react-three/fiber"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
@@ -183,6 +175,7 @@ export default function Landing() {
             You will be able to customize in a moment.
           </div>
         </div>
+        {/* Replace with three
         <Canvas
           style={{
             width: "100vw",
@@ -228,7 +221,7 @@ export default function Landing() {
               <primitive object={neurohacker} />
             </mesh>
           </PerspectiveCamera>
-        </Canvas>
+        </Canvas> */}
       </div>
     )
   )

@@ -1,14 +1,14 @@
 /* eslint-disable react/no-unknown-property */
 import React from "react";
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
-import { Canvas } from "@react-three/fiber";
 
-import styles from './MintModal.module.css'
+// import styles from './MintModal.module.css'
 
 export default function MintModal({model}) {
   if(!model) return null
   console.log('model', model)
     return (
+        {/* Replace with plain ol' three
+        
         <Canvas className={styles['canvasStyle']}
           id="mint-scene"
             gl={{ antialias: true, preserveDrawingBuffer:true }}
@@ -34,7 +34,7 @@ export default function MintModal({model}) {
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={true}
             target={[0, 0.9, 0]}
-    /> */}
+    /> 
           <PerspectiveCamera args={[20, null, 1, 100000]}>
           <fog attach="fog" color="hotpink" near={1} far={10} />
           <mesh>
@@ -42,5 +42,6 @@ export default function MintModal({model}) {
           </mesh>
           </PerspectiveCamera>
         </Canvas>
+        */}
   );
 }
