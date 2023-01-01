@@ -206,7 +206,7 @@ export default function Scene() {
     controls.minPolarAngle = 0;
     controls.maxPolarAngle = Math.PI / 2 - 0.1;
     controls.enablePan = true;
-    controls.target = new THREE.Vector3(0, 0.9, 0);
+    controls.target = new THREE.Vector3(0, 1.1, 0);
     controls.enableDamping = true
     controls.dampingFactor = 0.1
 
