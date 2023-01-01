@@ -1,7 +1,7 @@
 .SquareButton {
   position: absolute;
   bottom: 2em;
-  right: 2em;
+  right: 6em;
     transition : .3s;
     background-size: 1.5em;
     background-repeat: no-repeat;
@@ -30,10 +30,9 @@
 }
 
 .AROn {
-  background-image: url('/ui/soundon.svg');
+  background-image: url('/ui/aron.svg');
 }
 
 .AROff {
-  background-image: url('/ui/soundoff.svg');
-
+  background-image: url('/ui/aroff.svg');
 }

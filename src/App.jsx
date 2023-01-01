@@ -17,8 +17,8 @@ import Editor from "./components/Editor"
 import Selector from "./components/Selector"
 
 import AudioButton from "./components/AudioButton"
+import ARButton from "./components/ARButton"
 import Background from "./components/Background"
-import { UserMenu } from "./components/UserMenu"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -89,7 +89,6 @@ function App() {
     template && (
       <Fragment>
         <Background />
-        <UserMenu />
         {templateInfo && template && currentTemplate && currentCameraMode !== CameraMode.AR && <Scene />}
         {templateInfo && template && currentTemplate && currentCameraMode === CameraMode.AR && <ARScene />}
 
@@ -97,6 +96,7 @@ function App() {
           setCurrentTemplate(null)
           setCurrentView(ViewStates.LANDER_LOADING)
         }}/>
+        <ARButton />
         <AudioButton />
 
         {showChat && <ChatComponent />}

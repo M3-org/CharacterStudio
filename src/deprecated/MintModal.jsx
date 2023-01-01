@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unknown-property */
 import React from "react";
-import { OrbitControls } from "@react-three/drei/core/OrbitControls";
 import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera";
 import { Canvas } from "@react-three/fiber";
 
@@ -28,14 +27,14 @@ export default function MintModal({model}) {
               position = {[3, 1, 5]} 
               shadow-mapSize = {[1024, 1024]}>
             </directionalLight>
-          <OrbitControls
+          {/* <OrbitControls}
             minDistance={1.5}
             maxDistance={1.5}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2 - 0.1}
             enablePan={true}
             target={[0, 0.9, 0]}
-          />
+    /> */}
           <PerspectiveCamera args={[20, null, 1, 100000]}>
           <fog attach="fog" color="hotpink" near={1} far={10} />
           <mesh>
