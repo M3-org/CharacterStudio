@@ -5,15 +5,57 @@ import html2canvas from "html2canvas";
 import VRMExporter from "./VRMExporter";
 import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
-export const cullHiddenMeshes = (avatar, scene, avatarTemplateSpec) => {
+export async function prepareModel(templateInfo){
+  // check the local storage for a JSON of the model
+  // if it exists, load it
+
+  // if it doesn't exist, fetch the first trait for each category from the server
+  console.log('templateInfo', templateInfo)
+  // grab the first trait for each category
+  const traits = templateInfo.traits.map((category) => {
+    return category.traits[0]
+  })
+  
+  traits.forEach((trait) => {
+    console.log('trait', trait)
+  });
+
+  const returnedTraits = await Promise.all(traits.map((trait) => {
+    return loadModel(trait)
+  }));
+
+  console.log('returnedTraits', returnedTraits)
+
+}
+
+
+
+export async function loadModel(file, onProgress) {
+  const gltfLoader = new GLTFLoader()
+  gltfLoader.register((parser) => {
+    return new VRMLoaderPlugin(parser)
+  })
+  return gltfLoader.loadAsync(file, onProgress).then((model) => {
+    const vrm = model.userData.vrm
+    renameVRMBones(vrm)
+
+    vrm.scene?.traverse((child) => {
+      child.frustumCulled = false
+    })
+    return vrm
+  })
+}
+
+export const cullHiddenMeshes = (avatar) => {
   const models = [];
   for (const property in avatar) {
     const vrm = avatar[property].vrm;
-
     if (vrm) {
       const cullLayer = vrm.data.cullingLayer;
-      if (cullLayer >= 0) {
+      if (cullLayer >= 0) { 
         vrm.scene.traverse((child) => {
           if (child.isMesh) {
             child.userData.cullLayer = cullLayer;
@@ -24,33 +66,7 @@ export const cullHiddenMeshes = (avatar, scene, avatarTemplateSpec) => {
       }
     }
   }
-  const targets = avatarTemplateSpec.cullingModel;
-  if (targets) {
-    for (let i = 0; i < targets.length; i++) {
-      const obj = scene.getObjectByName(targets[i]);
-      if (obj != null) {
-
-        if (obj.isMesh) {
-          obj.userData.cullLayer = 0;
-          models.push(obj);
-          //DisplayMeshIfVisible(obj, traitModel);
-        }
-        if (obj.isGroup) {
-          obj.traverse((child) => {
-            if (child.parent === obj && child.isMesh) {
-              child.userData.cullLayer = 0;
-              models.push(child);
-              //DisplayMeshIfVisible(child, traitModel);
-            }
-          });
-        }
-      }
-      else {
-        console.warn(targets[i] + " not found");
-      }
-    }
-    CullHiddenFaces(models);
-  }
+  CullHiddenFaces(models);
 };
 
 export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1)) {

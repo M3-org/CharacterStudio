@@ -5,20 +5,17 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { addModelData } from "../library/utils"
+import { addModelData, prepareModel } from "../library/utils"
 import Blinker from "./Blinker"
 
 import { LipSync } from '../library/lipsync'
 
 window.THREE = THREE
 
-export default function Scene() {
+export default function Scene({templateInfo}) {
   const {
     scene,
-    loadModel,
-    currentTemplate,
     model,
-    template,
     setModel,
     traitsSpines,
     traitsNecks,
@@ -32,8 +29,6 @@ export default function Scene() {
     right : 70,
   }
 
-  const [loading, setLoading] = useState(false)
-  const templateInfo = template && currentTemplate && template[currentTemplate.index]
   const [neck, setNeck] = useState({});
   const [spine, setSpine] = useState({});
   const [left, setLeft] = useState({});
@@ -57,10 +52,6 @@ export default function Scene() {
   //   }
 
   // }, [])
-
-  // if currentView is CREATOR_LOADING, show loading screen
-  // load the assets
-  // once templateInfo, currentTemplate, and models are loaded, move to CREATOR view
 
   const  getMouseDegrees = (x, y, degreeLimit) =>  {
       let dx = 0,
@@ -171,63 +162,6 @@ export default function Scene() {
       );
       scene.add(gltf.scene);
     });
-
-    loadModel(currentTemplate.model).then(async (vrm) => { 
-      const animationManager = new AnimationManager(templateInfo.offset)
-      addModelData(vrm, { animationManager: animationManager })
-
-      if (templateInfo.animationPath) {
-        await animationManager.loadAnimations(templateInfo.animationPath)
-        animationManager.startAnimation(vrm)
-      }
-      addModelData(vrm, { cullingLayer: 0 })
-
-      console.log('vrm', vrm)
-
-      setLipSync(new LipSync(vrm));
-      
-      setBlinker(new Blinker(vrm));
-
-      vrm.scene.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true;
-            o.receiveShadow = true;
-          }
-          // Reference the neck and spine bones
-          if (o.isBone && o.name === 'neck') { 
-            setNeck(o);
-          }
-          if (o.isBone && o.name === 'spine') { 
-             setSpine(o);
-          }
-          if (o.isBone && o.name === 'leftEye') { 
-            setLeft(o);
-         }
-         if (o.isBone && o.name === 'rightEye') { 
-          setRight(o);
-        }
-        });
-
-      // getSkinColor(vrm.scene, templateInfo.bodyTargets)
-      setModel(vrm)
-      setTimeout(() => {
-      scene.add(vrm.scene)      
-    }, 1)
-      setCurrentView(ViewStates.CREATOR)
-    })
-    
-    return () => {
-      if(model !== null) {
-        scene.remove(model.scene)
-      }
-      setModel(null)
-      if(interval) {
-        clearInterval(interval);
-      }
-    }
-
-
-
 
   }, [templateInfo])
   useEffect (() => {

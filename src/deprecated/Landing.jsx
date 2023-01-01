@@ -5,6 +5,9 @@ import clickUrl from "../../public/sound/class_click.wav"
 import passUrl from "../../public/sound/class_pass.wav"
 import { AudioContext } from "../context/AudioContext"
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { renameVRMBones } from "../library/utils"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
@@ -34,8 +37,6 @@ const Classes = {
 }
 
 export default function Landing() {
-  const { setCurrentTemplate, currentTemplate, loadModel } =
-    useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
   const { isMute } = useContext(AudioContext)
 
@@ -43,9 +44,13 @@ export default function Landing() {
   const [neurohacker, setNeurohacker] = useState(null)
   const [selectedAvatar, setSelectedAvatar] = useState(null)
 
-  const camera = React.useRef()
-
   useEffect(() => {
+
+    const gltfLoader = new GLTFLoader()
+    gltfLoader.register((parser) => {
+      return new VRMLoaderPlugin(parser)
+    })
+
     async function createModel(item) {
       const animManager = new AnimationManager()
       const vrm = await loadModel(item.model)
@@ -85,17 +90,16 @@ export default function Landing() {
 
   const handleClick = (type) => {
     if (!isMute) click()
-    console.log("type is", type)
-    setCurrentTemplate(type)
-    console.log("ViewStates.CREATOR_LOADING", ViewStates.CREATOR_LOADING)
-    setCurrentView(ViewStates.CREATOR_LOADING)
+    console.warn('click, but this is broken since we changed the template')
+    // setCurrentTemplate(type)
+    setCurrentView(ViewStates.CREATOR)
   }
 
   useEffect(() => {
     if (
       !neurohacker ||
       !drophunter ||
-      currentView !== ViewStates.LANDER_LOADING
+      currentView !== ViewStates.LANDER
     )
       return
     setCurrentView(ViewStates.LANDER)
@@ -108,7 +112,6 @@ export default function Landing() {
     currentView &&
     neurohacker &&
     drophunter &&
-    currentTemplate === null &&
     currentView.includes("LANDER") && (
       <div className={styles["StyledLanding"]}>
         <div

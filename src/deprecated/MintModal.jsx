@@ -38,7 +38,7 @@ export default function MintModal({model}) {
           <PerspectiveCamera args={[20, null, 1, 100000]}>
           <fog attach="fog" color="hotpink" near={1} far={10} />
           <mesh>
-            <primitive object={model.scene.clone()} />
+            <primitive object={model.clone()} />
           </mesh>
           </PerspectiveCamera>
         </Canvas>

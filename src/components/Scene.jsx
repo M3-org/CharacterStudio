@@ -1,50 +1,50 @@
 /* eslint-disable react/no-unknown-property */
 import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { addModelData } from "../library/utils"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-
+import { LipSync } from "../library/lipsync"
+import { addModelData, prepareModel } from "../library/utils"
 import Blinker from "./Blinker"
-import { LipSync } from '../library/lipsync'
 
-export default function Scene() {
+export default function Scene({templateInfo}) {
   const {
     scene,
     setScene,
-    loadModel,
-    currentTemplate,
+    setSelectedRandomTraits,
     model,
-    template,
+    setAnimationManager,
     setModel,
     traitsSpines,
     traitsNecks,
     setControls,
+    traitsLeftEye,
+    traitsRightEye,
     setLipSync,
+    getAsArray
   } = useContext(SceneContext)
   const {setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
     neck : 30,
     spine : 5,
-    left : 70,
-    right : 70,
+    left : 60,
+    right : 60,
   }
 
-  const templateInfo = template && template[currentTemplate.index]
-  console.log('currentTemplate', currentTemplate)
-  console.log('currentTemplate.index', currentTemplate.index)
   console.log('templateInfo', templateInfo)
+
   const [neck, setNeck] = useState({});
   const [spine, setSpine] = useState({});
   const [left, setLeft] = useState({});
   const [right, setRight] = useState({});
-  const [platform, setPlatform] = useState(null);
   const [blinker, setBlinker] = useState(null);
   const [animationMixer, setAnimationMixer] = useState(null);
 
+  const [loading, setLoading] = useState(false)
+  const [platform, setPlatform] = useState(null);
   const [showChat, setShowChat] = useState(false);
 
   const updateBlinker = () => {
@@ -60,6 +60,7 @@ export default function Scene() {
     // if user presses ctrl h, show chat
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'h') {
+        console.log("pressed h")
         e.preventDefault();
         setShowChat(!showChat);
       }
@@ -70,11 +71,7 @@ export default function Scene() {
     }
 
   }, [])
-
-  // if currentView is CREATOR_LOADING, show loading screen
-  // load the assets
-  // once templateInfo, currentTemplate, and models are loaded, move to CREATOR view
-
+  
   const  getMouseDegrees = (x, y, degreeLimit) =>  {
       let dx = 0,
           dy = 0,
@@ -113,18 +110,18 @@ export default function Scene() {
   }
 
   const handleMouseMove = (event) => {
-    if (neck && spine && left && right) {
-      moveJoint(event, neck, maxLookPercent.neck);
-      moveJoint(event, spine, maxLookPercent.spine);
-      moveJoint(event, left, maxLookPercent.left);
-      moveJoint(event, right, maxLookPercent.right);
-    }
-    if(traitsNecks.length !== 0 && traitsSpines.length !== 0){
+    if(traitsNecks.length !== 0 && traitsSpines.length !== 0 && traitsLeftEye.length !==0 && traitsLeftEye !== 0){
       traitsNecks.map((neck) => {
         moveJoint(event, neck, maxLookPercent.neck);
       })
       traitsSpines.map((spine) => {
         moveJoint(event, spine, maxLookPercent.spine);
+      })
+      traitsLeftEye.map((leftEye) => {
+        moveJoint(event, leftEye, maxLookPercent.left);
+      })
+      traitsRightEye.map((rightEye) => {
+        moveJoint(event, rightEye, maxLookPercent.right);
       })
     }
   };
@@ -154,7 +151,7 @@ export default function Scene() {
     const interval = setInterval(update, frameRate);
 
     // add an equirectangular environment map to the scene using THREE (public/city.hdr)
-    const envMap = new THREE.TextureLoader().load("/city.hdr");
+    // const envMap = new THREE.TextureLoader().load("/city.hdr");
 
     // add an ambient light to the scene with an intensity of 0.5
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -223,6 +220,33 @@ export default function Scene() {
     // start the animation loop
     animate();
 
+    // create animation manager
+    (async () => {
+      if(model != null && scene != null) {
+        scene.remove(model)
+      }
+      // model holds only the elements that will be exported
+      const avatarModel = new THREE.Scene()
+      setModel(avatarModel)
+      // scene hold all the elements cinluding model
+      const newScene = new THREE.Scene();
+      setScene(newScene)
+
+      newScene.add(avatarModel)  
+
+      // create an animation manager for all the traits that will be loaded
+      const newAnimationManager = new AnimationManager(templateInfo.offset)
+      setAnimationManager(newAnimationManager);
+      if (templateInfo.animationPath)
+        await newAnimationManager.loadAnimations(templateInfo.animationPath)
+
+      // load assets
+      const initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
+      setSelectedRandomTraits(initialTraits);
+
+      setCurrentView(ViewStates.CREATOR)
+
+    // load environment
 
     const modelPath = "/3d/Platform.glb";
 
@@ -242,58 +266,53 @@ export default function Scene() {
 
     });
 
-    console.log('currentTemplate.model is', currentTemplate.model)
+  //   prepareModel(templateInfo).then(async (vrm) => { 
+  //     const animationManager = new AnimationManager(templateInfo.offset)
+  //     addModelData(vrm, { animationManager: animationManager })
 
-    loadModel(currentTemplate.model).then(async (vrm) => { 
-      const animationManager = new AnimationManager(templateInfo.offset)
-      addModelData(vrm, { animationManager: animationManager })
+  //     if (templateInfo.animationPath) {
+  //       await animationManager.loadAnimations(templateInfo.animationPath)
+  //       animationManager.startAnimation(vrm)
+  //     }
+  //     addModelData(vrm, { cullingLayer: 0 })
 
-      if (templateInfo.animationPath) {
-        await animationManager.loadAnimations(templateInfo.animationPath)
-        animationManager.startAnimation(vrm)
-      }
-      addModelData(vrm, { cullingLayer: 0 })
+  //     console.log('vrm', vrm)
 
-      console.log('vrm', vrm)
-
-      setLipSync(new LipSync(vrm));
+  //     setLipSync(new LipSync(vrm));
       
-      setBlinker(new Blinker(vrm));
+  //     setBlinker(new Blinker(vrm));
 
-      vrm.scene.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true;
-            o.receiveShadow = true;
-          }
-          // Reference the neck and spine bones
-          if (o.isBone && o.name === 'neck') { 
-            setNeck(o);
-          }
-          if (o.isBone && o.name === 'spine') { 
-             setSpine(o);
-          }
-          if (o.isBone && o.name === 'leftEye') { 
-            setLeft(o);
-         }
-         if (o.isBone && o.name === 'rightEye') { 
-          setRight(o);
-        }
-        });
+  //     vrm.scene.traverse(o => {
+  //         if (o.isMesh) {
+  //           o.castShadow = true;
+  //           o.receiveShadow = true;
+  //         }
+  //         // Reference the neck and spine bones
+  //         if (o.isBone && o.name === 'neck') { 
+  //           setNeck(o);
+  //         }
+  //         if (o.isBone && o.name === 'spine') { 
+  //            setSpine(o);
+  //         }
+  //         if (o.isBone && o.name === 'leftEye') { 
+  //           setLeft(o);
+  //        }
+  //        if (o.isBone && o.name === 'rightEye') { 
+  //         setRight(o);
+  //       }
+  //       });
 
-      // getSkinColor(vrm.scene, templateInfo.bodyTargets)
-      setModel(vrm)
-      setTimeout(() => {
-      scene.add(vrm.scene)      
-    }, 1)
-      setCurrentView(ViewStates.CREATOR)
-    })
-    
+  //     // getSkinColor(vrm.scene, templateInfo.bodyTargets)
+  //     setModel(vrm)
+  //     setTimeout(() => {
+  //     scene.add(vrm.scene)      
+  //   }, 1)
+  //     setCurrentView(ViewStates.CREATOR)
+  //   })
+  })()
+
     return () => {
-      if(model !== null) {
-        scene.remove(model.scene)
-      }
       if(interval) clearInterval(interval)
-      setModel(null)
     }
 
   }, [templateInfo])

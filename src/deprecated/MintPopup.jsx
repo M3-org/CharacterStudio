@@ -3,11 +3,12 @@ import { BigNumber, ethers } from "ethers"
 import React, { Fragment, useContext, useState } from "react"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import polygonIcon from "../../public/ui/mint/polygon.png"
+import ethereumIcon from "../../public/ui/mint/ethereum.png"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { getModelFromScene, getScreenShot } from "../library/utils"
-import { CharacterContract } from "./Contract"
+import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 import MintModal from "./MintModal"
 
 import styles from "./MintPopup.module.css"
@@ -15,27 +16,19 @@ import styles from "./MintPopup.module.css"
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
-const mintCost = 0.0
+const mintCost = 0.01
 
-export default function MintPopup() {
-  const { template } = useContext(SceneContext)
-  const { currentView, setCurrentView } = useContext(ViewContext)
-  const { walletAddress, connected } =
-    useContext(AccountContext)
-
+export default function MintPopup({templateInfo}) {
   const { avatar, skinColor, model } = useContext(SceneContext)
+  const { currentView, setCurrentView } = useContext(ViewContext)
+  const { walletAddress } = useContext(AccountContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
   async function saveFileToPinata(fileData, fileName) {
-    console.log('pinataApiKey', pinataApiKey)
-    console.log('pinataSecretApiKey', pinataSecretApiKey)
     if (!fileData) return console.warn("Error saving to pinata: No file data")
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
     let data = new FormData()
-
-    console.log('fileData', fileData)
-    console.log('fileName', fileName)
 
     data.append("file", fileData, fileName)
     let resultOfUpload = await axios.post(url, data, {
@@ -55,7 +48,8 @@ export default function MintPopup() {
     Object.keys(avatar).map((trait) => {
       if (Object.keys(avatar[trait]).length !== 0) {
         metadataTraits.push({
-          traits: avatar[trait].traitInfo.name,
+          trait_type: trait,
+          value: avatar[trait].name,
         })
       }
     })
@@ -63,65 +57,64 @@ export default function MintPopup() {
   }
 
   const mintAsset = async (avatar) => {
-    setCurrentView(ViewStates.MINT_CONFIRM)
-    setMintStatus("Uploading...")
+    const pass = await checkOT(walletAddress);
+    if(pass) {
+      setCurrentView(ViewStates.MINT_CONFIRM)
+      setMintStatus("Uploading...")
+      console.log('avatar in mintAsset', avatar)
 
-    console.log('avatar in mintAsset', avatar)
-
-    const screenshot = await getScreenShot("mint-scene")
-    if (!screenshot) {
-      throw new Error("Unable to get screenshot")
-    }
-
-    const imageHash = await saveFileToPinata(
-      screenshot,
-      "AvatarImage_" + Date.now() + ".png",
-    ).catch((reason) => {
-      console.error(reason)
-      setMintStatus("Couldn't save to pinata")
-    })
-    const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
-    const glbHash = await saveFileToPinata(
-      glb,
-      "AvatarGlb_" + Date.now() + ".glb",
-    )
-    const attributes = getAvatarTraits()
-    const metadata = {
-      name: "Avatars",
-      description: "Creator Studio Avatars.",
-      image: `ipfs://${imageHash.IpfsHash}`,
-      animation_url: `ipfs://${glbHash.IpfsHash}`,
-      attributes,
-    }
-    const str = JSON.stringify(metadata)
-    const metaDataHash = await saveFileToPinata(
-      new Blob([str]),
-      "AvatarMetadata_" + Date.now() + ".json",
-    )
-    const metadataIpfs = metaDataHash.IpfsHash
-
-    setMintStatus("Minting...")
-    const chainId = 5 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
-    if (window.ethereum.networkVersion !== chainId) {
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x5" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
-        })
-      } catch (err) {
-        // notifymessage("Please check the Ethereum mainnet", "error");
-        setMintStatus("Please check the Polygon mainnet")
-        return false
+      const screenshot = await getScreenShot("mint-scene")
+      if (!screenshot) {
+        throw new Error("Unable to get screenshot")
       }
-    }
-    const signer = new ethers.providers.Web3Provider(
-      window.ethereum,
-    ).getSigner()
-    const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
-    // const isActive = await contract.saleIsActive()
-    // if (!isActive) {
-    //   setMintStatus("Mint isn't Active now!")
-    // } else {
+
+      let imageName = "AvatarImage_" + Date.now() + ".png";
+      const imageHash = await saveFileToPinata(
+        screenshot,
+        imageName
+      ).catch((reason) => {
+        console.error(reason)
+        setMintStatus("Couldn't save to pinata")
+      })
+      const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
+      let glbName = "AvatarGlb_" + Date.now() + ".vrm";
+      const glbHash = await saveFileToPinata(
+        glb,
+        glbName
+      )
+      const attributes = getAvatarTraits()
+      const metadata = {
+        name: "Avatars",
+        description: "Creator Studio Avatars.",
+        image: `ipfs://${imageHash.IpfsHash}`,
+        animation_url: `ipfs://${glbHash.IpfsHash}`,
+        attributes,
+      }
+      const str = JSON.stringify(metadata)
+      const metaDataHash = await saveFileToPinata(
+        new Blob([str]),
+        "AvatarMetadata_" + Date.now() + ".json",
+      )
+      const metadataIpfs = metaDataHash.IpfsHash
+
+      setMintStatus("Minting...")
+      const chainId = 137 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
+      if (window.ethereum.networkVersion !== chainId) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x89" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
+          })
+        } catch (err) {
+          // notifymessage("Please check the Ethereum mainnet", "error");
+          setMintStatus("Please check the Polygon mainnet")
+          return false
+        }
+      }
+      const signer = new ethers.providers.Web3Provider(
+        window.ethereum,
+      ).getSigner()
+      const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
       const tokenPrice = await contract.tokenPrice()
       try {
         const options = {
@@ -137,26 +130,48 @@ export default function MintPopup() {
       } catch (err) {
         setMintStatus("Public Mint failed! Please check your wallet.")
       }
-   // }
+    } else {
+      return;
+    }
+  }
+
+  const checkOT = async (address) => {
+    if(address) {
+      const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
+      const ethersigner = ethers.getDefaultProvider("mainnet", {
+        alchemy: import.meta.env.VITE_ALCHEMY_API_KEY,
+      })
+      const contract = new ethers.Contract(EternalProxyContract.address, EternalProxyContract.abi, ethersigner);
+      const webaBalance = await contract.beneficiaryBalanceOf(address, webaverseGenesisAddress, 1);
+      console.log("webaBalance", webaBalance)
+      if(parseInt(webaBalance) > 0) return true;
+      else {
+        setMintStatus("Currently in alpha. You need a genesis pass to mint. \n Will be public soon!")
+        return false;
+      }
+    } else {
+      setMintStatus("Please connect your wallet")
+      return false;
+    }
   }
 
   const showTrait = (trait) => {
     if (trait.name in avatar) {
       if ("traitInfo" in avatar[trait.name]) {
-        return avatar[trait.name].traitInfo.name
+        return avatar[trait.name].name
       } else return "Default " + trait.name
-    } else return null
+    } else return "No set"
   }
 
   return (
-    currentView.includes("MINT") && (
+    // currentView.includes("MINT") && (
       <div className={styles["StyledContainer"]}>
         <div className={styles["StyledBackground"]} />
         <div className={styles["StyledPopup"]}>
-          {connected && (
+          {/* {connected && ( */}
             <Fragment>
-            <div className={styles["Header"]}>
-              <img
+              <div className={styles["Header"]}>
+                <img
                   src={mintPopupImage}
                   className={mintStatus}
                   height={"50px"}
@@ -165,11 +180,11 @@ export default function MintPopup() {
               </div>
               <MintModal model={model} />
               <div className={styles["TraitDetail"]}>
-                {template.traits &&
-                  template.traits.map((item, index) => (
+                {templateInfo.traits &&
+                  templateInfo.traits.map((item, index) => (
                     <div className={styles["TraitBox"]} key={index}>
                       <div className={styles["TraitImage"]} />
-                      <img src={template.traitIconsDirectory + item.icon} />
+                      <img src={templateInfo.traitIconsDirectory + item.icon} />
                       <div className={styles["TraitText"]}>{showTrait(item)}</div>
                     </div>
                   ))}
@@ -179,9 +194,9 @@ export default function MintPopup() {
                   {"Mint Price: "}
                 </div>
                 <div className={styles["TraitImage"]} />
-                <img src={polygonIcon} height={"40%"} />
+                <img src={ethereumIcon} height={"40%"} />
                 <div className={styles["MintCost"]}>
-                  {mintCost}
+                  &nbsp;{mintCost}
                 </div>
               </div>
               <div className={styles["Title"]} fontSize={"1rem"}>
@@ -205,9 +220,9 @@ export default function MintPopup() {
                 )}
               </div>
             </Fragment>
-          )}
+          {/* )} */}
         </div>
       </div>
-    )
+    // )
   )
 }

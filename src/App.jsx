@@ -1,134 +1,119 @@
-import { Web3Provider } from "@ethersproject/providers"
-import { Web3ReactProvider } from "@web3-react/core"
-import React, { Fragment, useContext, useState, useEffect, useRef} from "react"
-import ReactDOM from "react-dom/client"
-import { AudioProvider } from "./context/AudioContext"
+import React, { Fragment, Suspense, useContext } from "react"
 
-import Scene from "./components/Scene"
 import ARScene from "./components/ARScene"
-import { AccountProvider } from "./context/AccountContext"
-import { SceneContext, SceneProvider } from "./context/SceneContext"
-import { CameraMode, ViewContext, ViewProvider, ViewStates } from "./context/ViewContext"
+import Scene from "./components/Scene"
+import { CameraMode, ViewContext, ViewStates } from "./context/ViewContext"
 
 /* eslint-disable react/no-unknown-property */
 import { BackButton } from "./components/BackButton"
 import ChatComponent from "./components/ChatComponent"
 import Editor from "./components/Editor"
-import Selector from "./components/Selector"
 
-import AudioButton from "./components/AudioButton"
 import ARButton from "./components/ARButton"
+import AudioButton from "./components/AudioButton"
 import Background from "./components/Background"
+
+import LoadingOverlay from "./components/LoadingOverlay"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
-const dropHunter = "../3d/models/landing/drop-noWeapon.vrm"
-const neuroHacker = "../3d/models/landing/neuro-noWeapon.vrm"
 
-const anim_drophunter = "../3d/animations/idle_drophunter.fbx"
-const anim_neurohacker = "../3d/animations/idle_neurohacker.fbx"
-
-const Classes = {
-  DROPHUNTER: {
-    index: 0,
-    model: dropHunter,
-    text: "Dropunter",
-    animation: anim_drophunter,
-  },
-  NEUROHACKER: {
-    index: 1,
-    model: neuroHacker,
-    text: "Neurohacker",
-    animation: anim_neurohacker,
-  },
+async function fetchManifest () {
+  const response = await fetch(assetImportPath)
+  console.log('response', response)
+  const data = await response.json()
+  return data
 }
 
-function App() {
-  const { template, setTemplate, currentTemplate, setCurrentTemplate } = useContext(SceneContext)
+// async function fetchModel() {
+//   // check if the model is available in localstorage
+//   // if not, fetch it
+
+// }
+
+const fetchData = () => {
+  // react suspense handler
+  console.log('fetchData', assetImportPath)
+  let status, result
+
+  const manifestPromise = fetchManifest()
+  // const modelPromise = fetchModel()
+  const suspender = manifestPromise.then(
+    (r) => {
+      status = "success"
+      result = r
+    },
+    (e) => {
+      status = "error"
+      result = e
+    }
+  )
+
+  return {
+    read() {
+      if (status === "error") {
+        throw result
+      } else if (status === "success") {
+        return result
+      }
+      throw suspender
+    }
+  }
+}
+
+const resource = fetchData()
+
+export default function App() {
+  const manifest = resource.read()
+
   const { setCurrentView, currentCameraMode } = useContext(ViewContext)
 
-  const controls = useRef()
-  const templateInfo = template && currentTemplate && template[currentTemplate.index]
-
-  // fetch the manifest, then set it
-  useEffect(() => {
-    async function fetchManifest() {
-      const response = await fetch(assetImportPath)
-      const data = await response.json()
-      return data
-    }
-
-    fetchManifest().then((data) => {
-      setCurrentView(ViewStates.CREATOR_LOADING)
-      console.log('data', data)
-      setTemplate(data)
-      setCurrentTemplate(Classes.DROPHUNTER)
-      console.log('template', data)
-      console.log('currentTemplate', Classes.DROPHUNTER)
-
-    })
-  }, [])
-
-  const [showChat, setShowChat] = useState(false);
+  console.log('manifest', manifest)
   
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-    }
-}, [])
+  // randomly roll a number between 0 and the data length
+  const randomIndex = Math.floor(Math.random() * manifest.length)
+  const templateInfo = manifest && manifest[randomIndex]
 
-  return (
-    template && (
-      <Fragment>
+  console.log('templateInfo', templateInfo)
+
+//   // fetch the manifest, then set it
+//   useEffect(() => {
+//       setCurrentView(ViewStates.CREATOR)
+//   }, [])
+
+//   const [showChat, setShowChat] = useState(false);
+  
+//   useEffect(() => {
+//     // if user presses ctrl h, show chat
+//     const handleKeyDown = (e) => {
+//       if (e.ctrlKey && e.key === 'h') {
+//         e.preventDefault();
+//         setShowChat(!showChat);
+//       }
+//     }
+//     window.addEventListener('keydown', handleKeyDown);
+//     return () => {
+//         window.removeEventListener('keydown', handleKeyDown);
+//     }
+// }, [])
+
+return (
+  <Suspense fallback={<LoadingOverlay />}>
+  <Fragment>
+  
         <Background />
-        {templateInfo && template && currentTemplate && currentCameraMode !== CameraMode.AR && <Scene />}
-        {templateInfo && template && currentTemplate && currentCameraMode === CameraMode.AR && <ARScene />}
+        {currentCameraMode !== CameraMode.AR && <Scene templateInfo={templateInfo} />}
+        {currentCameraMode === CameraMode.AR && <ARScene templateInfo={templateInfo} />}
 
         <BackButton onClick={() => {
-          setCurrentTemplate(null)
-          setCurrentView(ViewStates.LANDER_LOADING)
+          setCurrentView(ViewStates.LANDER)
         }}/>
         <ARButton />
         <AudioButton />
 
-        {showChat && <ChatComponent />}
-          {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
-          {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
+        {<ChatComponent />}
+        {<Editor templateInfo={templateInfo} />}
       </Fragment>
-    )
+    </Suspense>
   )
 }
-
-const getLibrary = (provider) => {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
-}
-
-function AppContainer(){
-  return (
-  <AccountProvider>
-  <AudioProvider>
-    <ViewProvider>
-      <SceneProvider>
-        <App />
-      </SceneProvider>
-    </ViewProvider>
-  </AudioProvider>
-</AccountProvider>
-  )
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <Web3ReactProvider getLibrary={getLibrary}>
-    <AppContainer />
-  </Web3ReactProvider>,
-)

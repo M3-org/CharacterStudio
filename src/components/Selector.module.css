@@ -55,12 +55,14 @@
 .selectorButton {
   padding: .25em;
   display: block;
+  position: relative;
 }
 
 .trait-icon {
     height: 4em;
     margin: auto;
     user-select: none;
+    position: relative;
 }
 
 .tickStyle {
@@ -75,16 +77,17 @@
 }
 
 .loading-trait {
-  height: 52px;
-  width: 52px;
+  height: 4em;
+  width: 4em;
   text-align: center;
   line-height: 52px;
   background-color: rgba(16, 16, 16, 0.6);
-  z-index: 2;
+  z-index: 999;
   position: absolute;
+  display: block;
   color: #efefef;
-  left: 0;
   top: 0;
+  cursor: wait;
 }
 
 .icon-hidden {
