@@ -35,14 +35,12 @@ export default function Gate() {
 
   const enterWithMusic = () => {
     enableAudio()
-    setCurrentView(ViewStates.LANDER_LOADING)
-    console.log("ViewStates.LANDER_LOADING", ViewStates.LANDER_LOADING)
+    setCurrentView(ViewStates.LANDER)
   }
 
   const enterWithoutMusic = () => {
     disableAudio()
-    setCurrentView(ViewStates.LANDER_LOADING)
-    console.log("ViewStates.LANDER_LOADING", ViewStates.LANDER_LOADING)
+    setCurrentView(ViewStates.LANDER)
   }
 
   useEffect(() => {

@@ -20,6 +20,9 @@ export default function ChatBox() {
         const handleKeyDown = (event) => {
             if (event.ctrlKey && event.key === 'c') {
                 setMessages([]);
+                // spacebar
+            } else if (event.key === ' ') {
+                handleSubmit({target: {elements: {message: {value: input}}}})
             }
         }
         window.addEventListener('keydown', handleKeyDown);
@@ -29,7 +32,7 @@ export default function ChatBox() {
     }, [])
 
     const handleSubmit = async (event) => {
-        event.preventDefault();
+        if(event.preventDefault) event.preventDefault();
         // Get the value of the input element
         const input = event.target.elements.message;
         const value = input.value;
@@ -51,6 +54,23 @@ export default function ChatBox() {
 
         try {
             const url = encodeURI(`https://localhost:8001/spells/${spell_handler}`)
+
+
+            const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
+
+            const ttsEndpointAck = `https://voice.webaverse.com/tts?s=${'Sure, lets do it!'}&voice=${driveId}`
+
+            // fetch the audio file from ttsEndpoint
+
+            fetch(ttsEndpointAck).then(async (response) => {
+                const blob = await response.blob();
+                
+                // convert the blob to an array buffer
+                const arrayBuffer = await blob.arrayBuffer();
+
+                lipSync.startFromAudioFile(arrayBuffer);
+            });
+
             axios.post(`${url}`, {
                     Input: value,
                     Speaker: speaker,
@@ -68,7 +88,7 @@ export default function ChatBox() {
 
                 const output = outputs[outputKey];
 
-                const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
+
 
                 const ttsEndpoint = `https://voice.webaverse.com/tts?s=${output}&voice=${driveId}`
 
@@ -103,5 +123,5 @@ export default function ChatBox() {
                 <button className={styles["button"]} onSubmit={handleSubmit} type="submit">Send</button>
             </form>
         </div>
-    );
+        );
 }

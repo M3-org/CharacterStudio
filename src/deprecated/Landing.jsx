@@ -1,10 +1,4 @@
 /* eslint-disable react/no-unknown-property */
-import {
-  BrightnessContrast,
-  EffectComposer,
-  Glitch
-} from "@react-three/postprocessing"
-import { GlitchMode } from "postprocessing"
 import React, { useContext, useEffect, useState } from "react"
 import useSound from "use-sound"
 import clickUrl from "../../public/sound/class_click.wav"
@@ -14,9 +8,6 @@ import { AudioContext } from "../context/AudioContext"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { renameVRMBones } from "../library/utils"
-
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Canvas } from "@react-three/fiber"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
@@ -45,35 +36,13 @@ const Classes = {
   },
 }
 
-
-const gltfLoader = new GLTFLoader()
-gltfLoader.register((parser) => {
-  return new VRMLoaderPlugin(parser)
-})
-
-async function loadModel(file, onProgress) {
-  return gltfLoader.loadAsync(file, onProgress).then((model) => {
-    const vrm = model.userData.vrm
-    renameVRMBones(vrm)
-
-    vrm.scene?.traverse((child) => {
-      child.frustumCulled = false
-    })
-    return vrm
-  })
-}
-
 export default function Landing() {
-  const { setCurrentTemplate, currentTemplate } =
-    useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
   const { isMute } = useContext(AudioContext)
 
   const [drophunter, setDrophunter] = useState(null)
   const [neurohacker, setNeurohacker] = useState(null)
   const [selectedAvatar, setSelectedAvatar] = useState(null)
-
-  const camera = React.useRef()
 
   useEffect(() => {
 
@@ -121,16 +90,16 @@ export default function Landing() {
 
   const handleClick = (type) => {
     if (!isMute) click()
-    setCurrentTemplate(type)
-    console.log("ViewStates.CREATOR_LOADING", ViewStates.CREATOR_LOADING)
-    setCurrentView(ViewStates.CREATOR_LOADING)
+    console.warn('click, but this is broken since we changed the template')
+    // setCurrentTemplate(type)
+    setCurrentView(ViewStates.CREATOR)
   }
 
   useEffect(() => {
     if (
       !neurohacker ||
       !drophunter ||
-      currentView !== ViewStates.LANDER_LOADING
+      currentView !== ViewStates.LANDER
     )
       return
     setCurrentView(ViewStates.LANDER)
@@ -143,7 +112,6 @@ export default function Landing() {
     currentView &&
     neurohacker &&
     drophunter &&
-    currentTemplate === null &&
     currentView.includes("LANDER") && (
       <div className={styles["StyledLanding"]}>
         <div
@@ -210,6 +178,7 @@ export default function Landing() {
             You will be able to customize in a moment.
           </div>
         </div>
+        {/* Replace with three
         <Canvas
           style={{
             width: "100vw",
@@ -255,7 +224,7 @@ export default function Landing() {
               <primitive object={neurohacker} />
             </mesh>
           </PerspectiveCamera>
-        </Canvas>
+        </Canvas> */}
       </div>
     )
   )

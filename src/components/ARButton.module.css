@@ -1,0 +1,38 @@
+.SquareButton {
+  position: absolute;
+  bottom: 2em;
+  right: 6em;
+    transition : .3s;
+    background-size: 1.5em;
+    background-repeat: no-repeat;
+    background-position: center;
+    color : rgba(255, 255, 255, 0.5);
+    width: 3em;
+    height: 3em;
+    border: 1px solid #434B58;
+    backdrop-filter: blur(22.5px);
+    border-radius: 5px;
+    opacity : 0.5;
+    user-select : none;
+    cursor:pointer;
+    z-index:1000;
+  }
+
+  .SquareButton:hover {
+    backdrop-filter: blur(1.5px);
+    border-color : white;
+    opacity : 1.0;
+    color:white;
+  }
+
+.StyledAudioButton {
+    z-index: 1000;
+}
+
+.AROn {
+  background-image: url('/ui/aron.svg');
+}
+
+.AROff {
+  background-image: url('/ui/aroff.svg');
+}

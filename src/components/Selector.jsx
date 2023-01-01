@@ -24,13 +24,11 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector() {
+export default function Selector({templateInfo}) {
   const {
     avatar,
     setAvatar,
-    currentTemplate,
     currentTraitName,
-    template,
     currentOptions,
     selectedOptions,
     setSelectedOptions,
@@ -43,8 +41,6 @@ export default function Selector() {
     getAsArray,
     setLipSync
   } = useContext(SceneContext)
-  const currentTemplateIndex = parseInt(currentTemplate.index)
-  const templateInfo = template[currentTemplateIndex]
   const { isMute } = useContext(AudioContext)
 
   const [selectValue, setSelectValue] = useState("0")
@@ -206,9 +202,9 @@ export default function Selector() {
           return;
         }
         // load model trait
-        const loadedModels = []; 
-        getAsArray(option?.item?.directory).map((modelDir, i)=>{
-          gltfLoader.loadAsync (baseDir + modelDir).then((mod)=>{
+        const loadedModels = [];
+        getAsArray(option?.item?.directory).map((modelDir, i) => {
+          gltfLoader.loadAsync (baseDir + modelDir).then((mod) => {
             loadedModels[i] = mod;
           })
         })
@@ -428,9 +424,10 @@ export default function Selector() {
       }
     }
 
+    if(vrm) {
     // add the now model to the current scene
     model.add(vrm.scene)
-    
+    }
     
 
     // and then add the new avatar data
@@ -439,7 +436,7 @@ export default function Selector() {
       [traitData.name]: {
         traitInfo: item,
         name: item.name,
-        model: vrm.scene,
+        model: vrm && vrm.scene,
         vrm: vrm,
       }
     }

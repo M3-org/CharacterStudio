@@ -5,6 +5,49 @@ import html2canvas from "html2canvas";
 import VRMExporter from "./VRMExporter";
 import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
+import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+
+export async function prepareModel(templateInfo){
+  // check the local storage for a JSON of the model
+  // if it exists, load it
+
+  // if it doesn't exist, fetch the first trait for each category from the server
+  console.log('templateInfo', templateInfo)
+  // grab the first trait for each category
+  const traits = templateInfo.traits.map((category) => {
+    return category.traits[0]
+  })
+  
+  traits.forEach((trait) => {
+    console.log('trait', trait)
+  });
+
+  const returnedTraits = await Promise.all(traits.map((trait) => {
+    return loadModel(trait)
+  }));
+
+  console.log('returnedTraits', returnedTraits)
+
+}
+
+
+
+export async function loadModel(file, onProgress) {
+  const gltfLoader = new GLTFLoader()
+  gltfLoader.register((parser) => {
+    return new VRMLoaderPlugin(parser)
+  })
+  return gltfLoader.loadAsync(file, onProgress).then((model) => {
+    const vrm = model.userData.vrm
+    renameVRMBones(vrm)
+
+    vrm.scene?.traverse((child) => {
+      child.frustumCulled = false
+    })
+    return vrm
+  })
+}
 
 export const cullHiddenMeshes = (avatar) => {
   const models = [];

@@ -18,16 +18,12 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup() {
-  const { template, avatar, skinColor, model, currentTemplate } = useContext(SceneContext)
+export default function MintPopup({templateInfo}) {
+  const { avatar, skinColor, model } = useContext(SceneContext)
   const { currentView, setCurrentView } = useContext(ViewContext)
-  const { walletAddress, connected } =
-    useContext(AccountContext)
+  const { walletAddress } = useContext(AccountContext)
 
   const [mintStatus, setMintStatus] = useState("")
-
-  const currentTemplateIndex = parseInt(currentTemplate.index === undefined ? currentTemplate.index : 1)
-  const templateInfo = template[currentTemplateIndex]
 
   async function saveFileToPinata(fileData, fileName) {
     if (!fileData) return console.warn("Error saving to pinata: No file data")

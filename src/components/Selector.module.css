@@ -9,13 +9,14 @@
   border-radius : 5px;
   backdrop-filter: blur(22.5px);
   transform: perspective(70vh) rotateY(-5deg);
+  z-index:1000;
+  cursor: pointer;
 }
 
 .selector-container {
   background: rgba(56, 64, 78, 0.1);
   border-radius: .25em;
   user-select: none;
-
   flex: 1;
 }
 

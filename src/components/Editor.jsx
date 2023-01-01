@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { Fragment, useEffect, useContext } from "react";
 
 import * as THREE from "three"
 import gsap from 'gsap';
@@ -9,9 +9,10 @@ import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
 
 import styles from './Editor.module.css';
+import Selector from "./Selector"
 
-export default function Editor({templateInfo, controls}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setSelectedRandomTraits, selectedRandomTraits} = useContext(SceneContext);
+export default function Editor({templateInfo}) {
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setSelectedRandomTraits, selectedRandomTraits, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -138,6 +139,7 @@ export default function Editor({templateInfo, controls}) {
 
 
   const moveCamera = (value) => {
+    if(!controls) return;
       gsap.to(controls.target,{
         y:value.height,
         duration: 1,
@@ -172,21 +174,25 @@ export default function Editor({templateInfo, controls}) {
   }
 
   return(
-  <div className={styles['SideMenu']}>
-        {templateInfo.traits && templateInfo.traits.map((item, index) => (
-          <div className={styles['MenuOption']}
-            onClick = {()=>{
-              selectOption(item)
-            }} 
-            key = {index}>
-            <img className={currentTraitName !== item.name ? styles['MenuImg'] : styles['MenuImgActive']} src={templateInfo.traitIconsDirectory + item.icon} />
-          </div>
-        ))}
+    <Fragment>
+    <div className={styles['SideMenu']}>
+          {templateInfo.traits && templateInfo.traits.map((item, index) => (
+            <div className={styles['MenuOption']}
+              onClick = {()=>{
+                selectOption(item)
+              }} 
+              key = {index}>
+              <img className={currentTraitName !== item.name ? styles['MenuImg'] : styles['MenuImgActive']} src={templateInfo.traitIconsDirectory + item.icon} />
+            </div>
+          ))}
 
-        <div className={styles['LineDivision']}/>
-        <img className={styles['ShuffleOption']} onClick={() => {
-            !isMute && play();
-            setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
-          }} src={shuffle} />
-  </div>);
+          <div className={styles['LineDivision']}/>
+          <img className={styles['ShuffleOption']} onClick={() => {
+              !isMute && play();
+              setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
+            }} src={shuffle} />
+    </div>
+    <Selector templateInfo={templateInfo} />
+  </Fragment>
+  );
 }

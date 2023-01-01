@@ -1,38 +1,16 @@
-/* eslint-disable react/no-unknown-property */
-import { Environment } from "@react-three/drei/core/Environment"
-import { OrbitControls } from "@react-three/drei/core/OrbitControls"
-import { PerspectiveCamera } from "@react-three/drei/core/PerspectiveCamera"
-import { Canvas } from "@react-three/fiber"
-import {
-  Bloom,
-  EffectComposer
-} from "@react-three/postprocessing"
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
-import { NoToneMapping } from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { SceneContext } from "../context/SceneContext"
-import { ViewContext, ViewStates } from "../context/ViewContext"
+import { CameraMode, ViewContext, ViewStates } from "../context/ViewContext"
 import { AnimationManager } from "../library/animationManager"
-import { addModelData, getSkinColor } from "../library/utils"
-import { BackButton } from "./BackButton"
-import Editor from "./Editor"
-import styles from "./Scene.module.css"
-import Selector from "./Selector"
-import { VRM, VRMExpressionPresetName, VRMHumanBoneName } from "@pixiv/three-vrm";
-import ChatComponent from "./ChatComponent"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-import AudioButton from "./AudioButton"
-import { LipSync } from '../library/lipsync'
-import MintPopup from "./MintPopup"
-
-export default function Scene() {
+export default function Scene({templateInfo}) {
   const {
     scene,
     setScene,
-    setCamera,
-    loadModel,
-    currentTemplate,
+    currentCameraMode,
     setSelectedRandomTraits,
     model,
     setAnimationManager,
@@ -42,11 +20,11 @@ export default function Scene() {
     traitsNecks,
     traitsLeftEye,
     traitsRightEye,
-    setCurrentTemplate,
-    setLipSync,
-    getAsArray
+    initializeScene,
+    getAsArray,
+    setControls
   } = useContext(SceneContext)
-  const {currentView, setCurrentView} = useContext(ViewContext)
+  const {setCurrentView} = useContext(ViewContext)
   const maxLookPercent = {
     neck : 30,
     spine : 5,
@@ -54,27 +32,24 @@ export default function Scene() {
     right : 60,
   }
 
-  const [loading, setLoading] = useState(false)
-  const controls = useRef()
-  const templateInfo = template && currentTemplate && template[currentTemplate.index]
   const [platform, setPlatform] = useState(null);
   const [showChat, setShowChat] = useState(false);
 
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        console.log("pressed h")
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    }
+  // useEffect(() => {
+  //   // if user presses ctrl h, show chat
+  //   const handleKeyDown = (e) => {
+  //     if (e.ctrlKey && e.key === 'h') {
+  //       console.log("pressed h")
+  //       e.preventDefault();
+  //       setShowChat(!showChat);
+  //     }
+  //   }
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   }
 
-  }, [])
+  // }, [])
 
   // if currentView is CREATOR_LOADING, show loading screen
   // load the assets
@@ -146,10 +121,63 @@ export default function Scene() {
   }
 
   useEffect(() => {
-    if(!templateInfo) {
-      if(!loading) setLoading(true)
-      return
-    }
+    // add a camera to the scene
+    const camera = new THREE.PerspectiveCamera(
+      30,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+
+    // set the camera position
+    camera.position.set(0, 1.3, 2);
+
+    // TODO make sure to kill the interval
+
+      // find editor-scene canvas
+      const canvasRef = document.getElementById("editor-scene");
+
+    // create a new renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef,
+      antialias: true,
+      alpha: true,
+    });
+
+    // set the renderer size
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // set the renderer pixel ratio
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // set the renderer output encoding
+    renderer.outputEncoding = THREE.sRGBEncoding;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 1;
+    controls.maxDistance = 4;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI / 2 - 0.1;
+    controls.enablePan = true;
+    controls.target = new THREE.Vector3(0, 1.1, 0);
+    controls.enableDamping = true
+    controls.dampingFactor = 0.1
+
+   
+    setControls(controls);
+
+    // start animation frame loop to render
+    const animate = () => {
+      requestAnimationFrame(animate);
+      if(currentCameraMode !== CameraMode.AR){
+
+        controls?.update();
+        renderer.render(scene, camera);
+      }
+    };
+
+    // start the animation loop
+    animate();
 
     // create animation manager
     async function fetchAssets() {
@@ -157,13 +185,10 @@ export default function Scene() {
         scene.remove(model)
       }
       // model holds only the elements that will be exported
-      const avatarModel = new THREE.Scene()
+      const avatarModel = new THREE.Object3D()
       setModel(avatarModel)
-      // scene hold all the elements cinluding model
-      const newScene = new THREE.Scene();
-      setScene(newScene)
 
-      newScene.add(avatarModel)  
+      scene.add(avatarModel)  
 
       // create an animation manager for all the traits that will be loaded
       const newAnimationManager = new AnimationManager(templateInfo.offset)
@@ -178,8 +203,6 @@ export default function Scene() {
       setCurrentView(ViewStates.CREATOR)
     }
     fetchAssets();
-    
-    
 
     // load environment
 
@@ -190,6 +213,7 @@ export default function Scene() {
     loader.load(modelPath, (gltf) => {
       // setPlatform on the gltf, and play the first animation
       setPlatform(gltf.scene);
+      scene.add(gltf.scene)
 
       const animationMixer = new THREE.AnimationMixer(gltf.scene);
 
@@ -207,76 +231,7 @@ export default function Scene() {
     // move to selector
     //setLipSync(new LipSync(vrm));
     
-  }, [templateInfo])
+  }, [])
 
-  return templateInfo && platform && (
-      <div className={styles["FitParentContainer"]}>
-        <BackButton onClick={() => {
-          setCurrentTemplate(null)
-          setCurrentView(ViewStates.LANDER_LOADING)
-        }}/>
-        <AudioButton />
-
-          <Canvas
-            id="editor-scene"
-            className={styles["canvasStyle"]}
-            gl={{ antialias: true, toneMapping: NoToneMapping }}
-            camera={{ fov: 30, position: [0, 1.3, 2] }}
-          >
-
-          <EffectComposer>
-          <Bloom luminanceThreshold={0.99} luminanceSmoothing={0.9} radius={1} />
-          </EffectComposer>
-
-          <Environment files="/city.hdr" />
-            <ambientLight color={[1, 1, 1]} intensity={0.5} />
-
-            <directionalLight
-              intensity={0.5}
-              position={[3, 1, 5]}
-              shadow-mapSize={[1024, 1024]}
-            >
-              <orthographicCamera
-                attach="shadow-camera"
-                left={-20}
-                right={20}
-                top={20}
-                bottom={-20}
-              />
-            </directionalLight>
-
-            <OrbitControls
-              ref={controls}
-              minDistance={1}
-              maxDistance={4}
-              maxPolarAngle={Math.PI / 2 - 0.1}
-              enablePan={true}
-              autoRotateSpeed={5}
-              enableDamping={true}
-              dampingFactor={0.1}
-              target={[0, 1.1, 0]}
-            />
-
-            <PerspectiveCamera
-              ref={setCamera}
-              aspect={1200 / 600}
-              fov={30}
-              onUpdate={(self) => self.updateProjectionMatrix()}
-            >
-            <mesh>
-              <primitive object={scene} />
-            </mesh>
-
-            <mesh>
-              <primitive object={platform} />
-            </mesh>
-
-            </PerspectiveCamera>
-          </Canvas>
-          { currentView.includes("MINT") && <MintPopup />}
-          {showChat && <ChatComponent />}
-          {!showChat && <Editor templateInfo={templateInfo} controls={controls.current} />}
-          {!showChat && currentTemplate && templateInfo && <Selector templateInfo={templateInfo} />}
-      </div>
-  )
+  return <></>
 }
