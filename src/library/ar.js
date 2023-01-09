@@ -88,22 +88,124 @@ export const arScenePipelineModule = (scene) => {
 
 export const startAR = async (scene) => {
   // fetch XR8 libraries lazily
+  if(!window.XR8) {
+    console.warn("8thwall not found")
+    return;
+  }
 
   window.XR8?.XrController.configure({scale: 'absolute'})
 
   window.XR8?.addCameraPipelineModules([  // Add camera pipeline modules.
     // Existing pipeline modules.
     window.XR8.GlTextureRenderer.pipelineModule(),      // Draws the camera feed.
-    window.XR8.Threejs.pipelineModule(),                // Creates a ThreeJS AR Scene.
+    customThreejsPipelineModule(),                // Creates a ThreeJS AR Scene.
     window.XR8.XrController.pipelineModule(),           // Enables SLAM tracking.
     window.XRExtras.FullWindowCanvas.pipelineModule(),  // Modifies the canvas to fill the window.
     // Custom pipeline modules.
     arScenePipelineModule(scene),
   ])
-
+  
   // Open the camera and start running the camera run loop.
   window.XR8?.run({canvas: document.getElementById('editor-scene'), allowedDevices: 'any'})
   if(!window.XR8) {
     console.log('xr8 not loaded')
   }
+}
+
+const customThreejsPipelineModule = () => {
+  let scene3
+  let engaged = false
+
+  const engage = ({canvas, canvasWidth, canvasHeight, GLctx}) => {
+    if (engaged) {
+      return
+    }
+    const scene = new window.THREE.Scene()
+    const camera = new window.THREE.PerspectiveCamera(
+      60.0, /* initial field of view; will get set based on device info later. */
+      canvasWidth / canvasHeight,
+      0.01,
+      1000.0,
+    )
+    scene.add(camera)
+
+    const renderer = new window.THREE.WebGLRenderer({
+      canvas,
+      context: GLctx,
+      alpha: false,
+      antialias: true,
+    })
+    renderer.autoClear = false
+    renderer.setSize(canvasWidth, canvasHeight)
+    renderer.outputEncoding = window.THREE.sRGBEncoding
+
+    scene3 = {scene, camera, renderer}
+    engaged = true
+  }
+  window.XR8.Threejs = {
+    name: 'customthreejs',
+    onStart: (args) => engage(args),
+    onAttach: (args) => engage(args),
+    onDetach: () => { engaged = false },
+    onUpdate: ({processCpuResult}) => {
+      const realitySource = processCpuResult.reality || processCpuResult.facecontroller ||
+        processCpuResult.layerscontroller
+      if (!realitySource) {
+        return
+      }
+
+      const {rotation, position, intrinsics} = realitySource
+      const {camera} = scene3
+
+      if(intrinsics) {
+        for (let i = 0; i < 16; i++) {
+          camera.projectionMatrix.elements[i] = intrinsics[i]
+        }
+      }
+
+      // Fix for broken raycasting in r103 and higher. Related to:
+      //   https://github.com/mrdoob/three.js/pull/15996
+      // Note: camera.projectionMatrixInverse wasn't introduced until r96 so check before setting
+      // the inverse
+      if (camera.projectionMatrixInverse) {
+        if (camera.projectionMatrixInverse.invert) {
+          // THREE 123 preferred version
+          camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
+        } else {
+          // Backwards compatible version
+          camera.projectionMatrixInverse.getInverse(camera.projectionMatrix)
+        }
+      }
+
+      if (rotation) {
+        camera.setRotationFromQuaternion(rotation)
+      }
+      if (position) {
+        camera.position.set(position.x, position.y, position.z)
+      }
+    },
+    onCanvasSizeChange: ({canvasWidth, canvasHeight}) => {
+      if (!engaged) {
+        return
+      }
+      const {renderer} = scene3
+      renderer.setSize(canvasWidth, canvasHeight)
+    },
+    onRender: () => {
+      const {scene, renderer, camera} = scene3
+      renderer.clearDepth()
+      renderer.render(scene, camera)
+    },
+    // Get a handle to the xr scene, camera and renderer. Returns:
+    // {
+    //   scene: The Threejs scene.
+    //   camera: The Threejs main camera.
+    //   renderer: The Threejs renderer.
+    // }
+    xrScene: () => {
+      return scene3
+    },
+  }
+
+  return window.XR8.Threejs
 }

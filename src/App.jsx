@@ -1,16 +1,15 @@
-import React, { Fragment, Suspense, useContext } from "react"
+import React, { Fragment, Suspense, useEffect, useState } from "react"
 
 import Scene from "./components/Scene"
-import { CameraMode, ViewContext, ViewStates } from "./context/ViewContext"
 
 /* eslint-disable react/no-unknown-property */
-import { BackButton } from "./components/BackButton"
 import ChatComponent from "./components/ChatComponent"
 import Editor from "./components/Editor"
 
 import ARButton from "./components/ARButton"
-import AudioButton from "./components/AudioButton"
 import Background from "./components/Background"
+import ChatButton from "./components/ChatButton"
+import { UserMenu } from "./components/UserMenu"
 
 import LoadingOverlay from "./components/LoadingOverlay"
 
@@ -67,35 +66,35 @@ export default function App() {
   const templateInfo = manifest && manifest[randomIndex]
 
 //   // fetch the manifest, then set it
-//   useEffect(() => {
-//       setCurrentView(ViewStates.CREATOR)
-//   }, [])
+  // useEffect(() => {
+  //     setCurrentView(ViewStates.CREATOR)
+  // }, [])
 
-//   const [showChat, setShowChat] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   
-//   useEffect(() => {
-//     // if user presses ctrl h, show chat
-//     const handleKeyDown = (e) => {
-//       if (e.ctrlKey && e.key === 'h') {
-//         e.preventDefault();
-//         setShowChat(!showChat);
-//       }
-//     }
-//     window.addEventListener('keydown', handleKeyDown);
-//     return () => {
-//         window.removeEventListener('keydown', handleKeyDown);
-//     }
-// }, [])
+  useEffect(() => {
+    // if user presses ctrl h, show chat
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        setShowChat(!showChat);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+    }
+}, [])
 
 return (
   <Suspense fallback={<LoadingOverlay />}>
-  <Fragment>
+    <Fragment>
+        <ChatButton />
         <ARButton />
-        <AudioButton />
         <Background />
         <Scene templateInfo={templateInfo} />
-
-        {false && <ChatComponent />}
+        <UserMenu />
+        {<ChatComponent />}
         {<Editor templateInfo={templateInfo} />}
       </Fragment>
     </Suspense>

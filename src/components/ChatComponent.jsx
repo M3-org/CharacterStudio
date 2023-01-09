@@ -21,8 +21,6 @@ export default function ChatBox() {
             if (event.ctrlKey && event.key === 'c') {
                 setMessages([]);
                 // spacebar
-            } else if (event.key === ' ') {
-                handleSubmit({target: {elements: {message: {value: input}}}})
             }
         }
         window.addEventListener('keydown', handleKeyDown);
@@ -44,7 +42,7 @@ export default function ChatBox() {
         const speaker = "moon";
         const agent = "Eliza";
         const channel = "homepage";
-        const spell_handler = "eliza_0.1.0";
+        const spell_handler = "charactercreator";
 
         // get the first 5 messages
         const newMessages = [...messages];
@@ -53,23 +51,10 @@ export default function ChatBox() {
         setMessages(newMessages);
 
         try {
-            const url = encodeURI(`https://localhost:8001/spells/${spell_handler}`)
+            const url = encodeURI(`http://localhost:8001/spells/${spell_handler}`)
 
 
             const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
-
-            const ttsEndpointAck = `https://voice.webaverse.com/tts?s=${'Sure, lets do it!'}&voice=${driveId}`
-
-            // fetch the audio file from ttsEndpoint
-
-            fetch(ttsEndpointAck).then(async (response) => {
-                const blob = await response.blob();
-                
-                // convert the blob to an array buffer
-                const arrayBuffer = await blob.arrayBuffer();
-
-                lipSync.startFromAudioFile(arrayBuffer);
-            });
 
             axios.post(`${url}`, {
                     Input: value,

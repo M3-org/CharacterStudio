@@ -19,14 +19,13 @@ export class LipSync {
   constructor(vrm) {
     this.vrm = vrm
 
-    let deltaTime, elapsedTime = 0
+    const update = (deltaTime, elapsedTime) => {
+      requestAnimationFrame(update)
+      this.update(deltaTime, elapsedTime)
+    }
 
-    // call update every 33ms
-    setInterval(() => {
-        deltaTime = 33
-        elapsedTime += deltaTime        
-        this.update(deltaTime, elapsedTime)
-    }, 33);
+    update()
+
   }
 
   start(stream) {
