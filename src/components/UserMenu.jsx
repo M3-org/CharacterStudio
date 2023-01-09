@@ -152,7 +152,6 @@ export const UserMenu = () => {
       )
     } else {
       const vrmData = getAvatarData(avatar, avatarModel, "UpstreetAvatar");
-      console.log(vrmData)
       exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })

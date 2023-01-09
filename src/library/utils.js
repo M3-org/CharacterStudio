@@ -365,15 +365,23 @@ export function findChildrenByType(root, type) {
 }
 export function getAvatarData (avatar, avatarModel, modelName){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
-
+  const baseAvatarData = getAvatarVRMData(avatar);
   return {
     humanoid:{humanBones:getHumanoidByBoneNames(skinnedMeshes[0])},
     meta:getVRMMeta(modelName),
     materials:[avatarModel.userData.atlasMaterial],
-    lookAt:getVRMDefaultLookAt()
+    lookAt:getVRMDefaultLookAt(),
+    expressionManager: baseAvatarData.expressionManager
   }
 }
-
+function getAvatarVRMData(avatar){
+  // to do, merge data from all vrms, not to get only the first one
+  for (const prop in avatar){
+    if (avatar[prop].vrm){
+      return avatar[prop].vrm
+    }
+  }
+}
 function getVRMMeta(name){
   return {
     author:["Webaverse"],
@@ -395,21 +403,23 @@ function getVRMMeta(name){
 function getVRMDefaultLookAt(){
   return {
     offsetFromHeadBone:[0,0,0],
-    rangeMapHorizontalInner:{
-      inputMaxValue:90,
-      inputSacle:62.1
-    },
-    rangeMapHorizontalOuter:{
-      inputMaxValue:90,
-      inputSacle:68.6
-    },
-    rangeMapVerticalDown:{
-      inputMaxValue:90,
-      inputSacle:57.9
-    },
-    rangeMapVerticalUp:{
-      inputMaxValue:90,
-      inputSacle:52.8
+    applier:{
+      rangeMapHorizontalInner:{
+        inputMaxValue:90,
+        inputSacle:62.1
+      },
+      rangeMapHorizontalOuter:{
+        inputMaxValue:90,
+        inputSacle:68.6
+      },
+      rangeMapVerticalDown:{
+        inputMaxValue:90,
+        inputSacle:57.9
+      },
+      rangeMapVerticalUp:{
+        inputMaxValue:90,
+        inputSacle:52.8
+      }
     },
     type:"bone"
   }
