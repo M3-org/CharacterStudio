@@ -376,10 +376,11 @@ export function getAvatarData (avatarModel, modelName){
 
 function getVRMMeta(name){
   return {
-    author:["Webaverse"],
+    authors:["Webaverse"],
     metaVersion:"1",
     version:"v1",
     name:name,
+    licenseURL:"https://webaverse.com/",
     commercialUssageName: "personalNonProfit",
     contactInformation: "https://webaverse.com/", 
     allowExcessivelyViolentUsage:false,
