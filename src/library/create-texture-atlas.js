@@ -13,6 +13,8 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
     sceneRTT.add(cameraRTT);
 
     rtTexture = new THREE.WebGLRenderTarget(width, height);
+    rtTexture.texture.encoding = THREE.sRGBEncoding;
+    console.log(rtTexture.texture)
 
     material = new THREE.MeshBasicMaterial({
       side: THREE.DoubleSide,
