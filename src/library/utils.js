@@ -368,7 +368,7 @@ export function getAvatarData (avatarModel, modelName){
   return {
     humanoid:{humanBones:getHumanoidByBoneNames(skinnedMeshes[0])},
     meta:getVRMMeta(modelName),
-    materials:avatarModel.userData.atlasMaterial,
+    materials:[avatarModel.userData.atlasMaterial],
     lookAt:getVRMDefaultLookAt()
   }
 }
