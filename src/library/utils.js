@@ -7,6 +7,7 @@ import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
 export async function prepareModel(templateInfo){
   // check the local storage for a JSON of the model
@@ -360,6 +361,28 @@ export function findChildrenByType(root, type) {
         candidates: [root],
         predicate: (o) => o.type === type,
     });
+}
+export function getAvatarData (avatarModel){
+  const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
+  //console.log("skinned mesh for vrm", skinnedMeshes[0])
+  const humanBones = getHumanoidByBoneNames(skinnedMeshes[0])
+  return {
+    humanoid:{humanBones:humanBones},
+    material:"material"
+  }
+}
+
+function getHumanoidByBoneNames(skinnedMesh){
+  const humanBones = {}
+  skinnedMesh.skeleton.bones.map((bone)=>{
+    for (const boneName in VRMHumanBoneName) {
+      if (VRMHumanBoneName[boneName] === bone.name){
+        humanBones[bone.name] ={node : bone};
+        break;
+      }
+    }
+  })
+  return humanBones
 }
 function traverseWithDepth({ object3D, depth = 0, callback, result }) {
     result.push(callback(object3D, depth));
