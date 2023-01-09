@@ -1,4 +1,5 @@
 import { BufferAttribute, } from "three";
+import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
         allowedUserName: vrmMeta.allowedUserName,
@@ -33,19 +34,22 @@ var WEBGL_CONST;
 const BLENDSHAPE_PREFIX = "blend_";
 const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
 const SPRINGBONE_COLLIDER_NAME = "vrmColliderSphere";
-const EXPORTER_VERSION = "UniVRM-0.64.0";
+const EXPORTER_VERSION = "alpha-v1.0";
 const CHUNK_TYPE_JSON = "JSON";
 const CHUNK_TYPE_BIN = "BIN\x00";
 const GLTF_VERSION = 2;
 const HEADER_SIZE = 12;
 export default class VRMExporter {
     parse(vrm, avatar, onDone) {
+        console.log("VRM HERE", vrm)
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
         const expressionsPreset = {};
+        const expressionCustom = {};
         const lookAt = vrm.lookAt;
-        // to do, add support for spring bones
+
+        // to do, add support to spring bones
         //const springBone = vrm.springBoneManager;
         const exporterInfo = {
             // TODO: データがなくて取得できない
@@ -68,7 +72,8 @@ export default class VRMExporter {
         else if (!lookAt) {
             throw new Error("lookAt is undefined or null");
         }
-        // to do, add support to spring bones
+
+        // add support to spring bones
         // else if (!springBone) {
         //     throw new Error("springBone is undefined or null");
         // }
@@ -156,15 +161,31 @@ export default class VRMExporter {
             
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphs = expression._binds.map(obj => ([{node:0, index:obj.index, weight:obj.weight  }]))
-                expressionsPreset[prop] = {
-                    morphTargetBinds:morphs,
-                    isBinary:expression.overrideBlink,
-                    overrideBlink:expression.overrideBlink,
-                    overrideLookAt:expression.overrideLookAt,
-                    overrideMouth:expression.overrideMouth,
-
+                const morphTargetBinds = expression._binds.map(obj => ({node:0, index:obj.index, weight:obj.weight  }))
+                let isPreset = false;
+                for (const presetName in VRMExpressionPresetName) {
+                    if (prop === VRMExpressionPresetName[presetName]){
+                        expressionsPreset[prop] = {
+                            morphTargetBinds,
+                            isBinary:expression.isBinary,
+                            overrideBlink:expression.overrideBlink,
+                            overrideLookAt:expression.overrideLookAt,
+                            overrideMouth:expression.overrideMouth,
+                        }
+                        isPreset = true;
+                        break;
+                    }
                 }
+                if (isPreset === false){
+                    expressionCustom[prop] = {
+                        morphTargetBinds,
+                        isBinary:expression.isBinary,
+                        overrideBlink:expression.overrideBlink,
+                        overrideLookAt:expression.overrideLookAt,
+                        overrideMouth:expression.overrideMouth,
+                    }
+                }
+                
                 // to do, material target binds, and texture transform binds
             }
 
@@ -257,7 +278,8 @@ export default class VRMExporter {
         // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
         //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
         const vrmLookAt = {
-          offsetFromHeadBone: [lookAt.offsetFromHeadBonex,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
+          //offsetFromHeadBone: [lookAt.offsetFromHeadBone.x,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
+          offsetFromHeadBone: [0,0,0],
           rangeMapHorizontalInner: {
               inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
               outputScale: lookAt.applier.rangeMapHorizontalInner.outputScale,
@@ -276,6 +298,14 @@ export default class VRMExporter {
           },
           type: "bone"
         };
+
+        //temporal, taking the first node as it is the skinned mesh renderer
+        // const vrmFirstPerson = {
+        //     meshAnnotations:[
+        //         {node:243, type:"auto"}
+        //     ]
+        // }
+
         // const vrmFirstPerson = {
         //     firstPersonBone: nodeNames.indexOf(
         //     lookAt.firstPerson._firstPersonBone.name),
@@ -400,16 +430,16 @@ export default class VRMExporter {
             extensions: {
                 VRMC_vrm: {
                     expressions: {
-                        preset:expressionsPreset
+                        preset:expressionsPreset,
+                        custom:expressionCustom
                     },
-                    exporterVersion: EXPORTER_VERSION,
                     //firstPerson: vrmFirstPerson,
                     humanoid: vrmHumanoid,
                     lookAt: vrmLookAt,
                     meta: outputVrmMeta,
                     //materialProperties: materialProperties,
                     //secondaryAnimation: outputSecondaryAnimation,
-                    specVersion: "0.0", // TODO:
+                    specVersion: "1.0", 
                 },
             },
             extensionsUsed: [
@@ -428,6 +458,7 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -685,7 +716,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
       if (material.type === "ShaderMaterial") {
           VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
-          VRMC_materials_mtoon.shadeMultiplyTexture = images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name);
+          VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
 
           const mtoonMaterial = material;
           baseColor = mtoonMaterial.color ? [
