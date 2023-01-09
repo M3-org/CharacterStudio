@@ -362,16 +362,58 @@ export function findChildrenByType(root, type) {
         predicate: (o) => o.type === type,
     });
 }
-export function getAvatarData (avatarModel){
+export function getAvatarData (avatarModel, modelName){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
-  //console.log("skinned mesh for vrm", skinnedMeshes[0])
-  const humanBones = getHumanoidByBoneNames(skinnedMeshes[0])
+
   return {
-    humanoid:{humanBones:humanBones},
-    material:"material"
+    humanoid:{humanBones:getHumanoidByBoneNames(skinnedMeshes[0])},
+    meta:getVRMMeta(modelName),
+    materials:avatarModel.userData.atlasMaterial,
+    lookAt:getVRMDefaultLookAt()
   }
 }
 
+function getVRMMeta(name){
+  return {
+    author:["Webaverse"],
+    metaVersion:"1",
+    version:"v1",
+    name:name,
+    commercialUssageName: "personalNonProfit",
+    contactInformation: "https://webaverse.com/", 
+    allowExcessivelyViolentUsage:false,
+    allowExcessivelySexualUsage:false,
+    allowPoliticalOrReligiousUsage:false,
+    allowAntisocialOrHateUsage:false,
+    creditNotation:"required",
+    allowRedistribution:false,
+    modification:"prohibited"
+  }
+}
+
+function getVRMDefaultLookAt(){
+  return {
+    offsetFromHeadBone:[0,0,0],
+    rangeMapHorizontalInner:{
+      inputMaxValue:90,
+      inputSacle:62.1
+    },
+    rangeMapHorizontalOuter:{
+      inputMaxValue:90,
+      inputSacle:68.6
+    },
+    rangeMapVerticalDown:{
+      inputMaxValue:90,
+      inputSacle:57.9
+    },
+    rangeMapVerticalUp:{
+      inputMaxValue:90,
+      inputSacle:52.8
+    },
+    type:"bone"
+  }
+
+}
 function getHumanoidByBoneNames(skinnedMesh){
   const humanBones = {}
   skinnedMesh.skeleton.bones.map((bone)=>{

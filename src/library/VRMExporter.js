@@ -44,10 +44,9 @@ export default class VRMExporter {
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
         const expressionsPreset = {};
-        //console.log(vrm)
-        //const blendShapeProxy = vrm.blendShapeProxy;
         const lookAt = vrm.lookAt;
-        const springBone = vrm.springBoneManager;
+        // to do, add support for spring bones
+        //const springBone = vrm.springBoneManager;
         const exporterInfo = {
             // TODO: データがなくて取得できない
             generator: "UniGLTF-2.0.0",
@@ -66,15 +65,13 @@ export default class VRMExporter {
         else if (!materials) {
             throw new Error("materials is undefined or null");
         }
-        //else if (!blendShapeProxy) {
-            //throw new Error("blendShapeProxy is undefined or null");
-        //}
         else if (!lookAt) {
             throw new Error("lookAt is undefined or null");
         }
-        else if (!springBone) {
-            throw new Error("springBone is undefined or null");
-        }
+        // to do, add support to spring bones
+        // else if (!springBone) {
+        //     throw new Error("springBone is undefined or null");
+        // }
         // TODO: name基準で重複除外 これでいいのか？
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)

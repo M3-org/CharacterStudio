@@ -8,6 +8,7 @@ import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { ViewContext, ViewStates } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
+import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
 
@@ -150,8 +151,9 @@ export const UserMenu = () => {
         },
       )
     } else {
-      avatarToDownload.materials = [avatar.userData.atlasMaterial]
-      exporter.parse(avatarToDownload, avatar, (vrm) => {
+      const vrmData = getAvatarData(avatar, "UpstreetAvatar");
+      console.log(vrmData)
+      exporter.parse(vrmData, avatar, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
     }
