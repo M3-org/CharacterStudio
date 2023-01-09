@@ -365,19 +365,18 @@ export function findChildrenByType(root, type) {
 }
 export function getAvatarData (avatar, avatarModel, modelName){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
-  const baseAvatarData = getAvatarVRMData(avatar);
   return {
     humanoid:{humanBones:getHumanoidByBoneNames(skinnedMeshes[0])},
     meta:getVRMMeta(modelName),
     materials:[avatarModel.userData.atlasMaterial],
     lookAt:getVRMDefaultLookAt(),
-    expressionManager: baseAvatarData.expressionManager
+    expressionManager: getVRMExpressionManager(avatar)
   }
 }
-function getAvatarVRMData(avatar){
+function getVRMExpressionManager(avatar){
   // to do, merge data from all vrms, not to get only the first one
   for (const prop in avatar){
-    if (avatar[prop].vrm){
+    if (avatar[prop].vrm?.expressionManager?.expressionMap){
       return avatar[prop].vrm
     }
   }
