@@ -9,6 +9,7 @@ import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
+
 export async function prepareModel(templateInfo){
   // check the local storage for a JSON of the model
   // if it exists, load it
@@ -362,7 +363,7 @@ export function findChildrenByType(root, type) {
         predicate: (o) => o.type === type,
     });
 }
-export function getAvatarData (avatarModel, modelName){
+export function getAvatarData (avatar, avatarModel, modelName){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
 
   return {

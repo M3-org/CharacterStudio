@@ -26,7 +26,7 @@ export const UserMenu = () => {
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
-  const { skinColor, model } = useContext(SceneContext)
+  const { skinColor, model, avatar } = useContext(SceneContext)
 
   const { currentView, setCurrentView } = useContext(ViewContext)
 
@@ -122,14 +122,14 @@ export const UserMenu = () => {
     const avatarToCombine = avatarToDownload.clone()
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
-    const avatar = await combine({
+    const avatarModel = await combine({
       transparentColor: skinColor,
       avatar: avatarToCombine,
       atlasSize,
     })
     if (format === "glb") {
       exporter.parse(
-        avatar,
+        avatarModel,
         (result) => {
           if (result instanceof ArrayBuffer) {
             saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -151,9 +151,9 @@ export const UserMenu = () => {
         },
       )
     } else {
-      const vrmData = getAvatarData(avatar, "UpstreetAvatar");
+      const vrmData = getAvatarData(avatar, avatarModel, "UpstreetAvatar");
       console.log(vrmData)
-      exporter.parse(vrmData, avatar, (vrm) => {
+      exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
     }
