@@ -151,10 +151,20 @@ export const UserMenu = () => {
         },
       )
     } else {
-      const vrmData = getAvatarData(avatar, avatarModel, "UpstreetAvatar");
+
+      const vrmData = {...getVRMBaseData(avatar), ...getAvatarData(avatarModel, "UpstreetAvatar")}
       exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
+    }
+  }
+
+  function getVRMBaseData(avatar){
+    // to do, merge data from all vrms, not to get only the first one
+    for (const prop in avatar){
+      if (avatar[prop].vrm){
+        return avatar[prop].vrm
+      }
     }
   }
 
