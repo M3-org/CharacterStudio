@@ -1,6 +1,7 @@
-import React, { Fragment, Suspense, useEffect, useState } from "react"
+import React, { Fragment, Suspense, useContext, useEffect, useState } from "react"
 
 import Scene from "./components/Scene"
+import { AppMode, CameraMode, ViewContext, ViewStates } from "./context/ViewContext"
 
 /* eslint-disable react/no-unknown-property */
 import ChatComponent from "./components/ChatComponent"
@@ -61,41 +62,47 @@ const resource = fetchData()
 export default function App() {
   const manifest = resource.read()
   
+  const { currentAppMode, setCurrentAppMode } = useContext(ViewContext)
   // randomly roll a number between 0 and the data length
   const randomIndex = Math.floor(Math.random() * manifest.length)
   const templateInfo = manifest && manifest[randomIndex]
 
-//   // fetch the manifest, then set it
-  // useEffect(() => {
-  //     setCurrentView(ViewStates.CREATOR)
-  // }, [])
+  const [hideUi, setHideUi] = useState(false)
 
-  const [showChat, setShowChat] = useState(false);
-  
-  useEffect(() => {
-    // if user presses ctrl h, show chat
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 'h') {
-        e.preventDefault();
-        setShowChat(!showChat);
-      }
+// detect a double tap on the screen or a mouse click
+// switch the UI on and off
+let lastTap = 0
+useEffect(() => {
+  const handleTap = () => {
+    const now = new Date().getTime()
+    const timesince = now - lastTap
+    if (timesince < 300 && timesince > 0) {
+      setHideUi(!hideUi)
     }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-    }
-}, [])
+    lastTap = now
+  }
+  window.addEventListener("touchend", handleTap)
+  window.addEventListener("click", handleTap)
+  return () => {
+    window.removeEventListener("touchend", handleTap)
+    window.removeEventListener("click", handleTap)
+  }
+}, [hideUi])
 
 return (
   <Suspense fallback={<LoadingOverlay />}>
     <Fragment>
-        <ChatButton />
-        <ARButton />
-        <Background />
+      <Background />
         <Scene templateInfo={templateInfo} />
+        {!hideUi &&
+          <Fragment>
+          <ChatButton />
+        <ARButton />
         <UserMenu />
-        {<ChatComponent />}
-        {<Editor templateInfo={templateInfo} />}
+        {currentAppMode === AppMode.CHAT && <ChatComponent />}
+        {currentAppMode === AppMode.APPEARANCE && <Editor templateInfo={templateInfo} />}
+          </Fragment>
+      }
       </Fragment>
     </Suspense>
   )

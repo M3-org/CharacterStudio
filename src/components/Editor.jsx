@@ -4,7 +4,7 @@ import * as THREE from "three"
 import gsap from 'gsap';
 import useSound from 'use-sound';
 import optionClick from "../../public/sound/option_click.wav";
-import shuffle from "../../public/ui/traits/shuffle.png";
+import shuffle from "../../public/ui/traits/shuffle.svg";
 import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
 

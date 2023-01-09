@@ -2,8 +2,7 @@
     position: absolute;
     left: 2em;
     top: 20vh;
-    height: 60vh;
-    height: 36em;
+    height: 40em;
     border: 1px solid #38404E;
     border-radius : 5px;
     backdrop-filter: blur(22.5px); 
@@ -40,10 +39,6 @@
     margin-top: .5em;
 }
 
-.MenuImg:hover {
-    opacity: 1;
-}
-
 .MenuOption {
     width: 3.5em;
     margin: .25em;
@@ -75,11 +70,12 @@
 
 .ShuffleOption {
     border-right: '';
-    opacity: 1;
+    opacity: .5;
     height: 2.5em;
     width: 2.5em;
-    padding: .5em;
+    padding: 0em;
     display: flex;
+    margin-top: .25em;
     margin-left: auto;
     margin-right: auto;
 }
@@ -92,4 +88,7 @@
     text-align: center;
     margin: 0 auto .25em auto;
     user-select: none;
+}
+.MenuImg:hover, .ShuffleOption:hover {
+    opacity: 1;
 }

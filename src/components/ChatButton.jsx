@@ -1,30 +1,19 @@
 import React, { useContext } from "react"
-import { SceneContext } from "../context/SceneContext"
-import { CameraMode, ViewContext } from "../context/ViewContext"
-import { startAR } from "../library/ar"
+import { AppMode, ViewContext } from "../context/ViewContext"
 import styles from './ChatButton.module.css'
 
 export default function ChatButton() {
-  const {currentCameraMode, setCurrentCameraMode} = useContext(ViewContext)
-  const {scene} = useContext(SceneContext)
-
+  const {currentAppMode, setCurrentAppMode} = useContext(ViewContext)
   return (
-      <div className={`${styles['SquareButton']} ${currentCameraMode === CameraMode.AR ? styles['Dress'] : styles['Chat']}`}
+      <div className={`${styles['SquareButton']} ${currentAppMode === AppMode.APPEARANCE ? styles['Chat'] : styles['Dress']}`}
         onClick={() => {
-          if (currentCameraMode === CameraMode.AR) {
-            setCurrentCameraMode(CameraMode.NORMAL);
-            // find a div called almostthereContainer and remove it from dom if it exists
-            window.XR8?.stop()
-            window.XR8?.clearCameraPipelineModules()
-
-            const almostThereContainer = document.getElementById('almostthereContainer')
-            if (almostThereContainer) {
-              almostThereContainer.remove()
-            }            
+          if (currentAppMode !== AppMode.CHAT) {
+            console.log('ChatButton: currentAppMode is APPEARANCE, setting to CHAT')
+            setCurrentAppMode(AppMode.CHAT);    
           }
           else {
-            startAR(scene)
-            setCurrentCameraMode(CameraMode.AR);
+            console.log('ChatButton: currentAppMode is CHAT, setting to APPEARANCE')
+            setCurrentAppMode(AppMode.APPEARANCE);
           }
         }}
       />

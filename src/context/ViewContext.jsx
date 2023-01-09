@@ -18,7 +18,6 @@ export const CameraMode = {
 
 export const AppMode = {
   APPEARANCE: "APPEARANCE",
-  BIO: "BIO",
   CHAT: "CHAT",
 }
 
