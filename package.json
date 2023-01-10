@@ -3,7 +3,7 @@
   "version": "0.2.6",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build --watch",
+    "build": "vite build",
     "serve": "vite preview",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint --cache --ext .js,.jsx ./src",
