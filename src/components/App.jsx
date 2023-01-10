@@ -20,8 +20,13 @@ import Logo from "./Logo"
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 
 async function fetchManifest () {
+  const manifest = localStorage.getItem("manifest")
+  if (manifest) {
+    return JSON.parse(manifest)
+  }
   const response = await fetch(assetImportPath)
   const data = await response.json()
+  localStorage.setItem("manifest", JSON.stringify(data))
   return data
 }
 
@@ -46,12 +51,29 @@ async function fetchAll() {
   const manifest = await fetchManifest()
   const sceneModel = await fetchScene()
 
-  const randomIndex = Math.floor(Math.random() * manifest.length)
-  const templateInfo = manifest && manifest[randomIndex]
+  // check if templateIndex is set in localStorage
+  // if not, set it to a random index
+  let templateIndex = localStorage.getItem("templateIndex")
+
+  if (!templateIndex) {
+    templateIndex = Math.floor(Math.random() * manifest.length)
+    localStorage.setItem("templateIndex", templateIndex)
+  } else {
+    templateIndex = parseInt(templateIndex)
+  }
+  const templateInfo = manifest[templateIndex]
 
   const animationManager = await fetchAnimation(templateInfo)
 
-  const initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
+  // check if initialTraits is set in localStorage
+  // if not, set it to a random index
+  let initialTraits = localStorage.getItem("initialTraits")
+  if (!initialTraits) {
+    initialTraits = initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
+    localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
+  } else {
+    initialTraits = JSON.parse(initialTraits)
+  }
 
   return {
     manifest,

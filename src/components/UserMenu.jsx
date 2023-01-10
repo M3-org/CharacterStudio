@@ -251,7 +251,7 @@ export const UserMenu = () => {
               <div className={styles.loggedOutText}>
                 Not
                 <br />
-                Logged In
+                Connected
               </div>
               <CustomButton
                 type="login"
