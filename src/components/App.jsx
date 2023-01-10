@@ -14,7 +14,7 @@ import Background from "./Background"
 import ChatButton from "./ChatButton"
 import { UserMenu } from "./UserMenu"
 
-import LoadingOverlay from "./LoadingOverlay"
+import Logo from "./Logo"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -96,7 +96,7 @@ export default function App() {
   const {manifest, sceneModel, templateInfo, initialTraits, animationManager} = resource.read()
 
   const { currentAppMode } = useContext(ViewContext)
-  // randomly roll a number between 0 and the data length
+  const {avatar} = useContext(ViewContext)
 
   const [hideUi, setHideUi] = useState(false)
 
@@ -121,9 +121,9 @@ useEffect(() => {
 }, [])
 
 return (
-  <Suspense fallback={<LoadingOverlay />}>
-    <Fragment>
+  <Fragment>
       <Background />
+      <Logo />
         <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
         {!hideUi &&
           <Fragment>
@@ -134,7 +134,6 @@ return (
         {currentAppMode === AppMode.APPEARANCE && <Editor animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} />}
           </Fragment>
       }
-      </Fragment>
-    </Suspense>
+    </Fragment>
   )
 }

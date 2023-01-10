@@ -1,26 +1,20 @@
-import React from "react"
+import React, {useContext} from "react"
 import webaMark from "../../public/ui/loading/webaMark.svg"
 
 import styles from './LoadingOverlay.module.css'
 
+import {ViewContext} from "../context/ViewContext"
 export default function LoadingOverlayCircularStatic({
-  title = "Loading"
+  title = "LOADING EXPERIENCE"
 }) {
-  return(
+  const {loading} = useContext(ViewContext)
+  return loading ? (
     <div className={styles['LoadingStyleBox']}>
-      <span className = "loading-text" >
-        {title}
-      </span>
-        <div className={styles["vh-centered"]}>
-          <div className={styles["cover-loadingbar"]}>
-            <div className={styles["loading-bar"]}>
-            </div>
-          </div>
-        </div>
+    <span className={styles["loading-spinner"]} />
+      <span className = {styles["loading-text"]} >{title}</span>
       <div className={styles["logo-container"]}>
           <img className={styles["webamark"]} src={webaMark} />
-        <div className={styles["logo-gradient"]}></div>
       </div>
     </div>
-  )
+  ) : null
 }

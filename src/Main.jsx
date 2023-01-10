@@ -25,7 +25,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AudioProvider>
           <ViewProvider>
             <SceneProvider>
-              <Suspense fallback={<LoadingOverlay />}>
+            <LoadingOverlay />
+              <Suspense>
                 <App />
               </Suspense>
             </SceneProvider>

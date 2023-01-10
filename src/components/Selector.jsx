@@ -6,7 +6,7 @@ import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
-
+import {ViewContext} from "../context/ViewContext"
 import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
 import { AudioContext } from "../context/AudioContext"
@@ -41,6 +41,7 @@ export default function Selector({templateInfo, animationManager}) {
     setLipSync
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
+  const {setLoading} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -183,6 +184,9 @@ export default function Selector({templateInfo, animationManager}) {
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
+        setTimeout(() => {
+          setLoading(false)
+        }, 1000);
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
