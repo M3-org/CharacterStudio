@@ -107,7 +107,7 @@ useEffect(() => {
   const handleTap = () => {
     const now = new Date().getTime()
     const timesince = now - lastTap
-    if (timesince < 300 && timesince > 0) {
+    if (timesince < 300) {
       setHideUi(!hideUi)
     }
     lastTap = now
@@ -118,7 +118,7 @@ useEffect(() => {
     window.removeEventListener("touchend", handleTap)
     window.removeEventListener("click", handleTap)
   }
-}, [])
+}, [hideUi])
 
 return (
   <Fragment>

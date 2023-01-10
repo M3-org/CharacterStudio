@@ -5,7 +5,7 @@ import styles from './LoadingOverlay.module.css'
 
 import {ViewContext} from "../context/ViewContext"
 export default function LoadingOverlayCircularStatic({
-  title = "LOADING EXPERIENCE"
+  title = "LOADING"
 }) {
   const {loading} = useContext(ViewContext)
   return loading ? (
