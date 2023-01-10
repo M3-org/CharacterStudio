@@ -1,8 +1,8 @@
 import React, { useContext } from "react"
-import { ViewStates, ViewContext, CameraMode } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
-import styles from './ARButton.module.css'
+import { CameraMode, ViewContext } from "../context/ViewContext"
 import { startAR } from "../library/ar"
+import styles from './ARButton.module.css'
 
 export default function ARButton() {
   const {currentCameraMode, setCurrentCameraMode} = useContext(ViewContext)

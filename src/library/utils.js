@@ -9,6 +9,10 @@ import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
+export function getAsArray(target) {
+  if (target == null) return []
+  return Array.isArray(target) ? target : [target]
+}
 
 export async function prepareModel(templateInfo){
   // check the local storage for a JSON of the model

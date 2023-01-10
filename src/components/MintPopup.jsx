@@ -1,12 +1,10 @@
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
 import React, { Fragment, useContext, useState } from "react"
-import mintPopupImage from "../../public/ui/mint/mintPopup.png"
-import polygonIcon from "../../public/ui/mint/polygon.png"
 import ethereumIcon from "../../public/ui/mint/ethereum.png"
+import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { ViewContext, ViewStates } from "../context/ViewContext"
 import { getModelFromScene, getScreenShot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 import MintModal from "./MintModal"
@@ -20,7 +18,6 @@ const mintCost = 0.01
 
 export default function MintPopup({templateInfo}) {
   const { avatar, skinColor, model } = useContext(SceneContext)
-  const { currentView, setCurrentView } = useContext(ViewContext)
   const { walletAddress } = useContext(AccountContext)
 
   const [mintStatus, setMintStatus] = useState("")
@@ -59,7 +56,6 @@ export default function MintPopup({templateInfo}) {
   const mintAsset = async (avatar) => {
     const pass = await checkOT(walletAddress);
     if(pass) {
-      setCurrentView(ViewStates.MINT_CONFIRM)
       setMintStatus("Uploading...")
       console.log('avatar in mintAsset', avatar)
 
@@ -125,7 +121,6 @@ export default function MintPopup({templateInfo}) {
         let res = await tx.wait()
         if (res.transactionHash) {
           setMintStatus("Mint success!")
-          setCurrentView(ViewStates.MINT_COMPLETE)
         }
       } catch (err) {
         setMintStatus("Public Mint failed! Please check your wallet.")
@@ -205,12 +200,12 @@ export default function MintPopup({templateInfo}) {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  onClick={() => setCurrentView(ViewStates.CREATOR)}
+                  // onClick={() => setCurrentAppMode(ViewStates.CREATOR)}
                 >
                   {" "}
-                  {currentView === ViewStates.MINT_COMPLETE ? "Ok" : "Cancel"}
+                  {"OK"}
                 </div>
-                {currentView !== ViewStates.MINT_COMPLETE && (
+                {false && (
                   <div
                     className={styles["StyledButton"]}
                     onClick={() => mintAsset(model)}

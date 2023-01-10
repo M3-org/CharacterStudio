@@ -4,11 +4,6 @@ import { cullHiddenMeshes } from "../library/utils"
 
 export const SceneContext = createContext()
 
-function getAsArray(target) {
-  if (target == null) return []
-  return Array.isArray(target) ? target : [target]
-}
-
 export const SceneProvider = (props) => {
   const initializeScene = () => {
     const scene = new THREE.Scene()
@@ -30,7 +25,6 @@ export const SceneProvider = (props) => {
   const [camera, setCamera] = useState(null)
 
   const [selectedOptions, setSelectedOptions] = useState([])
-  const [selectedRandomTraits, setSelectedRandomTraits] = React.useState([])
 
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
@@ -58,7 +52,6 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
-        getAsArray,
         lipSync,
         setLipSync,
         scene,
@@ -69,8 +62,6 @@ export const SceneProvider = (props) => {
         setCurrentOptions,
         setSelectedOptions,
         selectedOptions,
-        setSelectedRandomTraits,
-        selectedRandomTraits,
         model,
         setModel,
         animationManager,

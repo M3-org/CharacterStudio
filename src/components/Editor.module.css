@@ -92,3 +92,36 @@
 .MenuImg:hover, .ShuffleOption:hover {
     opacity: 1;
 }
+
+.LoadingContainer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* centered vertically and horizontally, about 10em big */
+.Loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: rgba(1.0, 1.0, 1.0, 0.5);
+    height: min(30vh, 30vw);
+    width: min(30vh, 30vw);
+    min-height: 10em;
+    min-width: 10em;
+    border-radius: 1em;
+}
+
+.LoadingText {
+    color: #FFFFFF;
+    font-size: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 0;
+}

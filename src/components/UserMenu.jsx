@@ -6,7 +6,6 @@ import React, { useContext, useEffect, useState } from "react"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { ViewContext, ViewStates } from "../context/ViewContext"
 import { combine } from "../library/merge-geometry"
 import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
@@ -27,8 +26,6 @@ export const UserMenu = () => {
   })
 
   const { skinColor, model, avatar } = useContext(SceneContext)
-
-  const { currentView, setCurrentView } = useContext(ViewContext)
 
   const [mintStatus, setMintStatus] = useState("")
 
@@ -177,7 +174,6 @@ export const UserMenu = () => {
       <div className={styles.leftCorner} />
       <div className={styles.rightCorner} />
       <ul>
-        {currentView.includes("CREATOR") && (
           <React.Fragment>
             <li>
               <CustomButton
@@ -217,12 +213,11 @@ export const UserMenu = () => {
                 icon="mint"
                 size={32}
                 onClick={() => {
-                  setCurrentView(ViewStates.MINT)
+                  // setCurrentView(ViewStates.MINT)
                 }}
               />
             </li>
           </React.Fragment>
-        )}
         {connected ? (
           <React.Fragment>
             <li>

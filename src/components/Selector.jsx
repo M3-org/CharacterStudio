@@ -17,6 +17,7 @@ import {
   createBoneDirection,
 } from "../library/utils"
 import { LipSync } from '../library/lipsync'
+import { getAsArray } from "../library/utils"
 
 import styles from "./Selector.module.css"
 
@@ -24,7 +25,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo}) {
+export default function Selector({templateInfo, animationManager}) {
   const {
     avatar,
     setAvatar,
@@ -33,12 +34,10 @@ export default function Selector({templateInfo}) {
     selectedOptions,
     setSelectedOptions,
     model,
-    animationManager,
     setTraitsNecks,
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye,
-    getAsArray,
     setLipSync
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
@@ -342,9 +341,7 @@ export default function Selector({templateInfo}) {
       renameVRMBones(vrm)
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
-      if (animationManager){
-        animationManager.startAnimation(vrm)
-      }
+      animationManager.startAnimation(vrm)
 
       // culling layers setup section
 
@@ -420,15 +417,21 @@ export default function Selector({templateInfo}) {
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
+        setTimeout(() => {
           disposeVRM(avatar[traitData.name].vrm)
+        }, 50)
       }
     }
-
-    if(vrm) {
-    // add the now model to the current scene
-    model.add(vrm.scene)
-    }
     
+    if(vrm) {
+    const m = vrm.scene;
+    m.visible = false;
+    // add the now model to the current scene
+    model.add(m)
+    setTimeout(() => {
+      m.visible = true;
+    }, 50)
+  }
 
     // and then add the new avatar data
     // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
@@ -512,7 +515,7 @@ export default function Selector({templateInfo}) {
               />
               {active && loadPercentage > 0 && loadPercentage < 100 && (
                 <div className={styles["loading-trait"]}>
-                  Loading...
+                  {loadPercentage}
                 </div>
               )}
             </div>)

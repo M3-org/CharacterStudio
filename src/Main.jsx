@@ -10,7 +10,7 @@ import { ViewProvider } from "./context/ViewContext"
 
 import LoadingOverlay from "./components/LoadingOverlay"
 
-import App from "./App"
+import App from "./components/App"
 
 const getLibrary = (provider) => {
   const library = new Web3Provider(provider)
