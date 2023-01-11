@@ -56,24 +56,22 @@ export async function loadModel(file, onProgress) {
 }
 
 export const cullHiddenMeshes = (avatar) => {
-  const models = [];
+  const models = []
   for (const property in avatar) {
-    const vrm = avatar[property].vrm;
+    const vrm = avatar[property].vrm
     if (vrm) {
-      const cullLayer = vrm.data.cullingLayer;
+      const cullLayer = vrm.data.cullingLayer
       if (cullLayer >= 0) { 
-        vrm.scene.traverse((child) => {
-          if (child.isMesh) {
-            child.userData.cullLayer = cullLayer;
-            child.userData.cullDistance = vrm.data.cullingDistance;
-            models.push(child);
-          }
-        });
+        vrm.data.cullingMeshes.map((mesh)=>{
+          mesh.userData.cullLayer = cullLayer
+          mesh.userData.cullDistance = vrm.data.cullingDistance
+          models.push(mesh)
+        })
       }
     }
   }
-  CullHiddenFaces(models);
-};
+  CullHiddenFaces(models)
+}
 
 export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1)) {
   if (format && format === 'glb') {

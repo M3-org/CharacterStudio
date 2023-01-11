@@ -184,7 +184,9 @@ export default function Selector({templateInfo, animationManager}) {
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setLoading(false)
+        setTimeout(() => {
+          setLoading(false)
+        }, 1000);
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -349,19 +351,6 @@ export default function Selector({templateInfo, animationManager}) {
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
 
-      // culling layers setup section
-
-      addModelData(vrm, {
-        cullingLayer: 
-          item.cullingLayer != null ? item.cullingLayer: 
-          traitData.cullingLayer != null ? traitData.cullingLayer: 
-          templateInfo.defaultCullingLayer != null?templateInfo.defaultCullingLayer: -1,
-        cullingDistance: 
-          item.cullingDistance != null ? item.cullingDistance: 
-          traitData.cullingDistance != null ? traitData.cullingDistance:
-          templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
-      })  
-
       // mesh target setup section
       if (item.meshTargets){
         getAsArray(item.meshTargets).map((target) => {
@@ -370,6 +359,9 @@ export default function Selector({templateInfo, animationManager}) {
         })
       }
       
+      const cullingIgnore = getAsArray(item.cullingIgnore)
+      const cullingMeshes = [];
+
       vrm.scene.traverse((child) => {
         
         // mesh target setup secondary swection
@@ -378,6 +370,10 @@ export default function Selector({templateInfo, animationManager}) {
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
+          // if a mesh is found in name to be ignored, dont add it to target cull meshes
+          if (cullingIgnore.indexOf(child.name) === -1)
+            cullingMeshes.push(child)
+
           if (child.geometry.boundsTree == null)
             child.geometry.computeBoundsTree({strategy:SAH});
 
@@ -398,7 +394,18 @@ export default function Selector({templateInfo, animationManager}) {
         }
       })
 
-      
+      // culling layers setup section
+      addModelData(vrm, {
+        cullingLayer: 
+          item.cullingLayer != null ? item.cullingLayer: 
+          traitData.cullingLayer != null ? traitData.cullingLayer: 
+          templateInfo.defaultCullingLayer != null?templateInfo.defaultCullingLayer: -1,
+        cullingDistance: 
+          item.cullingDistance != null ? item.cullingDistance: 
+          traitData.cullingDistance != null ? traitData.cullingDistance:
+          templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
+        cullingMeshes
+      })  
     })
 
     // once the setup is done, assign them
@@ -423,7 +430,9 @@ export default function Selector({templateInfo, animationManager}) {
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        disposeVRM(avatar[traitData.name].vrm)
+        setTimeout(() => {
+          disposeVRM(avatar[traitData.name].vrm)
+        }, 50)
       }
     }
     
@@ -442,7 +451,7 @@ export default function Selector({templateInfo, animationManager}) {
     return {
       [traitData.name]: {
         traitInfo: item,
-        name: item?.name,
+        name: item.name,
         model: vrm && vrm.scene,
         vrm: vrm,
       }
