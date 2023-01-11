@@ -5,7 +5,7 @@
     width: 600px;
     min-height: 200px;
     font-size: .8rem;
-    bottom: 20px;
+    bottom: 10em;
     padding: 1em;
     margin: 1em;
     color: #fff;
@@ -46,7 +46,7 @@
     background-color: #000;
     bottom: 10px;
     color: #fff;
-    width: 100%;
+    width: calc(100% - 20px);
 }
 
 /* set the input0 text color to white */

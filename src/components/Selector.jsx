@@ -184,9 +184,7 @@ export default function Selector({templateInfo, animationManager}) {
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setTimeout(() => {
-          setLoading(false)
-        }, 1000);
+        setLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -425,9 +423,7 @@ export default function Selector({templateInfo, animationManager}) {
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        setTimeout(() => {
-          disposeVRM(avatar[traitData.name].vrm)
-        }, 50)
+        disposeVRM(avatar[traitData.name].vrm)
       }
     }
     
@@ -446,7 +442,7 @@ export default function Selector({templateInfo, animationManager}) {
     return {
       [traitData.name]: {
         traitInfo: item,
-        name: item.name,
+        name: item?.name,
         model: vrm && vrm.scene,
         vrm: vrm,
       }

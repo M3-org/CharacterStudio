@@ -36,9 +36,8 @@ export default function ChatBox() {
         const value = input.value;
 
         // Send the message to the localhost endpoint
-        const client = 1;
+        const client = "charactercreator_page";
         const channelId = "three";
-        const entity = 11;
         const speaker = "moon";
         const agent = "Eliza";
         const channel = "homepage";
@@ -53,17 +52,17 @@ export default function ChatBox() {
         try {
             const url = encodeURI(`http://localhost:8001/spells/${spell_handler}`)
 
-
             const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
 
             axios.post(`${url}`, {
-                    Input: value,
-                    Speaker: speaker,
-                    Agent: agent,
-                    Client: client,
-                    ChannelID: channelId,
-                    Entity: entity,
-                    Channel: channel,
+                Input: {
+                    input: value,
+                    speaker: speaker,
+                    agent: agent,
+                    client: client,
+                    channelId: channelId,
+                    channel: channel,
+                }
             }).then((response) => {
                 const data = response.data;
 

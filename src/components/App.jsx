@@ -118,7 +118,6 @@ export default function App() {
   const {manifest, sceneModel, templateInfo, initialTraits, animationManager} = resource.read()
 
   const { currentAppMode } = useContext(ViewContext)
-  const {avatar} = useContext(ViewContext)
 
   const [hideUi, setHideUi] = useState(false)
 
