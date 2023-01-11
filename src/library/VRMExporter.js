@@ -17,6 +17,28 @@ function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
         violentUssageName: vrmMeta.violentUssageName,
     };
 }
+// function getVRM0BlendshapeName(curName){
+//     switch(curName){
+//       case "happy":
+//         return "joy"
+//       case "sad":
+//         return "sorrow"
+//       case "relaxed":
+//         return "fun"
+//       case "aa":
+//         return "a"
+//       case "ih":
+//         return "i"
+//       case "ou":
+//         return "u"
+//       case "ee":
+//         return "e"
+//       case "oh":
+//         return "o"
+//       default:
+//         return curName;
+//     }
+//   }
 // WebGL(OpenGL)マクロ定数
 var WEBGL_CONST;
 (function (WEBGL_CONST) {
@@ -47,6 +69,7 @@ export default class VRMExporter {
         const materials = vrm.materials;
         const expressionsPreset = {};
         const expressionCustom = {};
+        const expressions = {};
         const lookAt = vrm.lookAt;
 
         // to do, add support to spring bones
@@ -158,14 +181,13 @@ export default class VRMExporter {
             }
 
             mesh.geometry.userData.targetNames = [];
-            
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
                 const morphTargetBinds = expression._binds.map(obj => ({node:0, index:obj.index, weight:obj.weight  }))
                 let isPreset = false;
                 for (const presetName in VRMExpressionPresetName) {
-                    if (prop === VRMExpressionPresetName[presetName]){
-                        expressionsPreset[prop] = {
+                    if (prop.toLowerCase() === VRMExpressionPresetName[presetName].toLowerCase()){
+                        expressionsPreset[VRMExpressionPresetName[presetName]] = {
                             morphTargetBinds,
                             isBinary:expression.isBinary,
                             overrideBlink:expression.overrideBlink,
@@ -175,6 +197,16 @@ export default class VRMExporter {
                         isPreset = true;
                         break;
                     }
+                }
+                if (!isPreset && prop.toLowerCase() === "surprise"){
+                    expressionsPreset["surprised"] = {
+                        morphTargetBinds,
+                        isBinary:expression.isBinary,
+                        overrideBlink:expression.overrideBlink,
+                        overrideLookAt:expression.overrideLookAt,
+                        overrideMouth:expression.overrideMouth,
+                    }
+                    isPreset = true;
                 }
                 if (isPreset === false){
                     expressionCustom[prop] = {
@@ -200,6 +232,11 @@ export default class VRMExporter {
                 meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
             }
         });
+        if (Object.keys(expressionsPreset).length > 0)
+            expressions.preset = expressionsPreset
+
+        if (Object.keys(expressionCustom).length > 0)
+            expressions.custom = expressionCustom
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
         meshes.forEach((object) => {
@@ -429,10 +466,7 @@ export default class VRMExporter {
             bufferViews: outputBufferViews,
             extensions: {
                 VRMC_vrm: {
-                    expressions: {
-                        preset:expressionsPreset,
-                        custom:expressionCustom
-                    },
+                    expressions,
                     //firstPerson: vrmFirstPerson,
                     humanoid: vrmHumanoid,
                     lookAt: vrmLookAt,
@@ -458,7 +492,7 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData)
+        //console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
