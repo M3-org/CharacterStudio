@@ -63,7 +63,6 @@ const GLTF_VERSION = 2;
 const HEADER_SIZE = 12;
 export default class VRMExporter {
     parse(vrm, avatar, onDone) {
-        console.log("VRM HERE", vrm)
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;
