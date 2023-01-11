@@ -127,6 +127,15 @@ export default function Scene({sceneModel}) {
       alpha: true,
     })
 
+    const handleResize = () => {
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      camera.aspect = window.innerWidth / window.innerHeight
+      camera.updateProjectionMatrix()
+    }
+
+    // add an eventlistener to resize the canvas when window changes
+    window.addEventListener("resize", handleResize)
+
     // set the renderer size
     renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -171,6 +180,12 @@ export default function Scene({sceneModel}) {
       scene.add(avatarModel)
     }
     fetchAssets()
+    return () => {
+      removeEventListener("mousemove", handleMouseMove)
+      removeEventListener("resize", handleMouseMove)
+      scene.remove(sceneModel)
+      scene.remove(model)
+    }
   }, [])
 
   return <></>
