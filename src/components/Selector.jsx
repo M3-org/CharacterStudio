@@ -319,11 +319,15 @@ export default function Selector({templateInfo, animationManager}) {
     const textures = itemData.textures;
     const colors = itemData.colors;
     // null section (when user selects to remove an option)
-    if ( item == null && avatar) {
-      if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
-        disposeVRM(avatar[traitData.name].vrm)
-        setSelectValue("")
+    if ( item == null) {
+      // if avatar exists and trait exsits, remove it
+      if (avatar){
+        if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
+          disposeVRM(avatar[traitData.name].vrm)
+          setSelectValue("")
+        }
       }
+      // always return an empty trait here when receiving null item
       return {
         [traitData.name]: {}
       }
@@ -424,14 +428,14 @@ export default function Selector({templateInfo, animationManager}) {
     }
     
     if(vrm) {
-    const m = vrm.scene;
-    m.visible = false;
-    // add the now model to the current scene
-    model.add(m)
-    setTimeout(() => {
-      m.visible = true;
-    }, 100)
-  }
+      const m = vrm.scene;
+      m.visible = false;
+      // add the now model to the current scene
+      model.add(m)
+      setTimeout(() => {
+        m.visible = true;
+      }, 50)
+    }
 
     // and then add the new avatar data
     // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
