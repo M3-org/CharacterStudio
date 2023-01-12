@@ -185,11 +185,11 @@ export default function Editor({templateInfo, initialTraits, animationManager}) 
             </div>
           ))}
 
-          <div className={styles['LineDivision']}/>
+          {/* <div className={styles['LineDivision']}/>
           <img className={styles['ShuffleOption']} onClick={() => {
               !isMute && play();
               setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
-            }} src={shuffle} />
+            }} src={shuffle} /> */}
     </div>
     <Selector animationManager={animationManager} templateInfo={templateInfo} />
   </Fragment>
