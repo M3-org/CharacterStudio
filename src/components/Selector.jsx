@@ -38,7 +38,11 @@ export default function Selector({templateInfo, animationManager}) {
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye,
-    setLipSync
+    setLipSync,
+    traitsSpines,
+    traitsNecks,
+    traitsLeftEye,
+    traitsRightEye,
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
@@ -312,6 +316,13 @@ export default function Selector({templateInfo, animationManager}) {
     return typeTraits;
   }
 
+  const resetJoint = (joint) => {
+    if (Object.keys(joint).length !== 0) {
+      joint.rotation.y = 0
+      joint.rotation.x = 0
+    }
+  }
+
   // once loaded, assign
   const itemAssign = (itemData) => {
 
@@ -384,15 +395,27 @@ export default function Selector({templateInfo, animationManager}) {
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
         if (child.isBone && child.name == 'neck') { 
+          traitsNecks.length !== 0 && traitsNecks.map((neck) => {
+            resetJoint(neck)
+          })
           setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
+          traitsSpines.length !== 0 && traitsSpines.map((spine) => {
+            resetJoint(spine)
+          })
           setTraitsSpines(current => [...current , child])
         }
         if (child.isBone && child.name === 'leftEye') { 
+          traitsLeftEye.length !== 0 && traitsLeftEye.map((leftEye) => {
+            resetJoint(leftEye)
+          })
           setTraitsLeftEye(current => [...current , child])
         }
         if (child.isBone && child.name === 'rightEye') { 
+          traitsRightEye.length !== 0 && traitsRightEye.map((rightEye) => {
+            resetJoint(rightEye)
+          })
           setTraitsRightEye(current => [...current , child])
         }
       })
