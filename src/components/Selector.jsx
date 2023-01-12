@@ -318,8 +318,7 @@ export default function Selector({templateInfo, animationManager}) {
 
   const resetJoint = (joint) => {
     if (Object.keys(joint).length !== 0) {
-      joint.rotation.y = 0
-      joint.rotation.x = 0
+      joint.rotation.set(0, 0, 0);
     }
   }
 
