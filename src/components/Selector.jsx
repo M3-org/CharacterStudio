@@ -338,14 +338,17 @@ export default function Selector({templateInfo, animationManager}) {
     // save an array of mesh targets
     const meshTargets = [];
     
-
+   
     // add culling data to each model TODO,  if user defines target culling meshes set them before here
     // models are vrm in some cases!, beware
     let vrm = null
+    
     models.map((m)=>{
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
-      setLipSync(new LipSync(vrm));
+      
+      if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
+        setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
