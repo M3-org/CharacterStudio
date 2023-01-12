@@ -10,9 +10,10 @@ import { SceneContext } from "../context/SceneContext";
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
+import { getAsArray } from "../library/utils"
 
 export default function Editor({templateInfo, initialTraits, animationManager}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -43,6 +44,7 @@ export default function Editor({templateInfo, initialTraits, animationManager}) 
       return;
     } 
 
+    setRemoveOption(getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1)
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
