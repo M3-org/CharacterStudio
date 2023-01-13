@@ -446,14 +446,15 @@ export default function Selector({templateInfo, animationManager}) {
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        // update the joint rotation of the new trait
-        const event = new Event('modelUpdate');
-        event.x = camerDegrees.x;
-        event.y = camerDegrees.y;
-        window.dispatchEvent(event);
-        
         m.visible = true;
       }, 50)
+
+      // update the joint rotation of the new trait
+      const event = new Event('modelUpdate');
+      event.x = camerDegrees.x;
+      event.y = camerDegrees.y;
+      event.model = m;
+      window.dispatchEvent(event);
     }
 
     // and then add the new avatar data
