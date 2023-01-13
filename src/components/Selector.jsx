@@ -38,7 +38,8 @@ export default function Selector({templateInfo, animationManager, blinkManager})
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye,
-    setLipSync
+    setLipSync,
+    cameraDegrees,
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
@@ -451,6 +452,13 @@ export default function Selector({templateInfo, animationManager, blinkManager})
       setTimeout(() => {
         m.visible = true;
       }, 50)
+
+      // update the joint rotation of the new trait
+      const event = new Event('modelUpdate');
+      event.x = cameraDegrees.x;
+      event.y = cameraDegrees.y;
+      event.model = m;
+      window.dispatchEvent(event);
     }
 
     // and then add the new avatar data

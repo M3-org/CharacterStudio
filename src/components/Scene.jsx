@@ -14,6 +14,7 @@ export default function Scene({sceneModel}) {
     traitsLeftEye,
     traitsRightEye,
     setControls,
+    setCameraDegrees,
   } = useContext(SceneContext)
   const maxLookPercent = {
     neck: 20,
@@ -60,6 +61,7 @@ export default function Scene({sceneModel}) {
   }
 
   const handleMouseMove = (event) => {
+    setCameraDegrees({x: event.x, y: event.y});
     const moveJoint = (mouse, joint, degreeLimit) => {
       if (Object.keys(joint).length !== 0) {
         let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit)
@@ -88,10 +90,45 @@ export default function Scene({sceneModel}) {
       })
     }
   }
+  
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove)
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [handleMouseMove])
+
+
+  const handleModelUpdate = (event) => {
+    const moveJoint = (mouse, joint, degreeLimit) => {
+      if (Object.keys(joint).length !== 0) {
+        let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit)
+        joint.rotation.y = THREE.MathUtils.degToRad(degrees.x)
+        joint.rotation.x = THREE.MathUtils.degToRad(degrees.y)
+      }
+    }
+    if (event.model) {
+      event.model.traverse((child) => {
+        if (child.isBone) { 
+          if (child.isBone && child.name == 'neck') { 
+            moveJoint(event, child, maxLookPercent.neck)
+          }
+          if (child.isBone && child.name == 'spine') { 
+            moveJoint(event, child, maxLookPercent.spine)
+          }
+          if (child.isBone && child.name === 'leftEye') { 
+            moveJoint(event, child, maxLookPercent.left)
+          }
+          if (child.isBone && child.name === 'rightEye') { 
+            moveJoint(event, child, maxLookPercent.right)
+          }
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("modelUpdate", handleModelUpdate)
+    return () => window.removeEventListener("modelUpdate", handleModelUpdate)
+  }, [handleModelUpdate])
 
   let loaded = false
   let [isLoaded, setIsLoaded] = useState(false)
