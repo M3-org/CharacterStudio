@@ -8,6 +8,7 @@ import ChatComponent from "./ChatComponent"
 import Editor from "./Editor"
 
 import { AnimationManager } from "../library/animationManager"
+import { BlinkManager } from "../library/blinkManager"
 import { getAsArray } from "../library/utils"
 import ARButton from "./ARButton"
 import Background from "./Background"
@@ -75,12 +76,15 @@ async function fetchAll() {
     initialTraits = JSON.parse(initialTraits)
   }
 
+  const blinkManager = new BlinkManager(0.1,0.1,0.5,5);
+
   return {
     manifest,
     sceneModel,
     templateInfo,
     animationManager,
-    initialTraits
+    initialTraits,
+    blinkManager
   }
 }
 
@@ -115,7 +119,7 @@ const fetchData = () => {
 const resource = fetchData()
 
 export default function App() {
-  const {manifest, sceneModel, templateInfo, initialTraits, animationManager} = resource.read()
+  const {manifest, sceneModel, templateInfo, initialTraits, animationManager, blinkManager} = resource.read()
 
   const { currentAppMode } = useContext(ViewContext)
 
@@ -152,7 +156,7 @@ return (
         <ARButton />
         <UserMenu />
         {currentAppMode === AppMode.CHAT && <ChatComponent />}
-        {currentAppMode === AppMode.APPEARANCE && <Editor animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} />}
+        {currentAppMode === AppMode.APPEARANCE && <Editor animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager}/>}
           </Fragment>
       }
     </Fragment>

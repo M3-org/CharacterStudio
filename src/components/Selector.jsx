@@ -25,7 +25,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager}) {
+export default function Selector({templateInfo, animationManager, blinkManager}) {
   const {
     avatar,
     setAvatar,
@@ -350,6 +350,10 @@ export default function Selector({templateInfo, animationManager}) {
       if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
         setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
+
+      if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
+        blinkManager.addBlinker(vrm)
+
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)

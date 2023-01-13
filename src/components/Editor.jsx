@@ -11,7 +11,7 @@ import { SceneContext } from "../context/SceneContext";
 import styles from './Editor.module.css';
 import Selector from "./Selector"
 
-export default function Editor({templateInfo, initialTraits, animationManager}) {
+export default function Editor({templateInfo, initialTraits, animationManager, blinkManager}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
@@ -189,7 +189,7 @@ export default function Editor({templateInfo, initialTraits, animationManager}) 
               setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
             }} src={shuffle} />
     </div>
-    <Selector animationManager={animationManager} templateInfo={templateInfo} />
+    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager}/>
   </Fragment>
   );
 }
