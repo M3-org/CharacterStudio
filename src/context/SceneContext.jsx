@@ -38,7 +38,7 @@ export const SceneProvider = (props) => {
 
   const [lipSync, setLipSync] = useState(null)
 
-  const [camerDegrees, setCamerDegrees] = useState({x: 0, y: 0})
+  const [cameraDegrees, setCameraDegrees] = useState({x: 0, y: 0})
 
   const setAvatar = (state) => {
     _setAvatar(state)
@@ -87,8 +87,8 @@ export const SceneProvider = (props) => {
         traitsRightEye,
         setTraitsRightEye,
         initializeScene,
-        camerDegrees, 
-        setCamerDegrees,
+        cameraDegrees, 
+        setCameraDegrees,
       }}
     >
       {props.children}
