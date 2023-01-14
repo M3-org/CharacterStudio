@@ -45,6 +45,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
+  const [restrictions, setRestrictions] = useState(null)
+
+  useEffect(() => {
+    //setSelectedOptions (getMultipleRandomTraits(initialTraits))
+    console.log(templateInfo)
+    setRestrictions(getRestrictions());
+  },[templateInfo])
 
   const getRestrictions = () => {
     
@@ -106,8 +113,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       typeRestrictions
     }
   }
-
-  const restrictions = getRestrictions()
 
   // options are selected by random or start
   useEffect(() => {
