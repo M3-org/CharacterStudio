@@ -12,7 +12,7 @@ import { getAsArray } from "../library/utils"
 import styles from './Editor.module.css';
 import Selector from "./Selector"
 
-export default function Editor({templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
+export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
@@ -48,6 +48,10 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
     setCurrentTraitName(option.name)
     
   }
+  const selectClassOption = () => {
+    setCurrentOptions(getClassOptions());
+    setCurrentTraitName("_class")
+  }
 
   const getMultipleRandomTraits = (traitNames, customTemplateInfo=null) =>{
     
@@ -65,14 +69,20 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
     })
     return resultTraitOptions
   }
-  const clickRandom = () => {
-    console.log("click ranbd")
-    fetchNewModel(1).then((template)=>{
+  const selectClass = (ind) => {
+    fetchNewModel(ind).then((template)=>{
 
       //console.log(template)
       initialTraits = initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
       setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
     })
+  }
+  const getClassOptions = () =>{
+    const options = [];
+    manifest.map((character, index) => {
+      options.push(getClassOption("class_" + index, character.thumbnail, index))
+    })
+    return options;
   }
   const getTraitOptions = (trait, customTemplateInfo = null) => {
 
@@ -143,6 +153,13 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
       colorTrait
     }
   }
+  const getClassOption = (key, icon, avatarIndex) => {
+    return {
+      key,
+      icon,
+      avatarIndex
+    }
+  }
 
 
   const moveCamera = (value) => {
@@ -196,11 +213,11 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
           <div className={styles['LineDivision']}/>
           <img className={styles['ShuffleOption']} onClick={() => {
               !isMute && play();
-              clickRandom();
+              selectClassOption();
               //setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
             }} src={shuffle} />
     </div>
-    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager}/>
+    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} selectClass = {selectClass}/>
   </Fragment>
   );
 }

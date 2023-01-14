@@ -25,7 +25,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager}) {
+export default function Selector({templateInfo, animationManager, blinkManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -125,6 +125,10 @@ export default function Selector({templateInfo, animationManager, blinkManager})
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    if (option.avatarIndex != null){
+      selectClass(option.avatarIndex)
+      return
+    }
     if (option == null){
       option = {
         item:null,
@@ -132,7 +136,8 @@ export default function Selector({templateInfo, animationManager, blinkManager})
       }
     }
 
-    loadOptions([option]).then((loadedData)=>{
+    
+    loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       
       loadedData.map((data)=>{
@@ -147,6 +152,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
   
   // load options first
   const loadOptions = (options) => {
+
     // filter options by restrictions
     options = filterRestrictedOptions(options);
 
