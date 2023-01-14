@@ -14,7 +14,7 @@ export default function Scene({sceneModel}) {
     traitsLeftEye,
     traitsRightEye,
     setControls,
-    setCameraDegrees,
+    setMousePosition,
   } = useContext(SceneContext)
   const maxLookPercent = {
     neck: 20,
@@ -61,7 +61,7 @@ export default function Scene({sceneModel}) {
   }
 
   const handleMouseMove = (event) => {
-    setCameraDegrees({x: event.x, y: event.y});
+    setMousePosition({x: event.x, y: event.y});
     const moveJoint = (mouse, joint, degreeLimit) => {
       if (Object.keys(joint).length !== 0) {
         let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit)

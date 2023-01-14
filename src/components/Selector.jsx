@@ -39,7 +39,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
     setTraitsLeftEye,
     setTraitsRightEye,
     setLipSync,
-    cameraDegrees,
+    mousePosition,
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
@@ -455,8 +455,8 @@ export default function Selector({templateInfo, animationManager, blinkManager})
 
       // update the joint rotation of the new trait
       const event = new Event('modelUpdate');
-      event.x = cameraDegrees.x;
-      event.y = cameraDegrees.y;
+      event.x = mousePosition.x;
+      event.y = mousePosition.y;
       event.model = m;
       window.dispatchEvent(event);
     }
