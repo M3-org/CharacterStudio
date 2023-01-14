@@ -70,7 +70,7 @@ async function fetchAll() {
   // if not, set it to a random index
   let initialTraits = localStorage.getItem("initialTraits")
   if (!initialTraits) {
-    initialTraits = initialTraits = [...new Set([...getAsArray(tempInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
+    initialTraits = initialTraits = [...new Set([...getAsArray(tempInfo.requiredTraits), ...getAsArray(tempInfo.randomTraits)])]
     localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
   } else {
     initialTraits = JSON.parse(initialTraits)
