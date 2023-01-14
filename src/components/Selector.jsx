@@ -524,11 +524,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
               <img
                 className={styles["trait-icon"]}
                 style={option.iconHSL ? {filter: "brightness("+((option.iconHSL.l)+0.5)+") hue-rotate("+(option.iconHSL.h * 360)+"deg) saturate("+(option.iconHSL.s * 100)+"%)"} : {}}
-                // style={option.iconHSL ? 
-                //   `filter: brightness(${option.iconHSL.l}) 
-                //   saturate(${option.iconHSL.s * 100}%) 
-                //   hue(${option.iconHSL.s * 360}deg);`:""}
-                src={`${templateInfo.thumbnailsDirectory}${option.icon}`}
+                src={option.icon}
               />
               <img
                 src={tick}

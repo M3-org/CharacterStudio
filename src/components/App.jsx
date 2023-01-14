@@ -166,7 +166,6 @@ useEffect(() => {
         } else {
           initialTraits = JSON.parse(initialTraits)
         }
-        console.log(manifest[index])
         setTimeout(()=>{
           resolve (manifest[index])
         }, 2000)
