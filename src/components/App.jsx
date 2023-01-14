@@ -62,15 +62,15 @@ async function fetchAll() {
   } else {
     templateIndex = parseInt(templateIndex)
   }
-  const templateInfo = manifest[templateIndex]
+  const tempInfo = manifest[templateIndex]
 
-  const animationManager = await fetchAnimation(templateInfo)
+  const animManager = await fetchAnimation(tempInfo)
 
   // check if initialTraits is set in localStorage
   // if not, set it to a random index
   let initialTraits = localStorage.getItem("initialTraits")
   if (!initialTraits) {
-    initialTraits = initialTraits = [...new Set([...getAsArray(templateInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
+    initialTraits = initialTraits = [...new Set([...getAsArray(tempInfo.requiredTraits), ...getAsArray(templateInfo.randomTraits)])]
     localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
   } else {
     initialTraits = JSON.parse(initialTraits)
@@ -81,8 +81,8 @@ async function fetchAll() {
   return {
     manifest,
     sceneModel,
-    templateInfo,
-    animationManager,
+    tempInfo,
+    animManager,
     initialTraits,
     blinkManager
   }
@@ -119,11 +119,16 @@ const fetchData = () => {
 const resource = fetchData()
 
 export default function App() {
-  const {manifest, sceneModel, templateInfo, initialTraits, animationManager, blinkManager} = resource.read()
+  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
 
   const { currentAppMode } = useContext(ViewContext)
 
   const [hideUi, setHideUi] = useState(false)
+
+  const [templateInfo, setTemplateInfo] = useState(tempInfo) 
+  const [animationManager, setAnimationManager] = useState(animManager)
+
+  //const [templateInfo, setTemplateInfo] = useState(tempInfo) 
 
 // detect a double tap on the screen or a mouse click
 // switch the UI on and off
@@ -136,29 +141,56 @@ useEffect(() => {
       setHideUi(!hideUi)
     }
     lastTap = now
-  }
-  window.addEventListener("touchend", handleTap)
-  window.addEventListener("click", handleTap)
-  return () => {
-    window.removeEventListener("touchend", handleTap)
-    window.removeEventListener("click", handleTap)
-  }
-}, [hideUi])
+    }
+    window.addEventListener("touchend", handleTap)
+    window.addEventListener("click", handleTap)
+    return () => {
+      window.removeEventListener("touchend", handleTap)
+      window.removeEventListener("click", handleTap)
+    }
+  }, [hideUi])
 
-return (
-  <Fragment>
-      <Background />
-      <Logo />
-        <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
-        {!hideUi &&
-          <Fragment>
-          <ChatButton />
-        <ARButton />
-        <UserMenu />
-        {currentAppMode === AppMode.CHAT && <ChatComponent />}
-        {currentAppMode === AppMode.APPEARANCE && <Editor animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager}/>}
-          </Fragment>
+  const fetchNewModel = (index) =>{
+    
+    return new Promise( (resolve) =>  {
+      asyncResolve()
+      async function asyncResolve() {
+        setTemplateInfo(manifest[index])
+        const animManager = await fetchAnimation(manifest[index])
+        setAnimationManager(animManager)
+        
+        let initialTraits = localStorage.getItem("initialTraits")
+        if (!initialTraits) {
+          initialTraits = initialTraits = [...new Set([...getAsArray(manifest[index].requiredTraits), ...getAsArray(manifest[index].randomTraits)])]
+          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
+        } else {
+          initialTraits = JSON.parse(initialTraits)
+        }
+        console.log(manifest[index])
+        setTimeout(()=>{
+          resolve (manifest[index])
+        }, 2000)
+       
       }
-    </Fragment>
+      
+    })
+
+  }
+
+  return (
+    <Fragment>
+        <Background />
+        <Logo />
+          <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
+          {!hideUi &&
+            <Fragment>
+            <ChatButton />
+          <ARButton />
+          <UserMenu />
+          {currentAppMode === AppMode.CHAT && <ChatComponent />}
+          {currentAppMode === AppMode.APPEARANCE && <Editor animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} fetchNewModel={fetchNewModel}/>}
+            </Fragment>
+        }
+      </Fragment>
   )
 }

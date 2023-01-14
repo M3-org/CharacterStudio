@@ -7,11 +7,12 @@ import optionClick from "../../public/sound/option_click.wav";
 import shuffle from "../../public/ui/traits/shuffle.svg";
 import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
+import { getAsArray } from "../library/utils"
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
 
-export default function Editor({templateInfo, initialTraits, animationManager, blinkManager}) {
+export default function Editor({templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
@@ -22,7 +23,6 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
     optionClick,
     { volume: 1.0 }
   );
-
     // options are selected by random or start
   useEffect(() => {
       setSelectedOptions (getMultipleRandomTraits(initialTraits))
@@ -49,31 +49,41 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
     
   }
 
-  const getMultipleRandomTraits = (traitNames) =>{
+  const getMultipleRandomTraits = (traitNames, customTemplateInfo=null) =>{
     
     const resultTraitOptions = [];
     
+    const template = customTemplateInfo || templateInfo;
     traitNames.map((traitName)=>{
-       const traitFound = templateInfo.traits.find(trait => trait.trait === traitName);
+       const traitFound = template.traits.find(trait => trait.trait === traitName);
        if (traitFound)
        {
-        const options = getTraitOptions(traitFound);
+        const options = getTraitOptions(traitFound, template);
         if (options?.length > 0)
           resultTraitOptions.push(options[Math.floor(Math.random()*options.length)])
        }
     })
     return resultTraitOptions
   }
+  const clickRandom = () => {
+    console.log("click ranbd")
+    fetchNewModel(1).then((template)=>{
 
-  const getTraitOptions = (trait) => {
+      //console.log(template)
+      initialTraits = initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
+      setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
+    })
+  }
+  const getTraitOptions = (trait, customTemplateInfo = null) => {
 
+    const template = customTemplateInfo || templateInfo;
     const traitOptions = [];
     trait.collection.map((item,index)=>{
 
-      const textureTraits = templateInfo.textureCollections.find(texture => 
+      const textureTraits = template.textureCollections.find(texture => 
         texture.trait === item.textureCollection
       )
-      const colorTraits = templateInfo.colorCollections.find(color => 
+      const colorTraits = template.colorCollections.find(color => 
         color.trait === item.colorCollection  
       )
 
@@ -186,7 +196,8 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
           <div className={styles['LineDivision']}/>
           <img className={styles['ShuffleOption']} onClick={() => {
               !isMute && play();
-              setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
+              clickRandom();
+              //setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
             }} src={shuffle} />
     </div>
     <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager}/>
