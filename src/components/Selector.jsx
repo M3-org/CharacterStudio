@@ -25,7 +25,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager}) {
+export default function Selector({templateInfo, animationManager, blinkManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -46,6 +46,13 @@ export default function Selector({templateInfo, animationManager}) {
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
+  const [restrictions, setRestrictions] = useState(null)
+
+  useEffect(() => {
+    //setSelectedOptions (getMultipleRandomTraits(initialTraits))
+    console.log(templateInfo)
+    setRestrictions(getRestrictions());
+  },[templateInfo])
 
   const getRestrictions = () => {
     
@@ -108,8 +115,6 @@ export default function Selector({templateInfo, animationManager}) {
     }
   }
 
-  const restrictions = getRestrictions()
-
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
@@ -126,6 +131,10 @@ export default function Selector({templateInfo, animationManager}) {
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    if (option.avatarIndex != null){
+      selectClass(option.avatarIndex)
+      return
+    }
     if (option == null){
       option = {
         item:null,
@@ -133,7 +142,8 @@ export default function Selector({templateInfo, animationManager}) {
       }
     }
 
-    loadOptions([option]).then((loadedData)=>{
+    
+    loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       
       loadedData.map((data)=>{
@@ -148,6 +158,7 @@ export default function Selector({templateInfo, animationManager}) {
   
   // load options first
   const loadOptions = (options) => {
+
     // filter options by restrictions
     options = filterRestrictedOptions(options);
 
@@ -339,15 +350,22 @@ export default function Selector({templateInfo, animationManager}) {
     // save an array of mesh targets
     const meshTargets = [];
     
-
+   
     // add culling data to each model TODO,  if user defines target culling meshes set them before here
     // models are vrm in some cases!, beware
     let vrm = null
+    
     models.map((m)=>{
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
-      setLipSync(new LipSync(vrm));
+      
+      if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
+        setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
+
+      if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
+        blinkManager.addBlinker(vrm)
+
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
@@ -512,11 +530,7 @@ export default function Selector({templateInfo, animationManager}) {
               <img
                 className={styles["trait-icon"]}
                 style={option.iconHSL ? {filter: "brightness("+((option.iconHSL.l)+0.5)+") hue-rotate("+(option.iconHSL.h * 360)+"deg) saturate("+(option.iconHSL.s * 100)+"%)"} : {}}
-                // style={option.iconHSL ? 
-                //   `filter: brightness(${option.iconHSL.l}) 
-                //   saturate(${option.iconHSL.s * 100}%) 
-                //   hue(${option.iconHSL.s * 360}deg);`:""}
-                src={`${templateInfo.thumbnailsDirectory}${option.icon}`}
+                src={option.icon}
               />
               <img
                 src={tick}
