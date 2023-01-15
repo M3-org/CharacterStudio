@@ -11,7 +11,6 @@ import { getAsArray } from "../library/utils"
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
-import { getAsArray } from "../library/utils"
 
 export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
@@ -51,6 +50,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     
   }
   const selectClassOption = () => {
+    setRemoveOption(false);
     setCurrentOptions(getClassOptions());
     setCurrentTraitName("_class")
   }
@@ -203,6 +203,12 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
   return(
     <Fragment>
     <div className={styles['SideMenu']}>
+    <img className={styles['ShuffleOption']} onClick={() => {
+              !isMute && play();
+              selectClassOption();
+              //setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
+            }} src={shuffle} />
+    <div className={styles['LineDivision']}/>
           {templateInfo.traits && templateInfo.traits.map((item, index) => (
             <div className={styles['MenuOption']}
               onClick = {()=>{
@@ -213,12 +219,8 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
             </div>
           ))}
 
-          {/* <div className={styles['LineDivision']}/>
-          <img className={styles['ShuffleOption']} onClick={() => {
-              !isMute && play();
-              selectClassOption();
-              //setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
-            }} src={shuffle} />
+          
+          
     </div>
     <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} selectClass = {selectClass}/>
   </Fragment>
