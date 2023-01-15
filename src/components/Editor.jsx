@@ -11,9 +11,10 @@ import { getAsArray } from "../library/utils"
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
+import { getAsArray } from "../library/utils"
 
 export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -43,6 +44,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
       return;
     } 
 
+    setRemoveOption(getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1)
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
@@ -211,7 +213,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
             </div>
           ))}
 
-          <div className={styles['LineDivision']}/>
+          {/* <div className={styles['LineDivision']}/>
           <img className={styles['ShuffleOption']} onClick={() => {
               !isMute && play();
               selectClassOption();

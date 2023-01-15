@@ -38,7 +38,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setTraitsSpines,
     setTraitsLeftEye,
     setTraitsRightEye,
-    setLipSync
+    setLipSync,
+    removeOption
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
@@ -486,7 +487,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   function ClearTraitButton() {
     // clear the current trait
-    return (
+    return removeOption ? (
       <div
         className={
           !currentTraitName
@@ -504,7 +505,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           style={{ width: "4em", height: "4em" }}
         />
       </div>
-    )
+    ):<></>
   }
   return (
     !!currentTraitName && (
