@@ -39,6 +39,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setTraitsLeftEye,
     setTraitsRightEye,
     setLipSync,
+    mousePosition,
     removeOption
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
@@ -463,6 +464,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       setTimeout(() => {
         m.visible = true;
       }, 50)
+
+      // update the joint rotation of the new trait
+      const event = new Event('modelUpdate');
+      event.x = mousePosition.x;
+      event.y = mousePosition.y;
+      event.model = m;
+      window.dispatchEvent(event);
     }
 
     // and then add the new avatar data

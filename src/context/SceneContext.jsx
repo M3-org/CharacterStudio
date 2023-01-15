@@ -39,6 +39,8 @@ export const SceneProvider = (props) => {
 
   const [lipSync, setLipSync] = useState(null)
 
+  const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
+
   const setAvatar = (state) => {
     _setAvatar(state)
   }
@@ -87,7 +89,9 @@ export const SceneProvider = (props) => {
         setTraitsLeftEye,
         traitsRightEye,
         setTraitsRightEye,
-        initializeScene
+        initializeScene,
+        mousePosition, 
+        setMousePosition,
       }}
     >
       {props.children}
