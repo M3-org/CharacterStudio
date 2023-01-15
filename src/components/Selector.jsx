@@ -25,7 +25,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager}) {
+export default function Selector({templateInfo, animationManager, blinkManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -40,12 +40,20 @@ export default function Selector({templateInfo, animationManager, blinkManager})
     setTraitsRightEye,
     setLipSync,
     mousePosition,
+    removeOption
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
+  const [restrictions, setRestrictions] = useState(null)
+
+  useEffect(() => {
+    //setSelectedOptions (getMultipleRandomTraits(initialTraits))
+    console.log(templateInfo)
+    setRestrictions(getRestrictions());
+  },[templateInfo])
 
   const getRestrictions = () => {
     
@@ -108,8 +116,6 @@ export default function Selector({templateInfo, animationManager, blinkManager})
     }
   }
 
-  const restrictions = getRestrictions()
-
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
@@ -126,6 +132,10 @@ export default function Selector({templateInfo, animationManager, blinkManager})
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    if (option.avatarIndex != null){
+      selectClass(option.avatarIndex)
+      return
+    }
     if (option == null){
       option = {
         item:null,
@@ -133,7 +143,8 @@ export default function Selector({templateInfo, animationManager, blinkManager})
       }
     }
 
-    loadOptions([option]).then((loadedData)=>{
+    
+    loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       
       loadedData.map((data)=>{
@@ -148,6 +159,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
   
   // load options first
   const loadOptions = (options) => {
+
     // filter options by restrictions
     options = filterRestrictedOptions(options);
 
@@ -483,7 +495,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
 
   function ClearTraitButton() {
     // clear the current trait
-    return (
+    return removeOption ? (
       <div
         className={
           !currentTraitName
@@ -501,7 +513,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
           style={{ width: "4em", height: "4em" }}
         />
       </div>
-    )
+    ):<></>
   }
   return (
     !!currentTraitName && (
@@ -526,11 +538,7 @@ export default function Selector({templateInfo, animationManager, blinkManager})
               <img
                 className={styles["trait-icon"]}
                 style={option.iconHSL ? {filter: "brightness("+((option.iconHSL.l)+0.5)+") hue-rotate("+(option.iconHSL.h * 360)+"deg) saturate("+(option.iconHSL.s * 100)+"%)"} : {}}
-                // style={option.iconHSL ? 
-                //   `filter: brightness(${option.iconHSL.l}) 
-                //   saturate(${option.iconHSL.s * 100}%) 
-                //   hue(${option.iconHSL.s * 360}deg);`:""}
-                src={`${templateInfo.thumbnailsDirectory}${option.icon}`}
+                src={option.icon}
               />
               <img
                 src={tick}
