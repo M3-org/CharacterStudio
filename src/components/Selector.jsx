@@ -132,17 +132,19 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    if (option.avatarIndex != null){
-      selectClass(option.avatarIndex)
-      return
-    }
+    
     if (option == null){
       option = {
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
-
+    if (option.avatarIndex != null){
+      selectClass(option.avatarIndex)
+      return
+    }
+    
+    console.log(option)
     
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
