@@ -2,7 +2,7 @@
     position: absolute;
     left: 2em;
     top: 20vh;
-    height: 40em;
+    height: 39em;
     border: 1px solid #38404E;
     border-radius : 5px;
     backdrop-filter: blur(22.5px); 
@@ -71,6 +71,18 @@
 .ShuffleOption {
     border-right: '';
     opacity: .5;
+    height: 2.5em;
+    width: 2.5em;
+    padding: 0em;
+    display: flex;
+    margin-top: .25em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ShuffleOptionActive {
+    border-right: '';
+    opacity: 1;
     height: 2.5em;
     width: 2.5em;
     padding: 0em;

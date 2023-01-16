@@ -7,12 +7,13 @@ import optionClick from "../../public/sound/option_click.wav";
 import shuffle from "../../public/ui/traits/shuffle.svg";
 import { AudioContext } from "../context/AudioContext";
 import { SceneContext } from "../context/SceneContext";
+import { getAsArray } from "../library/utils"
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
 
-export default function Editor({templateInfo, initialTraits, animationManager, blinkManager}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, controls} = useContext(SceneContext);
+export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -22,7 +23,6 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
     optionClick,
     { volume: 1.0 }
   );
-
     // options are selected by random or start
   useEffect(() => {
       setSelectedOptions (getMultipleRandomTraits(initialTraits))
@@ -43,44 +43,67 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
       return;
     } 
 
+    setRemoveOption(getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1)
     moveCamera(option.cameraTarget);
     setCurrentOptions(getTraitOptions(option));
     setCurrentTraitName(option.name)
     
   }
+  const selectClassOption = () => {
+    setRemoveOption(false);
+    setCurrentOptions(getClassOptions());
+    setCurrentTraitName("_class")
+  }
 
-  const getMultipleRandomTraits = (traitNames) =>{
+  const getMultipleRandomTraits = (traitNames, customTemplateInfo=null) =>{
     
     const resultTraitOptions = [];
     
+    const template = customTemplateInfo || templateInfo;
     traitNames.map((traitName)=>{
-       const traitFound = templateInfo.traits.find(trait => trait.trait === traitName);
+       const traitFound = template.traits.find(trait => trait.trait === traitName);
        if (traitFound)
        {
-        const options = getTraitOptions(traitFound);
+        const options = getTraitOptions(traitFound, template);
         if (options?.length > 0)
           resultTraitOptions.push(options[Math.floor(Math.random()*options.length)])
        }
     })
     return resultTraitOptions
   }
+  const selectClass = (ind) => {
+    fetchNewModel(ind).then((template)=>{
 
-  const getTraitOptions = (trait) => {
+      //console.log(template)
+      initialTraits = initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
+      setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
+    })
+  }
+  const getClassOptions = () =>{
+    const options = [];
+    manifest.map((character, index) => {
+      options.push(getClassOption("class_" + index, character.thumbnail, index))
+    })
+    return options;
+  }
+  const getTraitOptions = (trait, customTemplateInfo = null) => {
 
+    const template = customTemplateInfo || templateInfo;
     const traitOptions = [];
+    const thumbnailBaseDir = template.thumbnailsDirectory;
     trait.collection.map((item,index)=>{
 
-      const textureTraits = templateInfo.textureCollections.find(texture => 
+      const textureTraits = template.textureCollections.find(texture => 
         texture.trait === item.textureCollection
       )
-      const colorTraits = templateInfo.colorCollections.find(color => 
+      const colorTraits = template.colorCollections.find(color => 
         color.trait === item.colorCollection  
       )
 
       // if no there is no collection defined for textures and colors, just grab the base option
       if (textureTraits == null && colorTraits == null){
         const key = trait.name + "_" + index;
-        traitOptions.push(getOption(key,trait,item,item.thumbnail))
+        traitOptions.push(getOption(key,trait,item,thumbnailBaseDir + item.thumbnail))
       }
 
       // in case we find collections of subtraits, add them as menu items
@@ -88,7 +111,7 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
         textureTraits.collection.map((textureTrait,txtrIndex)=>{
           const key = trait.name + "_" + index + "_txt" + txtrIndex;
           const thumbnail = getThumbnail (item, textureTrait,txtrIndex)
-          traitOptions.push(getOption(key,trait,item,thumbnail,null,textureTrait))
+          traitOptions.push(getOption(key,trait,item,thumbnailBaseDir + thumbnail,null,textureTrait))
         })
       }
       if (colorTraits?.collection.length > 0){
@@ -96,7 +119,7 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
           const key = trait.name + "_" + index + "_col" + colIndex;
           const thumbnail = getThumbnail (item, colorTrait,colIndex)
           // icons in color should be colored to avoid creating an icon per model
-          traitOptions.push(getOption(key,trait,item,thumbnail,getHSL(colorTrait.value[0]), null, colorTrait))
+          traitOptions.push(getOption(key,trait,item,thumbnailBaseDir + thumbnail,getHSL(colorTrait.value[0]), null, colorTrait))
         })
       }
       
@@ -131,6 +154,13 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
       iconHSL,
       textureTrait,
       colorTrait
+    }
+  }
+  const getClassOption = (key, icon, avatarIndex) => {
+    return {
+      key,
+      icon,
+      avatarIndex
     }
   }
 
@@ -173,6 +203,11 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
   return(
     <Fragment>
     <div className={styles['SideMenu']}>
+    <img className={currentTraitName !== "_class" ? styles['ShuffleOption'] : styles['ShuffleOptionActive']} onClick={() => {
+              !isMute && play();
+              selectClassOption();
+            }} src={shuffle} />
+    <div className={styles['LineDivision']}/>
           {templateInfo.traits && templateInfo.traits.map((item, index) => (
             <div className={styles['MenuOption']}
               onClick = {()=>{
@@ -183,13 +218,10 @@ export default function Editor({templateInfo, initialTraits, animationManager, b
             </div>
           ))}
 
-          <div className={styles['LineDivision']}/>
-          <img className={styles['ShuffleOption']} onClick={() => {
-              !isMute && play();
-              setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
-            }} src={shuffle} />
+          
+          
     </div>
-    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager}/>
+    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} selectClass = {selectClass}/>
   </Fragment>
   );
 }
