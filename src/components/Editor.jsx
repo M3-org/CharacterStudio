@@ -203,10 +203,9 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
   return(
     <Fragment>
     <div className={styles['SideMenu']}>
-    <img className={styles['ShuffleOption']} onClick={() => {
+    <img className={currentTraitName !== "_class" ? styles['ShuffleOption'] : styles['ShuffleOptionActive']} onClick={() => {
               !isMute && play();
               selectClassOption();
-              //setSelectedOptions (getMultipleRandomTraits(templateInfo.randomTraits))
             }} src={shuffle} />
     <div className={styles['LineDivision']}/>
           {templateInfo.traits && templateInfo.traits.map((item, index) => (
