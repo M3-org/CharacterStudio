@@ -54,23 +54,25 @@ export default function ChatBox() {
 
             const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
 
-            axios.post(`${url}`, {
-                Input: {
-                    input: value,
-                    speaker: speaker,
-                    agent: agent,
-                    client: client,
-                    channelId: channelId,
-                    channel: channel,
-                }
-            }).then((response) => {
-                const data = response.data;
+            // axios.post(`${url}`, {
+            //     Input: {
+            //         input: value,
+            //         speaker: speaker,
+            //         agent: agent,
+            //         client: client,
+            //         channelId: channelId,
+            //         channel: channel,
+            //     }
+            // }).then((response) => {
+            //     const data = response.data;
 
-                const outputs = data.outputs;
+            //     const outputs = data.outputs;
 
-                const outputKey = Object.keys(outputs)[0];
+            //     const outputKey = Object.keys(outputs)[0];
 
-                const output = outputs[outputKey];
+                // const output = outputs[outputKey];
+                // const output = 'this is a test';
+                const output = 'aaaaa aaaaa aaaaa aaaaa aaaaa eeeee eeeee eeeee eeeee eeeee';
 
 
 
@@ -84,11 +86,12 @@ export default function ChatBox() {
                     // convert the blob to an array buffer
                     const arrayBuffer = await blob.arrayBuffer();
 
+                    // debugger
                     lipSync.startFromAudioFile(arrayBuffer);
                 });
 
-                setMessages([...newMessages, agent + ": " + output]);
-            });
+            //     setMessages([...newMessages, agent + ": " + output]);
+            // });
         } catch (error) {
             console.error(error);
         }

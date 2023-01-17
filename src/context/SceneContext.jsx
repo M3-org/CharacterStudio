@@ -46,6 +46,7 @@ export const SceneProvider = (props) => {
   }
   useEffect(() => {
     if (avatar) {
+      window.avatar = avatar
       if (Object.keys(avatar).length > 0) {
         cullHiddenMeshes(avatar)
       }

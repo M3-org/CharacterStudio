@@ -1,4 +1,5 @@
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
+window.VRMExpressionPresetName = VRMExpressionPresetName
 
 const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800]
 const BoundingFrequencyFem = [0, 500, 700, 3000, 6000]
