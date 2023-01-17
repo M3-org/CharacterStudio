@@ -3,6 +3,7 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
+import { Object3D } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
@@ -85,6 +86,7 @@ export const UserMenu = () => {
     }
   }
 
+  //
   async function download(
     avatarToDownload,
     fileName,
@@ -116,17 +118,36 @@ export const UserMenu = () => {
 
     console.log('avatarToDownload', avatarToDownload)
 
-    const avatarToCombine = avatarToDownload.clone()
+    // const avatarToCombine = avatarToDownload.clone()
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
-    const avatarModel = await combine({
-      transparentColor: skinColor,
-      avatar: avatarToCombine,
-      atlasSize,
+    //
+    // const avatarModel = await combine({
+    //   transparentColor: skinColor,
+    //   avatar: avatarToCombine,
+    //   atlasSize,
+    // })
+    // let toBeExported = avatarModel;
+    // ---
+    let body_geo;
+    avatarToDownload.traverse(child => {
+      if (child.name === 'body_geo') body_geo = child;
     })
+    if (!body_geo) debugger
+    // let toBeExported = body_geo;
+    // let toBeExported = [
+    //   body_geo,
+    //   avatarToDownload.children[0].children[0].children[0],
+    // ];
+    // ok: exported body and bones gltf, but need manually fix `"max": [` `"min": [` bug.
+    let toBeExported = new Object3D();
+    toBeExported.add(body_geo);
+    toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
+    // ---
+    debugger
     if (format === "glb") {
       exporter.parse(
-        avatarModel,
+        toBeExported,
         (result) => {
           if (result instanceof ArrayBuffer) {
             saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -142,9 +163,9 @@ export const UserMenu = () => {
           trs: false,
           onlyVisible: false,
           truncateDrawRange: true,
-          binary: true,
+          binary: false,
           forcePowerOfTwoTextures: false,
-          maxTextureSize: 1024 || Infinity,
+          // maxTextureSize: 1024 || Infinity,
         },
       )
     } else {
