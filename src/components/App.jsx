@@ -8,6 +8,7 @@ import ChatComponent from "./ChatComponent"
 import Editor from "./Editor"
 
 import { AnimationManager } from "../library/animationManager"
+import { EffectManager } from "../library/effectManager"
 import { BlinkManager } from "../library/blinkManager"
 import { getAsArray } from "../library/utils"
 import ARButton from "./ARButton"
@@ -16,6 +17,8 @@ import ChatButton from "./ChatButton"
 import { UserMenu } from "./UserMenu"
 
 import Logo from "./Logo"
+
+import { SceneContext } from "../context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -78,13 +81,16 @@ async function fetchAll() {
 
   const blinkManager = new BlinkManager(0.1,0.1,0.5,5);
 
+  const effectManager = new EffectManager();
+
   return {
     manifest,
     sceneModel,
     tempInfo,
     animManager,
     initialTraits,
-    blinkManager
+    blinkManager,
+    effectManager
   }
 }
 
@@ -119,7 +125,7 @@ const fetchData = () => {
 const resource = fetchData()
 
 export default function App() {
-  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
+  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager, effectManager } = resource.read()
 
   const { currentAppMode } = useContext(ViewContext)
 
@@ -127,6 +133,10 @@ export default function App() {
 
   const [templateInfo, setTemplateInfo] = useState(tempInfo) 
   const [animationManager, setAnimationManager] = useState(animManager)
+
+  const {camera, scene} = useContext(SceneContext);
+  effectManager.camera = camera;
+  effectManager.scene = scene;
 
   //const [templateInfo, setTemplateInfo] = useState(tempInfo) 
 
@@ -187,7 +197,7 @@ useEffect(() => {
           <ARButton />
           <UserMenu />
           {currentAppMode === AppMode.CHAT && <ChatComponent />}
-          {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} fetchNewModel={fetchNewModel}/>}
+          {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel}/>}
             </Fragment>
         }
       </Fragment>

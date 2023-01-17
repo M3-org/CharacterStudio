@@ -12,7 +12,7 @@ import { getAsArray } from "../library/utils"
 import styles from './Editor.module.css';
 import Selector from "./Selector"
 
-export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
+export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
@@ -221,7 +221,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
           
           
     </div>
-    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} selectClass = {selectClass}/>
+    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager={effectManager} selectClass = {selectClass}/>
   </Fragment>
   );
 }
