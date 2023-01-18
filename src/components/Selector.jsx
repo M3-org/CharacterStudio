@@ -341,8 +341,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // if avatar exists and trait exsits, remove it
       if (avatar){
         if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
-          disposeVRM(avatar[traitData.name].vrm)
-          setSelectValue("")
+          setTimeout(() => {
+            disposeVRM(avatar[traitData.name].vrm)
+            setSelectValue("")
+          }, effectManager.transitionTime)
+          
         }
       }
       // always return an empty trait here when receiving null item
