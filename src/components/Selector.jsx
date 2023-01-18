@@ -477,7 +477,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
-          console.log("dispose")
           disposeVRM(avatar[traitData.name].vrm)
         }, effectManager.transitionTime)
       }
