@@ -43,8 +43,9 @@ export class EffectManager{
 
     this.initParticle = false;
 
+    this.transitionEffectType = null;
     this.transitionTime = 500;
-
+    
     this.update();
   }
 
@@ -124,6 +125,26 @@ export class EffectManager{
     material.uniforms.uTime = globalUniforms.uTime;
     material.uniforms.switchItemTime = globalUniforms.switchItemTime;
     material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
+  }
+
+  setTransitionEffect = (type) => {
+    this.transitionEffectType = type;
+  }
+
+  playTransitionEffect() {
+    switch (this.transitionEffectType) {
+      case 'switch_avatar': {
+        this.playSwitchAvatarEffect();
+        break;
+      }
+      case 'switch_item': {
+        this.playSwitchItemEffect();
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   }
 
   playSwitchItemEffect() {

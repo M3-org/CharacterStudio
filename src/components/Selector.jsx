@@ -115,17 +115,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       typeRestrictions
     }
   }
-  let transitionEffect = null;
-  const setTransitionEffect = (type) => {
-    transitionEffect = type;
-  }
 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
-        setTransitionEffect('switch_avatar');
+        effectManager.setTransitionEffect('switch_avatar');
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
@@ -153,7 +149,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
-      setTransitionEffect('switch_item');
+      effectManager.setTransitionEffect('switch_item');
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
@@ -454,7 +450,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
       }
     })
-    const switchItemWaitingTime = 500;
+    
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
@@ -472,20 +468,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       model.add(m)
       setTimeout(() => {
         // play transition effect
-        switch (transitionEffect) {
-          case 'switch_avatar': {
-            effectManager.playSwitchAvatarEffect();
-            break;
-          }
-          case 'switch_item': {
-            effectManager.playSwitchItemEffect();
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-
+        effectManager.playTransitionEffect();
+    
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
         event.x = mousePosition.x;
