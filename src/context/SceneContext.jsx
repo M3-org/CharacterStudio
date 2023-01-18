@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from "react"
 import * as THREE from "three"
-import { cullHiddenMeshes } from "../library/utils"
 
 export const SceneContext = createContext()
 
