@@ -43,6 +43,8 @@ export class EffectManager{
 
     this.initParticle = false;
 
+    this.transitionTime = 500;
+
     this.update();
   }
 
@@ -125,10 +127,16 @@ export class EffectManager{
   }
 
   playSwitchItemEffect() {
+    this.transitionTime = 500;
     globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_INITIAL_TIME;
     this.particleEffect.emitPixel();
   }
-  
+
+  playSwitchAvatarEffect() {
+    console.log('effect manager: switch avatar!!!!');
+    this.transitionTime = 1700;
+  }
+
   setParticle(scene, camera) {
     this.particleEffect = new ParticleEffect(scene, camera, globalUniforms);
   }

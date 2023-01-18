@@ -115,12 +115,17 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       typeRestrictions
     }
   }
+  let transitionEffect = null;
+  const setTransitionEffect = (type) => {
+    transitionEffect = type;
+  }
 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
+        setTransitionEffect('switch_avatar');
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
@@ -148,7 +153,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
-      
+      setTransitionEffect('switch_item');
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
@@ -456,7 +461,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
           disposeVRM(avatar[traitData.name].vrm)
-        }, switchItemWaitingTime)
+        }, effectManager.transitionTime)
       }
     }
     
@@ -466,15 +471,29 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        effectManager.playSwitchItemEffect();
+        // play transition effect
+        switch (transitionEffect) {
+          case 'switch_avatar': {
+            effectManager.playSwitchAvatarEffect();
+            break;
+          }
+          case 'switch_item': {
+            effectManager.playSwitchItemEffect();
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
         event.x = mousePosition.x;
         event.y = mousePosition.y;
-        event.model = m;
         window.dispatchEvent(event);
+
         m.visible = true;
-      }, switchItemWaitingTime)
+      }, effectManager.transitionTime)
     }
 
     // and then add the new avatar data

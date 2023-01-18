@@ -221,7 +221,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
           
           
     </div>
-    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager={effectManager} selectClass = {selectClass}/>
+    <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass}/>
   </Fragment>
   );
 }
