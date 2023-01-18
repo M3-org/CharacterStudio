@@ -135,15 +135,15 @@ export class EffectManager{
         vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel * pixelColorIntensity);
         
         vec3 eyeDirection = normalize(eye - vWorldPosition);
-        float pixelNormalIntensity = 1.0 * (switchItemDuration - switchItemTime);
-        vec3 pixelSurfaceNormal = normalize(vSurfaceNormal + vec3(pixel) * vec3(-cameraDir.z, pixelNormalIntensity, cameraDir.x));
+        float pixelNormalIntensity = 1.0;
+        vec3 pixelSurfaceNormal = normalize(vSurfaceNormal);
         
         float EdotN = max(0.0, dot(eyeDirection, pixelSurfaceNormal));
         float rimStrength = 1.0 * switchItemTime;
         float bodyRim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
-        float glowIntensity = 10. * (switchItemDuration - switchItemTime);
+        float glowIntensity = 10.;
   
-        diffuseColor.rgb += pixelColor * bodyRim * glowIntensity;
+        diffuseColor.rgb = mix(pixelColor * bodyRim * glowIntensity, diffuseColor.rgb, switchItemTime / switchItemDuration);
         diffuseColor.a = 1.0;
       }
       else {
