@@ -144,17 +144,17 @@ export const UserMenu = () => {
     let toBeExported = new Object3D();
     toBeExported.add(body_geo);
     toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
-    debugger
     // ---
     // toBeExported.children[0] = createMeshesFromMultiMaterialMesh(toBeExported.children[0]);
     // ---
     toBeExported.traverse(child => {
-      if (Array.isArray(child.material)) {{
+      if (Array.isArray(child.material)) {
         child.material = child.material[0];
-      }}
+      }
     })
     // ---
     if (format === "glb") {
+      debugger
       exporter.parse(
         toBeExported,
         (result) => {

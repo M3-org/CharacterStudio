@@ -119,9 +119,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      debugger
+      // debugger
       loadOptions(selectedOptions).then((loadedData)=>{
-        debugger
+        // debugger
         let newAvatar = {};
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -331,7 +331,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   // once loaded, assign
   const itemAssign = (itemData) => {
-    debugger
+    // debugger
 
     const item = itemData.item;
     const traitData = itemData.trait;
