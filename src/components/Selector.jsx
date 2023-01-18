@@ -22,7 +22,6 @@ import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 
-import { cullHiddenMeshes } from "../library/utils"
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
