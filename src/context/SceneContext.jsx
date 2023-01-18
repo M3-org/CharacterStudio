@@ -16,7 +16,7 @@ export const SceneProvider = (props) => {
     return scene;
   }
 
-  const [scene, setScene] = useState(initializeScene())
+  const [scene, setScene] = useState(initializeScene)
 
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
