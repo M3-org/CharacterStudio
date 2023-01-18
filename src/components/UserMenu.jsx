@@ -5,6 +5,7 @@ import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
 import { Object3D } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
+import { createMeshesFromMultiMaterialMesh } from "three/examples/jsm/utils/SceneUtils"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { combine } from "../library/merge-geometry"
@@ -143,8 +144,9 @@ export const UserMenu = () => {
     let toBeExported = new Object3D();
     toBeExported.add(body_geo);
     toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
-    // ---
     debugger
+    toBeExported.children[0] = createMeshesFromMultiMaterialMesh(toBeExported.children[0]);
+    // ---
     if (format === "glb") {
       exporter.parse(
         toBeExported,
@@ -162,7 +164,7 @@ export const UserMenu = () => {
         {
           trs: false,
           onlyVisible: false,
-          truncateDrawRange: true,
+          truncateDrawRange: false,
           binary: false,
           forcePowerOfTwoTextures: false,
           // maxTextureSize: 1024 || Infinity,
