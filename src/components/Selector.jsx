@@ -450,7 +450,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
       }
     })
-    
+
+    // play switching avatar transition effect
+    effectManager.transitionEffectType === 'switch_avatar' && effectManager.playTransitionEffect();
+
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
@@ -467,8 +470,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        // play transition effect
-        effectManager.playTransitionEffect();
+        // play switching item transition effect
+        effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
     
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
