@@ -7,7 +7,7 @@ import {
 const textureLoader = new THREE.TextureLoader()
 
 const auraTexture = textureLoader.load(`/textures/beam2.png`);
-auraTexture.wrapS = auraTexture.wrapT = THREE.RepeatWrapping;
+auraTexture.wrapS = THREE.RepeatWrapping;
 
 class ParticleEffect {
   constructor(scene, camera, globalUniforms) {
