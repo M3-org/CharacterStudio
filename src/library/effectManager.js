@@ -90,32 +90,36 @@ export class EffectManager{
     material.fragmentShader = material.fragmentShader.replace(
       `diffuseColor *= sampledDiffuseColor;`,
       `
-      
-      float noiseUvScale = 2.0;
-      vec2 noiseUv = vec2(
-        vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
-        vWorldPosition.y * noiseUvScale
-      );
-      float grid = texture2D(
-        pixelTexture, 
-        noiseUv
-      ).r;
-      grid = pow(grid, 3.0);
-      float gridColorIntensity = 1.0;
-      vec3 gridColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), grid * gridColorIntensity);
-      
       diffuseColor *= sampledDiffuseColor;
-      vec3 eyeDirection = normalize(eye - vWorldPosition);
-      float gridNormalIntensity = 1.0 * (switchItemDuration - switchItemTime);
-      vec3 gridSurfaceNormal = normalize(vSurfaceNormal + vec3(grid) * vec3(-cameraDir.z, gridNormalIntensity, cameraDir.x));
-      
-      float EdotN = max(0.0, dot(eyeDirection, gridSurfaceNormal));
-      float rimStrength = 1.0 * switchItemTime;
-      float bodyRim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
-      float glowIntensity = 10. * (switchItemDuration - switchItemTime);
 
-      diffuseColor.rgb += gridColor * bodyRim * glowIntensity;
-      diffuseColor.a = 1.0;
+      if (switchItemTime < switchItemDuration) {
+        float noiseUvScale = 2.0;
+        vec2 noiseUv = vec2(
+          vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
+          vWorldPosition.y * noiseUvScale
+        );
+        float grid = texture2D(
+          pixelTexture, 
+          noiseUv
+        ).r;
+        grid = pow(grid, 3.0);
+        float gridColorIntensity = 1.0;
+        vec3 gridColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), grid * gridColorIntensity);
+        
+        vec3 eyeDirection = normalize(eye - vWorldPosition);
+        float gridNormalIntensity = 1.0 * (switchItemDuration - switchItemTime);
+        vec3 gridSurfaceNormal = normalize(vSurfaceNormal + vec3(grid) * vec3(-cameraDir.z, gridNormalIntensity, cameraDir.x));
+        
+        float EdotN = max(0.0, dot(eyeDirection, gridSurfaceNormal));
+        float rimStrength = 1.0 * switchItemTime;
+        float bodyRim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
+        float glowIntensity = 10. * (switchItemDuration - switchItemTime);
+  
+        diffuseColor.rgb += gridColor * bodyRim * glowIntensity;
+        diffuseColor.a = 1.0;
+      }
+      
+      
       `,
     );
     

@@ -27,6 +27,7 @@ class ParticleEffect {
   }
 
   emitPixel() {
+    this.stopUpdatePixelMesh = false;
     const scalesAttribute = this.pixelMesh.geometry.getAttribute('scales');
     const positionsAttribute = this.pixelMesh.geometry.getAttribute('positions');
     const opacityAttribute = this.pixelMesh.geometry.getAttribute('opacity');
@@ -57,17 +58,14 @@ class ParticleEffect {
   }
 
   update() {
-    // if (this.beamMesh)
-    // console.log(this.beamMesh.material.uniforms.switchItemTime.value);
-
-    this.updatePixel(); 
+    
+    !this.stopUpdatePixelMesh && this.updatePixel(); 
   }
 
   //########################################################## initialize particle mesh #####################################################
   initBeam() {
     this.beamMesh = getBeamMesh(this.globalUniforms);
     this.beamMesh.material.uniforms.auraTexture.value = auraTexture;
-    // this.beamMesh.update = () => this.updateBeam();
     this.scene.add(this.beamMesh);
   }
   initPixel() {
@@ -77,14 +75,10 @@ class ParticleEffect {
   }
   
   //########################################################## update function of particle mesh #####################################################
-  // updateBeam() {
-  //   if (this.beamMesh) {
-      
-  //   }
-  // }
 
   updatePixel() {
     if (this.pixelMesh) {
+      let opacityCount = 0;
       const positionsAttribute = this.pixelMesh.geometry.getAttribute('positions');
       const opacityAttribute = this.pixelMesh.geometry.getAttribute('opacity');
       const particleCount = this.pixelMesh.info.particleCount;
@@ -99,7 +93,11 @@ class ParticleEffect {
         }
         else {
           opacityAttribute.setX(i, 0);
+          opacityCount ++;
         }
+      }
+      if (opacityCount >= particleCount - 1) {
+        this.stopUpdatePixelMesh = true;
       }
       positionsAttribute.needsUpdate = true;
       opacityAttribute.needsUpdate = true;
