@@ -25,7 +25,7 @@ const getBeamMesh = (globalUniforms) => {
   material.uniforms.switchItemTime = globalUniforms.switchItemTime;
   material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
   const beamMesh = new THREE.Mesh(geometry, material);
-  beamMesh.position.y = cylinderHeight * 0.5;
+  beamMesh.position.y = cylinderHeight * 0.46;
   return beamMesh;
 }
 
@@ -45,7 +45,7 @@ const getPixelMesh = () => {
     },
     vertexShader: pixelVertex,
     fragmentShader: pixelFragment,
-    transparent: true,
+    // transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });

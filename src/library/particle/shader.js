@@ -27,12 +27,6 @@ const beamFragment = `\
   varying vec3 vWorldPosition;
   varying vec2 vUv;
   void main() {
-
-    float noiseUvScale = 0.5;
-    vec2 noiseUv = vec2(
-      vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
-      vWorldPosition.y * noiseUvScale * (switchItemDuration - switchItemTime)
-    );
     float aura = texture2D(
       auraTexture, 
       vec2(
@@ -56,7 +50,7 @@ const beamFragment = `\
     float timer = 1. - clamp(switchItemTime, 0.2, 1.0);
     gl_FragColor.a = clamp((1. - rim) * glowIntensity, 0.0, 1.0);
     gl_FragColor.a *= (switchItemDuration - switchItemTime);
-    gl_FragColor.a *= clamp(vWorldPosition.y * 5., 0.0, 1.0);
+    // gl_FragColor.a *= clamp(vWorldPosition.y * 5., 0.0, 1.0);
     gl_FragColor *= aura;
   }
 `
