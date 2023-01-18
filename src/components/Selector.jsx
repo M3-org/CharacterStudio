@@ -18,6 +18,7 @@ import {
 } from "../library/utils"
 import { LipSync } from '../library/lipsync'
 import { getAsArray } from "../library/utils"
+import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 
@@ -133,7 +134,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
             cullHiddenMeshes(finalAvatar)
           }
         }, effectManager.transitionTime);
-
         setAvatar(finalAvatar)
       })
       setSelectedOptions([]);
