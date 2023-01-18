@@ -45,7 +45,7 @@ const customUniforms = {
     value: pixelTexture
   },
   transitionEffectType: {
-    value: 0
+    value: transitionEffectTypeNumber.normal
   },
 };
 
