@@ -131,17 +131,19 @@ export class EffectManager{
           pixelUv
         ).r;
 
-        pixel = pow(pixel, 3.0);
+        pixel = pow(pixel, 1.0);
         vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
         
         vec3 eyeDirection = normalize(eye - vWorldPosition);
-        
+
+
+        float timeProgress = switchItemTime / switchItemDuration;
         float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
-        float rimStrength = 1.0 * switchItemTime;
-        float bodyRim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
+        float rimStrength = mix(0.1, 5.0 * switchItemTime, timeProgress);
+        float bodyRim = pow(1. - EdotN, rimStrength);
         float glowIntensity = 10.;
   
-        diffuseColor.rgb = mix(pixelColor * bodyRim * glowIntensity, diffuseColor.rgb, switchItemTime / switchItemDuration);
+        diffuseColor.rgb = mix(pixelColor * bodyRim * glowIntensity, diffuseColor.rgb, timeProgress);
         diffuseColor.a = 1.0;
       }
       else {
