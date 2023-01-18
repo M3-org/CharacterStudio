@@ -44,13 +44,6 @@ export const SceneProvider = (props) => {
   const setAvatar = (state) => {
     _setAvatar(state)
   }
-  useEffect(() => {
-    if (avatar) {
-      if (Object.keys(avatar).length > 0) {
-        cullHiddenMeshes(avatar)
-      }
-    }
-  }, [avatar])
 
   return (
     <SceneContext.Provider

@@ -18,6 +18,7 @@ import {
 } from "../library/utils"
 import { LipSync } from '../library/lipsync'
 import { getAsArray } from "../library/utils"
+import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 
@@ -125,7 +126,15 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
-        setAvatar({...avatar, ...newAvatar})
+        
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        
+        setAvatar(finalAvatar)
       })
       setSelectedOptions([]);
     }
@@ -153,7 +162,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setAvatar({...avatar, ...newAvatar})
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
     })
 
     return;
@@ -462,6 +477,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
+          console.log("dispose")
           disposeVRM(avatar[traitData.name].vrm)
         }, effectManager.transitionTime)
       }
