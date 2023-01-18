@@ -130,15 +130,13 @@ export class EffectManager{
           pixelTexture, 
           pixelUv
         ).r;
+
         pixel = pow(pixel, 3.0);
-        float pixelColorIntensity = 1.0;
-        vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel * pixelColorIntensity);
+        vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
         
         vec3 eyeDirection = normalize(eye - vWorldPosition);
-        float pixelNormalIntensity = 1.0;
-        vec3 pixelSurfaceNormal = normalize(vSurfaceNormal);
         
-        float EdotN = max(0.0, dot(eyeDirection, pixelSurfaceNormal));
+        float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
         float rimStrength = 1.0 * switchItemTime;
         float bodyRim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
         float glowIntensity = 10.;
