@@ -21,6 +21,8 @@ import { getAsArray } from "../library/utils"
 
 import styles from "./Selector.module.css"
 
+import { cullHiddenMeshes } from "../library/utils"
+
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -125,7 +127,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
-        setAvatar({...avatar, ...newAvatar})
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+
+        setAvatar(finalAvatar)
       })
       setSelectedOptions([]);
     }
@@ -153,7 +162,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setAvatar({...avatar, ...newAvatar})
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
     })
 
     return;
