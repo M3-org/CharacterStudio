@@ -50,7 +50,6 @@ const beamFragment = `\
     float timer = 1. - clamp(switchItemTime, 0.2, 1.0);
     gl_FragColor.a = clamp((1. - rim) * glowIntensity, 0.0, 1.0);
     gl_FragColor.a *= (switchItemDuration - switchItemTime);
-    // gl_FragColor.a *= clamp(vWorldPosition.y * 5., 0.0, 1.0);
     gl_FragColor *= aura;
   }
 `
