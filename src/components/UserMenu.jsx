@@ -3,7 +3,7 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
-import { Object3D } from 'three'
+import { MeshStandardMaterial, Object3D } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { createMeshesFromMultiMaterialMesh } from "three/examples/jsm/utils/SceneUtils"
 import { AccountContext } from "../context/AccountContext"
@@ -155,11 +155,20 @@ export const UserMenu = () => {
       if (!skeleton && child.isSkinnedMesh) {
         skeleton = child.skeleton;
       }
+      // if (child.isSkinnedMesh && (!skeleton || child.skeleton.bones.legnth > skeleton.bones.length)) {
+      //   skeleton = child.skeleton;
+      // }
+    })
+    toBeExported.traverse(child => {
       if (child.isSkinnedMesh) {
         child.skeleton = skeleton;
       }
       if (Array.isArray(child.material)) {
-        child.material = child.material[0];
+        child.geometry.clearGroups();
+        // child.material = child.material[0];
+        const materials = child.material;
+        child.material = new MeshStandardMaterial();
+        child.material.map = materials[0].map;
       }
       // if (child.name === 'Armature') {
       //   child.parent.add(child.children[0])
@@ -187,10 +196,10 @@ export const UserMenu = () => {
         {
           trs: false,
           onlyVisible: false,
-          truncateDrawRange: false,
-          binary: false,
+          truncateDrawRange: true,
+          binary: true,
           forcePowerOfTwoTextures: false,
-          // maxTextureSize: 1024 || Infinity,
+          maxTextureSize: 1024 || Infinity,
         },
       )
     } else {
