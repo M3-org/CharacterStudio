@@ -13,7 +13,7 @@ import {
 
 
 const textureLoader = new THREE.TextureLoader()
-const pixelTexture = textureLoader.load(`/textures/pixel8.png`);
+const pixelTexture = textureLoader.load(`/textures/pixel9.png`);
 pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 
 const noiseTexture = textureLoader.load(`/textures/noise.png`);
