@@ -3,9 +3,10 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
-import { MeshStandardMaterial, Object3D } from 'three'
+import { MeshStandardMaterial, Object3D, Skeleton } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { createMeshesFromMultiMaterialMesh } from "three/examples/jsm/utils/SceneUtils"
+import { clone } from "three/examples/jsm/utils/SkeletonUtils"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { combine } from "../library/merge-geometry"
@@ -120,7 +121,13 @@ export const UserMenu = () => {
     console.log('avatarToDownload', avatarToDownload)
 
     // const avatarToCombine = avatarToDownload.clone()
-    // const avatarToDownloadClone = avatarToDownload.clone()
+    const avatarToDownloadClone = avatarToDownload.clone()
+    // avatarToDownloadClone.traverse(child => {
+    //   if (child.isSkinnedMesh) {
+    //     child.parent.children[child.parent.children.indexOf(child)] = clone(child);
+    //   }
+    // })
+    debugger
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
     //
@@ -159,12 +166,68 @@ export const UserMenu = () => {
       //   skeleton = child.skeleton;
       // }
     })
+    // toBeExported.children.forEach((part, iPart) => {
+    //   part.traverse(child => {
+    //     if (!skeleton && child.isSkinnedMesh) {
+    //       // skeleton = child.skeleton;
+    //       skeleton = child.skeleton.clone();
+    //       debugger
+  
+    //       skeleton.bones = [];
+    //       debugger
+    //       const rootBoneCloned = toBeExported.children[iPart].children.find(child => child.name === 'Armature').children[0];
+    //       rootBoneCloned.traverse(child => {
+    //         if (child.isBone) {
+    //           skeleton.bones.push(child);
+    //         }
+    //       })
+    //       // skeleton.update();
+          
+    //       // const rootBoneCloned = skeleton.bones[0].clone();
+    //       // const bones = [];
+    //       // rootBoneCloned.traverse(child => {
+    //       //   if (child.isBone) {
+    //       //     child.position.set(0, 0, 0);
+    //       //     child.rotation.set(0, 0, 0);
+    //       //     child.scale.set(1, 1, 1);
+    //       //     bones.push(child);
+    //       //   }
+    //       // })
+    //       // skeleton = new Skeleton(bones);
+    //       // skeleton.calculateInverses();
+    //       // skeleton.computeBoneTexture();
+    //       // debugger
+    //       // skeleton.update();
+  
+    //       // const rootBoneCloned = skeleton.bones[0].clone();
+    //       // toBeExported.add(rootBoneCloned);
+    //       // skeleton.bones = [];
+    //       // rootBoneCloned.traverse(child => {
+    //       //   if (child.isBone) {
+    //       //     skeleton.bones.push(child);
+    //       //   }
+    //       // })
+  
+    //       // console.log(skeleton.bones[0])
+    //       // skeleton.bones.forEach(bone => {
+    //       //   toBeExported.add(bone);
+    //       // })
+  
+    //       // toBeExported.add(rootBoneCloned);
+    //     }
+    //     // if (child.isSkinnedMesh && (!skeleton || child.skeleton.bones.legnth > skeleton.bones.length)) {
+    //     //   skeleton = child.skeleton;
+    //     // }
+    //   })
+    // })
     toBeExported.traverse(child => {
       if (child.isSkinnedMesh) {
+        child._skeletonBak = child.skeleton;
         child.skeleton = skeleton;
       }
       if (Array.isArray(child.material)) {
-        child.geometry.clearGroups();
+        child._materialBak = child.material;
+        // child.geometry.clearGroups(); // note: geometry not cloned, will affect original model.
         // child.material = child.material[0];
         const materials = child.material;
         child.material = new MeshStandardMaterial();
@@ -209,6 +272,18 @@ export const UserMenu = () => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
     }
+
+    // todo: only if glb
+    toBeExported.traverse(child => {
+      if (child._skeletonBak) {
+        child.skeleton = child._skeletonBak;
+        delete child._skeletonBak;
+      }
+      if (child._materialBak) {
+        child.material = child._materialBak;
+        delete child._materialBak;
+      }
+    })
   }
 
   function getVRMBaseData(avatar){
