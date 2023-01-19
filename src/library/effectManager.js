@@ -16,6 +16,9 @@ const textureLoader = new THREE.TextureLoader()
 const pixelTexture = textureLoader.load(`/textures/pixel8.png`);
 pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 
+const noiseTexture = textureLoader.load(`/textures/noise.png`);
+noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
+
 const transitionEffectTypeNumber = {
   normal: 0,
   switchItem: 1,
@@ -44,9 +47,15 @@ const customUniforms = {
   pixelTexture: {
     value: pixelTexture
   },
+  noiseTexture: {
+    value: noiseTexture
+  },
   transitionEffectType: {
     value: transitionEffectTypeNumber.normal
   },
+  isFadeOut: {
+    value: false
+  }
 };
 
 
@@ -60,7 +69,7 @@ export class EffectManager{
     this.transitionEffectType = null;
     this.transitionTime = 500;
 
-    this.fadeOut = false;
+    this.isFadeOut = false;
     
     this.update();
   }
@@ -99,9 +108,12 @@ export class EffectManager{
       uniform float switchItemTime;
       uniform float switchItemDuration;
       uniform sampler2D pixelTexture;
+      uniform sampler2D noiseTexture;
       uniform float transitionEffectType;
 
       uniform float switchAvatarTime; 
+
+      uniform bool isFadeOut;
       
       varying vec3 vWorldPosition;
       varying vec3 vSurfaceNormal;
@@ -141,7 +153,7 @@ export class EffectManager{
         float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
         float rimStrength = mix(0.1, 5.0 * switchItemTime, timeProgress);
         float bodyRim = pow(1. - EdotN, rimStrength);
-        float glowIntensity = 10.;
+        float glowIntensity = mix(50., 10., timeProgress);
   
         diffuseColor.rgb = mix(pixelColor * bodyRim * glowIntensity, diffuseColor.rgb, timeProgress);
         diffuseColor.a = 1.0;
@@ -157,11 +169,9 @@ export class EffectManager{
           pixelTexture, 
           pixelUv
         );
-
         float minStrength = 0.025;
         float noiseStrength = minStrength;
         float noiseCutout = textureRemap(pixel, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
-
         float bottomPosition = 1.1;
         float avatarHeight = 4.0;
         float speed = 0.7;
@@ -171,10 +181,8 @@ export class EffectManager{
         float border = 0.1;
         
         float upperBound = limit + border;
-
         vec3 boderColor = vec3(0.0, 1.0, 0.);
         vec3 boderColor2 = vec3(1.0, 0., 0.);
-
         isBorder = vWorldPosition.y > limit && vWorldPosition.y < upperBound;
         if (isBorder) {
           diffuseColor.rgb += boderColor;
@@ -205,6 +213,9 @@ export class EffectManager{
     
     material.uniforms.transitionEffectType = customUniforms.transitionEffectType;
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
+    material.uniforms.noiseTexture = customUniforms.noiseTexture;
+    material.uniforms.isFadeOut = customUniforms.isFadeOut;
+
     material.uniforms.cameraDir = globalUniforms.cameraDir;
     material.uniforms.eye = globalUniforms.eye;
     material.uniforms.switchItemTime = globalUniforms.switchItemTime;
@@ -270,12 +281,12 @@ export class EffectManager{
         }
       }
       else if (customUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
-        if (this.fadeOut) {
+        if (this.isFadeOut) {
           if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
             globalUniforms.switchAvatarTime.value -= SWITCH_AVATAR_EFFECT_SPEED;
           }
           else {
-            this.fadeOut = false;
+            this.isFadeOut = false;
           }
         }
         else {
@@ -285,11 +296,12 @@ export class EffectManager{
           else {
             customUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
             globalUniforms.switchAvatarTime.value = SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD;
-            this.fadeOut = true;
+            this.isFadeOut = true;
           }
         }
+        customUniforms.isFadeOut.value = this.isFadeOut;
       }
-      
+
       
       if (this.camera) {
         this.cameraDir.set(0, 0, -1);

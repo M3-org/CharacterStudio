@@ -107,7 +107,7 @@ export default function Scene({sceneModel}) {
     loaded = true
 
     scene.add(sceneModel);
-    sceneModel.position.y = -0.16;
+    sceneModel.position.y = -0.2;
 
     // add a camera to the scene
     const camera = new THREE.PerspectiveCamera(
