@@ -229,7 +229,7 @@ export class EffectManager{
           
           float border = 0.02;
           float bottomPosition = -0.3 - border;
-          float avatarHeight = 1.6 + border;
+          float avatarHeight = 2.0 + border;
           float cutoutHeight = switchAvatarTime * avatarHeight + bottomPosition;
           
           float limit = cutoutHeight + noiseCutout;
@@ -287,6 +287,7 @@ export class EffectManager{
           }
   
         }
+        
       }
       gl_FragColor = vec4( col, diffuseColor.a );
       `,
