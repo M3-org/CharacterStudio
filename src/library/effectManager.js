@@ -123,12 +123,16 @@ export class EffectManager{
       }
       `,
     );
-    material.fragmentShader = material.fragmentShader.replace(
-      `diffuseColor *= sampledDiffuseColor;`,
-      `
-      bool isBorder = false;
 
-      diffuseColor *= sampledDiffuseColor;
+    material.fragmentShader = material.fragmentShader.replace(
+      `gl_FragColor = vec4( col, diffuseColor.a );`,
+      `
+      gl_FragColor = vec4(col, diffuseColor.a);
+      `,
+    );
+    material.fragmentShader = material.fragmentShader.replace(
+      `gl_FragColor = vec4( col, diffuseColor.a );`,
+      `
       if (transitionEffectType < 0.5) {
 
       }
@@ -155,61 +159,18 @@ export class EffectManager{
         float bodyRim = pow(1. - EdotN, rimStrength);
         float glowIntensity = mix(50., 10., timeProgress);
   
-        diffuseColor.rgb = mix(pixelColor * bodyRim * glowIntensity, diffuseColor.rgb, timeProgress);
-        diffuseColor.a = 1.0;
+        col.rgb = mix(pixelColor * bodyRim * glowIntensity, col.rgb, timeProgress);
       }
       else {
-
-        float pixelUvScale = 2.0;
-        vec2 pixelUv = vec2(
-          vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
-          vWorldPosition.y * pixelUvScale - switchAvatarTime * pixelUvScale
-        );
-        vec4 pixel = texture2D(
-          pixelTexture, 
-          pixelUv
-        );
-        float minStrength = 0.025;
-        float noiseStrength = minStrength;
-        float noiseCutout = textureRemap(pixel, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
-        float bottomPosition = 1.1;
-        float avatarHeight = 4.0;
-        float speed = 0.7;
-        float cutoutHeight = ((switchAvatarTime * speed)) * avatarHeight - bottomPosition;
         
-        float limit = noiseCutout + cutoutHeight;
-        float border = 0.1;
         
-        float upperBound = limit + border;
-        vec3 boderColor = vec3(0.0, 1.0, 0.);
-        vec3 boderColor2 = vec3(1.0, 0., 0.);
-        isBorder = vWorldPosition.y > limit && vWorldPosition.y < upperBound;
-        if (isBorder) {
-          diffuseColor.rgb += boderColor;
-        }
-        else {
-          diffuseColor.rgb += boderColor2;
-          diffuseColor.a = step(vWorldPosition.y, limit);
-          if (diffuseColor.a <= 0.) {
-            discard;
-          }
-        }
       }
-      
+      gl_FragColor = vec4( col, diffuseColor.a );
       `,
     );
 
-    material.fragmentShader = material.fragmentShader.replace(
-      `col += totalEmissiveRadiance;`,
-      `
-      if (transitionEffectType >= 1.5 && isBorder) {
-        col = diffuseColor.rgb;
-      }
-      else {
-        col += totalEmissiveRadiance;
-      }
-      `,
-    );
+    
+    console.log(material.fragmentShader)
     
     material.uniforms.transitionEffectType = customUniforms.transitionEffectType;
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
