@@ -294,7 +294,7 @@ export class EffectManager{
     );
 
     
-    console.log(material.fragmentShader)
+    // console.log(material.fragmentShader)
     
     
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
