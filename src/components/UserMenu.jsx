@@ -120,6 +120,7 @@ export const UserMenu = () => {
     console.log('avatarToDownload', avatarToDownload)
 
     // const avatarToCombine = avatarToDownload.clone()
+    // const avatarToDownloadClone = avatarToDownload.clone()
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
     //
@@ -141,17 +142,32 @@ export const UserMenu = () => {
     //   avatarToDownload.children[0].children[0].children[0],
     // ];
     // ok: exported body and bones gltf, but need manually fix `"max": [` `"min": [` bug.
-    let toBeExported = new Object3D();
-    toBeExported.add(body_geo);
-    toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
+    // let toBeExported = new Object3D();
+    // toBeExported.add(body_geo);
+    // toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
     // ---
     // toBeExported.children[0] = createMeshesFromMultiMaterialMesh(toBeExported.children[0]);
     // ---
+    // const toBeExported = avatarToDownloadClone
+    const toBeExported = avatarToDownload // todo: need use cloned avatar, or revert back to toon outline materials.
+    let skeleton;
     toBeExported.traverse(child => {
+      if (!skeleton && child.isSkinnedMesh) {
+        skeleton = child.skeleton;
+      }
+      if (child.isSkinnedMesh) {
+        child.skeleton = skeleton;
+      }
       if (Array.isArray(child.material)) {
         child.material = child.material[0];
       }
+      // if (child.name === 'Armature') {
+      //   child.parent.add(child.children[0])
+      // }
     })
+    // ---
+    // toBeExported = toBeExported.children[0];
+    window.toBeExported = toBeExported
     // ---
     if (format === "glb") {
       debugger
