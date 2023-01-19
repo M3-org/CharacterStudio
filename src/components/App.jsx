@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useContext, useEffect, useState } from "react"
+import React, { Fragment, useContext, useEffect, useState } from "react"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AppMode, ViewContext } from "../context/ViewContext"

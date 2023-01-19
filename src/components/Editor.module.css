@@ -1,5 +1,6 @@
 .SideMenu {
-    position: absolute;
+    position: fixed;
+    overflow: hidden;
     left: 2em;
     top: 20vh;
     height: 39em;
