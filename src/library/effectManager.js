@@ -41,6 +41,9 @@ const globalUniforms = {
   switchAvatarTime: {
     value: SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD
   },
+  transitionEffectType: {
+    value: transitionEffectTypeNumber.normal
+  },
 };
 
 const customUniforms = {
@@ -49,9 +52,6 @@ const customUniforms = {
   },
   noiseTexture: {
     value: noiseTexture
-  },
-  transitionEffectType: {
-    value: transitionEffectTypeNumber.normal
   },
   isFadeOut: {
     value: false
@@ -159,11 +159,134 @@ export class EffectManager{
         float bodyRim = pow(1. - EdotN, rimStrength);
         float glowIntensity = mix(50., 10., timeProgress);
   
-        col.rgb = mix(pixelColor * bodyRim * glowIntensity, col.rgb, timeProgress);
+        col = mix(pixelColor * bodyRim * glowIntensity, col, timeProgress);
       }
       else {
-        
-        
+        if (isFadeOut) {
+          float noiseUvScale = 5.0;
+          vec2 noiseUv = vec2(
+            vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
+            vWorldPosition.y * noiseUvScale + switchAvatarTime * noiseUvScale
+          );
+          vec4 noise = texture2D(
+            pixelTexture, 
+            noiseUv
+          );
+          float noiseStrength = switchAvatarTime * 2.0 + 0.025;
+          float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
+          
+          float bottomPosition = -1.1;
+          float avatarHeight = 3.5;
+          float cutoutHeight = switchAvatarTime * avatarHeight + bottomPosition;
+          
+          float limit = cutoutHeight + noiseCutout;
+          float border = 0.02;
+          float upperBound = limit + border;
+  
+          if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
+            discard;
+          }
+          else if (vWorldPosition.y >= upperBound) {
+            discard;
+          }
+          else {
+            float pixelUvScale = 2.0;
+            vec2 pixelUv = vec2(
+              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
+              vWorldPosition.y * pixelUvScale
+            );
+            float pixel = texture2D(
+              pixelTexture, 
+              pixelUv
+            ).r;
+    
+            pixel = pow(pixel, 1.0);
+            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
+            
+            vec3 eyeDirection = normalize(eye - vWorldPosition);
+    
+            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
+            float rimStrength = mix(0.1, 2.0 * switchAvatarTime, 1. - switchAvatarTime);
+            float bodyRim = pow(1. - EdotN, rimStrength);
+            float glowIntensity = mix(10., 5. * (1. - switchAvatarTime), switchAvatarTime);
+      
+            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
+          }
+
+        }
+        else {
+          float noiseUvScale = 0.3;
+          vec2 noiseUv = vec2(
+            vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
+            vWorldPosition.y * noiseUvScale
+          );
+          vec4 noise = texture2D(
+            noiseTexture, 
+            noiseUv
+          );
+          float noiseStrength = 0.01;
+          float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
+          
+          float border = 0.02;
+          float bottomPosition = -0.3 - border;
+          float avatarHeight = 1.6 + border;
+          float cutoutHeight = switchAvatarTime * avatarHeight + bottomPosition;
+          
+          float limit = cutoutHeight + noiseCutout;
+          
+          float upperBound = limit + border;
+  
+          if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
+            float pixelUvScale = 2.0;
+            vec2 pixelUv = vec2(
+              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
+              vWorldPosition.y * pixelUvScale
+            );
+            float pixel = texture2D(
+              pixelTexture, 
+              pixelUv
+            ).r;
+    
+            pixel = pow(pixel, 1.0);
+            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
+            
+            vec3 eyeDirection = normalize(eye - vWorldPosition);
+    
+            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
+            float rimStrength = mix(0.1, 1.0 * switchAvatarTime, 1. - switchAvatarTime);
+            float bodyRim = pow(1. - EdotN, rimStrength);
+            float glowIntensity = mix(50., 5. + 10. * (1. - switchAvatarTime), switchAvatarTime);
+      
+            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
+          }
+          else if (vWorldPosition.y >= upperBound) {
+            discard;
+          }
+          else {
+            float pixelUvScale = 2.0;
+            vec2 pixelUv = vec2(
+              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
+              vWorldPosition.y * pixelUvScale
+            );
+            float pixel = texture2D(
+              pixelTexture, 
+              pixelUv
+            ).r;
+    
+            pixel = pow(pixel, 1.0);
+            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
+            
+            vec3 eyeDirection = normalize(eye - vWorldPosition);
+    
+            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
+            float rimStrength = mix(0.1, 2.0 * switchAvatarTime, 1. - switchAvatarTime);
+            float bodyRim = pow(1. - EdotN, rimStrength);
+            float glowIntensity = mix(10., 2.5 + 5. * (1. - switchAvatarTime), switchAvatarTime);
+      
+            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
+          }
+  
+        }
       }
       gl_FragColor = vec4( col, diffuseColor.a );
       `,
@@ -172,7 +295,7 @@ export class EffectManager{
     
     console.log(material.fragmentShader)
     
-    material.uniforms.transitionEffectType = customUniforms.transitionEffectType;
+    
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
     material.uniforms.noiseTexture = customUniforms.noiseTexture;
     material.uniforms.isFadeOut = customUniforms.isFadeOut;
@@ -182,6 +305,7 @@ export class EffectManager{
     material.uniforms.switchItemTime = globalUniforms.switchItemTime;
     material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
     material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
+    material.uniforms.transitionEffectType = globalUniforms.transitionEffectType;
     // material.transparent = true;
   }
 
@@ -207,13 +331,13 @@ export class EffectManager{
 
   playSwitchItemEffect() {
     globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_INITIAL_TIME;
-    customUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
+    globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
     this.particleEffect.emitPixel();
     this.transitionTime = 500;
   }
 
   playSwitchAvatarEffect() {
-    customUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
+    globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
     this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_SPEED);
   }
 
@@ -232,16 +356,16 @@ export class EffectManager{
         this.particleEffect.update();
       }
       
-      if (customUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchItem) {
+      if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchItem) {
         if (globalUniforms.switchItemTime.value < SWITCH_ITEM_EFFECT_DURATION) {
           globalUniforms.switchItemTime.value += SWITCH_ITEM_EFFECT_SPEED;
         }
         else {
           globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_DURATION;
-          customUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+          globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
         }
       }
-      else if (customUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
+      else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
         if (this.isFadeOut) {
           if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
             globalUniforms.switchAvatarTime.value -= SWITCH_AVATAR_EFFECT_SPEED;
@@ -255,7 +379,7 @@ export class EffectManager{
             globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_SPEED;
           }
           else {
-            customUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+            globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
             globalUniforms.switchAvatarTime.value = SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD;
             this.isFadeOut = true;
           }
