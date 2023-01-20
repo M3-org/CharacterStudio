@@ -28,7 +28,8 @@ export const CullHiddenFaces = async(meshes) => {
     meshes.forEach(mesh => {
         if (mesh.userData.cullLayer != null){
             if (mesh.userData.origIndexBuffer == null)
-                mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+                // mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+                mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
         
             if (culls [mesh.userData.cullLayer] == null)
                 culls [mesh.userData.cullLayer] = [];
@@ -161,7 +162,8 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
 export const DisplayMeshIfVisible = async(mesh, traitModel) => {
 
     if (mesh.userData.origIndexBuffer == null)
-        mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+        // mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
+        mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
 
     //let greedCounter =  0;
     const traitMeshes = [];
