@@ -16,7 +16,7 @@ const textureLoader = new THREE.TextureLoader()
 const pixelTexture = textureLoader.load(`/textures/pixel9.png`);
 pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 
-const noiseTexture = textureLoader.load(`/textures/noise.png`);
+const noiseTexture = textureLoader.load(`/textures/noise3.jpg`);
 noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
 
 const transitionEffectTypeNumber = {
@@ -121,6 +121,27 @@ export class EffectManager{
       vec4 textureRemap(vec4 In, vec2 InMinMax, vec2 OutMinMax) {
         return OutMinMax.x + (In - InMinMax.x) * (OutMinMax.y - OutMinMax.x) / (InMinMax.y - InMinMax.x);
       }
+
+      float getRim(vec3 normal, float rimStrength, float glowIntensity) {
+        vec3 eyeDirection = normalize(eye - vWorldPosition);
+        float EdotN = max(0.0, dot(eyeDirection, normal));
+        float bodyRim = pow(1. - EdotN, rimStrength);
+        return bodyRim * glowIntensity;
+      }
+
+      vec3 getPixelColor() {
+        float pixelUvScale = 2.0;
+        vec2 pixelUv = vec2(
+          vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
+          vWorldPosition.y * pixelUvScale
+        );
+        float pixel = texture2D(
+          pixelTexture, 
+          pixelUv
+        ).r;
+        return mix(vec3(0.0396, 0.768, 0.990), vec3(0.0142, 0.478, 0.710), pixel);
+      }
+
       `,
     );
 
@@ -137,158 +158,99 @@ export class EffectManager{
 
       }
       else if (transitionEffectType < 1.5) {
-        float pixelUvScale = 2.0;
-        vec2 pixelUv = vec2(
-          vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
-          vWorldPosition.y * pixelUvScale
-        );
-        float pixel = texture2D(
-          pixelTexture, 
-          pixelUv
-        ).r;
-
-        pixel = pow(pixel, 1.0);
-        vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
-        
-        vec3 eyeDirection = normalize(eye - vWorldPosition);
-
+        vec3 pixelColor = getPixelColor();
 
         float timeProgress = switchItemTime / switchItemDuration;
-        float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
-        float rimStrength = mix(0.1, 5.0 * switchItemTime, timeProgress);
-        float bodyRim = pow(1. - EdotN, rimStrength);
-        float glowIntensity = mix(50., 10., timeProgress);
-  
-        col = mix(pixelColor * bodyRim * glowIntensity, col, timeProgress);
+        float rim = getRim(
+          vSurfaceNormal, 
+          mix(0.1, 5.0 * switchItemTime, timeProgress), 
+          mix(50., 10., timeProgress)
+        );
+        
+        col = mix(pixelColor * rim, col, timeProgress);
       }
       else {
         if (isFadeOut) {
-          float noiseUvScale = 5.0;
-          vec2 noiseUv = vec2(
-            vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
-            vWorldPosition.y * noiseUvScale + switchAvatarTime * noiseUvScale
-          );
-          vec4 noise = texture2D(
-            pixelTexture, 
-            noiseUv
-          );
-          float noiseStrength = switchAvatarTime * 2.0 + 0.025;
-          float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
-          
-          float bottomPosition = -1.1;
-          float avatarHeight = 3.5;
-          float cutoutHeight = switchAvatarTime * avatarHeight + bottomPosition;
-          
-          float limit = cutoutHeight + noiseCutout;
-          float border = 0.02;
-          float upperBound = limit + border;
-  
-          if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
-            discard;
-          }
-          else if (vWorldPosition.y >= upperBound) {
-            discard;
-          }
-          else {
-            float pixelUvScale = 2.0;
-            vec2 pixelUv = vec2(
-              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
-              vWorldPosition.y * pixelUvScale
-            );
-            float pixel = texture2D(
-              pixelTexture, 
-              pixelUv
-            ).r;
-    
-            pixel = pow(pixel, 1.0);
-            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
-            
-            vec3 eyeDirection = normalize(eye - vWorldPosition);
-    
-            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
-            float rimStrength = mix(0.1, 2.0 * switchAvatarTime, 1. - switchAvatarTime);
-            float bodyRim = pow(1. - EdotN, rimStrength);
-            float glowIntensity = mix(10., 5. * (1. - switchAvatarTime), switchAvatarTime);
-      
-            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
-          }
+          discard;
 
         }
         else {
-          float noiseUvScale = 0.3;
-          vec2 noiseUv = vec2(
-            vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
-            vWorldPosition.y * noiseUvScale
-          );
-          vec4 noise = texture2D(
-            noiseTexture, 
-            noiseUv
-          );
-          float noiseStrength = 0.01;
-          float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
-          
-          float border = 0.02;
-          float bottomPosition = -0.3 - border;
-          float avatarHeight = 2.0 + border;
-          float cutoutHeight = switchAvatarTime * avatarHeight + bottomPosition;
-          
-          float limit = cutoutHeight + noiseCutout;
-          
-          float upperBound = limit + border;
-  
-          if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
-            float pixelUvScale = 2.0;
-            vec2 pixelUv = vec2(
-              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
-              vWorldPosition.y * pixelUvScale
+          if (switchAvatarTime < 0.5) {
+            float timer = switchAvatarTime * 2.;
+            float noiseUvScale = 1.2;
+            vec2 noiseUv = vec2(
+              vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
+              vWorldPosition.y * noiseUvScale
             );
-            float pixel = texture2D(
-              pixelTexture, 
-              pixelUv
-            ).r;
-    
-            pixel = pow(pixel, 1.0);
-            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
+            vec4 noise = texture2D(
+              noiseTexture, 
+              noiseUv
+            );
+            float noiseStrength = timer * 0.2 + 0.015;
+            float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
             
-            vec3 eyeDirection = normalize(eye - vWorldPosition);
+            float border = 0.02;
+            float bottomPosition = -0.3 - border;
+            float avatarHeight = 2.0 + border;
+            float cutoutHeight = timer * avatarHeight + bottomPosition;
+            
+            float limit = cutoutHeight + noiseCutout;
+            
+            float upperBound = limit + border;
     
-            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
-            float rimStrength = mix(0.1, 1.0 * switchAvatarTime, 1. - switchAvatarTime);
-            float bodyRim = pow(1. - EdotN, rimStrength);
-            float glowIntensity = mix(50., 5. + 10. * (1. - switchAvatarTime), switchAvatarTime);
-      
-            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
-          }
-          else if (vWorldPosition.y >= upperBound) {
-            discard;
+            if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
+
+              vec3 pixelColor = getPixelColor();
+          
+              float rim = getRim(
+                vSurfaceNormal, 
+                0.1,
+                10.
+              );
+        
+              col = pixelColor * rim;
+            }
+            else if (vWorldPosition.y >= upperBound) {
+              discard;
+            }
+            else {
+
+              vec3 pixelColor = getPixelColor();
+              
+              float rim = getRim(
+                vSurfaceNormal, 
+                1.0,
+                10.
+              );
+              col = pixelColor * rim;
+            }
           }
           else {
-            float pixelUvScale = 2.0;
-            vec2 pixelUv = vec2(
-              vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
-              vWorldPosition.y * pixelUvScale
-            );
-            float pixel = texture2D(
-              pixelTexture, 
-              pixelUv
-            ).r;
-    
-            pixel = pow(pixel, 1.0);
-            vec3 pixelColor = mix(vec3(0.0142, 0.478, 0.710), vec3(0.0396, 0.768, 0.990), pixel);
+            float timer = switchAvatarTime * 2. - 1.;
             
-            vec3 eyeDirection = normalize(eye - vWorldPosition);
-    
-            float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
-            float rimStrength = mix(0.1, 2.0 * switchAvatarTime, 1. - switchAvatarTime);
-            float bodyRim = pow(1. - EdotN, rimStrength);
-            float glowIntensity = mix(10., 2.5 + 5. * (1. - switchAvatarTime), switchAvatarTime);
-      
-            col = mix(pixelColor * bodyRim * glowIntensity, col, switchAvatarTime);
+            float bottomPosition = -0.3;
+            float avatarHeight = 2.0;
+            float cutoutHeight = timer * avatarHeight + bottomPosition;
+            float limit = cutoutHeight;
+
+            
+            float rim = getRim(
+              vSurfaceNormal, 
+              mix(1.0, 2.0 * timer, timer),
+              mix(10., 2.5 + 5. * (1. - timer), timer)
+            );
+            
+            float fadeStrength = 20.;
+            rim *= pow((vWorldPosition.y - bottomPosition) / (avatarHeight - bottomPosition), timer * fadeStrength);
+            
+            vec3 pixelColor = getPixelColor();
+            col = mix(pixelColor * rim, col, timer);
+
           }
-  
         }
         
       }
+
       gl_FragColor = vec4( col, diffuseColor.a );
       `,
     );
