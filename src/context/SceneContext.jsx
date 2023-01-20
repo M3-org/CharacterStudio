@@ -44,11 +44,10 @@ export const SceneProvider = (props) => {
   const setAvatar = (state) => {
     _setAvatar(state)
   }
+
   const saveUserSelection = (name, options) =>{
     const newSelection = loadUserSelection (name) || []
-    console.log(newSelection)
     options.map((opt)=>{
-
       let newOpt = true;
       for (let i =0; i < newSelection.length;i++ ) {
         if(newSelection[i].trait.trait === opt.trait.trait){
@@ -69,6 +68,7 @@ export const SceneProvider = (props) => {
       return JSON.parse(opts)
     return null
   }
+
   useEffect(() => {
     if (avatar) {
       if (Object.keys(avatar).length > 0) {

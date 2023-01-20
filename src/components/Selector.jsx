@@ -121,11 +121,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      // const getLocalOptions = (name) => {
-      //   localStorage.getItem(`class_${name}`)
-      // }
-      console.log(selectedOptions)
-
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
         loadedData.map((data)=>{
