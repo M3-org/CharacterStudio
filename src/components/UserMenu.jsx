@@ -9,7 +9,7 @@ import { createMeshesFromMultiMaterialMesh } from "three/examples/jsm/utils/Scen
 import { clone } from "three/examples/jsm/utils/SkeletonUtils"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { combine } from "../library/merge-geometry"
+import { cloneSkeleton, combine } from "../library/merge-geometry"
 import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
@@ -155,12 +155,14 @@ export const UserMenu = () => {
     // ---
     // toBeExported.children[0] = createMeshesFromMultiMaterialMesh(toBeExported.children[0]);
     // ---
-    // const toBeExported = avatarToDownloadClone
-    const toBeExported = avatarToDownload // todo: need use cloned avatar, or revert back to toon outline materials.
+    const toBeExported = avatarToDownloadClone
+    // const toBeExported = avatarToDownload // todo: need use cloned avatar, or revert back to toon outline materials.
     let skeleton;
     toBeExported.traverse(child => {
       if (!skeleton && child.isSkinnedMesh) {
-        skeleton = child.skeleton;
+        // skeleton = child.skeleton;
+        skeleton = cloneSkeleton(child);
+        toBeExported.add(skeleton.bones[0]);
       }
       // if (child.isSkinnedMesh && (!skeleton || child.skeleton.bones.legnth > skeleton.bones.length)) {
       //   skeleton = child.skeleton;
@@ -222,11 +224,11 @@ export const UserMenu = () => {
     // })
     toBeExported.traverse(child => {
       if (child.isSkinnedMesh) {
-        child._skeletonBak = child.skeleton;
+        // child._skeletonBak = child.skeleton;
         child.skeleton = skeleton;
       }
       if (Array.isArray(child.material)) {
-        child._materialBak = child.material;
+        // child._materialBak = child.material;
         // child.geometry.clearGroups(); // note: geometry not cloned, will affect original model.
         // child.material = child.material[0];
         const materials = child.material;
@@ -273,17 +275,17 @@ export const UserMenu = () => {
       })
     }
 
-    // todo: only if glb
-    toBeExported.traverse(child => {
-      if (child._skeletonBak) {
-        child.skeleton = child._skeletonBak;
-        delete child._skeletonBak;
-      }
-      if (child._materialBak) {
-        child.material = child._materialBak;
-        delete child._materialBak;
-      }
-    })
+    // // todo: only if glb
+    // toBeExported.traverse(child => {
+    //   if (child._skeletonBak) {
+    //     child.skeleton = child._skeletonBak;
+    //     delete child._skeletonBak;
+    //   }
+    //   if (child._materialBak) {
+    //     child.material = child._materialBak;
+    //     delete child._materialBak;
+    //   }
+    // })
   }
 
   function getVRMBaseData(avatar){
