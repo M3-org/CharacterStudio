@@ -166,33 +166,33 @@ console.log(prompt)
         setMessages(newMessages);
 
         try {
-            const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+            // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
             const driveId = '1QnOliOAmerMUNuo2wXoH-YoainoSjZen'
 
-            axios.post(`${url}`, {
-                Input: {
-                    input: value,
-                    agent: agent,
-                    speaker: speaker,
-                    client: "charactercreator",
-                    channel: "charactercreator-" + sessionId.toString(),
-                    channelId: sessionId.toString(),
-                    channelType: "session"
-                },
-                Agent: agent,
-                Speaker: speaker,
-                Prompt: composePrompt(),
-                Messages: messages,
-            }).then((response) => {
-                const data = response.data;
+            const endpoint = 'https://upstreet.webaverse.com/api/ai'
 
-                const outputs = data.outputs;
+let prompt = `
+${composePrompt()}
+###
+The following is a friendly conversation between #speaker and ${agent}.
+${messages.join('\n')}
+${speaker}: ${input}
+${agent}:`
 
-                const outputKey = Object.keys(outputs)[0];
-
-                const output = outputs[outputKey];
-
+            const query = {
+                prompt,
+                max_tokens: 100,
+                temperature: 0.7,
+                top_p: 1,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.5,
+                stop: [speaker + ':', agent + ':', '\\n'],
+                };
+                
+            axios.post(endpoint, query).then((response) => {
+                console.log('response is', response.data.choices[0].text)
+                const output = response.data.choices[0].text;
                 const ttsEndpoint = `https://voice.webaverse.com/tts?s=${output}&voice=${driveId}`
 
                 // fetch the audio file from ttsEndpoint
