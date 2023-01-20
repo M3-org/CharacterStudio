@@ -166,9 +166,12 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
 
 
   const moveCamera = (value) => {
+    
     if(!controls) return;
       gsap.to(controls.target,{
         y:value.height,
+        x:0,
+        z:0,
         duration: 1,
       })
 
