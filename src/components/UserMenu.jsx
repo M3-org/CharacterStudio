@@ -130,8 +130,6 @@ export const UserMenu = () => {
           skeleton = cloneSkeleton(child);
           avatarModel.add(skeleton.bones[0]);
         }
-      })
-      avatarModel.traverse(child => {
         if (child.isSkinnedMesh) {
           child.skeleton = skeleton;
         }
