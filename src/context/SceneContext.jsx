@@ -11,6 +11,8 @@ export const SceneProvider = (props) => {
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    // rotate the directional light to be a key light
+    directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
 
     return scene;

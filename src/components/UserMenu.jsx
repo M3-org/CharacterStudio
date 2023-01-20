@@ -27,7 +27,7 @@ export const UserMenu = () => {
 
   const { skinColor, model, avatar } = useContext(SceneContext)
 
-  const [mintStatus, setMintStatus] = useState("")
+  // const [mintStatus, setMintStatus] = useState("")
 
   useEffect(() => {
     if (account) {
@@ -35,7 +35,7 @@ export const UserMenu = () => {
       setConnected(true)
     } else {
       setConnected(false)
-      setMintStatus("Please connect your wallet.")
+      // setMintStatus("Please connect your wallet.")
     }
   }, [account])
 
@@ -79,7 +79,7 @@ export const UserMenu = () => {
   const connectWallet = async () => {
     try {
       await activate(injected)
-      setMintStatus("Your wallet has been connected.")
+      // setMintStatus("Your wallet has been connected.")
     } catch (ex) {
       console.log(ex)
     }

@@ -395,31 +395,31 @@ function getVRMMeta(name){
   }
 }
 
-function getVRMDefaultLookAt(){
-  return {
-    offsetFromHeadBone:[0,0,0],
-    applier:{
-      rangeMapHorizontalInner:{
-        inputMaxValue:90,
-        inputSacle:62.1
-      },
-      rangeMapHorizontalOuter:{
-        inputMaxValue:90,
-        inputSacle:68.6
-      },
-      rangeMapVerticalDown:{
-        inputMaxValue:90,
-        inputSacle:57.9
-      },
-      rangeMapVerticalUp:{
-        inputMaxValue:90,
-        inputSacle:52.8
-      }
-    },
-    type:"bone"
-  }
+// function getVRMDefaultLookAt(){
+//   return {
+//     offsetFromHeadBone:[0,0,0],
+//     applier:{
+//       rangeMapHorizontalInner:{
+//         inputMaxValue:90,
+//         inputSacle:62.1
+//       },
+//       rangeMapHorizontalOuter:{
+//         inputMaxValue:90,
+//         inputSacle:68.6
+//       },
+//       rangeMapVerticalDown:{
+//         inputMaxValue:90,
+//         inputSacle:57.9
+//       },
+//       rangeMapVerticalUp:{
+//         inputMaxValue:90,
+//         inputSacle:52.8
+//       }
+//     },
+//     type:"bone"
+//   }
 
-}
+// }
 function getHumanoidByBoneNames(skinnedMesh){
   const humanBones = {}
   skinnedMesh.skeleton.bones.map((bone)=>{

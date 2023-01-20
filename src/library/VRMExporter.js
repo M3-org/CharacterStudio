@@ -1,22 +1,22 @@
 import { BufferAttribute, } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
-function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
-    return {
-        allowedUserName: vrmMeta.allowedUserName,
-        author: vrmMeta.author,
-        commercialUssageName: vrmMeta.commercialUssageName,
-        contactInformation: vrmMeta.contactInformation,
-        licenseName: vrmMeta.licenseName,
-        otherLicenseUrl: vrmMeta.otherLicenseUrl,
-        otherPermissionUrl: vrmMeta.otherPermissionUrl,
-        reference: vrmMeta.reference,
-        sexualUssageName: vrmMeta.sexualUssageName,
-        texture: icon ? outputImage.length - 1 : undefined,
-        title: vrmMeta.title,
-        version: vrmMeta.version,
-        violentUssageName: vrmMeta.violentUssageName,
-    };
-}
+// function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
+//     return {
+//         allowedUserName: vrmMeta.allowedUserName,
+//         author: vrmMeta.author,
+//         commercialUssageName: vrmMeta.commercialUssageName,
+//         contactInformation: vrmMeta.contactInformation,
+//         licenseName: vrmMeta.licenseName,
+//         otherLicenseUrl: vrmMeta.otherLicenseUrl,
+//         otherPermissionUrl: vrmMeta.otherPermissionUrl,
+//         reference: vrmMeta.reference,
+//         sexualUssageName: vrmMeta.sexualUssageName,
+//         texture: icon ? outputImage.length - 1 : undefined,
+//         title: vrmMeta.title,
+//         version: vrmMeta.version,
+//         violentUssageName: vrmMeta.violentUssageName,
+//     };
+// }
 // function getVRM0BlendshapeName(curName){
 //     switch(curName){
 //       case "happy":
@@ -54,13 +54,13 @@ var WEBGL_CONST;
     WEBGL_CONST[WEBGL_CONST["REPEAT"] = 10497] = "REPEAT";
 })(WEBGL_CONST || (WEBGL_CONST = {}));
 const BLENDSHAPE_PREFIX = "blend_";
-const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
+// const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
 const SPRINGBONE_COLLIDER_NAME = "vrmColliderSphere";
-const EXPORTER_VERSION = "alpha-v1.0";
-const CHUNK_TYPE_JSON = "JSON";
-const CHUNK_TYPE_BIN = "BIN\x00";
-const GLTF_VERSION = 2;
-const HEADER_SIZE = 12;
+// const EXPORTER_VERSION = "alpha-v1.0";
+// const CHUNK_TYPE_JSON = "JSON";
+// const CHUNK_TYPE_BIN = "BIN\x00";
+// const GLTF_VERSION = 2;
+// const HEADER_SIZE = 12;
 export default class VRMExporter {
     parse(vrm, avatar, onDone) {
         const humanoid = vrm.humanoid;
@@ -412,9 +412,9 @@ export default class VRMExporter {
         //     upperArmTwist: humanoid.humanDescription.upperArmTwist,
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
-        const materialProperties = uniqueMaterials.map((material) => 
-            material.userData.vrmMaterialProperties
-        );
+        // const materialProperties = uniqueMaterials.map((material) => 
+        //     material.userData.vrmMaterialProperties
+        // );
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
         //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
@@ -442,7 +442,7 @@ export default class VRMExporter {
                     ? undefined
                     : bufferView.type === MeshDataType.INDEX
                         ? WEBGL_CONST.ELEMENT_ARRAY_BUFFER
-                        : WEBGL_CONST.ARRAY_BUFFER, // TODO: だいたいこれだったの　Mesh/indicesだけELEMENT...
+                        : WEBGL_CONST.ARRAY_BUFFER, // TODO: Mesh/indicesだけELEMENT...
             };
             bufferOffset += bufferView.buffer.byteLength;
             if (bufferView.type === MeshDataType.IMAGE) {
@@ -503,9 +503,9 @@ export default class VRMExporter {
         onDone(concatBinary([header, fileData]));
     }
 }
-function radian2Degree(radian) {
-    return radian * (180 / Math.PI);
-}
+// function radian2Degree(radian) {
+//     return radian * (180 / Math.PI);
+// }
 function getNodes(parentNode) {
     if (parentNode.children.length <= 0)
         return [parentNode];
@@ -865,56 +865,56 @@ const toOutputScenes = (avatar, outputNodes) => {
         },
     ];
 };
-const toOutputSecondaryAnimation = (springBone, nodeNames) => {
-    return {
-        boneGroups: springBone.springBoneGroupList[0] &&
-            springBone.springBoneGroupList[0].length > 0
-            ? springBone.springBoneGroupList.map((group) => ({
-                bones: group.map((e) => nodeNames.indexOf(e.bone.name)),
-                center: group[0].center
-                    ? nodeNames.indexOf(group[0].center.name) // TODO: nullになっていて実際のデータはわからん
-                    : -1,
-                colliderGroups: springBone.colliderGroups.map((_, index) => index),
-                dragForce: group[0].dragForce,
-                gravityDir: {
-                    x: group[0].gravityDir.x,
-                    y: group[0].gravityDir.y,
-                    z: group[0].gravityDir.z, // TODO: それっぽいやつをいれた
-                },
-                gravityPower: group[0].gravityPower,
-                hitRadius: group[0].radius,
-                stiffiness: group[0].stiffnessForce, // TODO: それっぽいやつをいれた
-            }))
-            : [
-                {
-                    bones: [],
-                    center: -1,
-                    colliderGroups: [],
-                    dragForce: 0.4,
-                    gravityDir: {
-                        x: 0,
-                        y: -1,
-                        z: 0,
-                    },
-                    gravityPower: 0,
-                    hitRadius: 0.02,
-                    stiffiness: 1,
-                },
-            ],
-        colliderGroups: springBone.colliderGroups.map((group) => ({
-            colliders: [
-                {
-                    offset: {
-                        x: group.colliders[0].position.x,
-                        y: group.colliders[0].position.y,
-                        z: group.colliders[0].position.z,
-                    },
-                    radius: group.colliders[0].geometry.boundingSphere
-                        ? group.colliders[0].geometry.boundingSphere.radius
-                        : undefined,
-                },
-            ],
-            node: group.node,
-        })),
-    };
-};
+// const toOutputSecondaryAnimation = (springBone, nodeNames) => {
+//     return {
+//         boneGroups: springBone.springBoneGroupList[0] &&
+//             springBone.springBoneGroupList[0].length > 0
+//             ? springBone.springBoneGroupList.map((group) => ({
+//                 bones: group.map((e) => nodeNames.indexOf(e.bone.name)),
+//                 center: group[0].center
+//                     ? nodeNames.indexOf(group[0].center.name) // TODO: nullになっていて実際のデータはわからん
+//                     : -1,
+//                 colliderGroups: springBone.colliderGroups.map((_, index) => index),
+//                 dragForce: group[0].dragForce,
+//                 gravityDir: {
+//                     x: group[0].gravityDir.x,
+//                     y: group[0].gravityDir.y,
+//                     z: group[0].gravityDir.z, // TODO: それっぽいやつをいれた
+//                 },
+//                 gravityPower: group[0].gravityPower,
+//                 hitRadius: group[0].radius,
+//                 stiffiness: group[0].stiffnessForce, // TODO: それっぽいやつをいれた
+//             }))
+//             : [
+//                 {
+//                     bones: [],
+//                     center: -1,
+//                     colliderGroups: [],
+//                     dragForce: 0.4,
+//                     gravityDir: {
+//                         x: 0,
+//                         y: -1,
+//                         z: 0,
+//                     },
+//                     gravityPower: 0,
+//                     hitRadius: 0.02,
+//                     stiffiness: 1,
+//                 },
+//             ],
+//         colliderGroups: springBone.colliderGroups.map((group) => ({
+//             colliders: [
+//                 {
+//                     offset: {
+//                         x: group.colliders[0].position.x,
+//                         y: group.colliders[0].position.y,
+//                         z: group.colliders[0].position.z,
+//                     },
+//                     radius: group.colliders[0].geometry.boundingSphere
+//                         ? group.colliders[0].geometry.boundingSphere.radius
+//                         : undefined,
+//                 },
+//             ],
+//             node: group.node,
+//         })),
+//     };
+// };
