@@ -45,13 +45,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
 
+  const [loadingTrait, setLoadingTrait] = useState(false)
+
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
-    console.log(templateInfo)
     setRestrictions(getRestrictions());
   },[templateInfo])
 
@@ -125,6 +126,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
         setAvatar({...avatar, ...newAvatar})
+        setLoadingTrait(false)
       })
       setSelectedOptions([]);
     }
@@ -153,6 +155,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
       setAvatar({...avatar, ...newAvatar})
+      setLoadingTrait(false)
     })
 
     return;
@@ -161,7 +164,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   // load options first
   const loadOptions = (options) => {
-
     // filter options by restrictions
     options = filterRestrictedOptions(options);
 
@@ -532,9 +534,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                 styles["selector-button"]
               } ${ active ? styles["active"] : ""}`}
               onClick={() => {
+               
                 !isMute && play()
-                selectTraitOption(option)
-                setLoadPercentage(1)
+                if (loadingTrait === false){
+                  setLoadingTrait(true)
+                  selectTraitOption(option)
+                  setLoadPercentage(1)
+                }
               }}
             >
               <img
