@@ -3,10 +3,8 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
-import { MeshStandardMaterial, Object3D, Skeleton } from 'three'
+import { MeshStandardMaterial } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
-import { createMeshesFromMultiMaterialMesh } from "three/examples/jsm/utils/SceneUtils"
-import { clone } from "three/examples/jsm/utils/SkeletonUtils"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { cloneSkeleton, combine } from "../library/merge-geometry"
@@ -88,12 +86,12 @@ export const UserMenu = () => {
     }
   }
 
-  //
   async function download(
     avatarToDownload,
     fileName,
     format,
     atlasSize = 4096,
+    isUnoptimized = false,
   ) {
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
@@ -120,133 +118,39 @@ export const UserMenu = () => {
 
     console.log('avatarToDownload', avatarToDownload)
 
-    // const avatarToCombine = avatarToDownload.clone()
     const avatarToDownloadClone = avatarToDownload.clone()
-    // avatarToDownloadClone.traverse(child => {
-    //   if (child.isSkinnedMesh) {
-    //     child.parent.children[child.parent.children.indexOf(child)] = clone(child);
-    //   }
-    // })
-    debugger
+    let avatarModel;
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
-    //
-    // const avatarModel = await combine({
-    //   transparentColor: skinColor,
-    //   avatar: avatarToCombine,
-    //   atlasSize,
-    // })
-    // let toBeExported = avatarModel;
-    // ---
-    let body_geo;
-    avatarToDownload.traverse(child => {
-      if (child.name === 'body_geo') body_geo = child;
-    })
-    if (!body_geo) debugger
-    // let toBeExported = body_geo;
-    // let toBeExported = [
-    //   body_geo,
-    //   avatarToDownload.children[0].children[0].children[0],
-    // ];
-    // ok: exported body and bones gltf, but need manually fix `"max": [` `"min": [` bug.
-    // let toBeExported = new Object3D();
-    // toBeExported.add(body_geo);
-    // toBeExported.add(avatarToDownload.children[0].children[0].children[0]);
-    // ---
-    // toBeExported.children[0] = createMeshesFromMultiMaterialMesh(toBeExported.children[0]);
-    // ---
-    const toBeExported = avatarToDownloadClone
-    // const toBeExported = avatarToDownload // todo: need use cloned avatar, or revert back to toon outline materials.
-    let skeleton;
-    toBeExported.traverse(child => {
-      if (!skeleton && child.isSkinnedMesh) {
-        // skeleton = child.skeleton;
-        skeleton = cloneSkeleton(child);
-        toBeExported.add(skeleton.bones[0]);
-      }
-      // if (child.isSkinnedMesh && (!skeleton || child.skeleton.bones.legnth > skeleton.bones.length)) {
-      //   skeleton = child.skeleton;
-      // }
-    })
-    // toBeExported.children.forEach((part, iPart) => {
-    //   part.traverse(child => {
-    //     if (!skeleton && child.isSkinnedMesh) {
-    //       // skeleton = child.skeleton;
-    //       skeleton = child.skeleton.clone();
-    //       debugger
-  
-    //       skeleton.bones = [];
-    //       debugger
-    //       const rootBoneCloned = toBeExported.children[iPart].children.find(child => child.name === 'Armature').children[0];
-    //       rootBoneCloned.traverse(child => {
-    //         if (child.isBone) {
-    //           skeleton.bones.push(child);
-    //         }
-    //       })
-    //       // skeleton.update();
-          
-    //       // const rootBoneCloned = skeleton.bones[0].clone();
-    //       // const bones = [];
-    //       // rootBoneCloned.traverse(child => {
-    //       //   if (child.isBone) {
-    //       //     child.position.set(0, 0, 0);
-    //       //     child.rotation.set(0, 0, 0);
-    //       //     child.scale.set(1, 1, 1);
-    //       //     bones.push(child);
-    //       //   }
-    //       // })
-    //       // skeleton = new Skeleton(bones);
-    //       // skeleton.calculateInverses();
-    //       // skeleton.computeBoneTexture();
-    //       // debugger
-    //       // skeleton.update();
-  
-    //       // const rootBoneCloned = skeleton.bones[0].clone();
-    //       // toBeExported.add(rootBoneCloned);
-    //       // skeleton.bones = [];
-    //       // rootBoneCloned.traverse(child => {
-    //       //   if (child.isBone) {
-    //       //     skeleton.bones.push(child);
-    //       //   }
-    //       // })
-  
-    //       // console.log(skeleton.bones[0])
-    //       // skeleton.bones.forEach(bone => {
-    //       //   toBeExported.add(bone);
-    //       // })
-  
-    //       // toBeExported.add(rootBoneCloned);
-    //     }
-    //     // if (child.isSkinnedMesh && (!skeleton || child.skeleton.bones.legnth > skeleton.bones.length)) {
-    //     //   skeleton = child.skeleton;
-    //     // }
-    //   })
-    // })
-    toBeExported.traverse(child => {
-      if (child.isSkinnedMesh) {
-        // child._skeletonBak = child.skeleton;
-        child.skeleton = skeleton;
-      }
-      if (Array.isArray(child.material)) {
-        // child._materialBak = child.material;
-        // child.geometry.clearGroups(); // note: geometry not cloned, will affect original model.
-        // child.material = child.material[0];
-        const materials = child.material;
-        child.material = new MeshStandardMaterial();
-        child.material.map = materials[0].map;
-      }
-      // if (child.name === 'Armature') {
-      //   child.parent.add(child.children[0])
-      // }
-    })
-    // ---
-    // toBeExported = toBeExported.children[0];
-    window.toBeExported = toBeExported
-    // ---
+    if (isUnoptimized) {
+      avatarModel = avatarToDownloadClone
+      let skeleton;
+      avatarModel.traverse(child => {
+        if (!skeleton && child.isSkinnedMesh) {
+          skeleton = cloneSkeleton(child);
+          avatarModel.add(skeleton.bones[0]);
+        }
+      })
+      avatarModel.traverse(child => {
+        if (child.isSkinnedMesh) {
+          child.skeleton = skeleton;
+        }
+        if (Array.isArray(child.material)) {
+          const materials = child.material;
+          child.material = new MeshStandardMaterial();
+          child.material.map = materials[0].map;
+        }
+      })
+    } else {
+      avatarModel = await combine({
+        transparentColor: skinColor,
+        avatar: avatarToDownloadClone,
+        atlasSize,
+      })
+    }
     if (format === "glb") {
-      debugger
       exporter.parse(
-        toBeExported,
+        avatarModel,
         (result) => {
           if (result instanceof ArrayBuffer) {
             saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -274,18 +178,6 @@ export const UserMenu = () => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
     }
-
-    // // todo: only if glb
-    // toBeExported.traverse(child => {
-    //   if (child._skeletonBak) {
-    //     child.skeleton = child._skeletonBak;
-    //     delete child._skeletonBak;
-    //   }
-    //   if (child._materialBak) {
-    //     child.material = child._materialBak;
-    //     delete child._materialBak;
-    //   }
-    // })
   }
 
   function getVRMBaseData(avatar){
@@ -324,6 +216,15 @@ export const UserMenu = () => {
                     size={14}
                     onClick={() => {
                       download(model, `UpstreetAvatar_${type}`, "glb")
+                    }}
+                  />
+                  <CustomButton
+                    theme="light"
+                    text="Download GLB Unoptimized"
+                    icon="download"
+                    size={14}
+                    onClick={() => {
+                      download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
                     }}
                   />
                   <CustomButton
