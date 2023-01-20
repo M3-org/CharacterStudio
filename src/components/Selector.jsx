@@ -40,7 +40,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setTraitsRightEye,
     setLipSync,
     mousePosition,
-    removeOption
+    removeOption,
+    saveUserSelection
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
@@ -120,6 +121,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
+      // const getLocalOptions = (name) => {
+      //   localStorage.getItem(`class_${name}`)
+      // }
+      console.log(selectedOptions)
+
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
         loadedData.map((data)=>{
@@ -166,6 +172,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const loadOptions = (options) => {
     // filter options by restrictions
     options = filterRestrictedOptions(options);
+
+    //save selection to local storage
+    saveUserSelection(templateInfo.name, options)
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -434,9 +443,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     // once the setup is done, assign them
     meshTargets.map((mesh, index)=>{
+      
       if (textures){
         const txt = textures[index] || textures[0]
         if (txt != null){
+          //const mat = mesh.material.length ? mesh.material[0] : 
           mesh.material[0].map = txt
           mesh.material[0].shadeMultiplyTexture = txt
         }
