@@ -158,7 +158,7 @@ console.log(prompt)
             console.log('handleUserChatInput', handleUserChatInput)
         // Send the message to the localhost endpoint
         const agent = name;
-        const spell_handler = "charactercreator";
+        // const spell_handler = "charactercreator";
 
         const newMessages = [...messages];
         newMessages.push(speaker + ": " + value)

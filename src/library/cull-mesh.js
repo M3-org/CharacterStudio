@@ -1,4 +1,4 @@
-import { BufferAttribute, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line,Scene } from "three";
+import { BufferAttribute, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line } from "three";
 
 let origin = new Vector3();
 let direction = new Vector3();

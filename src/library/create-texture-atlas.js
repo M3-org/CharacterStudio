@@ -83,10 +83,10 @@ function getTexture(material, textureName) {
   const newTexture = material[textureName] && material[textureName].clone();
   return newTexture;
 }
-function getMaterialVRMData(material) {
-  material = material.length == null ? material : material[0];
-  return material.userData?.vrmMaterialProperties;
-}
+// function getMaterialVRMData(material) {
+//   material = material.length == null ? material : material[0];
+//   return material.userData?.vrmMaterialProperties;
+// }
 function lerp(t, min, max, newMin, newMax) {
   const progress = (t - min) / (max - min);
   return newMin + progress * (newMax - newMin);
@@ -116,7 +116,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
     if (!bakeObject)
       bakeObjects.push({ material, mesh });
     else {
-      const { source, dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
+      const { dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
       bakeObject.mesh.geometry = dest;
     }
   });
@@ -148,7 +148,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
   const yScaleFactor = 1 / (maxUv.y - minUv.y);
   const xTileSize = tileSize * xScaleFactor;
   const yTileSize = tileSize * yScaleFactor;
-  const uvs = new Map(bakeObjects.map((bakeObject, i) => {
+  const uvs = new Map(bakeObjects.map((bakeObject) => {
     let { min, max } = originalUVs.get(bakeObject.mesh);
     min.x = min.x * xScaleFactor;
     min.y = min.y * yScaleFactor;
@@ -244,7 +244,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     }
     else {
       console.log("merging!")
-      const { source, dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
+      const { dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
       bakeObject.mesh.geometry = dest;
       console.log('baked new geometry', bakeObject);
     }
@@ -303,7 +303,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   const yTileSize = tileSize * yScaleFactor;
 
   const uvs = new Map(
-    bakeObjects.map((bakeObject, i) => {
+    bakeObjects.map((bakeObject) => {
       let { min, max } = originalUVs.get(bakeObject.mesh);
       min.x = min.x * xScaleFactor;
       min.y = min.y * yScaleFactor;
@@ -336,7 +336,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
           clearColor = new THREE.Color(0x8080ff);
           break;
         case 'orm':
-          clearColor = new THREE.Color(mat.aoMapIntensity, mat.roughness, mat.metalness);
+          clearColor = new THREE.Color(material.aoMapIntensity, material.roughness, material.metalness);
           break;
         default:
           clearColor = new THREE.Color(1, 1, 1);
@@ -376,10 +376,10 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     } else {
       geometry.attributes.uv2 = geometry.attributes.uv;
     }
-    const context = contexts['orm'];
+    // const context = contexts['orm'];
 
-    // meshBufferGeometry is a THREE.BufferGeometry
-    const meshBufferGeometry = mesh.geometry;
+    // // meshBufferGeometry is a THREE.BufferGeometry
+    // const meshBufferGeometry = mesh.geometry;
   });
 
   // Create textures from canvases

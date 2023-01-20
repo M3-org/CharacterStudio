@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
+// import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
 import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
 
@@ -29,7 +29,7 @@ export function cloneSkeleton(skinnedMesh) {
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
-    const { bakeObjects, textures, uvs, vrmMaterial } = 
+    const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
     //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
@@ -50,7 +50,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
         }
     });
     
-    const { source, dest } = mergeGeometry({ meshes });
+    const { dest } = mergeGeometry({ meshes });
     const geometry = new THREE.BufferGeometry();
     geometry.attributes = dest.attributes;
     geometry.morphAttributes = dest.morphAttributes;
@@ -99,6 +99,7 @@ function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, des
     const destMorphTargetInfluences = [];
     Object.entries(destMorphTargetDictionary).map(([morphName, destIndex]) => {
         const mesh = meshes.find((mesh) => {
+            // eslint-disable-next-line no-prototype-builtins
             return sourceMorphTargetDictionaries.get(mesh).hasOwnProperty(morphName);
         });
         const sourceIndex = mesh.morphTargetDictionary[morphName];
@@ -110,15 +111,15 @@ function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, des
     });
     return destMorphTargetInfluences;
 }
-function findSceneGroup(object3D) {
-    if (object3D.name === "Scene" && object3D.type === "Group") {
-        return object3D;
-    }
-    if (!object3D.parent) {
-        return null;
-    }
-    return findSceneGroup(object3D.parent);
-}
+// function findSceneGroup(object3D) {
+//     if (object3D.name === "Scene" && object3D.type === "Group") {
+//         return object3D;
+//     }
+//     if (!object3D.parent) {
+//         return null;
+//     }
+//     return findSceneGroup(object3D.parent);
+// }
 function mergeSourceAttributes({ sourceAttributes }) {
     const propertyNames = new Set(); // e.g. ["normal", "position", "skinIndex", "skinWeight", "tangent", "uv", "uv2"]
     const allSourceAttributes = Array.from(sourceAttributes.values());
@@ -150,7 +151,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         Object.keys(sourceMorphAttributes).forEach((name) => propertyNameSet.add(name));
     });
     const propertyNames = Array.from(propertyNameSet);
-    const morphNames = Object.keys(destMorphTargetDictionary);
+    // const morphNames = Object.keys(destMorphTargetDictionary);
     const unmerged = {};
     propertyNames.forEach((propName) => {
         unmerged[propName] = [];
@@ -159,6 +160,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
             meshes.forEach((mesh) => {
                 let bufferAttribute;
                 const morphTargetDictionary = sourceMorphTargetDictionaries.get(mesh);
+                // eslint-disable-next-line no-prototype-builtins
                 if (morphTargetDictionary.hasOwnProperty(morphName) && mesh.geometry.morphAttributes[propName]) {
                     const sourceMorphIndex = morphTargetDictionary[morphName];
                     bufferAttribute = mesh.geometry.morphAttributes[propName][sourceMorphIndex];
@@ -175,7 +177,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
     const merged = {};
     propertyNames.forEach((propName) => {
         merged[propName] = [];
-        Object.entries(destMorphTargetDictionary).forEach(([morphName, destMorphIndex]) => {
+        Object.entries(destMorphTargetDictionary).forEach(([destMorphIndex]) => {
             merged[propName][destMorphIndex] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][destMorphIndex]);
         });
     });
@@ -193,30 +195,66 @@ function mergeSourceIndices({ meshes }) {
     });
     return mergedIndex;
 }
-function dedupBy(items, propName) {
-    const deduped = new Set();
-    items.forEach((item) => {
-        deduped.add(item[propName]);
-    });
-    return Array.from(deduped).map((value) => {
-        return items.find((item) => item[propName] === value);
-    });
-}
-function CubicSplineFrameOffsets({ numMorphs }) {
-    const frameSize = numMorphs * 3;
-    return {
-        frameSize,
-        tanIn: 0,
-        value: frameSize / 3,
-        tanOut: (frameSize * 2) / 3,
-    };
-}
+// function dedupBy(items, propName) {
+//     const deduped = new Set();
+//     items.forEach((item) => {
+//         deduped.add(item[propName]);
+//     });
+//     return Array.from(deduped).map((value) => {
+//         return items.find((item) => item[propName] === value);
+//     });
+// }
+// function CubicSplineFrameOffsets({ numMorphs }) {
+//     const frameSize = numMorphs * 3;
+//     return {
+//         frameSize,
+//         tanIn: 0,
+//         value: frameSize / 3,
+//         tanOut: (frameSize * 2) / 3,
+//     };
+// }
 // remapMorphTrack
 //
 //   Remap tracks that animate morph target influences.
 //
 //   We assume the sourceTrack is
-//   - using CubicSpline interpolation and
+//   - using CubicSpline interpolatifunction remapMorphTrack({ track, sourceMorphTargetDictionary, destMorphTargetDictionary }) {
+//     const sourceOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(sourceMorphTargetDictionary).length });
+//     const destOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(destMorphTargetDictionary).length });
+//     const destKeyframes = [];
+//     const numFrames = track.times.length;
+//     const destMorphNames = Object.keys(destMorphTargetDictionary);
+//     for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
+//         const sourceFrame = track.values.slice(frameIndex * sourceOffsets.frameSize, frameIndex * sourceOffsets.frameSize + sourceOffsets.frameSize);
+//         const destFrame = [];
+//         destMorphNames.forEach((morphName) => {
+//             const destMorphIndex = destMorphTargetDictionary[morphName];
+//             // eslint-disable-next-line no-prototype-builtins
+//             const isMorphInSourceTrack = sourceMorphTargetDictionary.hasOwnProperty(morphName);
+//             if (isMorphInSourceTrack) {
+//                 const sourceMorphIndex = sourceMorphTargetDictionary[morphName];
+//                 destFrame[destOffsets.tanIn + destMorphIndex] = sourceFrame[sourceOffsets.tanIn + sourceMorphIndex];
+//                 destFrame[destOffsets.value + destMorphIndex] = sourceFrame[sourceOffsets.value + sourceMorphIndex];
+//                 destFrame[destOffsets.tanOut + destMorphIndex] = sourceFrame[sourceOffsets.tanOut + sourceMorphIndex];
+//             }
+//             else {
+//                 destFrame[destOffsets.tanIn + destMorphIndex] = 0;
+//                 destFrame[destOffsets.value + destMorphIndex] = 0;
+//                 destFrame[destOffsets.tanOut + destMorphIndex] = 0;
+//             }
+//         });
+//         destKeyframes.push(destFrame);
+//     }
+//     const destTrackName = `${"CombinedMesh"}.morphTargetInfluences`;
+//     const destTrack = new THREE.NumberKeyframeTrack(destTrackName, track.times, destKeyframes.flat());
+//     // Make sure the track will interpolate correctly
+//     // (Copied from THREE.GLTFLoader : https://github.com/mrdoob/three.js/blob/350f0a021943d6fa1d039a7c14c303653daa463f/examples/jsm/loaders/GLTFLoader.js#L3634 )
+//     destTrack['createInterpolant'] = function InterpolantFactoryMethodGLTFCubicSpline(result) {
+//         return new GLTFCubicSplineInterpolant(this.times, this.values, this.getValueSize() / 3, result);
+//     };
+//     destTrack['createInterpolant'].isInterpolantFactoryMethodGLTFCubicSpline = true;
+//     return destTrack;
+// }on and
 //   - animating morphTargetInfluences.
 //
 //   TODO: Support other interpolation types. (Adding linear should be easy.)
@@ -278,58 +316,60 @@ function CubicSplineFrameOffsets({ numMorphs }) {
 //   - zeroes have been inserted for destMorph0,
 //   - the numbers associated with sourceMorph0 will now be associated with destMorph2, and
 //   - the numbers associated with sourceMorph1 will now be associated with destMorph1
-function remapMorphTrack({ track, sourceMorphTargetDictionary, destMorphTargetDictionary }) {
-    const sourceOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(sourceMorphTargetDictionary).length });
-    const destOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(destMorphTargetDictionary).length });
-    const destKeyframes = [];
-    const numFrames = track.times.length;
-    const destMorphNames = Object.keys(destMorphTargetDictionary);
-    for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
-        const sourceFrame = track.values.slice(frameIndex * sourceOffsets.frameSize, frameIndex * sourceOffsets.frameSize + sourceOffsets.frameSize);
-        const destFrame = [];
-        destMorphNames.forEach((morphName) => {
-            const destMorphIndex = destMorphTargetDictionary[morphName];
-            const isMorphInSourceTrack = sourceMorphTargetDictionary.hasOwnProperty(morphName);
-            if (isMorphInSourceTrack) {
-                const sourceMorphIndex = sourceMorphTargetDictionary[morphName];
-                destFrame[destOffsets.tanIn + destMorphIndex] = sourceFrame[sourceOffsets.tanIn + sourceMorphIndex];
-                destFrame[destOffsets.value + destMorphIndex] = sourceFrame[sourceOffsets.value + sourceMorphIndex];
-                destFrame[destOffsets.tanOut + destMorphIndex] = sourceFrame[sourceOffsets.tanOut + sourceMorphIndex];
-            }
-            else {
-                destFrame[destOffsets.tanIn + destMorphIndex] = 0;
-                destFrame[destOffsets.value + destMorphIndex] = 0;
-                destFrame[destOffsets.tanOut + destMorphIndex] = 0;
-            }
-        });
-        destKeyframes.push(destFrame);
-    }
-    const destTrackName = `${"CombinedMesh"}.morphTargetInfluences`;
-    const destTrack = new THREE.NumberKeyframeTrack(destTrackName, track.times, destKeyframes.flat());
-    // Make sure the track will interpolate correctly
-    // (Copied from THREE.GLTFLoader : https://github.com/mrdoob/three.js/blob/350f0a021943d6fa1d039a7c14c303653daa463f/examples/jsm/loaders/GLTFLoader.js#L3634 )
-    destTrack['createInterpolant'] = function InterpolantFactoryMethodGLTFCubicSpline(result) {
-        return new GLTFCubicSplineInterpolant(this.times, this.values, this.getValueSize() / 3, result);
-    };
-    destTrack['createInterpolant'].isInterpolantFactoryMethodGLTFCubicSpline = true;
-    return destTrack;
-}
-function remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
-    if (track.name.endsWith("morphTargetInfluences")) {
-        return remapMorphTrack({
-            track,
-            sourceMorphTargetDictionary: sourceMorphTargetDictionaries.get(meshes.find((mesh) => mesh.name === track.name.split(".")[0])),
-            destMorphTargetDictionary,
-        });
-    }
-    else {
-        return track;
-    }
-}
-function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
-    return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
-}
+// function remapMorphTrack({ track, sourceMorphTargetDictionary, destMorphTargetDictionary }) {
+//     const sourceOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(sourceMorphTargetDictionary).length });
+//     const destOffsets = CubicSplineFrameOffsets({ numMorphs: Object.keys(destMorphTargetDictionary).length });
+//     const destKeyframes = [];
+//     const numFrames = track.times.length;
+//     const destMorphNames = Object.keys(destMorphTargetDictionary);
+//     for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
+//         const sourceFrame = track.values.slice(frameIndex * sourceOffsets.frameSize, frameIndex * sourceOffsets.frameSize + sourceOffsets.frameSize);
+//         const destFrame = [];
+//         destMorphNames.forEach((morphName) => {
+//             const destMorphIndex = destMorphTargetDictionary[morphName];
+//             // eslint-disable-next-line no-prototype-builtins
+//             const isMorphInSourceTrack = sourceMorphTargetDictionary.hasOwnProperty(morphName);
+//             if (isMorphInSourceTrack) {
+//                 const sourceMorphIndex = sourceMorphTargetDictionary[morphName];
+//                 destFrame[destOffsets.tanIn + destMorphIndex] = sourceFrame[sourceOffsets.tanIn + sourceMorphIndex];
+//                 destFrame[destOffsets.value + destMorphIndex] = sourceFrame[sourceOffsets.value + sourceMorphIndex];
+//                 destFrame[destOffsets.tanOut + destMorphIndex] = sourceFrame[sourceOffsets.tanOut + sourceMorphIndex];
+//             }
+//             else {
+//                 destFrame[destOffsets.tanIn + destMorphIndex] = 0;
+//                 destFrame[destOffsets.value + destMorphIndex] = 0;
+//                 destFrame[destOffsets.tanOut + destMorphIndex] = 0;
+//             }
+//         });
+//         destKeyframes.push(destFrame);
+//     }
+//     const destTrackName = `${"CombinedMesh"}.morphTargetInfluences`;
+//     const destTrack = new THREE.NumberKeyframeTrack(destTrackName, track.times, destKeyframes.flat());
+//     // Make sure the track will interpolate correctly
+//     // (Copied from THREE.GLTFLoader : https://github.com/mrdoob/three.js/blob/350f0a021943d6fa1d039a7c14c303653daa463f/examples/jsm/loaders/GLTFLoader.js#L3634 )
+//     destTrack['createInterpolant'] = function InterpolantFactoryMethodGLTFCubicSpline(result) {
+//         return new GLTFCubicSplineInterpolant(this.times, this.values, this.getValueSize() / 3, result);
+//     };
+//     destTrack['createInterpolant'].isInterpolantFactoryMethodGLTFCubicSpline = true;
+//     return destTrack;
+// }
+// function remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
+//     if (track.name.endsWith("morphTargetInfluences")) {
+//         return remapMorphTrack({
+//             track,
+//             sourceMorphTargetDictionary: sourceMorphTargetDictionaries.get(meshes.find((mesh) => mesh.name === track.name.split(".")[0])),
+//             destMorphTargetDictionary,
+//         });
+//     }
+//     else {
+//         return track;
+//     }
+// }
+// function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
+//     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
+// }
 export function mergeGeometry({ meshes }) {
+    // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
         uvcount += mesh.geometry.attributes.uv.count;
