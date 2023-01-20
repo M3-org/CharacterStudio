@@ -8,7 +8,7 @@ import { _getGeometry } from './utils.js';
 
 const getBeamMesh = (globalUniforms) => {
   const cylinderHeight = 5.0;
-  const geometry = new THREE.CylinderGeometry(0.4, 0.4, cylinderHeight, 50, 50, true);
+  const geometry = new THREE.CylinderGeometry(0.45, 0.45, cylinderHeight, 50, 50, true);
   const material = new THREE.ShaderMaterial({
     uniforms: {
       auraTexture: {

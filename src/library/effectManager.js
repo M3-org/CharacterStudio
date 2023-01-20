@@ -219,8 +219,8 @@ export class EffectManager{
               
               float rim = getRim(
                 vSurfaceNormal, 
-                1.0,
-                10.
+                0.5,
+                5.0
               );
               col = pixelColor * rim;
             }
@@ -236,11 +236,11 @@ export class EffectManager{
             
             float rim = getRim(
               vSurfaceNormal, 
-              mix(1.0, 2.0 * timer, timer),
-              mix(10., 2.5 + 5. * (1. - timer), timer)
+              mix(0.5, 2.0 * timer, timer),
+              mix(5.0, 5. * (1. - timer), timer)
             );
             
-            float fadeStrength = 20.;
+            float fadeStrength = 10.;
             rim *= pow((vWorldPosition.y - bottomPosition) / (avatarHeight - bottomPosition), timer * fadeStrength);
             
             vec3 pixelColor = getPixelColor();
