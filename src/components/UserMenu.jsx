@@ -119,6 +119,21 @@ export const UserMenu = () => {
     console.log('avatarToDownload', avatarToDownload)
 
     const avatarToDownloadClone = avatarToDownload.clone()
+    /*
+      NOTE: After avatar clone, the origIndexBuffer/BufferAttribute in userData will lost many infos:
+      From: BufferAttribute {isBufferAttribute: true, name: '', array: Uint32Array(21438), itemSize: 1, count: 21438, …}
+      To:   Object          {itemSize: 1, type: 'Uint32Array',  array: Array(21438), normalized: false}
+      Especailly notics the change of `array` type, and lost of `count` property, will cause errors later.
+      So have to reassign `userData.origIndexBuffer` after avatar clone.
+    */
+    const origIndexBuffers = [];
+    avatarToDownload.traverse(child => {
+      if (child.userData.origIndexBuffer) origIndexBuffers.push(child.userData.origIndexBuffer);
+    })
+    avatarToDownloadClone.traverse(child => {
+      if (child.userData.origIndexBuffer) child.userData.origIndexBuffer = origIndexBuffers.shift();
+    })
+
     let avatarModel;
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
@@ -137,6 +152,9 @@ export const UserMenu = () => {
           const materials = child.material;
           child.material = new MeshStandardMaterial();
           child.material.map = materials[0].map;
+        }
+        if (child.userData.origIndexBuffer) {
+          child.geometry.setIndex(child.userData.origIndexBuffer);
         }
       })
     } else {
