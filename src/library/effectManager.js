@@ -186,7 +186,7 @@ export class EffectManager{
               noiseTexture, 
               noiseUv
             );
-            float noiseStrength = (1. - timer) * 0.1 + 0.015;
+            float noiseStrength = 0.1;
             float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
             
             float border = 0.02;
