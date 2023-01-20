@@ -21,10 +21,10 @@ import Logo from "./Logo"
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 
 async function fetchManifest () {
-  // const manifest = localStorage.getItem("manifest")
-  // if (manifest) {
-  //   return JSON.parse(manifest)
-  // }
+  const manifest = localStorage.getItem("manifest")
+  if (manifest) {
+    return JSON.parse(manifest)
+  }
   const response = await fetch(assetImportPath)
   const data = await response.json()
   localStorage.setItem("manifest", JSON.stringify(data))
