@@ -10,11 +10,6 @@ const textureLoader = new THREE.TextureLoader()
 const auraTexture = textureLoader.load(`/textures/beam2.png`);
 auraTexture.wrapS = THREE.RepeatWrapping;
 
-const auraTexture2 = textureLoader.load(`/textures/beam.png`);
-auraTexture2.wrapS = THREE.RepeatWrapping;
-
-const noiseTexture = textureLoader.load(`/textures/Noise28.png`);
-noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
 
 class ParticleEffect {
   constructor(scene, camera, globalUniforms) {
