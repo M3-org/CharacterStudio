@@ -146,16 +146,17 @@ export const UserMenu = () => {
           skeleton = cloneSkeleton(child);
         }
         if (child.isSkinnedMesh) {
+          child.geometry = child.geometry.clone();
           child.skeleton = skeleton;
           skinnedMeshes.push(child);
-        }
-        if (Array.isArray(child.material)) {
-          const materials = child.material;
-          child.material = new MeshStandardMaterial();
-          child.material.map = materials[0].map;
-        }
-        if (child.userData.origIndexBuffer) {
-          child.geometry.setIndex(child.userData.origIndexBuffer);
+          if (Array.isArray(child.material)) {
+            const materials = child.material;
+            child.material = new MeshStandardMaterial();
+            child.material.map = materials[0].map;
+          }
+          if (child.userData.origIndexBuffer) {
+            child.geometry.setIndex(child.userData.origIndexBuffer);
+          }
         }
       })
 
