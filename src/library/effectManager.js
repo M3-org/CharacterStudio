@@ -343,6 +343,7 @@ export class EffectManager{
             globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_SPEED;
             if (globalUniforms.switchAvatarTime.value < 0.5) {
               this.particleEffect.emitRing();
+              this.particleEffect.emitRespawnPixel();
             }
           }
           else {
