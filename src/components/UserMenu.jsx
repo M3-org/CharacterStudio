@@ -3,10 +3,11 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
+import { Group, MeshStandardMaterial } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { combine } from "../library/merge-geometry"
+import { cloneSkeleton, combine } from "../library/merge-geometry"
 import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
@@ -90,6 +91,7 @@ export const UserMenu = () => {
     fileName,
     format,
     atlasSize = 4096,
+    isUnoptimized = false,
   ) {
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
@@ -116,14 +118,60 @@ export const UserMenu = () => {
 
     console.log('avatarToDownload', avatarToDownload)
 
-    const avatarToCombine = avatarToDownload.clone()
+    const avatarToDownloadClone = avatarToDownload.clone()
+    /*
+      NOTE: After avatar clone, the origIndexBuffer/BufferAttribute in userData will lost many infos:
+      From: BufferAttribute {isBufferAttribute: true, name: '', array: Uint32Array(21438), itemSize: 1, count: 21438, …}
+      To:   Object          {itemSize: 1, type: 'Uint32Array',  array: Array(21438), normalized: false}
+      Especailly notics the change of `array` type, and lost of `count` property, will cause errors later.
+      So have to reassign `userData.origIndexBuffer` after avatar clone.
+    */
+    const origIndexBuffers = [];
+    avatarToDownload.traverse(child => {
+      if (child.userData.origIndexBuffer) origIndexBuffers.push(child.userData.origIndexBuffer);
+    })
+    avatarToDownloadClone.traverse(child => {
+      if (child.userData.origIndexBuffer) child.userData.origIndexBuffer = origIndexBuffers.shift();
+    })
+
+    let avatarModel;
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
-    const avatarModel = await combine({
-      transparentColor: skinColor,
-      avatar: avatarToCombine,
-      atlasSize,
-    })
+    if (isUnoptimized) {
+      let skeleton;
+      const skinnedMeshes = []
+      
+      avatarToDownloadClone.traverse(child => {
+        if (!skeleton && child.isSkinnedMesh) {
+          skeleton = cloneSkeleton(child);
+        }
+        if (child.isSkinnedMesh) {
+          child.geometry = child.geometry.clone();
+          child.skeleton = skeleton;
+          skinnedMeshes.push(child);
+          if (Array.isArray(child.material)) {
+            const materials = child.material;
+            child.material = new MeshStandardMaterial();
+            child.material.map = materials[0].map;
+          }
+          if (child.userData.origIndexBuffer) {
+            child.geometry.setIndex(child.userData.origIndexBuffer);
+          }
+        }
+      })
+
+      avatarModel = new Group();
+      skinnedMeshes.forEach(skinnedMesh => {
+        avatarModel.add(skinnedMesh);
+      })
+      avatarModel.add(skeleton.bones[0]);
+    } else {
+      avatarModel = await combine({
+        transparentColor: skinColor,
+        avatar: avatarToDownloadClone,
+        atlasSize,
+      })
+    }
     if (format === "glb") {
       exporter.parse(
         avatarModel,
@@ -192,6 +240,15 @@ export const UserMenu = () => {
                     size={14}
                     onClick={() => {
                       download(model, `UpstreetAvatar_${type}`, "glb")
+                    }}
+                  />
+                  <CustomButton
+                    theme="light"
+                    text="Download GLB Unoptimized"
+                    icon="download"
+                    size={14}
+                    onClick={() => {
+                      download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
                     }}
                   />
                   <CustomButton
