@@ -3,7 +3,7 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
-import { MeshStandardMaterial } from 'three'
+import { Group, MeshStandardMaterial } from 'three'
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
@@ -138,15 +138,16 @@ export const UserMenu = () => {
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
     if (isUnoptimized) {
-      avatarModel = avatarToDownloadClone
       let skeleton;
-      avatarModel.traverse(child => {
+      const skinnedMeshes = []
+      
+      avatarToDownloadClone.traverse(child => {
         if (!skeleton && child.isSkinnedMesh) {
           skeleton = cloneSkeleton(child);
-          avatarModel.add(skeleton.bones[0]);
         }
         if (child.isSkinnedMesh) {
           child.skeleton = skeleton;
+          skinnedMeshes.push(child);
         }
         if (Array.isArray(child.material)) {
           const materials = child.material;
@@ -157,6 +158,12 @@ export const UserMenu = () => {
           child.geometry.setIndex(child.userData.origIndexBuffer);
         }
       })
+
+      avatarModel = new Group();
+      skinnedMeshes.forEach(skinnedMesh => {
+        avatarModel.add(skinnedMesh);
+      })
+      avatarModel.add(skeleton.bones[0]);
     } else {
       avatarModel = await combine({
         transparentColor: skinColor,
