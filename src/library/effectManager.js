@@ -44,6 +44,9 @@ const globalUniforms = {
   transitionEffectType: {
     value: transitionEffectTypeNumber.normal
   },
+  isFadeOut: {
+    value: false
+  }
 };
 
 const customUniforms = {
@@ -53,9 +56,6 @@ const customUniforms = {
   noiseTexture: {
     value: noiseTexture
   },
-  isFadeOut: {
-    value: false
-  }
 };
 
 
@@ -261,7 +261,7 @@ export class EffectManager{
     
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
     material.uniforms.noiseTexture = customUniforms.noiseTexture;
-    material.uniforms.isFadeOut = customUniforms.isFadeOut;
+    
 
     material.uniforms.cameraDir = globalUniforms.cameraDir;
     material.uniforms.eye = globalUniforms.eye;
@@ -269,6 +269,7 @@ export class EffectManager{
     material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
     material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
     material.uniforms.transitionEffectType = globalUniforms.transitionEffectType;
+    material.uniforms.isFadeOut = globalUniforms.isFadeOut;
     // material.transparent = true;
   }
 
@@ -340,6 +341,9 @@ export class EffectManager{
         else {
           if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
             globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_SPEED;
+            if (globalUniforms.switchAvatarTime.value < 0.5) {
+              this.particleEffect.emitRing();
+            }
           }
           else {
             globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
@@ -347,7 +351,7 @@ export class EffectManager{
             this.isFadeOut = true;
           }
         }
-        customUniforms.isFadeOut.value = this.isFadeOut;
+        globalUniforms.isFadeOut.value = this.isFadeOut;
       }
 
       

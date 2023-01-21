@@ -110,7 +110,60 @@ const pixelFragment = `\
   }
 `
 
+const ringVertex = `\       
+  attribute vec2 scales;
+  attribute float opacity;
+  attribute vec3 positions;
+
+  varying vec2 vUv;
+  varying float vOpacity;
+  varying vec3 vWorldPosition;
+  varying vec3 vSurfaceNormal;
+  
+
+  void main() {  
+    vUv = uv;
+    vOpacity = opacity;
+    vSurfaceNormal = normalize(normal);
+    
+    vec3 pos = position;
+    pos.xz *= scales.x;
+    pos.y *= scales.y;
+    pos += positions;
+    vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
+    vWorldPosition = modelPosition.xyz;
+    vec4 viewPosition = viewMatrix * modelPosition;
+    vec4 projectionPosition = projectionMatrix * viewPosition;
+    gl_Position = projectionPosition;
+  }
+`
+const ringFragment = `\ 
+uniform float radius;
+
+varying vec2 vUv;
+varying float vOpacity;
+varying vec3 vWorldPosition;
+varying vec3 vSurfaceNormal;
+
+void main() {
+
+  vec3 eyeDirection = normalize(vec3(0., 10., 0.) - vWorldPosition);
+    
+  float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
+  float rimStrength = 10.0;
+  float rim = distance(vWorldPosition.xz, vec2(0.)) / radius;
+  rim = pow(rim, rimStrength);
+  
+ 
+  gl_FragColor.rgb = vec3(rim) * vec3(0.00960, 0.833, 0.960) * 2.0;
+  gl_FragColor.a = rim;
+  gl_FragColor.a = smoothstep(0.3, 0.8, gl_FragColor.a);
+  gl_FragColor.a *= vOpacity;
+}
+`
+
 export {
   beamVertex, beamFragment,
   pixelVertex, pixelFragment,
+  ringVertex, ringFragment,
 };
