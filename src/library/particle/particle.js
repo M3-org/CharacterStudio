@@ -42,17 +42,19 @@ class ParticleEffect {
     const particleRadius = 0.25;
     for (let i = 0; i < particleCount; i ++) {
       
-      if (i < particleCount / 2) {
+      if (i % 2 === 0) {
         scalesAttribute.setXY(i, 0.2, 0.2);
       }
       else {
         scalesAttribute.setXY(i, 0.1, 3 + Math.random());
       }
+
+      const theta = (i / particleCount) * Math.PI * 2;
       positionsAttribute.setXYZ(
         i,
-        Math.cos(i) * particleRadius,
+        Math.cos(theta) * particleRadius,
         (Math.random() - 0.5) * 2,
-        Math.sin(i) * particleRadius
+        Math.sin(theta) * particleRadius
       )
       opacityAttribute.setX(i, 1 + Math.random());
 
@@ -75,17 +77,18 @@ class ParticleEffect {
 
     for (let i = 0; i < particleCount; i ++) {
       if (opacityAttribute.getX(i) < 0.01) {
-        if (i < particleCount / 2) {
+        if (i % 2 === 0) {
           scalesAttribute.setXY(i, 0.2, 0.2);
         }
         else {
           scalesAttribute.setXY(i, 0.1, 3 + Math.random());
         }
+        const theta = (i / particleCount) * Math.PI * 2;
         positionsAttribute.setXYZ(
           i,
-          Math.cos(i) * particleRadius,
+          Math.cos(theta) * particleRadius,
           Math.random() * - 1,
-          Math.sin(i) * particleRadius
+          Math.sin(theta) * particleRadius
         )
         opacityAttribute.setX(i, 1 + Math.random());
   
@@ -98,7 +101,7 @@ class ParticleEffect {
     opacityAttribute.needsUpdate = true;
   }
 
-  emitRing() {
+  emitRing(offset) {
     const scalesAttribute = this.ringMesh.geometry.getAttribute('scales');
     const positionsAttribute = this.ringMesh.geometry.getAttribute('positions');
     const opacityAttribute = this.ringMesh.geometry.getAttribute('opacity');
@@ -106,14 +109,16 @@ class ParticleEffect {
     const particleCount = this.ringMesh.info.particleCount;
     const currentIndex = this.ringMesh.info.currentIndex;
     const previousIndex = currentIndex - 1 < 0 ? particleCount - 1 : currentIndex - 1;
+
+    const startPosition = 0;
     
     if (
-      positionsAttribute.getY(previousIndex) > 0.1 || opacityAttribute.getX(previousIndex) <= 0
+      positionsAttribute.getY(previousIndex) > startPosition + offset || opacityAttribute.getX(previousIndex) <= 0
     ) {
       positionsAttribute.setXYZ(
         currentIndex,
         0,
-        -0.3,
+        startPosition,
         0
       )
       scalesAttribute.setXY(currentIndex, 1.0, 0.06);
@@ -196,7 +201,7 @@ class ParticleEffect {
           opacityCount ++;
         }
       }
-      if (opacityCount >= particleCount - 1) {
+      if (opacityCount >= particleCount) {
         this.stopUpdatePixelMesh = true;
       }
       positionsAttribute.needsUpdate = true;

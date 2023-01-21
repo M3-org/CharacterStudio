@@ -342,7 +342,7 @@ export class EffectManager{
           if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
             globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_SPEED;
             if (globalUniforms.switchAvatarTime.value < 0.5) {
-              this.particleEffect.emitRing();
+              this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.switchAvatarTime.value));
               this.particleEffect.emitRespawnPixel();
             }
           }

@@ -33,7 +33,7 @@ const getBeamMesh = (globalUniforms) => {
 }
 
 const getPixelMesh = () => {
-  const particleCount = 14;
+  const particleCount = 20;
   const attributeSpecs = [];
   attributeSpecs.push({name: 'opacity', itemSize: 1});
   attributeSpecs.push({name: 'scales', itemSize: 2});
@@ -61,11 +61,11 @@ const getPixelMesh = () => {
 }
 
 const getRingMesh = (globalUniforms) => {
-  const particleCount = 14;
+  const particleCount = 10;
   const attributeSpecs = [];
   attributeSpecs.push({name: 'opacity', itemSize: 1});
   attributeSpecs.push({name: 'scales', itemSize: 2});
-  const radius = 0.45;
+  const radius = 0.43;
   const geometry2 = new THREE.SphereGeometry( radius, 32, 32 );
   const geometry = _getGeometry(geometry2, attributeSpecs, particleCount);
   const material= new THREE.ShaderMaterial({

@@ -103,7 +103,8 @@ const pixelFragment = `\
 
     gl_FragColor = vec4(glow);
     gl_FragColor.rgb *= vec3(0.00960, 0.833, 0.960);
-    if (glow < 0.1 || vWorldPosition.y < 0.) {
+    float avatarGroundPosition = -0.2;
+    if (glow < 0.1 || vWorldPosition.y < avatarGroundPosition) {
       discard;
     }
     gl_FragColor.a *= vOpacity;
