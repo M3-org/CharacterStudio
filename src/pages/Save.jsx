@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Save.module.css';
+import { ExportMenu } from '../components/ExportMenu';
 
 import { ViewMode, ViewContext } from '../context/ViewContext';
 
@@ -18,6 +19,7 @@ function Save() {
 
     return (
         <div className={styles.container}>
+        <ExportMenu />
             <div className={styles.buttonContainer}>
                 <button className={styles.button} onClick={back}>Back</button>
                 <button className={styles.mint} onClick={mint}>Mint</button>

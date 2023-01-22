@@ -12,9 +12,9 @@ import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
 
-import styles from "./UserMenu.module.css"
+import styles from "./ExportMenu.module.css"
 
-export const UserMenu = () => {
+export const ExportMenu = () => {
   const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
@@ -219,109 +219,35 @@ export const UserMenu = () => {
 
   return (
     <div className={classnames(styles.userBoxWrap)}>
-      <div className={styles.leftCorner} />
-      <div className={styles.rightCorner} />
-      <ul>
-          <React.Fragment>
-            <li>
-              <CustomButton
-                type="icon"
-                theme="light"
-                icon={showDownloadOptions ? "close" : "download" }
-                size={32}
-                onClick={handleDownload}
-              />
-              {showDownloadOptions && (
-                <div className={styles.dropDown}>
-                  <CustomButton
-                    theme="light"
-                    text="Download GLB"
-                    icon="download"
-                    size={14}
-                    onClick={() => {
-                      download(model, `UpstreetAvatar_${type}`, "glb")
-                    }}
-                  />
-                  <CustomButton
-                    theme="light"
-                    text="Download GLB Unoptimized"
-                    icon="download"
-                    size={14}
-                    onClick={() => {
-                      download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
-                    }}
-                  />
-                  <CustomButton
-                    theme="light"
-                    text="Download VRM"
-                    icon="download"
-                    size={14}
-                    onClick={() => {
-                      download(model, `UpstreetAvatar_${type}`, "vrm")
-                    }}
-                  />
-                </div>
-              )}
-            </li>
-            <li>
-              <CustomButton
-                type="icon"
-                theme="light"
-                icon="mint"
-                size={32}
-                onClick={() => {
-                  // setCurrentView(ViewStates.MINT)
-                }}
-              />
-            </li>
-          </React.Fragment>
-        {connected ? (
-          <React.Fragment>
-            <li>
-              <div className={styles.loggedInText}>
-                <div className={styles.chainName}>Mainnet</div>
-                {connected ? (
-                  <div className={styles.walletAddress}>
-                    {ensName
-                      ? ensName
-                      : account
-                      ? account.slice(0, 5) + "..." + account.slice(37, 50)
-                      : ""}
-                  </div>
-                ) : (
-                  ""
-                )}
-              </div>
-              <CustomButton
-                type="login"
-                theme="dark"
-                icon="logout"
-                onClick={disconnectWallet}
-                size={28}
-                className={styles.loginButton}
-              />
-            </li>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <li>
-              <div className={styles.loggedOutText}>
-                Not
-                <br />
-                Connected
-              </div>
-              <CustomButton
-                type="login"
-                theme="dark"
-                icon="login"
-                onClick={connectWallet}
-                size={28}
-                className={styles.loginButton}
-              />
-            </li>
-          </React.Fragment>
-        )}
-      </ul>
+    <div className={styles.dropDown}>
+    <CustomButton
+      theme="light"
+      text="Download GLB"
+      icon="download"
+      size={14}
+      onClick={() => {
+        download(model, `UpstreetAvatar_${type}`, "glb")
+      }}
+    />
+    <CustomButton
+      theme="light"
+      text="Download GLB Unoptimized"
+      icon="download"
+      size={14}
+      onClick={() => {
+        download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
+      }}
+    />
+    <CustomButton
+      theme="light"
+      text="Download VRM"
+      icon="download"
+      size={14}
+      onClick={() => {
+        download(model, `UpstreetAvatar_${type}`, "vrm")
+      }}
+    />
+  </div>
     </div>
   )
 }
