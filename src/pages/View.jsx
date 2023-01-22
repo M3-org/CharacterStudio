@@ -1,7 +1,5 @@
-// React Component which displays the ChatComponent module as well as a "back" button (setViewMode SAVE)
-
 import React from 'react';
-import styles from './Chat.module.css';
+import styles from './View.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import Chat from '../components/Chat';
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect } from "react"
 import * as THREE from "three"
 import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
@@ -131,15 +131,8 @@ export default function Scene() {
     return () => window.removeEventListener("modelUpdate", handleModelUpdate)
   }, [handleModelUpdate])
 
-  let loaded = false
-  let [isLoaded, setIsLoaded] = useState(false)
-
   useEffect(() => {
-    // hacky prevention of double render
-    if (loaded || isLoaded) return
-    setIsLoaded(true)
-    loaded = true
-
+    if(!scene || !sceneModel) return
     scene.add(sceneModel);
 
     // add a camera to the scene
@@ -224,7 +217,7 @@ export default function Scene() {
       scene.remove(sceneModel)
       scene.remove(model)
     }
-  }, [])
+  }, [scene, sceneModel])
 
   return <></>
 }

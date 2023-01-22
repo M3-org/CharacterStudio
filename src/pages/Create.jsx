@@ -1,10 +1,3 @@
-// React component with the title "Choose Character Class"
-// User can select from one of the six classes:
-// Beast Painter, Engineer, Drop Hunter, Neural Hacker, Lisk Witch and Bruiser
-// However, only the Drop Hunter and Neural Hacker classes are implemented and available to select
-// The rest are greyed out
-// There is also a back button that takes the user back to the landing page by calling setViewMode in the ViewContext
-
 import React from 'react';
 import styles from './Create.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';

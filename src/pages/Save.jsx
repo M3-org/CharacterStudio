@@ -1,11 +1,7 @@
-// React page which shows the Scene and a back button and a "Mint" button which sets the view mode to MINT
-
 import React from 'react';
 import styles from './Save.module.css';
 
 import { ViewMode, ViewContext } from '../context/ViewContext';
-
-import Scene from '../components/Scene';
 
 function Save() {
     const { setViewMode } = React.useContext(ViewContext);
@@ -26,7 +22,6 @@ function Save() {
                 <button className={styles.button} onClick={back}>Back</button>
                 <button className={styles.mint} onClick={mint}>Mint</button>
             </div>
-            <Scene />
         </div>
     );
 }

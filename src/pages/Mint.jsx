@@ -1,5 +1,3 @@
-// Mint page which shows the Scene and Mint Component along with a back button
-
 import React from 'react';
 import styles from './Mint.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';

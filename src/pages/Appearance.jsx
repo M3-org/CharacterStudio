@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
-import Selector from '../components/Selector';
 import Editor from '../components/Editor';
 
 function Appearance() {
@@ -19,7 +18,6 @@ function Appearance() {
 
     return (
         <div className={styles.container}>
-        <Selector />
         <Editor />
             <div className={styles.buttonContainer}>
                 <button className={styles.button} onClick={back}>Back</button>

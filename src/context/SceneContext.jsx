@@ -37,6 +37,10 @@ export const SceneProvider = (props) => {
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null)
 
+  const [blinkManager, setBlinkManager] = useState(null)
+
+  const [initialTraits, setInitialTraits] = useState(null)
+
   const [controls, setControls] = useState(null)
 
   const [lipSync, setLipSync] = useState(null)
@@ -88,6 +92,10 @@ export const SceneProvider = (props) => {
       value={{
         templateInfo,
         setTemplateInfo,
+        blinkManager,
+        setBlinkManager,
+        initialTraits,
+        setInitialTraits,
         manifest,
         setManifest,
         sceneModel,

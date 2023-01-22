@@ -1,7 +1,3 @@
-// LOAD CHARACTER --
-// -- react component with a list of characters, imported from the user's wallet
-// import ethers and check the users wallet for ERC-721s from the contract address
-// this will be suspensed until the user connects their wallet
 import React, { useEffect, useState } from 'react';
 import styles from './Load.module.css';
 import { ethers } from 'ethers';

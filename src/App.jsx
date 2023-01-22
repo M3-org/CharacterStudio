@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AppMode, ViewContext } from "./context/ViewContext"
+import { ViewMode, ViewContext } from "./context/ViewContext"
 
 import { AnimationManager } from "./library/animationManager"
 import { BlinkManager } from "./library/blinkManager"
@@ -121,26 +121,20 @@ const fetchData = () => {
 const resource = fetchData()
 
 export default function App() {
-  const { manifest, sceneModel, setManifest, setSceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
+  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
   
-  const { currentAppMode, mouseIsOverUI } = useContext(ViewContext)
-  const { setTemplateInfo, setAnimationManager, setInitialTraits, setBlinkManager } = useContext(SceneContext)
+  const { viewMode, mouseIsOverUI } = useContext(ViewContext)
+  const { setTemplateInfo, setAnimationManager, setInitialTraits, setBlinkManager, setSceneModel, setManifest } = useContext(SceneContext)
 
   const [hideUi, setHideUi] = useState(false)
 
-  const [isLoaded, setIsLoaded] = useState(false)
-  let loaded = false // prevent init doublebang from 'use strict'
   useEffect (() => {
-    if (!loaded && !isLoaded) {
-      loaded = true
       setAnimationManager(animManager)
       setInitialTraits(initialTraits)
       setTemplateInfo(tempInfo)
       setBlinkManager(blinkManager)
       setManifest(manifest)
       setSceneModel(sceneModel)
-      setIsLoaded(true)
-    }
   }, [])
 
 let lastTap = 0
@@ -164,20 +158,20 @@ useEffect(() => {
 
   // map current app mode to a page
   const pages = {
-    [AppMode.LANDING]: <Landing />,
-    [AppMode.APPEARANCE]: <Appearance />,
-    [AppMode.BIO]: <BioPage />,
-    [AppMode.CREATE]: <Create />,
-    [AppMode.LOAD]: <Load />,
-    [AppMode.MINT]: <Mint />,
-    [AppMode.SAVE]: <Save />,
-    [AppMode.VIEW]: <View />,
+    [ViewMode.LANDING]: <Landing />,
+    [ViewMode.APPEARANCE]: <Appearance />,
+    [ViewMode.BIO]: <BioPage />,
+    [ViewMode.CREATE]: <Create />,
+    [ViewMode.LOAD]: <Load />,
+    [ViewMode.MINT]: <Mint />,
+    [ViewMode.SAVE]: <Save />,
+    [ViewMode.VIEW]: <View />,
   }
   return (
     <Fragment>
         <Background />
         <Scene />
-          {pages[currentAppMode]}
+          {pages[viewMode]}
       </Fragment>
   )
 }
