@@ -11,9 +11,41 @@ import { getAsArray } from "../library/utils"
 
 import styles from './Editor.module.css';
 import Selector from "./Selector"
+import { AnimationManager } from "../library/animationManager"
 
-export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+
+export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager}) {
+  const {currentTraitName, setTemplateInfo, setAnimationManager, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+
+  const fetchNewModel = (index) =>{
+    async function fetchAnimation(templateInfo){
+        // create an animation manager for all the traits that will be loaded
+        const newAnimationManager = new AnimationManager(templateInfo.offset)
+        await newAnimationManager.loadAnimations(templateInfo.animationPath)
+        return newAnimationManager
+    }
+    return new Promise( (resolve) =>  {
+      asyncResolve()
+      async function asyncResolve() {
+        setTemplateInfo(manifest[index])
+        const animManager = await fetchAnimation(manifest[index])
+        setAnimationManager(animManager)
+        
+        let initialTraits = localStorage.getItem("initialTraits")
+        if (!initialTraits) {blinkManager
+          initialTraits = initialTraits = [...new Set([...getAsArray(manifest[index].requiredTraits), ...getAsArray(manifest[index].randomTraits)])]
+          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
+        } else {
+          initialTraits = JSON.parse(initialTraits)
+        }
+        setTimeout(()=>{
+          resolve (manifest[index])
+        }, 2000)
+       
+      }
+      
+    })
+  }
 
   const {isMute} = useContext(AudioContext);
 

@@ -1,6 +1,3 @@
-// React Component which displays the Scene, Bio components as well as a "back" button (setViewMode APPEARANCE) 
-// and a "next" button (setViewMode SAVE)
-
 import React from 'react';
 import styles from './Bio.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';

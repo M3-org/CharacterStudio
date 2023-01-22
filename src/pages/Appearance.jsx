@@ -1,6 +1,3 @@
-// React Component which displays the Scene, Editor and Selector components as well as a "back" button (setViewMode CREATE) 
-// and a "next" button (setViewMode BIO)
-
 import React from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';

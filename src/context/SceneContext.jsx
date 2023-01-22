@@ -43,6 +43,10 @@ export const SceneProvider = (props) => {
 
   const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
 
+  const [templateInfo, setTemplateInfo] = useState() 
+  const [manifest, setManifest] = useState(null)
+  const [sceneModel, setSceneModel] = useState(null)
+
   const setAvatar = (state) => {
     _setAvatar(state)
   }
@@ -82,6 +86,12 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        templateInfo,
+        setTemplateInfo,
+        manifest,
+        setManifest,
+        sceneModel,
+        setSceneModel,
         lipSync,
         setLipSync,
         scene,
