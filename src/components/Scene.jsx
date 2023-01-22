@@ -4,9 +4,10 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-export default function Scene({sceneModel}) {
+export default function Scene() {
   const {
     scene,
+    sceneModel,
     model, setModel,
     currentCameraMode,
     traitsSpines,

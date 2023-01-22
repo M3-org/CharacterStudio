@@ -25,8 +25,12 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, selectClass}) {
+export default function Selector() {
   const {
+    templateInfo,
+    animationManager,
+    blinkManager,
+    selectClass,
     avatar,
     setAvatar,
     currentTraitName,

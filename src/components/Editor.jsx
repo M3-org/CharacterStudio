@@ -14,8 +14,19 @@ import Selector from "./Selector"
 import { AnimationManager } from "../library/animationManager"
 
 
-export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager}) {
-  const {currentTraitName, setTemplateInfo, setAnimationManager, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+export default function Editor() {
+  const {
+    currentTraitName, 
+    manifest,
+    templateInfo,
+    initialTraits,
+    setInitialTraits,
+    animationManager,
+    blinkManager,
+    setTemplateInfo,
+    setAnimationManager,
+    setCurrentTraitName,
+    setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   const fetchNewModel = (index) =>{
     async function fetchAnimation(templateInfo){
@@ -30,20 +41,10 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
         setTemplateInfo(manifest[index])
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-        
-        let initialTraits = localStorage.getItem("initialTraits")
-        if (!initialTraits) {blinkManager
-          initialTraits = initialTraits = [...new Set([...getAsArray(manifest[index].requiredTraits), ...getAsArray(manifest[index].randomTraits)])]
-          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-        } else {
-          initialTraits = JSON.parse(initialTraits)
-        }
         setTimeout(()=>{
           resolve (manifest[index])
         }, 2000)
-       
       }
-      
     })
   }
 
@@ -107,7 +108,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     fetchNewModel(ind).then((template)=>{
 
       //console.log(template)
-      initialTraits = initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
+      setInitialTraits([...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])])
       setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
     })
   }
