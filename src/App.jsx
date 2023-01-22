@@ -1,21 +1,21 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AppMode, ViewContext } from "../context/ViewContext"
-import Scene from "./Scene"
+import { AppMode, ViewContext } from "./context/ViewContext"
+import Scene from "./components/Scene"
 
-import ChatComponent from "./ChatComponent"
-import Editor from "./Editor"
+import ChatComponent from "./components/ChatComponent"
+import Editor from "./components/Editor"
 
-import { AnimationManager } from "../library/animationManager"
-import { BlinkManager } from "../library/blinkManager"
-import { getAsArray } from "../library/utils"
+import { AnimationManager } from "./library/animationManager"
+import { BlinkManager } from "./library/blinkManager"
+import { getAsArray } from "./library/utils"
 // import ARButton from "./ARButton"
-import Background from "./Background"
-import ChatButton from "./ChatButton"
-import { UserMenu } from "./UserMenu"
+import Background from "./components/Background"
+import ChatButton from "./components/ChatButton"
+import { UserMenu } from "./components/UserMenu"
 
-import Logo from "./Logo"
+import Logo from "./components/Logo"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -121,7 +121,7 @@ const resource = fetchData()
 export default function App() {
   const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
 
-  const { currentAppMode } = useContext(ViewContext)
+  const { currentAppMode, mouseIsOverUI } = useContext(ViewContext)
 
   const [hideUi, setHideUi] = useState(false)
 
@@ -137,7 +137,7 @@ useEffect(() => {
   const handleTap = () => {
     const now = new Date().getTime()
     const timesince = now - lastTap
-    if (timesince < 300) {
+    if (timesince < 300 && !mouseIsOverUI) {
       setHideUi(!hideUi)
     }
     lastTap = now
@@ -174,7 +174,6 @@ useEffect(() => {
       }
       
     })
-
   }
 
   return (

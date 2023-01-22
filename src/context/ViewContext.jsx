@@ -7,23 +7,29 @@ export const CameraMode = {
   VR: "VR",
 }
 
-export const AppMode = {
+export const ViewMode = {
+  LANDING: "LANDING",
+  LOAD: "LOAD",
   APPEARANCE: "APPEARANCE",
-  CHAT: "CHAT",
+  BIO: "BIO",
+  SAVE: "SAVE",
   MINT: "MINT",
+  CHAT: "CHAT",
 }
 
 export const ViewContext = React.createContext()
 
 export const ViewProvider = (props) => {
   const [currentCameraMode, setCurrentCameraMode] = React.useState(CameraMode.NORMAL)
-  const [currentAppMode, setCurrentAppMode] = React.useState(AppMode.APPEARANCE)
+  const [viewMode, setViewMode] = React.useState(ViewMode.APPEARANCE)
   const [loading, setLoading] = React.useState(true)
+  const [mouseIsOverUI, setMouseIsOverUI] = React.useState(false)
   return (
     <ViewContext.Provider value={{
       currentCameraMode, setCurrentCameraMode,
-      currentAppMode, setCurrentAppMode,
-      loading, setLoading
+      viewMode, setViewMode,
+      loading, setLoading,
+      mouseIsOverUI, setMouseIsOverUI
     }}>
       {props.children}
     </ViewContext.Provider>

@@ -200,7 +200,7 @@ export default function MintPopup({templateInfo}) {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  // onClick={() => setCurrentAppMode(ViewStates.CREATOR)}
+                  // onClick={() => setViewMode(ViewStates.CREATOR)}
                 >
                   {" "}
                   {"OK"}

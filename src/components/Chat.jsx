@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { SceneContext } from "../context/SceneContext";
-import styles from "./ChatBox.module.css";
+import styles from "./Chat.module.css";
 
 import { sepiaSpeechRecognitionInit, SepiaSpeechRecognitionConfig } from 'sepia-speechrecognition-polyfill';
 
