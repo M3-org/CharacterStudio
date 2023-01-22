@@ -7,11 +7,12 @@ import { AnimationManager } from "./library/animationManager"
 import { BlinkManager } from "./library/blinkManager"
 import { getAsArray } from "./library/utils"
 import Background from "./components/Background"
+import Scene from "./components/Scene"
 
 import Landing from "./pages/Landing"
 import Mint from "./pages/Mint"
 import View from "./pages/View"
-import Bio from "./pages/Bio"
+import BioPage from "./pages/Bio"
 import Save from "./pages/Save"
 import Appearance from "./pages/Appearance"
 import Create from "./pages/Create"
@@ -165,7 +166,7 @@ useEffect(() => {
   const pages = {
     [AppMode.LANDING]: <Landing />,
     [AppMode.APPEARANCE]: <Appearance />,
-    [AppMode.BIO]: <Bio />,
+    [AppMode.BIO]: <BioPage />,
     [AppMode.CREATE]: <Create />,
     [AppMode.LOAD]: <Load />,
     [AppMode.MINT]: <Mint />,
@@ -175,6 +176,7 @@ useEffect(() => {
   return (
     <Fragment>
         <Background />
+        <Scene />
           {pages[currentAppMode]}
       </Fragment>
   )

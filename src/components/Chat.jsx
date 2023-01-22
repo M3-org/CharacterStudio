@@ -192,7 +192,6 @@ ${agent}:`
 
             <h3>Conversation</h3>
 
-
             <div className={styles["messages"]}>
                 {messages.map((message, index) => (
                     <div key={index}>{message}</div>

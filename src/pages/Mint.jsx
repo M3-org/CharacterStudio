@@ -4,7 +4,6 @@ import React from 'react';
 import styles from './Mint.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 
-import Scene from '../components/Scene';
 import Mint from '../components/Mint';
 
 function MintComponent() {
@@ -17,11 +16,10 @@ function MintComponent() {
 
     return (
         <div className={styles.container}>
+            <Mint />
             <div className={styles.buttonContainer}>
                 <button className={styles.button} onClick={back}>Back</button>
             </div>
-            <Scene />
-            <Mint />
         </div>
     );
 }
