@@ -1,5 +1,5 @@
 .backgroundImg {
-    background-image: url('/ui/background.png');
+    background-image: url('/assets/backgrounds/main-background.jpg');
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-position: center center;
@@ -16,7 +16,7 @@
 
 
 .Background {
-    background: url('/ui/mainBackground.png');
+    background: url('/assets/main-background.jpg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
