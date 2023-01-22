@@ -16,7 +16,7 @@ function Load() {
     
     useEffect(() => {
         if (account && library) {
-            const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+            const contractAddress = '0x69341F01C2113E2d09Cd4837bbF1786dfbBc41d7';
             const abi = [
                 'function balanceOf(address owner) external view returns (uint256)',
                 'function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)',
@@ -41,7 +41,7 @@ function Load() {
     }, [account, library]);
 
     const connectWallet = () => {
-        activate(injectedConnector);
+        activate(injectedConnector)
     }
 
     const loadCharacter = (character) => {

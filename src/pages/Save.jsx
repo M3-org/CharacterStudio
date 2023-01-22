@@ -8,7 +8,7 @@ function Save() {
 
     const back = () => {
         console.log('back');
-        setViewMode(ViewMode.SAVE)
+        setViewMode(ViewMode.BIO)
     }
 
     const mint = () => {

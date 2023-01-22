@@ -66,7 +66,7 @@ function Create() {
             <div className={styles.classContainer}>
                 {classes.map((characterClass, i) => {
                     return (
-                        <div key={i} className={styles.class} onClick={
+                        <div key={i} className={!characterClass['disabled'] ? styles.class : styles.classdisabled} onClick={
                             characterClass['disabled'] ? null : () => selectClass(characterClass)
                         }>
                             <img src={characterClass['image']} alt={characterClass['name']} />
