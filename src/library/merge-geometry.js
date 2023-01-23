@@ -3,6 +3,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 // import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
 import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
+import { MeshStandardMaterial } from "three";
 
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
@@ -26,6 +27,47 @@ export function cloneSkeleton(skinnedMesh) {
     newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
     newSkeleton.pose();
     return newSkeleton;
+}
+
+function createMergedSkeleton(meshes){
+    let baseSkeleton = null;
+    /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
+    for example ones that come from head (to add hair movement), should start with vrm's connected bone 
+    followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
+    this will avoid an error of not adding bones if they have they same name but are in different hierarchy location
+    todo: add to a user guide how to name bones to avoid this error */
+    meshes.forEach(mesh => {
+        
+        //console.log(mesh)
+        if (mesh.skeleton){
+            console.log(mesh.skeleton)
+            if (baseSkeleton === null){
+                baseSkeleton = mesh.skeleton
+                console.log("initial: " + baseSkeleton.bones.length)
+            }
+            else{
+                console.log( mesh.skeleton.bones.length)
+                //console.log(baseSkeleton.bones[0].getObjectByName("spine")==null)
+                //console.log(baseSkeleton.bones)
+                const newBones = [];
+                mesh.skeleton.bones.forEach(bone => {
+                    //console.log(bone)
+                    const bn = baseSkeleton.getBoneByName(bone.name)
+                    if (bn == null){
+                        const newBone = new THREE.Bone();
+                        newBone.name = bone.name;
+                        newBones.push({
+                            bone: newBone,
+                            parentName: bone.parent.name
+                        })
+                    }
+                });
+                console.log(newBones)
+                    
+            }
+            
+        }
+    });
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
@@ -71,7 +113,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
-
+    const newSkeleton = createMergedSkeleton(meshes);
     const skeleton = cloneSkeleton(meshes[0]);
     
     mesh.bind(skeleton);
