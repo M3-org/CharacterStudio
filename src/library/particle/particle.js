@@ -3,6 +3,7 @@ import {
   getBeamMesh,
   getPixelMesh,
   getRingMesh,
+  getTeleportMesh,
 } from './mesh.js';
 
 const textureLoader = new THREE.TextureLoader()
@@ -28,6 +29,9 @@ class ParticleEffect {
 
     this.ringMesh = null;
     this.initRing();
+
+    this.teleportMesh = null;
+    this.initTeleport();
 
   }
 
@@ -138,10 +142,37 @@ class ParticleEffect {
     opacityAttribute.needsUpdate = true;
   }
 
+  emitTeleport() {
+    const scalesAttribute = this.teleportMesh.geometry.getAttribute('scales');
+    const positionsAttribute = this.teleportMesh.geometry.getAttribute('positions');
+    const opacityAttribute = this.teleportMesh.geometry.getAttribute('opacity');
+
+    const particleCount = this.teleportMesh.info.particleCount;
+    for (let i = 0; i < particleCount; i ++) {
+      positionsAttribute.setXYZ(
+        i,
+        0,
+        0,
+        0
+      )
+      scalesAttribute.setXY(
+        i,
+        0., 
+        0.
+      )
+    }
+    
+    scalesAttribute.needsUpdate = true;
+    positionsAttribute.needsUpdate = true;
+    opacityAttribute.needsUpdate = true;
+  }
+
   update() {
+    
     this.beamMesh.update();
     !this.stopUpdatePixelMesh && this.pixelMesh.update(); 
     this.ringMesh.update();
+    this.teleportMesh.update();
   }
 
   //########################################################## initialize particle mesh #####################################################
@@ -162,6 +193,13 @@ class ParticleEffect {
     this.ringMesh = getRingMesh(this.globalUniforms);
     this.ringMesh.update = () => this.updateRing();
     this.scene.add(this.ringMesh);
+  }
+
+  initTeleport() {
+    this.teleportMesh = getTeleportMesh(this.globalUniforms);
+    this.teleportMesh.update = () => this.updateTeleport();
+    this.scene.add(this.teleportMesh);
+    this.emitTeleport();
   }
   
   //########################################################## update function of particle mesh #####################################################
@@ -246,6 +284,48 @@ class ParticleEffect {
     //     }
     //   }
     // }
+  }
+
+  updateTeleport() {
+    if (this.teleportMesh) {
+      const positionsAttribute = this.teleportMesh.geometry.getAttribute('positions');
+      const scalesAttribute = this.teleportMesh.geometry.getAttribute('scales');
+      const opacityAttribute = this.teleportMesh.geometry.getAttribute('opacity');
+      const particleCount = this.teleportMesh.info.particleCount;
+      
+      for (let i = 0; i < particleCount; i ++) {
+        if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
+          
+          const timer = 1. - this.globalUniforms.switchAvatarTime.value;
+          const growLimit = 0.05; 
+          if (timer < growLimit) {
+            const growTimer = timer * (1 / growLimit);
+            const width = 0.6;
+            const height = 5;
+            scalesAttribute.setXY(
+              i,
+              width,
+              growTimer * height
+            )
+            positionsAttribute.setY(i, growTimer * height * 0.25);
+          }
+          else {
+            if (scalesAttribute.getX(i) > 0) {
+              scalesAttribute.setX(i, scalesAttribute.getX(i) - 0.2);
+            }
+            else {
+              scalesAttribute.setXY(i, 0, 0);
+            }
+            
+          }
+        }
+      }
+      positionsAttribute.needsUpdate = true;
+      opacityAttribute.needsUpdate = true;
+      scalesAttribute.needsUpdate = true;
+      this.teleportMesh.material.uniforms.cameraBillboardQuaternion.value.copy(this.camera.quaternion);
+    }
+
   }
 }
 

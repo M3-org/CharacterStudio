@@ -3,6 +3,7 @@ import {
   beamVertex, beamFragment,
   pixelVertex, pixelFragment,
   ringVertex, ringFragment,
+  teleportVertex, teleportFragment,
 } from './shader.js';
 
 import { _getGeometry } from './utils.js';
@@ -93,8 +94,38 @@ const getRingMesh = (globalUniforms) => {
   return ringMesh;
 }
 
+const getTeleportMesh = (globalUniforms) => {
+  const particleCount = 1;
+  const attributeSpecs = [];
+  attributeSpecs.push({name: 'opacity', itemSize: 1});
+  attributeSpecs.push({name: 'scales', itemSize: 2});
+  const size = 1.0;
+  const geometry2 = new THREE.PlaneGeometry(size, size);
+  const geometry = _getGeometry(geometry2, attributeSpecs, particleCount);
+  const material= new THREE.ShaderMaterial({
+    uniforms: {
+      cameraBillboardQuaternion: {
+        value: new THREE.Quaternion(),
+      },
+    },
+    vertexShader: teleportVertex,
+    fragmentShader: teleportFragment,
+    // transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
+  const teleportMesh = new THREE.InstancedMesh(geometry, material, particleCount);
+  teleportMesh.info = {
+    particleCount: particleCount,
+    velocity: [particleCount],
+  }
+  return teleportMesh;
+}
+
 export {
   getBeamMesh,
   getPixelMesh,
   getRingMesh,
+  getTeleportMesh,
 };

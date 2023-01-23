@@ -129,7 +129,7 @@ export class EffectManager{
         return bodyRim * glowIntensity;
       }
 
-      vec3 getPixelColor() {
+      vec3 getPixelColor(float pixelStrength) {
         float pixelUvScale = 2.0;
         vec2 pixelUv = vec2(
           vWorldPosition.x * pixelUvScale * -cameraDir.z + vWorldPosition.z * pixelUvScale * cameraDir.x,
@@ -139,7 +139,22 @@ export class EffectManager{
           pixelTexture, 
           pixelUv
         ).r;
-        return mix(vec3(0.0396, 0.768, 0.990), vec3(0.0142, 0.478, 0.710), pixel);
+        return mix(vec3(0.0396, 0.768, 0.990), vec3(0.0142, 0.478, 0.710), pixel * pixelStrength);
+      }
+
+      float getDissolveLimit(float noiseUvScale, float noiseStrength, float bottomPosition, float avatarHeight, float time) {
+        vec2 noiseUv = vec2(
+          vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
+          vWorldPosition.y * noiseUvScale
+        );
+        vec4 noise = texture2D(
+          noiseTexture, 
+          noiseUv
+        );
+        
+        float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
+        float cutoutHeight = time * avatarHeight + bottomPosition;
+        return cutoutHeight + noiseCutout;
       }
 
       `,
@@ -151,56 +166,59 @@ export class EffectManager{
       gl_FragColor = vec4(col, diffuseColor.a);
       `,
     );
+
     material.fragmentShader = material.fragmentShader.replace(
       `gl_FragColor = vec4( col, diffuseColor.a );`,
       `
-      if (transitionEffectType < 0.5) {
+      if (transitionEffectType < 0.5) { // normal
 
       }
-      else if (transitionEffectType < 1.5) {
-        vec3 pixelColor = getPixelColor();
+      else if (transitionEffectType < 1.5) { // switch item
+        vec3 pixelColor = getPixelColor(2.0);
 
         float timeProgress = switchItemTime / switchItemDuration;
         float rim = getRim(
           vSurfaceNormal, 
-          mix(0.1, 5.0 * switchItemTime, timeProgress), 
+          mix(0.1, 5.0, timeProgress), 
           mix(50., 10., timeProgress)
         );
         
         col = mix(pixelColor * rim, col, timeProgress);
       }
-      else {
-        if (isFadeOut) {
-          discard;
-
+      else { // switch avatar
+        if (isFadeOut) { // fade out
+          // if (switchAvatarTime > 0.5) {
+          //   float timer = 1. - (switchAvatarTime - 0.5) * 2.;
+          //   float rim = getRim(
+          //     vSurfaceNormal, 
+          //     2.0,
+          //     10.
+          //   );
+      
+          //   col = mix(col, col + rim * vec3(0.0142, 0.478, 0.710), timer);
+          // }
+          // else {
+            discard;
+          // }
         }
-        else {
-          if (switchAvatarTime < 0.5) {
+        else { // fade in
+          if (switchAvatarTime < 0.5) { // phase 1
             float timer = switchAvatarTime * 2.;
-            float noiseUvScale = 1.2;
-            vec2 noiseUv = vec2(
-              vWorldPosition.x * noiseUvScale * -cameraDir.z + vWorldPosition.z * noiseUvScale * cameraDir.x,
-              vWorldPosition.y * noiseUvScale
-            );
-            vec4 noise = texture2D(
-              noiseTexture, 
-              noiseUv
-            );
-            float noiseStrength = 0.1;
-            float noiseCutout = textureRemap(noise, vec2(0.0, 1.0), vec2(-noiseStrength, noiseStrength)).r;
             
             float border = 0.02;
-            float bottomPosition = -0.3 - border;
-            float avatarHeight = 2.0 + border;
-            float cutoutHeight = timer * avatarHeight + bottomPosition;
-            
-            float limit = cutoutHeight + noiseCutout;
+            float limit = getDissolveLimit(
+              1.2,
+              0.1,
+              -0.3 - border,
+              2.0 + border,
+              timer
+            );
             
             float upperBound = limit + border;
     
             if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
 
-              vec3 pixelColor = getPixelColor();
+              vec3 pixelColor = getPixelColor(1.5);
           
               float rim = getRim(
                 vSurfaceNormal, 
@@ -215,35 +233,32 @@ export class EffectManager{
             }
             else {
 
-              vec3 pixelColor = getPixelColor();
+              vec3 pixelColor = getPixelColor(1.5);
               
               float rim = getRim(
                 vSurfaceNormal, 
-                0.5,
-                5.0
+                0.1,
+                3.0
               );
               col = pixelColor * rim;
             }
           }
-          else {
+          else { // phase 2
             float timer = switchAvatarTime * 2. - 1.;
             
             float bottomPosition = -0.3;
             float avatarHeight = 2.0;
-            float cutoutHeight = timer * avatarHeight + bottomPosition;
-            float limit = cutoutHeight;
-
             
             float rim = getRim(
               vSurfaceNormal, 
-              mix(0.5, 2.0 * timer, timer),
-              mix(5.0, 5. * (1. - timer), timer)
+              mix(0.1, 2.0 * timer, timer),
+              mix(3.0, 20. * (1. - timer), timer)
             );
             
             float fadeStrength = 10.;
             rim *= pow((vWorldPosition.y - bottomPosition) / (avatarHeight - bottomPosition), timer * fadeStrength);
             
-            vec3 pixelColor = getPixelColor();
+            vec3 pixelColor = getPixelColor(1.5);
             col = mix(pixelColor * rim, col, timer);
 
           }
@@ -303,6 +318,7 @@ export class EffectManager{
   playSwitchAvatarEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
     this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_SPEED);
+    this.particleEffect.emitPixel();
   }
 
   setParticle(scene, camera) {
