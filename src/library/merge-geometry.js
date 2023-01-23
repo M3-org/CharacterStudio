@@ -36,38 +36,75 @@ function createMergedSkeleton(meshes){
     followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
     this will avoid an error of not adding bones if they have they same name but are in different hierarchy location
     todo: add to a user guide how to name bones to avoid this error */
+    const boneClones = new Map();
+    
     meshes.forEach(mesh => {
         
         //console.log(mesh)
         if (mesh.skeleton){
-            console.log(mesh.skeleton)
-            if (baseSkeleton === null){
-                baseSkeleton = mesh.skeleton
-                console.log("initial: " + baseSkeleton.bones.length)
-            }
-            else{
-                console.log( mesh.skeleton.bones.length)
-                //console.log(baseSkeleton.bones[0].getObjectByName("spine")==null)
-                //console.log(baseSkeleton.bones)
-                const newBones = [];
-                mesh.skeleton.bones.forEach(bone => {
-                    //console.log(bone)
-                    const bn = baseSkeleton.getBoneByName(bone.name)
-                    if (bn == null){
-                        const newBone = new THREE.Bone();
-                        newBone.name = bone.name;
-                        newBones.push({
-                            bone: newBone,
-                            parentName: bone.parent.name
-                        })
+            mesh.skeleton.bones.forEach(bone => {
+                const clone = boneClones.get(bone.name)
+                if (clone == null){ // no clone was found with the bone
+                    const boneData = {
+                        bone:bone.clone(false),
+                        parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                     }
-                });
-                console.log(newBones)
-                    
-            }
-            
+                    boneClones.set(bone.name, boneData);
+                }        
+            })
         }
+
+
+
+
+        // if (mesh.skeleton){
+        //     console.log(mesh.skeleton)
+        //     if (baseSkeleton === null){
+        //         baseSkeleton = mesh.skeleton
+        //         console.log("initial: " + baseSkeleton.bones.length)
+        //     }
+        //     else{
+        //         console.log( mesh.skeleton.bones.length)
+        //         //console.log(baseSkeleton.bones[0].getObjectByName("spine")==null)
+        //         //console.log(baseSkeleton.bones)
+        //         const newBones = [];
+        //         mesh.skeleton.bones.forEach(bone => {
+        //             //console.log(bone)
+        //             const bn = baseSkeleton.getBoneByName(bone.name)
+        //             if (bn == null){
+        //                 const newBone = new THREE.Bone();
+        //                 newBone.name = bone.name;
+        //                 newBones.push({
+        //                     bone: newBone,
+        //                     parentName: bone.parent.name
+        //                 })
+        //             }
+        //         });
+        //         console.log(newBones)
+                    
+        //     }
+            
+        // }
     });
+    console.log(boneClones)
+    let root = null;
+    console.log( boneClones.values())
+
+    let boneClonesArr =[ ...boneClones.values() ];
+    console.log(boneClonesArr)
+
+    boneClonesArr.forEach(bnClone => {
+        //console.log()
+        if (bnClone.parentName != null){
+            const parent = boneClones.get(bnClone.parentName)?.bone
+            if (parent)
+                parent.add(bnClone.bone)
+        }
+        else{
+            root = bnClone.bone;
+        }
+    }); 
+    console.log("root", root)
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
