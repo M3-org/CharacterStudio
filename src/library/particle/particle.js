@@ -271,8 +271,9 @@ class ParticleEffect {
         }
         else {
           if (this.teleportMesh.scale.x > 0) {
-            this.teleportMesh.scale.x = this.teleportMesh.scale.x - 0.2;
-            this.teleportMesh.scale.z = this.teleportMesh.scale.z - 0.2;
+            const shrinkSpeed = 0.2;
+            this.teleportMesh.scale.x = this.teleportMesh.scale.x - shrinkSpeed;
+            this.teleportMesh.scale.z = this.teleportMesh.scale.z - shrinkSpeed;
           }
           else {
             this.teleportMesh.visible = false;
