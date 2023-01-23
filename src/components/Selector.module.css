@@ -1,27 +1,60 @@
 .SelectorContainerPos {
   position: absolute;
-  top: 20vh;
-  right: 2em;
-  height: 60vh;
-  overflow-y: scroll;
-  overflow-x: none;
-  border: 1px solid #38404E;
-  border-radius : 5px;
+  top: 120px;
+  right: 32px;
+  height: -webkit-calc(100vh - 196px);
+  height: calc(100vh - 196px);
   backdrop-filter: blur(22.5px);
-  transform: perspective(70vh) rotateY(-5deg);
+  background: rgba(5, 11, 14, 0.8);
   z-index:1000;
   cursor: pointer;
 }
 
+.scrollContainer {
+  height: 100%;
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: none;
+  margin: 16px;
+  height: -webkit-calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
 .selector-container {
-  background: rgba(56, 64, 78, 0.1);
-  border-radius: .25em;
   user-select: none;
   flex: 1;
+  width: 140px;
+  position: relative;
+}
+
+.traitTitleWrap {
+  background: rgba(5, 11, 14, 0.8);
+  position: absolute;
+  top: -28px;
+  padding: 8px 0 4px 0;
+  width: 132px;
+  text-align: center;
+  left: 20px;
+  color: #5EB086;
+}
+
+.traitTitleWrap .traitTitle {
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.selector-container::after {
+  content: ' ';
+  display: block;
+  clear: both;
 }
 
 .selector-button {
-  opacity: 0.5;
+  opacity: 1;
+  float: left;
+  width: 62px;
+  text-align: center;
 }
 
 .selector-button:hover {
@@ -59,10 +92,10 @@
 }
 
 .trait-icon {
-    height: 4em;
-    margin: auto;
-    user-select: none;
-    position: relative;
+  height: 4em;
+  margin: auto;
+  user-select: none;
+  position: relative;
 }
 
 .tickStyle {
