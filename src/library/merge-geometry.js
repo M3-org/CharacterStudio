@@ -177,9 +177,9 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
     const merged = {};
     propertyNames.forEach((propName) => {
         merged[propName] = [];
-        Object.entries(destMorphTargetDictionary).forEach(([destMorphIndex]) => {
-            merged[propName][destMorphIndex] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][destMorphIndex]);
-        });
+        for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
+            merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
+        }
     });
     return merged;
 }
