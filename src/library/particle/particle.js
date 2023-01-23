@@ -257,7 +257,7 @@ class ParticleEffect {
     if (this.teleportMesh) {
       if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
         const timer = 1. - this.globalUniforms.switchAvatarTime.value;
-        const growLimit = 0.05; 
+        const growLimit = 0.2; 
         if (timer < growLimit) {
           const growTimer = timer * (1 / growLimit);
           const width = 0.6;

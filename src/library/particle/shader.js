@@ -47,7 +47,6 @@ const beamFragment = `\
 
     vec3 rimColor = mix(vec3(0.00960, 0.833, 0.960), vec3(0., 0., 0.960), rim);
     gl_FragColor.rgb = rimColor * (1. - rim) * glowIntensity;
-    float timer = 1. - clamp(switchItemTime, 0.2, 1.0);
     gl_FragColor.a = clamp((1. - rim) * glowIntensity, 0.0, 1.0);
     gl_FragColor.a *= (switchItemDuration - switchItemTime);
     gl_FragColor *= aura;
@@ -56,7 +55,6 @@ const beamFragment = `\
 
 const pixelVertex = `\       
   uniform vec4 cameraBillboardQuaternion;
-
 
   attribute vec2 scales;
   attribute float opacity;
@@ -70,6 +68,7 @@ const pixelVertex = `\
       vec3 v = position.xyz;
       return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
   }
+  
   void main() {  
     vUv = uv;
     vOpacity = opacity;

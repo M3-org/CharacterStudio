@@ -8,7 +8,8 @@ import {
   SWITCH_ITEM_EFFECT_SPEED,
   SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD, 
   SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD, 
-  SWITCH_AVATAR_EFFECT_SPEED,
+  SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED,
+  SWITCH_AVATAR_EFFECT_FADE_IN_SPEED,
 } from "./constants.js";
 
 
@@ -170,10 +171,12 @@ export class EffectManager{
     material.fragmentShader = material.fragmentShader.replace(
       `gl_FragColor = vec4( col, diffuseColor.a );`,
       `
-      if (transitionEffectType < 0.5) { // normal
+      //################################################## normal ###############################################################
+      if (transitionEffectType < 0.5) { 
 
       }
-      else if (transitionEffectType < 1.5) { // switch item
+      //################################################## switch item ###############################################################
+      else if (transitionEffectType < 1.5) { 
         vec3 pixelColor = getPixelColor(2.0);
 
         float timeProgress = switchItemTime / switchItemDuration;
@@ -185,21 +188,10 @@ export class EffectManager{
         
         col = mix(pixelColor * rim, col, timeProgress);
       }
-      else { // switch avatar
+      //################################################## switch avatar ###############################################################
+      else { 
         if (isFadeOut) { // fade out
-          // if (switchAvatarTime > 0.5) {
-          //   float timer = 1. - (switchAvatarTime - 0.5) * 2.;
-          //   float rim = getRim(
-          //     vSurfaceNormal, 
-          //     2.0,
-          //     10.
-          //   );
-      
-          //   col = mix(col, col + rim * vec3(0.0142, 0.478, 0.710), timer);
-          // }
-          // else {
-            discard;
-          // }
+          discard;
         }
         else { // fade in
           if (switchAvatarTime < 0.5) { // phase 1
@@ -270,14 +262,9 @@ export class EffectManager{
       `,
     );
 
-    
-    // console.log(material.fragmentShader)
-    
-    
     material.uniforms.pixelTexture = customUniforms.pixelTexture;
     material.uniforms.noiseTexture = customUniforms.noiseTexture;
     
-
     material.uniforms.cameraDir = globalUniforms.cameraDir;
     material.uniforms.eye = globalUniforms.eye;
     material.uniforms.switchItemTime = globalUniforms.switchItemTime;
@@ -285,7 +272,6 @@ export class EffectManager{
     material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
     material.uniforms.transitionEffectType = globalUniforms.transitionEffectType;
     material.uniforms.isFadeOut = globalUniforms.isFadeOut;
-    // material.transparent = true;
   }
 
   setTransitionEffect = (type) => {
@@ -318,9 +304,9 @@ export class EffectManager{
 
   playSwitchAvatarEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
-    this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_SPEED);
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
+    this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED);
   }
 
   setParticle(scene, camera) {
@@ -350,7 +336,7 @@ export class EffectManager{
       else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
         if (this.isFadeOut) {
           if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
-            globalUniforms.switchAvatarTime.value -= SWITCH_AVATAR_EFFECT_SPEED;
+            globalUniforms.switchAvatarTime.value -= SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED;
           }
           else {
             this.isFadeOut = false;
@@ -358,7 +344,7 @@ export class EffectManager{
         }
         else {
           if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
-            globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_SPEED;
+            globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_FADE_IN_SPEED;
             if (globalUniforms.switchAvatarTime.value < 0.5) {
               this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.switchAvatarTime.value));
               this.particleEffect.emitRespawnPixel();
