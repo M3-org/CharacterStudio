@@ -35,6 +35,10 @@ class ParticleEffect {
 
   }
 
+  emitBeam() {
+    this.beamMesh.visible = true;
+  }
+
   emitPixel() {
     this.stopUpdatePixelMesh = false;
     const scalesAttribute = this.pixelMesh.geometry.getAttribute('scales');
@@ -106,6 +110,7 @@ class ParticleEffect {
   }
 
   emitRing(offset) {
+    this.ringMesh.visible = true;
     const scalesAttribute = this.ringMesh.geometry.getAttribute('scales');
     const positionsAttribute = this.ringMesh.geometry.getAttribute('positions');
     const opacityAttribute = this.ringMesh.geometry.getAttribute('opacity');
@@ -143,36 +148,15 @@ class ParticleEffect {
   }
 
   emitTeleport() {
-    const scalesAttribute = this.teleportMesh.geometry.getAttribute('scales');
-    const positionsAttribute = this.teleportMesh.geometry.getAttribute('positions');
-    const opacityAttribute = this.teleportMesh.geometry.getAttribute('opacity');
-
-    const particleCount = this.teleportMesh.info.particleCount;
-    for (let i = 0; i < particleCount; i ++) {
-      positionsAttribute.setXYZ(
-        i,
-        0,
-        0,
-        0
-      )
-      scalesAttribute.setXY(
-        i,
-        0., 
-        0.
-      )
-    }
-    
-    scalesAttribute.needsUpdate = true;
-    positionsAttribute.needsUpdate = true;
-    opacityAttribute.needsUpdate = true;
+    this.teleportMesh.visible = true;
   }
 
   update() {
     
-    this.beamMesh.update();
+    this.beamMesh.visible && this.beamMesh.update();
     !this.stopUpdatePixelMesh && this.pixelMesh.update(); 
-    this.ringMesh.update();
-    this.teleportMesh.update();
+    this.ringMesh.visible && this.ringMesh.update();
+    this.teleportMesh.visible && this.teleportMesh.update();
   }
 
   //########################################################## initialize particle mesh #####################################################
@@ -198,23 +182,16 @@ class ParticleEffect {
   initTeleport() {
     this.teleportMesh = getTeleportMesh(this.globalUniforms);
     this.teleportMesh.update = () => this.updateTeleport();
+    this.teleportMesh.visible = false;
     this.scene.add(this.teleportMesh);
-    this.emitTeleport();
   }
   
   //########################################################## update function of particle mesh #####################################################
 
   updateBeam() {
     if (this.beamMesh) {
-      if (this.globalUniforms.transitionEffectType.value === 1) {
-        if (!this.beamMesh.visible) {
-          this.beamMesh.visible = true;
-        }
-      }
-      else {
-        if (this.beamMesh.visible) {
-          this.beamMesh.visible = false;
-        }
+      if (this.globalUniforms.transitionEffectType.value !== 1) {
+        this.beamMesh.visible = false;
       }
     }
   }
@@ -269,60 +246,43 @@ class ParticleEffect {
       
       positionsAttribute.needsUpdate = true;
       opacityAttribute.needsUpdate = true;
-    }
-    // if (this.ringMesh) {
-      
 
-    //   if (this.globalUniforms.transitionEffectType.value === 2) {
-    //     if (!this.ringMesh.visible) {
-    //       this.ringMesh.visible = true;
-    //     }
-    //   }
-    //   else {
-    //     if (this.ringMesh.visible) {
-    //       this.ringMesh.visible = false;
-    //     }
-    //   }
-    // }
+      if (this.globalUniforms.transitionEffectType.value !== 2) {
+        this.ringMesh.visible = false;
+      }
+    }
   }
 
   updateTeleport() {
     if (this.teleportMesh) {
-      const positionsAttribute = this.teleportMesh.geometry.getAttribute('positions');
-      const scalesAttribute = this.teleportMesh.geometry.getAttribute('scales');
-      const opacityAttribute = this.teleportMesh.geometry.getAttribute('opacity');
-      const particleCount = this.teleportMesh.info.particleCount;
-      
-      for (let i = 0; i < particleCount; i ++) {
-        if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
-          
-          const timer = 1. - this.globalUniforms.switchAvatarTime.value;
-          const growLimit = 0.05; 
-          if (timer < growLimit) {
-            const growTimer = timer * (1 / growLimit);
-            const width = 0.6;
-            const height = 5;
-            scalesAttribute.setXY(
-              i,
-              width,
-              growTimer * height
-            )
-            positionsAttribute.setY(i, growTimer * height * 0.25);
+      if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
+        const timer = 1. - this.globalUniforms.switchAvatarTime.value;
+        const growLimit = 0.05; 
+        if (timer < growLimit) {
+          const growTimer = timer * (1 / growLimit);
+          const width = 0.6;
+          const height = 5;
+          this.teleportMesh.scale.set(
+            width,
+            growTimer * height,
+            width
+          )
+          this.teleportMesh.position.y = growTimer * height * 0.25;
+        }
+        else {
+          if (this.teleportMesh.scale.x > 0) {
+            this.teleportMesh.scale.x = this.teleportMesh.scale.x - 0.2;
+            this.teleportMesh.scale.z = this.teleportMesh.scale.z - 0.2;
           }
           else {
-            if (scalesAttribute.getX(i) > 0) {
-              scalesAttribute.setX(i, scalesAttribute.getX(i) - 0.2);
-            }
-            else {
-              scalesAttribute.setXY(i, 0, 0);
-            }
-            
+            this.teleportMesh.visible = false;
           }
+          
         }
       }
-      positionsAttribute.needsUpdate = true;
-      opacityAttribute.needsUpdate = true;
-      scalesAttribute.needsUpdate = true;
+      else {
+        this.teleportMesh.visible = false;
+      }
       this.teleportMesh.material.uniforms.cameraBillboardQuaternion.value.copy(this.camera.quaternion);
     }
 

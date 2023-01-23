@@ -312,6 +312,7 @@ export class EffectManager{
     globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_INITIAL_TIME;
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
     this.particleEffect.emitPixel();
+    this.particleEffect.emitBeam();
     this.transitionTime = 500;
   }
 
@@ -319,6 +320,7 @@ export class EffectManager{
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
     this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_SPEED);
     this.particleEffect.emitPixel();
+    this.particleEffect.emitTeleport();
   }
 
   setParticle(scene, camera) {

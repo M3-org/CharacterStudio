@@ -95,13 +95,8 @@ const getRingMesh = (globalUniforms) => {
 }
 
 const getTeleportMesh = (globalUniforms) => {
-  const particleCount = 1;
-  const attributeSpecs = [];
-  attributeSpecs.push({name: 'opacity', itemSize: 1});
-  attributeSpecs.push({name: 'scales', itemSize: 2});
   const size = 1.0;
-  const geometry2 = new THREE.PlaneGeometry(size, size);
-  const geometry = _getGeometry(geometry2, attributeSpecs, particleCount);
+  const geometry = new THREE.PlaneGeometry(size, size);
   const material= new THREE.ShaderMaterial({
     uniforms: {
       cameraBillboardQuaternion: {
@@ -114,12 +109,8 @@ const getTeleportMesh = (globalUniforms) => {
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
-  const teleportMesh = new THREE.InstancedMesh(geometry, material, particleCount);
-  teleportMesh.info = {
-    particleCount: particleCount,
-    velocity: [particleCount],
-  }
+  const teleportMesh = new THREE.Mesh(geometry, material);
+  
   return teleportMesh;
 }
 

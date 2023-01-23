@@ -166,30 +166,17 @@ const ringFragment = `\
 const teleportVertex = `\       
   uniform vec4 cameraBillboardQuaternion;
 
-
-  attribute vec2 scales;
-  attribute float opacity;
-  attribute vec3 positions;
-
   varying vec2 vUv;
-  varying float vOpacity;
-  varying vec3 vWorldPosition;
-
+  
   vec3 rotateVecQuat(vec3 position, vec4 q) {
       vec3 v = position.xyz;
       return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
   }
   void main() {  
     vUv = uv;
-    vOpacity = opacity;
     
     vec3 pos = position;
-    pos = rotateVecQuat(pos, cameraBillboardQuaternion);
-    pos.xz *= scales.x;
-    pos.y *= scales.y;
-    pos += positions;
     vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
-    vWorldPosition = modelPosition.xyz;
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectionPosition = projectionMatrix * viewPosition;
     gl_Position = projectionPosition;
@@ -197,26 +184,8 @@ const teleportVertex = `\
 `
 const teleportFragment = `\ 
   varying vec2 vUv;
-  varying float vOpacity;
-  varying vec3 vWorldPosition;
-
+  
   void main() {
-    // float angle = 0.;
-    // vec2 trig = vec2(cos(angle), sin(angle));
-    
-    // vec2 pos = (vUv - 0.5) * mat2(trig.x, trig.y, -trig.y, trig.x);
-    // float size = 0.1;
-    
-    // float dist = length(max(abs(pos) - size, 0.));
-    // float glow = 1. / (dist * 25. + .5);
-
-    // gl_FragColor = vec4(glow);
-    // gl_FragColor.rgb *= vec3(0.00960, 0.833, 0.960);
-    // float avatarGroundPosition = -0.2;
-    // if (glow < 0.1 || vWorldPosition.y < avatarGroundPosition) {
-    //   discard;
-    // }
-    // gl_FragColor.a *= vOpacity;
     float col = smoothstep(0.5, 0.2, length(vUv - 0.5));
     gl_FragColor.rgb = mix(vec3(0., 0., 0.960), vec3(0.00960, 0.833, 0.960), col);
     gl_FragColor.a = col;
