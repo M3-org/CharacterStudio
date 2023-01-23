@@ -46,6 +46,31 @@ export const SceneProvider = (props) => {
   const setAvatar = (state) => {
     _setAvatar(state)
   }
+
+  const saveUserSelection = (name, options) =>{
+    const newSelection = loadUserSelection (name) || []
+    options.map((opt)=>{
+      let newOpt = true;
+      for (let i =0; i < newSelection.length;i++ ) {
+        if(newSelection[i].trait.trait === opt.trait.trait){
+          newSelection[i] = opt
+          newOpt = false;
+          break
+        }
+      }
+      if (newOpt === true)
+        newSelection.push(opt)
+    })
+    localStorage.setItem(`class2_${name}`, JSON.stringify(newSelection))
+  }
+
+  const loadUserSelection = (name) => {
+    const opts = localStorage.getItem(`class2_${name}`)
+    if (opts)
+      return JSON.parse(opts)
+    return null
+  }
+
   useEffect(() => {
     if (avatar) {
       if (Object.keys(avatar).length > 0) {
@@ -66,6 +91,8 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         setSelectedOptions,
+        saveUserSelection,
+        loadUserSelection,
         selectedOptions,
         setRemoveOption,
         removeOption,

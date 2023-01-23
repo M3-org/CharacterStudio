@@ -10,7 +10,7 @@ import Editor from "./Editor"
 import { AnimationManager } from "../library/animationManager"
 import { BlinkManager } from "../library/blinkManager"
 import { getAsArray } from "../library/utils"
-import ARButton from "./ARButton"
+// import ARButton from "./ARButton"
 import Background from "./Background"
 import ChatButton from "./ChatButton"
 import { UserMenu } from "./UserMenu"
@@ -148,6 +148,7 @@ useEffect(() => {
       window.removeEventListener("touchend", handleTap)
       window.removeEventListener("click", handleTap)
     }
+    
   }, [hideUi])
 
   const fetchNewModel = (index) =>{
@@ -181,15 +182,15 @@ useEffect(() => {
         <Background />
         <Logo />
           <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
-          {!hideUi &&
-            <Fragment>
+          <div style = {{display:(hideUi ? "none" : "block")}}>
+            <Fragment >
             <ChatButton />
-          <ARButton />
+          {/* <ARButton /> */}
           <UserMenu />
           {currentAppMode === AppMode.CHAT && <ChatComponent />}
           {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} fetchNewModel={fetchNewModel}/>}
             </Fragment>
-        }
+        </div>
       </Fragment>
   )
 }

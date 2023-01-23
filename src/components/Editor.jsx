@@ -13,7 +13,7 @@ import styles from './Editor.module.css';
 import Selector from "./Selector"
 
 export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager,fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   const {isMute} = useContext(AudioContext);
 
@@ -25,7 +25,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
   );
     // options are selected by random or start
   useEffect(() => {
-      setSelectedOptions (getMultipleRandomTraits(initialTraits))
+      setSelectedOptions (loadUserSelection(templateInfo.name) || getMultipleRandomTraits(initialTraits))
   },[initialTraits])
 
   const selectOption = (option) => {

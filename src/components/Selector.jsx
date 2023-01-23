@@ -52,9 +52,12 @@ export default function Selector({
     setLipSync,
     mousePosition,
     removeOption,
+    saveUserSelection
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const { setLoading } = useContext(ViewContext)
+
+  const [loadingTrait, setLoadingTrait] = useState(false)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -62,9 +65,8 @@ export default function Selector({
 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
-    console.log(templateInfo)
-    setRestrictions(getRestrictions())
-  }, [templateInfo])
+    setRestrictions(getRestrictions());
+  },[templateInfo])
 
   const getRestrictions = () => {
     const traitRestrictions = templateInfo.traitRestrictions
@@ -149,7 +151,8 @@ export default function Selector({
         loadedData.map((data) => {
           newAvatar = { ...newAvatar, ...itemAssign(data) }
         })
-        setAvatar({ ...avatar, ...newAvatar })
+        setAvatar({...avatar, ...newAvatar})
+        setLoadingTrait(false)
       })
       setSelectedOptions([])
     }
@@ -175,7 +178,8 @@ export default function Selector({
       loadedData.map((data) => {
         newAvatar = { ...newAvatar, ...itemAssign(data) }
       })
-      setAvatar({ ...avatar, ...newAvatar })
+      setAvatar({...avatar, ...newAvatar})
+      setLoadingTrait(false)
     })
 
     return
@@ -185,6 +189,9 @@ export default function Selector({
   const loadOptions = (options) => {
     // filter options by restrictions
     options = filterRestrictedOptions(options)
+
+    //save selection to local storage
+    saveUserSelection(templateInfo.name, options)
 
     // validate if there is at least a non null option
     let nullOptions = true
@@ -470,10 +477,12 @@ export default function Selector({
     })
 
     // once the setup is done, assign them
-    meshTargets.map((mesh, index) => {
-      if (textures) {
+    meshTargets.map((mesh, index)=>{
+      
+      if (textures){
         const txt = textures[index] || textures[0]
-        if (txt != null) {
+        if (txt != null){
+          //const mat = mesh.material.length ? mesh.material[0] : 
           mesh.material[0].map = txt
           mesh.material[0].shadeMultiplyTexture = txt
         }
