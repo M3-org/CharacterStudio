@@ -68,7 +68,7 @@ const pixelVertex = `\
       vec3 v = position.xyz;
       return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
   }
-
+  
   void main() {  
     vUv = uv;
     vOpacity = opacity;
@@ -163,12 +163,19 @@ const ringFragment = `\
 `
 
 const teleportVertex = `\       
+  uniform vec4 cameraBillboardQuaternion;
+
   varying vec2 vUv;
   
+  vec3 rotateVecQuat(vec3 position, vec4 q) {
+      vec3 v = position.xyz;
+      return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+  }
   void main() {  
     vUv = uv;
     
     vec3 pos = position;
+    pos = rotateVecQuat(pos, cameraBillboardQuaternion);
     vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectionPosition = projectionMatrix * viewPosition;

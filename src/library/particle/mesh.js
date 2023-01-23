@@ -99,6 +99,9 @@ const getTeleportMesh = (globalUniforms) => {
   const geometry = new THREE.PlaneGeometry(size, size);
   const material= new THREE.ShaderMaterial({
     uniforms: {
+      cameraBillboardQuaternion: {
+        value: new THREE.Quaternion(),
+      },
     },
     vertexShader: teleportVertex,
     fragmentShader: teleportFragment,

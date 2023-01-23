@@ -279,11 +279,11 @@ class ParticleEffect {
           }
           
         }
-        this.teleportMesh.rotation.copy(this.camera.rotation);
       }
       else {
         this.teleportMesh.visible = false;
       }
+      this.teleportMesh.material.uniforms.cameraBillboardQuaternion.value.copy(this.camera.quaternion);
     }
 
   }
