@@ -119,7 +119,7 @@ class ParticleEffect {
     const currentIndex = this.ringMesh.info.currentIndex;
     const previousIndex = currentIndex - 1 < 0 ? particleCount - 1 : currentIndex - 1;
 
-    const startPosition = 0;
+    const startPosition = 0.1;
     
     if (
       positionsAttribute.getY(previousIndex) > startPosition + offset || opacityAttribute.getX(previousIndex) <= 0
@@ -267,7 +267,7 @@ class ParticleEffect {
             growTimer * height,
             width
           )
-          this.teleportMesh.position.y = growTimer * height * 0.25;
+          this.teleportMesh.position.y = growTimer * height * 0.35;
         }
         else {
           if (this.teleportMesh.scale.x > 0) {

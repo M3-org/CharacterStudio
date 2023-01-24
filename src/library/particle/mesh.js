@@ -29,7 +29,7 @@ const getBeamMesh = (globalUniforms) => {
   material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
   const beamMesh = new THREE.Mesh(geometry, material);
   beamMesh.frustumCulled = false;
-  beamMesh.position.y = cylinderHeight * 0.4;
+  beamMesh.position.y = cylinderHeight * 0.5;
   return beamMesh;
 }
 
