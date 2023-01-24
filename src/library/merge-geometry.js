@@ -38,14 +38,13 @@ function createMergedSkeleton(meshes){
     const boneClones = new Map();
     let index = 0;
     meshes.forEach(mesh => {
-        console.log(mesh)
         if (mesh.skeleton){
-            mesh.skeleton.bones.forEach(bone => {
+            mesh.skeleton.bones.forEach((bone, boneInd) => {
                 const clone = boneClones.get(bone.name)
-                if (clone == null){ // no clonze was found with the bone
+                if (clone == null){ // no clone was found with the bone
                     const boneData = {
                         index,
-                        boneInverses:bone.boneInverses,
+                        boneInverses:mesh.skeleton.boneInverses[boneInd],
                         bone:bone.clone(false),
                         parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                     }
@@ -69,27 +68,33 @@ function createMergedSkeleton(meshes){
         }
     }); 
     const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
-    console.log(newSkeleton)
-
-    // finally add the indices and weights to each skinned esh
-    
-    
-
+    newSkeleton.pose()
     return newSkeleton
 }
-function updateMeshSekeleton(newSkeleton, mesh){
+function getUpdatedSkinIndex(newSkeleton, mesh){
     if (!mesh.skeleton)
         return
     const newBonesIndex = new Map();
+    // compare this skeleton and make a map with the current index pointing the new index
     if (mesh.skeleton){
         mesh.skeleton.bones.forEach((bone, index) => {
             const filterByName = newSkeleton.bones.filter (newBone=>newBone.name === bone.name)
             const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
             newBonesIndex.set(index, newIndex)
         });
-        console.log(mesh)
-        console.log(newBonesIndex)
-        // compare this skeleton and make a map with the current index pointing the new index
+        
+        const newSkinIndexArr = [];
+
+        const skinIndices = mesh.geometry.attributes.skinIndex.array;
+        for (let i =0; i < skinIndices.length;i++){
+            
+            newSkinIndexArr[i] = newBonesIndex.get(skinIndices[i])
+        }
+        
+        const indexTypedArray = new Uint16Array(newSkinIndexArr);
+
+        return new THREE.BufferAttribute(indexTypedArray,4,false);
+        
     }
 }
 
@@ -108,7 +113,10 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
 
-        updateMeshSekeleton(newSkeleton, mesh)
+        // update mesh skeleton indices
+        if (mesh.skeleton != null)
+            mesh.geometry.setAttribute("skinIndex", getUpdatedSkinIndex(newSkeleton, mesh))
+            
         // Exlude the currently "activated" morph attributes before merging.
         // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
         // and the influences remain in `mesh.morphTargetInfluences`.
@@ -142,9 +150,9 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // });
     
 
-    const skeleton = cloneSkeleton(meshes[0]);
+    //const skeleton = cloneSkeleton(meshes[0]);
     
-    mesh.bind(skeleton);
+    mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
@@ -154,7 +162,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     group.name = "AvatarRoot";
     group.animations = dest.animations;
     group.add(mesh);
-    group.add(skeleton.bones[0]);
+    group.add(newSkeleton.bones[0]);
     // clones.forEach((clone) => {
     //   group.add(clone);
     // });
