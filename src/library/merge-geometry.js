@@ -73,46 +73,42 @@ function createMergedSkeleton(meshes){
 
     // finally add the indices and weights to each skinned esh
     
-    let debugchecked = false;
-    meshes.forEach(mesh => {
-        const newBonesIndex = new Map();
-        if (mesh.skeleton){
-            console.log(mesh.skeleton.bones)
-            mesh.skeleton.bones.forEach((bone, index) => {
-                const filterByName = newSkeleton.bones.filter (newBone=>
-                    newBone.name === bone.name
-                )
-                if (!debugchecked){
-                    console.log(filterByName)
-                    debugchecked = true;
-                }
-                const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
-                newBonesIndex.set(index, newIndex)
-            });
-            console.log("new",mesh.skeleton.bones.length, newSkeleton.bones.length)
-            // console.log(mesh.skeleton)
-            // console.log(newSkeleton)
-            console.log(newBonesIndex)
-            // compare this skeleton and make a map with the current index pointing the new index
-        }
-    });
+    
 
     return newSkeleton
+}
+function updateMeshSekeleton(newSkeleton, mesh){
+    if (!mesh.skeleton)
+        return
+    const newBonesIndex = new Map();
+    if (mesh.skeleton){
+        mesh.skeleton.bones.forEach((bone, index) => {
+            const filterByName = newSkeleton.bones.filter (newBone=>newBone.name === bone.name)
+            const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
+            newBonesIndex.set(index, newIndex)
+        });
+        console.log(mesh)
+        console.log(newBonesIndex)
+        // compare this skeleton and make a map with the current index pointing the new index
+    }
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
-    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
-        
-    
+    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+
+    const newSkeleton = createMergedSkeleton(meshes);
+
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
+
+        updateMeshSekeleton(newSkeleton, mesh)
         // Exlude the currently "activated" morph attributes before merging.
         // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
         // and the influences remain in `mesh.morphTargetInfluences`.
@@ -120,6 +116,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
             delete geometry.attributes[`morphTarget${i}`];
             delete geometry.attributes[`morphNormal${i}`];
         }
+
     });
     
     const { dest } = mergeGeometry({ meshes });
@@ -143,7 +140,8 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
-    const newSkeleton = createMergedSkeleton(meshes);
+    
+
     const skeleton = cloneSkeleton(meshes[0]);
     
     mesh.bind(skeleton);
