@@ -3,6 +3,7 @@ import * as THREE from "three"
 import ParticleEffect from "./particle/particle.js";
 
 import {
+  TRANSITION_TIME_OF_SWITCH_ITEM,
   SWITCH_ITEM_EFFECT_INITIAL_TIME, 
   SWITCH_ITEM_EFFECT_DURATION, 
   SWITCH_ITEM_EFFECT_SPEED,
@@ -68,7 +69,7 @@ export class EffectManager{
     this.initParticle = false;
 
     this.transitionEffectType = null;
-    this.transitionTime = 500;
+    this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
 
     this.isFadeOut = false;
     
@@ -299,7 +300,7 @@ export class EffectManager{
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
     this.particleEffect.emitPixel();
     this.particleEffect.emitBeam();
-    this.transitionTime = 500;
+    this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
   }
 
   playSwitchAvatarEffect() {
