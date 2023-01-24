@@ -3,7 +3,6 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 // import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
 import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
-import { MeshStandardMaterial } from "three";
 
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
