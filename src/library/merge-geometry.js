@@ -123,7 +123,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
             delete geometry.attributes[`morphTarget${i}`];
             delete geometry.attributes[`morphNormal${i}`];
         }
-
     });
     
     const { dest } = mergeGeometry({ meshes });
@@ -147,9 +146,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
-    
-
-    //const skeleton = cloneSkeleton(meshes[0]);
     
     mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
