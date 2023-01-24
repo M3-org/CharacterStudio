@@ -42,10 +42,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setTraitsRightEye,
     setLipSync,
     mousePosition,
-    removeOption
+    removeOption,
+    saveUserSelection
   } = useContext(SceneContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
+
+  const [loadingTrait, setLoadingTrait] = useState(false)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -53,7 +56,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
-    console.log(templateInfo)
     setRestrictions(getRestrictions());
   },[templateInfo])
 
@@ -134,6 +136,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           }
         }, effectManager.transitionTime);
         setAvatar(finalAvatar)
+        setLoadingTrait(false)
+
       })
       setSelectedOptions([]);
     }
@@ -161,6 +165,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
+      
       const finalAvatar = {...avatar, ...newAvatar}
       setTimeout(() => {
         if (Object.keys(finalAvatar).length > 0) {
@@ -168,6 +173,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
       }, effectManager.transitionTime);
       setAvatar(finalAvatar)
+      setLoadingTrait(false)
+
     })
 
     return;
@@ -176,9 +183,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   // load options first
   const loadOptions = (options) => {
-
     // filter options by restrictions
     options = filterRestrictedOptions(options);
+
+    //save selection to local storage
+    saveUserSelection(templateInfo.name, options)
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -452,9 +461,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     // once the setup is done, assign them
     meshTargets.map((mesh, index)=>{
+      
       if (textures){
         const txt = textures[index] || textures[0]
         if (txt != null){
+          //const mat = mesh.material.length ? mesh.material[0] : 
           mesh.material[0].map = txt
           mesh.material[0].shadeMultiplyTexture = txt
         }
@@ -557,9 +568,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                 styles["selector-button"]
               } ${ active ? styles["active"] : ""}`}
               onClick={() => {
+               
                 !isMute && play()
-                selectTraitOption(option)
-                setLoadPercentage(1)
+                if (loadingTrait === false){
+                  setLoadingTrait(true)
+                  selectTraitOption(option)
+                  setLoadPercentage(1)
+                }
               }}
             >
               <img

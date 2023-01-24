@@ -5,7 +5,7 @@
     width: 600px;
     min-height: 200px;
     font-size: .8rem;
-    bottom: 10em;
+    top: 5em;
     padding: 1em;
     margin: 1em;
     color: #fff;
@@ -13,10 +13,57 @@
     /* align to the bottom of the div */
     vertical-align: bottom;
     /* center horizontally with transform */
-    left: 50%;
-    transform: translateX(-50%);
+    right: 2em;
     /* round the corners */
     border-radius: 5px;
+}
+
+.chatBox > span {
+    display: inline;
+    width: 24em;
+}
+
+
+.chatBox > label, .chatBox > span > label {
+    display: block;
+    width: 100%;
+}
+
+/* float the first chatbox span left */
+.chatBox > span:first-child {
+    float: left;
+}
+
+.chatBox > input, .chatBox > span > input {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    display: block;
+    width: 20em;
+}
+
+.chatBox > textarea {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);
+    display: block;
+}
+
+.chatBox > select {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);
 }
 
 .messages { 
@@ -28,6 +75,12 @@
     margin-bottom: 20px;
     overflow-y: scroll;
     overflow-x: none;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);
 }
 
 /* make the scrollbar transparent with a white thumb */
@@ -42,12 +95,11 @@
 }
 
 .send {
-    position: absolute;
     background-color: #000;
-    bottom: 10px;
     color: #fff;
-    width: calc(100% - 20px);
-}
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);}
 
 /* set the input0 text color to white */
 .send input {
@@ -55,8 +107,27 @@
     color: #fff;
     border-radius: 5px;
     border: 1px solid #fff;
-    width: calc(100% - 90px);
+    width: calc(100% - 6.5em);
     display: inline-block;
+    padding: .5em;
+}
+
+.speaker {
+    float: right;
+}
+
+.speaker > label {
+    padding: 1em;
+}
+
+.speaker input {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    width: calc(10em);
+    display: inline-block;
+    padding: .5em;
 }
 
 .send button {
@@ -64,7 +135,17 @@
     color: #fff;
     border: 1px solid #fff;
     /* round the corners */
-    border-radius: 5px;
-    width: 50px;
+    border-radius: 10px;
+    width: 3.25em;
+    padding: .5em;
     margin-left: 10px;
 }
+
+.button {
+    opacity: 1.0;
+  }
+  
+  .buttonInactive {
+    opacity: 0.5;
+  }
+  

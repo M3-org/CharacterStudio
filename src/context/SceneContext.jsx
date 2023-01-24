@@ -10,12 +10,14 @@ export const SceneProvider = (props) => {
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    // rotate the directional light to be a key light
+    directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
 
     return scene;
   }
 
-  const [scene, setScene] = useState(initializeScene())
+  const [scene, setScene] = useState(initializeScene)
 
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
@@ -43,7 +45,31 @@ export const SceneProvider = (props) => {
   const setAvatar = (state) => {
     _setAvatar(state)
   }
-  
+
+  const saveUserSelection = (name, options) =>{
+    const newSelection = loadUserSelection (name) || []
+    options.map((opt)=>{
+      let newOpt = true;
+      for (let i =0; i < newSelection.length;i++ ) {
+        if(newSelection[i].trait.trait === opt.trait.trait){
+          newSelection[i] = opt
+          newOpt = false;
+          break
+        }
+      }
+      if (newOpt === true)
+        newSelection.push(opt)
+    })
+    localStorage.setItem(`class2_${name}`, JSON.stringify(newSelection))
+  }
+
+  const loadUserSelection = (name) => {
+    const opts = localStorage.getItem(`class2_${name}`)
+    if (opts)
+      return JSON.parse(opts)
+    return null
+  }
+
   return (
     <SceneContext.Provider
       value={{
@@ -56,6 +82,8 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         setSelectedOptions,
+        saveUserSelection,
+        loadUserSelection,
         selectedOptions,
         setRemoveOption,
         removeOption,

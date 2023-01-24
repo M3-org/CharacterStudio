@@ -19,5 +19,6 @@
     ],
     "rules": {
         "react/prop-types": "off"
-    }
+    },
+    "ignorePatterns": ["node_modules/*", "*.png", "character-assets/"]
 }

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export const _getGeometry = (geometry, attributeSpecs, particleCount) => {
   const geometry2 = new THREE.BufferGeometry();
   ['position', 'normal', 'uv'].forEach(k => {

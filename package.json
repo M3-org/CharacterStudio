@@ -33,6 +33,7 @@
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
+    "sepia-speechrecognition-polyfill": "^1.0.0",
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.1",
     "three": "^0.146.0",
