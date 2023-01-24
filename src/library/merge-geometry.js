@@ -42,7 +42,7 @@ function createMergedSkeleton(meshes){
         if (mesh.skeleton){
             mesh.skeleton.bones.forEach(bone => {
                 const clone = boneClones.get(bone.name)
-                if (clone == null){ // no clone was found with the bone
+                if (clone == null){ // no clonze was found with the bone
                     const boneData = {
                         index,
                         boneInverses:bone.boneInverses,
@@ -68,9 +68,34 @@ function createMergedSkeleton(meshes){
                 parent.add(bnClone.bone)
         }
     }); 
-    console.log(finalBones)
     const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
     console.log(newSkeleton)
+
+    // finally add the indices and weights to each skinned esh
+    
+    let debugchecked = false;
+    meshes.forEach(mesh => {
+        const newBonesIndex = new Map();
+        if (mesh.skeleton){
+            console.log(mesh.skeleton.bones)
+            mesh.skeleton.bones.forEach((bone, index) => {
+                const filterByName = newSkeleton.bones.filter (newBone=>
+                    newBone.name === bone.name
+                )
+                if (!debugchecked){
+                    console.log(filterByName)
+                    debugchecked = true;
+                }
+                const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
+                newBonesIndex.set(index, newIndex)
+            });
+            console.log("new",mesh.skeleton.bones.length, newSkeleton.bones.length)
+            // console.log(mesh.skeleton)
+            // console.log(newSkeleton)
+            console.log(newBonesIndex)
+            // compare this skeleton and make a map with the current index pointing the new index
+        }
+    });
 
     return newSkeleton
 }
