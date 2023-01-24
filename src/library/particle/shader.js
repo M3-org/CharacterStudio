@@ -102,7 +102,7 @@ const pixelFragment = `\
 
     gl_FragColor = vec4(glow);
     gl_FragColor.rgb *= vec3(0.00960, 0.833, 0.960);
-    float avatarGroundPosition = -0.2;
+    float avatarGroundPosition = 0.;
     if (glow < 0.1 || vWorldPosition.y < avatarGroundPosition) {
       discard;
     }
