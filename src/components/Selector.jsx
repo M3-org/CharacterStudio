@@ -489,8 +489,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
           disposeVRM(avatar[traitData.name].vrm)
-          // play avatar fade in effect
-          !effectManager.getTransitionEffect('switch_item') && effectManager.playFadeInEffect();
+          // // play avatar fade in effect
+          // !effectManager.getTransitionEffect('switch_item') && effectManager.playFadeInEffect();
         }, effectManager.transitionTime)
 
       }
@@ -502,9 +502,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        // play switching item transition effect
-        effectManager.getTransitionEffect('switch_item') && effectManager.playSwitchItemEffect();
-    
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
         event.x = mousePosition.x;
@@ -512,6 +509,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         window.dispatchEvent(event);
 
         m.visible = true;
+
+        // play transition effect
+        if (effectManager.getTransitionEffect('switch_item')) {
+          effectManager.playSwitchItemEffect();
+        }
+        else {
+          effectManager.playFadeInEffect();
+        } 
       }, effectManager.transitionTime)
     }
 

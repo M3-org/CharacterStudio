@@ -289,22 +289,6 @@ export class EffectManager{
     return this.transitionEffectType === type;
   }
 
-  // playTransitionEffect() {
-  //   switch (this.transitionEffectType) {
-  //     case 'switch_avatar': {
-  //       this.playSwitchAvatarEffect();
-  //       break;
-  //     }
-  //     case 'switch_item': {
-  //       this.playSwitchItemEffect();
-  //       break;
-  //     }
-  //     default: {
-  //       break;
-  //     }
-  //   }
-  // }
-
   playFadeOutEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeOutAvatar;
     this.particleEffect.emitPixel();

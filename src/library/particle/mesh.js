@@ -83,7 +83,6 @@ const getRingMesh = (globalUniforms) => {
   });
   material.uniforms.cameraDir = globalUniforms.cameraDir;
   material.uniforms.eye = globalUniforms.eye;
-  // material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
   material.uniforms.fadeInAvatarTime = globalUniforms.fadeInAvatarTime;
 
   const ringMesh = new THREE.InstancedMesh(geometry, material, particleCount);
