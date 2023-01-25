@@ -152,6 +152,7 @@ useEffect(() => {
   }, [hideUi])
 
   const fetchNewModel = (index) =>{
+    console.log('fetchNewModel')
     
     return new Promise( (resolve) =>  {
       asyncResolve()
