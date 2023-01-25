@@ -293,14 +293,11 @@ export class EffectManager{
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeOutAvatar;
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
-    // this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / FADE_OUT_AVATAR_SPEED);
     this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
-    console.log('fade out')
   }
 
   playFadeInEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
-    console.log('fade in')
   }
 
   playSwitchItemEffect() {
@@ -310,13 +307,6 @@ export class EffectManager{
     this.particleEffect.emitBeam();
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
   }
-
-  // playSwitchAvatarEffect() {
-  //   globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
-  //   this.particleEffect.emitPixel();
-  //   this.particleEffect.emitTeleport();
-  //   this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED);
-  // }
 
   setParticle(scene, camera) {
     this.particleEffect = new ParticleEffect(scene, camera, globalUniforms);
