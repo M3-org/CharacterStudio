@@ -205,9 +205,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setTimeout(() => {
+        // setTimeout(() => {
+          console.log('timeout 2')
           setLoading(false)
-        }, 1000);
+        // }, 1000);
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -460,9 +461,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        setTimeout(() => {
+        // setTimeout(() => {
+          console.log('timeout 3')
           disposeVRM(avatar[traitData.name].vrm)
-        }, 50)
+        // }, 50)
       }
     }
     
@@ -471,9 +473,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       m.visible = false;
       // add the now model to the current scene
       model.add(m)
-      setTimeout(() => {
+      // setTimeout(() => {
+        console.log('timeout 4')
         m.visible = true;
-      }, 50)
+      // }, 50)
 
       // update the joint rotation of the new trait
       const event = new Event('modelUpdate');
