@@ -86,7 +86,7 @@ export default function ChatBox() {
         localStorage.setItem("speaker", speaker);
     }, [name, bio, greeting, question1, question2, question3, response1, response2, response3, speaker]);
 
-    
+
     function composePrompt() {
         console.log('composing prompt',
         name, bio, greeting, question1, question2, question3, response1, response2, response3, speaker);
@@ -123,7 +123,6 @@ console.log(prompt)
         const msgBox = document.querySelector("#msgscroll")
         msgBox.scrollTo(0, msgBox.scrollHeight)
     }, [messages])
-
 
     // if user presses ctrl c, clear the messages
     useEffect(() => {
