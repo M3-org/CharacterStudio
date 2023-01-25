@@ -6,6 +6,8 @@ import {
   getTeleportMesh,
 } from './mesh.js';
 
+import {transitionEffectTypeNumber} from '../constants.js';
+
 const textureLoader = new THREE.TextureLoader()
 
 const auraTexture = textureLoader.load(`/textures/beam2.png`);
@@ -190,7 +192,7 @@ class ParticleEffect {
 
   updateBeam() {
     if (this.beamMesh) {
-      if (this.globalUniforms.transitionEffectType.value !== 1) {
+      if (this.globalUniforms.transitionEffectType.value !== transitionEffectTypeNumber.switchItem) {
         this.beamMesh.visible = false;
       }
     }
@@ -247,7 +249,7 @@ class ParticleEffect {
       positionsAttribute.needsUpdate = true;
       opacityAttribute.needsUpdate = true;
 
-      if (this.globalUniforms.transitionEffectType.value !== 2) {
+      if (this.globalUniforms.transitionEffectType.value !== transitionEffectTypeNumber.fadeInAvatar) {
         this.ringMesh.visible = false;
       }
     }
@@ -255,8 +257,8 @@ class ParticleEffect {
 
   updateTeleport() {
     if (this.teleportMesh) {
-      if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
-        const timer = 1. - this.globalUniforms.switchAvatarTime.value;
+      if (this.globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeOutAvatar) {
+        const timer = this.globalUniforms.fadeOutAvatarTime.value;
         const growLimit = 0.2; 
         if (timer < growLimit) {
           const growTimer = timer * (1 / growLimit);
