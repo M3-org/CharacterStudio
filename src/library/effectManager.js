@@ -347,7 +347,7 @@ export class EffectManager{
       }
 
       else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeInAvatar) {
-        if (globalUniforms.fadeInAvatarTime.value < 0.5) {
+        if (globalUniforms.fadeInAvatarTime.value > 0.1 && globalUniforms.fadeInAvatarTime.value < 0.5) {
           this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.fadeInAvatarTime.value));
           this.particleEffect.emitRespawnPixel();
         }
