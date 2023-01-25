@@ -133,12 +133,15 @@ export default function App() {
 // detect a double tap on the screen or a mouse click
 // switch the UI on and off
 let lastTap = 0
+
 useEffect(() => {
-  const handleTap = () => {
+  const handleTap = (e) => {
     const now = new Date().getTime()
     const timesince = now - lastTap
-    if (timesince < 300) {
-      setHideUi(!hideUi)
+    if (timesince < 300 && timesince > 10) {
+      const tgt = e.target;
+      if (tgt.id == "editor-scene")
+        setHideUi(!hideUi)
     }
     lastTap = now
     }
