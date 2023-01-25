@@ -143,7 +143,6 @@ useEffect(() => {
       if (computedCursor != "pointer")
         setHideUi(!hideUi)
     }
-    
     lastTap = now
     }
     window.addEventListener("touchend", handleTap)

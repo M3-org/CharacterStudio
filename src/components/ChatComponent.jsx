@@ -86,6 +86,7 @@ export default function ChatBox() {
         localStorage.setItem("speaker", speaker);
     }, [name, bio, greeting, question1, question2, question3, response1, response2, response3, speaker]);
 
+    
     function composePrompt() {
         console.log('composing prompt',
         name, bio, greeting, question1, question2, question3, response1, response2, response3, speaker);
