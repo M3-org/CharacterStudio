@@ -343,7 +343,7 @@ export class EffectManager{
       }
 
       else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.loadingAvatar) {
-        // globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
+        // TODO play loading effect?
       }
 
       else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeInAvatar) {
