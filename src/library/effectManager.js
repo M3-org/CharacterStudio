@@ -29,13 +29,6 @@ pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 const noiseTexture = textureLoader.load(`/textures/noise3.jpg`);
 noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
 
-// const transitionEffectTypeNumber = {
-//   normal: 0,
-//   switchItem: 1,
-//   fadeOutAvatar: 2,
-//   loadingAvatar: 3,
-//   fadeInAvatar: 4,
-// }
 
 const globalUniforms = {
   switchItemDuration: {
