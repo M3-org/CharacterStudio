@@ -189,7 +189,7 @@ export class EffectManager{
         float timeProgress = switchItemTime / switchItemDuration;
         float rim = getRim(
           vSurfaceNormal, 
-          mix(0.1, 5.0, timeProgress), 
+          mix(0.1, mix(0.1, 5.0, timeProgress), timeProgress), 
           mix(50., 10., timeProgress)
         );
         
