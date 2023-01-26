@@ -125,7 +125,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     if (selectedOptions.length > 0){
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
-        effectManager.setTransitionEffect('switch_avatar');
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
@@ -145,7 +144,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    
+    if (option.key === 'class_1' || option.key === 'class_0') {
+      effectManager.setTransitionEffect('fade_out_avatar');
+      // play avatar fade out effect
+      effectManager.playFadeOutEffect();
+    }
+    else {
+      effectManager.setTransitionEffect('switch_item');
+    }
     if (option == null){
       option = {
         item:null,
@@ -158,10 +164,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
     
     console.log(option)
-    
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
-      effectManager.setTransitionEffect('switch_item');
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
@@ -479,16 +483,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       }
     })
 
-    // play switching avatar transition effect
-    effectManager.transitionEffectType === 'switch_avatar' && effectManager.playTransitionEffect();
-
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
           disposeVRM(avatar[traitData.name].vrm)
+          // // play avatar fade in effect
+          // !effectManager.getTransitionEffect('switch_item') && effectManager.playFadeInEffect();
         }, effectManager.transitionTime)
+
       }
     }
     
@@ -498,9 +502,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        // play switching item transition effect
-        effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
-    
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
         event.x = mousePosition.x;
@@ -508,6 +509,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         window.dispatchEvent(event);
 
         m.visible = true;
+
+        // play transition effect
+        if (effectManager.getTransitionEffect('switch_item')) {
+          effectManager.playSwitchItemEffect();
+        }
+        else {
+          effectManager.playFadeInEffect();
+        } 
       }, effectManager.transitionTime)
     }
 

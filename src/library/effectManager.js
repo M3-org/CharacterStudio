@@ -4,13 +4,21 @@ import ParticleEffect from "./particle/particle.js";
 
 import {
   TRANSITION_TIME_OF_SWITCH_ITEM,
+  TRANSITION_TIME_OF_LOADING_AVATAR,
+
   SWITCH_ITEM_EFFECT_INITIAL_TIME, 
   SWITCH_ITEM_EFFECT_DURATION, 
   SWITCH_ITEM_EFFECT_SPEED,
-  SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD, 
-  SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD, 
-  SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED,
-  SWITCH_AVATAR_EFFECT_FADE_IN_SPEED,
+
+  FADE_OUT_AVATAR_INITIAL_TIME,
+  FADE_OUT_AVATAR_DURATION,
+  FADE_OUT_AVATAR_SPEED,
+  FADE_IN_AVATAR_INITIAL_TIME,
+  FADE_IN_AVATAR_DURATION,
+  FADE_IN_AVATAR_SPEED,
+
+  transitionEffectTypeNumber,
+  
 } from "./constants.js";
 
 
@@ -21,11 +29,13 @@ pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 const noiseTexture = textureLoader.load(`/textures/noise3.jpg`);
 noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
 
-const transitionEffectTypeNumber = {
-  normal: 0,
-  switchItem: 1,
-  switchAvatar: 2,
-}
+// const transitionEffectTypeNumber = {
+//   normal: 0,
+//   switchItem: 1,
+//   fadeOutAvatar: 2,
+//   loadingAvatar: 3,
+//   fadeInAvatar: 4,
+// }
 
 const globalUniforms = {
   switchItemDuration: {
@@ -40,15 +50,15 @@ const globalUniforms = {
   cameraDir: {
     value: new THREE.Vector3()
   },
-  switchAvatarTime: {
-    value: SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD
+  fadeOutAvatarTime: {
+    value: FADE_OUT_AVATAR_INITIAL_TIME
+  },
+  fadeInAvatarTime: {
+    value: FADE_IN_AVATAR_INITIAL_TIME
   },
   transitionEffectType: {
     value: transitionEffectTypeNumber.normal
   },
-  isFadeOut: {
-    value: false
-  }
 };
 
 const customUniforms = {
@@ -71,8 +81,6 @@ export class EffectManager{
     this.transitionEffectType = null;
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
 
-    this.isFadeOut = false;
-    
     this.update();
   }
 
@@ -113,9 +121,7 @@ export class EffectManager{
       uniform sampler2D noiseTexture;
       uniform float transitionEffectType;
 
-      uniform float switchAvatarTime; 
-
-      uniform bool isFadeOut;
+      uniform float fadeInAvatarTime;
       
       varying vec3 vWorldPosition;
       varying vec3 vSurfaceNormal;
@@ -183,80 +189,82 @@ export class EffectManager{
         float timeProgress = switchItemTime / switchItemDuration;
         float rim = getRim(
           vSurfaceNormal, 
-          mix(0.1, 5.0, timeProgress), 
+          mix(0.1, mix(0.1, 5.0, timeProgress), timeProgress), 
           mix(50., 10., timeProgress)
         );
         
         col = mix(pixelColor * rim, col, timeProgress);
       }
-      //################################################## switch avatar ###############################################################
-      else { 
-        if (isFadeOut) { // fade out
-          discard;
-        }
-        else { // fade in
-          if (switchAvatarTime < 0.5) { // phase 1
-            float timer = switchAvatarTime * 2.;
-            
-            float border = 0.02;
-            float limit = getDissolveLimit(
-              1.2,
-              0.1,
-              -0.3 - border,
-              2.0 + border,
-              timer
-            );
-            
-            float upperBound = limit + border;
-    
-            if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
-
-              vec3 pixelColor = getPixelColor(1.5);
+      //################################################## fade out avatar ###############################################################
+      else if (transitionEffectType < 2.5) { 
+        discard;
+      }
+      //################################################## loading avatar ###############################################################
+      else if (transitionEffectType < 3.5) { 
+        discard;
+      }
+      //################################################## fade in avatar ###############################################################
+      else if (transitionEffectType < 4.5) { 
+        if (fadeInAvatarTime < 0.5) { // phase 1
+          float timer = fadeInAvatarTime * 2.;
           
-              float rim = getRim(
-                vSurfaceNormal, 
-                0.1,
-                10.
-              );
-        
-              col = pixelColor * rim;
-            }
-            else if (vWorldPosition.y >= upperBound) {
-              discard;
-            }
-            else {
+          float border = 0.02;
+          float limit = getDissolveLimit(
+            1.2,
+            0.1,
+            -0.3 - border,
+            2.0 + border,
+            timer
+          );
+          
+          float upperBound = limit + border;
+  
+          if (vWorldPosition.y > limit && vWorldPosition.y < upperBound) {
 
-              vec3 pixelColor = getPixelColor(1.5);
-              
-              float rim = getRim(
-                vSurfaceNormal, 
-                0.1,
-                3.0
-              );
-              col = pixelColor * rim;
-            }
+            vec3 pixelColor = getPixelColor(1.5);
+        
+            float rim = getRim(
+              vSurfaceNormal, 
+              0.1,
+              10.
+            );
+      
+            col = pixelColor * rim;
           }
-          else { // phase 2
-            float timer = switchAvatarTime * 2. - 1.;
-            
-            float bottomPosition = -0.3;
-            float avatarHeight = 2.0;
+          else if (vWorldPosition.y >= upperBound) {
+            discard;
+          }
+          else {
+
+            vec3 pixelColor = getPixelColor(1.5);
             
             float rim = getRim(
               vSurfaceNormal, 
-              mix(0.1, 2.0 * timer, timer),
-              mix(3.0, 20. * (1. - timer), timer)
+              0.1,
+              3.0
             );
-            
-            float fadeStrength = 10.;
-            rim *= pow((vWorldPosition.y - bottomPosition) / (avatarHeight - bottomPosition), timer * fadeStrength);
-            
-            vec3 pixelColor = getPixelColor(1.5);
-            col = mix(pixelColor * rim, col, timer);
-
+            col = pixelColor * rim;
           }
         }
-        
+        else { // phase 2
+          float timer = fadeInAvatarTime * 2. - 1.;
+          
+          float bottomPosition = -0.3;
+          float avatarHeight = 2.0;
+          
+          float rim = getRim(
+            vSurfaceNormal, 
+            mix(0.1, 2.0 * timer, timer),
+            mix(3.0, 20. * (1. - timer), timer)
+          );
+          
+          float fadeStrength = 10.;
+          rim *= pow((vWorldPosition.y - bottomPosition) / (avatarHeight - bottomPosition), timer * fadeStrength);
+          
+          vec3 pixelColor = getPixelColor(1.5);
+          col = mix(pixelColor * rim, col, timer);
+
+        }
       }
 
       gl_FragColor = vec4( col, diffuseColor.a );
@@ -270,29 +278,26 @@ export class EffectManager{
     material.uniforms.eye = globalUniforms.eye;
     material.uniforms.switchItemTime = globalUniforms.switchItemTime;
     material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
-    material.uniforms.switchAvatarTime = globalUniforms.switchAvatarTime;
     material.uniforms.transitionEffectType = globalUniforms.transitionEffectType;
-    material.uniforms.isFadeOut = globalUniforms.isFadeOut;
+    material.uniforms.fadeInAvatarTime = globalUniforms.fadeInAvatarTime;
   }
 
   setTransitionEffect = (type) => {
     this.transitionEffectType = type;
   }
+  getTransitionEffect = (type) => {
+    return this.transitionEffectType === type;
+  }
 
-  playTransitionEffect() {
-    switch (this.transitionEffectType) {
-      case 'switch_avatar': {
-        this.playSwitchAvatarEffect();
-        break;
-      }
-      case 'switch_item': {
-        this.playSwitchItemEffect();
-        break;
-      }
-      default: {
-        break;
-      }
-    }
+  playFadeOutEffect() {
+    globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeOutAvatar;
+    this.particleEffect.emitPixel();
+    this.particleEffect.emitTeleport();
+    this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
+  }
+
+  playFadeInEffect() {
+    globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
   }
 
   playSwitchItemEffect() {
@@ -301,13 +306,6 @@ export class EffectManager{
     this.particleEffect.emitPixel();
     this.particleEffect.emitBeam();
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
-  }
-
-  playSwitchAvatarEffect() {
-    globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchAvatar;
-    this.particleEffect.emitPixel();
-    this.particleEffect.emitTeleport();
-    this.transitionTime = this.frameRate * ((SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD - SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) / SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED);
   }
 
   setParticle(scene, camera) {
@@ -334,31 +332,61 @@ export class EffectManager{
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
         }
       }
-      else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
-        if (this.isFadeOut) {
-          if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
-            globalUniforms.switchAvatarTime.value -= SWITCH_AVATAR_EFFECT_FADE_OUT_SPEED;
-          }
-          else {
-            this.isFadeOut = false;
-          }
+
+      else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeOutAvatar) {
+        globalUniforms.fadeOutAvatarTime.value += FADE_OUT_AVATAR_SPEED;
+        if (globalUniforms.fadeOutAvatarTime.value > FADE_OUT_AVATAR_DURATION) {
+          globalUniforms.fadeOutAvatarTime.value = FADE_OUT_AVATAR_INITIAL_TIME;
+          globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.loadingAvatar;
         }
-        else {
-          if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
-            globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_FADE_IN_SPEED;
-            if (globalUniforms.switchAvatarTime.value < 0.5) {
-              this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.switchAvatarTime.value));
-              this.particleEffect.emitRespawnPixel();
-            }
-          }
-          else {
-            globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
-            globalUniforms.switchAvatarTime.value = SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD;
-            this.isFadeOut = true;
-          }
-        }
-        globalUniforms.isFadeOut.value = this.isFadeOut;
+        
       }
+
+      else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.loadingAvatar) {
+        // TODO play loading effect?
+      }
+
+      else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeInAvatar) {
+        if (globalUniforms.fadeInAvatarTime.value > 0.1 && globalUniforms.fadeInAvatarTime.value < 0.5) {
+          this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.fadeInAvatarTime.value));
+          this.particleEffect.emitRespawnPixel();
+        }
+        globalUniforms.fadeInAvatarTime.value += FADE_IN_AVATAR_SPEED;
+        if (globalUniforms.fadeInAvatarTime.value > FADE_IN_AVATAR_DURATION) {
+          globalUniforms.fadeInAvatarTime.value = FADE_IN_AVATAR_INITIAL_TIME;
+          globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+        }
+      }
+
+
+
+
+
+      // else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
+      //   if (this.isFadeOut) {
+      //     if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
+      //       globalUniforms.switchAvatarTime.value -= FADE_OUT_AVATAR_SPEED;
+      //     }
+      //     else {
+      //       this.d = false;
+      //     }
+      //   }
+      //   else {
+      //     if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
+      //       globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_FADE_IN_SPEED;
+      //       if (globalUniforms.switchAvatarTime.value < 0.5) {
+      //         this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.switchAvatarTime.value));
+      //         this.particleEffect.emitRespawnPixel();
+      //       }
+      //     }
+      //     else {
+      //       globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+      //       globalUniforms.switchAvatarTime.value = SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD;
+      //       this.isFadeOut = true;
+      //     }
+      //   }
+      //   globalUniforms.isFadeOut.value = this.isFadeOut;
+      // }
 
       
       if (this.camera) {
