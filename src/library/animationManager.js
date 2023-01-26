@@ -180,25 +180,25 @@ export class AnimationManager{
   }
 
   update(){
-    if (this.mainControl){
-      if (this.weightIn < 1){ 
+    if (this.mainControl) {
+      this.animationControls.forEach(animControl => {
+        if (animControl.from != null) {
+          animControl.from.weight = this.weightOut;
+        }
+        if (animControl.to != null) {
+          animControl.to.weight = this.weightIn;
+        }
+
+        animControl.mixer.update(1/30);
+      });
+
+      if (this.weightIn < 1) {
         this.weightIn += 1/(30*interpolationTime);
       }
       else this.weightIn = 1;  
   
       if (this.weightOut > 0) this.weightOut -= 1/(30*interpolationTime);
       else this.weightOut = 0;
-        
-      this.animationControls.forEach(animControl => {
-        animControl.mixer.update(1/30);
-  
-        if (animControl.from != null){
-          animControl.from.weight = this.weightOut;
-        }
-        if (animControl.to != null){
-          animControl.to.weight = this.weightIn;
-        }
-      });
     }
   }
 }
