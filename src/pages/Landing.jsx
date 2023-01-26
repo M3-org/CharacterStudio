@@ -22,11 +22,11 @@ function Landing() {
                 <button className={styles.button}
                     onClick={
                         createCharacter
-                    }>Create Character</button>
+                    }><img src='/assets/media/btn_create_character.png' /></button>
                 <button className={styles.button}
                     onClick={
                         loadCharacter
-                    }>Load Character</button>
+                    }><img src='/assets/media/btn_load_character.png' /></button>
             </div>
         </div>
     );

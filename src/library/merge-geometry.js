@@ -28,19 +28,94 @@ export function cloneSkeleton(skinnedMesh) {
     return newSkeleton;
 }
 
+function createMergedSkeleton(meshes){
+    /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
+    for example ones that come from head (to add hair movement), should start with vrm's connected bone 
+    followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
+    this will avoid an error of not adding bones if they have they same name but are in different hierarchy location
+    todo: add to a user guide how to name bones to avoid this error */
+    const boneClones = new Map();
+    let index = 0;
+    meshes.forEach(mesh => {
+        if (mesh.skeleton){
+            mesh.skeleton.bones.forEach((bone, boneInd) => {
+                const clone = boneClones.get(bone.name)
+                if (clone == null){ // no clone was found with the bone
+                    const boneData = {
+                        index,
+                        boneInverses:mesh.skeleton.boneInverses[boneInd],
+                        bone:bone.clone(false),
+                        parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
+                    }
+                    index++
+                    boneClones.set(bone.name, boneData);
+                }        
+            })
+        }
+    });
+
+    const finalBones = [];
+    const finalBoneInverses = [];
+    let boneClonesArr =[ ...boneClones.values() ];
+    boneClonesArr.forEach(bnClone => {
+        finalBones.push(bnClone.bone)
+        finalBoneInverses.push(bnClone.boneInverses)
+        if (bnClone.parentName != null){
+            const parent = boneClones.get(bnClone.parentName)?.bone
+            if (parent)
+                parent.add(bnClone.bone)
+        }
+    }); 
+    const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
+    newSkeleton.pose()
+    return newSkeleton
+}
+function getUpdatedSkinIndex(newSkeleton, mesh){
+    if (!mesh.skeleton)
+        return
+    const newBonesIndex = new Map();
+    // compare this skeleton and make a map with the current index pointing the new index
+    if (mesh.skeleton){
+        mesh.skeleton.bones.forEach((bone, index) => {
+            const filterByName = newSkeleton.bones.filter (newBone=>newBone.name === bone.name)
+            const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
+            newBonesIndex.set(index, newIndex)
+        });
+        
+        const newSkinIndexArr = [];
+
+        const skinIndices = mesh.geometry.attributes.skinIndex.array;
+        for (let i =0; i < skinIndices.length;i++){
+            
+            newSkinIndexArr[i] = newBonesIndex.get(skinIndices[i])
+        }
+        
+        const indexTypedArray = new Uint16Array(newSkinIndexArr);
+
+        return new THREE.BufferAttribute(indexTypedArray,4,false);
+        
+    }
+}
+
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
-    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0}
-        
-    
+    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+
+    const newSkeleton = createMergedSkeleton(meshes);
+
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
+
+        // update mesh skeleton indices
+        if (mesh.skeleton != null)
+            mesh.geometry.setAttribute("skinIndex", getUpdatedSkinIndex(newSkeleton, mesh))
+            
         // Exlude the currently "activated" morph attributes before merging.
         // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
         // and the influences remain in `mesh.morphTargetInfluences`.
@@ -71,10 +146,8 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
-
-    const skeleton = cloneSkeleton(meshes[0]);
     
-    mesh.bind(skeleton);
+    mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
@@ -84,7 +157,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     group.name = "AvatarRoot";
     group.animations = dest.animations;
     group.add(mesh);
-    group.add(skeleton.bones[0]);
+    group.add(newSkeleton.bones[0]);
     // clones.forEach((clone) => {
     //   group.add(clone);
     // });

@@ -64,6 +64,10 @@ console.log(prompt)
         setInput(event.target.value);
     };
 
+    React.useEffect(() => {            
+        const msgBox = document.querySelector("#msgscroll")
+        msgBox.scrollTo(0, msgBox.scrollHeight)
+    }, [messages])
 
     // if user presses ctrl c, clear the messages
     useEffect(() => {
@@ -192,7 +196,8 @@ ${agent}:`
 
             <h3>Conversation</h3>
 
-            <div className={styles["messages"]}>
+
+            <div id = {"msgscroll"} className={styles["messages"]}>
                 {messages.map((message, index) => (
                     <div key={index}>{message}</div>
                 ))}

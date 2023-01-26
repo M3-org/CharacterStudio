@@ -80,13 +80,16 @@ async function fetchAll() {
 
   const blinkManager = new BlinkManager(0.1,0.1,0.5,5);
 
+  const effectManager = new EffectManager();
+
   return {
     manifest,
     sceneModel,
     tempInfo,
     animManager,
     initialTraits,
-    blinkManager
+    blinkManager,
+    effectManager
   }
 }
 
@@ -138,8 +141,9 @@ export default function App() {
   }, [])
 
 let lastTap = 0
+
 useEffect(() => {
-  const handleTap = () => {
+  const handleTap = (e) => {
     const now = new Date().getTime()
     const timesince = now - lastTap
     if (timesince < 300 && !mouseIsOverUI) {

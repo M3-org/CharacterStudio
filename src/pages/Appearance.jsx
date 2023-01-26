@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import Editor from '../components/Editor';
+import CustomButton from '../components/custom-button'
 
 function Appearance() {
     const { setViewMode } = React.useContext(ViewContext);
@@ -20,8 +21,32 @@ function Appearance() {
         <div className={styles.container}>
         <Editor />
             <div className={styles.buttonContainer}>
-                <button className={styles.button} onClick={back}>Back</button>
-                <button className={styles.button} onClick={next}>Next</button>
+                <CustomButton
+                    theme="light"
+                    text="Back"
+                    size={14}
+                    className={styles.buttonLeft}
+                    onClick={back}
+                />
+                <CustomButton
+                    theme="light"
+                    text="Next"
+                    size={14}
+                    className={styles.buttonRight}
+                    onClick={next}
+                />
+                <CustomButton
+                    theme="light"
+                    text="Reset"
+                    size={14}
+                    className={styles.buttonCenter}
+                />
+                <CustomButton
+                    theme="light"
+                    text="Randomize"
+                    size={14}
+                    className={styles.buttonCenter}
+                />
             </div>
         </div>
     );

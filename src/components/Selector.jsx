@@ -23,6 +23,7 @@ import {
 } from "../library/utils"
 import { LipSync } from "../library/lipsync"
 import { getAsArray } from "../library/utils"
+import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 import { TokenBox } from "./token-box/TokenBox"
@@ -144,14 +145,22 @@ export default function Selector() {
 
   // options are selected by random or start
   useEffect(() => {
-    if (selectedOptions.length > 0) {
-      loadOptions(selectedOptions).then((loadedData) => {
-        let newAvatar = {}
-        loadedData.map((data) => {
-          newAvatar = { ...newAvatar, ...itemAssign(data) }
+    if (selectedOptions.length > 0){
+      loadOptions(selectedOptions).then((loadedData)=>{
+        let newAvatar = {};
+        effectManager.setTransitionEffect('switch_avatar');
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
         })
-        setAvatar({...avatar, ...newAvatar})
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        setAvatar(finalAvatar)
         setLoadingTrait(false)
+
       })
       setSelectedOptions([])
     }
@@ -170,15 +179,23 @@ export default function Selector() {
     }
 
     console.log(option)
-
-    loadOptions(getAsArray(option)).then((loadedData) => {
-      let newAvatar = {}
-
-      loadedData.map((data) => {
-        newAvatar = { ...newAvatar, ...itemAssign(data) }
+    
+    loadOptions(getAsArray(option)).then((loadedData)=>{
+      let newAvatar = {};
+      effectManager.setTransitionEffect('switch_item');
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setAvatar({...avatar, ...newAvatar})
+      
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
       setLoadingTrait(false)
+
     })
 
     return
@@ -373,10 +390,13 @@ export default function Selector() {
     // null section (when user selects to remove an option)
     if (item == null) {
       // if avatar exists and trait exsits, remove it
-      if (avatar) {
-        if (avatar[traitData.name] && avatar[traitData.name].vrm) {
-          disposeVRM(avatar[traitData.name].vrm)
-          setSelectValue("")
+      if (avatar){
+        if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
+          setTimeout(() => {
+            disposeVRM(avatar[traitData.name].vrm)
+            setSelectValue("")
+          }, effectManager.transitionTime)
+          
         }
       }
       // always return an empty trait here when receiving null item
@@ -429,6 +449,8 @@ export default function Selector() {
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
+          effectManager.setCustomShader(child.material[0]);
+          effectManager.setCustomShader(child.material[1]);
           // if a mesh is found in name to be ignored, dont add it to target cull meshes
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
@@ -499,13 +521,16 @@ export default function Selector() {
       }
     })
 
+    // play switching avatar transition effect
+    effectManager.transitionEffectType === 'switch_avatar' && effectManager.playTransitionEffect();
+
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar) {
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
         setTimeout(() => {
           disposeVRM(avatar[traitData.name].vrm)
-        }, 50)
+        }, effectManager.transitionTime)
       }
     }
 
@@ -515,15 +540,17 @@ export default function Selector() {
       // add the now model to the current scene
       model.add(m)
       setTimeout(() => {
-        m.visible = true
-      }, 50)
+        // play switching item transition effect
+        effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
+    
+        // update the joint rotation of the new trait
+        const event = new Event('mousemove');
+        event.x = mousePosition.x;
+        event.y = mousePosition.y;
+        window.dispatchEvent(event);
 
-      // update the joint rotation of the new trait
-      const event = new Event("modelUpdate")
-      event.x = mousePosition.x
-      event.y = mousePosition.y
-      event.model = m
-      window.dispatchEvent(event)
+        m.visible = true;
+      }, effectManager.transitionTime)
     }
 
     // and then add the new avatar data

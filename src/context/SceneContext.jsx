@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from "react"
 import * as THREE from "three"
-import { cullHiddenMeshes } from "../library/utils"
 
 export const SceneContext = createContext()
 
@@ -78,14 +77,6 @@ export const SceneProvider = (props) => {
       return JSON.parse(opts)
     return null
   }
-
-  useEffect(() => {
-    if (avatar) {
-      if (Object.keys(avatar).length > 0) {
-        cullHiddenMeshes(avatar)
-      }
-    }
-  }, [avatar])
 
   return (
     <SceneContext.Provider

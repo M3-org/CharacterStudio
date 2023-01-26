@@ -15,8 +15,10 @@
   width: 80%;
   overflow-y: scroll;
   position: relative;
-  overflow-x: none;
+  overflow-x: hidden !important;
   margin: 16px;
+  margin-right: 10px;
+  padding-right: 6px;
   height: -webkit-calc(100% - 40px);
   height: calc(100% - 40px);
 }

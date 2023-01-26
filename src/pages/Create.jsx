@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './Create.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
+import CustomButton from '../components/custom-button';
 
 function Create() {
     const { setViewMode } = React.useContext(ViewContext);
@@ -20,42 +21,42 @@ function Create() {
             name: 'Beast Painter',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Paints beasts',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-beast-painter.svg',
             disabled: true,
         },
         {
             name: 'Engineer',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Builds things',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-engineer.svg',
             disabled: true,
         },
         {
             name: 'Drop Hunter',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Hunts drops',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-drop-hunter.svg',
             disabled: false,
         },
         {
             name: 'Neural Hacker',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Hacks neural networks',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-neural-hacker.svg',
             disabled: false,
         },
         {
             name: 'Lisk Witch',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Witches lisk',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-lisk-witch.svg',
             disabled: true,
         },
         {
             name: 'Bruiser',
             image: 'https://i.imgur.com/8Z0QZ9M.png',
             description: 'Bruises things',
-            icon: 'https://i.imgur.com/8Z0QZ9M.png',
+            icon: '/assets/icons/class-bruiser.svg',
             disabled: true,
         }
     ]
@@ -63,7 +64,9 @@ function Create() {
     return (
         <div className={styles.container}>
             <div className={styles.title}>Choose Character Class</div>
-            <div className={styles.classContainer}>
+            <div className={styles.classContainer}> 
+                <div className={styles.topLine} />
+                <div className={styles.bottomLine} />
                 {classes.map((characterClass, i) => {
                     return (
                         <div key={i} className={!characterClass['disabled'] ? styles.class : styles.classdisabled} onClick={
@@ -73,12 +76,20 @@ function Create() {
                             <div className={styles.icon}><img src={characterClass['icon']} alt={characterClass['name']} /></div>
                             <div className={styles.name}>{characterClass['name']}</div>
                             <div className={styles.description}>{characterClass['description']}</div>
-                            <div className={styles.disabled}>{characterClass['disabled'] ? 'Coming Soon' : ''}</div>
+                            <div className={styles.disabled}>{characterClass['disabled'] ? '' : ''}</div>
                         </div>
                     );
                 })}
             </div>
-            <button className={styles.button} onClick={() => back()}>Back</button>
+            <div className={styles.buttonContainer}>
+                <CustomButton
+                    theme="light"
+                    text="Back"
+                    size={14}
+                    className={styles.buttonLeft}
+                    onClick={back}
+                />
+            </div>
         </div>
     )
 }
