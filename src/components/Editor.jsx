@@ -11,25 +11,42 @@ import { getAsArray } from "../library/utils"
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
+import { AnimationManager } from "../library/animationManager"
 import { TokenBox } from "./token-box/TokenBox"
 
-export default function Editor({
-  manifest,
-  templateInfo,
-  initialTraits,
-  animationManager,
-  blinkManager,
-  fetchNewModel,
-}) {
+export default function Editor() {
   const {
-    currentTraitName,
+    currentTraitName, 
+    manifest,
+    templateInfo,
+    initialTraits,
+    setInitialTraits,
+    animationManager,
+    blinkManager,
+    setTemplateInfo,
+    setAnimationManager,
     setCurrentTraitName,
-    setCurrentOptions,
-    setSelectedOptions,
-    setRemoveOption,
-    controls,
-    loadUserSelection,
-  } = useContext(SceneContext)
+    setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+
+  const fetchNewModel = (index) =>{
+    async function fetchAnimation(templateInfo){
+        // create an animation manager for all the traits that will be loaded
+        const newAnimationManager = new AnimationManager(templateInfo.offset)
+        await newAnimationManager.loadAnimations(templateInfo.animationPath)
+        return newAnimationManager
+    }
+    return new Promise( (resolve) =>  {
+      asyncResolve()
+      async function asyncResolve() {
+        setTemplateInfo(manifest[index])
+        const animManager = await fetchAnimation(manifest[index])
+        setAnimationManager(animManager)
+        setTimeout(()=>{
+          resolve (manifest[index])
+        }, 2000)
+      }
+    })
+  }
 
   const { isMute } = useContext(AudioContext)
 
@@ -92,13 +109,8 @@ export default function Editor({
   const selectClass = (ind) => {
     fetchNewModel(ind).then((template) => {
       //console.log(template)
-      initialTraits = initialTraits = [
-        ...new Set([
-          ...getAsArray(template.requiredTraits),
-          ...getAsArray(template.randomTraits),
-        ]),
-      ]
-      setSelectedOptions(getMultipleRandomTraits(initialTraits, template))
+      setInitialTraits([...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])])
+      setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
     })
   }
   const getClassOptions = () => {

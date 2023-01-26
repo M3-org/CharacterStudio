@@ -7,17 +7,16 @@ import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { getModelFromScene, getScreenShot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
-import MintModal from "./MintModal"
 
-import styles from "./MintPopup.module.css"
+import styles from "./Mint.module.css"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({templateInfo}) {
-  const { avatar, skinColor, model } = useContext(SceneContext)
+export default function MintPopup() {
+  const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const { walletAddress } = useContext(AccountContext)
 
   const [mintStatus, setMintStatus] = useState("")
@@ -161,7 +160,6 @@ export default function MintPopup({templateInfo}) {
   return (
     // currentView.includes("MINT") && (
       <div className={styles["StyledContainer"]}>
-        <div className={styles["StyledBackground"]} />
         <div className={styles["StyledPopup"]}>
           {/* {connected && ( */}
             <Fragment>
@@ -173,7 +171,6 @@ export default function MintPopup({templateInfo}) {
                 />
                 <div className={styles["mintTitle"]}>Mint Avatar</div>
               </div>
-              <MintModal model={model} />
               <div className={styles["TraitDetail"]}>
                 {templateInfo.traits &&
                   templateInfo.traits.map((item, index) => (
@@ -200,7 +197,7 @@ export default function MintPopup({templateInfo}) {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  // onClick={() => setCurrentAppMode(ViewStates.CREATOR)}
+                  // onClick={() => setViewMode(ViewStates.CREATOR)}
                 >
                   {" "}
                   {"OK"}

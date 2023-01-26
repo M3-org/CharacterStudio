@@ -1,21 +1,23 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AppMode, ViewContext } from "../context/ViewContext"
-import Scene from "./Scene"
+import { ViewMode, ViewContext } from "./context/ViewContext"
 
-import ChatComponent from "./ChatComponent"
-import Editor from "./Editor"
+import { AnimationManager } from "./library/animationManager"
+import { BlinkManager } from "./library/blinkManager"
+import { getAsArray } from "./library/utils"
+import Background from "./components/Background"
+import Scene from "./components/Scene"
 
-import { AnimationManager } from "../library/animationManager"
-import { BlinkManager } from "../library/blinkManager"
-import { getAsArray } from "../library/utils"
-// import ARButton from "./ARButton"
-import Background from "./Background"
-import ChatButton from "./ChatButton"
-import { UserMenu } from "./UserMenu"
-
-import Logo from "./Logo"
+import Landing from "./pages/Landing"
+import Mint from "./pages/Mint"
+import View from "./pages/View"
+import BioPage from "./pages/Bio"
+import Save from "./pages/Save"
+import Appearance from "./pages/Appearance"
+import Create from "./pages/Create"
+import Load from "./pages/Load"
+import { SceneContext } from "./context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -120,24 +122,27 @@ const resource = fetchData()
 
 export default function App() {
   const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
-
-  const { currentAppMode } = useContext(ViewContext)
+  
+  const { viewMode, mouseIsOverUI } = useContext(ViewContext)
+  const { setTemplateInfo, setAnimationManager, setInitialTraits, setBlinkManager, setSceneModel, setManifest } = useContext(SceneContext)
 
   const [hideUi, setHideUi] = useState(false)
 
-  const [templateInfo, setTemplateInfo] = useState(tempInfo) 
-  const [animationManager, setAnimationManager] = useState(animManager)
+  useEffect (() => {
+      setAnimationManager(animManager)
+      setInitialTraits(initialTraits)
+      setTemplateInfo(tempInfo)
+      setBlinkManager(blinkManager)
+      setManifest(manifest)
+      setSceneModel(sceneModel)
+  }, [])
 
-  //const [templateInfo, setTemplateInfo] = useState(tempInfo) 
-
-// detect a double tap on the screen or a mouse click
-// switch the UI on and off
 let lastTap = 0
 useEffect(() => {
   const handleTap = () => {
     const now = new Date().getTime()
     const timesince = now - lastTap
-    if (timesince < 300) {
+    if (timesince < 300 && !mouseIsOverUI) {
       setHideUi(!hideUi)
     }
     lastTap = now
@@ -151,46 +156,22 @@ useEffect(() => {
     
   }, [hideUi])
 
-  const fetchNewModel = (index) =>{
-    
-    return new Promise( (resolve) =>  {
-      asyncResolve()
-      async function asyncResolve() {
-        setTemplateInfo(manifest[index])
-        const animManager = await fetchAnimation(manifest[index])
-        setAnimationManager(animManager)
-        
-        let initialTraits = localStorage.getItem("initialTraits")
-        if (!initialTraits) {
-          initialTraits = initialTraits = [...new Set([...getAsArray(manifest[index].requiredTraits), ...getAsArray(manifest[index].randomTraits)])]
-          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-        } else {
-          initialTraits = JSON.parse(initialTraits)
-        }
-        setTimeout(()=>{
-          resolve (manifest[index])
-        }, 2000)
-       
-      }
-      
-    })
-
+  // map current app mode to a page
+  const pages = {
+    [ViewMode.LANDING]: <Landing />,
+    [ViewMode.APPEARANCE]: <Appearance />,
+    [ViewMode.BIO]: <BioPage />,
+    [ViewMode.CREATE]: <Create />,
+    [ViewMode.LOAD]: <Load />,
+    [ViewMode.MINT]: <Mint />,
+    [ViewMode.SAVE]: <Save />,
+    [ViewMode.VIEW]: <View />,
   }
-
   return (
     <Fragment>
         <Background />
-        {/* <Logo /> */}
-          <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
-          <div style = {{display:(hideUi ? "none" : "block")}}>
-            <Fragment >
-            <ChatButton />
-          {/* <ARButton /> */}
-          {/* <UserMenu /> */}
-          {currentAppMode === AppMode.CHAT && <ChatComponent />}
-          {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} fetchNewModel={fetchNewModel}/>}
-            </Fragment>
-        </div>
+        <Scene />
+          {pages[viewMode]}
       </Fragment>
   )
 }

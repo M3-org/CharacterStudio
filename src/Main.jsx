@@ -10,7 +10,7 @@ import { ViewProvider } from "./context/ViewContext"
 
 import LoadingOverlay from "./components/LoadingOverlay"
 
-import App from "./components/App"
+import App from "./App"
 
 const getLibrary = (provider) => {
   const library = new Web3Provider(provider)
@@ -25,7 +25,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AudioProvider>
           <ViewProvider>
             <SceneProvider>
-            <LoadingOverlay />
               <Suspense>
                 <App />
               </Suspense>
