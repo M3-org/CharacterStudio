@@ -544,6 +544,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
         onClick={() => {
           selectTraitOption(null)
+          effectManager.setTransitionEffect('normal');
           !isMute && play()
         }}
       >
