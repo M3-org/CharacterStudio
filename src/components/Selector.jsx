@@ -144,25 +144,25 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    if (option.key === 'class_1' || option.key === 'class_0') {
-      effectManager.setTransitionEffect('fade_out_avatar');
-      // play avatar fade out effect
-      effectManager.playFadeOutEffect();
-    }
-    else {
-      effectManager.setTransitionEffect('switch_item');
-    }
     if (option == null){
       option = {
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
+    
     if (option.avatarIndex != null){
+      effectManager.setTransitionEffect('fade_out_avatar');
+
+      // play avatar fade out effect
+      effectManager.playFadeOutEffect();
+
       selectClass(option.avatarIndex)
       return
     }
-    
+
+    effectManager.setTransitionEffect('switch_item');
+
     console.log(option)
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
