@@ -169,7 +169,7 @@ useEffect(() => {
           initialTraits = JSON.parse(initialTraits)
         }
         // setTimeout(()=>{
-          console.log('timeout 1')
+          // console.log('timeout 1')
           resolve (manifest[index])
         // }, 2000)
        
