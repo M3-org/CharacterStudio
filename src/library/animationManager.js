@@ -47,7 +47,7 @@ class AnimationControl {
     this.actions[curIdx].reset();
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
-    console.log('play')
+    // console.log('play')
     // animationManager.update();
     // console.log(`this.actions[curIdx].play();`)
     // console.log(this.actions[curIdx])
@@ -67,8 +67,8 @@ export class AnimationManager{
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
-    this.weightIn = null;
-    this.weightOut = null;
+    this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
+    this.weightOut = NaN;
     this.offset = null;
     this.lastAnimID = -1;
     this.curAnimID = 0;
@@ -170,6 +170,7 @@ export class AnimationManager{
 
   animRandomizer(yieldTime){
     setTimeout(() => {
+      console.log(`animRandomizer`)
       // console.log('timeout 5')
       this.lastAnimID = this.curAnimID;
       this.curAnimID = getRandomInt(this.animations.length);
@@ -193,32 +194,32 @@ export class AnimationManager{
   }
 
   update(){
-    console.log('update')
-    // setInterval(() => {
-      // requestAnimationFrame(this.update)
-      if (this.mainControl){
-        if (this.weightIn < 1){ 
-          this.weightIn += 1/(30*interpolationTime);
-        }
-        else this.weightIn = 1;  
-    
-        if (this.weightOut > 0) this.weightOut -= 1/(30*interpolationTime);
-        else this.weightOut = 0;
-
-        this.weightOut = 0;
-        this.weightIn = 1;
-          
-        this.animationControls.forEach(animControl => {
-          if (animControl.from != null){
-            animControl.from.weight = this.weightOut;
-          }
-          if (animControl.to != null){
-            animControl.to.weight = this.weightIn;
-          }
-
-          animControl.mixer.update(1/30);
-        });
+    if (this.mainControl){
+      if (this.weightIn < 1){
+        console.log('zzz In')
+        this.weightIn += 1/(30*interpolationTime);
       }
-    // }, 1000/30);
+      else this.weightIn = 1;  
+  
+      if (this.weightOut > 0) {
+        console.log('zzz out')
+        this.weightOut -= 1/(30*interpolationTime);
+      }
+      else this.weightOut = 0;
+
+      console.log(this.weightOut, this.weightIn)
+
+      this.animationControls.forEach(animControl => {
+        // console.log(animControl?.from?.weight, animControl?.to?.weight)
+        animControl.mixer.update(1/30);
+  
+        if (animControl.from != null){
+          animControl.from.weight = this.weightOut;
+        }
+        if (animControl.to != null){
+          animControl.to.weight = this.weightIn;
+        }
+      });
+    }
   }
 }

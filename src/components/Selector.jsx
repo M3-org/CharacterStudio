@@ -475,7 +475,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       animationManager.update(); // note: update animation to prevent some frames of T pose at start.
-      console.log('add')
+      // console.log('add')
       // setTimeout(() => {
         // console.log('timeout 4')
         m.visible = true;
