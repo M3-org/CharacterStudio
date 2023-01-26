@@ -496,16 +496,18 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       animationManager.update(); // note: update animation to prevent some frames of T pose at start.
-      // play switching item transition effect
-      effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
-  
-      // update the joint rotation of the new trait
-      const event = new Event('mousemove');
-      event.x = mousePosition.x;
-      event.y = mousePosition.y;
-      window.dispatchEvent(event);
+      setTimeout(() => {
+        // play switching item transition effect
+        effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
+    
+        // update the joint rotation of the new trait
+        const event = new Event('mousemove');
+        event.x = mousePosition.x;
+        event.y = mousePosition.y;
+        window.dispatchEvent(event);
 
-      m.visible = true;
+        m.visible = true;
+      }, effectManager.transitionTime)
     }
 
     // and then add the new avatar data
