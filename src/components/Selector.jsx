@@ -547,10 +547,10 @@ export default function Selector({
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function TraitTitle(props) {
-    // clear the current trait
     return (
       props.title && (
         <div className={styles["traitTitleWrap"]}>
+          <div className={styles["topLine"]} />
           <div className={styles["traitTitle"]}>{props.title}</div>
         </div>
       )
@@ -588,11 +588,11 @@ export default function Selector({
     !!currentTraitName && (
       <div className={styles["SelectorContainerPos"]}>
         <TraitTitle title={currentTraitName} />
+        <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
             <ClearTraitButton />
             {currentOptions.map((option) => {
-              console.log(currentTraitName)
               const active = option.key === selectValue
               return (
                 <div

@@ -180,13 +180,13 @@ useEffect(() => {
   return (
     <Fragment>
         <Background />
-        <Logo />
+        {/* <Logo /> */}
           <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
           <div style = {{display:(hideUi ? "none" : "block")}}>
             <Fragment >
             <ChatButton />
           {/* <ARButton /> */}
-          <UserMenu />
+          {/* <UserMenu /> */}
           {currentAppMode === AppMode.CHAT && <ChatComponent />}
           {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} fetchNewModel={fetchNewModel}/>}
             </Fragment>

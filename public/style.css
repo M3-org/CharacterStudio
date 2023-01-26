@@ -1,21 +1,64 @@
+/* New UI: TT Squares Condensed Font */
+@font-face {
+  font-family: "TTSC-Black-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Black";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold.otf");
+}
+@font-face {
+  font-family: "TTSC-Light-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Light";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
+}
+
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  font-family: "TTSC-Regular";
 }
 
 .root {
-    overflow: hidden;
-    margin:0;
-    padding:0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 #editor-scene {
-    -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }

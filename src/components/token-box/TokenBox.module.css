@@ -115,8 +115,9 @@
     -ms-transform: translateX(-50%) translateY(-50%);
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
-    width: auto;
-    height: 50px;
+    height: 100%;
+    max-width: 60%;
+    max-height: 60%;
 }
 
 .tokenBoxWrap .badge {
