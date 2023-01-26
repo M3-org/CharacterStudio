@@ -18,14 +18,16 @@ import {
 } from "../library/utils"
 import { LipSync } from '../library/lipsync'
 import { getAsArray } from "../library/utils"
+import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
+
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, selectClass}) {
+export default function Selector({templateInfo, animationManager, blinkManager, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -123,11 +125,19 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     if (selectedOptions.length > 0){
       loadOptions(selectedOptions).then((loadedData)=>{
         let newAvatar = {};
+        effectManager.setTransitionEffect('switch_avatar');
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
         })
-        setAvatar({...avatar, ...newAvatar})
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        setAvatar(finalAvatar)
         setLoadingTrait(false)
+
       })
       setSelectedOptions([]);
     }
@@ -151,12 +161,20 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
-      
+      effectManager.setTransitionEffect('switch_item');
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setAvatar({...avatar, ...newAvatar})
+      
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
       setLoadingTrait(false)
+
     })
 
     return;
@@ -344,8 +362,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // if avatar exists and trait exsits, remove it
       if (avatar){
         if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
-          disposeVRM(avatar[traitData.name].vrm)
-          setSelectValue("")
+          setTimeout(() => {
+            disposeVRM(avatar[traitData.name].vrm)
+            setSelectValue("")
+          }, effectManager.transitionTime)
+          
         }
       }
       // always return an empty trait here when receiving null item
@@ -396,6 +417,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
+          effectManager.setCustomShader(child.material[0]);
+          effectManager.setCustomShader(child.material[1]);
           // if a mesh is found in name to be ignored, dont add it to target cull meshes
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
@@ -453,12 +476,17 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
       }
     })
-    
+
+    // play switching avatar transition effect
+    effectManager.transitionEffectType === 'switch_avatar' && effectManager.playTransitionEffect();
+
     // if there was a previous loaded model, remove it (maybe also remove loaded textures?)
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        disposeVRM(avatar[traitData.name].vrm)
+        setTimeout(() => {
+          disposeVRM(avatar[traitData.name].vrm)
+        }, effectManager.transitionTime)
       }
     }
     
@@ -468,14 +496,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       animationManager.update(); // note: update animation to prevent some frames of T pose at start.
-      m.visible = true;
-
+      // play switching item transition effect
+      effectManager.transitionEffectType === 'switch_item' && effectManager.playTransitionEffect();
+  
       // update the joint rotation of the new trait
-      const event = new Event('modelUpdate');
+      const event = new Event('mousemove');
       event.x = mousePosition.x;
       event.y = mousePosition.y;
-      event.model = m;
       window.dispatchEvent(event);
+
+      m.visible = true;
     }
 
     // and then add the new avatar data
