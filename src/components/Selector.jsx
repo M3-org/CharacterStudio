@@ -205,10 +205,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        // setTimeout(() => {
-          // console.log('timeout 2')
-          setLoading(false)
-        // }, 1000);
+        setLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -378,7 +375,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
-      // mark
       animationManager.startAnimation(vrm)
 
       // mesh target setup section
@@ -462,10 +458,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     if (avatar){
       if (avatar[traitData.name] && avatar[traitData.name].vrm) {
         //if (avatar[traitData.name].vrm != vrm)  // make sure its not the same vrm as the current loaded
-        // setTimeout(() => {
-          // console.log('timeout 3')
-          disposeVRM(avatar[traitData.name].vrm)
-        // }, 50)
+        disposeVRM(avatar[traitData.name].vrm)
       }
     }
     
@@ -475,11 +468,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       animationManager.update(); // note: update animation to prevent some frames of T pose at start.
-      // console.log('add')
-      // setTimeout(() => {
-        // console.log('timeout 4')
-        m.visible = true;
-      // }, 50)
+      m.visible = true;
 
       // update the joint rotation of the new trait
       const event = new Event('modelUpdate');

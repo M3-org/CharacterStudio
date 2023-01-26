@@ -38,7 +38,6 @@ class AnimationControl {
       this.from.reset();
       this.from.time = animationManager.getFromActionTime();
       this.from.play();
-      // console.log(`this.from.play();`)
 
       this.to.weight = animationManager.getWeightIn();
       this.from.weight = animationManager.getWeightOut();
@@ -47,11 +46,6 @@ class AnimationControl {
     this.actions[curIdx].reset();
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
-    // console.log('play')
-    // animationManager.update();
-    // console.log(`this.actions[curIdx].play();`)
-    // console.log(this.actions[curIdx])
-    // mark
   }
 
   dispose(){
@@ -81,13 +75,11 @@ export class AnimationManager{
         offset[2]
       );
     }
-    // this.update = this.update.bind(this);
     setInterval(() => {
       this.update();
     }, 1000/30);
   }
   async loadAnimations(path){
-    // console.log(`async loadAnimations(path){`)
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const anim = await loader.loadAsync(path);
     // offset hips
@@ -96,7 +88,6 @@ export class AnimationManager{
       this.offsetHips();
 
 
-    // mark
     this.mainControl = new AnimationControl(this, anim, anim.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(this.mainControl)
   
@@ -124,8 +115,6 @@ export class AnimationManager{
       console.warn("no animations were preloaded, ignoring");
       return
     }
-    // console.log(`startAnimation(vrm){`)
-    // mark
     const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
@@ -170,8 +159,6 @@ export class AnimationManager{
 
   animRandomizer(yieldTime){
     setTimeout(() => {
-      console.log(`animRandomizer`)
-      // console.log('timeout 5')
       this.lastAnimID = this.curAnimID;
       this.curAnimID = getRandomInt(this.animations.length);
       if (this.curAnimID != this.lastAnimID){
@@ -185,7 +172,6 @@ export class AnimationManager{
           this.weightOut = 1;
           
           animControl.to.play();
-          // console.log(`animControl.to.play();`)
           animControl.to.reset();
         })
       }
@@ -195,22 +181,15 @@ export class AnimationManager{
 
   update(){
     if (this.mainControl){
-      if (this.weightIn < 1){
-        console.log('zzz In')
+      if (this.weightIn < 1){ 
         this.weightIn += 1/(30*interpolationTime);
       }
       else this.weightIn = 1;  
   
-      if (this.weightOut > 0) {
-        console.log('zzz out')
-        this.weightOut -= 1/(30*interpolationTime);
-      }
+      if (this.weightOut > 0) this.weightOut -= 1/(30*interpolationTime);
       else this.weightOut = 0;
-
-      console.log(this.weightOut, this.weightIn)
-
+        
       this.animationControls.forEach(animControl => {
-        // console.log(animControl?.from?.weight, animControl?.to?.weight)
         animControl.mixer.update(1/30);
   
         if (animControl.from != null){

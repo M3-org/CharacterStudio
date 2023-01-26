@@ -152,7 +152,6 @@ useEffect(() => {
   }, [hideUi])
 
   const fetchNewModel = (index) =>{
-    console.log('fetchNewModel')
     
     return new Promise( (resolve) =>  {
       asyncResolve()
@@ -168,10 +167,7 @@ useEffect(() => {
         } else {
           initialTraits = JSON.parse(initialTraits)
         }
-        // setTimeout(()=>{
-          // console.log('timeout 1')
-          resolve (manifest[index])
-        // }, 2000)
+        resolve (manifest[index])
        
       }
       

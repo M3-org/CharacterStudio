@@ -99,10 +99,7 @@ export async function getModelFromScene(avatarScene, format = 'glb', skinColor =
 }
 
 export async function getScreenShot(elementId, delay = 0) {
-  await new Promise(resolve => setTimeout(() => {
-    // console.log('timeout 6')
-    resolve
-  }, delay));
+  await new Promise(resolve => setTimeout(resolve, delay));
   return await getScreenShotByElementId(elementId);
 }
 
