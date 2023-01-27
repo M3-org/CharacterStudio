@@ -169,7 +169,7 @@ export default function App() {
       <Appearance
         manifest={manifest}
         animationManager={animationManager}
-        initialTraits={["body"]}
+        //initialTraits={["body"]}
         templateInfo={templateInfo}
         blinkManager={blinkManager}
         effectManager={effectManager}
