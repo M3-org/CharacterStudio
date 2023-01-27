@@ -4,6 +4,7 @@ import {
   pixelVertex, pixelFragment,
   ringVertex, ringFragment,
   teleportVertex, teleportFragment,
+  spotLightVertex, spotLightFragment,
 } from './shader.js';
 
 import { _getGeometry } from './utils.js';
@@ -114,9 +115,37 @@ const getTeleportMesh = (globalUniforms) => {
   return teleportMesh;
 }
 
+const getSpotLightMesh = (globalUniforms) => {
+  const particleCount = 2;
+  const attributeSpecs = [];
+  const cylinderHeight = 2.5;
+  const radius = 0.43;
+  const geometry2 = new THREE.CylinderGeometry(radius * 1.5, radius, cylinderHeight, 50, 50, true);
+  const geometry = _getGeometry(geometry2, attributeSpecs, particleCount);
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      opacity: {
+        value: 0
+      }
+    },
+    vertexShader: spotLightVertex,
+    fragmentShader: spotLightFragment,
+    transparent: true,
+    blending: THREE.AdditiveBlending
+  });
+  material.uniforms.cameraDir = globalUniforms.cameraDir;
+  material.uniforms.eye = globalUniforms.eye;
+  const spotLightMesh = new THREE.InstancedMesh(geometry, material, particleCount);
+  spotLightMesh.fadeIn = false;
+  spotLightMesh.frustumCulled = false;
+  spotLightMesh.position.y = cylinderHeight * 0.46;
+  return spotLightMesh;
+}
+
 export {
   getBeamMesh,
   getPixelMesh,
   getRingMesh,
   getTeleportMesh,
+  getSpotLightMesh
 };
