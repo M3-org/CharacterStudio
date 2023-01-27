@@ -3,16 +3,17 @@ import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 
-function Create() {
+function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
-    console.log("back")
+    console.log("back 3")
     setViewMode(ViewMode.LANDING)
   }
 
   const selectClass = (characterClass) => {
     console.log("TODO: set character class to: " + characterClass)
+    fetchNewModel(0)
     setViewMode(ViewMode.APPEARANCE)
   }
 

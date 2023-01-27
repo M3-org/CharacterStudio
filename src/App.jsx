@@ -177,7 +177,9 @@ export default function App() {
       />
     ),
     [ViewMode.BIO]: <BioPage />,
-    [ViewMode.CREATE]: <Create />,
+    [ViewMode.CREATE]: <Create 
+      fetchNewModel={fetchNewModel}
+      />,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
