@@ -222,9 +222,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setTimeout(() => {
-          setLoading(false)
-        }, 1000);
+        setLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -495,6 +493,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       m.visible = false;
       // add the now model to the current scene
       model.add(m)
+      animationManager.update(); // note: update animation to prevent some frames of T pose at start.
       setTimeout(() => {
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
