@@ -195,9 +195,7 @@ export default function App() {
         } else {
           initialTraits = JSON.parse(initialTraits)
         }
-        setTimeout(() => {
-          resolve(manifest[index])
-        }, 2000)
+        resolve(manifest[index])
       }
     })
   }

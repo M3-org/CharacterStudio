@@ -31,9 +31,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
         setTemplateInfo(manifest[index])
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-        setTimeout(()=>{
-          resolve (manifest[index])
-        }, 2000)
+        resolve (manifest[index])
       }
     })
   }*/
