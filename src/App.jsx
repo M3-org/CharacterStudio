@@ -136,36 +136,6 @@ export default function App() {
 
   const fetchNewModel = (index) => {
 
-      //should be removed now
-      //let templateIndex = localStorage.getItem("templateIndex")
-
-      // if (!templateIndex) {
-      //   templateIndex = Math.floor(Math.random() * manifest.length)
-      //   localStorage.setItem("templateIndex", templateIndex)
-      // } else {
-      //   templateIndex = parseInt(templateIndex)
-      // }
-      //const tempInfo = manifest[index]
-
-      //const animManager = await fetchAnimation(tempInfo)
-
-      // check if initialTraits is set in localStorage
-      // if not, set it to a random index
-      //let initialTraits = localStorage.getItem("initialTraits")
-      // if (!initialTraits) {
-      //   initialTraits = initialTraits = [
-      //     ...new Set([
-      //       ...getAsArray(tempInfo.requiredTraits),
-      //       ...getAsArray(tempInfo.randomTraits),
-      //     ]),
-      //   ]
-      //   localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-      // } else {
-      //   initialTraits = JSON.parse(initialTraits)
-      // }
-      // up to here
-
-
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
@@ -199,7 +169,7 @@ export default function App() {
       <Appearance
         manifest={manifest}
         animationManager={animationManager}
-        //initialTraits={initialTraits}
+        initialTraits={["body"]}
         templateInfo={templateInfo}
         blinkManager={blinkManager}
         effectManager={effectManager}
@@ -216,7 +186,7 @@ export default function App() {
   return (
     <Fragment>
       <Background />
-      <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
+      <Scene manifest={manifest} sceneModel={sceneModel} templateInfo={templateInfo} />
       {pages[viewMode]}
       {/*
         <Logo />

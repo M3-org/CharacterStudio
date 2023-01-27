@@ -45,10 +45,10 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
   const [play] = useSound(optionClick, { volume: 1.0 })
   // options are selected by random or start
   useEffect(() => {
-    setSelectedOptions(
-      loadUserSelection(templateInfo.name) ||
-        getMultipleRandomTraits(initialTraits),
-    )
+    // setSelectedOptions(
+    //   loadUserSelection(templateInfo.name) ||
+    //     getMultipleRandomTraits(initialTraits),
+    // )
   }, [initialTraits])
 
   const selectOption = (option) => {
