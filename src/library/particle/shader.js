@@ -168,6 +168,7 @@ const teleportVertex = `\
   uniform vec4 cameraBillboardQuaternion;
 
   varying vec2 vUv;
+  varying vec3 vWorldPosition;
   
   vec3 rotateVecQuat(vec3 position, vec4 q) {
       vec3 v = position.xyz;
@@ -179,6 +180,7 @@ const teleportVertex = `\
     vec3 pos = position;
     pos = rotateVecQuat(pos, cameraBillboardQuaternion);
     vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
+    vWorldPosition = modelPosition.xyz;
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectionPosition = projectionMatrix * viewPosition;
     gl_Position = projectionPosition;
@@ -186,11 +188,13 @@ const teleportVertex = `\
 `
 const teleportFragment = `\ 
   varying vec2 vUv;
-  
+  varying vec3 vWorldPosition;
+
   void main() {
     float col = smoothstep(0.5, 0.2, length(vUv - 0.5));
     gl_FragColor.rgb = mix(vec3(0., 0., 0.960), vec3(0.00960, 0.833, 0.960), col);
     gl_FragColor.a = col;
+    gl_FragColor.a *= clamp(vWorldPosition.y * 10., 0.0, 1.0);
   }
 `
 
