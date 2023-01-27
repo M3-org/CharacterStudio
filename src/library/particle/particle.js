@@ -4,7 +4,10 @@ import {
   getPixelMesh,
   getRingMesh,
   getTeleportMesh,
+  getSpotLightMesh,
 } from './mesh.js';
+
+import {transitionEffectTypeNumber} from '../constants.js';
 
 const textureLoader = new THREE.TextureLoader()
 
@@ -32,6 +35,9 @@ class ParticleEffect {
 
     this.teleportMesh = null;
     this.initTeleport();
+
+    this.spotLight = null;
+    this.initSpotLight();
 
   }
 
@@ -151,12 +157,21 @@ class ParticleEffect {
     this.teleportMesh.visible = true;
   }
 
+  emitSpotLight() {
+    this.spotLight.visible = true;
+    this.spotLight.fadeIn = true;
+  }
+  removeSpotLight() {
+    this.spotLight.fadeIn = false;
+  }
+
   update() {
     
     this.beamMesh.visible && this.beamMesh.update();
     !this.stopUpdatePixelMesh && this.pixelMesh.update(); 
     this.ringMesh.visible && this.ringMesh.update();
     this.teleportMesh.visible && this.teleportMesh.update();
+    this.spotLight.visible && this.spotLight.update();
   }
 
   //########################################################## initialize particle mesh #####################################################
@@ -185,12 +200,19 @@ class ParticleEffect {
     this.teleportMesh.visible = false;
     this.scene.add(this.teleportMesh);
   }
+
+  initSpotLight() {
+    this.spotLight = getSpotLightMesh(this.globalUniforms);
+    this.spotLight.update = () => this.updateSpotLight();
+    this.spotLight.visible = false;
+    this.scene.add(this.spotLight);
+  }
   
   //########################################################## update function of particle mesh #####################################################
 
   updateBeam() {
     if (this.beamMesh) {
-      if (this.globalUniforms.transitionEffectType.value !== 1) {
+      if (this.globalUniforms.transitionEffectType.value !== transitionEffectTypeNumber.switchItem) {
         this.beamMesh.visible = false;
       }
     }
@@ -247,7 +269,7 @@ class ParticleEffect {
       positionsAttribute.needsUpdate = true;
       opacityAttribute.needsUpdate = true;
 
-      if (this.globalUniforms.transitionEffectType.value !== 2) {
+      if (this.globalUniforms.transitionEffectType.value !== transitionEffectTypeNumber.fadeInAvatar) {
         this.ringMesh.visible = false;
       }
     }
@@ -255,8 +277,8 @@ class ParticleEffect {
 
   updateTeleport() {
     if (this.teleportMesh) {
-      if (this.globalUniforms.transitionEffectType.value === 2 && this.globalUniforms.isFadeOut.value) {
-        const timer = 1. - this.globalUniforms.switchAvatarTime.value;
+      if (this.globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.fadeOutAvatar) {
+        const timer = this.globalUniforms.fadeOutAvatarTime.value;
         const growLimit = 0.2; 
         if (timer < growLimit) {
           const growTimer = timer * (1 / growLimit);
@@ -287,6 +309,26 @@ class ParticleEffect {
       this.teleportMesh.material.uniforms.cameraBillboardQuaternion.value.copy(this.camera.quaternion);
     }
 
+  }
+  
+  updateSpotLight() {
+    if (this.spotLight) {
+      if (this.spotLight.fadeIn) {
+        if (this.spotLight.material.uniforms.opacity.value < 1) {
+          this.spotLight.material.uniforms.opacity.value += 1;
+        }
+      }
+      else {
+        if (this.spotLight.material.uniforms.opacity.value > 0) {
+          this.spotLight.material.uniforms.opacity.value -= 0.015;
+        }
+        else {
+          this.spotLight.material.uniforms.opacity.value = 0;
+          this.spotLight.visible = false;
+        }
+      }
+      
+    }
   }
 }
 
