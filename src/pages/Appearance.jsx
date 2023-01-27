@@ -8,7 +8,6 @@ import CustomButton from '../components/custom-button'
 function Appearance({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
     const { removeAvatar } = React.useContext(SceneContext)
-
     const back = () => {
         console.log('back 1');
         removeAvatar();

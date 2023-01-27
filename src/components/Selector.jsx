@@ -153,7 +153,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
       // play avatar fade out effect
       effectManager.playFadeOutEffect();
-
+      //clear previous avatar
       selectClass(option.avatarIndex)
       return
     }

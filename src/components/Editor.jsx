@@ -37,7 +37,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
       }
     })
   }*/
-
+  
   const { isMute } = useContext(AudioContext)
 
   const [cameraFocused, setCameraFocused] = React.useState(false)
