@@ -139,7 +139,7 @@ export default function App() {
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
-        setTemplateInfo(manifest[index])
+       
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
 
@@ -155,6 +155,8 @@ export default function App() {
         } else {
           initialTraits = JSON.parse(initialTraits)
         }
+
+        setTemplateInfo(manifest[index])
         setTimeout(() => {
           resolve(manifest[index])
         }, 2000)
