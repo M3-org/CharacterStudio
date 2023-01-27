@@ -77,6 +77,17 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     setCurrentOptions(getClassOptions())
     setCurrentTraitName("_class")
   }
+  const randomizeCurrentCharacter = () => {
+    setSelectedOptions(
+      getMultipleRandomTraits(initialTraits)
+    )
+  }
+
+  const resetCurrentCharacter = () =>{
+    setSelectedOptions(
+      loadUserSelection(templateInfo.name)
+    )
+  }
 
   const getMultipleRandomTraits = (traitNames, customTemplateInfo = null) => {
     const resultTraitOptions = []
