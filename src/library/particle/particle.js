@@ -315,7 +315,7 @@ class ParticleEffect {
     if (this.spotLight) {
       if (this.spotLight.fadeIn) {
         if (this.spotLight.material.uniforms.opacity.value < 1) {
-          this.spotLight.material.uniforms.opacity.value += 1;
+          this.spotLight.material.uniforms.opacity.value = 1;
         }
       }
       else {
