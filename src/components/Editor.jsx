@@ -44,13 +44,13 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
 
   const [play] = useSound(optionClick, { volume: 1.0 })
   // options are selected by random or start
-  //useEffect(() => {
+  useEffect(() => {
 
-      // setSelectedOptions(
-      //   loadUserSelection(templateInfo.name) ||
-      //   getMultipleRandomTraits(getInitialTraits()))
+      setSelectedOptions(
+        loadUserSelection(templateInfo.name) ||
+        getMultipleRandomTraits(getInitialTraits()))
       
-  //}, [templateInfo])
+  }, [templateInfo])
 
   const getInitialTraits=(template)=>{
     if (template == null)

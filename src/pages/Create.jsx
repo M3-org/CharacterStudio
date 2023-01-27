@@ -13,7 +13,7 @@ function Create({fetchNewModel}) {
 
   const selectClass = (characterClass) => {
     console.log("TODO: set character class to: " + characterClass)
-    fetchNewModel(0).then((template)=>{
+    fetchNewModel(characterClass.templateIndex).then((template)=>{
         setViewMode(ViewMode.APPEARANCE)
     })
     
@@ -26,6 +26,7 @@ function Create({fetchNewModel}) {
         description: "Paints beasts",
         icon: "/assets/icons/class-beast-painter.svg",
         disabled: true,
+        templateIndex:2
       },
       {
         name: "Engineer",
@@ -33,6 +34,7 @@ function Create({fetchNewModel}) {
         description: "Builds things",
         icon: "/assets/icons/class-engineer.svg",
         disabled: true,
+        templateIndex:3
       },
       {
         name: "Drop Hunter",
@@ -40,6 +42,7 @@ function Create({fetchNewModel}) {
         description: "Hunts drops",
         icon: "/assets/icons/class-drop-hunter.svg",
         disabled: false,
+        templateIndex:0
       },
       {
         name: "Neural Hacker",
@@ -47,6 +50,7 @@ function Create({fetchNewModel}) {
         description: "Hacks neural networks",
         icon: "/assets/icons/class-neural-hacker.svg",
         disabled: false,
+        templateIndex:1
       },
       {
         name: "Lisk Witch",
@@ -54,6 +58,7 @@ function Create({fetchNewModel}) {
         description: "Witches lisk",
         icon: "/assets/icons/class-lisk-witch.svg",
         disabled: true,
+        templateIndex:4
       },
       {
         name: "Bruiser",
@@ -61,6 +66,7 @@ function Create({fetchNewModel}) {
         description: "Bruises things",
         icon: "/assets/icons/class-bruiser.svg",
         disabled: true,
+        templateIndex:5
       },
   ]
 

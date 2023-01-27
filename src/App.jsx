@@ -158,12 +158,9 @@ export default function App() {
         }
 
         setTemplateInfo(manifest[index])
-        //console.log("set")
-        console.log(loadUserSelection(manifest[index].name))
         
         resolve(manifest[index])
 
-        setSelectedOptions(loadUserSelection(manifest[index].name)||[])
       }
     })
   }
