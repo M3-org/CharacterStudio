@@ -48,8 +48,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
 
-  const [loadingTrait, setLoadingTrait] = useState(false)
-
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
@@ -135,8 +133,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           }
         }, effectManager.transitionTime);
         setAvatar(finalAvatar)
-        setLoadingTrait(false)
-
       })
       setSelectedOptions([]);
     }
@@ -177,8 +173,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         }
       }, effectManager.transitionTime);
       setAvatar(finalAvatar)
-      setLoadingTrait(false)
-
     })
 
     return;
@@ -357,7 +351,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   // once loaded, assign
   const itemAssign = (itemData) => {
-
     const item = itemData.item;
     const traitData = itemData.trait;
     const models = itemData.models;
@@ -550,8 +543,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
             : styles["selectorButton"]
         }
         onClick={() => {
-          selectTraitOption(null)
-          !isMute && play()
+          if (effectManager.getTransitionEffect('normal')) {
+            selectTraitOption(null) 
+            effectManager.setTransitionEffect('normal');
+            !isMute && play()
+          }
         }}
       >
         <img
@@ -579,8 +575,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
               onClick={() => {
                
                 !isMute && play()
-                if (loadingTrait === false){
-                  setLoadingTrait(true)
+                if (effectManager.getTransitionEffect('normal')){
                   selectTraitOption(option)
                   setLoadPercentage(1)
                 }

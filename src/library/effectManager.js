@@ -323,6 +323,7 @@ export class EffectManager{
         else {
           globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_DURATION;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+          this.setTransitionEffect('normal');
         }
       }
 
@@ -348,6 +349,7 @@ export class EffectManager{
         if (globalUniforms.fadeInAvatarTime.value > FADE_IN_AVATAR_DURATION) {
           globalUniforms.fadeInAvatarTime.value = FADE_IN_AVATAR_INITIAL_TIME;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
+          this.setTransitionEffect('normal');
         }
       }
 
