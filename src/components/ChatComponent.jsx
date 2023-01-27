@@ -94,15 +94,14 @@ export default function ChatBox() {
         const prompt =
             `Name: ${name}
 Bio: ${bio}
-Speaker: Hey ${name}
+${speaker}: Hey ${name}
 ${name}: ${greeting}
-Speaker: ${question1}
+${speaker}: ${question1}
 ${name}: ${response1}
-Speaker: ${question2}
+${speaker}: ${question2}
 ${name}: ${response2}
-Speaker: ${question3}
-${name}: ${response3}
-`
+${speaker}: ${question3}
+${name}: ${response3}`
 
 console.log('prompt is ******************************')
 console.log(prompt)
