@@ -4,7 +4,7 @@ import { ViewMode, ViewContext } from '../context/ViewContext';
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
-function Appearance() {
+function Appearance({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
 
     const back = () => {
@@ -19,7 +19,7 @@ function Appearance() {
 
     return (
         <div className={styles.container}>
-        <Editor />
+        <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"

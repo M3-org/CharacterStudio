@@ -18,7 +18,7 @@ import { TokenBox } from "./token-box/TokenBox"
 export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
-  const fetchNewModel = (index) =>{
+  /*const fetchNewModel = (index) =>{
     async function fetchAnimation(templateInfo){
         // create an animation manager for all the traits that will be loaded
         const newAnimationManager = new AnimationManager(templateInfo.offset)
@@ -36,7 +36,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
         }, 2000)
       }
     })
-  }
+  }*/
 
   const { isMute } = useContext(AudioContext)
 
@@ -301,9 +301,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
           </div>
         </div>
       </div>
-      <Selector
-        animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass}
-      />
+      <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass}/>
     </Fragment>
   )
 }
