@@ -14,19 +14,9 @@ import Selector from "./Selector"
 import { AnimationManager } from "../library/animationManager"
 import { TokenBox } from "./token-box/TokenBox"
 
-export default function Editor() {
-  const {
-    currentTraitName, 
-    manifest,
-    templateInfo,
-    initialTraits,
-    setInitialTraits,
-    animationManager,
-    blinkManager,
-    setTemplateInfo,
-    setAnimationManager,
-    setCurrentTraitName,
-    setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+
+export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
+  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   const fetchNewModel = (index) =>{
     async function fetchAnimation(templateInfo){
@@ -312,10 +302,7 @@ export default function Editor() {
         </div>
       </div>
       <Selector
-        animationManager={animationManager}
-        templateInfo={templateInfo}
-        blinkManager={blinkManager}
-        selectClass={selectClass}
+        animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass}
       />
     </Fragment>
   )

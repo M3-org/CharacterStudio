@@ -8,6 +8,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { getAsArray } from "./library/utils"
 import Background from "./components/Background"
 import Scene from "./components/Scene"
+import { EffectManager } from "../library/effectManager"
 
 import Landing from "./pages/Landing"
 import Mint from "./pages/Mint"
@@ -124,9 +125,8 @@ const fetchData = () => {
 const resource = fetchData()
 
 export default function App() {
-  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager } = resource.read()
-  
-  const { viewMode, mouseIsOverUI } = useContext(ViewContext)
+  const { manifest, sceneModel, tempInfo, initialTraits, animManager, blinkManager, effectManager } = resource.read()
+  const { viewMode, mouseIsOverUI, currentAppMode } = useContext(ViewContext)
   const { setTemplateInfo, setAnimationManager, setInitialTraits, setBlinkManager, setSceneModel, setManifest } = useContext(SceneContext)
 
   const [hideUi, setHideUi] = useState(false)
@@ -140,14 +140,24 @@ export default function App() {
       setSceneModel(sceneModel)
   }, [])
 
+  const {camera, scene} = useContext(SceneContext);
+  effectManager.camera = camera;
+  effectManager.scene = scene;
+
+  //const [templateInfo, setTemplateInfo] = useState(tempInfo) 
+
+// detect a double tap on the screen or a mouse click
+// switch the UI on and off
 let lastTap = 0
 
 useEffect(() => {
   const handleTap = (e) => {
     const now = new Date().getTime()
     const timesince = now - lastTap
-    if (timesince < 300 && !mouseIsOverUI) {
-      setHideUi(!hideUi)
+    if (timesince < 300 && timesince > 10) {
+      const tgt = e.target;
+      if (tgt.id == "editor-scene")
+        setHideUi(!hideUi)
     }
     lastTap = now
     }
@@ -176,6 +186,17 @@ useEffect(() => {
         <Background />
         <Scene />
           {pages[viewMode]}
+        <Logo />
+          <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
+          <div style = {{display:(hideUi ? "none" : "block")}}>
+            <Fragment >
+            <ChatButton />
+          {/* <ARButton /> */}
+          <UserMenu />
+          {currentAppMode === AppMode.CHAT && <ChatComponent />}
+          {currentAppMode === AppMode.APPEARANCE && <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel}/>}
+            </Fragment>
+        </div>
       </Fragment>
   )
 }
