@@ -4,6 +4,7 @@ import {
   getPixelMesh,
   getRingMesh,
   getTeleportMesh,
+  getSpotLightMesh,
 } from './mesh.js';
 
 import {transitionEffectTypeNumber} from '../constants.js';
@@ -34,6 +35,9 @@ class ParticleEffect {
 
     this.teleportMesh = null;
     this.initTeleport();
+
+    this.spotLight = null;
+    this.initSpotLight();
 
   }
 
@@ -153,12 +157,21 @@ class ParticleEffect {
     this.teleportMesh.visible = true;
   }
 
+  emitSpotLight() {
+    this.spotLight.visible = true;
+    this.spotLight.fadeIn = true;
+  }
+  removeSpotLight() {
+    this.spotLight.fadeIn = false;
+  }
+
   update() {
     
     this.beamMesh.visible && this.beamMesh.update();
     !this.stopUpdatePixelMesh && this.pixelMesh.update(); 
     this.ringMesh.visible && this.ringMesh.update();
     this.teleportMesh.visible && this.teleportMesh.update();
+    this.spotLight.visible && this.spotLight.update();
   }
 
   //########################################################## initialize particle mesh #####################################################
@@ -186,6 +199,13 @@ class ParticleEffect {
     this.teleportMesh.update = () => this.updateTeleport();
     this.teleportMesh.visible = false;
     this.scene.add(this.teleportMesh);
+  }
+
+  initSpotLight() {
+    this.spotLight = getSpotLightMesh(this.globalUniforms);
+    this.spotLight.update = () => this.updateSpotLight();
+    this.spotLight.visible = false;
+    this.scene.add(this.spotLight);
   }
   
   //########################################################## update function of particle mesh #####################################################
@@ -289,6 +309,26 @@ class ParticleEffect {
       this.teleportMesh.material.uniforms.cameraBillboardQuaternion.value.copy(this.camera.quaternion);
     }
 
+  }
+  
+  updateSpotLight() {
+    if (this.spotLight) {
+      if (this.spotLight.fadeIn) {
+        if (this.spotLight.material.uniforms.opacity.value < 1) {
+          this.spotLight.material.uniforms.opacity.value += 1;
+        }
+      }
+      else {
+        if (this.spotLight.material.uniforms.opacity.value > 0) {
+          this.spotLight.material.uniforms.opacity.value -= 0.015;
+        }
+        else {
+          this.spotLight.material.uniforms.opacity.value = 0;
+          this.spotLight.visible = false;
+        }
+      }
+      
+    }
   }
 }
 

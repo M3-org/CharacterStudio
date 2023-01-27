@@ -286,10 +286,12 @@ export class EffectManager{
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeOutAvatar;
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
+    this.particleEffect.emitSpotLight();
     this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
   }
 
   playFadeInEffect() {
+    this.particleEffect.removeSpotLight();
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
   }
 
@@ -333,7 +335,6 @@ export class EffectManager{
           globalUniforms.fadeOutAvatarTime.value = FADE_OUT_AVATAR_INITIAL_TIME;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.loadingAvatar;
         }
-        
       }
 
       else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.loadingAvatar) {

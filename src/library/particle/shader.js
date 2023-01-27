@@ -192,9 +192,48 @@ const teleportFragment = `\
   }
 `
 
+const spotLightVertex = `\       
+  varying vec3 vWorldPosition;
+  varying vec3 vSurfaceNormal;
+
+  varying vec2 vUv;
+
+  void main() {
+    vUv = uv;
+    vec3 pos = position;
+    vSurfaceNormal = normalize(normal);
+    vWorldPosition = (modelMatrix * vec4( pos, 1.0 )).xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 ); 
+  }
+`
+const spotLightFragment = `\ 
+  uniform vec3 cameraDir;
+  uniform vec3 eye;
+
+  uniform float opacity;
+
+  varying vec3 vSurfaceNormal;
+  varying vec3 vWorldPosition;
+  varying vec2 vUv;
+  void main() {
+    vec3 eyeDirection = normalize(eye - vWorldPosition);
+    
+    float EdotN = max(0.0, dot(eyeDirection, vSurfaceNormal));
+    float rimStrength = 0.7;
+    float rim = mix(0.0, 1.0, pow(1. - EdotN, rimStrength));
+    float glowIntensity = 2.0;
+
+    vec3 rimColor = mix(vec3(1.0), vec3(0.400, 0.723, 0.910), rim);
+    gl_FragColor = vec4(rimColor, pow(1. - rim, 2.0));
+    gl_FragColor *= pow(1. - vUv.y, 3.0);
+    gl_FragColor *= opacity;
+  }
+`
+
 export {
   beamVertex, beamFragment,
   pixelVertex, pixelFragment,
   ringVertex, ringFragment,
   teleportVertex, teleportFragment,
+  spotLightVertex, spotLightFragment,
 };
