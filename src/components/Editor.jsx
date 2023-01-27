@@ -15,7 +15,7 @@ import { AnimationManager } from "../library/animationManager"
 import { TokenBox } from "./token-box/TokenBox"
 
 
-export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
+export default function Editor({manifest, templateInfo, animationManager, blinkManager, effectManager, fetchNewModel}) {
   const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   /*const fetchNewModel = (index) =>{
@@ -44,12 +44,24 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
 
   const [play] = useSound(optionClick, { volume: 1.0 })
   // options are selected by random or start
-  //useEffect(() => {
-    // setSelectedOptions(
-    //   loadUserSelection(templateInfo.name) ||
-    //     getMultipleRandomTraits(initialTraits),
-    // )
-  //}, [initialTraits])
+  useEffect(() => {
+
+    setSelectedOptions(
+      loadUserSelection(templateInfo.name) ||
+      getMultipleRandomTraits(getInitialTraits()))
+      
+  }, [templateInfo])
+
+  const getInitialTraits=(template)=>{
+    if (template == null)
+      template = templateInfo
+    return[
+      ...new Set([
+        ...getAsArray(template.requiredTraits),
+        ...getAsArray(template.randomTraits),
+      ]),
+    ]
+  }
 
   const selectOption = (option) => {
     !isMute && play()
@@ -78,8 +90,9 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     setCurrentTraitName("_class")
   }
   const randomizeCurrentCharacter = () => {
+
     setSelectedOptions(
-      getMultipleRandomTraits(initialTraits)
+      getMultipleRandomTraits(getInitialTraits())
     )
   }
 
@@ -109,9 +122,8 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
   }
   const selectClass = (ind) => {
     fetchNewModel(ind).then((template) => {
-      //console.log(template)
-      initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
-      setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
+      // remove randomness here
+      setSelectedOptions (getMultipleRandomTraits(getInitialTraits(template),template))
     })
   }
   const getClassOptions = () => {

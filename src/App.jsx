@@ -111,7 +111,7 @@ export default function App() {
   const [templateInfo, setTemplateInfo] = useState({})
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene } = useContext(SceneContext)
+  const { camera, scene, setSelectedOptions, resetAvatar } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -135,6 +135,7 @@ export default function App() {
   }, [hideUi])
 
   const fetchNewModel = (index) => {
+    resetAvatar();
 
     return new Promise((resolve) => {
       asyncResolve()
@@ -157,9 +158,7 @@ export default function App() {
         }
 
         setTemplateInfo(manifest[index])
-        setTimeout(() => {
-          resolve(manifest[index])
-        }, 2000)
+        resolve(manifest[index])
       }
     })
   }

@@ -79,11 +79,12 @@ export const SceneProvider = (props) => {
     return null
   }
 
-  const removeAvatar = () => {
-    console.log("test")
-    for (const prop in avatar){
-      if (avatar[prop].vrm)
-        disposeVRM (avatar[prop].vrm)
+  const resetAvatar = () => {
+    if (avatar){
+      for (const prop in avatar){
+        if (avatar[prop].vrm)
+          disposeVRM (avatar[prop].vrm)
+      }
     }
     setAvatar({})
   }
@@ -127,7 +128,7 @@ export const SceneProvider = (props) => {
         setSkinColor,
         avatar,
         setAvatar,
-        removeAvatar,
+        resetAvatar,
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
