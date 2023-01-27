@@ -3,7 +3,7 @@ import { InjectedConnector } from "@web3-react/injected-connector"
 import classnames from "classnames"
 import { ethers } from "ethers"
 import React, { useContext, useEffect, useState } from "react"
-import { Group, MeshStandardMaterial } from 'three'
+import { Group, MeshStandardMaterial } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
@@ -116,7 +116,7 @@ export const ExportMenu = () => {
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
     }`
 
-    console.log('avatarToDownload', avatarToDownload)
+    console.log("avatarToDownload", avatarToDownload)
 
     const avatarToDownloadClone = avatarToDownload.clone()
     /*
@@ -126,45 +126,47 @@ export const ExportMenu = () => {
       Especailly notics the change of `array` type, and lost of `count` property, will cause errors later.
       So have to reassign `userData.origIndexBuffer` after avatar clone.
     */
-    const origIndexBuffers = [];
-    avatarToDownload.traverse(child => {
-      if (child.userData.origIndexBuffer) origIndexBuffers.push(child.userData.origIndexBuffer);
+    const origIndexBuffers = []
+    avatarToDownload.traverse((child) => {
+      if (child.userData.origIndexBuffer)
+        origIndexBuffers.push(child.userData.origIndexBuffer)
     })
-    avatarToDownloadClone.traverse(child => {
-      if (child.userData.origIndexBuffer) child.userData.origIndexBuffer = origIndexBuffers.shift();
+    avatarToDownloadClone.traverse((child) => {
+      if (child.userData.origIndexBuffer)
+        child.userData.origIndexBuffer = origIndexBuffers.shift()
     })
 
-    let avatarModel;
+    let avatarModel
 
     const exporter = format === "glb" ? new GLTFExporter() : new VRMExporter()
     if (isUnoptimized) {
-      let skeleton;
+      let skeleton
       const skinnedMeshes = []
-      
-      avatarToDownloadClone.traverse(child => {
+
+      avatarToDownloadClone.traverse((child) => {
         if (!skeleton && child.isSkinnedMesh) {
-          skeleton = cloneSkeleton(child);
+          skeleton = cloneSkeleton(child)
         }
         if (child.isSkinnedMesh) {
-          child.geometry = child.geometry.clone();
-          child.skeleton = skeleton;
-          skinnedMeshes.push(child);
+          child.geometry = child.geometry.clone()
+          child.skeleton = skeleton
+          skinnedMeshes.push(child)
           if (Array.isArray(child.material)) {
-            const materials = child.material;
-            child.material = new MeshStandardMaterial();
-            child.material.map = materials[0].map;
+            const materials = child.material
+            child.material = new MeshStandardMaterial()
+            child.material.map = materials[0].map
           }
           if (child.userData.origIndexBuffer) {
-            child.geometry.setIndex(child.userData.origIndexBuffer);
+            child.geometry.setIndex(child.userData.origIndexBuffer)
           }
         }
       })
 
-      avatarModel = new Group();
-      skinnedMeshes.forEach(skinnedMesh => {
-        avatarModel.add(skinnedMesh);
+      avatarModel = new Group()
+      skinnedMeshes.forEach((skinnedMesh) => {
+        avatarModel.add(skinnedMesh)
       })
-      avatarModel.add(skeleton.bones[0]);
+      avatarModel.add(skeleton.bones[0])
     } else {
       avatarModel = await combine({
         transparentColor: skinColor,
@@ -196,18 +198,20 @@ export const ExportMenu = () => {
         },
       )
     } else {
-
-      const vrmData = {...getVRMBaseData(avatar), ...getAvatarData(avatarModel, "UpstreetAvatar")}
+      const vrmData = {
+        ...getVRMBaseData(avatar),
+        ...getAvatarData(avatarModel, "UpstreetAvatar"),
+      }
       exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
       })
     }
   }
 
-  function getVRMBaseData(avatar){
+  function getVRMBaseData(avatar) {
     // to do, merge data from all vrms, not to get only the first one
-    for (const prop in avatar){
-      if (avatar[prop].vrm){
+    for (const prop in avatar) {
+      if (avatar[prop].vrm) {
         return avatar[prop].vrm
       }
     }
@@ -218,36 +222,37 @@ export const ExportMenu = () => {
   }
 
   return (
-    <div className={classnames(styles.userBoxWrap)}>
-    <div className={styles.dropDown}>
-    <CustomButton
-      theme="light"
-      text="Download GLB"
-      icon="download"
-      size={14}
-      onClick={() => {
-        download(model, `UpstreetAvatar_${type}`, "glb")
-      }}
-    />
-    <CustomButton
-      theme="light"
-      text="Download GLB Unoptimized"
-      icon="download"
-      size={14}
-      onClick={() => {
-        download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
-      }}
-    />
-    <CustomButton
-      theme="light"
-      text="Download VRM"
-      icon="download"
-      size={14}
-      onClick={() => {
-        download(model, `UpstreetAvatar_${type}`, "vrm")
-      }}
-    />
-  </div>
-    </div>
+    <React.Fragment>
+      <CustomButton
+        theme="light"
+        text="GLB"
+        icon="download"
+        size={14}
+        className={styles.button}
+        onClick={() => {
+          download(model, `UpstreetAvatar_${type}`, "glb")
+        }}
+      />
+      <CustomButton
+        theme="light"
+        text="GLB Unoptimized"
+        icon="download"
+        size={14}
+        className={styles.button}
+        onClick={() => {
+          download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
+        }}
+      />
+      <CustomButton
+        theme="light"
+        text="VRM"
+        icon="download"
+        size={14}
+        className={styles.button}
+        onClick={() => {
+          download(model, `UpstreetAvatar_${type}`, "vrm")
+        }}
+      />
+    </React.Fragment>
   )
 }

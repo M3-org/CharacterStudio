@@ -14,16 +14,63 @@
   height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
+  overflow-y: scroll;
+  overflow-y: hidden;
 }
 
 .classContainer .class,
 .classContainer .classdisabled {
     display: inline-block;
     height: 100%;
+    cursor: pointer;
+    margin:24px 8px 8px 8px;
 }
 
+.classContainer .icon {
+  margin-top: -32px;
+  position: relative;
+  z-index: 2;
+}
 .classContainer .icon img {
     height: 56px;
+    background: #000;
+}
+
+.classContainer .name {
+  font-size: 24px;
+}
+.classContainer .description {
+  font-size: 14px;
+}
+
+.classContainer .classFrame {
+  height: 70%;
+  position: relative;
+}
+
+.classContainer .classFrame img {
+  height: 100%;
+}
+
+.classContainer .classFrame .image {
+  height: 98%;
+  top: 1%;
+  left: 1%;
+  position: absolute;
+}
+
+.classContainer .classFrame .locked {
+  height: 56px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  -webkit-transform: translateY(-50%) translateX(-50%);
+
+}
+
+.classContainer .class:hover .name {
+  color: #FCC000;
 }
 
 .buttonContainer {

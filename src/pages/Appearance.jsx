@@ -19,6 +19,7 @@ function Appearance({manifest, templateInfo, initialTraits, animationManager, bl
 
     return (
         <div className={styles.container}>
+            <div className={"sectionTitle"}>Choose Appearance</div>
         <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
