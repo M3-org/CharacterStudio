@@ -13,8 +13,10 @@ function Create({fetchNewModel}) {
 
   const selectClass = (characterClass) => {
     console.log("TODO: set character class to: " + characterClass)
-    fetchNewModel(0)
-    setViewMode(ViewMode.APPEARANCE)
+    fetchNewModel(0).then((template)=>{
+        setViewMode(ViewMode.APPEARANCE)
+    })
+    
   }
 
   const classes = [

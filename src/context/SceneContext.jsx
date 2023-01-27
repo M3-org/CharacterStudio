@@ -82,8 +82,9 @@ export const SceneProvider = (props) => {
   const resetAvatar = () => {
     if (avatar){
       for (const prop in avatar){
-        if (avatar[prop].vrm)
+        if (avatar[prop].vrm){
           disposeVRM (avatar[prop].vrm)
+        }
       }
     }
     setAvatar({})

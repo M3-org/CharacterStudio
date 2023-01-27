@@ -111,7 +111,7 @@ export default function App() {
   const [templateInfo, setTemplateInfo] = useState({})
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, setSelectedOptions, resetAvatar } = useContext(SceneContext)
+  const { camera, scene, setSelectedOptions, resetAvatar, loadUserSelection } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -136,14 +136,14 @@ export default function App() {
 
   const fetchNewModel = (index) => {
     resetAvatar();
-
+    console.log("called")
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
        
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-
+        console.log(animManager)
         let initialTraits = localStorage.getItem("initialTraits")
         if (!initialTraits) {
           initialTraits = initialTraits = [
@@ -158,7 +158,12 @@ export default function App() {
         }
 
         setTemplateInfo(manifest[index])
+        //console.log("set")
+        console.log(loadUserSelection(manifest[index].name))
+        
         resolve(manifest[index])
+
+        setSelectedOptions(loadUserSelection(manifest[index].name)||[])
       }
     })
   }

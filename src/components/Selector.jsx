@@ -56,6 +56,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
+    
   },[templateInfo])
 
   const getRestrictions = () => {
@@ -119,22 +120,41 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
+  const loadSelectedOptions = (opts) => {
+    loadOptions(opts).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
+    })
+  }
+
   // options are selected by random or start
   useEffect(() => {
+    console.log(selectedOptions)
     if (selectedOptions.length > 0){
-      loadOptions(selectedOptions).then((loadedData)=>{
-        let newAvatar = {};
-        loadedData.map((data)=>{
-          newAvatar = {...newAvatar, ...itemAssign(data)}
-        })
-        const finalAvatar = {...avatar, ...newAvatar}
-        setTimeout(() => {
-          if (Object.keys(finalAvatar).length > 0) {
-            cullHiddenMeshes(finalAvatar)
-          }
-        }, effectManager.transitionTime);
-        setAvatar(finalAvatar)
-      })
+      loadSelectedOptions(selectedOptions)
+      // loadOptions(selectedOptions).then((loadedData)=>{
+      //   let newAvatar = {};
+      //   loadedData.map((data)=>{
+      //     newAvatar = {...newAvatar, ...itemAssign(data)}
+      //   })
+      //   const finalAvatar = {...avatar, ...newAvatar}
+      //   setTimeout(() => {
+      //     if (Object.keys(finalAvatar).length > 0) {
+      //       cullHiddenMeshes(finalAvatar)
+      //     }
+      //   }, effectManager.transitionTime);
+      //   console.log(finalAvatar)
+      //   setAvatar(finalAvatar)
+      // })
       setSelectedOptions([]);
     }
 
