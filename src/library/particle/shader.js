@@ -35,7 +35,9 @@ const beamFragment = `\
       )
     ).r;
     
-    aura = smoothstep(0.0, switchItemTime, aura);
+    float dissolveThreshold = 0.1;
+    float auraStep = switchItemTime <= dissolveThreshold ? 0. : clamp(switchItemTime, dissolveThreshold, 1.0);
+    aura = smoothstep(0.0, auraStep, aura);
     
 
     vec3 eyeDirection = normalize(eye - vWorldPosition);
