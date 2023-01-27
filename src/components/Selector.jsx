@@ -161,10 +161,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       })
       setSelectedOptions([]);
     }
-
-      })
-      setSelectedOptions([])
-    }
   }, [selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {

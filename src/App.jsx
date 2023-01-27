@@ -8,7 +8,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { getAsArray } from "./library/utils"
 import Background from "./components/Background"
 import Scene from "./components/Scene"
-import { EffectManager } from "../library/effectManager"
+import { EffectManager } from "./library/effectManager"
 
 import Landing from "./pages/Landing"
 import Mint from "./pages/Mint"
