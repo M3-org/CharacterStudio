@@ -11,6 +11,8 @@ localStorage.setItem("sessionId", sessionId);
 const config = new SepiaSpeechRecognitionConfig();
 // Set configuration options specific to your SEPIA STT server
 
+const defaultSpeaker = 'Speaker'
+
 const SpeechRecognition = window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config);
 
 const generalPersonality = [
@@ -53,8 +55,6 @@ const hobbies = [
 ]
 
 export default function ChatBox() {
-
-    
     const [name, setName] = React.useState(localStorage.getItem("name") || "");
     const [bio, setBio] = React.useState(localStorage.getItem("bio") || "");
     const [greeting, setGreeting] = React.useState(localStorage.getItem("greeting") || "heya");
@@ -69,7 +69,7 @@ export default function ChatBox() {
 
     const [speechrecognition, setSpeechrecognition] = React.useState(false);
 
-    const [speaker, setSpeaker] = React.useState(localStorage.getItem('speaker') || "Speaker");
+    const [speaker, setSpeaker] = React.useState(localStorage.getItem('speaker') || defaultSpeaker);
 
     // after each state is updated, save to local storage
     React.useEffect(() => {
