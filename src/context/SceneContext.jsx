@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react"
+import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
 
 export const SceneContext = createContext()
@@ -78,6 +79,14 @@ export const SceneProvider = (props) => {
     return null
   }
 
+  const removeAvatar = () => {
+    for (const prop in avatar){
+      if (avatar[prop].vrm)
+        disposeVRM (avatar[prop].vrm)
+    }
+    setAvatar({})
+  }
+
   return (
     <SceneContext.Provider
       value={{
@@ -117,6 +126,7 @@ export const SceneProvider = (props) => {
         setSkinColor,
         avatar,
         setAvatar,
+        removeAvatar,
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
