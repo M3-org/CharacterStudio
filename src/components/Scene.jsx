@@ -4,10 +4,9 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-export default function Scene() {
+export default function Scene({sceneModel}) {
   const {
     scene,
-    sceneModel,
     model, setModel,
     currentCameraMode,
     traitsSpines,
@@ -98,44 +97,15 @@ export default function Scene() {
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [handleMouseMove])
 
-
-  const handleModelUpdate = (event) => {
-    const moveJoint = (mouse, joint, degreeLimit) => {
-      if (Object.keys(joint).length !== 0) {
-        let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit)
-        joint.rotation.y = THREE.MathUtils.degToRad(degrees.x)
-        joint.rotation.x = THREE.MathUtils.degToRad(degrees.y)
-      }
-    }
-    if (event.model) {
-      event.model.traverse((child) => {
-        if (child.isBone) { 
-          if (child.isBone && child.name == 'neck') { 
-            moveJoint(event, child, maxLookPercent.neck)
-          }
-          if (child.isBone && child.name == 'spine') { 
-            moveJoint(event, child, maxLookPercent.spine)
-          }
-          if (child.isBone && child.name === 'leftEye') { 
-            moveJoint(event, child, maxLookPercent.left)
-          }
-          if (child.isBone && child.name === 'rightEye') { 
-            moveJoint(event, child, maxLookPercent.right)
-          }
-        }
-      })
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener("modelUpdate", handleModelUpdate)
-    return () => window.removeEventListener("modelUpdate", handleModelUpdate)
-  }, [handleModelUpdate])
   let loaded = false
   let [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    if(!scene || !sceneModel) return
+    // hacky prevention of double render
+    if (loaded || isLoaded) return
+    setIsLoaded(true)
+    loaded = true
+
     scene.add(sceneModel);
     
     // add a camera to the scene
@@ -222,7 +192,7 @@ export default function Scene() {
       // scene.remove(sceneModel)
       scene.remove(model)
     }
-  }, [scene, sceneModel])
+  }, [])
 
   return <></>
 }
