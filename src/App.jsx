@@ -108,10 +108,9 @@ export default function App() {
 
   const [hideUi, setHideUi] = useState(false)
 
-  const [templateInfo, setTemplateInfo] = useState({})
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, resetAvatar, setAwaitDisplay } = useContext(SceneContext)
+  const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -171,7 +170,7 @@ export default function App() {
       <Appearance
         manifest={manifest}
         animationManager={animationManager}
-        templateInfo={templateInfo}
+        //templateInfo={templateInfo}
         blinkManager={blinkManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
@@ -189,7 +188,7 @@ export default function App() {
   return (
     <Fragment>
       <Background />
-      <Scene manifest={manifest} sceneModel={sceneModel} templateInfo={templateInfo} />
+      <Scene manifest={manifest} sceneModel={sceneModel} />
       {pages[viewMode]}
       {/*
         <Logo />
