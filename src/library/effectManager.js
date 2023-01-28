@@ -64,8 +64,9 @@ const customUniforms = {
 };
 
 
-export class EffectManager{
+export class EffectManager extends EventTarget{
   constructor () {
+    super();
     this.cameraDir = new THREE.Vector3();
     this.frameRate = 1000 / 30;
 
@@ -353,6 +354,7 @@ export class EffectManager{
           globalUniforms.fadeInAvatarTime.value = FADE_IN_AVATAR_INITIAL_TIME;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
           this.setTransitionEffect('normal');
+          this.dispatchEvent(new Event('fadeinavatarend'));
         }
       }
 
