@@ -15,7 +15,7 @@ function MintComponent() {
 
   const next = () => {
     console.log("next")
-    setViewMode(ViewMode.VIEW)
+    setViewMode(ViewMode.CHAT)
   }
 
   return (

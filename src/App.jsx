@@ -197,7 +197,7 @@ export default function App() {
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
-    [ViewMode.VIEW]: <View />,
+    [ViewMode.CHAT]: <View />,
   }
   return (
     <Fragment>
