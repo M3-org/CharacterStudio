@@ -20,13 +20,13 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     const initialFrame = (e) => {
         let draggable = document.getElementById('Screenshot-block');
         let resizable = document.getElementById('screenshots');
-        console.log(resizable.offsetWidth)
 
-        draggable.style.paddingLeft = e.clientX - resizable.offsetWidth/2;
+        const leftPos = e.clientX - draggable.style.paddingLeft;
+
         draggable.style.paddingTop = e.clientY - resizable.offsetHeight/2;
 
         
-        setInitialPos({x:e.clientX, y:e.clientY});
+        setInitialPos({x:leftPos, y:e.clientY});
         
     }
 
@@ -36,8 +36,9 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
             let draggable = document.getElementById('Screenshot-block');
             let resizable = document.getElementById('screenshots');
 
-            const posY = e.clientY - resizable.offsetHeight/2
-            const posX = e.clientX - resizable.offsetWidth/2
+            const posX = (e.clientX - resizable.offsetWidth/2)// + initialPos.x
+            const posY = (e.clientY - resizable.offsetHeight/2)// + initialPos.y
+            
         
             draggable.style.paddingTop = `${posY}px`
 
