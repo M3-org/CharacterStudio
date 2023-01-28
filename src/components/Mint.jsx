@@ -17,9 +17,36 @@ const mintCost = 0.01
 
 export default function MintPopup() {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
-  const { walletAddress } = useContext(AccountContext)
-
   const [mintStatus, setMintStatus] = useState("")
+  const chainId = "0x89";
+
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const chain = await window.ethereum.request({ method: 'eth_chainId' })
+        if (parseInt(chain, 16) == parseInt(chainId, 16)) {
+          const addressArray = await window.ethereum.request({
+            method: 'eth_requestAccounts',
+          })
+          return addressArray.length > 0 ? addressArray[0] : ""
+        } else {
+            window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: chainId }],
+            })
+            const addressArray = await window.ethereum.request({
+              method: 'eth_requestAccounts',
+            })
+            return addressArray.length > 0 ? addressArray[0] : ""
+        }
+      } catch (err) {
+        return "";
+      }
+    } else {
+      return "";
+    }
+  }
+
 
   async function saveFileToPinata(fileData, fileName) {
     if (!fileData) return console.warn("Error saving to pinata: No file data")
@@ -53,6 +80,8 @@ export default function MintPopup() {
   }
 
   const mintAsset = async (avatar) => {
+    let walletAddress = await connectWallet()
+
     const pass = await checkOT(walletAddress);
     if(pass) {
       setMintStatus("Uploading...")
@@ -83,29 +112,16 @@ export default function MintPopup() {
         description: "Creator Studio Avatars.",
         image: `ipfs://${imageHash.IpfsHash}`,
         animation_url: `ipfs://${glbHash.IpfsHash}`,
-        attributes,
+        attributes: attributes
       }
       const str = JSON.stringify(metadata)
       const metaDataHash = await saveFileToPinata(
         new Blob([str]),
         "AvatarMetadata_" + Date.now() + ".json",
       )
-      const metadataIpfs = metaDataHash.IpfsHash
+      const metadataIpfs = `ipfs://${metaDataHash.IpfsHash}`
 
       setMintStatus("Minting...")
-      const chainId = 137 // 1: ethereum mainnet, 4: rinkeby 137: polygon mainnet 5: // Goerli testnet
-      if (window.ethereum.networkVersion !== chainId) {
-        try {
-          await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x89" }], // 0x4 is rinkeby. Ox1 is ethereum mainnet. 0x89 polygon mainnet  0x5: // Goerli testnet
-          })
-        } catch (err) {
-          // notifymessage("Please check the Ethereum mainnet", "error");
-          setMintStatus("Please check the Polygon mainnet")
-          return false
-        }
-      }
       const signer = new ethers.providers.Web3Provider(
         window.ethereum,
       ).getSigner()
@@ -197,19 +213,10 @@ export default function MintPopup() {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  // onClick={() => setViewMode(ViewStates.CREATOR)}
+                  onClick={() => mintAsset(model)}
                 >
-                  {" "}
-                  {"OK"}
+                  Mint
                 </div>
-                {false && (
-                  <div
-                    className={styles["StyledButton"]}
-                    onClick={() => mintAsset(model)}
-                  >
-                    Mint
-                  </div>
-                )}
               </div>
             </Fragment>
           {/* )} */}
