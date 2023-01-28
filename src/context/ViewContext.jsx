@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 
 export const CameraMode = {
   NORMAL: "NORMAL",
@@ -8,14 +8,14 @@ export const CameraMode = {
 }
 
 export const ViewMode = {
-  LANDING: "LANDING",
-  CREATE: "CREATE",
-  LOAD: "LOAD",
-  APPEARANCE: "APPEARANCE",
-  BIO: "BIO",
-  SAVE: "SAVE",
-  MINT: "MINT",
-  CHAT: "CHAT",
+  LANDING: "LANDING", // null
+  CREATE: "CREATE", // null
+  LOAD: "LOAD", // null
+  APPEARANCE: "APPEARANCE", // center
+  BIO: "BIO",  // left
+  SAVE: "SAVE", // center
+  MINT: "MINT", // left
+  CHAT: "CHAT", // left
 }
 
 export const ViewContext = React.createContext()
@@ -25,6 +25,9 @@ export const ViewProvider = (props) => {
   const [viewMode, setViewMode] = React.useState(ViewMode.LANDING)
   const [loading, setLoading] = React.useState(true)
   const [mouseIsOverUI, setMouseIsOverUI] = React.useState(false)
+  useEffect(() => {
+    console.log('--- viewMode:', viewMode);
+  }, [viewMode])
   return (
     <ViewContext.Provider value={{
       currentCameraMode, setCurrentCameraMode,

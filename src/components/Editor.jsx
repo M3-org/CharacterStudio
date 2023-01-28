@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useContext } from "react"
 
-import gsap from "gsap"
 import shuffle from "../../public/ui/traits/shuffle.svg"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
@@ -19,7 +18,7 @@ import { TokenBox } from "./token-box/TokenBox"
 
 
 export default function Editor({manifest, animationManager, blinkManager, effectManager, fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, controls, loadUserSelection, templateInfo} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 
@@ -42,12 +41,15 @@ export default function Editor({manifest, animationManager, blinkManager, effect
 
 
   const selectOption = (option) => {
+    debugger
     !isMute && playSound('optionClick');
     if (option.name === currentTraitName) {
       if (cameraFocused) {
+        console.log('moveCamera 1', option.cameraTarget)
         moveCamera(option.cameraTarget)
         setCameraFocused(false)
       } else {
+        console.log('moveCamera 2', { height: 0.8, distance: 3.2 })
         moveCamera({ height: 0.8, distance: 3.2 })
         setCameraFocused(true)
       }
@@ -58,11 +60,13 @@ export default function Editor({manifest, animationManager, blinkManager, effect
     setRemoveOption(
       getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1,
     )
+    console.log('moveCamera 3', option.cameraTarget)
     moveCamera(option.cameraTarget)
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
   }
   const selectClassOption = () => {
+    debugger
     setRemoveOption(false)
     setCurrentOptions(getClassOptions(manifest))
     setCurrentTraitName("_class")
@@ -74,46 +78,6 @@ export default function Editor({manifest, animationManager, blinkManager, effect
 
   const selectClass = (ind) => {
     fetchNewModel(ind)
-  }
-
-  const moveCamera = (value) => {
-    if (!controls) return
-    gsap.to(controls.target, {
-      y: value.height,
-      x: 0,
-      z: 0,
-      duration: 1,
-    })
-
-    gsap
-      .fromTo(
-        controls,
-        {
-          maxDistance: controls.getDistance(),
-          minDistance: controls.getDistance(),
-          minPolarAngle: controls.getPolarAngle(),
-          maxPolarAngle: controls.getPolarAngle(),
-          minAzimuthAngle: controls.getAzimuthalAngle(),
-          maxAzimuthAngle: controls.getAzimuthalAngle(),
-        },
-        {
-          maxDistance: value.distance,
-          minDistance: value.distance,
-          minPolarAngle: Math.PI / 2 - 0.11,
-          maxPolarAngle: Math.PI / 2 - 0.11,
-          minAzimuthAngle: -0.78,
-          maxAzimuthAngle: -0.78,
-          duration: 1,
-        },
-      )
-      .then(() => {
-        controls.minPolarAngle = 0
-        controls.maxPolarAngle = 3.1415
-        controls.minDistance = 0.5
-        controls.maxDistance = 5
-        controls.minAzimuthAngle = Infinity
-        controls.maxAzimuthAngle = Infinity
-      })
   }
 
   function MenuTitle(props) {
