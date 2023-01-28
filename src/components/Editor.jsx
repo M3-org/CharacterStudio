@@ -18,6 +18,8 @@ import { TokenBox } from "./token-box/TokenBox"
 
 
 export default function Editor({manifest, animationManager, blinkManager, effectManager, fetchNewModel}) {
+  const test = useContext(SceneContext)
+  debugger
   const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)

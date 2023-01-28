@@ -110,7 +110,8 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo } = useContext(SceneContext)
+  debugger
+  const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -132,6 +133,20 @@ export default function App() {
       window.removeEventListener("click", handleTap)
     }
   }, [hideUi])
+  
+  useEffect(() => {
+    console.log('--- viewMode:', viewMode);
+    // if ([ViewMode.APPEARANCE, viewMode.SAVE].includes(viewMode)) {
+    //   moveCamera({ height: 0.8, distance: 3.2 })
+    // } else if ([ViewMode.BIO, viewMode.MINT, viewMode.CHAT].includes(viewMode)) {
+    //   moveCamera({ height: 0.75, distance: 1.35 })
+    // }
+    if ([ViewMode.BIO, viewMode.MINT, viewMode.CHAT].includes(viewMode)) {
+      moveCamera({ height: 0.75, distance: 1.35 }) // todo: left
+    } else {
+      moveCamera({ height: 0.8, distance: 3.2 }) // center
+    }
+  }, [viewMode])
 
   const fetchNewModel = (index) => {
     setAwaitDisplay(true)
