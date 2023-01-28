@@ -186,6 +186,9 @@ export default function App() {
   }
   return (
     <Fragment>
+      <div className="generalTitle">
+        Character Creator
+      </div>
       <Background />
       <Scene manifest={manifest} sceneModel={sceneModel} />
       {pages[viewMode]}

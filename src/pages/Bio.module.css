@@ -11,8 +11,8 @@
   height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
+  overflow-x: hidden;
   overflow-y: scroll;
-  overflow-y: hidden;
 }
 
 .topLine {
