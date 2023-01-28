@@ -7,6 +7,10 @@ import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { getAsArray } from "../library/utils"
+import {
+  getMultipleRandomTraits,
+  getInitialTraits
+} from "../library/option-utils"
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
@@ -48,22 +52,12 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
     if (awaitDisplay){
       setSelectedOptions(
         loadUserSelection(templateInfo.name) ||
-        getMultipleRandomTraits(getInitialTraits()))
+        getMultipleRandomTraits(getInitialTraits(templateInfo)))
         setAwaitDisplay(false)
     }
       
   }, [templateInfo])
 
-  const getInitialTraits=(template)=>{
-    if (template == null)
-      template = templateInfo
-    return[
-      ...new Set([
-        ...getAsArray(template.requiredTraits),
-        ...getAsArray(template.randomTraits),
-      ]),
-    ]
-  }
 
   const selectOption = (option) => {
     !isMute && playSound('optionClick');
@@ -91,18 +85,7 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
     setCurrentOptions(getClassOptions())
     setCurrentTraitName("_class")
   }
-  const randomizeCurrentCharacter = () => {
-
-    setSelectedOptions(
-      getMultipleRandomTraits(getInitialTraits())
-    )
-  }
-
-  const resetCurrentCharacter = () =>{
-    setSelectedOptions(
-      loadUserSelection(templateInfo.name)
-    )
-  }
+  
 
   const getMultipleRandomTraits = (traitNames, customTemplateInfo = null) => {
     const resultTraitOptions = []
