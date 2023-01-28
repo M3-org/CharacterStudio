@@ -12,7 +12,7 @@ import { getAsArray } from "./utils"
 //     loadUserSelection(templateInfo.name)
 //   )
 // }
-function getInitialTraits(template){
+export function getInitialTraits(template){
 
   return[
     ...new Set([
@@ -39,8 +39,15 @@ export function getMultipleRandomTraits(traitNames, template) {
   })
   return resultTraitOptions
 }
+export const getClassOptions = (manifest) => {
+  const options = []
+  manifest.map((character, index) => {
+    options.push(getClassOption("class_" + index, character.thumbnail, index))
+  })
+  return options
+}
 
-function getTraitOptions(trait, template) {
+export function getTraitOptions(trait, template) {
   const traitOptions = []
   const thumbnailBaseDir = template.thumbnailsDirectory
   trait.collection.map((item, index) => {
