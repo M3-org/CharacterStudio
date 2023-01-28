@@ -16,7 +16,7 @@ import { TokenBox } from "./token-box/TokenBox"
 
 
 export default function Editor({manifest, templateInfo, animationManager, blinkManager, effectManager, fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, editMode, setCurrentOptions, setSelectedOptions, selectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+  const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   /*const fetchNewModel = (index) =>{
     async function fetchAnimation(templateInfo){
@@ -45,11 +45,11 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
   const [play] = useSound(optionClick, { volume: 1.0 })
   // options are selected by random or start
   useEffect(() => {
-    
-    if (editMode){
+    if (awaitDisplay){
       setSelectedOptions(
         loadUserSelection(templateInfo.name) ||
         getMultipleRandomTraits(getInitialTraits()))
+        setAwaitDisplay(false)
     }
       
   }, [templateInfo])
@@ -126,7 +126,7 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
     console.log("class sel")
     fetchNewModel(ind).then((template) => {
       // remove randomness here
-      // setSelectedOptions (getMultipleRandomTraits(getInitialTraits(template),template))
+      //setSelectedOptions (getMultipleRandomTraits(getInitialTraits(template),template))
     })
   }
   const getClassOptions = () => {

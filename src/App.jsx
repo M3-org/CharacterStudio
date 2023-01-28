@@ -111,7 +111,7 @@ export default function App() {
   const [templateInfo, setTemplateInfo] = useState({})
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, resetAvatar } = useContext(SceneContext)
+  const { camera, scene, resetAvatar, setAwaitDisplay } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -135,6 +135,7 @@ export default function App() {
   }, [hideUi])
 
   const fetchNewModel = (index) => {
+    setAwaitDisplay(true)
     resetAvatar();
     console.log("called")
     return new Promise((resolve) => {
