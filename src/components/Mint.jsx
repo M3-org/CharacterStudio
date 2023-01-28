@@ -128,9 +128,7 @@ export default function MintPopup({screenshotPosition}) {
       return;
     }
   }
-  const  test = async () => {
-    console.log("test")
-    console.log(screenshotPosition)
+  const  takeScreenshot = async () => {
     const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
     console.log(img)
   }
@@ -164,22 +162,16 @@ export default function MintPopup({screenshotPosition}) {
 
   return (
     // currentView.includes("MINT") && (
-
-         
       <div className={styles["StyledContainer"]}>
-        
         <div className={styles["StyledPopup"]}>
-          
           {/* {connected && ( */}
             <Fragment>
-            
               <div className={styles["Header"]}>
                 <img
                   src={mintPopupImage}
                   className={mintStatus}
                   height={"50px"}
                 />
-                 
                 <div className={styles["mintTitle"]}>Mint Avatar</div>
               </div>
               <div className={styles["TraitDetail"]}>
@@ -208,7 +200,7 @@ export default function MintPopup({screenshotPosition}) {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  onClick={() => test()}
+                  onClick={() => takeScreenshot()}
                 >
                   {" "}
                   {"OK"}
@@ -223,10 +215,8 @@ export default function MintPopup({screenshotPosition}) {
                 )}
               </div>
             </Fragment>
-           
           {/* )} */}
         </div>
-       
       </div>
     // )
   )
