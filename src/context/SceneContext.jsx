@@ -28,6 +28,7 @@ export const SceneProvider = (props) => {
 
   const [selectedOptions, setSelectedOptions] = useState([])
   const [removeOption, setRemoveOption] = useState(false)
+  const [awaitDisplay, setAwaitDisplay] = useState(false)
 
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
@@ -79,11 +80,13 @@ export const SceneProvider = (props) => {
     return null
   }
 
-  const removeAvatar = () => {
-    console.log("test")
-    for (const prop in avatar){
-      if (avatar[prop].vrm)
-        disposeVRM (avatar[prop].vrm)
+  const resetAvatar = () => {
+    if (avatar){
+      for (const prop in avatar){
+        if (avatar[prop].vrm){
+          disposeVRM (avatar[prop].vrm)
+        }
+      }
     }
     setAvatar({})
   }
@@ -91,6 +94,8 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        awaitDisplay, 
+        setAwaitDisplay,
         templateInfo,
         setTemplateInfo,
         blinkManager,
@@ -127,7 +132,7 @@ export const SceneProvider = (props) => {
         setSkinColor,
         avatar,
         setAvatar,
-        removeAvatar,
+        resetAvatar,
         traitsNecks,
         setTraitsNecks,
         traitsSpines,

@@ -3,17 +3,20 @@ import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 
-function Create() {
+function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
-    console.log("back")
+    console.log("back 3")
     setViewMode(ViewMode.LANDING)
   }
 
   const selectClass = (characterClass) => {
     console.log("TODO: set character class to: " + characterClass)
-    setViewMode(ViewMode.APPEARANCE)
+    fetchNewModel(characterClass.templateIndex).then(()=>{
+        setViewMode(ViewMode.APPEARANCE)
+    })
+    
   }
 
   const classes = [
@@ -23,6 +26,7 @@ function Create() {
         description: "Paints beasts",
         icon: "/assets/icons/class-beast-painter.svg",
         disabled: true,
+        templateIndex:2
       },
       {
         name: "Engineer",
@@ -30,6 +34,7 @@ function Create() {
         description: "Builds things",
         icon: "/assets/icons/class-engineer.svg",
         disabled: true,
+        templateIndex:3
       },
       {
         name: "Drop Hunter",
@@ -37,6 +42,7 @@ function Create() {
         description: "Hunts drops",
         icon: "/assets/icons/class-drop-hunter.svg",
         disabled: false,
+        templateIndex:0
       },
       {
         name: "Neural Hacker",
@@ -44,6 +50,7 @@ function Create() {
         description: "Hacks neural networks",
         icon: "/assets/icons/class-neural-hacker.svg",
         disabled: false,
+        templateIndex:1
       },
       {
         name: "Lisk Witch",
@@ -51,6 +58,7 @@ function Create() {
         description: "Witches lisk",
         icon: "/assets/icons/class-lisk-witch.svg",
         disabled: true,
+        templateIndex:4
       },
       {
         name: "Bruiser",
@@ -58,6 +66,7 @@ function Create() {
         description: "Bruises things",
         icon: "/assets/icons/class-bruiser.svg",
         disabled: true,
+        templateIndex:5
       },
   ]
 

@@ -14,8 +14,8 @@ import { AnimationManager } from "../library/animationManager"
 import { TokenBox } from "./token-box/TokenBox"
 
 
-export default function Editor({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, setCurrentOptions, setSelectedOptions, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
+export default function Editor({manifest, templateInfo, animationManager, blinkManager, effectManager, fetchNewModel}) {
+  const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, controls, loadUserSelection} = useContext(SceneContext);
 
   /*const fetchNewModel = (index) =>{
     async function fetchAnimation(templateInfo){
@@ -34,7 +34,7 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
       }
     })
   }*/
-
+  
   const { isMute } = useContext(AudioContext)
 
   const {
@@ -45,11 +45,25 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
 
   // options are selected by random or start
   useEffect(() => {
-    setSelectedOptions(
-      loadUserSelection(templateInfo.name) ||
-        getMultipleRandomTraits(initialTraits),
-    )
-  }, [initialTraits])
+    if (awaitDisplay){
+      setSelectedOptions(
+        loadUserSelection(templateInfo.name) ||
+        getMultipleRandomTraits(getInitialTraits()))
+        setAwaitDisplay(false)
+    }
+      
+  }, [templateInfo])
+
+  const getInitialTraits=(template)=>{
+    if (template == null)
+      template = templateInfo
+    return[
+      ...new Set([
+        ...getAsArray(template.requiredTraits),
+        ...getAsArray(template.randomTraits),
+      ]),
+    ]
+  }
 
   const selectOption = (option) => {
     !isMute && playSound('optionClick');
@@ -78,8 +92,9 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     setCurrentTraitName("_class")
   }
   const randomizeCurrentCharacter = () => {
+
     setSelectedOptions(
-      getMultipleRandomTraits(initialTraits)
+      getMultipleRandomTraits(getInitialTraits())
     )
   }
 
@@ -108,10 +123,10 @@ export default function Editor({manifest, templateInfo, initialTraits, animation
     return resultTraitOptions
   }
   const selectClass = (ind) => {
+    console.log("class sel")
     fetchNewModel(ind).then((template) => {
-      //console.log(template)
-      initialTraits = [...new Set([...getAsArray(template.requiredTraits), ...getAsArray(template.randomTraits)])]
-      setSelectedOptions (getMultipleRandomTraits(initialTraits,template))
+      // remove randomness here
+      //setSelectedOptions (getMultipleRandomTraits(getInitialTraits(template),template))
     })
   }
   const getClassOptions = () => {

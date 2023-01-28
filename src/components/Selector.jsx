@@ -58,6 +58,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
+    
   },[templateInfo])
 
   const getRestrictions = () => {
@@ -121,22 +122,26 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
+  const loadSelectedOptions = (opts) => {
+    loadOptions(opts).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
+    })
+  }
+
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      loadOptions(selectedOptions).then((loadedData)=>{
-        let newAvatar = {};
-        loadedData.map((data)=>{
-          newAvatar = {...newAvatar, ...itemAssign(data)}
-        })
-        const finalAvatar = {...avatar, ...newAvatar}
-        setTimeout(() => {
-          if (Object.keys(finalAvatar).length > 0) {
-            cullHiddenMeshes(finalAvatar)
-          }
-        }, effectManager.transitionTime);
-        setAvatar(finalAvatar)
-      })
+      loadSelectedOptions(selectedOptions)
       setSelectedOptions([]);
     }
 
@@ -155,14 +160,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
       // play avatar fade out effect
       effectManager.playFadeOutEffect();
-
+      //clear previous avatar
       selectClass(option.avatarIndex)
       return
     }
 
     effectManager.setTransitionEffect('switch_item');
 
-    console.log(option)
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{

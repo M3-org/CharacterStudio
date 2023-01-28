@@ -55,45 +55,12 @@ async function fetchAll() {
   const manifest = await fetchManifest()
   const sceneModel = await fetchScene()
 
-  // check if templateIndex is set in localStorage
-  // if not, set it to a random index
-  let templateIndex = localStorage.getItem("templateIndex")
-
-  if (!templateIndex) {
-    templateIndex = Math.floor(Math.random() * manifest.length)
-    localStorage.setItem("templateIndex", templateIndex)
-  } else {
-    templateIndex = parseInt(templateIndex)
-  }
-  const tempInfo = manifest[templateIndex]
-
-  const animManager = await fetchAnimation(tempInfo)
-
-  // check if initialTraits is set in localStorage
-  // if not, set it to a random index
-  let initialTraits = localStorage.getItem("initialTraits")
-  if (!initialTraits) {
-    initialTraits = initialTraits = [
-      ...new Set([
-        ...getAsArray(tempInfo.requiredTraits),
-        ...getAsArray(tempInfo.randomTraits),
-      ]),
-    ]
-    localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-  } else {
-    initialTraits = JSON.parse(initialTraits)
-  }
-
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-
   const effectManager = new EffectManager()
 
   return {
     manifest,
     sceneModel,
-    tempInfo,
-    animManager,
-    initialTraits,
     blinkManager,
     effectManager,
   }
@@ -133,9 +100,6 @@ export default function App() {
   const {
     manifest,
     sceneModel,
-    tempInfo,
-    initialTraits,
-    animManager,
     blinkManager,
     effectManager,
   } = resource.read()
@@ -144,19 +108,14 @@ export default function App() {
 
   const [hideUi, setHideUi] = useState(false)
 
-  const [templateInfo, setTemplateInfo] = useState(tempInfo)
-  const [animationManager, setAnimationManager] = useState(animManager)
+  const [templateInfo, setTemplateInfo] = useState({})
+  const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene } = useContext(SceneContext)
+  const { camera, scene, resetAvatar, setAwaitDisplay } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
-  //const [templateInfo, setTemplateInfo] = useState(tempInfo)
-
-  // detect a double tap on the screen or a mouse click
-  // switch the UI on and off
   let lastTap = 0
-
   useEffect(() => {
     const handleTap = (e) => {
       const now = new Date().getTime()
@@ -176,13 +135,14 @@ export default function App() {
   }, [hideUi])
 
   const fetchNewModel = (index) => {
+    setAwaitDisplay(true)
+    resetAvatar();
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
-        setTemplateInfo(manifest[index])
+       
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-
         let initialTraits = localStorage.getItem("initialTraits")
         if (!initialTraits) {
           initialTraits = initialTraits = [
@@ -195,7 +155,11 @@ export default function App() {
         } else {
           initialTraits = JSON.parse(initialTraits)
         }
+
+        setTemplateInfo(manifest[index])
+        
         resolve(manifest[index])
+
       }
     })
   }
@@ -207,7 +171,6 @@ export default function App() {
       <Appearance
         manifest={manifest}
         animationManager={animationManager}
-        initialTraits={initialTraits}
         templateInfo={templateInfo}
         blinkManager={blinkManager}
         effectManager={effectManager}
@@ -215,7 +178,9 @@ export default function App() {
       />
     ),
     [ViewMode.BIO]: <BioPage />,
-    [ViewMode.CREATE]: <Create />,
+    [ViewMode.CREATE]: <Create 
+      fetchNewModel={fetchNewModel}
+      />,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
@@ -224,7 +189,7 @@ export default function App() {
   return (
     <Fragment>
       <Background />
-      <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
+      <Scene manifest={manifest} sceneModel={sceneModel} templateInfo={templateInfo} />
       {pages[viewMode]}
       {/*
         <Logo />
