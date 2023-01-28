@@ -78,9 +78,9 @@ const getRingMesh = (globalUniforms) => {
     },
     vertexShader: ringVertex,
     fragmentShader: ringFragment,
-    transparent: true,
-    // depthWrite: false,
-    // blending: THREE.AdditiveBlending,
+    // transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
   });
   material.uniforms.cameraDir = globalUniforms.cameraDir;
   material.uniforms.eye = globalUniforms.eye;
