@@ -8,7 +8,7 @@ import CustomButton from '../components/custom-button'
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
     const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
-    const [isRandomizing, setIsRandomizing] = React.useState(false)
+    const [isRandomizing, setIsRandomizing] = React.useState(true) // note: will do "fade in avatar" at start.
     const back = () => {
         console.log('back 1');
         resetAvatar();
