@@ -10,6 +10,8 @@ localStorage.setItem("sessionId", sessionId);
 
 const config = new SepiaSpeechRecognitionConfig();
 
+const defaultSpeaker = 'Speaker'
+
 const SpeechRecognition = window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config);
 
 export default function ChatBox({
@@ -27,7 +29,7 @@ export default function ChatBox({
 
     const [speechrecognition, setSpeechrecognition] = React.useState(false);
 
-    const [speaker, setSpeaker] = React.useState(localStorage.getItem('speaker') || "Speaker");
+    const [speaker, setSpeaker] = React.useState(localStorage.getItem('speaker') || defaultSpeaker);
 
     // on speaker changer, set local storage
     useEffect(() => {
@@ -39,15 +41,14 @@ export default function ChatBox({
         const prompt =
             `Name: ${name}
 Bio: ${bio}
-Speaker: Hey ${name}
+${speaker}: Hey ${name}
 ${name}: ${greeting}
-Speaker: ${question1}
+${speaker}: ${question1}
 ${name}: ${response1}
-Speaker: ${question2}
+${speaker}: ${question2}
 ${name}: ${response2}
-Speaker: ${question3}
-${name}: ${response3}
-`
+${speaker}: ${question3}
+${name}: ${response3}`
 
 console.log('prompt is ******************************')
 console.log(prompt)

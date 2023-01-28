@@ -22,7 +22,7 @@
     background-size: cover;
     overflow: hidden;
   }
-  
+
   .webamark {
     position: absolute;
     left: 0;
@@ -30,7 +30,7 @@
     width: 100vw;
     height: 100vh;
   }
-  
+
   .logo {
     position: absolute;
     left: 50%;

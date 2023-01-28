@@ -315,12 +315,12 @@ class ParticleEffect {
     if (this.spotLight) {
       if (this.spotLight.fadeIn) {
         if (this.spotLight.material.uniforms.opacity.value < 1) {
-          this.spotLight.material.uniforms.opacity.value += 1;
+          this.spotLight.material.uniforms.opacity.value = 1;
         }
       }
       else {
         if (this.spotLight.material.uniforms.opacity.value > 0) {
-          this.spotLight.material.uniforms.opacity.value -= 0.015;
+          this.spotLight.material.uniforms.opacity.value -= 0.025;
         }
         else {
           this.spotLight.material.uniforms.opacity.value = 0;

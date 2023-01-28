@@ -291,7 +291,6 @@ export class EffectManager{
   }
 
   playFadeInEffect() {
-    this.particleEffect.removeSpotLight();
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
   }
 
@@ -345,6 +344,9 @@ export class EffectManager{
         if (globalUniforms.fadeInAvatarTime.value > 0.1 && globalUniforms.fadeInAvatarTime.value < 0.5) {
           this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.fadeInAvatarTime.value));
           this.particleEffect.emitRespawnPixel();
+        }
+        if (globalUniforms.fadeInAvatarTime.value >= 0.5) {
+          this.particleEffect.removeSpotLight();
         }
         globalUniforms.fadeInAvatarTime.value += FADE_IN_AVATAR_SPEED;
         if (globalUniforms.fadeInAvatarTime.value > FADE_IN_AVATAR_DURATION) {
