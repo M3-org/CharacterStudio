@@ -7,6 +7,13 @@
     font-size: .8rem;
     top: 0;
     color: #fff;
+    box-sizing: border-box;
+    padding: 24px;
+    text-align: left;
+}
+
+.container * {
+    outline: none !important;
 }
 
 .container > span {
@@ -17,6 +24,8 @@
 .container > label, .container > span > label {
     display: block;
     width: 100%;
+    margin-bottom: 8px;
+    color: #99ABB2;
 }
 
 /* float the first chatbox span left */
@@ -25,35 +34,32 @@
 }
 
 .container > input, .container > span > input {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
     display: block;
     width: 20em;
 }
 
 .container > textarea {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 2em);
+    width: 100%;
     display: block;
+    box-sizing: border-box;
+    margin-bottom: 16px;
 }
 
 .container > select {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 2em);
+    width: 100%;
+    margin-bottom: 8px;
 }
 
 .button {
