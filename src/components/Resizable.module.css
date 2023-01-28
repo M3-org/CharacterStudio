@@ -1,7 +1,7 @@
 .Block{
     display: flex;
     align-items: flex-end;
-    padding-left:200px;
+    padding-left: 200px;
     padding-top: 200px;
     position: absolute;
     overflow: hidden;
@@ -9,8 +9,8 @@
 .Resizable{
     background: rgba(5, 128, 165, 0.329);
     border: 1px solid black; 
-    height: 200px;
-    width: 200px;
+    height: 256px;
+    width: 256px;
 }
 .Draggable{
     background: rgb(10, 165, 5);

@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
 import styles from "./Resizable.module.css"
 
-const ResizableDiv = () => {
+const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     
     const [initialPos,   setInitialPos] = useState(null);
     const [initialSize, setInitialSize] = useState(null);
-  
+
+    // React.useEffect(() => {
+    //     let draggable = document.getElementById('Screenshot-block');
+    //     let resizable = document.getElementById('screenshots');
+    //     console.log(draggable)
+    //     console.log(screenshotPosition)
+    //     draggable.style.paddingTop = screenshotPosition.y
+    //     draggable.style.paddingLeft = screenshotPosition.x
+    //     resizable.style.width = screenshotPosition.width
+    //     resizable.style.height = screenshotPosition.height
+    // },[])
+
     const initialFrame = (e) => {
         let draggable = document.getElementById('Screenshot-block');
-        let resizable = document.getElementById('Resizable');
+        let resizable = document.getElementById('screenshots');
         console.log(resizable.offsetWidth)
 
         draggable.style.paddingLeft = e.clientX - resizable.offsetWidth/2;
@@ -16,18 +27,24 @@ const ResizableDiv = () => {
 
         
         setInitialPos({x:e.clientX, y:e.clientY});
-
+        
     }
 
     const dragFrame = (e) => {
-        let draggable = document.getElementById('Screenshot-block');
-        let resizable = document.getElementById('Resizable');
 
-        if (e.clientY > 5)
-            draggable.style.paddingTop = `${e.clientY - resizable.offsetHeight/2}px`
+        if (e.clientY > 5 && e.clientX > 5){
+            let draggable = document.getElementById('Screenshot-block');
+            let resizable = document.getElementById('screenshots');
 
-        if (e.clientX > 5)
-           draggable.style.paddingLeft = `${e.clientX - resizable.offsetWidth/2}px`
+            const posY = e.clientY - resizable.offsetHeight/2
+            const posX = e.clientX - resizable.offsetWidth/2
+        
+            draggable.style.paddingTop = `${posY}px`
+
+            draggable.style.paddingLeft = `${posX}px`
+
+            setScreenshotPosition({...screenshotPosition, ...{x:posX, y:posY}});
+        }
 
     }
     
@@ -35,7 +52,7 @@ const ResizableDiv = () => {
 
     const initial = (e) => {
         
-        let resizable = document.getElementById('Resizable');
+        let resizable = document.getElementById('screenshots');
 
         setInitialPos({x:e.clientX, y:e.clientY});
         setInitialSize({width:resizable.offsetWidth, height:resizable.offsetHeight});
@@ -44,28 +61,30 @@ const ResizableDiv = () => {
     
     const resize = (e) => {
 
-        let resizable = document.getElementById('Resizable');
+        
+        let resizable = document.getElementById('screenshots');
 
         const newWidth = parseInt(initialSize.width) + parseInt(e.clientX - initialPos.x)
         const newHeight = parseInt(initialSize.height) + parseInt(e.clientY - initialPos.y)
-        if (newWidth > 50)
+        if (newWidth > 50 && newHeight > 50){
             resizable.style.width = `${newWidth}px`;
-        if (newHeight > 50)
             resizable.style.height = `${newHeight}px`;
+            setScreenshotPosition({...screenshotPosition,...{width:newWidth, height:newHeight}});
+        }
     }
     
     return(
         <div id = "Screenshot-block" className = {styles["Block"]}>
-            <div id = "Resizable" className = {styles["Resizable"]}
+            <div id = "screenshots" className = {styles["Resizable"]}
                 draggable   = 'true'
                 onDragStart = {initialFrame} 
                 onDrag      = {dragFrame}
             />
-            <div id = "Draggable" className = {styles["Draggable"]}
+            {/* <div id = "Draggable" className = {styles["Draggable"]}
                 draggable   = 'true'
                 onDragStart = {initial} 
                 onDrag      = {resize}
-            />
+            /> */}
         </div>
     );
     

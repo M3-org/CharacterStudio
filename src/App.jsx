@@ -185,6 +185,7 @@ export default function App() {
     [ViewMode.VIEW]: <View />,
   }
   return (
+    <div id = "bg" >
     <Fragment>
       <div className="generalTitle">
         Character Creator
@@ -206,5 +207,6 @@ export default function App() {
         </div>
           */}
     </Fragment>
+    </div>
   )
 }

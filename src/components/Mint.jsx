@@ -5,7 +5,7 @@ import ethereumIcon from "../../public/ui/mint/ethereum.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { getModelFromScene, getScreenShot } from "../library/utils"
+import { getModelFromScene, getCroppedScreenshot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 
 import styles from "./Mint.module.css"
@@ -15,7 +15,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup() {
+export default function MintPopup({screenshotPosition}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const { walletAddress } = useContext(AccountContext)
 
@@ -58,7 +58,7 @@ export default function MintPopup() {
       setMintStatus("Uploading...")
       console.log('avatar in mintAsset', avatar)
 
-      const screenshot = await getScreenShot("mint-scene")
+      const screenshot = await getCroppedScreenshot("editor-scene",500, 100, 256, 256)
       if (!screenshot) {
         throw new Error("Unable to get screenshot")
       }
@@ -128,8 +128,11 @@ export default function MintPopup() {
       return;
     }
   }
-  const test = () => {
+  const  test = async () => {
     console.log("test")
+    console.log(screenshotPosition)
+    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height)
+    console.log(img)
   }
   const checkOT = async (address) => {
     if(address) {

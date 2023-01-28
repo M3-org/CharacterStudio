@@ -103,17 +103,110 @@ export async function getScreenShot(elementId, delay = 0) {
   return await getScreenShotByElementId(elementId);
 }
 
-async function getScreenShotByElementId(id) {
-  const snapShotElement = document.getElementById(id);
+export async function getCroppedScreenshot(elementId, posX, posY, width, height, debug = false){
+  const snapShotElement = document.getElementById(elementId);
   return await html2canvas(snapShotElement).then(async function (canvas) {
+
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+
+    const tempcanvas = document.createElement("canvas");
+    tempcanvas.width = width;
+    tempcanvas.height = height;
+    const tempctx = tempcanvas.getContext("2d");
+
+    let image = new Image();
+    image.src = dataURL;
+
+    await tempctx.drawImage(canvas, posX, posY, width, height, 0,0, width, height)
+
+    var newdataurl = tempcanvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
-      dataURL.replace(/^data:image\/\w+;base64,/, ""),
+      newdataurl.replace(/^data:image\/\w+;base64,/, ""),
       "base64"
     );
+
+
     const blob = new Blob([base64Data], { type: "image/jpeg" });
+
+    if (debug){
+      const link = document.createElement("a")
+      link.style.display = "none"
+      document.body.appendChild(link)
+      link.href = URL.createObjectURL(blob)
+      link.download = "test.jpeg"
+      link.click()
+    }
+
     return blob;
   });
+}
+
+async function getScreenShotByElementId(id) {
+
+  const snapShotElement = document.getElementById(id);
+  return await html2canvas(snapShotElement).then(async function (canvas) {
+
+    var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+    console.log(dataURL)
+    // const base64Data = Buffer.from(
+    //   dataURL.replace(/^data:image\/\w+;base64,/, ""),
+    //   "base64"
+    // );
+
+    const tempcanvas = document.createElement("canvas");
+    tempcanvas.width = 256;
+    tempcanvas.height = 256;
+    const tempctx = tempcanvas.getContext("2d");
+
+    let image = new Image();
+    image.src = dataURL;
+
+    //const ctx = canvas.getContext("2d")
+    await tempctx.drawImage(canvas, 500, 100, 256, 256, 0,0, 256, 256)
+
+    var newdataurl = tempcanvas.toDataURL("image/jpeg", 1.0);
+    const base64Data = Buffer.from(
+      newdataurl.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+
+
+    const blob = new Blob([base64Data], { type: "image/jpeg" });
+
+    const link = document.createElement("a")
+    link.style.display = "none"
+    document.body.appendChild(link)
+    link.href = URL.createObjectURL(blob)
+    link.download = "test.jpeg"
+    link.click()
+
+    return blob;
+  });
+}
+function createSpecifiedImage(ctx){
+  const context = createContext(256,256);
+  const imageData = ctx.getImageData(left, top, width, height);
+  const arr = new ImageData(imageData, xTileSize, yTileSize);
+  const tempcanvas = document.createElement("canvas");
+  tempcanvas.width = xTileSize;
+  tempcanvas.height = yTileSize;
+  const tempctx = tempcanvas.getContext("2d");
+
+  tempctx.putImageData(arr, 0, 0);
+  tempctx.save();
+  // draw tempctx onto context
+  context.drawImage(tempcanvas, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
+
+}
+
+function createContext({ width, height }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "white";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  return context;
 }
 
 export async function getSkinColor(scene, targets) {
