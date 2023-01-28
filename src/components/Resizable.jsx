@@ -80,11 +80,11 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
                 onDragStart = {initialFrame} 
                 onDrag      = {dragFrame}
             />
-            {/* <div id = "Draggable" className = {styles["Draggable"]}
+            <div id = "Draggable" className = {styles["Draggable"]}
                 draggable   = 'true'
                 onDragStart = {initial} 
                 onDrag      = {resize}
-            /> */}
+            />
         </div>
     );
     

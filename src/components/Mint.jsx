@@ -131,7 +131,7 @@ export default function MintPopup({screenshotPosition}) {
   const  test = async () => {
     console.log("test")
     console.log(screenshotPosition)
-    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height)
+    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
     console.log(img)
   }
   const checkOT = async (address) => {
