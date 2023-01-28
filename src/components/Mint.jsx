@@ -128,7 +128,9 @@ export default function MintPopup() {
       return;
     }
   }
-
+  const test = () => {
+    console.log("test")
+  }
   const checkOT = async (address) => {
     if(address) {
       const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
@@ -159,16 +161,22 @@ export default function MintPopup() {
 
   return (
     // currentView.includes("MINT") && (
+
+         
       <div className={styles["StyledContainer"]}>
+        
         <div className={styles["StyledPopup"]}>
+          
           {/* {connected && ( */}
             <Fragment>
+            
               <div className={styles["Header"]}>
                 <img
                   src={mintPopupImage}
                   className={mintStatus}
                   height={"50px"}
                 />
+                 
                 <div className={styles["mintTitle"]}>Mint Avatar</div>
               </div>
               <div className={styles["TraitDetail"]}>
@@ -197,7 +205,7 @@ export default function MintPopup() {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  // onClick={() => setViewMode(ViewStates.CREATOR)}
+                  onClick={() => test()}
                 >
                   {" "}
                   {"OK"}
@@ -212,8 +220,10 @@ export default function MintPopup() {
                 )}
               </div>
             </Fragment>
+           
           {/* )} */}
         </div>
+       
       </div>
     // )
   )

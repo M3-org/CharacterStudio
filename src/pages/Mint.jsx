@@ -3,6 +3,7 @@ import styles from "./Mint.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 
 import Mint from "../components/Mint"
+import ResizableDiv from "../components/Resizable"
 import CustomButton from "../components/custom-button"
 
 function MintComponent() {
@@ -20,10 +21,12 @@ function MintComponent() {
 
   return (
     <div className={styles.container}>
+      <ResizableDiv/>
       <div className={styles.mintContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
+          
           <Mint />
         </div>
       </div>
