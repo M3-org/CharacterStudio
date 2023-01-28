@@ -153,7 +153,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    debugger
+    // debugger
     if (option == null){
       option = {
         item:null,

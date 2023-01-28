@@ -110,7 +110,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  debugger
+  // debugger
   const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
@@ -142,7 +142,7 @@ export default function App() {
     //   moveCamera({ height: 0.75, distance: 1.35 })
     // }
     if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-      moveCamera({ height: 0.8, distance: 3.2, left: 0.5 }) // todo: left
+      moveCamera({ height: 0.8, distance: 3.2, left: 0.7 }) // todo: left
     } else {
       moveCamera({ height: 0.8, distance: 3.2 }) // center
     }

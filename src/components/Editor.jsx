@@ -19,7 +19,7 @@ import { TokenBox } from "./token-box/TokenBox"
 
 export default function Editor({manifest, animationManager, blinkManager, effectManager, fetchNewModel}) {
   const test = useContext(SceneContext)
-  debugger
+  // debugger
   const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -43,7 +43,7 @@ export default function Editor({manifest, animationManager, blinkManager, effect
 
 
   const selectOption = (option) => {
-    debugger
+    // debugger
     !isMute && playSound('optionClick');
     if (option.name === currentTraitName) {
       if (cameraFocused) {
@@ -68,7 +68,7 @@ export default function Editor({manifest, animationManager, blinkManager, effect
     setCurrentTraitName(option.name)
   }
   const selectClassOption = () => {
-    debugger
+    // debugger
     setRemoveOption(false)
     setCurrentOptions(getClassOptions(manifest))
     setCurrentTraitName("_class")
