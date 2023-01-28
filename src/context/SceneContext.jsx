@@ -1,6 +1,9 @@
 import React, { createContext, useEffect, useState } from "react"
 import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
+import {
+  getRandomizedTemplateOptions
+} from "../library/option-utils"
 
 export const SceneContext = createContext()
 
@@ -80,6 +83,10 @@ export const SceneProvider = (props) => {
     return null
   }
 
+  const getRandomCharacter = () => {
+    setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
+  }
+
   const resetAvatar = () => {
     if (avatar){
       for (const prop in avatar){
@@ -115,6 +122,7 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         setSelectedOptions,
+        getRandomCharacter,
         saveUserSelection,
         loadUserSelection,
         selectedOptions,

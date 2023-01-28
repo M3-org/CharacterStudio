@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useContext } from "react"
 
-import * as THREE from "three"
 import gsap from "gsap"
 import shuffle from "../../public/ui/traits/shuffle.svg"
 import { AudioContext } from "../context/AudioContext"
@@ -16,7 +15,6 @@ import {
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
-import { AnimationManager } from "../library/animationManager"
 import { TokenBox } from "./token-box/TokenBox"
 
 

@@ -1,11 +1,9 @@
 import * as THREE from "three"
 import { getAsArray } from "./utils"
 
-// const randomizeCurrentCharacter = () => {
-//   setSelectedOptions(
-//     getMultipleRandomTraits(getInitialTraits())
-//   )
-// }
+export function getRandomizedTemplateOptions (template) {
+  return getMultipleRandomTraits(getInitialTraits(template),template)
+}
 
 // const resetCurrentCharacter = () =>{
 //   setSelectedOptions(
