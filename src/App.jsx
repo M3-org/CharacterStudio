@@ -136,13 +136,13 @@ export default function App() {
   
   useEffect(() => {
     console.log('--- viewMode:', viewMode);
-    // if ([ViewMode.APPEARANCE, viewMode.SAVE].includes(viewMode)) {
+    // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
     //   moveCamera({ height: 0.8, distance: 3.2 })
-    // } else if ([ViewMode.BIO, viewMode.MINT, viewMode.CHAT].includes(viewMode)) {
+    // } else if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
     //   moveCamera({ height: 0.75, distance: 1.35 })
     // }
-    if ([ViewMode.BIO, viewMode.MINT, viewMode.CHAT].includes(viewMode)) {
-      moveCamera({ height: 0.75, distance: 1.35 }) // todo: left
+    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
+      moveCamera({ height: 0.8, distance: 3.2, left: 0.5 }) // todo: left
     } else {
       moveCamera({ height: 0.8, distance: 3.2 }) // center
     }

@@ -103,7 +103,7 @@ export const SceneProvider = (props) => {
     if (!controls) return
     gsap.to(controls.target, {
       y: value.height,
-      x: 0,
+      x: value.left || 0,
       z: 0,
       duration: 1,
     })
