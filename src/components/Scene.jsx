@@ -164,6 +164,7 @@ export default function Scene({sceneModel}) {
 
     // start animation frame loop to render
     const animate = () => {
+      // console.log('-animate')
       requestAnimationFrame(animate)
       if (currentCameraMode !== CameraMode.AR) {
         controls?.update()

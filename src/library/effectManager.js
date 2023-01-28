@@ -4,7 +4,7 @@ import ParticleEffect from "./particle/particle.js";
 
 import {
   TRANSITION_TIME_OF_SWITCH_ITEM,
-  TRANSITION_TIME_OF_LOADING_AVATAR,
+  // TRANSITION_TIME_OF_LOADING_AVATAR,
 
   SWITCH_ITEM_EFFECT_INITIAL_TIME, 
   SWITCH_ITEM_EFFECT_DURATION, 
@@ -64,14 +64,16 @@ const customUniforms = {
 };
 
 
-export class EffectManager{
+export class EffectManager extends EventTarget{
   constructor () {
+    super();
     this.cameraDir = new THREE.Vector3();
     this.frameRate = 1000 / 30;
 
     this.initParticle = false;
 
     this.transitionEffectType = null;
+    // console.log(`transitionTime constructor:`, TRANSITION_TIME_OF_SWITCH_ITEM)
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
 
     this.update();
@@ -287,11 +289,14 @@ export class EffectManager{
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
     this.particleEffect.emitSpotLight();
-    this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
+    // console.log(`transitionTime playFadeOutEffect:`, TRANSITION_TIME_OF_LOADING_AVATAR)
+    // this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
   }
 
   playFadeInEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
+    // console.log(`transitionTime playFadeInEffect:`, FADE_IN_AVATAR_DURATION * 1000)
+    this.transitionTime = FADE_IN_AVATAR_DURATION * 1000;
   }
 
   playSwitchItemEffect() {
@@ -299,6 +304,7 @@ export class EffectManager{
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
     this.particleEffect.emitPixel();
     this.particleEffect.emitBeam();
+    // console.log(`transitionTime playSwitchItemEffect:`, TRANSITION_TIME_OF_SWITCH_ITEM)
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
   }
 
@@ -350,9 +356,11 @@ export class EffectManager{
         }
         globalUniforms.fadeInAvatarTime.value += FADE_IN_AVATAR_SPEED;
         if (globalUniforms.fadeInAvatarTime.value > FADE_IN_AVATAR_DURATION) {
+          // console.log('transition end')
           globalUniforms.fadeInAvatarTime.value = FADE_IN_AVATAR_INITIAL_TIME;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
           this.setTransitionEffect('normal');
+          this.dispatchEvent(new Event('fadeinavatarend'));
         }
       }
 

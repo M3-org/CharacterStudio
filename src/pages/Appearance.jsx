@@ -8,20 +8,30 @@ import CustomButton from '../components/custom-button'
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
     const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
+    const [isRandomizing, setIsRandomizing] = React.useState(false) // note: can't use `const isRandomizing = false`, it'll auto set to false repeatedly.
     const back = () => {
-        console.log('back 1');
+        // console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
+    // console.log('--- setIsRandomizing(false)')
+    effectManager.addEventListener('fadeinavatarend', () => {
+        // console.log('--- setIsRandomizing(false)')
+        setIsRandomizing(false);
+    })
 
     const next = () => {
-        console.log('next B');
+        // console.log('next B');
         setViewMode(ViewMode.BIO)
     }
 
     const randomize = () => {
-        debugger
-        getRandomCharacter()
+        if (!isRandomizing) {
+            console.log('click randomize')
+            // console.log('--- setIsRandomizing(true)')
+            setIsRandomizing(true);
+            getRandomCharacter()
+        }
     }
 
     return (
