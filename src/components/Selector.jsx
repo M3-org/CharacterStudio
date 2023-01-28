@@ -122,20 +122,19 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
-  const loadSelectedOptions = (opts) => {
-    loadOptions(opts).then((loadedData)=>{
-      let newAvatar = {};
-      loadedData.map((data)=>{
-        newAvatar = {...newAvatar, ...itemAssign(data)}
-      })
-      const finalAvatar = {...avatar, ...newAvatar}
-      setTimeout(() => {
-        if (Object.keys(finalAvatar).length > 0) {
-          cullHiddenMeshes(finalAvatar)
-        }
-      }, effectManager.transitionTime);
-      setAvatar(finalAvatar)
+  const loadSelectedOptions = async (opts) => {
+    const loadedData = await loadOptions(opts);
+    let newAvatar = {};
+    loadedData.map((data)=>{
+      newAvatar = {...newAvatar, ...itemAssign(data)}
     })
+    const finalAvatar = {...avatar, ...newAvatar}
+    setTimeout(() => {
+      if (Object.keys(finalAvatar).length > 0) {
+        cullHiddenMeshes(finalAvatar)
+      }
+    }, effectManager.transitionTime);
+    setAvatar(finalAvatar)
   }
 
   // options are selected by random or start
