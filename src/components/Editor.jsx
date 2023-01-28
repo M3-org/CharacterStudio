@@ -123,11 +123,7 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
     return resultTraitOptions
   }
   const selectClass = (ind) => {
-    console.log("class sel")
-    fetchNewModel(ind).then((template) => {
-      // remove randomness here
-      //setSelectedOptions (getMultipleRandomTraits(getInitialTraits(template),template))
-    })
+    fetchNewModel(ind)
   }
   const getClassOptions = () => {
     const options = []
