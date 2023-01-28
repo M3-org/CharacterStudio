@@ -111,7 +111,7 @@ export default function App() {
   const [templateInfo, setTemplateInfo] = useState({})
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, setSelectedOptions, resetAvatar, loadUserSelection } = useContext(SceneContext)
+  const { camera, scene, resetAvatar } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 

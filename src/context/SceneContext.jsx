@@ -28,6 +28,7 @@ export const SceneProvider = (props) => {
 
   const [selectedOptions, setSelectedOptions] = useState([])
   const [removeOption, setRemoveOption] = useState(false)
+  const [editMode, setEditMode] = useState(false)
 
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
@@ -93,6 +94,8 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        editMode, 
+        setEditMode,
         templateInfo,
         setTemplateInfo,
         blinkManager,

@@ -1,21 +1,23 @@
 import React from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
-import { SceneContext } from "../context/SceneContext"
+import { SceneContext,  } from "../context/SceneContext"
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar } = React.useContext(SceneContext)
+    const { resetAvatar, setEditMode } = React.useContext(SceneContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
+        setEditMode(true)
         setViewMode(ViewMode.CREATE)
     }
 
     const next = () => {
         console.log('next B');
+        setEditMode(false)
         setViewMode(ViewMode.BIO)
     }
 

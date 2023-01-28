@@ -1,10 +1,12 @@
 import React from "react"
 import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
+import { SceneContext,  } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
 
 function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
+  const { setEditMode } = React.useContext(SceneContext)
 
   const back = () => {
     console.log("back 3")
@@ -13,7 +15,8 @@ function Create({fetchNewModel}) {
 
   const selectClass = (characterClass) => {
     console.log("TODO: set character class to: " + characterClass)
-    fetchNewModel(characterClass.templateIndex).then((template)=>{
+    setEditMode(true)
+    fetchNewModel(characterClass.templateIndex).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
     

@@ -164,7 +164,6 @@ function getModelProperty(model, property) {
 
 export function disposeVRM(vrm) {
   const model = vrm.scene;
-  console.log(vrm)
   const animationControl = (getModelProperty(vrm, "animationControl"));
   if (animationControl)
     animationControl.dispose();
