@@ -84,7 +84,6 @@ export const SceneProvider = (props) => {
   }
 
   const getRandomCharacter = () => {
-    debugger
     setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
   }
 

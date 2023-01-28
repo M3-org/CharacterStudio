@@ -122,30 +122,25 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
-  const loadSelectedOptions = async (opts) => {
-    // console.log('loadSelectedOptions start')
-    const loadedData = await loadOptions(opts);
-    // console.log('loadSelectedOptions before cull')
-    let newAvatar = {};
-    loadedData.map((data)=>{
-      newAvatar = {...newAvatar, ...itemAssign(data)}
+  const loadSelectedOptions = (opts) => {
+    loadOptions(opts).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
     })
-    const finalAvatar = {...avatar, ...newAvatar}
-    if (Object.keys(finalAvatar).length > 0) {
-      cullHiddenMeshes(finalAvatar)
-    }
-    // console.log('loadSelectedOptions after cull')
-    setAvatar(finalAvatar)
-    // console.log('setTimeout', effectManager.transitionTime * 2) // effect frame rate 30
-    await new Promise(resolve => setTimeout(resolve, effectManager.transitionTime * 2));
-    // console.log('loadSelectedOptions end')
   }
 
   // options are selected by random or start
   useEffect(() => {
-    // console.log('useEffect: Selector.jsx:', selectedOptions.length)
     if (selectedOptions.length > 0){
-      debugger
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
@@ -507,7 +502,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       // add the now model to the current scene
       model.add(m)
       animationManager.update(); // note: update animation to prevent some frames of T pose at start.
-      // setTimeout(() => {
+      setTimeout(() => {
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
         event.x = mousePosition.x;
@@ -524,7 +519,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         else {
           effectManager.playFadeInEffect();
         } 
-      // }, effectManager.transitionTime)
+      }, effectManager.transitionTime)
     }
 
     // and then add the new avatar data
