@@ -27,7 +27,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, effectManager, selectClass}) {
+export default function Selector({templateInfo, animationManager, blinkManager, isNewClass, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -156,12 +156,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
     
     if (option.avatarIndex != null){
-      effectManager.setTransitionEffect('fade_out_avatar');
+      if(isNewClass(option.avatarIndex)){
+        effectManager.setTransitionEffect('fade_out_avatar');
 
-      // play avatar fade out effect
-      effectManager.playFadeOutEffect();
-      //clear previous avatar
-      selectClass(option.avatarIndex)
+        // play avatar fade out effect
+        effectManager.playFadeOutEffect();
+        
+        selectClass(option.avatarIndex)
+      }
       return
     }
 

@@ -170,7 +170,6 @@ export default function App() {
       <Appearance
         manifest={manifest}
         animationManager={animationManager}
-        //templateInfo={templateInfo}
         blinkManager={blinkManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}

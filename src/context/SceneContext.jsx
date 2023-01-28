@@ -84,7 +84,6 @@ export const SceneProvider = (props) => {
   }
 
   const getRandomCharacter = () => {
-    console.log(templateInfo)
     setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
   }
 

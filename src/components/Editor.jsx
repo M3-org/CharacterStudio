@@ -68,6 +68,10 @@ export default function Editor({manifest, animationManager, blinkManager, effect
     setCurrentTraitName("_class")
   }
   
+  const isNewClass = (templateIndex) => {
+    return templateInfo != manifest[templateIndex]
+  }
+
   const selectClass = (ind) => {
     fetchNewModel(ind)
   }
@@ -160,7 +164,7 @@ export default function Editor({manifest, animationManager, blinkManager, effect
           </div>
         </div>
       </div>
-      <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass}/>
+      <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} effectManager = {effectManager} selectClass = {selectClass} isNewClass = {isNewClass}/>
     </Fragment>
   )
 }
