@@ -1,27 +1,119 @@
 .SelectorContainerPos {
   position: absolute;
-  top: 20vh;
-  right: 2em;
-  height: 60vh;
-  overflow-y: scroll;
-  overflow-x: none;
-  border: 1px solid #38404E;
-  border-radius : 5px;
+  top: 88px;
+  right: 32px;
+  height: -webkit-calc(100vh - 166px);
+  height: calc(100vh - 166px);
   backdrop-filter: blur(22.5px);
-  transform: perspective(70vh) rotateY(-5deg);
-  z-index:1000;
+  background: rgba(5, 11, 14, 0.8);
+  z-index: 1000;
   cursor: pointer;
 }
 
+.scrollContainer {
+  height: 100%;
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin: 16px;
+  margin-right: 10px;
+  padding-right: 6px;
+  height: -webkit-calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
 .selector-container {
-  background: rgba(56, 64, 78, 0.1);
-  border-radius: .25em;
   user-select: none;
   flex: 1;
+  width: 140px;
+  position: relative;
+}
+
+.traitTitleWrap {
+  background: rgba(5, 11, 14, 0.8);
+  position: absolute;
+  top: -28px;
+  padding: 8px 0 6px 0;
+  font-size: 12px !important;
+  width: 132px;
+  text-align: center;
+  left: 20px;
+  color: #5eb086;
+}
+
+.topLine {
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  background: -webkit-linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  background: linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.bottomLine {
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  background: -webkit-linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  background: linear-gradient(
+    90deg,
+    rgba(0, 149, 100, 0) 0%,
+    rgba(8, 234, 160, 1) 50%,
+    rgba(0, 149, 100, 0) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.traitTitleWrap .traitTitle {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.selector-container::after {
+  content: " ";
+  display: block;
+  clear: both;
 }
 
 .selector-button {
-  opacity: 0.5;
+  opacity: 1;
+  float: left;
+  width: 62px;
+  text-align: center;
 }
 
 .selector-button:hover {
@@ -44,25 +136,25 @@
 
 /* Handle */
 .SelectorContainerPos::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, .25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Handle on hover */
 .SelectorContainerPos::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .selectorButton {
-  padding: .25em;
+  padding: 0.25em;
   display: block;
   position: relative;
 }
 
 .trait-icon {
-    height: 4em;
-    margin: auto;
-    user-select: none;
-    position: relative;
+  height: 4em;
+  margin: auto;
+  user-select: none;
+  position: relative;
 }
 
 .tickStyle {

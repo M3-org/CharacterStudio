@@ -61,8 +61,8 @@ export class AnimationManager{
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
-    this.weightIn = null;
-    this.weightOut = null;
+    this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
+    this.weightOut = NaN;
     this.offset = null;
     this.lastAnimID = -1;
     this.curAnimID = 0;
@@ -75,7 +75,9 @@ export class AnimationManager{
         offset[2]
       );
     }
-    this.update();
+    setInterval(() => {
+      this.update();
+    }, 1000/30);
   }
   async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
@@ -178,27 +180,25 @@ export class AnimationManager{
   }
 
   update(){
-    setInterval(() => {
-      if (this.mainControl){
-        if (this.weightIn < 1){ 
-          this.weightIn += 1/(30*interpolationTime);
+    if (this.mainControl) {
+      this.animationControls.forEach(animControl => {
+        if (animControl.from != null) {
+          animControl.from.weight = this.weightOut;
         }
-        else this.weightIn = 1;  
-    
-        if (this.weightOut > 0) this.weightOut -= 1/(30*interpolationTime);
-        else this.weightOut = 0;
-          
-        this.animationControls.forEach(animControl => {
-          animControl.mixer.update(1/30);
-    
-          if (animControl.from != null){
-            animControl.from.weight = this.weightOut;
-          }
-          if (animControl.to != null){
-            animControl.to.weight = this.weightIn;
-          }
-        });
+        if (animControl.to != null) {
+          animControl.to.weight = this.weightIn;
+        }
+
+        animControl.mixer.update(1/30);
+      });
+
+      if (this.weightIn < 1) {
+        this.weightIn += 1/(30*interpolationTime);
       }
-    }, 1000/30);
+      else this.weightIn = 1;  
+  
+      if (this.weightOut > 0) this.weightOut -= 1/(30*interpolationTime);
+      else this.weightOut = 0;
+    }
   }
 }

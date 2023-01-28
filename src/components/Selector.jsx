@@ -2,15 +2,14 @@ import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
-import useSound from "use-sound"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import {ViewContext} from "../context/ViewContext"
-import sectionClick from "../../public/sound/section_click.wav"
 import tick from "../../public/ui/selector/tick.svg"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
+import { SoundContext } from "../context/SoundContext"
 import {
   renameVRMBones,
   createFaceNormals,
@@ -21,6 +20,7 @@ import { getAsArray } from "../library/utils"
 import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
+import { TokenBox } from "./token-box/TokenBox"
 
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -45,6 +45,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     removeOption,
     saveUserSelection
   } = useContext(SceneContext)
+  const {
+    playSound
+  } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {setLoading} = useContext(ViewContext)
 
@@ -55,6 +58,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
+    
   },[templateInfo])
 
   const getRestrictions = () => {
@@ -118,22 +122,26 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
+  const loadSelectedOptions = (opts) => {
+    loadOptions(opts).then((loadedData)=>{
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
+    })
+  }
+
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      loadOptions(selectedOptions).then((loadedData)=>{
-        let newAvatar = {};
-        loadedData.map((data)=>{
-          newAvatar = {...newAvatar, ...itemAssign(data)}
-        })
-        const finalAvatar = {...avatar, ...newAvatar}
-        setTimeout(() => {
-          if (Object.keys(finalAvatar).length > 0) {
-            cullHiddenMeshes(finalAvatar)
-          }
-        }, effectManager.transitionTime);
-        setAvatar(finalAvatar)
-      })
+      loadSelectedOptions(selectedOptions)
       setSelectedOptions([]);
     }
 
@@ -152,14 +160,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
       // play avatar fade out effect
       effectManager.playFadeOutEffect();
-
+      //clear previous avatar
       selectClass(option.avatarIndex)
       return
     }
 
     effectManager.setTransitionEffect('switch_item');
 
-    console.log(option)
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -221,9 +228,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setTimeout(() => {
-          setLoading(false)
-        }, 1000);
+        setLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -494,6 +499,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       m.visible = false;
       // add the now model to the current scene
       model.add(m)
+      animationManager.update(); // note: update animation to prevent some frames of T pose at start.
       setTimeout(() => {
         // update the joint rotation of the new trait
         const event = new Event('mousemove');
@@ -506,6 +512,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // play transition effect
         if (effectManager.getTransitionEffect('switch_item')) {
           effectManager.playSwitchItemEffect();
+          !isMute && playSound('switchItem');
         }
         else {
           effectManager.playFadeInEffect();
@@ -529,79 +536,112 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   }
 
-  const [play] = useSound(sectionClick, { volume: 1.0 })
-
+  
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
+
+  function TraitTitle(props) {
+    return (
+      props.title && (
+        <div className={styles["traitTitleWrap"]}>
+          <div className={styles["topLine"]} />
+          <div className={styles["traitTitle"]}>{props.title}</div>
+        </div>
+      )
+    )
+  }
 
   function ClearTraitButton() {
     // clear the current trait
     return removeOption ? (
       <div
-        className={
-          !currentTraitName
-            ? styles["selectorButtonActive"]
-            : styles["selectorButton"]
-        }
+        key={"no-trait"}
+        className={`${styles["selectorButton"]} ${styles["selector-button"]} ${
+          !currentTraitName ? styles["active"] : ""
+        }`}
         onClick={() => {
           if (effectManager.getTransitionEffect('normal')) {
             selectTraitOption(null) 
             effectManager.setTransitionEffect('normal');
-            !isMute && play()
           }
         }}
       >
-        <img
-          className={styles["icon"]}
-          src={cancel}
-          style={{ width: "4em", height: "4em" }}
+        <TokenBox
+          size={56}
+          resolution={2048}
+          numFrames={128}
+          id="head"
+          active={!currentTraitName ? true : false}
+          icon={cancel}
+          rarity={"none"}
         />
       </div>
-    ):<></>
+    ) : (
+      <></>
+    )
   }
   return (
     !!currentTraitName && (
       <div className={styles["SelectorContainerPos"]}>
-        <div className={styles["selector-container"]}>
-          <ClearTraitButton />
-
-          {currentOptions.map((option) =>{
-            const active = option.key === selectValue
-            return(
-            <div
-              key={option.key}
-              className={`${styles["selectorButton"]} ${
-                styles["selector-button"]
-              } ${ active ? styles["active"] : ""}`}
-              onClick={() => {
-               
-                !isMute && play()
-                if (effectManager.getTransitionEffect('normal')){
-                  selectTraitOption(option)
-                  setLoadPercentage(1)
-                }
-              }}
-            >
-              <img
-                className={styles["trait-icon"]}
-                style={option.iconHSL ? {filter: "brightness("+((option.iconHSL.l)+0.5)+") hue-rotate("+(option.iconHSL.h * 360)+"deg) saturate("+(option.iconHSL.s * 100)+"%)"} : {}}
-                src={option.icon}
-              />
-              <img
-                src={tick}
-                className={
-                  avatar[currentTraitName] &&
-                  avatar[currentTraitName].id === option.item.id  // todo (pending fix): this only considers the item id and not the subtraits id
-                    ? styles["tickStyle"]
-                    : styles["tickStyleInActive"]
-                }
-              />
-              {active && loadPercentage > 0 && loadPercentage < 100 && (
-                <div className={styles["loading-trait"]}>
-                  {loadPercentage}
+        <TraitTitle title={currentTraitName} />
+        <div className={styles["bottomLine"]} />
+        <div className={styles["scrollContainer"]}>
+          <div className={styles["selector-container"]}>
+            <ClearTraitButton />
+            {currentOptions.map((option) => {
+              const active = option.key === selectValue
+              return (
+                <div
+                  key={option.key}
+                  className={`${styles["selectorButton"]} ${
+                    styles["selector-button"]
+                  } ${active ? styles["active"] : ""}`}
+                  onClick={() => {
+                    if (effectManager.getTransitionEffect('normal')){
+                      selectTraitOption(option)
+                      setLoadPercentage(1)
+                    }
+                  }}
+                >
+                  <TokenBox
+                    size={56}
+                    resolution={2048}
+                    numFrames={128}
+                    icon={option.icon}
+                    rarity={"none"}
+                    active={active ? true : false}
+                    style={
+                      option.iconHSL
+                        ? {
+                            filter:
+                              "brightness(" +
+                              (option.iconHSL.l + 0.5) +
+                              ") hue-rotate(" +
+                              option.iconHSL.h * 360 +
+                              "deg) saturate(" +
+                              option.iconHSL.s * 100 +
+                              "%)",
+                          }
+                        : {}
+                    }
+                  />
+                  <img
+                    src={tick}
+                    className={
+                      avatar[currentTraitName] &&
+                      avatar[currentTraitName].id === option.item.id // todo (pending fix): this only considers the item id and not the subtraits id
+                        ? styles["tickStyle"]
+                        : styles["tickStyleInActive"]
+                    }
+                  />
+                  {active && loadPercentage > 0 && loadPercentage < 100 && (
+                    <div className={styles["loading-trait"]}>
+                      {loadPercentage}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>)
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
     )

@@ -1,0 +1,66 @@
+.container {
+    z-index: 1000000;
+    opacity: 0.8;
+    position: absolute;
+    width: 100%;
+    min-height: 200px;
+    font-size: .8rem;
+    top: 0;
+    color: #fff;
+}
+
+.container > span {
+    display: inline;
+    width: 24em;
+}
+
+.container > label, .container > span > label {
+    display: block;
+    width: 100%;
+}
+
+/* float the first chatbox span left */
+.container > span:first-child {
+    float: left;
+}
+
+.container > input, .container > span > input {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    display: block;
+    width: 20em;
+}
+
+.container > textarea {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);
+    display: block;
+}
+
+.container > select {
+    background-color: #000;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    margin: .5em;
+    padding: .5em;
+    width: calc(100% - 2em);
+}
+
+.button {
+    opacity: 1.0;
+  }
+  
+  .buttonInactive {
+    opacity: 0.5;
+  }
+  

@@ -1,21 +1,102 @@
+/* New UI: TT Squares Condensed Font */
+@font-face {
+  font-family: "TTSC-Black-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Black";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold.otf");
+}
+@font-face {
+  font-family: "TTSC-Light-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Light";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
+}
+
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  font-family: "TTSC-Regular";
+}
+
+::-webkit-scrollbar {
+  width: 0.1em;
+}
+::-webkit-scrollbar-track {
+  box-shadow: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
 }
 
 .root {
-    overflow: hidden;
-    margin:0;
-    padding:0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 #editor-scene {
-    -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+}
+
+.sectionTitle {
+  position: absolute;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  color: #5EB086;
+  text-transform: uppercase;
+  font-size: 22px;
+}
+
+.generalTitle {
+  position: absolute;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  color: #5EB086;
+  text-transform: uppercase;
+  font-size: 22px;
 }

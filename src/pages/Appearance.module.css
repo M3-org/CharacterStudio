@@ -1,0 +1,30 @@
+.buttonContainer {
+    position: absolute;
+    bottom: 20px;
+    left: 32px;
+    width: calc(100% - 64px);
+    width: -webkit-calc(100% - 64px);
+    text-align: center;
+}
+
+.buttonContainer .buttonLeft {
+    float: left;
+}
+
+.buttonContainer .buttonRight {
+    float: Right;
+}
+
+.buttonContainer .buttonCenter {
+    margin: 0 8px;
+}
+
+.buttonContainer::after {
+    content: ' ';
+    display: block;
+    clear: both;
+}
+
+.buttonContainer button {
+    min-width: 120px;
+}

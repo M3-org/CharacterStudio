@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react"
+import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
 
 export const SceneContext = createContext()
@@ -27,6 +28,7 @@ export const SceneProvider = (props) => {
 
   const [selectedOptions, setSelectedOptions] = useState([])
   const [removeOption, setRemoveOption] = useState(false)
+  const [awaitDisplay, setAwaitDisplay] = useState(false)
 
   const [colorStatus, setColorStatus] = useState("")
   const [traitsNecks, setTraitsNecks] = useState([])
@@ -36,11 +38,19 @@ export const SceneProvider = (props) => {
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null)
 
+  const [blinkManager, setBlinkManager] = useState(null)
+
+  const [initialTraits, setInitialTraits] = useState(null)
+
   const [controls, setControls] = useState(null)
 
   const [lipSync, setLipSync] = useState(null)
 
   const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
+
+  const [templateInfo, setTemplateInfo] = useState() 
+  const [manifest, setManifest] = useState(null)
+  const [sceneModel, setSceneModel] = useState(null)
 
   const setAvatar = (state) => {
     _setAvatar(state)
@@ -70,9 +80,32 @@ export const SceneProvider = (props) => {
     return null
   }
 
+  const resetAvatar = () => {
+    if (avatar){
+      for (const prop in avatar){
+        if (avatar[prop].vrm){
+          disposeVRM (avatar[prop].vrm)
+        }
+      }
+    }
+    setAvatar({})
+  }
+
   return (
     <SceneContext.Provider
       value={{
+        awaitDisplay, 
+        setAwaitDisplay,
+        templateInfo,
+        setTemplateInfo,
+        blinkManager,
+        setBlinkManager,
+        initialTraits,
+        setInitialTraits,
+        manifest,
+        setManifest,
+        sceneModel,
+        setSceneModel,
         lipSync,
         setLipSync,
         scene,
@@ -99,6 +132,7 @@ export const SceneProvider = (props) => {
         setSkinColor,
         avatar,
         setAvatar,
+        resetAvatar,
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
