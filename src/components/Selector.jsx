@@ -140,7 +140,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   // options are selected by random or start
   useEffect(() => {
+    console.log('useEffect: Selector.jsx:', selectedOptions.length)
     if (selectedOptions.length > 0){
+      debugger
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();

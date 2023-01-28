@@ -20,6 +20,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
     }
 
     const randomize = () => {
+        debugger
         getRandomCharacter()
     }
 
