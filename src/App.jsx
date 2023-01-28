@@ -137,14 +137,12 @@ export default function App() {
   const fetchNewModel = (index) => {
     setAwaitDisplay(true)
     resetAvatar();
-    console.log("called")
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
        
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-        console.log(animManager)
         let initialTraits = localStorage.getItem("initialTraits")
         if (!initialTraits) {
           initialTraits = initialTraits = [

@@ -138,23 +138,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   // options are selected by random or start
   useEffect(() => {
-    console.log(selectedOptions)
     if (selectedOptions.length > 0){
       loadSelectedOptions(selectedOptions)
-      // loadOptions(selectedOptions).then((loadedData)=>{
-      //   let newAvatar = {};
-      //   loadedData.map((data)=>{
-      //     newAvatar = {...newAvatar, ...itemAssign(data)}
-      //   })
-      //   const finalAvatar = {...avatar, ...newAvatar}
-      //   setTimeout(() => {
-      //     if (Object.keys(finalAvatar).length > 0) {
-      //       cullHiddenMeshes(finalAvatar)
-      //     }
-      //   }, effectManager.transitionTime);
-      //   console.log(finalAvatar)
-      //   setAvatar(finalAvatar)
-      // })
       setSelectedOptions([]);
     }
 
@@ -180,7 +165,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     effectManager.setTransitionEffect('switch_item');
 
-    console.log(option)
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
