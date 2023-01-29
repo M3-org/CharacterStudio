@@ -43,7 +43,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setLipSync,
     mousePosition,
     removeOption,
-    saveUserSelection
+    saveUserSelection,
+    setIsChangingWholeAvatar,
   } = useContext(SceneContext)
   const {
     playSound
@@ -141,6 +142,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
+      setIsChangingWholeAvatar(true);
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
