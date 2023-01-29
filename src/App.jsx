@@ -188,7 +188,7 @@ export default function App() {
     localVector3.set(moveX, 0, 0).applyAxisAngle(yAxis, angle);
     localVector3.add(centerCameraTarget);
 
-    // console.log('viewMode', viewMode)
+    console.log('viewMode', viewMode)
 
     if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
       // console.log('moveX 1:', moveX)
@@ -197,6 +197,13 @@ export default function App() {
       // console.log('moveX 2:', moveX)
       moveCamera({ targetY: 0.8, distance: 3.2 }) // center
     }
+
+    if ([ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.MINT].includes(viewMode)) {
+      controls.enabled = true;
+    } else {
+      controls.enabled = false;
+    }
+
     // console.log('--- updateCameraPosition 2')
   }
   
