@@ -543,10 +543,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         vrm: vrm,
       }
     }
-    //setAvatar({...avatar, ...newTrait})
-
-    //console.log("AVATAR IS: ", avatar)
-
   }
 
   
