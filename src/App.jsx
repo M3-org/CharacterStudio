@@ -161,19 +161,29 @@ export default function App() {
     // console.log('target:', target)
     // target.multiplyScalar(-1)
 
-    const a = new window.THREE.Vector4(0, 0, camera.position.length() ,1).applyMatrix4(camera.projectionMatrix);
+    const centerCameraPosition = new window.THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
+    const a = new window.THREE.Vector4(0, 0, centerCameraPosition.length() ,1).applyMatrix4(camera.projectionMatrix);
     a.x /= a.w;
     a.y /= a.w;
     a.z /= a.w;
     console.log('a', a)
-    const moveX = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).x;
+    const moveX = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).x;
     console.log('moveX:', moveX)
 
-    // if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
-    //   moveCamera({ targetY: leftHalfCameraPosition.y, distance: 3.2, targetX: leftHalfCameraPosition.x, targetZ: leftHalfCameraPosition.z })
-    // } else {
-    //   moveCamera({ targetY: 0.8, distance: 3.2 }) // center
-    // }
+    const target = new window.THREE.Vector3(0, 0.8, 0);
+    const angle = new window.THREE.Vector3(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(new window.THREE.Vector3(1,0,0))
+    /*
+      new THREE.Vector3(-2.2368862945648424, 0, 2.2611798263143057).angleTo(new THREE.Vector3(1,0,0))
+      <. 2.350793659059513
+    */
+    const move = new window.THREE.Vector3(moveX, 0, 0).applyAxisAngle(new window.THREE.Vector3(0, 1, 0), angle);
+    target.add(move);
+
+    if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
+      moveCamera({ targetY: target.y, distance: 3.2, targetX: target.x, targetZ: target.z })
+    } else {
+      moveCamera({ targetY: 0.8, distance: 3.2 }) // center
+    }
   }, [viewMode])
 
   const fetchNewModel = (index) => {
