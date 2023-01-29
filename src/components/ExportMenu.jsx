@@ -15,7 +15,7 @@ import CustomButton from "./custom-button"
 import styles from "./ExportMenu.module.css"
 
 export const ExportMenu = () => {
-  const type = "_Gen1" // class type
+  // const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
@@ -200,7 +200,7 @@ export const ExportMenu = () => {
     } else {
       const vrmData = {
         ...getVRMBaseData(avatar),
-        ...getAvatarData(avatarModel, "UpstreetAvatar"),
+        ...getAvatarData(avatarModel, "CharacterCreator"),
       }
       exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
@@ -230,7 +230,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "glb")
+          download(model, `CharacterCreator_exported`, "glb")
         }}
       />
       <CustomButton
@@ -240,7 +240,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
+          download(model, `CharacterCreator_exported_unoptimized`, "glb", undefined, true)
         }}
       />
       <CustomButton
@@ -250,7 +250,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "vrm")
+          download(model, `CharacterCreator_exported`, "vrm")
         }}
       />
     </React.Fragment>
