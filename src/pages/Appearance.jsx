@@ -8,30 +8,23 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
     const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
+
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
     const back = () => {
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    useEffect(() => {
-        const setIsPlayingEffectFalse = () => {
-            setIsPlayingEffect(false);
-        }
-        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
-        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        return () => {
-            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
-            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        }
-    }, [])
+    effectManager.addEventListener('fadeinavatarend', () => {
+        setIsChangingWholeAvatar(false);
+    })
 
     const next = () => {
         setViewMode(ViewMode.BIO)
     }
 
     const randomize = () => {
-        if (!isPlayingEffect) {
+        if (!isChangingWholeAvatar) {
             getRandomCharacter()
             //
         }
