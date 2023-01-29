@@ -1,4 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
+import * as THREE from "three"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { ViewMode, ViewContext } from "./context/ViewContext"
@@ -22,6 +23,14 @@ import { SceneContext } from "./context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+const centerCameraTarget = new THREE.Vector3(0, 0.8, 0);
+const centerCameraPosition = new THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
+const centerCameraPositionLength = centerCameraPosition.length();
+const localVector3 = new THREE.Vector3();
+const localVector4 = new THREE.Vector4();
+const localVector4_2 = new THREE.Vector4();
+const xAxis = new THREE.Vector3(1, 0, 0);
+const yAxis = new THREE.Vector3(0, 1, 0);
 
 async function fetchManifest() {
   const manifest = localStorage.getItem("manifest")
@@ -110,7 +119,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -132,6 +141,40 @@ export default function App() {
       window.removeEventListener("click", handleTap)
     }
   }, [hideUi])
+
+  const updateCameraPosition = () => {
+    if (!effectManager.camera) return;
+
+    localVector4.set(0, 0, centerCameraPositionLength ,1).applyMatrix4(effectManager.camera.projectionMatrix);
+    localVector4.x /= localVector4.w;
+    localVector4.y /= localVector4.w;
+    localVector4.z /= localVector4.w;
+    const moveX = localVector4_2.set(0.5 * localVector4.w, localVector4.y * localVector4.w, localVector4.z * localVector4.w, localVector4.w).applyMatrix4(effectManager.camera.projectionMatrixInverse).x;
+
+    const angle = localVector3.set(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(xAxis)
+    localVector3.set(moveX, 0, 0).applyAxisAngle(yAxis, angle);
+    localVector3.add(centerCameraTarget);
+
+    if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
+      moveCamera({ targetY: localVector3.y, distance: 3.2, targetX: localVector3.x, targetZ: localVector3.z }) // left half center
+    } else {
+      moveCamera({ targetY: 0.8, distance: 3.2 }) // center
+    }
+
+    if ([ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.MINT].includes(viewMode)) {
+      controls.enabled = true;
+    } else {
+      controls.enabled = false;
+    }
+  }
+  
+  useEffect(() => {
+    updateCameraPosition();
+    window.addEventListener('resize', updateCameraPosition);
+    return () => {
+      window.removeEventListener('resize', updateCameraPosition);
+    }
+  }, [viewMode])
 
   const fetchNewModel = (index) => {
     setAwaitDisplay(true)
@@ -182,7 +225,7 @@ export default function App() {
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
-    [ViewMode.VIEW]: <View />,
+    [ViewMode.CHAT]: <View />,
   }
   return (
     <Fragment>
