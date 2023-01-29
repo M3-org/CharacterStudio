@@ -7,7 +7,7 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar,getSaveAvatar } = React.useContext(SceneContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
@@ -26,6 +26,9 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
         if (!isChangingWholeAvatar) {
             getRandomCharacter()
         }
+    }
+    const reset = () =>{
+        getSaveAvatar();
     }
 
     return (
@@ -52,6 +55,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
                     text="Reset"
                     size={14}
                     className={styles.buttonCenter}
+                    onClick = {reset}
                 />
                 <CustomButton
                     theme="light"
