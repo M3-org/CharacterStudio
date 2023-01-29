@@ -259,7 +259,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         })
         
         // load texture trait
-        const loadedTextures = []; 
+        const loadedTextures = [];
         getAsArray(option?.textureTrait?.directory).map((textureDir, i)=>{
           textureLoader.load(baseDir + textureDir,(txt)=>{
             txt.flipY = false;
@@ -275,6 +275,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         resultData[index] = {
           item:option?.item,
           trait:option?.trait,
+          textureTrait:option?.textureTrait,
+          colorTrait:option?.colorTrait,
           models:loadedModels,          
           textures:loadedTextures, 
           colors:loadedColors      
@@ -362,9 +364,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const itemAssign = (itemData) => {
     const item = itemData.item;
     const traitData = itemData.trait;
+    const textureItem= itemData.textureTrait;
+    const colorItem = itemData.colorTrait;
     const models = itemData.models;
     const textures = itemData.textures;
     const colors = itemData.colors;
+
+    console.log(item)
+    console.log(textureItem)
     // null section (when user selects to remove an option)
     if ( item == null) {
       // if avatar exists and trait exsits, remove it
@@ -529,6 +536,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     return {
       [traitData.name]: {
         traitInfo: item,
+        textureInfo: textureItem,
+        colorInfo: colorItem,
         name: item.name,
         model: vrm && vrm.scene,
         vrm: vrm,

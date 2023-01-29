@@ -60,6 +60,11 @@ export const SceneProvider = (props) => {
 
   const setAvatar = (state) => {
     _setAvatar(state)
+    console.log(state)
+  }
+
+  const loadAvatar = (avatarData) =>{
+    console.log(avatarData)
   }
 
   const saveUserSelection = (name, options) =>{
