@@ -22,6 +22,7 @@ function MintComponent() {
 
   return (
     <div className={styles.container}>
+      <div className={"sectionTitle"}>Mint Your Character</div>
       <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/>
       <div className={styles.mintContainer}>
         <div className={styles.topLine} />
