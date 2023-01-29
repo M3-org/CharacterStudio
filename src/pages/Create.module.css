@@ -15,7 +15,7 @@
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
   overflow-y: scroll;
-  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .classContainer .class,
