@@ -7,7 +7,7 @@ import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { getModelFromScene, getCroppedScreenshot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
-
+import { getGLBBlobData } from "../library/download-utils"
 import styles from "./Mint.module.css"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
@@ -71,7 +71,8 @@ export default function MintPopup({screenshotPosition}) {
         console.error(reason)
         setMintStatus("Couldn't save to pinata")
       })
-      const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
+      const glb = await getGLBBlobData(model)
+      console.log(glb)
       let glbName = "AvatarGlb_" + Date.now() + ".vrm";
       const glbHash = await saveFileToPinata(
         glb,
@@ -130,6 +131,8 @@ export default function MintPopup({screenshotPosition}) {
   }
   const  takeScreenshot = async () => {
     const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+    const glb = await getGLBBlobData(model)
+    console.log(glb)
     console.log(img)
   }
   const checkOT = async (address) => {
