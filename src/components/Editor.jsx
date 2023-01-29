@@ -310,20 +310,22 @@ export default function Editor({manifest, templateInfo, animationManager, blinkM
               />
             </div>
             {templateInfo.traits &&
-              templateInfo.traits.map((item, index) => (
+              templateInfo.traits.map((item, index) => { 
+                return (
                 <div key={index} className={styles["selectorButton"]}>
                   <TokenBox
                     size={56}
                     resolution={2048}
                     numFrames={128}
-                    icon={templateInfo.traitIconsDirectorySvg + item.iconSvg}
+                    icon={(templateInfo.traitIconsDirectory ?? templateInfo.traitIconsDirectorySvg) + '/' + item.icon}
                     rarity={currentTraitName !== item.name ? "none" : "mythic"}
                     onClick={() => {
                       selectOption(item)
                     }}
                   />
                 </div>
-              ))}
+              )
+                  })}
           </div>
         </div>
       </div>
