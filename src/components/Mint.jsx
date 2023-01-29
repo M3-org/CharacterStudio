@@ -146,7 +146,6 @@ export default function MintPopup({screenshotPosition}) {
         throw new Error("Unable to get glb")
       }
 
-      console.log("hash value:", imageHash, glbHash)
       const attributes = getAvatarTraits()
       const metadata = {
         name: "Avatars",
@@ -155,7 +154,6 @@ export default function MintPopup({screenshotPosition}) {
         animation_url: `ipfs://${glbHash.IpfsHash}`,
         attributes: attributes
       }
-      console.log("metdata:", metadata)
       const str = JSON.stringify(metadata)
       const metaDataHash = await saveFileToPinata(
         new Blob([str]),
