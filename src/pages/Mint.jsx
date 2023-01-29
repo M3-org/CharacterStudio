@@ -3,10 +3,12 @@ import styles from "./Mint.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 
 import Mint from "../components/Mint"
+import ResizableDiv from "../components/Resizable"
 import CustomButton from "../components/custom-button"
 
 function MintComponent() {
   const { setViewMode } = React.useContext(ViewContext)
+  const [screenshotPosition,  setScreenshotPosition] = React.useState({x:200,y:200,width:256,height:256});
 
   const back = () => {
     console.log("back")
@@ -20,11 +22,13 @@ function MintComponent() {
 
   return (
     <div className={styles.container}>
+      <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/>
       <div className={styles.mintContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
-          <Mint />
+          
+          <Mint screenshotPosition = {screenshotPosition}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>

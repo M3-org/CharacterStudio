@@ -1,11 +1,11 @@
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
-import React, { Fragment, useContext, useState } from "react"
+import React, { Fragment, useContext, useState, useEffect } from "react"
 import ethereumIcon from "../../public/ui/mint/ethereum.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { getModelFromScene, getScreenShot } from "../library/utils"
+import { getModelFromScene, getCroppedScreenshot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 
 import styles from "./Mint.module.css"
@@ -15,10 +15,21 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup() {
+export default function MintPopup({screenshotPosition}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
+  const [tokenPrice, setTokenPrice] = useState(null);
   const chainId = "0x89";
+
+  useEffect(() => {
+    ( async () => {
+        const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
+        const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, defaultProvider)
+
+        const tp = await contract.tokenPrice()
+        setTokenPrice( BigNumber.from(tp).mul(1) )
+    })();
+  }, [])  
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -46,7 +57,6 @@ export default function MintPopup() {
       return "";
     }
   }
-
 
   async function saveFileToPinata(fileData, fileName) {
     if (!fileData) return console.warn("Error saving to pinata: No file data")
@@ -87,11 +97,10 @@ export default function MintPopup() {
       setMintStatus("Uploading...")
       console.log('avatar in mintAsset', avatar)
 
-      const screenshot = await getScreenShot("mint-scene")
+      const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
       if (!screenshot) {
         throw new Error("Unable to get screenshot")
       }
-
       let imageName = "AvatarImage_" + Date.now() + ".png";
       const imageHash = await saveFileToPinata(
         screenshot,
@@ -126,11 +135,10 @@ export default function MintPopup() {
         window.ethereum,
       ).getSigner()
       const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
-      const tokenPrice = await contract.tokenPrice()
       try {
         const options = {
-          value: BigNumber.from(tokenPrice).mul(1),
-          from: walletAddress,
+          value: tokenPrice,
+          from: walletAddress
         }
         const tx = await contract.mintToken(1, metadataIpfs, options)
         let res = await tx.wait()

@@ -1,0 +1,23 @@
+.Block{
+    display: flex;
+    align-items: flex-end;
+    padding-left: 200px;
+    padding-top: 200px;
+    position: absolute;
+    overflow: hidden;
+}
+.Resizable{
+    background: rgba(5, 128, 165, 0.329);
+    border: 1px solid black; 
+    height: 256px;
+    width: 256px;
+}
+.Draggable{
+    background: rgb(10, 165, 5);
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    cursor: col-resize;
+    height: 20px;
+    width: 20px;
+}

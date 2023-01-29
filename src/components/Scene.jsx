@@ -131,6 +131,7 @@ export default function Scene({sceneModel}) {
       canvas: canvasRef,
       antialias: true,
       alpha: true,
+      preserveDrawingBuffer: true,
     })
 
     const handleResize = () => {
