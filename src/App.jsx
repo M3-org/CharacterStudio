@@ -137,29 +137,43 @@ export default function App() {
   }, [hideUi])
   
   useEffect(() => {
+    // return;
     if (!camera) return;
     console.log('--- viewMode:', viewMode);
-    // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
-    //   moveCamera({ height: 0.8, distance: 3.2 })
-    // } else if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-    //   moveCamera({ height: 0.75, distance: 1.35 })
-    // }
 
-    // const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
-    const a = new window.THREE.Vector4(0, 0.8, 3.2 ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
+    // // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
+    // //   moveCamera({ targetY: 0.8, distance: 3.2 })
+    // // } else if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
+    // //   moveCamera({ targetY: 0.75, distance: 1.35 })
+    // // }
+
+    // // const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
+    // // const a = new window.THREE.Vector4(0, 0.8, 3.2 ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
+    // const centerCameraPosition = new window.THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
+    // // note: rough left half camera position {x: -1.7718339345185834, y: 1.1425862500980317, z: 2.7225906209989943}
+    // const a = new window.THREE.Vector4(-centerCameraPosition.x, -centerCameraPosition.y, -centerCameraPosition.z ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
+    // a.x /= a.w;
+    // a.y /= a.w;
+    // a.z /= a.w;
+    // console.log('a', a)
+    // // const targetX = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
+    // const target = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse)/* .applyMatrix4(camera.matrixWorld) */;
+    // console.log('target:', target)
+    // target.multiplyScalar(-1)
+
+    const a = new window.THREE.Vector4(0, 0, camera.position.length() ,1).applyMatrix4(camera.projectionMatrix);
     a.x /= a.w;
     a.y /= a.w;
     a.z /= a.w;
     console.log('a', a)
-    // const left = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
-    const left = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse)/* .applyMatrix4(camera.matrixWorld) */.x;
-    console.log('left:', left)
+    const moveX = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).x;
+    console.log('moveX:', moveX)
 
-    if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
-      moveCamera({ height: 0.8, distance: 3.2, left: left }) // todo: left
-    } else {
-      moveCamera({ height: 0.8, distance: 3.2 }) // center
-    }
+    // if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
+    //   moveCamera({ targetY: leftHalfCameraPosition.y, distance: 3.2, targetX: leftHalfCameraPosition.x, targetZ: leftHalfCameraPosition.z })
+    // } else {
+    //   moveCamera({ targetY: 0.8, distance: 3.2 }) // center
+    // }
   }, [viewMode])
 
   const fetchNewModel = (index) => {

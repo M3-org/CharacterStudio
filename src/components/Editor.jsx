@@ -48,11 +48,11 @@ export default function Editor({manifest, animationManager, blinkManager, effect
     if (option.name === currentTraitName) {
       if (cameraFocused) {
         console.log('moveCamera 1', option.cameraTarget)
-        moveCamera(option.cameraTarget)
+        moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
         setCameraFocused(false)
       } else {
-        console.log('moveCamera 2', { height: 0.8, distance: 3.2 })
-        moveCamera({ height: 0.8, distance: 3.2 })
+        console.log('moveCamera 2', { targetY: 0.8, distance: 3.2 })
+        moveCamera({ targetY: 0.8, distance: 3.2 })
         setCameraFocused(true)
       }
       setCurrentTraitName(null)
@@ -63,7 +63,7 @@ export default function Editor({manifest, animationManager, blinkManager, effect
       getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1,
     )
     console.log('moveCamera 3', option.cameraTarget)
-    moveCamera(option.cameraTarget)
+    moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
   }

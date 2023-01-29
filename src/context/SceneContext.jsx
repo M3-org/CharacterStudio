@@ -102,9 +102,9 @@ export const SceneProvider = (props) => {
   const moveCamera = (value) => {
     if (!controls) return
     gsap.to(controls.target, {
-      y: value.height,
-      x: value.left || 0,
-      z: 0,
+      x: value.targetX || 0,
+      y: value.targetY || 0,
+      z: value.targetZ || 0,
       duration: 1,
     })
 
@@ -122,10 +122,10 @@ export const SceneProvider = (props) => {
         {
           maxDistance: value.distance,
           minDistance: value.distance,
-          minPolarAngle: Math.PI / 2,
-          maxPolarAngle: Math.PI / 2,
-          minAzimuthAngle: -0,
-          maxAzimuthAngle: -0,
+          minPolarAngle: Math.PI / 2 - 0.11,
+          maxPolarAngle: Math.PI / 2 - 0.11,
+          minAzimuthAngle: -0.78,
+          maxAzimuthAngle: -0.78,
           duration: 1,
         },
       )
