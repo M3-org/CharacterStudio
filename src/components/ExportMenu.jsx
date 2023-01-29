@@ -12,10 +12,12 @@ import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
 
+import { downloadGLB, downloadVRM } from "../library/download-utils"
+
 import styles from "./ExportMenu.module.css"
 
 export const ExportMenu = () => {
-  const type = "_Gen1" // class type
+  // const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
@@ -93,6 +95,7 @@ export const ExportMenu = () => {
     atlasSize = 4096,
     isUnoptimized = false,
   ) {
+    console.log("old download")
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
     const link = document.createElement("a")
@@ -200,7 +203,7 @@ export const ExportMenu = () => {
     } else {
       const vrmData = {
         ...getVRMBaseData(avatar),
-        ...getAvatarData(avatarModel, "UpstreetAvatar"),
+        ...getAvatarData(avatarModel, "CharacterCreator"),
       }
       exporter.parse(vrmData, avatarModel, (vrm) => {
         saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
@@ -230,7 +233,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "glb")
+          downloadGLB(model,true,`CharacterCreator_exported`)
+          //download(model, `CharacterCreator_exported`, "glb")
         }}
       />
       <CustomButton
@@ -240,7 +244,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "glb", undefined, true)
+          downloadGLB(model,false,`CharacterCreator_exported`)
+          //download(model, `CharacterCreator_exported_unoptimized`, "glb", undefined, true)
         }}
       />
       <CustomButton
@@ -250,7 +255,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `UpstreetAvatar_${type}`, "vrm")
+          downloadVRM(model, avatar, `CharacterCreator_exported`)
+          //download(model, `CharacterCreator_exported`, "vrm")
         }}
       />
     </React.Fragment>

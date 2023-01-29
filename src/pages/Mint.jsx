@@ -17,11 +17,12 @@ function MintComponent() {
 
   const next = () => {
     console.log("next")
-    setViewMode(ViewMode.VIEW)
+    setViewMode(ViewMode.CHAT)
   }
 
   return (
     <div className={styles.container}>
+      <div className={"sectionTitle"}>Mint Your Character</div>
       <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/>
       <div className={styles.mintContainer}>
         <div className={styles.topLine} />

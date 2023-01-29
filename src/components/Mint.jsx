@@ -7,7 +7,7 @@ import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
 import { getModelFromScene, getCroppedScreenshot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
-
+import { getGLBBlobData } from "../library/download-utils"
 import styles from "./Mint.module.css"
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
@@ -96,25 +96,57 @@ export default function MintPopup({screenshotPosition}) {
     if(pass) {
       setMintStatus("Uploading...")
       console.log('avatar in mintAsset', avatar)
-
+      let imageHash, glbHash;
       const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
-      if (!screenshot) {
+      if (screenshot) {
+        let imageName = "AvatarImage_" + Date.now() + ".png";
+        imageHash = await (async() => {
+          for (let i = 0; i < 10; i++) { // hack: give it a few tries, sometimes uploading to pinata fail for some reason
+            try {
+              const img_hash = await saveFileToPinata(
+                screenshot,
+                imageName
+              ).catch((reason) => {
+                console.error(i, "---", reason)
+              })
+              return img_hash
+            } catch(err) {
+              console.warn(err);
+            }
+          } 
+          throw new Error('failed to upload screenshot');
+          setMintStatus("Couldn't save screenshot to pinata")
+        })();
+      } else {
         throw new Error("Unable to get screenshot")
       }
-      let imageName = "AvatarImage_" + Date.now() + ".png";
-      const imageHash = await saveFileToPinata(
-        screenshot,
-        imageName
-      ).catch((reason) => {
-        console.error(reason)
-        setMintStatus("Couldn't save to pinata")
-      })
-      const glb = await getModelFromScene(avatar.scene.clone(), "glb", skinColor)
-      let glbName = "AvatarGlb_" + Date.now() + ".vrm";
-      const glbHash = await saveFileToPinata(
-        glb,
-        glbName
-      )
+
+      const glb = await getGLBBlobData(model)
+      if (glb) {
+        let glbName = "AvatarGlb_" + Date.now() + ".glb";
+        glbHash = await (async() => {
+          for (let i = 0; i < 10; i++) { // hack: give it a few tries, sometimes uploading to pinata fail for some reason
+            try {
+              const glb_hash = await saveFileToPinata(
+                glb,
+                glbName
+              ).catch((reason) => {
+                console.error(i, "---", reason)
+                setMintStatus("Couldn't save glb to pinata")
+              })
+              return glb_hash
+            } catch(err) {
+              console.warn(err);
+            }
+          } 
+          throw new Error('failed to upload glb');
+          setMintStatus("Couldn't save glb to pinata")
+        })();
+      } else {
+        throw new Error("Unable to get glb")
+      }
+
+      console.log("hash value:", imageHash, glbHash)
       const attributes = getAvatarTraits()
       const metadata = {
         name: "Avatars",
@@ -123,6 +155,7 @@ export default function MintPopup({screenshotPosition}) {
         animation_url: `ipfs://${glbHash.IpfsHash}`,
         attributes: attributes
       }
+      console.log("metdata:", metadata)
       const str = JSON.stringify(metadata)
       const metaDataHash = await saveFileToPinata(
         new Blob([str]),
@@ -151,6 +184,13 @@ export default function MintPopup({screenshotPosition}) {
     } else {
       return;
     }
+  }
+
+  const  takeScreenshot = async () => {
+    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+    const glb = await getGLBBlobData(model)
+    console.log(glb)
+    console.log(img)
   }
 
   const checkOT = async (address) => {
