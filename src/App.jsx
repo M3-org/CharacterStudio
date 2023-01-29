@@ -119,11 +119,8 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  // debugger
   const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
-  // window.camera = camera
-  // window.controls = controls
   effectManager.scene = scene
 
   let lastTap = 0
@@ -146,55 +143,21 @@ export default function App() {
   }, [hideUi])
 
   const updateCameraPosition = () => {
-    // console.log('--- updateCameraPosition 0')
-    // return;
     if (!effectManager.camera) return;
-    // console.log(effectManager.camera.projectionMatrix.elements)
-    // console.log('--- updateCameraPosition 1')
-    // console.log('--- viewMode:', viewMode);
-
-    // // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
-    // //   moveCamera({ targetY: 0.8, distance: 3.2 })
-    // // } else if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-    // //   moveCamera({ targetY: 0.75, distance: 1.35 })
-    // // }
-
-    // // const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
-    // // const a = new window.THREE.Vector4(0, 0.8, 3.2 ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
-    // const centerCameraPosition = new window.THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
-    // // note: rough left half camera position {x: -1.7718339345185834, y: 1.1425862500980317, z: 2.7225906209989943}
-    // const a = new window.THREE.Vector4(-centerCameraPosition.x, -centerCameraPosition.y, -centerCameraPosition.z ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
-    // a.x /= a.w;
-    // a.y /= a.w;
-    // a.z /= a.w;
-    // console.log('a', a)
-    // // const targetX = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
-    // const target = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse)/* .applyMatrix4(camera.matrixWorld) */;
-    // console.log('target:', target)
-    // target.multiplyScalar(-1)
 
     localVector4.set(0, 0, centerCameraPositionLength ,1).applyMatrix4(effectManager.camera.projectionMatrix);
     localVector4.x /= localVector4.w;
     localVector4.y /= localVector4.w;
     localVector4.z /= localVector4.w;
-    // console.log('localVector4', localVector4)
     const moveX = localVector4_2.set(0.5 * localVector4.w, localVector4.y * localVector4.w, localVector4.z * localVector4.w, localVector4.w).applyMatrix4(effectManager.camera.projectionMatrixInverse).x;
 
     const angle = localVector3.set(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(xAxis)
-    /*
-      new THREE.Vector3(-2.2368862945648424, 0, 2.2611798263143057).angleTo(new THREE.Vector3(1,0,0))
-      <. 2.350793659059513
-    */
     localVector3.set(moveX, 0, 0).applyAxisAngle(yAxis, angle);
     localVector3.add(centerCameraTarget);
 
-    console.log('viewMode', viewMode)
-
     if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
-      // console.log('moveX 1:', moveX)
-      moveCamera({ targetY: localVector3.y, distance: 3.2, targetX: localVector3.x, targetZ: localVector3.z })
+      moveCamera({ targetY: localVector3.y, distance: 3.2, targetX: localVector3.x, targetZ: localVector3.z }) // left half center
     } else {
-      // console.log('moveX 2:', moveX)
       moveCamera({ targetY: 0.8, distance: 3.2 }) // center
     }
 
@@ -203,26 +166,15 @@ export default function App() {
     } else {
       controls.enabled = false;
     }
-
-    // console.log('--- updateCameraPosition 2')
   }
   
   useEffect(() => {
     updateCameraPosition();
     window.addEventListener('resize', updateCameraPosition);
-    // console.log('------ handle resize')
     return () => {
       window.removeEventListener('resize', updateCameraPosition);
     }
   }, [viewMode])
-
-  // useEffect(() => {
-  //   window.addEventListener('resize', updateCameraPosition);
-  //   // console.log('------ handle resize')
-  //   return () => {
-  //     window.removeEventListener('resize', updateCameraPosition);
-  //   }
-  // }, []) // note: will cause old viewMode and no controls issue in moveCamera function
 
   const fetchNewModel = (index) => {
     setAwaitDisplay(true)

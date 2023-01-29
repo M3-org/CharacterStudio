@@ -4,8 +4,6 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-window.THREE = THREE
-
 export default function Scene({sceneModel}) {
   const {
     scene,

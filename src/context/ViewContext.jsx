@@ -1,5 +1,4 @@
-import React, { useEffect, useContext } from "react"
-// import { SceneContext } from './SceneContext'
+import React from "react"
 
 export const CameraMode = {
   NORMAL: "NORMAL",
@@ -9,22 +8,19 @@ export const CameraMode = {
 }
 
 export const ViewMode = {
-  LANDING: "LANDING", // null
-  CREATE: "CREATE", // null
-  LOAD: "LOAD", // null
-  APPEARANCE: "APPEARANCE", // center
-  BIO: "BIO",  // left
-  SAVE: "SAVE", // center
-  MINT: "MINT", // left
-  CHAT: "CHAT", // left
+  LANDING: "LANDING",
+  CREATE: "CREATE",
+  LOAD: "LOAD",
+  APPEARANCE: "APPEARANCE",
+  BIO: "BIO",
+  SAVE: "SAVE",
+  MINT: "MINT",
+  CHAT: "CHAT",
 }
 
 export const ViewContext = React.createContext()
 
 export const ViewProvider = (props) => {
-  // const test = useContext(SceneContext)
-  // debugger
-  // const {moveCamera} = useContext(SceneContext);
   const [currentCameraMode, setCurrentCameraMode] = React.useState(CameraMode.NORMAL)
   const [viewMode, setViewMode] = React.useState(ViewMode.LANDING)
   const [loading, setLoading] = React.useState(true)

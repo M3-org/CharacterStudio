@@ -18,8 +18,6 @@ import { TokenBox } from "./token-box/TokenBox"
 
 
 export default function Editor({manifest, animationManager, blinkManager, effectManager, fetchNewModel}) {
-  const test = useContext(SceneContext)
-  // debugger
   const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -43,15 +41,12 @@ export default function Editor({manifest, animationManager, blinkManager, effect
 
 
   const selectOption = (option) => {
-    // debugger
     !isMute && playSound('optionClick');
     if (option.name === currentTraitName) {
       if (cameraFocused) {
-        console.log('moveCamera 1', option.cameraTarget)
         moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
         setCameraFocused(false)
       } else {
-        console.log('moveCamera 2', { targetY: 0.8, distance: 3.2 })
         moveCamera({ targetY: 0.8, distance: 3.2 })
         setCameraFocused(true)
       }
@@ -62,13 +57,11 @@ export default function Editor({manifest, animationManager, blinkManager, effect
     setRemoveOption(
       getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1,
     )
-    console.log('moveCamera 3', option.cameraTarget)
     moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
   }
   const selectClassOption = () => {
-    // debugger
     setRemoveOption(false)
     setCurrentOptions(getClassOptions(manifest))
     setCurrentTraitName("_class")

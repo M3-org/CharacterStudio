@@ -100,10 +100,7 @@ export const SceneProvider = (props) => {
   }
 
   const moveCamera = (value) => {
-    // console.log('moveCamera 0')
-    // console.log('controls', controls)
     if (!controls) return
-    // console.log('moveCamera 1')
     gsap.to(controls.target, {
       x: value.targetX ?? 0,
       y: value.targetY ?? 0,
@@ -141,7 +138,6 @@ export const SceneProvider = (props) => {
         controls.maxAzimuthAngle = Infinity
       })
   }
-  // window.moveCamera = moveCamera
 
   return (
     <SceneContext.Provider

@@ -153,7 +153,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    // debugger
     if (option == null){
       option = {
         item:null,
@@ -554,11 +553,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   }
 
   function ClearTraitButton() {
-    // if (removeOption) {
-    //   console.log('-ClearTraitButton 1')
-    // } else {
-    //   console.log('-ClearTraitButton 2')
-    // }
     // clear the current trait
     return removeOption ? (
       <div
