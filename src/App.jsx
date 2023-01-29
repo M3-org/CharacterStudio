@@ -23,6 +23,14 @@ import { SceneContext } from "./context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+const centerCameraTarget = new THREE.Vector3(0, 0.8, 0);
+const centerCameraPosition = new THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
+const centerCameraPositionLength = centerCameraPosition.length();
+const localVector3 = new THREE.Vector3();
+const localVector4 = new THREE.Vector4();
+const localVector4_2 = new THREE.Vector4();
+const xAxis = new THREE.Vector3(1, 0, 0);
+const yAxis = new THREE.Vector3(0, 1, 0);
 
 async function fetchManifest() {
   const manifest = localStorage.getItem("manifest")
@@ -165,28 +173,26 @@ export default function App() {
     // console.log('target:', target)
     // target.multiplyScalar(-1)
 
-    const centerCameraPosition = new THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
-    const a = new THREE.Vector4(0, 0, centerCameraPosition.length() ,1).applyMatrix4(effectManager.camera.projectionMatrix);
-    a.x /= a.w;
-    a.y /= a.w;
-    a.z /= a.w;
-    // console.log('a', a)
-    const moveX = new THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(effectManager.camera.projectionMatrixInverse).x;
+    localVector4.set(0, 0, centerCameraPositionLength ,1).applyMatrix4(effectManager.camera.projectionMatrix);
+    localVector4.x /= localVector4.w;
+    localVector4.y /= localVector4.w;
+    localVector4.z /= localVector4.w;
+    // console.log('localVector4', localVector4)
+    const moveX = localVector4_2.set(0.5 * localVector4.w, localVector4.y * localVector4.w, localVector4.z * localVector4.w, localVector4.w).applyMatrix4(effectManager.camera.projectionMatrixInverse).x;
 
-    const target = new THREE.Vector3(0, 0.8, 0);
-    const angle = new THREE.Vector3(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(new THREE.Vector3(1,0,0))
+    const angle = localVector3.set(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(xAxis)
     /*
       new THREE.Vector3(-2.2368862945648424, 0, 2.2611798263143057).angleTo(new THREE.Vector3(1,0,0))
       <. 2.350793659059513
     */
-    const move = new THREE.Vector3(moveX, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
-    target.add(move);
+    localVector3.set(moveX, 0, 0).applyAxisAngle(yAxis, angle);
+    localVector3.add(centerCameraTarget);
 
     // console.log('viewMode', viewMode)
 
     if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
       // console.log('moveX 1:', moveX)
-      moveCamera({ targetY: target.y, distance: 3.2, targetX: target.x, targetZ: target.z })
+      moveCamera({ targetY: localVector3.y, distance: 3.2, targetX: localVector3.x, targetZ: localVector3.z })
     } else {
       // console.log('moveX 2:', moveX)
       moveCamera({ targetY: 0.8, distance: 3.2 }) // center
