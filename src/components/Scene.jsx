@@ -115,7 +115,6 @@ export default function Scene({sceneModel}) {
       0.1,
       1000,
     )
-    window.camera = camera
 
     setCamera(camera)
 

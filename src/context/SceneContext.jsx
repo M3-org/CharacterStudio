@@ -139,8 +139,6 @@ export const SceneProvider = (props) => {
       })
   }
 
-  window.moveCamera = moveCamera
-
   return (
     <SceneContext.Provider
       value={{
