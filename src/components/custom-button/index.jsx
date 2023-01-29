@@ -15,7 +15,7 @@ async function getSVG(iconName) {
 }
 
 export default function CustomButton(props) {
-  const {size, icon, className, onClick, theme, type, text, onMouseEnter, active} =
+  const {size, icon, className, onClick, theme, type, text, onMouseEnter, active, onSubmit} =
     props;
   const svgRef = useRef(null);
 
@@ -116,6 +116,8 @@ export default function CustomButton(props) {
         )}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
+        onSubmit={onSubmit}
+        type={type}
       >
         <div className={styles.innerWrap} style={{fontSize: size}}>
           {icon && (

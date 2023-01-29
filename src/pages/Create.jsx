@@ -45,6 +45,14 @@ function Create({fetchNewModel}) {
         templateIndex:0
       },
       {
+        name: "The Degen",
+        image: "/assets/media/degens.gif",
+        description: "Degens",
+        icon: "/assets/icons/class-the-degen.svg",
+        disabled: true,
+        templateIndex:6
+      },
+      {
         name: "Neural Hacker",
         image: "/assets/media/NeuralHacker.png",
         description: "Hacks neural networks",
@@ -71,7 +79,7 @@ function Create({fetchNewModel}) {
   ]
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>Choose Character Class</div>
       <div className={styles.classContainer}>
         <div className={styles.topLine} />
@@ -92,8 +100,10 @@ function Create({fetchNewModel}) {
               }
             >
               <div className={styles.classFrame}>
-                <img src={"/assets/backgrounds/class-frame.svg"} />
-                <img src={characterClass["image"]} className={styles.image} />
+                <img src={"/assets/backgrounds/class-frame.svg"} className={styles.frame} />
+                <div className={styles.mask}>
+                  <img src={characterClass["image"]} className={styles.image} />
+                </div>
                 {characterClass["disabled"] && (
                   <img
                     src={"/assets/icons/locked.svg"}

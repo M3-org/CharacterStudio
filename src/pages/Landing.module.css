@@ -1,20 +1,20 @@
 .buttonContainer {
     position: absolute;
-    left: 32px;
+    left: 0;
     width: calc(100% - 64px);
     width: -webkit-calc(100% - 64px);
     top: 50%;
     transform: translateY(-50%);
     -webkit-transform: translateY(-50%);
     text-align: center;
-    height: 240px;
+    height: 320px;
 }
 .buttonContainer .button {
     background: none !important;
     border: none !important;
     cursor: pointer;
-    margin: 0 16px;
-    height: 240px;
+    margin: 0 32px;
+    height: 320px;
     width: 126px;
     position: relative;
 }

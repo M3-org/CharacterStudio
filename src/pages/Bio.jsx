@@ -21,9 +21,11 @@ function BioPage() {
     <div className={styles.container}>
       <div className={"sectionTitle"}>Add Character Bio</div>
       <div className={styles.bioContainer}>
-      <div className={styles.topLine} />
+        <div className={styles.topLine} />
         <div className={styles.bottomLine} />
-      <Bio />
+        <div className={styles.scrollContainer}>
+          <Bio />
+        </div>
       </div>
       <div className={styles.buttonContainer}>
         <CustomButton

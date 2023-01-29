@@ -1,6 +1,10 @@
 import React, { createContext, useEffect, useState } from "react"
 import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
+import {
+  getRandomizedTemplateOptions
+} from "../library/option-utils"
+import gsap from "gsap"
 
 export const SceneContext = createContext()
 
@@ -52,6 +56,8 @@ export const SceneProvider = (props) => {
   const [manifest, setManifest] = useState(null)
   const [sceneModel, setSceneModel] = useState(null)
 
+  const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
+
   const setAvatar = (state) => {
     _setAvatar(state)
   }
@@ -80,6 +86,10 @@ export const SceneProvider = (props) => {
     return null
   }
 
+  const getRandomCharacter = () => {
+    setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
+  }
+
   const resetAvatar = () => {
     if (avatar){
       for (const prop in avatar){
@@ -89,6 +99,46 @@ export const SceneProvider = (props) => {
       }
     }
     setAvatar({})
+  }
+
+  const moveCamera = (value) => {
+    if (!controls) return
+    gsap.to(controls.target, {
+      x: value.targetX ?? 0,
+      y: value.targetY ?? 0,
+      z: value.targetZ ?? 0,
+      duration: 1,
+    })
+
+    gsap
+      .fromTo(
+        controls,
+        {
+          maxDistance: controls.getDistance(),
+          minDistance: controls.getDistance(),
+          minPolarAngle: controls.getPolarAngle(),
+          maxPolarAngle: controls.getPolarAngle(),
+          minAzimuthAngle: controls.getAzimuthalAngle(),
+          maxAzimuthAngle: controls.getAzimuthalAngle(),
+        },
+        {
+          maxDistance: value.distance,
+          minDistance: value.distance,
+          minPolarAngle: Math.PI / 2 - 0.11,
+          maxPolarAngle: Math.PI / 2 - 0.11,
+          minAzimuthAngle: -0.78,
+          maxAzimuthAngle: -0.78,
+          duration: 1,
+        },
+      )
+      .then(() => {
+        controls.minPolarAngle = 0
+        controls.maxPolarAngle = 3.1415
+        controls.minDistance = 0.5
+        controls.maxDistance = 5
+        controls.minAzimuthAngle = Infinity
+        controls.maxAzimuthAngle = Infinity
+      })
   }
 
   return (
@@ -115,6 +165,7 @@ export const SceneProvider = (props) => {
         currentOptions,
         setCurrentOptions,
         setSelectedOptions,
+        getRandomCharacter,
         saveUserSelection,
         loadUserSelection,
         selectedOptions,
@@ -133,6 +184,7 @@ export const SceneProvider = (props) => {
         avatar,
         setAvatar,
         resetAvatar,
+        moveCamera,
         traitsNecks,
         setTraitsNecks,
         traitsSpines,
@@ -146,6 +198,8 @@ export const SceneProvider = (props) => {
         initializeScene,
         mousePosition, 
         setMousePosition,
+        isChangingWholeAvatar,
+        setIsChangingWholeAvatar,
       }}
     >
       {props.children}

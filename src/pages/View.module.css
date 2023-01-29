@@ -1,0 +1,112 @@
+.chatContainer {
+    position: absolute;
+    width: 100%;
+    max-width: 50%;
+    top: 50%;
+    right: 32px;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    text-align: center;
+    height: -webkit-calc(100vh - 266px);
+    height: calc(100vh - 266px);
+    background: rgba(5, 11, 14, 0.8);
+    color: aliceblue;
+  }
+  
+  .scrollContainer {
+    height: 98%;
+    width: 99%;
+    position: absolute;
+    left: 0;
+    top: 2px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+  
+  .topLine {
+      background: rgb(0, 149, 100);
+      background: -moz-linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      background: -webkit-linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      background: linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+    }
+    
+    .bottomLine {
+      background: rgb(0, 149, 100);
+      background: -moz-linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      background: -webkit-linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      background: linear-gradient(
+        90deg,
+        rgba(0, 149, 100, 0) 0%,
+        rgba(8, 234, 160, 1) 50%,
+        rgba(0, 149, 100, 0) 100%
+      );
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+    }
+  
+  .buttonContainer {
+    position: absolute;
+    bottom: 20px;
+    left: 32px;
+    width: calc(100% - 64px);
+    width: -webkit-calc(100% - 64px);
+    text-align: center;
+  }
+  
+  .buttonContainer .buttonLeft {
+    float: left;
+  }
+  
+  .buttonContainer .buttonRight {
+    float: Right;
+  }
+  
+  .buttonContainer .buttonCenter {
+    margin: 0 8px;
+  }
+  
+  .buttonContainer::after {
+    content: " ";
+    display: block;
+    clear: both;
+  }
+  
+  .buttonContainer button {
+    min-width: 120px;
+  }
+  
