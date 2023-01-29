@@ -7,15 +7,14 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
-    const [isRandomizing, setIsRandomizing] = React.useState(true) // note: will do "fade in avatar" at start.
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
     effectManager.addEventListener('fadeinavatarend', () => {
-        setIsRandomizing(false);
+        setIsChangingWholeAvatar(false);
     })
 
     const next = () => {
@@ -24,8 +23,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
     }
 
     const randomize = () => {
-        if (!isRandomizing) {
-            setIsRandomizing(true);
+        if (!isChangingWholeAvatar) {
             getRandomCharacter()
         }
     }
