@@ -67,6 +67,13 @@ function getOptimizedGLB(avatarToDownload, atlasSize){
     })
 }
 
+export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
+  const model = await getOptimizedGLB(avatarToDownload, atlasSize)
+  const glb = await parseGLB(model);
+  console.log(glb)
+  return new Blob([glb], { type: 'model/gltf-binary' });
+}
+
 async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true){
   if (optimized){
     const model = await getOptimizedGLB(avatarToDownload, atlasSize)
@@ -100,7 +107,6 @@ export async function downloadGLB(avatarToDownload,  optimized = true, fileName 
   //console.log('data',data)
   getGLBData(avatarToDownload,atlasSize, optimized)
     .then((result) => {
-      console.log(result)
       if (result instanceof ArrayBuffer) {
         saveArrayBuffer(result, `${downloadFileName}.glb`)
       } else {
