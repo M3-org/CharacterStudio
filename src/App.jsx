@@ -145,12 +145,15 @@ export default function App() {
     //   moveCamera({ height: 0.75, distance: 1.35 })
     // }
 
-    const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
+    // const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
+    const a = new window.THREE.Vector4(0, 0.8, 3.2 ,1)/* .applyMatrix4(camera.matrixWorldInverse) */.applyMatrix4(camera.projectionMatrix);
     a.x /= a.w;
     a.y /= a.w;
     a.z /= a.w;
-    const left = new window.THREE.Vector4(0.5*a.w,a.y*a.w,a.z*a.w,a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
-    console.log(left)
+    console.log('a', a)
+    // const left = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
+    const left = new window.THREE.Vector4(-0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse)/* .applyMatrix4(camera.matrixWorld) */.x;
+    console.log('left:', left)
 
     if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
       moveCamera({ height: 0.8, distance: 3.2, left: left }) // todo: left

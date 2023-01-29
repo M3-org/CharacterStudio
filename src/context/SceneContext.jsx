@@ -138,6 +138,7 @@ export const SceneProvider = (props) => {
         controls.maxAzimuthAngle = Infinity
       })
   }
+  window.moveCamera = moveCamera
 
   return (
     <SceneContext.Provider
