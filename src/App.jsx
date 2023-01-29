@@ -1,4 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
+import * as THREE from "three"
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { ViewMode, ViewContext } from "./context/ViewContext"
@@ -113,8 +114,8 @@ export default function App() {
   // debugger
   const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
-  window.camera = camera
-  window.controls = controls
+  // window.camera = camera
+  // window.controls = controls
   effectManager.scene = scene
 
   let lastTap = 0
@@ -135,11 +136,14 @@ export default function App() {
       window.removeEventListener("click", handleTap)
     }
   }, [hideUi])
-  
-  useEffect(() => {
+
+  const updateCameraPosition = () => {
+    // console.log('--- updateCameraPosition 0')
     // return;
-    if (!camera) return;
-    console.log('--- viewMode:', viewMode);
+    if (!effectManager.camera) return;
+    // console.log(effectManager.camera.projectionMatrix.elements)
+    // console.log('--- updateCameraPosition 1')
+    // console.log('--- viewMode:', viewMode);
 
     // // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
     // //   moveCamera({ targetY: 0.8, distance: 3.2 })
@@ -161,30 +165,51 @@ export default function App() {
     // console.log('target:', target)
     // target.multiplyScalar(-1)
 
-    const centerCameraPosition = new window.THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
-    const a = new window.THREE.Vector4(0, 0, centerCameraPosition.length() ,1).applyMatrix4(camera.projectionMatrix);
+    const centerCameraPosition = new THREE.Vector3(-2.2367993753934425, 1.1512971720174363, 2.2612065299409223); // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
+    const a = new THREE.Vector4(0, 0, centerCameraPosition.length() ,1).applyMatrix4(effectManager.camera.projectionMatrix);
     a.x /= a.w;
     a.y /= a.w;
     a.z /= a.w;
-    console.log('a', a)
-    const moveX = new window.THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(camera.projectionMatrixInverse).x;
-    console.log('moveX:', moveX)
+    // console.log('a', a)
+    const moveX = new THREE.Vector4(0.5 * a.w, a.y * a.w, a.z * a.w, a.w).applyMatrix4(effectManager.camera.projectionMatrixInverse).x;
 
-    const target = new window.THREE.Vector3(0, 0.8, 0);
-    const angle = new window.THREE.Vector3(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(new window.THREE.Vector3(1,0,0))
+    const target = new THREE.Vector3(0, 0.8, 0);
+    const angle = new THREE.Vector3(centerCameraPosition.x, 0, centerCameraPosition.z).angleTo(new THREE.Vector3(1,0,0))
     /*
       new THREE.Vector3(-2.2368862945648424, 0, 2.2611798263143057).angleTo(new THREE.Vector3(1,0,0))
       <. 2.350793659059513
     */
-    const move = new window.THREE.Vector3(moveX, 0, 0).applyAxisAngle(new window.THREE.Vector3(0, 1, 0), angle);
+    const move = new THREE.Vector3(moveX, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
     target.add(move);
 
+    // console.log('viewMode', viewMode)
+
     if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
+      // console.log('moveX 1:', moveX)
       moveCamera({ targetY: target.y, distance: 3.2, targetX: target.x, targetZ: target.z })
     } else {
+      // console.log('moveX 2:', moveX)
       moveCamera({ targetY: 0.8, distance: 3.2 }) // center
     }
+    // console.log('--- updateCameraPosition 2')
+  }
+  
+  useEffect(() => {
+    updateCameraPosition();
+    window.addEventListener('resize', updateCameraPosition);
+    // console.log('------ handle resize')
+    return () => {
+      window.removeEventListener('resize', updateCameraPosition);
+    }
   }, [viewMode])
+
+  // useEffect(() => {
+  //   window.addEventListener('resize', updateCameraPosition);
+  //   // console.log('------ handle resize')
+  //   return () => {
+  //     window.removeEventListener('resize', updateCameraPosition);
+  //   }
+  // }, []) // note: will cause old viewMode and no controls issue in moveCamera function
 
   const fetchNewModel = (index) => {
     setAwaitDisplay(true)
