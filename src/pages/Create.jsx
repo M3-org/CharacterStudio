@@ -46,7 +46,7 @@ function Create({fetchNewModel}) {
       },
       {
         name: "The Degen",
-        image: "/assets/media/disabled.png",
+        image: "/assets/media/degens.gif",
         description: "Degens",
         icon: "/assets/icons/class-the-degen.svg",
         disabled: true,
