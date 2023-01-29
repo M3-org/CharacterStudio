@@ -7,7 +7,7 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar,getSaveAvatar } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
@@ -24,11 +24,12 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
 
     const randomize = () => {
         if (!isChangingWholeAvatar) {
-            getRandomCharacter()
+            //getRandomCharacter()
+            loadAvatarFromLocalStorage("test");
         }
     }
     const reset = () =>{
-        getSaveAvatar();
+        saveAvatarToLocalStorage("test");
     }
 
     return (

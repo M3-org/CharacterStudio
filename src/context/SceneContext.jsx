@@ -66,6 +66,14 @@ export const SceneProvider = (props) => {
   const loadAvatar = (avatarData) =>{
     console.log(avatarData)
   }
+  const loadAvatarFromLocalStorage = (loadName) =>{
+    const opts = localStorage.getItem(`12223_${loadName}`)
+    console.log(opts)
+    if (opts)
+      return JSON.parse(opts)
+      
+    return null
+  }
   const saveAvatarToLocalStorage = (saveName) =>{
     const saveAvatar = getSaveAvatar()
     localStorage.setItem(`12223_${saveName}`, JSON.stringify(saveAvatar))
@@ -187,6 +195,7 @@ export const SceneProvider = (props) => {
 
         getSaveAvatar,
         saveAvatarToLocalStorage,
+        loadAvatarFromLocalStorage,
 
         setCurrentOptions,
         setSelectedOptions,
