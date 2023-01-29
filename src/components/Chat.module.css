@@ -1,56 +1,38 @@
 .chatBox {
-    z-index: 1000000;
-    opacity: 0.8;
-    position: absolute;
-    width: 600px;
-    min-height: 200px;
+    width: 100%;
+    height: 100%;
     font-size: .8rem;
-    top: 5em;
-    padding: 1em;
-    margin: 1em;
     color: #fff;
-    background-color: #000;
-    /* align to the bottom of the div */
-    vertical-align: bottom;
-    /* center horizontally with transform */
-    right: 2em;
-    /* round the corners */
-    border-radius: 5px;
+    text-align: left;
+    box-sizing: border-box;
+    padding: 24px;
+
 }
 
-.chatBox > span {
-    display: inline;
-    width: 24em;
+.chatBox * {
+    outline: none !important;
 }
 
 
 .chatBox > label, .chatBox > span > label {
     display: block;
     width: 100%;
-}
-
-/* float the first chatbox span left */
-.chatBox > span:first-child {
-    float: left;
+    color: #99ABB2;
+    margin-bottom: 8px;
 }
 
 .chatBox > input, .chatBox > span > input {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
     display: block;
-    width: 20em;
 }
 
 .chatBox > textarea {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
     width: calc(100% - 2em);
     display: block;
@@ -75,12 +57,14 @@
     margin-bottom: 20px;
     overflow-y: scroll;
     overflow-x: none;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    margin: .5em;
+    border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 2em);
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 132px);
+    height: -webkit-calc(100% - 132px);
 }
 
 /* make the scrollbar transparent with a white thumb */
@@ -94,58 +78,46 @@
     border-radius: 5px;
 }
 
-.send {
-    background-color: #000;
-    color: #fff;
-    margin: .5em;
-    padding: .5em;
-    width: calc(100% - 2em);}
-
 /* set the input0 text color to white */
 .send input {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    width: calc(100% - 6.5em);
-    display: inline-block;
+    border: 1px solid #C5DCD0;
     padding: .5em;
+    width: calc(100% - 144px);
+    margin-left: 8px;
+    margin-right: 8px;
+    height: 18px;
+    display: inline-block;
+}
+
+.mic {
+    vertical-align: middle;
+}
+
+.sendButton {
+    vertical-align: bottom;
 }
 
 .speaker {
-    float: right;
+    width: 100%;
 }
 
 .speaker > label {
-    padding: 1em;
+    display: block;
+    color: #99ABB2;
+    margin-bottom: 8px;
 }
 
 .speaker input {
-    background-color: #000;
+    background-color: #193234;
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #fff;
-    width: calc(10em);
-    display: inline-block;
+    border: 1px solid #C5DCD0;
     padding: .5em;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
 }
 
-.send button {
-    background-color: #000;
-    color: #fff;
-    border: 1px solid #fff;
-    /* round the corners */
-    border-radius: 10px;
-    width: 3.25em;
-    padding: .5em;
-    margin-left: 10px;
-}
-
-.button {
-    opacity: 1.0;
-  }
-  
-  .buttonInactive {
-    opacity: 0.5;
-  }
   

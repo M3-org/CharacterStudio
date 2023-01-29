@@ -9,11 +9,12 @@ function ViewComponent() {
 
   const back = () => {
     console.log("back")
-    setViewMode(ViewMode.SAVE)
+    setViewMode(ViewMode.MINT)
   }
 
   return (
     <div className={styles.container}>
+      <div className={"sectionTitle"}>Chat With Your Character</div>
       <div className={styles.chatContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />

@@ -60,6 +60,20 @@ background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50
 filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
 }
 
+.horizontalScroll ::-webkit-scrollbar {
+  height: 0.1em;
+}
+.horizontalScroll ::-webkit-scrollbar-track {
+  box-shadow: transparent;
+}
+.horizontalScroll ::-webkit-scrollbar-thumb {
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+}
+
 .root {
   overflow: hidden;
   margin: 0;
