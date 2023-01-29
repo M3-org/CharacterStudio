@@ -56,6 +56,8 @@ export const SceneProvider = (props) => {
   const [manifest, setManifest] = useState(null)
   const [sceneModel, setSceneModel] = useState(null)
 
+  const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
+
   const setAvatar = (state) => {
     _setAvatar(state)
   }
@@ -196,6 +198,8 @@ export const SceneProvider = (props) => {
         initializeScene,
         mousePosition, 
         setMousePosition,
+        isChangingWholeAvatar,
+        setIsChangingWholeAvatar,
       }}
     >
       {props.children}
