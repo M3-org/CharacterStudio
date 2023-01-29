@@ -66,6 +66,22 @@ export const SceneProvider = (props) => {
   const loadAvatar = (avatarData) =>{
     console.log(avatarData)
   }
+  const saveAvatarToLocalStorage = (saveName) =>{
+
+  }
+  const getSaveAvatar = () => {
+    console.log(avatar)
+    const avatarJson = {}
+    for (const prop in avatar){
+      
+      avatarJson[prop] = {
+        traitInfo: avatar[prop].traitInfo,
+        textureInfo: avatar[prop].textureInfo,
+        colorInfo: avatar[prop].colorInfo,
+      }
+    }
+    console.log(avatarJson)
+  }
 
   const saveUserSelection = (name, options) =>{
     const newSelection = loadUserSelection (name) || []
@@ -168,6 +184,7 @@ export const SceneProvider = (props) => {
         currentTraitName,
         setCurrentTraitName,
         currentOptions,
+        getSaveAvatar,
         setCurrentOptions,
         setSelectedOptions,
         getRandomCharacter,
