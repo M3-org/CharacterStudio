@@ -218,7 +218,7 @@ ${agent}:`
           theme="light"
           icon="microphone"
           className={styles.mic}
-          size={34}
+          size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
         />
