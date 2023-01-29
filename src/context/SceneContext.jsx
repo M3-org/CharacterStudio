@@ -122,10 +122,10 @@ export const SceneProvider = (props) => {
         {
           maxDistance: value.distance,
           minDistance: value.distance,
-          minPolarAngle: Math.PI / 2 - 0.11,
-          maxPolarAngle: Math.PI / 2 - 0.11,
-          minAzimuthAngle: -0.78,
-          maxAzimuthAngle: -0.78,
+          minPolarAngle: Math.PI / 2,
+          maxPolarAngle: Math.PI / 2,
+          minAzimuthAngle: -0,
+          maxAzimuthAngle: -0,
           duration: 1,
         },
       )

@@ -111,8 +111,10 @@ export default function App() {
   const [animationManager, setAnimationManager] = useState({})
 
   // debugger
-  const { camera, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
+  window.camera = camera
+  window.controls = controls
   effectManager.scene = scene
 
   let lastTap = 0
@@ -135,14 +137,23 @@ export default function App() {
   }, [hideUi])
   
   useEffect(() => {
+    if (!camera) return;
     console.log('--- viewMode:', viewMode);
     // if ([ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)) {
     //   moveCamera({ height: 0.8, distance: 3.2 })
     // } else if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
     //   moveCamera({ height: 0.75, distance: 1.35 })
     // }
-    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-      moveCamera({ height: 0.8, distance: 3.2, left: 0.7 }) // todo: left
+
+    const a = new window.THREE.Vector4(0,0,0,1).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
+    a.x /= a.w;
+    a.y /= a.w;
+    a.z /= a.w;
+    const left = new window.THREE.Vector4(0.5*a.w,a.y*a.w,a.z*a.w,a.w).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld).x;
+    console.log(left)
+
+    if ([ViewMode.BIO, /* ViewMode.MINT,  */ViewMode.CHAT].includes(viewMode)) {
+      moveCamera({ height: 0.8, distance: 3.2, left: left }) // todo: left
     } else {
       moveCamera({ height: 0.8, distance: 3.2 }) // center
     }
