@@ -17,8 +17,8 @@ import Selector from "./Selector"
 import { TokenBox } from "./token-box/TokenBox"
 
 
-export default function Editor({manifest, animationManager, blinkManager, effectManager, fetchNewModel}) {
-  const {currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
+export default function Editor({animationManager, blinkManager, effectManager, fetchNewModel}) {
+  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 

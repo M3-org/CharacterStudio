@@ -370,8 +370,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     const textures = itemData.textures;
     const colors = itemData.colors;
 
-    console.log(item)
-    console.log(textureItem)
     // null section (when user selects to remove an option)
     if ( item == null) {
       // if avatar exists and trait exsits, remove it

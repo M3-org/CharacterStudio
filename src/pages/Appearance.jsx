@@ -5,7 +5,7 @@ import { SceneContext } from "../context/SceneContext"
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
-function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
+function Appearance({initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
     const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
     const back = () => {
@@ -24,18 +24,18 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
 
     const randomize = () => {
         if (!isChangingWholeAvatar) {
-            //getRandomCharacter()
-            loadAvatarFromLocalStorage("test");
+            getRandomCharacter()
+            //loadAvatarFromLocalStorage("test");
         }
     }
     const reset = () =>{
-        saveAvatarToLocalStorage("test");
+        //saveAvatarToLocalStorage("test");
     }
 
     return (
         <div className={styles.container}>
             <div className={"sectionTitle"}>Choose Appearance</div>
-        <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
+        <Editor animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"

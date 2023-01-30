@@ -135,7 +135,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera, setManifest } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -157,6 +157,10 @@ export default function App() {
       window.removeEventListener("click", handleTap)
     }
   }, [hideUi])
+
+  useEffect(()=>{
+    setManifest(manifest)
+  },[manifest])
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return;
@@ -217,6 +221,7 @@ export default function App() {
   }, [viewMode])
 
   const fetchNewModel = (index) => {
+    //setManifest(manifest)
     setAwaitDisplay(true)
     resetAvatar();
     return new Promise((resolve) => {
@@ -251,7 +256,6 @@ export default function App() {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
       <Appearance
-        manifest={manifest}
         animationManager={animationManager}
         blinkManager={blinkManager}
         effectManager={effectManager}

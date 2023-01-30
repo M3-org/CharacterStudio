@@ -2,8 +2,10 @@ import React, { createContext, useEffect, useState } from "react"
 import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
 import {
-  getRandomizedTemplateOptions
+  getRandomizedTemplateOptions,
+  getOptionsFromAvatarData
 } from "../library/option-utils"
+
 import gsap from "gsap"
 
 export const SceneContext = createContext()
@@ -64,15 +66,22 @@ export const SceneProvider = (props) => {
   }
 
   const loadAvatar = (avatarData) =>{
-    console.log(avatarData)
+    console.log(manifest)
+    const data = getOptionsFromAvatarData(avatarData,manifest)
+    console.log("loaded data is: ", data)
+    if (data != null)
+      setSelectedOptions(data);
   }
   const loadAvatarFromLocalStorage = (loadName) =>{
-    const opts = localStorage.getItem(`12223_${loadName}`)
-    console.log(opts)
-    if (opts)
-      return JSON.parse(opts)
-      
-    return null
+    console.log(templateInfo)
+    const avatarJsonData = localStorage.getItem(`12223_${loadName}`)
+    if (avatarJsonData){
+      const avatarData = JSON.parse(avatarJsonData)
+      loadAvatar(avatarData);
+    }
+    else{
+      console.log("no local storage for " + loadName + " was found")
+    }
   }
   const saveAvatarToLocalStorage = (saveName) =>{
     const saveAvatar = getSaveAvatar()
@@ -81,13 +90,13 @@ export const SceneProvider = (props) => {
   const getSaveAvatar = () => {
     const avatarJson = {}
     for (const prop in avatar){
-      
       avatarJson[prop] = {
         traitInfo: avatar[prop].traitInfo,
         textureInfo: avatar[prop].textureInfo,
         colorInfo: avatar[prop].colorInfo,
       }
     }
+    avatarJson.class = templateInfo.id;
     return avatarJson;
   }
 
@@ -110,8 +119,11 @@ export const SceneProvider = (props) => {
 
   const loadUserSelection = (name) => {
     const opts = localStorage.getItem(`class2_${name}`)
-    if (opts)
-      return JSON.parse(opts)
+    if (opts){
+      const json= JSON.parse(opts)
+      console.log(json)
+      return json
+    }
     return null
   }
 
