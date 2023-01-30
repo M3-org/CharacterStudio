@@ -9,6 +9,10 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     const [moving, setMoving] = useState(false)
     const [scaling, setScaling] = useState(false)
 
+    const windowResize = () => {
+        updateMask()
+    }
+
     React.useEffect (() => {
         let resizable = document.getElementById('screenshots');
         let draggable = document.getElementById('Screenshot-block');
@@ -21,8 +25,14 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
 
 
         updateMask()
+        window.addEventListener('resize', windowResize);
+        return () => {
+            window.removeEventListener('resize', windowResize)
+        }
     },[])
 
+
+    
     const handleMouseMove = (e) => { 
         //console.log(moving)
         if (moving){
@@ -114,6 +124,7 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     
     return(
         <div id = "fscreen-div" className = {styles["FullScreen"]}
+
             onMouseMove={(ev)=> handleMouseMove(ev)}
             onMouseLeave = {endInteraction}
             onMouseUp = {endInteraction}
