@@ -253,7 +253,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       options.map((option, index)=>{
         if (option.selected){
           setSelectValue(option.key)
-          console.log(option)
         }
         if (option == null){
           resultData[index] = null;
