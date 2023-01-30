@@ -6,36 +6,12 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     const [initialPos,   setInitialPos] = useState(null);
     const [initialSize, setInitialSize] = useState(null);
 
-    // React.useEffect(() => {
-    //     let draggable = document.getElementById('Screenshot-block');
-    //     let resizable = document.getElementById('screenshots');
-    //     console.log(draggable)
-    //     console.log(screenshotPosition)
-    //     draggable.style.paddingTop = screenshotPosition.y
-    //     draggable.style.paddingLeft = screenshotPosition.x
-    //     resizable.style.width = screenshotPosition.width
-    //     resizable.style.height = screenshotPosition.height
-    // },[])
+    const [moving, setMoving] = useState(false)
+    const [scaling, setScaling] = useState(false)
 
-    const initialFrame = (e) => {
-        let draggable = document.getElementById('Screenshot-block');
-        let resizable = document.getElementById('screenshots');
-
-        e.dataTransfer.setDragImage(draggable, -99999, -99999);
-        e.dataTransfer.setDragImage(resizable, -99999, -99999);
-
-        const leftPos = e.clientX - draggable.style.paddingLeft;
-
-        draggable.style.paddingTop = e.clientY - resizable.offsetHeight/2;
-
-        
-        setInitialPos({x:leftPos, y:e.clientY});
-        
-    }
-
-    const dragFrame = (e) => {
-
-        if (e.clientY > 5 && e.clientX > 5){
+    const handleMouseMove = (e) => { 
+        //console.log(moving)
+        if (moving){
             let draggable = document.getElementById('Screenshot-block');
             let resizable = document.getElementById('screenshots');
 
@@ -49,51 +25,67 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
             setScreenshotPosition({...screenshotPosition, ...{x:posX, y:posY}});
         }
 
-    }
-    
+        if (scaling){
+            let resizable = document.getElementById('screenshots');
 
+            const newWidth = parseInt(initialSize.width) + parseInt(e.clientX - initialPos.x)
+            const newHeight = parseInt(initialSize.height) + parseInt(e.clientY - initialPos.y)
+    
+            const sameRatio = newWidth >= newHeight ? newWidth : newHeight
+            if (newWidth > 50 && newHeight > 50){
+                resizable.style.width = `${sameRatio}px`;
+                resizable.style.height = `${sameRatio}px`;
+                setScreenshotPosition({...screenshotPosition,...{width:newWidth, height:newHeight}});
+            }
+        }
+    }
+  
+    const initialFrame = (e) => {
+        setMoving(true)
+        let draggable = document.getElementById('Screenshot-block');
+        let resizable = document.getElementById('screenshots');
+
+        const leftPos = e.clientX - draggable.style.paddingLeft;
+
+        draggable.style.paddingTop = e.clientY - resizable.offsetHeight/2;
+
+        
+        setInitialPos({x:leftPos, y:e.clientY});
+        
+    }
 
     const initial = (e) => {
-        
+        setScaling(true)
         let resizable = document.getElementById('screenshots');
-        let draggable = document.getElementById('draggable');
-
-        e.dataTransfer.setDragImage(resizable, -99999, -99999);
-        e.dataTransfer.setDragImage(draggable, -99999, -99999);
 
         setInitialPos({x:e.clientX, y:e.clientY});
         setInitialSize({width:resizable.offsetWidth, height:resizable.offsetHeight});
 
     }   
-    
-    const resize = (e) => {
 
-        
-        let resizable = document.getElementById('screenshots');
-
-        const newWidth = parseInt(initialSize.width) + parseInt(e.clientX - initialPos.x)
-        const newHeight = parseInt(initialSize.height) + parseInt(e.clientY - initialPos.y)
-
-        const sameRatio = newWidth >= newHeight ? newWidth : newHeight
-        if (newWidth > 50 && newHeight > 50){
-            resizable.style.width = `${sameRatio}px`;
-            resizable.style.height = `${sameRatio}px`;
-            setScreenshotPosition({...screenshotPosition,...{width:newWidth, height:newHeight}});
-        }
+    const endInteraction = () => {
+        setScaling(false)
+        setMoving(false)
     }
     
     return(
-        <div className = {styles["FullScreen"]}>
+        <div className = {styles["FullScreen"]}
+            onMouseMove={(ev)=> handleMouseMove(ev)}
+            onMouseLeave = {endInteraction}
+            onMouseUp = {endInteraction}
+            onTouchEnd = {endInteraction}
+            onTouchCancel = {endInteraction}>
+                
             <div id = "Screenshot-block" className = {styles["Block"]}>
                 <div id = "screenshots" className = {styles["Resizable"]}
-                    draggable   = 'true'
-                    onDragStart = {initialFrame} 
-                    onDrag      = {dragFrame}
+                    draggable = 'false'
+                    onMouseDown = {initialFrame} 
+                    onTouchStart = {initialFrame}
                 />
                 <div id = "draggable" className = {styles["Draggable"]}
-                    draggable   = 'true'
-                    onDragStart = {initial} 
-                    onDrag      = {resize}
+                    draggable = 'false'
+                    onMouseDown = {initial} 
+                    onTouchStart = {initial}
                 />
             </div>
         </div>
