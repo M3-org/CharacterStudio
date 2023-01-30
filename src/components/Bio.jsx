@@ -148,7 +148,6 @@ export default function Bio() {
         })}
       </select>
       <textarea
-        type="text"
         name="response1"
         onChange={(e) => setResponse1(e.target.value)}
         defaultValue={response1}
@@ -170,7 +169,6 @@ export default function Bio() {
       </select>
 
       <textarea
-        type="text"
         name="response1"
         onChange={(e) => setResponse2(e.target.value)}
       >
@@ -193,7 +191,6 @@ export default function Bio() {
       </select>
 
       <textarea
-        type="text"
         name="response3"
         onChange={(e) => setResponse3(e.target.value)}
       >
