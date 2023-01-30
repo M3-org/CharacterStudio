@@ -77,14 +77,14 @@ async function fetchAnimation(templateInfo) {
 }
 
 async function fetchAll() {
-  const manifest = await fetchManifest()
+  const initialManifest = await fetchManifest()
   const sceneModel = await fetchScene()
 
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
   const effectManager = new EffectManager()
 
   return {
-    manifest,
+    initialManifest,
     sceneModel,
     blinkManager,
     effectManager,
@@ -123,7 +123,7 @@ const resource = fetchData()
 
 export default function App() {
   const {
-    manifest,
+    initialManifest,
     sceneModel,
     blinkManager,
     effectManager,
@@ -135,7 +135,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera, setManifest } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera, setManifest, manifest } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -159,8 +159,8 @@ export default function App() {
   }, [hideUi])
 
   useEffect(()=>{
-    setManifest(manifest)
-  },[manifest])
+    setManifest(initialManifest)
+  },[initialManifest])
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return;
