@@ -270,7 +270,8 @@ export default function App() {
   return (
     <Fragment>
       <div className="generalTitle">
-        Character Creator
+        Character Studio
+        <sup style={{ padding: '4px', opacity: 0.5 }}>Preview</sup>
       </div>
       <Background />
       <Scene manifest={manifest} sceneModel={sceneModel} />
