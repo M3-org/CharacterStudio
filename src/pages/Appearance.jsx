@@ -29,10 +29,10 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
         }
     }
     const reset = () =>{
-        loadAvatarFromLocalStorage("test");
+        //loadAvatarFromLocalStorage("test");
     }
     const save = () =>{
-        saveAvatarToLocalStorage("test");
+        //saveAvatarToLocalStorage("test");
     }
 
 
@@ -54,13 +54,6 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
                     size={14}
                     className={styles.buttonRight}
                     onClick={next}
-                />
-                <CustomButton
-                    theme="light"
-                    text="Save"
-                    size={14}
-                    className={styles.buttonCenter}
-                    onClick = {save}
                 />
                 <CustomButton
                     theme="light"
