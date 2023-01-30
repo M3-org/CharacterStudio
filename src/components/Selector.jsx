@@ -44,6 +44,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
+    isLoading,
     setIsLoading,
   } = useContext(SceneContext)
   const {
@@ -154,6 +155,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    if (isLoading) return;
+
     if (option == null){
       option = {
         item:null,
