@@ -44,7 +44,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
-    setIsChangingWholeAvatar,
+    setIsLoading,
   } = useContext(SceneContext)
   const {
     playSound
@@ -142,7 +142,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      setIsChangingWholeAvatar(true);
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
@@ -209,6 +208,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         resolve(options)
       });
     }
+
+    setIsLoading(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()
