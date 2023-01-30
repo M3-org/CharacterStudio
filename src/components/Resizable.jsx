@@ -78,10 +78,12 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
                 
             <div id = "Screenshot-block" className = {styles["Block"]}>
                 <div id = "screenshots" className = {styles["Resizable"]}
+                    draggable = 'false'
                     onMouseDown = {initialFrame} 
                     onTouchStart = {initialFrame}
                 />
                 <div id = "draggable" className = {styles["Draggable"]}
+                    draggable = 'false'
                     onMouseDown = {initial} 
                     onTouchStart = {initial}
                 />
