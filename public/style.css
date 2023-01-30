@@ -91,6 +91,35 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }
 
+.loadingIndicator {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  background: black;
+  border-radius: 10px;
+  opacity: 0.3;
+}
+.loadingIndicator.active {
+  display: block;
+}
+.loadingIndicator > img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 65%;
+  height: 65%;
+  margin: auto;
+}
+
 .sectionTitle {
   position: absolute;
   position: absolute;
@@ -143,4 +172,11 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   transform: skewX(-12deg);
   background-color: #0d1a22;
   z-index: 0;
+}
+
+.rotate{
+  animation: rotate 2.2s linear infinite; 
+}
+@keyframes rotate{
+  to{ transform: rotate(360deg); }
 }

@@ -326,6 +326,7 @@ export class EffectManager extends EventTarget{
           globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_DURATION;
           globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
           this.setTransitionEffect('normal');
+          this.dispatchEvent(new Event('fadeintraitend'));
         }
       }
 
