@@ -30,7 +30,9 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
 
     return (
         <div className={styles.container}>
-            <div className={`loadingIndicator ${isChangingWholeAvatar?"active":""}`}></div>
+            <div className={`loadingIndicator ${isChangingWholeAvatar?"active":""}`}>
+                <img className={"rotate"} src="ui/loading.svg"/>
+            </div>
             <div className={"sectionTitle"}>Choose Appearance</div>
             <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
