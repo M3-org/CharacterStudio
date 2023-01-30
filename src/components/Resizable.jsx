@@ -8,11 +8,14 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
 
     const [moving, setMoving] = useState(false)
     const [scaling, setScaling] = useState(false)
+    
 
     const windowResize = () => {
         updateMask()
     }
 
+
+    
     React.useEffect (() => {
         let resizable = document.getElementById('screenshots');
         let draggable = document.getElementById('Screenshot-block');
@@ -72,6 +75,8 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     }
     const updateMask = () =>{
         const fscreen = document.getElementById('fscreen-div');
+
+        console.log(fscreen.clientWidth)
 
         const maskLeft = document.getElementById('maskLeft');
         const maskTop = document.getElementById('maskTop');
