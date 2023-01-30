@@ -173,6 +173,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     effectManager.setTransitionEffect('switch_item');
 
+    option.selected = true
+
     loadOptions(getAsArray(option)).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -248,8 +250,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
       
       // load necesary assets for the options
+      console.log(options)
       options.map((option, index)=>{
-        setSelectValue(option.key)
+        if (option.selected){
+          setSelectValue(option.key)
+          console.log(option)
+        }
+        
         if (option == null){
           resultData[index] = null;
           return;
@@ -376,7 +383,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
           setTimeout(() => {
             disposeVRM(avatar[traitData.name].vrm)
-            setSelectValue("")
           }, effectManager.transitionTime)
           
         }
@@ -569,6 +575,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         onClick={() => {
           if (effectManager.getTransitionEffect('normal')) {
             selectTraitOption(null) 
+            setSelectValue("")
             effectManager.setTransitionEffect('normal');
           }
         }}
