@@ -22,6 +22,7 @@ import { SceneContext } from "./context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 async function fetchManifest() {
   const manifest = localStorage.getItem("manifest")
@@ -31,6 +32,17 @@ async function fetchManifest() {
   const response = await fetch(assetImportPath)
   const data = await response.json()
   localStorage.setItem("manifest", JSON.stringify(data))
+  return data
+}
+
+async function fetchPersonality() {
+  const personality = localStorage.getItem("personality")
+  if (personality) {
+    return JSON.parse(personality)
+  }
+  const response = await fetch(peresonalityImportPath)
+  const data = await response.json()
+  localStorage.setItem("personality", JSON.stringify(data))
   return data
 }
 
@@ -53,6 +65,7 @@ async function fetchAnimation(templateInfo) {
 
 async function fetchAll() {
   const manifest = await fetchManifest()
+  const personality = await fetchPersonality()
   const sceneModel = await fetchScene()
 
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
@@ -60,6 +73,7 @@ async function fetchAll() {
 
   return {
     manifest,
+    personality,
     sceneModel,
     blinkManager,
     effectManager,
@@ -99,6 +113,7 @@ const resource = fetchData()
 export default function App() {
   const {
     manifest,
+    personality,
     sceneModel,
     blinkManager,
     effectManager,
@@ -177,7 +192,7 @@ export default function App() {
         fetchNewModel={fetchNewModel}
       />
     ),
-    [ViewMode.BIO]: <BioPage />,
+    [ViewMode.BIO]: <BioPage templateInfo={templateInfo} personality={personality} />,
     [ViewMode.CREATE]: <Create 
       fetchNewModel={fetchNewModel}
       />,
