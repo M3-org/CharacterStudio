@@ -250,13 +250,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
       
       // load necesary assets for the options
-      console.log(options)
       options.map((option, index)=>{
         if (option.selected){
           setSelectValue(option.key)
           console.log(option)
         }
-        
         if (option == null){
           resultData[index] = null;
           return;
