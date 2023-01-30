@@ -25,12 +25,16 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
     const randomize = () => {
         if (!isChangingWholeAvatar) {
             getRandomCharacter()
-            //loadAvatarFromLocalStorage("test");
+            //
         }
     }
     const reset = () =>{
-        //saveAvatarToLocalStorage("test");
+        loadAvatarFromLocalStorage("test");
     }
+    const save = () =>{
+        saveAvatarToLocalStorage("test");
+    }
+
 
     return (
         <div className={styles.container}>
@@ -50,6 +54,13 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
                     size={14}
                     className={styles.buttonRight}
                     onClick={next}
+                />
+                <CustomButton
+                    theme="light"
+                    text="Save"
+                    size={14}
+                    className={styles.buttonCenter}
+                    onClick = {save}
                 />
                 <CustomButton
                     theme="light"

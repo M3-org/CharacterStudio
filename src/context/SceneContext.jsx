@@ -62,19 +62,17 @@ export const SceneProvider = (props) => {
 
   const setAvatar = (state) => {
     _setAvatar(state)
-    console.log(state)
   }
 
   const loadAvatar = (avatarData) =>{
-    console.log(manifest)
     const data = getOptionsFromAvatarData(avatarData,manifest)
-    console.log("loaded data is: ", data)
-    if (data != null)
+    if (data != null){
+      resetAvatar();
       setSelectedOptions(data);
+    }
   }
   const loadAvatarFromLocalStorage = (loadName) =>{
-    console.log(templateInfo)
-    const avatarJsonData = localStorage.getItem(`12223_${loadName}`)
+    const avatarJsonData = localStorage.getItem(`${templateInfo.id}12223_${loadName}`)
     if (avatarJsonData){
       const avatarData = JSON.parse(avatarJsonData)
       loadAvatar(avatarData);
@@ -85,17 +83,19 @@ export const SceneProvider = (props) => {
   }
   const saveAvatarToLocalStorage = (saveName) =>{
     const saveAvatar = getSaveAvatar()
-    localStorage.setItem(`12223_${saveName}`, JSON.stringify(saveAvatar))
+    localStorage.setItem(`${templateInfo.id}12223_${saveName}`, JSON.stringify(saveAvatar))
   }
   const getSaveAvatar = () => {
+    // saves the current avatar, it also saves the class
     const avatarJson = {}
-    for (const prop in avatar){
+    templateInfo.traits.forEach(trait => {
+      const prop = trait.trait;
       avatarJson[prop] = {
-        traitInfo: avatar[prop].traitInfo,
-        textureInfo: avatar[prop].textureInfo,
-        colorInfo: avatar[prop].colorInfo,
+        traitInfo: avatar[prop]?.traitInfo,
+        textureInfo: avatar[prop]?.textureInfo,
+        colorInfo: avatar[prop]?.colorInfo,
       }
-    }
+    });
     avatarJson.class = templateInfo.id;
     return avatarJson;
   }
@@ -121,7 +121,6 @@ export const SceneProvider = (props) => {
     const opts = localStorage.getItem(`class2_${name}`)
     if (opts){
       const json= JSON.parse(opts)
-      console.log(json)
       return json
     }
     return null
