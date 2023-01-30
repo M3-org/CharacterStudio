@@ -50,6 +50,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {loading, setLoading} = useContext(ViewContext)
+  const {setEffecting} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -211,6 +212,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
     setLoading(true);
+    setEffecting(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()

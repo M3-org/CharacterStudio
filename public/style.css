@@ -102,9 +102,10 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   width: 80px;
   height: 80px;
   margin: auto;
-  background: black;
+  /* background: black; */
   border-radius: 10px;
-  opacity: 0.3;
+  /* opacity: 0.3; */
+  filter: drop-shadow(1px 1px 0px black);
 }
 .loadingIndicator.active {
   display: block;
