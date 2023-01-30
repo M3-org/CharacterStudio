@@ -91,6 +91,24 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }
 
+.loadingIndicator {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  background: black;
+  border-radius: 10px;
+  opacity: 0.3;
+}
+.loadingIndicator.active {
+  display: block;
+}
+
 .sectionTitle {
   position: absolute;
   position: absolute;

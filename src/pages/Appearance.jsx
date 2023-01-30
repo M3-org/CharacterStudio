@@ -30,8 +30,9 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
 
     return (
         <div className={styles.container}>
+            <div className={`loadingIndicator ${isChangingWholeAvatar?"active":""}`}></div>
             <div className={"sectionTitle"}>Choose Appearance</div>
-        <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
+            <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"
