@@ -21,6 +21,9 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
         let draggable = document.getElementById('Screenshot-block');
         let resizable = document.getElementById('screenshots');
 
+        e.dataTransfer.setDragImage(draggable, -99999, -99999);
+        e.dataTransfer.setDragImage(resizable, -99999, -99999);
+
         const leftPos = e.clientX - draggable.style.paddingLeft;
 
         draggable.style.paddingTop = e.clientY - resizable.offsetHeight/2;
@@ -38,7 +41,6 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
 
             const posX = (e.clientX - resizable.offsetWidth/2)// + initialPos.x
             const posY = (e.clientY - resizable.offsetHeight/2)// + initialPos.y
-            
         
             draggable.style.paddingTop = `${posY}px`
 
@@ -54,6 +56,10 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     const initial = (e) => {
         
         let resizable = document.getElementById('screenshots');
+        let draggable = document.getElementById('draggable');
+
+        e.dataTransfer.setDragImage(resizable, -99999, -99999);
+        e.dataTransfer.setDragImage(draggable, -99999, -99999);
 
         setInitialPos({x:e.clientX, y:e.clientY});
         setInitialSize({width:resizable.offsetWidth, height:resizable.offsetHeight});
@@ -77,17 +83,19 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     }
     
     return(
-        <div id = "Screenshot-block" className = {styles["Block"]}>
-            <div id = "screenshots" className = {styles["Resizable"]}
-                draggable   = 'true'
-                onDragStart = {initialFrame} 
-                onDrag      = {dragFrame}
-            />
-            <div id = "Draggable" className = {styles["Draggable"]}
-                draggable   = 'true'
-                onDragStart = {initial} 
-                onDrag      = {resize}
-            />
+        <div className = {styles["FullScreen"]}>
+            <div id = "Screenshot-block" className = {styles["Block"]}>
+                <div id = "screenshots" className = {styles["Resizable"]}
+                    draggable   = 'true'
+                    onDragStart = {initialFrame} 
+                    onDrag      = {dragFrame}
+                />
+                <div id = "draggable" className = {styles["Draggable"]}
+                    draggable   = 'true'
+                    onDragStart = {initial} 
+                    onDrag      = {resize}
+                />
+            </div>
         </div>
     );
     
