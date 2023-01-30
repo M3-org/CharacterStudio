@@ -67,9 +67,11 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
 
         const newWidth = parseInt(initialSize.width) + parseInt(e.clientX - initialPos.x)
         const newHeight = parseInt(initialSize.height) + parseInt(e.clientY - initialPos.y)
+
+        const sameRatio = newWidth >= newHeight ? newWidth : newHeight
         if (newWidth > 50 && newHeight > 50){
-            resizable.style.width = `${newWidth}px`;
-            resizable.style.height = `${newHeight}px`;
+            resizable.style.width = `${sameRatio}px`;
+            resizable.style.height = `${sameRatio}px`;
             setScreenshotPosition({...screenshotPosition,...{width:newWidth, height:newHeight}});
         }
     }
