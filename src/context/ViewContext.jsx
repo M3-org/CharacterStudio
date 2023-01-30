@@ -23,7 +23,7 @@ export const ViewContext = React.createContext()
 export const ViewProvider = (props) => {
   const [currentCameraMode, setCurrentCameraMode] = React.useState(CameraMode.NORMAL)
   const [viewMode, setViewMode] = React.useState(ViewMode.LANDING)
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(false)
   const [mouseIsOverUI, setMouseIsOverUI] = React.useState(false)
   return (
     <ViewContext.Provider value={{

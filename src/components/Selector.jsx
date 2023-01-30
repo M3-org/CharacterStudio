@@ -44,14 +44,12 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
-    isLoading,
-    setIsLoading,
   } = useContext(SceneContext)
   const {
     playSound
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
-  const {setLoading} = useContext(ViewContext)
+  const {loading, setLoading} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -155,7 +153,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
-    if (isLoading) return;
+    if (loading) return;
 
     if (option == null){
       option = {
@@ -212,7 +210,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       });
     }
 
-    setIsLoading(true);
+    setLoading(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()
