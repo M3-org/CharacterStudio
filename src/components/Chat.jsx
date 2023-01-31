@@ -22,7 +22,17 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox() {
+export default function ChatBox({
+  name,
+  bio,
+  greeting,
+  question1,
+  question2,
+  question3,
+  response1,
+  response2,
+  response3,
+}) {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechrecognition, setSpeechrecognition] = React.useState(false)
@@ -138,8 +148,6 @@ ${messages.join("\n")}
 ${speaker}: ${input}
 ${agent}:`
 
-console.log('prompt is', prompt)
-
       const query = {
         prompt,
         max_tokens: 100,
@@ -156,10 +164,10 @@ console.log('prompt is', prompt)
         const ttsEndpoint = `https://voice.webaverse.com/tts?s=${output}&voice=${driveId}`
 
         // fetch the audio file from ttsEndpoint
-        console.log('fetch tts')
+
         fetch(ttsEndpoint).then(async (response) => {
           const blob = await response.blob()
-          console.log('response blob', blob)
+
           // convert the blob to an array buffer
           const arrayBuffer = await blob.arrayBuffer()
 
@@ -202,7 +210,7 @@ console.log('prompt is', prompt)
         <input
           type="text"
           name="speaker"
-          value={speaker}
+          defaultValue={speaker}
           onChange={(e) => setSpeaker(e.target.value)}
         />
       </div>

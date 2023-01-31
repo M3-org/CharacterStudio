@@ -44,13 +44,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
-    setIsChangingWholeAvatar,
   } = useContext(SceneContext)
   const {
     playSound
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
-  const {setLoading} = useContext(ViewContext)
+  const {isLoading, setIsLoading} = useContext(ViewContext)
+  const {setIsPlayingEffect} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -59,11 +59,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
-    
+
   },[templateInfo])
 
   const getRestrictions = () => {
-    
+
     const traitRestrictions = templateInfo.traitRestrictions
     const typeRestrictions = {};
 
@@ -142,7 +142,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      setIsChangingWholeAvatar(true);
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
@@ -155,13 +154,14 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    if (isLoading) return;
+
     if (option == null){
       option = {
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
-    
     if (option.avatarIndex != null){
       if(isNewClass(option.avatarIndex)){
         selectClass(option.avatarIndex)
@@ -210,6 +210,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       });
     }
 
+    setIsLoading(true);
+    setIsPlayingEffect(true);
+
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()
 
@@ -232,7 +235,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setLoading(false)
+        setIsLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -242,7 +245,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       }
 
       const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
-      
+
       // load necesary assets for the options
       options.map((option, index)=>{
         setSelectValue(option.key)
@@ -637,11 +640,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                         : styles["tickStyleInActive"]
                     }
                   />
-                  {active && loadPercentage > 0 && loadPercentage < 100 && (
-                    <div className={styles["loading-trait"]}>
-                      {loadPercentage}
-                    </div>
-                  )}
+                  {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
+                    // TODO: Fill up background from bottom as loadPercentage increases
+                  )}*/}
                 </div>
               )
             })}

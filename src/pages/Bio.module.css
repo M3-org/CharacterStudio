@@ -72,20 +72,22 @@
   width: 100%;
   max-width: 50%;
   top: 50%;
-  right: 2em;
+  right: 32px;
   transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
-  text-align: left;
-  height: calc(100% - 266px);
+  text-align: center;
+  height: -webkit-calc(100vh - 266px);
+  height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
-  border-radius: 1em;
 }
 
 .scrollContainer {
-  height: calc(100% - 1em);
-  width: calc(100% - 1em);
+  height: 98%;
+  width: 99%;
   position: absolute;
+  left: 0;
+  top: 2px;
   overflow-x: hidden;
   overflow-y: scroll;
 }
