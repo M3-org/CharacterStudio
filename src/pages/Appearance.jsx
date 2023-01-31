@@ -7,17 +7,18 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter, isLoading, setIsLoading } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
+    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
     effectManager.addEventListener('fadeintraitend', () => {
-        setIsLoading(false);
+        setIsPlayingEffect(false);
     })
     effectManager.addEventListener('fadeinavatarend', () => {
-        setIsLoading(false);
+        setIsPlayingEffect(false);
     })
 
     const next = () => {
@@ -26,7 +27,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
     }
 
     const randomize = () => {
-        if (!isLoading) {
+        if (!isPlayingEffect) {
             getRandomCharacter()
         }
     }
