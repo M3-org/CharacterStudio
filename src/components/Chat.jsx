@@ -22,20 +22,20 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({
-  name,
-  bio,
-  greeting,
-  question1,
-  question2,
-  question3,
-  response1,
-  response2,
-  response3,
-}) {
+export default function ChatBox() {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechrecognition, setSpeechrecognition] = React.useState(false)
+
+  const name = localStorage.getItem("name")
+  const bio = localStorage.getItem("bio")
+  const greeting = localStorage.getItem("greeting")
+  const question1 = localStorage.getItem("question1")
+  const question2 = localStorage.getItem("question2")
+  const question3 = localStorage.getItem("question3")
+  const response1 = localStorage.getItem("response1")
+  const response2 = localStorage.getItem("response2")
+  const response3 = localStorage.getItem("response3")
 
   const [speaker, setSpeaker] = React.useState(
     localStorage.getItem("speaker") || defaultSpeaker,
@@ -46,8 +46,11 @@ export default function ChatBox({
     localStorage.setItem("speaker", speaker)
   }, [speaker])
 
+  
   function composePrompt() {
-    const prompt = `Name: ${name}
+
+    const prompt =
+`Name: ${name}
 Bio: ${bio}
 ${speaker}: Hey ${name}
 ${name}: ${greeting}
@@ -57,9 +60,6 @@ ${speaker}: ${question2}
 ${name}: ${response2}
 ${speaker}: ${question3}
 ${name}: ${response3}`
-
-    console.log("prompt is ******************************")
-    console.log(prompt)
 
     return prompt
   }
@@ -138,6 +138,8 @@ ${messages.join("\n")}
 ${speaker}: ${input}
 ${agent}:`
 
+console.log('prompt is', prompt)
+
       const query = {
         prompt,
         max_tokens: 100,
@@ -154,10 +156,10 @@ ${agent}:`
         const ttsEndpoint = `https://voice.webaverse.com/tts?s=${output}&voice=${driveId}`
 
         // fetch the audio file from ttsEndpoint
-
+        console.log('fetch tts')
         fetch(ttsEndpoint).then(async (response) => {
           const blob = await response.blob()
-
+          console.log('response blob', blob)
           // convert the blob to an array buffer
           const arrayBuffer = await blob.arrayBuffer()
 

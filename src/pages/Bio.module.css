@@ -79,6 +79,7 @@
   height: calc(100% - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
+  border-radius: 1em;
 }
 
 .scrollContainer {

@@ -5,7 +5,7 @@ import styles from "./Bio.module.css"
 
 export const getBio = (templateInfo, personality) => {
   console.log('templateInfo', templateInfo)
-  const classType = templateInfo.name;
+  const classType = templateInfo.name.toUpperCase();
 
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
   const city = personality.cities[Math.floor(Math.random() * personality.cities.length)]
@@ -156,10 +156,9 @@ function BioPage({ templateInfo, personality }) {
             name="bio"
             rows="4"
             cols="50"
+            value={bio}
             onChange={(e) => setBio(e.target.value)}
-          >
-            {bio}
-          </textarea>
+          />
 
           <label htmlFor="question1">Question 1</label>
           <select
@@ -179,9 +178,8 @@ function BioPage({ templateInfo, personality }) {
             type="text"
             name="response1"
             onChange={(e) => setResponse1(e.target.value)}
-          >
-            {response1}
-          </textarea>
+            value={response1}
+          />
 
           <label htmlFor="question2">Question 2</label>
           <select
@@ -201,10 +199,9 @@ function BioPage({ templateInfo, personality }) {
           <textarea
             type="text"
             name="response2"
+            value={response2}
             onChange={(e) => setResponse2(e.target.value)}
-          >
-            {response2}
-          </textarea>
+          />
 
           <label htmlFor="question3">Question 3</label>
           <select
@@ -225,9 +222,8 @@ function BioPage({ templateInfo, personality }) {
             type="text"
             name="response3"
             onChange={(e) => setResponse3(e.target.value)}
-          >
-            {response3}
-          </textarea>
+            value={response3}
+          />
         </div>
         </div>
       </div>
