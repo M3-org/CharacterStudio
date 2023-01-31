@@ -6,7 +6,6 @@
     text-align: left;
     box-sizing: border-box;
     padding: 24px;
-
 }
 
 .chatBox * {
@@ -34,7 +33,7 @@
     color: #fff;
     border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 2em);
+    width: calc(100% - 1em);
     display: block;
 }
 
@@ -45,7 +44,7 @@
     border: 1px solid #fff;
     margin: .5em;
     padding: .5em;
-    width: calc(100% - 2em);
+    width: calc(100% - 1em);
 }
 
 .messages { 

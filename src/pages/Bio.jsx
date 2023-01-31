@@ -132,7 +132,7 @@ function BioPage({ templateInfo, personality }) {
 
         <div className={styles["inner-container"]}>
           {/* input fields for name, bio, preferred greeting, question1 (dropdown and text input), question2 (dropdown and text input) and question3 (dropdown and text input) */}
-          <span className={styles.name}>
+          <span className={styles["name"]}>
             <label htmlFor="name" className={styles.inlineLabel}>Name</label>
             <input
               type="text"
@@ -141,7 +141,7 @@ function BioPage({ templateInfo, personality }) {
               onChange={(e) => setName(e.target.value)}
             />
           </span>
-          <span className={styles.greeting}>
+          <span className={styles["greeting"]}>
             <label htmlFor="greeting" className={styles.inlineLabel}>Preferred Greeting</label>
             <input
               type="text"

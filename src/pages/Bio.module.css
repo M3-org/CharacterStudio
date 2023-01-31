@@ -12,12 +12,11 @@
 
 .inner-container>span {
   display: inline;
-  width: 24em;
 }
 
 .inner-container>label,
 .inner-container>span>label {
-  display: block;
+  display: inline;
   width: 100%;
 }
 
@@ -35,7 +34,7 @@
   margin: .5em;
   padding: .5em;
   display: block;
-  width: 20em;
+  width: 100%;
 }
 
 .inner-container>textarea {
@@ -75,7 +74,7 @@
   right: 32px;
   transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
-  text-align: center;
+  text-align: left;
   height: -webkit-calc(100vh - 266px);
   height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
@@ -240,4 +239,8 @@
 
 .buttonInactive {
   opacity: 0.5;
+}
+
+.name {
+  width: 50%;
 }
