@@ -70,3 +70,12 @@
     opacity: 0.5;
   }
   
+
+  .name {
+    width: calc(50% - .5em);
+  }
+
+  .greeting {
+    width: calc(50% - .5em);
+
+  }

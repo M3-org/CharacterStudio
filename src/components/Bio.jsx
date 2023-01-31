@@ -105,7 +105,7 @@ export default function Bio() {
   return (
     <div className={styles["container"]}>
       {/* input fields for name, bio, preferred greeting, question1 (dropdown and text input), question2 (dropdown and text input) and question3 (dropdown and text input) */}
-      <span>
+      <span className={styles.name}>
         <label htmlFor="name">Name</label>
         <input
           type="text"
@@ -114,7 +114,7 @@ export default function Bio() {
           onChange={(e) => setName(e.target.value)}
         />
       </span>
-      <span>
+      <span className={styles.greeting}>
         <label htmlFor="greeting">Preferred Greeting</label>
         <input
           type="text"

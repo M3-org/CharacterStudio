@@ -22,17 +22,7 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({
-  name,
-  bio,
-  greeting,
-  question1,
-  question2,
-  question3,
-  response1,
-  response2,
-  response3,
-}) {
+export default function ChatBox() {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechrecognition, setSpeechrecognition] = React.useState(false)
