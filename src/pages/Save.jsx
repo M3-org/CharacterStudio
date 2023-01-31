@@ -14,8 +14,8 @@ function Save() {
     }
 
     const mint = () => {
-        console.log('mint');
-        setViewMode(ViewMode.MINT)
+        console.log('chat');
+        setViewMode(ViewMode.CHAT)
     }
 
     return (
@@ -32,7 +32,7 @@ function Save() {
                 <ExportMenu />
                 <CustomButton
                     theme="light"
-                    text="Mint"
+                    text="Chat"
                     size={14}
                     className={styles.buttonRight}
                     onClick={mint}

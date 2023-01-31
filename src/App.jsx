@@ -263,7 +263,7 @@ export default function App() {
       fetchNewModel={fetchNewModel}
       />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint />,
+    // [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View />,
   }
@@ -276,19 +276,6 @@ export default function App() {
       <Background />
       <Scene manifest={manifest} sceneModel={sceneModel} />
       {pages[viewMode]}
-      {/*
-        <Logo />
-          <Scene manifest={manifest} sceneModel={sceneModel} initialTraits={initialTraits} templateInfo={templateInfo} />
-          <div style = {{display:(hideUi ? "none" : "block")}}>
-            <Fragment >
-            <ChatButton />
-           <ARButton /> 
-          <UserMenu />
-          {currentAppMode === AppMode.CHAT && <ChatComponent />}
-          {currentAppMode === AppMode.APPEARANCE && <Editor />}
-            </Fragment>
-        </div>
-          */}
     </Fragment>
   )
 }
