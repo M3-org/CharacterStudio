@@ -156,9 +156,10 @@ function BioPage({ templateInfo, personality }) {
             name="bio"
             rows="4"
             cols="50"
-            value={bio}
             onChange={(e) => setBio(e.target.value)}
-          />
+          >
+            {bio}
+          </textarea>
 
           <label htmlFor="question1">Question 1</label>
           <select
@@ -178,8 +179,9 @@ function BioPage({ templateInfo, personality }) {
             type="text"
             name="response1"
             onChange={(e) => setResponse1(e.target.value)}
-            value={response1}
-          />
+          >
+            {response1}
+          </textarea>
 
           <label htmlFor="question2">Question 2</label>
           <select
@@ -198,7 +200,7 @@ function BioPage({ templateInfo, personality }) {
 
           <textarea
             type="text"
-            name="response1"
+            name="response2"
             onChange={(e) => setResponse2(e.target.value)}
           >
             {response2}
