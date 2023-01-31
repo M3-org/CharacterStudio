@@ -36,6 +36,7 @@ export class LipSync {
   }
 
   startFromAudioFile(file) {
+    console.log('startFromAudioFile', file)
     if(!this.audioContext) this.audioContext = new AudioContext()
 
 
@@ -43,9 +44,11 @@ export class LipSync {
         this.userSpeechAnalyzer = this.audioContext.createAnalyser()
     this.userSpeechAnalyzer.smoothingTimeConstant = 0.5
     this.userSpeechAnalyzer.fftSize = FFT_SIZE
-  
+    
+    console.log('file', file)
 
     this.audioContext.decodeAudioData(file).then((buffer) => {
+      console.log('buffer', buffer)
         this.mediaStreamSource = this.audioContext.createBufferSource()
         this.mediaStreamSource.buffer = buffer
         this.meter = LipSync.createAudioMeter(this.audioContext)
@@ -55,10 +58,7 @@ export class LipSync {
 
         // connect the output of mediaStreamSource to the input of userSpeechAnalyzer
         this.mediaStreamSource.connect(this.userSpeechAnalyzer)
-
-
-
-})
+    })
 
     }
 

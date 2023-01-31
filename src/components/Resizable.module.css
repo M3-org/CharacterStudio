@@ -1,29 +1,62 @@
 .Block{
     display: flex;
     align-items: flex-end;
-    padding-left: 200px;
-    padding-top: 200px;
     position: absolute;
     overflow: hidden;
-}
-.Resizable{
-    background: rgba(5, 128, 165, 0.329);
-    border: 1px solid black; 
-    height: 256px;
-    width: 256px;
+    
 }
 .Draggable{
-    background: rgb(10, 165, 5);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    background: rgb(230, 230, 230);
     cursor: pointer;
     height: 20px;
     width: 20px;
 }
 .FullScreen{
+    display: flex;
     overflow: hidden;
     position: absolute;
     width: 100%;
+    height: 100%;  
+}
+.BlockScreen{
+    position:relative;
+    width: 100%;
+    height: 100%;  
+}
+
+.leftBlock{
+    animation: fadein 1s;
+    position:absolute;
+    background-color: rgba(0, 0, 0, 0.6);
     height: 100%;
+}
+.rightBlock{
+    animation: fadein 1s;
+    position:absolute;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    height: 100%;
+}
+.topBlock{
+    animation: fadein 1s;
+    position:absolute;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    height: 25px;
+}
+.lowerBlock{
+    animation: fadein 1s;
+    position:absolute;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+body {
+    animation: fadeInAnimation ease 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }

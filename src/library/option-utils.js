@@ -85,7 +85,6 @@ export function getTraitOptions(trait, template) {
       colorTraits.collection.map((colorTrait, colIndex) => {
         const key = trait.name + "_" + index + "_col" + colIndex
         const thumbnail = getThumbnail(item, colorTrait, colIndex)
-        // icons in color should be colored to avoid creating an icon per model
         traitOptions.push(
           getOption(
             key,
@@ -122,10 +121,49 @@ function getOption(
     colorTrait,
   }
 }
-function getHSL (hex){
+function getHSL (hex){ // getHSV
+  /* note: 
+    Web standards need HSV instead of HSL, so in fact this function return **HSV**, but to compatible with old codes, still named getHSL.
+    Codes from: https://stackoverflow.com/a/8023734/3596736
+    Related infos:
+    https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+    https://www.rapidtables.com/convert/color/rgb-to-hsl.html
+    https://github.com/mrdoob/three.js/pull/3109
+    https://gist.github.com/xpansive/1337890#file-index-js
+  */
   const color = new THREE.Color(hex)
   const hsl = { h: 0, s: 0, l: 0 }
-  color.getHSL(hsl)
+  let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc;
+  rabs = color.r;
+  gabs = color.g;
+  babs = color.b;
+  v = Math.max(rabs, gabs, babs),
+  diff = v - Math.min(rabs, gabs, babs);
+  diffc = c => (v - c) / 6 / diff + 1 / 2;
+  if (diff == 0) {
+      h = s = 0;
+  } else {
+      s = diff / v;
+      rr = diffc(rabs);
+      gg = diffc(gabs);
+      bb = diffc(babs);
+
+      if (rabs === v) {
+          h = bb - gg;
+      } else if (gabs === v) {
+          h = (1 / 3) + rr - bb;
+      } else if (babs === v) {
+          h = (2 / 3) + gg - rr;
+      }
+      if (h < 0) {
+          h += 1;
+      }else if (h > 1) {
+          h -= 1;
+      }
+  }
+  hsl.h = h;
+  hsl.s = s;
+  hsl.l = v;
   return hsl
 }
 

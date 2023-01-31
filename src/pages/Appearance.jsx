@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import { SceneContext } from "../context/SceneContext"
@@ -7,18 +7,24 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter, isLoading, setIsLoading } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
+    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    effectManager.addEventListener('fadeintraitend', () => {
-        setIsLoading(false);
-    })
-    effectManager.addEventListener('fadeinavatarend', () => {
-        setIsLoading(false);
-    })
+    useEffect(() => {
+        const setIsPlayingEffectFalse = () => {
+            setIsPlayingEffect(false);
+        }
+        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        }
+    }, [])
 
     const next = () => {
         console.log('next B');
@@ -26,7 +32,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
     }
 
     const randomize = () => {
-        if (!isLoading) {
+        if (!isPlayingEffect) {
             getRandomCharacter()
         }
     }
