@@ -129,14 +129,14 @@
 }
 
 .tokenBoxWrap .frameActive {
-    background-image: url('/assets/backgrounds/token-frame-active.svg');
+    background-image: url('/assets/backgrounds/token-box-uncommon.svg');
     height: 116%;
     width: 116%;
     top: 50% !important;
 }
 
 .tokenBoxWrap .frame.mythic {
-    background-image: url('/assets/backgrounds/token-box-mythic.svg');
+    background-image: url('/assets/backgrounds/token-box-uncommon.svg');
 }
 
 .tokenBoxWrap .frame.epic {
