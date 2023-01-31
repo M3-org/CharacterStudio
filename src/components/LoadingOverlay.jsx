@@ -7,8 +7,8 @@ import {ViewContext} from "../context/ViewContext"
 export default function LoadingOverlayCircularStatic({
   title = "LOADING"
 }) {
-  const {loading} = useContext(ViewContext)
-  // return loading ? (
+  const {isLoading} = useContext(ViewContext)
+  // return isLoading ? (
   //   <div className={styles['LoadingStyleBox']}>
   //   <span className={styles["loading-spinner"]} />
   //     <span className = {styles["loading-text"]} >{title}</span>
@@ -17,7 +17,7 @@ export default function LoadingOverlayCircularStatic({
   //     </div>
   //   </div>
   // ) : null
-  return loading ? (
+  return isLoading ? (
     <div className={styles['LoadingStyleBox']}>
       <span className={styles["loading-spinner"]} />
       <span className = {styles["loading-text"]} >{title}</span>

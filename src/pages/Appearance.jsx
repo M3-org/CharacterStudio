@@ -8,17 +8,17 @@ import CustomButton from '../components/custom-button'
 function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
     const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
-    const { loading, effecting, setEffecting } = React.useContext(ViewContext)
+    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
     effectManager.addEventListener('fadeintraitend', () => {
-        setEffecting(false);
+        setIsPlayingEffect(false);
     })
     effectManager.addEventListener('fadeinavatarend', () => {
-        setEffecting(false);
+        setIsPlayingEffect(false);
     })
 
     const next = () => {
@@ -27,14 +27,14 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
     }
 
     const randomize = () => {
-        if (!effecting) {
+        if (!isPlayingEffect) {
             getRandomCharacter()
         }
     }
 
     return (
         <div className={styles.container}>
-            <div className={`loadingIndicator ${loading?"active":""}`}>
+            <div className={`loadingIndicator ${isLoading?"active":""}`}>
                 <img className={"rotate"} src="ui/loading.svg"/>
             </div>
             <div className={"sectionTitle"}>Choose Appearance</div>
