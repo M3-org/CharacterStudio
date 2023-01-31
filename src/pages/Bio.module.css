@@ -1,3 +1,71 @@
+.inner-container {
+  z-index: 1000000;
+  opacity: 0.8;
+  position: absolute;
+  width: calc(100% - 2em);
+  padding: 1em;
+  min-height: 200px;
+  font-size: .8rem;
+  top: 0;
+  color: #fff;
+}
+
+.inner-container>span {
+  display: inline;
+}
+
+.inner-container>label,
+.inner-container>span>label {
+  display: inline;
+  width: 100%;
+}
+
+/* float the first chatbox span left */
+.inner-container>span:first-child {
+  float: left;
+}
+
+.inner-container>input,
+.inner-container>span>input {
+  background-color: #000;
+  color: #fff;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  margin: .5em;
+  padding: .5em;
+  display: block;
+  width: 100%;
+}
+
+.inner-container>textarea {
+  background-color: #000;
+  color: #fff;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  margin: .5em;
+  padding: .5em;
+  width: calc(100% - 2em);
+  display: block;
+}
+
+.inner-container>select {
+  background-color: #000;
+  color: #fff;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  margin: .5em;
+  padding: .5em;
+  width: calc(100% - 2em);
+}
+
+.button {
+  opacity: 1.0;
+}
+
+.buttonInactive {
+  opacity: 0.5;
+}
+
 .bioContainer {
   position: absolute;
   width: 100%;
@@ -6,7 +74,7 @@
   right: 32px;
   transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
-  text-align: center;
+  text-align: left;
   height: -webkit-calc(100vh - 266px);
   height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
@@ -24,60 +92,48 @@
 }
 
 .topLine {
-    background: rgb(0, 149, 100);
-    background: -moz-linear-gradient(
-      90deg,
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: -webkit-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: -webkit-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
-  
-  .bottomLine {
-    background: rgb(0, 149, 100);
-    background: -moz-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564", endColorstr="#009564", GradientType=1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.bottomLine {
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: -webkit-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: -webkit-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
+      rgba(0, 149, 100, 0) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564", endColorstr="#009564", GradientType=1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
 
 .buttonContainer {
   position: absolute;
@@ -108,4 +164,83 @@
 
 .buttonContainer button {
   min-width: 120px;
+}
+
+.container {
+  z-index: 1000000;
+  opacity: 0.8;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  font-size: .8rem;
+  top: 0;
+  color: #fff;
+  box-sizing: border-box;
+  padding: 24px;
+  text-align: left;
+}
+
+.container * {
+  outline: none !important;
+}
+
+.container>span {
+  display: inline;
+  width: 24em;
+}
+
+.container>label,
+.container>span>label {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  color: #99ABB2;
+}
+
+/* float the first chatbox span left */
+.container>span:first-child {
+  float: left;
+}
+
+.container>input,
+.container>span>input {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  display: block;
+  width: 20em;
+}
+
+.container>textarea {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.container>select {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.button {
+  opacity: 1.0;
+}
+
+.buttonInactive {
+  opacity: 0.5;
+}
+
+.name {
+  width: 50%;
 }

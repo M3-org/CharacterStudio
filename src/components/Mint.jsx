@@ -149,7 +149,7 @@ export default function MintPopup({screenshotPosition}) {
       const attributes = getAvatarTraits()
       const metadata = {
         name: "Avatars",
-        description: "Creator Studio Avatars.",
+        description: "Character Studio Avatars.",
         image: `ipfs://${imageHash.IpfsHash}`,
         animation_url: `ipfs://${glbHash.IpfsHash}`,
         attributes: attributes

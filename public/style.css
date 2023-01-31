@@ -102,9 +102,8 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   width: 80px;
   height: 80px;
   margin: auto;
-  background: black;
   border-radius: 10px;
-  opacity: 0.3;
+  filter: drop-shadow(1px 1px 2px black);
 }
 .loadingIndicator.active {
   display: block;
@@ -126,7 +125,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
 
 .sectionTitle {
   position: absolute;
-  top: 20px;
+  top: 24px;
   left: 0;
   color: white;
   padding: 8px;
