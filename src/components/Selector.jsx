@@ -641,11 +641,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                         : styles["tickStyleInActive"]
                     }
                   />
-                  {active && loadPercentage > 0 && loadPercentage < 100 && (
-                    <div className={styles["loading-trait"]}>
-                      {loadPercentage}
-                    </div>
-                  )}
+                  {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
+                    // TODO: Fill up background from bottom as loadPercentage increases
+                  )}*/}
                 </div>
               )
             })}
