@@ -1,11 +1,5 @@
-# Webaverse Character Creator
-An open, collaborative and evolving 3D avatar creator and optimizer for the open metaverse.
-
-
-# Quick Start (library)
-```bash
-npm install avatarcreator
-```
+# Webaverse Character Studio
+An open, collaborative and evolving 3D avatar studio for the open metaverse.
 
 # Quick Start
 ```bash
@@ -17,9 +11,7 @@ cd CharacterCreator
 npm install --legacy-peer-deps
 npm run dev
 
-# Or just use yarn
+# Or use yarn
 yarn install
 yarn run dev
 ```
-# Known Issues
-Does not support multimaterials for download.

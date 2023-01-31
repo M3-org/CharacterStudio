@@ -36,7 +36,7 @@ export default function Editor({animationManager, blinkManager, effectManager, f
         getMultipleRandomTraits(getInitialTraits(templateInfo), templateInfo))
         setAwaitDisplay(false)
     }
-      
+    setCurrentTraitName(null)
   }, [templateInfo])
 
 

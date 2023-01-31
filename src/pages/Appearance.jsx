@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import { SceneContext } from "../context/SceneContext"
@@ -7,15 +7,24 @@ import CustomButton from '../components/custom-button'
 
 function Appearance({initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
+    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    effectManager.addEventListener('fadeinavatarend', () => {
-        setIsChangingWholeAvatar(false);
-    })
+    useEffect(() => {
+        const setIsPlayingEffectFalse = () => {
+            setIsPlayingEffect(false);
+        }
+        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        }
+    }, [])
 
     const next = () => {
         console.log('next B');
@@ -23,7 +32,7 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
     }
 
     const randomize = () => {
-        if (!isChangingWholeAvatar) {
+        if (!isPlayingEffect) {
             getRandomCharacter()
             //
         }
@@ -38,6 +47,9 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
 
     return (
         <div className={styles.container}>
+            <div className={`loadingIndicator ${isLoading?"active":""}`}>
+                <img className={"rotate"} src="ui/loading.svg"/>
+            </div>
             <div className={"sectionTitle"}>Choose Appearance</div>
         <Editor animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
