@@ -85,14 +85,13 @@ export function getTraitOptions(trait, template) {
       colorTraits.collection.map((colorTrait, colIndex) => {
         const key = trait.name + "_" + index + "_col" + colIndex
         const thumbnail = getThumbnail(item, colorTrait, colIndex)
-        // icons in color should be colored to avoid creating an icon per model
         traitOptions.push(
           getOption(
             key,
             trait,
             item,
             thumbnailBaseDir + thumbnail,
-            getHSL(colorTrait.value[0]),
+            getHSL(colorTrait.value[0], colorTrait.iconSaturation),
             null,
             colorTrait,
           ),
@@ -122,10 +121,11 @@ function getOption(
     colorTrait,
   }
 }
-function getHSL (hex){
+function getHSL (hex, overrideSaturation){
   const color = new THREE.Color(hex)
   const hsl = { h: 0, s: 0, l: 0 }
   color.getHSL(hsl)
+  hsl.s = overrideSaturation ? overrideSaturation : hsl.s
   return hsl
 }
 

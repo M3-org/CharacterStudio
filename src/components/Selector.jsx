@@ -606,6 +606,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                   onClick={() => {
                     if (effectManager.getTransitionEffect('normal')){
                       selectTraitOption(option)
+                      console.log(option.iconHSL)
+                      console.log(option.colorTrait.value[0])
+                      const color = new THREE.Color(option.colorTrait.value[0])
+                      console.log(color)
+                      const hsl = { h: 0, s: 0, l: 0 }
+                      color.getHSL(hsl, "srgb-linear")
+                      console.log(hsl)
                       setLoadPercentage(1)
                     }
                   }}
