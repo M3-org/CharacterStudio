@@ -5,7 +5,7 @@ import ethereumIcon from "../../public/ui/mint/ethereum.png"
 import mintPopupImage from "../../public/ui/mint/mintPopup.png"
 import { AccountContext } from "../context/AccountContext"
 import { SceneContext } from "../context/SceneContext"
-import { getModelFromScene, getScreenShot } from "../library/utils"
+import { getModelFromScene, getCroppedScreenshot } from "../library/utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "./Contract"
 
 import styles from "./Mint.module.css"
@@ -15,7 +15,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup() {
+export default function MintPopup({screenshotPosition}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const { walletAddress } = useContext(AccountContext)
 
@@ -58,7 +58,7 @@ export default function MintPopup() {
       setMintStatus("Uploading...")
       console.log('avatar in mintAsset', avatar)
 
-      const screenshot = await getScreenShot("mint-scene")
+      const screenshot = await getCroppedScreenshot("editor-scene",500, 100, 256, 256)
       if (!screenshot) {
         throw new Error("Unable to get screenshot")
       }
@@ -80,7 +80,7 @@ export default function MintPopup() {
       const attributes = getAvatarTraits()
       const metadata = {
         name: "Avatars",
-        description: "Creator Studio Avatars.",
+        description: "Character Studio Avatars.",
         image: `ipfs://${imageHash.IpfsHash}`,
         animation_url: `ipfs://${glbHash.IpfsHash}`,
         attributes,
@@ -128,7 +128,10 @@ export default function MintPopup() {
       return;
     }
   }
-
+  const  takeScreenshot = async () => {
+    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+    console.log(img)
+  }
   const checkOT = async (address) => {
     if(address) {
       const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
@@ -197,7 +200,7 @@ export default function MintPopup() {
               <div className={styles["ButtonPanel"]}>
                 <div
                   className={styles["StyledButton"]}
-                  // onClick={() => setViewMode(ViewStates.CREATOR)}
+                  onClick={() => takeScreenshot()}
                 >
                   {" "}
                   {"OK"}

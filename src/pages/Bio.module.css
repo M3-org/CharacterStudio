@@ -2,29 +2,32 @@
   z-index: 1000000;
   opacity: 0.8;
   position: absolute;
-  width: 100%;
+  width: calc(100% - 2em);
+  padding: 1em;
   min-height: 200px;
   font-size: .8rem;
   top: 0;
   color: #fff;
 }
 
-.inner-container > span {
+.inner-container>span {
   display: inline;
   width: 24em;
 }
 
-.inner-container > label, .inner-container > span > label {
+.inner-container>label,
+.inner-container>span>label {
   display: block;
   width: 100%;
 }
 
 /* float the first chatbox span left */
-.inner-container > span:first-child {
+.inner-container>span:first-child {
   float: left;
 }
 
-.inner-container > input, .inner-container > span > input {
+.inner-container>input,
+.inner-container>span>input {
   background-color: #000;
   color: #fff;
   border-radius: 5px;
@@ -35,7 +38,7 @@
   width: 20em;
 }
 
-.inner-container > textarea {
+.inner-container>textarea {
   background-color: #000;
   color: #fff;
   border-radius: 5px;
@@ -46,7 +49,7 @@
   display: block;
 }
 
-.inner-container > select {
+.inner-container>select {
   background-color: #000;
   color: #fff;
   border-radius: 5px;
@@ -67,75 +70,68 @@
 .bioContainer {
   position: absolute;
   width: 100%;
-  max-width: 900px;
+  max-width: 50%;
   top: 50%;
-  left: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  -webkit-transform: translateY(-50%) translateX(-50%);
-  text-align: center;
-  height: -webkit-calc(100vh - 266px);
-  height: calc(100vh - 266px);
+  right: 2em;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  text-align: left;
+  height: calc(100% - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
+}
+
+.scrollContainer {
+  height: calc(100% - 1em);
+  width: calc(100% - 1em);
+  position: absolute;
+  overflow-x: hidden;
   overflow-y: scroll;
-  overflow-y: hidden;
 }
 
 .topLine {
-    background: rgb(0, 149, 100);
-    background: -moz-linear-gradient(
-      90deg,
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: -webkit-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: -webkit-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
-  
-  .bottomLine {
-    background: rgb(0, 149, 100);
-    background: -moz-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564", endColorstr="#009564", GradientType=1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.bottomLine {
+  background: rgb(0, 149, 100);
+  background: -moz-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: -webkit-linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: -webkit-linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    background: linear-gradient(
-      90deg,
+      rgba(0, 149, 100, 0) 100%);
+  background: linear-gradient(90deg,
       rgba(0, 149, 100, 0) 0%,
       rgba(8, 234, 160, 1) 50%,
-      rgba(0, 149, 100, 0) 100%
-    );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-  }
+      rgba(0, 149, 100, 0) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564", endColorstr="#009564", GradientType=1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
 
 .buttonContainer {
   position: absolute;
@@ -166,4 +162,83 @@
 
 .buttonContainer button {
   min-width: 120px;
+}
+
+.container {
+  z-index: 1000000;
+  opacity: 0.8;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  font-size: .8rem;
+  top: 0;
+  color: #fff;
+  box-sizing: border-box;
+  padding: 24px;
+  text-align: left;
+}
+
+.container * {
+  outline: none !important;
+}
+
+.container>span {
+  display: inline;
+  width: 24em;
+}
+
+.container>label,
+.container>span>label {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  color: #99ABB2;
+}
+
+/* float the first chatbox span left */
+.container>span:first-child {
+  float: left;
+}
+
+.container>input,
+.container>span>input {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  display: block;
+  width: 20em;
+}
+
+.container>textarea {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.container>select {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: .5em;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.button {
+  opacity: 1.0;
+}
+
+.buttonInactive {
+  opacity: 0.5;
+}
+
+.inlineLabel {
+ float: left;
 }

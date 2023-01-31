@@ -4,6 +4,7 @@ import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
 
 export const getBio = (templateInfo, personality) => {
+  console.log('templateInfo', templateInfo)
   const classType = templateInfo.name;
 
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
@@ -127,23 +128,25 @@ function BioPage({ templateInfo, personality }) {
       <div className={styles.bioContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
+        <div className={styles.scrollContainer}>
+
         <div className={styles["inner-container"]}>
           {/* input fields for name, bio, preferred greeting, question1 (dropdown and text input), question2 (dropdown and text input) and question3 (dropdown and text input) */}
           <span>
-            <label htmlFor="">Name</label>
+            <label htmlFor="name" className={styles.inlineLabel}>Name</label>
             <input
               type="text"
               name="name"
-              defaultValue={name}
+              value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </span>
           <span>
-            <label htmlFor="greeting">Preferred Greeting</label>
+            <label htmlFor="greeting" className={styles.inlineLabel}>Preferred Greeting</label>
             <input
               type="text"
               name="greeting"
-              defaultValue={greeting}
+              value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
             />
           </span>
@@ -153,14 +156,14 @@ function BioPage({ templateInfo, personality }) {
             name="bio"
             rows="4"
             cols="50"
-            defaultValue={bio}
+            value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
 
           <label htmlFor="question1">Question 1</label>
           <select
             name="question1"
-            defaultValue={question1}
+            value={question1}
             onChange={(e) => { setQuestion1(e.target.value); }}
           >
             {personality.generalPersonalityQuestions.map((question, i) => {
@@ -175,13 +178,13 @@ function BioPage({ templateInfo, personality }) {
             type="text"
             name="response1"
             onChange={(e) => setResponse1(e.target.value)}
-            defaultValue={response1}
+            value={response1}
           />
 
           <label htmlFor="question2">Question 2</label>
           <select
             name="question3"
-            defaultValue={question2}
+            value={question2}
             onChange={(e) => setQuestion2(e.target.value)}
           >
             {personality.relationshipQuestions.map((question, i) => {
@@ -204,10 +207,10 @@ function BioPage({ templateInfo, personality }) {
           <label htmlFor="question3">Question 3</label>
           <select
             name="question3"
-            defaultValue={question3}
+            value={question3}
             onChange={(e) => setQuestion3(e.target.value)}
           >
-            {personality.hobbies.map((question, i) => {
+            {personality.hobbyQuestions.map((question, i) => {
               return (
                 <option key={i} value={question}>
                   {question}
@@ -223,6 +226,7 @@ function BioPage({ templateInfo, personality }) {
           >
             {response3}
           </textarea>
+        </div>
         </div>
       </div>
       <div className={styles.buttonContainer}>

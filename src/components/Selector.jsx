@@ -27,7 +27,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, effectManager, selectClass}) {
+export default function Selector({templateInfo, animationManager, blinkManager, isNewClass, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -43,7 +43,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     setLipSync,
     mousePosition,
     removeOption,
-    saveUserSelection
+    saveUserSelection,
+    setIsChangingWholeAvatar,
   } = useContext(SceneContext)
   const {
     playSound
@@ -141,6 +142,12 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
+      setIsChangingWholeAvatar(true);
+      if (selectedOptions.length > 1){
+        effectManager.setTransitionEffect('fade_out_avatar');
+        effectManager.playFadeOutEffect();
+      }
+
       loadSelectedOptions(selectedOptions)
       setSelectedOptions([]);
     }
@@ -156,12 +163,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
     
     if (option.avatarIndex != null){
-      effectManager.setTransitionEffect('fade_out_avatar');
-
-      // play avatar fade out effect
-      effectManager.playFadeOutEffect();
-      //clear previous avatar
-      selectClass(option.avatarIndex)
+      if(isNewClass(option.avatarIndex)){
+        selectClass(option.avatarIndex)
+      }
       return
     }
 

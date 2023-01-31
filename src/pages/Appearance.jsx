@@ -5,24 +5,33 @@ import { SceneContext } from "../context/SceneContext"
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
-function Appearance({manifest, templateInfo, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
+function Appearance({manifest, initialTraits, animationManager, blinkManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
     const back = () => {
         console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
+    effectManager.addEventListener('fadeinavatarend', () => {
+        setIsChangingWholeAvatar(false);
+    })
 
     const next = () => {
         console.log('next B');
         setViewMode(ViewMode.BIO)
     }
 
+    const randomize = () => {
+        if (!isChangingWholeAvatar) {
+            getRandomCharacter()
+        }
+    }
+
     return (
         <div className={styles.container}>
             <div className={"sectionTitle"}>Choose Appearance</div>
-        <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} templateInfo={templateInfo} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
+        <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"
@@ -49,6 +58,7 @@ function Appearance({manifest, templateInfo, initialTraits, animationManager, bl
                     text="Randomize"
                     size={14}
                     className={styles.buttonCenter}
+                    onClick={randomize}
                 />
             </div>
         </div>
