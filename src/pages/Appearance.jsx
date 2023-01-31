@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import { SceneContext } from "../context/SceneContext"
@@ -14,12 +14,17 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, ef
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    effectManager.addEventListener('fadeintraitend', () => {
-        setIsPlayingEffect(false);
-    })
-    effectManager.addEventListener('fadeinavatarend', () => {
-        setIsPlayingEffect(false);
-    })
+    useEffect(() => {
+        const setIsPlayingEffectFalse = () => {
+            setIsPlayingEffect(false);
+        }
+        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
+        }
+    }, [])
 
     const next = () => {
         console.log('next B');
