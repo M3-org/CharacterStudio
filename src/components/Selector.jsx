@@ -154,6 +154,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    const addOption  = option != null
     if (isLoading) return;
 
     if (option == null){
@@ -171,7 +172,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     effectManager.setTransitionEffect('switch_item');
 
-    loadOptions(getAsArray(option)).then((loadedData)=>{
+    loadOptions(getAsArray(option),addOption).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -191,9 +192,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   
   // load options first
-  const loadOptions = (options) => {
+  const loadOptions = (options, filterRestrictions = true) => {
     // filter options by restrictions
-    options = filterRestrictedOptions(options);
+
+    if (filterRestrictions)
+      options = filterRestrictedOptions(options);
 
     //save selection to local storage
     saveUserSelection(templateInfo.name, options)
