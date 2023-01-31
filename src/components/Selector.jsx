@@ -162,7 +162,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
-
     if (option.avatarIndex != null){
       if(isNewClass(option.avatarIndex)){
         selectClass(option.avatarIndex)

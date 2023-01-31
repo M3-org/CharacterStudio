@@ -12,7 +12,6 @@ import Scene from "./components/Scene"
 import { EffectManager } from "./library/effectManager"
 
 import Landing from "./pages/Landing"
-import Mint from "./pages/Mint"
 import View from "./pages/View"
 import BioPage from "./pages/Bio"
 import Save from "./pages/Save"
@@ -23,6 +22,7 @@ import { SceneContext } from "./context/SceneContext"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 let cameraDistance;
 const centerCameraTarget = new THREE.Vector3();
@@ -59,6 +59,17 @@ async function fetchManifest() {
   return data
 }
 
+async function fetchPersonality() {
+  const personality = localStorage.getItem("personality")
+  if (personality) {
+    return JSON.parse(personality)
+  }
+  const response = await fetch(peresonalityImportPath)
+  const data = await response.json()
+  localStorage.setItem("personality", JSON.stringify(data))
+  return data
+}
+
 async function fetchScene() {
   // load environment
   const modelPath = "/3d/Platform.glb"
@@ -78,6 +89,7 @@ async function fetchAnimation(templateInfo) {
 
 async function fetchAll() {
   const manifest = await fetchManifest()
+  const personality = await fetchPersonality()
   const sceneModel = await fetchScene()
 
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
@@ -85,6 +97,7 @@ async function fetchAll() {
 
   return {
     manifest,
+    personality,
     sceneModel,
     blinkManager,
     effectManager,
@@ -124,6 +137,7 @@ const resource = fetchData()
 export default function App() {
   const {
     manifest,
+    personality,
     sceneModel,
     blinkManager,
     effectManager,
@@ -135,7 +149,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, moveCamera } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, templateInfo, moveCamera } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -201,6 +215,7 @@ export default function App() {
       })
     }
 
+    if (!controls) return;
     if ([ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.MINT].includes(viewMode)) {
       controls.enabled = true;
     } else {
@@ -258,7 +273,7 @@ export default function App() {
         fetchNewModel={fetchNewModel}
       />
     ),
-    [ViewMode.BIO]: <BioPage />,
+    [ViewMode.BIO]: <BioPage templateInfo={templateInfo} personality={personality} />,
     [ViewMode.CREATE]: <Create 
       fetchNewModel={fetchNewModel}
       />,
@@ -270,8 +285,7 @@ export default function App() {
   return (
     <Fragment>
       <div className="generalTitle">
-        Character Studio
-        <sup style={{ padding: '4px', opacity: 0.5 }}>Preview</sup>
+        Character Creator
       </div>
       <Background />
       <Scene manifest={manifest} sceneModel={sceneModel} />

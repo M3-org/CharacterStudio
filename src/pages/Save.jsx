@@ -18,6 +18,12 @@ function Save() {
         setViewMode(ViewMode.CHAT)
     }
 
+
+  const next = () => {
+    console.log("next")
+    setViewMode(ViewMode.CHAT)
+  }
+
     return (
         <div className={styles.container}>
             <div className={"sectionTitle"}>Save Your Character</div>
@@ -30,12 +36,21 @@ function Save() {
                     onClick={back}
                 />
                 <ExportMenu />
+                {/*
                 <CustomButton
                     theme="light"
                     text="Chat"
                     size={14}
                     className={styles.buttonRight}
                     onClick={mint}
+                />
+                */}
+                <CustomButton
+                    theme="light"
+                    text="Chat"
+                    size={14}
+                    className={styles.buttonRight}
+                    onClick={next}
                 />
             </div>
         </div>
