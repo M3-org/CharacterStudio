@@ -69,13 +69,6 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
                 />
                 <CustomButton
                     theme="light"
-                    text="Reset"
-                    size={14}
-                    className={styles.buttonCenter}
-                    onClick = {reset}
-                />
-                <CustomButton
-                    theme="light"
                     text="Randomize"
                     size={14}
                     className={styles.buttonCenter}

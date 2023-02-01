@@ -93,19 +93,6 @@ export default function Editor({animationManager, blinkManager, effectManager, f
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
-            <div key={"class-selection"} className={styles["selectorButton"]}>
-              <TokenBox
-                size={56}
-                resolution={2048}
-                numFrames={128}
-                icon={shuffle}
-                rarity={currentTraitName !== "_class" ? "none" : "mythic"}
-                onClick={() => {
-                  !isMute && playSound('optionClick');
-                  selectClassOption()
-                }}
-              />
-            </div>
             {templateInfo.traits &&
               templateInfo.traits.map((item, index) => (
                 <div key={index} className={styles["selectorButton"]}>
