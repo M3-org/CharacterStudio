@@ -273,6 +273,7 @@ export default function App() {
         manifest={manifest}
         animationManager={animationManager}
         blinkManager={blinkManager}
+        lookatManager={lookatManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
       />

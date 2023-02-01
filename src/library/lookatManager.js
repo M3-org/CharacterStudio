@@ -22,6 +22,10 @@ export class LookAtManager {
     }, 1000/30);
   }
 
+
+  testCall(){
+    console.log("test")
+  }
   addVRM(vrm){
     vrm.scene.traverse((child) => {
       if (child.isBone) { 
