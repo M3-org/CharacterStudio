@@ -408,7 +408,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
         blinkManager.addBlinker(vrm)
 
-      lookatManager.testCall()
+      lookatManager.addVRM(vrm)
 
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option

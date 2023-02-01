@@ -22,10 +22,6 @@ export class LookAtManager {
     }, 1000/30);
   }
 
-
-  testCall(){
-    console.log("test")
-  }
   addVRM(vrm){
     vrm.scene.traverse((child) => {
       if (child.isBone) { 
@@ -45,6 +41,7 @@ export class LookAtManager {
         }     
       }
     })
+    console.log(this.spineBones)
   }
 
   _getMouseDegrees (x, y, degreeLimit){
