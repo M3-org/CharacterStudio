@@ -12,22 +12,16 @@ export class LookAtManager {
     this.enabled = true
     this.lookInterest = 1
     this.hasInterest = true
-    this.interestSpeed = 0.2
+    this.interestSpeed = 0.3
 
     this.clock = new THREE.Clock()
     this.deltaTime = 0
     
-    // this.maxLookPercent = {
-    //   neck: 20,
-    //   spine: 5,
-    //   left: 20,
-    //   right: 20,
-    // }
     this.maxLookPercent = {
       neck: 40,
       spine: 20,
-      left: 80,
-      right: 80,
+      left: 60,
+      right: 60,
     }
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
