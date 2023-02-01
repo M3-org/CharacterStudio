@@ -43,7 +43,6 @@ export const SceneProvider = (props) => {
   const [traitsRightEye, setTraitsRightEye] = useState([])
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null)
-  const [avatarBio, _setAvatarBio] = useState(null)
 
   const [blinkManager, setBlinkManager] = useState(null)
 
@@ -63,9 +62,6 @@ export const SceneProvider = (props) => {
 
   const setAvatar = (state) => {
     _setAvatar(state)
-  }
-  const setAvatarBio = (state) => {
-    _setAvatarBio
   }
 
   const loadAvatar = (avatarData) =>{
@@ -89,7 +85,6 @@ export const SceneProvider = (props) => {
     const saveAvatar = getSaveAvatar()
     localStorage.setItem(`${templateInfo.id}12223_${saveName}`, JSON.stringify(saveAvatar))
   }
-  
   const getSaveAvatar = () => {
     // saves the current avatar, it also saves the class
     const avatarJson = {}
@@ -102,7 +97,6 @@ export const SceneProvider = (props) => {
       }
     });
     avatarJson.class = templateInfo.id;
-    //avatarJson.
     return avatarJson;
   }
 
@@ -233,9 +227,7 @@ export const SceneProvider = (props) => {
         skinColor,
         setSkinColor,
         avatar,
-        avatarBio,
         setAvatar,
-        setAvatarBio,
         resetAvatar,
         moveCamera,
         traitsNecks,
