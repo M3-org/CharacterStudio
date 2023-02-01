@@ -444,7 +444,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
         if (child.isBone && child.name == 'neck') { 
-          setTraitsNecks(current => [...current , child])
+          //setTraitsNecks(current => [...current , child])
         }
         if (child.isBone && child.name == 'spine') { 
           setTraitsSpines(current => [...current , child])
