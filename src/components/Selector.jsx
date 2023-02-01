@@ -445,18 +445,18 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
         }
-        if (child.isBone && child.name == 'neck') { 
-          setTraitsNecks(current => [...current , child])
-        }
-        if (child.isBone && child.name == 'spine') { 
-          setTraitsSpines(current => [...current , child])
-        }
-        if (child.isBone && child.name === 'leftEye') { 
-          setTraitsLeftEye(current => [...current , child])
-        }
-        if (child.isBone && child.name === 'rightEye') { 
-          setTraitsRightEye(current => [...current , child])
-        }
+        // if (child.isBone && child.name == 'neck') { 
+        //   setTraitsNecks(current => [...current , child])
+        // }
+        // if (child.isBone && child.name == 'spine') { 
+        //   setTraitsSpines(current => [...current , child])
+        // }
+        // if (child.isBone && child.name === 'leftEye') { 
+        //   setTraitsLeftEye(current => [...current , child])
+        // }
+        // if (child.isBone && child.name === 'rightEye') { 
+        //   setTraitsRightEye(current => [...current , child])
+        // }
       })
 
       // culling layers setup section
