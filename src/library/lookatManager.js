@@ -8,6 +8,7 @@ export class LookAtManager {
     this.rightEyesBones = []
     this.curMousePos = new THREE.Vector2()
     this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100
+    this.enabled = true
     this.maxLookPercent = {
       neck: 20,
       spine: 5,
@@ -15,9 +16,11 @@ export class LookAtManager {
       right: 20,
     }
     
+    window.addEventListener("click", ()=>{
+      this.enabled = !this.enabled
+    })
     window.addEventListener("mousemove", (e)=>{
-        this.curMousePos.x= e.clientX
-        this.curMousePos.y= e.clientY
+        this.curMousePos = {x:e.clientX, y: e.clientY}
     })
     window.addEventListener("resize", () => {
       this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100;
@@ -94,17 +97,19 @@ export class LookAtManager {
   }
 
   update(){
-    this.neckBones.forEach(neck => {
-      this._moveJoint(neck, this.maxLookPercent.neck)
-    })
-    this.spineBones.forEach(spine => {
-      this._moveJoint(spine, this.maxLookPercent.spine)
-    })
-    this.leftEyeBones.forEach(leftEye => {
-      this._moveJoint(leftEye, this.maxLookPercent.left)
-    })
-    this.rightEyesBones.forEach(rightEye => {
-      this._moveJoint(rightEye, this.maxLookPercent.right)
-    })
+    if (this.enabled){
+      this.neckBones.forEach(neck => {
+        this._moveJoint(neck, this.maxLookPercent.neck)
+      })
+      this.spineBones.forEach(spine => {
+        this._moveJoint(spine, this.maxLookPercent.spine)
+      })
+      this.leftEyeBones.forEach(leftEye => {
+        this._moveJoint(leftEye, this.maxLookPercent.left)
+      })
+      this.rightEyesBones.forEach(rightEye => {
+        this._moveJoint(rightEye, this.maxLookPercent.right)
+      })
+    }
   }
 }
