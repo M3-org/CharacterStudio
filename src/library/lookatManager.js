@@ -6,14 +6,17 @@ export class LookAtManager {
     this.spineBones = []
     this.leftEyeBones = []
     this.rightEyesBones = []
-    this.curMousePos = {x:0,y:0}
+    this.curMousePos = new THREE.Vector2()
     this.maxLookPercent = {
       neck: 20,
       spine: 5,
       left: 20,
       right: 20,
     }
-    window.addEventListener("mousemove", this.handleMouseMove)
+    window.addEventListener("mousemove", (e)=>{
+        this.curMousePos.x= e.clientX
+        this.curMousePos.y= e.clientY
+    })
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -77,14 +80,6 @@ export class LookAtManager {
     return { x: dx, y: dy }
   }
 
-  handleMouseMove (event) {
-    this.curMousePos = {x: event.x, y: event.y}
-    //setMousePosition({x: event.x, y: event.y});
-    // const moveJoint = (mouse, joint, degreeLimit) => {
-      
-    // }
-  }
-
   _moveJoint(joint, degreeLimit){
     if (Object.keys(joint).length !== 0) {
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y, degreeLimit)
@@ -94,7 +89,8 @@ export class LookAtManager {
   }
 
   update(){
-    console.log("new")
+    //console.log("new")
+    //console.log(this.curMousePos.x)
     this.neckBones.forEach(neck => {
       this._moveJoint(neck, this.maxLookPercent.neck)
     })
