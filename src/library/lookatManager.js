@@ -7,24 +7,40 @@ export class LookAtManager {
     this.leftEyeBones = []
     this.rightEyesBones = []
     this.curMousePos = new THREE.Vector2()
-    this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100
+
+    this.hotzoneSection  = getHotzoneSection()
     this.enabled = true
-    this.maxLookPercent = {
-      neck: 20,
-      spine: 5,
-      left: 20,
-      right: 20,
-    }
+    this.lookInterest = 1
+    this.hasInterest = true
+    this.interestSpeed = 0.2
+
+    this.clock = new THREE.Clock()
+    this.deltaTime = 0
     
-    window.addEventListener("click", ()=>{
-      this.enabled = !this.enabled
-    })
+    // this.maxLookPercent = {
+    //   neck: 20,
+    //   spine: 5,
+    //   left: 20,
+    //   right: 20,
+    // }
+    this.maxLookPercent = {
+      neck: 40,
+      spine: 20,
+      left: 80,
+      right: 80,
+    }
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
     })
     window.addEventListener("resize", () => {
-      this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100;
+      this.hotzoneSection  = getHotzoneSection()
     });
+
+    function getHotzoneSection(){
+      const width = window.innerWidth * screenViewPercentage / 100
+      const halfLimit = (window.innerWidth - width) / 2
+      return {xStart: halfLimit, xEnd: window.innerWidth-halfLimit}
+    }
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -91,12 +107,32 @@ export class LookAtManager {
   _moveJoint(joint, degreeLimit){
     if (Object.keys(joint).length !== 0) {
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y, degreeLimit)
-      joint.rotation.y = THREE.MathUtils.degToRad(degrees.x)
-      joint.rotation.x = THREE.MathUtils.degToRad(degrees.y)
+      joint.rotation.y = THREE.MathUtils.degToRad(degrees.x) * this.lookInterest
+      joint.rotation.x = THREE.MathUtils.degToRad(degrees.y) * this.lookInterest
     }
   }
 
+  _setInterest(){
+    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd)
+      this.hasInterest = true
+    else
+      this.hasInterest = false
+
+    if (this.hasInterest && this.lookInterest < 1){
+      const newInterest =  this.lookInterest + this.deltaTime/this.interestSpeed
+      this.lookInterest = newInterest > 1 ? 1 : newInterest
+    }
+    if (!this.hasInterest && this.lookInterest > 0){
+      const newInterest =  this.lookInterest - this.deltaTime/this.interestSpeed
+      this.lookInterest = newInterest < 0 ? 0 : newInterest
+    }
+
+  }
+
   update(){
+    this.deltaTime = this.clock.getDelta()
+    this._setInterest();
+    
     if (this.enabled){
       this.neckBones.forEach(neck => {
         this._moveJoint(neck, this.maxLookPercent.neck)
