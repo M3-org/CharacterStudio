@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import { voices } from "../constants/voices"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
@@ -40,6 +41,11 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
   return { question, answer }
 }
 
+
+// Cache voice keys for performance.
+const voiceKeys = Object.keys(voices)
+
+
 function BioPage({ templateInfo, personality }) {
   const { setViewMode } = React.useContext(ViewContext)
 
@@ -53,10 +59,20 @@ function BioPage({ templateInfo, personality }) {
     setViewMode(ViewMode.SAVE)
   }
 
-  const _bio = getBio(templateInfo, personality);
+  const _bio = getBio(templateInfo, personality)
 
-  const [name, setName] = React.useState(localStorage.getItem("name") || _bio.name);
-  const [bio, setBio] = React.useState(localStorage.getItem("bio") || _bio.bio)
+  const [name, setName] = React.useState(
+    localStorage.getItem("name")
+    || _bio.name
+  )
+  const [bio, setBio] = React.useState(
+    localStorage.getItem("bio")
+    || _bio.bio
+  )
+  const [voice, setVoice] = React.useState(
+    localStorage.getItem("voice")
+    || voices[0].name
+  )
 
   const [greeting, setGreeting] = React.useState(
     localStorage.getItem("greeting") || "Hey there!",
@@ -87,9 +103,9 @@ function BioPage({ templateInfo, personality }) {
 
   // after each state is updated, save to local storage
   React.useEffect(() => {
-    console.log(question1)
     localStorage.setItem("name", name)
     localStorage.setItem("bio", bio)
+    localStorage.setItem("voice", voice)
     localStorage.setItem("greeting", greeting)
     localStorage.setItem("question1", question1)
     localStorage.setItem("question2", question2)
@@ -100,6 +116,7 @@ function BioPage({ templateInfo, personality }) {
   }, [
     name,
     bio,
+    voice,
     greeting,
     question1,
     question2,
@@ -146,6 +163,30 @@ function BioPage({ templateInfo, personality }) {
               defaultValue={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+
+          {/* Voice */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="voice">
+              Voice
+            </label>
+
+            <select
+              name="voice"
+              className={styles.select}
+              defaultValue={voice}
+              onChange={(e) => setVoice(e.target.value)}
+            >
+              {voiceKeys.map((option, i) => {
+                return (
+                  <option key={i} value={option}>
+                    {option}
+                  </option>
+                )
+              })}
+            </select>
           </div>
 
           {/* Preferred Greeting */}
