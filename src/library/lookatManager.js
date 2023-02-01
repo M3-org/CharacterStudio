@@ -41,7 +41,6 @@ export class LookAtManager {
         }     
       }
     })
-    console.log(this.spineBones)
   }
 
   _getMouseDegrees (x, y, degreeLimit){
@@ -90,8 +89,6 @@ export class LookAtManager {
   }
 
   update(){
-    //console.log("new")
-    //console.log(this.curMousePos.x)
     this.neckBones.forEach(neck => {
       this._moveJoint(neck, this.maxLookPercent.neck)
     })
