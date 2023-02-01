@@ -288,7 +288,7 @@ export class EffectManager extends EventTarget{
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
     this.particleEffect.emitSpotLight();
-    this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
+    this.transitionTime = this.frameRate * ((FADE_OUT_AVATAR_DURATION - FADE_OUT_AVATAR_INITIAL_TIME) / FADE_OUT_AVATAR_SPEED);
     this.initialFadeOutTimer();
   }
 
