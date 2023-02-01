@@ -1,22 +1,27 @@
 import * as THREE from 'three'
 
 export class LookAtManager {
-  constructor (){
+  constructor (screenViewPercentage){
     this.neckBones = []
     this.spineBones = []
     this.leftEyeBones = []
     this.rightEyesBones = []
     this.curMousePos = new THREE.Vector2()
+    this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100
     this.maxLookPercent = {
       neck: 20,
       spine: 5,
       left: 20,
       right: 20,
     }
+    
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos.x= e.clientX
         this.curMousePos.y= e.clientY
     })
+    window.addEventListener("resize", () => {
+      this.hotzoneWidth  = window.innerWidth * screenViewPercentage / 100;
+    });
     setInterval(() => {
       this.update();
     }, 1000/30);

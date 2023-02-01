@@ -94,7 +94,7 @@ async function fetchAll() {
   const sceneModel = await fetchScene()
 
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-  const lookatManager = new LookAtManager()
+  const lookatManager = new LookAtManager(50)
   const effectManager = new EffectManager()
 
   return {
