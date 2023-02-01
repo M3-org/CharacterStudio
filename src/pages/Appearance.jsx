@@ -38,10 +38,10 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
         }
     }
     const reset = () =>{
-        //loadAvatarFromLocalStorage("test");
+        //loadAvatarFromLocalStorage("character");
     }
     const save = () =>{
-        //saveAvatarToLocalStorage("test");
+        //saveAvatarToLocalStorage("character");
     }
 
 
