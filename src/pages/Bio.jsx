@@ -71,7 +71,7 @@ function BioPage({ templateInfo, personality }) {
   )
   const [voice, setVoice] = React.useState(
     localStorage.getItem("voice")
-    || voices[0].name
+    || voiceKeys[0]
   )
 
   const [greeting, setGreeting] = React.useState(
