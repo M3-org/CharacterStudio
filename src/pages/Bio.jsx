@@ -131,99 +131,145 @@ function BioPage({ templateInfo, personality }) {
         <div className={styles.scrollContainer}>
 
         <div className={styles["inner-container"]}>
-          {/* input fields for name, bio, preferred greeting, question1 (dropdown and text input), question2 (dropdown and text input) and question3 (dropdown and text input) */}
-          <span className={styles["name"]}>
-            <label htmlFor="name" className={styles.inlineLabel}>Name</label>
+          {/* Name */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="name">
+              Name
+            </label>
+
             <input
               type="text"
               name="name"
-              value={name}
+              className={styles.input}
+              defaultValue={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </span>
-          <span className={styles["greeting"]}>
-            <label htmlFor="greeting" className={styles.inlineLabel}>Preferred Greeting</label>
+          </div>
+
+          {/* Preferred Greeting */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="greeting">
+              Preferred Greeting
+            </label>
+
             <input
               type="text"
               name="greeting"
-              value={greeting}
+              className={styles.input}
+              defaultValue={greeting}
               onChange={(e) => setGreeting(e.target.value)}
             />
-          </span>
+          </div>
 
-          <label htmlFor="bio">Bio</label>
-          <textarea
-            name="bio"
-            rows="4"
-            cols="50"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-          />
+          {/* Bio */}
+          <div className={styles.section}>
+            <label className={styles.label} htmlFor="bio">Bio</label>
 
-          <label htmlFor="question1">Question 1</label>
-          <select
-            name="question1"
-            value={question1}
-            onChange={(e) => { setQuestion1(e.target.value); }}
-          >
-            {personality.generalPersonalityQuestions.map((question, i) => {
-              return (
-                <option key={i} value={question}>
-                  {question}
-                </option>
-              )
-            })}
-          </select>
-          <textarea
-            type="text"
-            name="response1"
-            onChange={(e) => setResponse1(e.target.value)}
-            value={response1}
-          />
+            <textarea
+              name="bio"
+              className={styles.input}
+              rows="4"
+              cols="50"
+              defaultValue={bio}
+              onChange={(e) => setBio(e.target.value)}
+            />
+          </div>
 
-          <label htmlFor="question2">Question 2</label>
-          <select
-            name="question3"
-            value={question2}
-            onChange={(e) => setQuestion2(e.target.value)}
-          >
-            {personality.relationshipQuestions.map((question, i) => {
-              return (
-                <option key={i} value={question}>
-                  {question}
-                </option>
-              )
-            })}
-          </select>
+          {/* Question 1 */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="question1">
+              Question 1
+            </label>
 
-          <textarea
-            type="text"
-            name="response2"
-            value={response2}
-            onChange={(e) => setResponse2(e.target.value)}
-          />
+            <select
+              name="question1"
+              className={styles.select}
+              defaultValue={question1}
+              onChange={(e) => setQuestion1(e.target.value)}
+            >
+              {personality.generalPersonalityQuestions.map((question, i) => {
+                return (
+                  <option key={i} value={question}>
+                    {question}
+                  </option>
+                )
+              })}
+            </select>
+            <textarea
+              name="response1"
+              className={styles.input}
+              onChange={(e) => setResponse1(e.target.value)}
+              defaultValue={response1}
+            />
+          </div>
 
-          <label htmlFor="question3">Question 3</label>
-          <select
-            name="question3"
-            value={question3}
-            onChange={(e) => setQuestion3(e.target.value)}
-          >
-            {personality.hobbyQuestions.map((question, i) => {
-              return (
-                <option key={i} value={question}>
-                  {question}
-                </option>
-              )
-            })}
-          </select>
+          {/* Question 2 */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="question2">
+              Question 2
+            </label>
 
-          <textarea
-            type="text"
-            name="response3"
-            onChange={(e) => setResponse3(e.target.value)}
-            value={response3}
-          />
+            <select
+              name="question2"
+              className={styles.select}
+              defaultValue={question2}
+              onChange={(e) => setQuestion2(e.target.value)}
+            >
+              {personality.relationshipQuestions.map((question, i) => {
+                return (
+                  <option key={i} value={question}>
+                    {question}
+                  </option>
+                )
+              })}
+            </select>
+
+            <textarea
+              name="response1"
+              className={styles.input}
+              defaultValue={response2}
+              onChange={(e) => setResponse2(e.target.value)}
+            />
+          </div>
+
+          {/* Question 3 */}
+          <div className={styles.section}>
+            <label
+              className={styles.label}
+              htmlFor="question3">
+              Question 3
+            </label>
+
+            <select
+              name="question3"
+              className={styles.select}
+              defaultValue={question3}
+              onChange={(e) => setQuestion3(e.target.value)}
+            >
+              {personality.hobbyQuestions.map((question, i) => {
+                return (
+                  <option key={i} value={question}>
+                    {question}
+                  </option>
+                )
+              })}
+            </select>
+
+            <textarea
+              name="response3"
+              className={styles.input}
+              defaultValue={response3}
+              onChange={(e) => setResponse3(e.target.value)}
+            />
+          </div>
         </div>
         </div>
       </div>

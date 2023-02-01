@@ -1,61 +1,14 @@
 .inner-container {
   z-index: 1000000;
   opacity: 0.8;
-  position: absolute;
-  width: calc(100% - 2em);
-  padding: 1em;
+  /*position: absolute;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  padding: 16px;
   min-height: 200px;
-  font-size: .8rem;
+  font-size: .875rem;
   top: 0;
   color: #fff;
-}
-
-.inner-container>span {
-  display: inline;
-}
-
-.inner-container>label,
-.inner-container>span>label {
-  display: inline;
-  width: 100%;
-}
-
-/* float the first chatbox span left */
-.inner-container>span:first-child {
-  float: left;
-}
-
-.inner-container>input,
-.inner-container>span>input {
-  background-color: #000;
-  color: #fff;
-  border-radius: 5px;
-  border: 1px solid #fff;
-  margin: .5em;
-  padding: .5em;
-  display: block;
-  width: 100%;
-}
-
-.inner-container>textarea {
-  background-color: #000;
-  color: #fff;
-  border-radius: 5px;
-  border: 1px solid #fff;
-  margin: .5em;
-  padding: .5em;
-  width: calc(100% - 2em);
-  display: block;
-}
-
-.inner-container>select {
-  background-color: #000;
-  color: #fff;
-  border-radius: 5px;
-  border: 1px solid #fff;
-  margin: .5em;
-  padding: .5em;
-  width: calc(100% - 2em);
 }
 
 .button {
@@ -173,7 +126,7 @@
   width: 100%;
   height: 100%;
   min-height: 200px;
-  font-size: .8rem;
+  font-size: .875rem;
   top: 0;
   color: #fff;
   box-sizing: border-box;
@@ -185,52 +138,13 @@
   outline: none !important;
 }
 
-.container>span {
-  display: inline;
-  width: 24em;
+
+.button {
+  opacity: 1.0;
 }
 
-.container>label,
-.container>span>label {
-  display: block;
-  width: 100%;
-  margin-bottom: 8px;
-  color: #99ABB2;
-}
-
-/* float the first chatbox span left */
-.container>span:first-child {
-  float: left;
-}
-
-.container>input,
-.container>span>input {
-  background-color: #193234;
-  color: #fff;
-  border: 1px solid #C5DCD0;
-  padding: .5em;
-  display: block;
-  width: 20em;
-}
-
-.container>textarea {
-  background-color: #193234;
-  color: #fff;
-  border: 1px solid #C5DCD0;
-  padding: .5em;
-  width: 100%;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 16px;
-}
-
-.container>select {
-  background-color: #193234;
-  color: #fff;
-  border: 1px solid #C5DCD0;
-  padding: .5em;
-  width: 100%;
-  margin-bottom: 8px;
+.buttonInactive {
+  opacity: 0.5;
 }
 
 .button {
@@ -241,6 +155,33 @@
   opacity: 0.5;
 }
 
-.name {
-  width: 50%;
+.input {
+  background-color: #193234;
+  border: 1px solid #C5DCD0;
+  box-sizing: border-box;
+  color: #fff;
+  display: block;
+  padding: 8px;
+  width: 100%;
+}
+
+.label {
+  color: #99ABB2;
+  display: block;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.section {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.select {
+  background-color: #193234;
+  color: #fff;
+  border: 1px solid #C5DCD0;
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 8px;
 }
