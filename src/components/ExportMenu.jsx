@@ -94,7 +94,6 @@ export const ExportMenu = () => {
     atlasSize = 4096,
     isUnoptimized = false,
   ) {
-    console.log("old download")
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
     const link = document.createElement("a")
@@ -117,8 +116,6 @@ export const ExportMenu = () => {
     const downloadFileName = `${
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
     }`
-
-    console.log("avatarToDownload", avatarToDownload)
 
     const avatarToDownloadClone = avatarToDownload.clone()
     /*
