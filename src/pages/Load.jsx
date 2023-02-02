@@ -45,12 +45,10 @@ function Load() {
     }
 
     const loadCharacter = (character) => {
-        console.log(character);
         setViewMode(ViewMode.APPEARANCE)
     }
 
     const back = () => {
-        console.log('back');
         setViewMode(ViewMode.LANDING)
     }
 

@@ -549,7 +549,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
   }
 
-  
+
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function TraitTitle(props) {

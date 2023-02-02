@@ -9,18 +9,15 @@ function Save() {
     const { setViewMode } = React.useContext(ViewContext);
 
     const back = () => {
-        console.log('back');
         setViewMode(ViewMode.BIO)
     }
 
     const mint = () => {
-        console.log('chat');
         setViewMode(ViewMode.CHAT)
     }
 
 
   const next = () => {
-    console.log("next")
     setViewMode(ViewMode.CHAT)
   }
 

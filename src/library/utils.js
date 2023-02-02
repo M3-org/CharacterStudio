@@ -19,22 +19,14 @@ export async function prepareModel(templateInfo){
   // if it exists, load it
 
   // if it doesn't exist, fetch the first trait for each category from the server
-  console.log('templateInfo', templateInfo)
   // grab the first trait for each category
   const traits = templateInfo.traits.map((category) => {
     return category.traits[0]
   })
-  
-  traits.forEach((trait) => {
-    console.log('trait', trait)
-  });
 
   const returnedTraits = await Promise.all(traits.map((trait) => {
     return loadModel(trait)
   }));
-
-  console.log('returnedTraits', returnedTraits)
-
 }
 
 
@@ -147,7 +139,6 @@ async function getScreenShotByElementId(id) {
   return await html2canvas(snapShotElement).then(async function (canvas) {
 
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
-    console.log(dataURL)
     // const base64Data = Buffer.from(
     //   dataURL.replace(/^data:image\/\w+;base64,/, ""),
     //   "base64"
@@ -389,11 +380,11 @@ export const createBoneDirection = (skinMesh) => {
           skinMesh.skeleton.bones[highIdx].getWorldPosition(new THREE.Vector3()).z);
 
         break;
-      case 3: // 
+      case 3: //
         //nothing, the direction will be taken from vertex normals
         break;
       default:
-        console.log("wrong index value");
+        break;
     }
 
     // calculate the direction from  *boneTargetPos to *vertexPosition

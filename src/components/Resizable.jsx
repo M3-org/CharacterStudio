@@ -76,8 +76,6 @@ const ResizableDiv = ({setScreenshotPosition, screenshotPosition}) => {
     const updateMask = () =>{
         const fscreen = document.getElementById('fscreen-div');
 
-        console.log(fscreen.clientWidth)
-
         const maskLeft = document.getElementById('maskLeft');
         const maskTop = document.getElementById('maskTop');
         const maskRight = document.getElementById('maskRight');

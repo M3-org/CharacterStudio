@@ -10,7 +10,6 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
     const { resetAvatar, getRandomCharacter,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
     const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
-        console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
@@ -27,7 +26,6 @@ function Appearance({initialTraits, animationManager, blinkManager, effectManage
     }, [])
 
     const next = () => {
-        console.log('next B');
         setViewMode(ViewMode.BIO)
     }
 

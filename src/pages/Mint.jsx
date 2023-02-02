@@ -11,12 +11,10 @@ function MintComponent() {
   const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
 
   const back = () => {
-    console.log("back")
     setViewMode(ViewMode.SAVE)
   }
 
   const next = () => {
-    console.log("next")
     setViewMode(ViewMode.CHAT)
   }
 
