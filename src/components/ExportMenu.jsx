@@ -68,7 +68,7 @@ export const ExportMenu = () => {
       deactivate()
       setConnected(false)
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
@@ -83,7 +83,7 @@ export const ExportMenu = () => {
       await activate(injected)
       // setMintStatus("Your wallet has been connected.")
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
