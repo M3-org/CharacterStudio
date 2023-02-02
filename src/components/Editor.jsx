@@ -85,7 +85,7 @@ export default function Editor({manifest, animationManager, blinkManager, effect
       )
     )
   }
-  // console.log("TRAITS INFO: ", templateInfo)
+
   return (
     <Fragment>
       <div className={styles["SideMenu"]}>

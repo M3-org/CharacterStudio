@@ -70,7 +70,6 @@ function getOptimizedGLB(avatarToDownload, atlasSize){
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
   const model = await getOptimizedGLB(avatarToDownload, atlasSize)
   const glb = await parseGLB(model);
-  console.log(glb)
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 

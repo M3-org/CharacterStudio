@@ -542,11 +542,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
     //setAvatar({...avatar, ...newTrait})
 
-    //console.log("AVATAR IS: ", avatar)
-
   }
 
-  
+
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function TraitTitle(props) {

@@ -7,16 +7,14 @@ function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
-    console.log("back 3")
     setViewMode(ViewMode.LANDING)
   }
 
   const selectClass = (characterClass) => {
-    console.log("TODO: set character class to: " + characterClass)
     fetchNewModel(characterClass.templateIndex).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
-    
+
   }
 
   const classes = [

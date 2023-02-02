@@ -95,13 +95,13 @@ ${name}: ${response3}`
   }, [])
 
   const startSpeech = () => {
-    console.log("starting speech")
+    console.info("starting speech")
     speechRecognition.start()
     setMicEnabled(true)
   }
 
   const stopSpeech = () => {
-    console.log("stopping speech")
+    console.info("stopping speech")
     speechRecognition.stop()
     setMicEnabled(false)
   }
@@ -115,7 +115,6 @@ ${name}: ${response3}`
   }
 
   const handleUserChatInput = async (value) => {
-    console.log("handleUserChatInput", handleUserChatInput)
     // Send the message to the localhost endpoint
     const agent = name
     // const spell_handler = "charactercreator";
@@ -148,10 +147,7 @@ ${agent}:`
         stop: [speaker + ":", agent + ":", "\\n"],
       }
 
-      console.log( 'VOICE:', voice )
-
       axios.post(endpoint, query).then((response) => {
-        console.log("response is", response.data.choices[0].text)
         const output = response.data.choices[0].text
         const ttsEndpoint =
                 'https://voice.webaverse.com/tts?'
@@ -183,15 +179,12 @@ ${agent}:`
     const speechTest = new SpeechRecognition({})
     setSpeechRecognition(speechTest)
 
-    console.log("speech recognition", speechTest)
-
     speechTest.onerror = (e) => console.error(e.error, e.message)
     speechTest.onresult = (e) => {
       const i = e.resultIndex
-      console.log(`${e.results[i].isFinal}`)
+
       if (e.results[i].isFinal)
         handleUserChatInput(`${e.results[i][0].transcript}`)
-      else console.log(`${e.results[i][0].transcript}`)
     }
 
     speechTest.interimResults = true

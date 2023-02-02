@@ -29,7 +29,7 @@ export default function MintPopup({screenshotPosition}) {
         const tp = await contract.tokenPrice()
         setTokenPrice( BigNumber.from(tp).mul(1) )
     })();
-  }, [])  
+  }, [])
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -95,7 +95,6 @@ export default function MintPopup({screenshotPosition}) {
     const pass = await checkOT(walletAddress);
     if(pass) {
       setMintStatus("Uploading...")
-      console.log('avatar in mintAsset', avatar)
       let imageHash, glbHash;
       const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
       if (screenshot) {
@@ -113,7 +112,7 @@ export default function MintPopup({screenshotPosition}) {
             } catch(err) {
               console.warn(err);
             }
-          } 
+          }
           throw new Error('failed to upload screenshot');
           setMintStatus("Couldn't save screenshot to pinata")
         })();
@@ -138,7 +137,7 @@ export default function MintPopup({screenshotPosition}) {
             } catch(err) {
               console.warn(err);
             }
-          } 
+          }
           throw new Error('failed to upload glb');
           setMintStatus("Couldn't save glb to pinata")
         })();
@@ -187,8 +186,6 @@ export default function MintPopup({screenshotPosition}) {
   const  takeScreenshot = async () => {
     const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
     const glb = await getGLBBlobData(model)
-    console.log(glb)
-    console.log(img)
   }
 
   const checkOT = async (address) => {
@@ -199,7 +196,6 @@ export default function MintPopup({screenshotPosition}) {
       })
       const contract = new ethers.Contract(EternalProxyContract.address, EternalProxyContract.abi, ethersigner);
       const webaBalance = await contract.beneficiaryBalanceOf(address, webaverseGenesisAddress, 1);
-      console.log("webaBalance", webaBalance)
       if(parseInt(webaBalance) > 0) return true;
       else {
         setMintStatus("Currently in alpha. You need a genesis pass to mint. \n Will be public soon!")

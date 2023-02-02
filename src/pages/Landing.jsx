@@ -6,13 +6,10 @@ function Landing() {
   const { setViewMode } = React.useContext(ViewContext)
 
   const createCharacter = () => {
-    console.log("create character")
-    // set the view mode to create
     setViewMode(ViewMode.CREATE)
   }
 
   const loadCharacter = () => {
-    console.log("load character")
     setViewMode(ViewMode.LOAD)
   }
 
