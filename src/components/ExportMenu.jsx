@@ -44,7 +44,6 @@ export const ExportMenu = () => {
 
   const _setAddress = async (address) => {
     const { name } = await getAccountDetails(address)
-    console.log("ens", name)
     setEnsName(name ? name.slice(0, 15) + "..." : "")
   }
 
