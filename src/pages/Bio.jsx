@@ -5,7 +5,7 @@ import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
 
 export const getBio = (templateInfo, personality) => {
-  console.log('templateInfo', templateInfo)
+  //console.log('templateInfo', templateInfo)
   const classType = templateInfo.name.toUpperCase();
 
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
