@@ -13,9 +13,21 @@ export const getBio = (templateInfo, personality) => {
   const hobby = personality.hobbies[Math.floor(Math.random() * personality.hobbies.length)]
   const profession = personality.professions[Math.floor(Math.random() * personality.professions.length)]
   const heshe = personality.heShe[classType]
-
+  //const voice = 
+  const voiceKey = Object.keys(voices).find((v) => {
+    if (heshe.toUpperCase() === "SHE"){
+      
+      if (v.includes("Female")){
+        return v
+      }
+    }
+    if (heshe.toUpperCase() === "HE")
+      if (v.includes("Male")){
+        return v
+      }
+  } )
   const bio = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
-  return { name, bio }
+  return { name, bio, voiceKey }
 }
 
 export const getPersonalityQuestionsAndAnswers = (personality) => {
@@ -57,22 +69,23 @@ function BioPage({ templateInfo, personality }) {
   }
 
   const _bio = getBio(templateInfo, personality)
+  //console.log(_bio)
 
   const [name, setName] = React.useState(
-    localStorage.getItem("name")
+    localStorage.getItem(`${templateInfo.name}name`)
     || _bio.name
   )
   const [bio, setBio] = React.useState(
-    localStorage.getItem("bio")
+    localStorage.getItem(`${templateInfo.name}bio`)
     || _bio.bio
   )
   const [voice, setVoice] = React.useState(
-    localStorage.getItem("voice")
-    || voiceKeys[0]
+    localStorage.getItem(`${templateInfo.name}voice`)
+    || _bio.voiceKey
   )
 
   const [greeting, setGreeting] = React.useState(
-    localStorage.getItem("greeting") || "Hey there!",
+    localStorage.getItem(`${templateInfo.name}greeting`) || "Hey there!",
   )
 
     const q1 = getPersonalityQuestionsAndAnswers(personality);
@@ -80,36 +93,36 @@ function BioPage({ templateInfo, personality }) {
     const q3 = getHobbyQuestionsAndAnswers(personality);
 
   const [question1, setQuestion1] = React.useState(
-    localStorage.getItem("question1") || q1.question,
+    localStorage.getItem(`${templateInfo.name}question1`) || q1.question,
   )
   const [question2, setQuestion2] = React.useState(
-    localStorage.getItem("question2") || q2.question,
+    localStorage.getItem(`${templateInfo.name}question2`) || q2.question,
   )
   const [question3, setQuestion3] = React.useState(
-    localStorage.getItem("question3") || q3.question,
+    localStorage.getItem(`${templateInfo.name}question3`) || q3.question,
   )
   const [response1, setResponse1] = React.useState(
-    localStorage.getItem("response1") || q1.answer,
+    localStorage.getItem(`${templateInfo.name}response1`) || q1.answer,
   )
   const [response2, setResponse2] = React.useState(
-    localStorage.getItem("response2") || q2.answer,
+    localStorage.getItem(`${templateInfo.name}response2`) || q2.answer,
   )
   const [response3, setResponse3] = React.useState(
-    localStorage.getItem("response3") || q3.answer,
+    localStorage.getItem(`${templateInfo.name}response3`) || q3.answer,
   )
 
   // after each state is updated, save to local storage
   React.useEffect(() => {
-    localStorage.setItem("name", name)
-    localStorage.setItem("bio", bio)
-    localStorage.setItem("voice", voice)
-    localStorage.setItem("greeting", greeting)
-    localStorage.setItem("question1", question1)
-    localStorage.setItem("question2", question2)
-    localStorage.setItem("question3", question3)
-    localStorage.setItem("response1", response1)
-    localStorage.setItem("response2", response2)
-    localStorage.setItem("response3", response3)
+    localStorage.setItem(`${templateInfo.name}name`, name)
+    localStorage.setItem(`${templateInfo.name}bio`, bio)
+    localStorage.setItem(`${templateInfo.name}voice`, voice)
+    localStorage.setItem(`${templateInfo.name}greeting`, greeting)
+    localStorage.setItem(`${templateInfo.name}question1`, question1)
+    localStorage.setItem(`${templateInfo.name}question2`, question2)
+    localStorage.setItem(`${templateInfo.name}question3`, question3)
+    localStorage.setItem(`${templateInfo.name}response1`, response1)
+    localStorage.setItem(`${templateInfo.name}response2`, response2)
+    localStorage.setItem(`${templateInfo.name}response3`, response3)
   }, [
     name,
     bio,
