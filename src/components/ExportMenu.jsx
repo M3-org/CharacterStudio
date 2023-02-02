@@ -16,6 +16,10 @@ import { downloadGLB, downloadVRM } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
 
+
+const defaultName = "Anon"
+
+
 export const ExportMenu = () => {
   // const type = "_Gen1" // class type
 
@@ -23,6 +27,11 @@ export const ExportMenu = () => {
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
   const { activate, deactivate, account } = useWeb3React()
+
+  const [name] = React.useState(
+    localStorage.getItem("name")
+    || defaultName
+  )
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -229,7 +238,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model,true,`CharacterCreator_exported`)
+          downloadGLB(model, true, name)
           //download(model, `CharacterCreator_exported`, "glb")
         }}
       />
@@ -240,8 +249,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model,false,`CharacterCreator_exported`)
-          //download(model, `CharacterCreator_exported_unoptimized`, "glb", undefined, true)
+          downloadGLB(model, false, name)
+          //download(model, `${name}_unoptimized`, "glb", undefined, true)
         }}
       />
       <CustomButton
@@ -251,8 +260,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadVRM(model, avatar, `CharacterCreator_exported`)
-          //download(model, `CharacterCreator_exported`, "vrm")
+          downloadVRM(model, avatar, name)
+          //download(model, name, "vrm")
         }}
       />
     </React.Fragment>
