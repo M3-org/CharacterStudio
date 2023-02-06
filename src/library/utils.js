@@ -466,7 +466,7 @@ function getVRMMeta(name){
     metaVersion:"1",
     version:"v1",
     name:name,
-    licenseURL:"https://vrm.dev/licenses/1.0/",
+    licenseUrl:"https://vrm.dev/licenses/1.0/",
     commercialUssageName: "personalNonProfit",
     contactInformation: "https://webaverse.com/", 
     allowExcessivelyViolentUsage:false,
