@@ -260,9 +260,8 @@ ${agent}:`
 }
 
 
-
+const maxCharacters = 20000
 export function pruneMessages( messages ) {
-  // Limit data to max content length of 20000 characters.
   let currentSize = 0
   const newMessages = []
 
@@ -271,8 +270,8 @@ export function pruneMessages( messages ) {
 
     currentSize += message.length
 
-    // Add up to 30000 characters.
-    if ( currentSize < 30000 )
+    // Add up to N characters.
+    if ( currentSize < maxCharacters )
       newMessages.push( message )
     else break
   }
