@@ -119,31 +119,46 @@ ${name}: ${response3}`
     const agent = name
     // const spell_handler = "charactercreator";
 
-    const newMessages = [...messages]
-    newMessages.push(speaker + ": " + value)
+    const newMessages = pruneMessages( messages )
+    newMessages.push( `${speaker}: ${value}` )
     setInput("")
-    setMessages(newMessages)
+    setMessages([ ...newMessages ])
 
     try {
       // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
       const endpoint = "https://upstreet.webaverse.com/api/ai"
 
-      let prompt = `
-${composePrompt()}
-###
-The following is a friendly conversation between #speaker and ${agent}.
-${messages.join("\n")}
-${speaker}: ${input}
+      let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+
+CONTEXT:
+
+Info about ${agent}
+---
+
+Bio: "${bio}"
+
+Question 1: "${question1}"
+Response 1: "${response1}"
+
+Question 2: "${question2}"
+Response 2: "${response2}"
+
+Question 3: "${question3}"
+Response 3: "${response3}"
+
+MOST RECENT MESSAGES:
+
+${newMessages.join("\n")}
 ${agent}:`
 
       const query = {
         prompt,
-        max_tokens: 100,
-        temperature: 0.7,
+        max_tokens: 250,
+        temperature: 0.9,
         top_p: 1,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.5,
+        frequency_penalty: 0,
+        presence_penalty: 0.6,
         stop: [speaker + ":", agent + ":", "\\n"],
       }
 
@@ -211,7 +226,8 @@ ${agent}:`
       </div>
 
       <form className={styles["send"]} onSubmit={handleSubmit}>
-        <CustomButton
+        {/* Disabled until state error is fixed */}
+        {/*<CustomButton
           type="icon"
           theme="light"
           icon="microphone"
@@ -219,7 +235,7 @@ ${agent}:`
           size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
-        />
+        />*/}
         <input
           autoComplete="off"
           type="text"
@@ -241,4 +257,27 @@ ${agent}:`
       </form>
     </div>
   )
+}
+
+
+const maxCharacters = 20000
+export function pruneMessages( messages ) {
+  let currentSize = 0
+  const newMessages = []
+
+  for ( let i = messages.length - 1; i >= 0; i-- ) {
+    const message = messages[ i ]
+
+    currentSize += message.length
+
+    // Add up to N characters.
+    if ( currentSize < maxCharacters )
+      newMessages.push( message )
+    else break
+  }
+
+  // Reverse the array so that the newest messages are first.
+  newMessages.reverse()
+
+  return newMessages
 }
