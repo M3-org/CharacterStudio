@@ -37,6 +37,36 @@ export function getMultipleRandomTraits(traitNames, template) {
   })
   return resultTraitOptions
 }
+export const getOptionsFromAvatarData = (avatarData, manifest) =>{
+  const filteredTemplates = manifest.filter(temps=> temps.id === avatarData.class)
+  if (filteredTemplates.length > 0){
+    const template = filteredTemplates[0]
+    const opts = [];
+    for (const prop in avatarData){
+      const foundTraits = template.traits.filter(t=>t.trait=== prop)
+        if (foundTraits.length > 0){
+          const trait = foundTraits[0]
+          if (avatarData[prop].traitInfo?.id != null){
+            opts.push({
+              item:avatarData[prop].traitInfo,
+              textureTrait: avatarData[prop].textureInfo,
+              colorTrait: avatarData[prop].colorInfo,
+              trait:trait
+            })
+          }
+          else{
+            opts.push({
+              item:null,
+              trait:trait
+            })
+          }
+        }
+    }
+    return opts
+  }
+  return null;
+}
+
 export const getClassOptions = (manifest) => {
   const options = []
   manifest.map((character, index) => {
