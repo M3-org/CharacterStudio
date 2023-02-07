@@ -226,7 +226,8 @@ ${agent}:`
       </div>
 
       <form className={styles["send"]} onSubmit={handleSubmit}>
-        <CustomButton
+        {/* Disabled until state error is fixed */}
+        {/*<CustomButton
           type="icon"
           theme="light"
           icon="microphone"
@@ -234,7 +235,7 @@ ${agent}:`
           size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
-        />
+        />*/}
         <input
           autoComplete="off"
           type="text"
