@@ -13,10 +13,8 @@ export default function ChatButton() {
       size={32}
       onClick={() => {
         if (viewMode !== ViewMode.CHAT) {
-          console.log("ChatButton: viewMode is APPEARANCE, setting to CHAT")
           setViewMode(ViewMode.CHAT)
         } else {
-          console.log("ChatButton: viewMode is CHAT, setting to APPEARANCE")
           setViewMode(ViewMode.APPEARANCE)
         }
       }}

@@ -12,7 +12,13 @@ import { getAvatarData } from "../library/utils"
 import VRMExporter from "../library/VRMExporter"
 import CustomButton from "./custom-button"
 
+import { downloadGLB, downloadVRM } from "../library/download-utils"
+
 import styles from "./ExportMenu.module.css"
+
+
+const defaultName = "Anon"
+
 
 export const ExportMenu = () => {
   // const type = "_Gen1" // class type
@@ -21,6 +27,11 @@ export const ExportMenu = () => {
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
   const { activate, deactivate, account } = useWeb3React()
+
+  const [name] = React.useState(
+    localStorage.getItem("name")
+    || defaultName
+  )
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -42,7 +53,6 @@ export const ExportMenu = () => {
 
   const _setAddress = async (address) => {
     const { name } = await getAccountDetails(address)
-    console.log("ens", name)
     setEnsName(name ? name.slice(0, 15) + "..." : "")
   }
 
@@ -67,7 +77,7 @@ export const ExportMenu = () => {
       deactivate()
       setConnected(false)
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
@@ -82,7 +92,7 @@ export const ExportMenu = () => {
       await activate(injected)
       // setMintStatus("Your wallet has been connected.")
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
@@ -115,8 +125,6 @@ export const ExportMenu = () => {
     const downloadFileName = `${
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
     }`
-
-    console.log("avatarToDownload", avatarToDownload)
 
     const avatarToDownloadClone = avatarToDownload.clone()
     /*
@@ -230,7 +238,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `CharacterCreator_exported`, "glb")
+          downloadGLB(model, true, name)
+          //download(model, `CharacterCreator_exported`, "glb")
         }}
       />
       <CustomButton
@@ -240,7 +249,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `CharacterCreator_exported_unoptimized`, "glb", undefined, true)
+          downloadGLB(model, false, name)
+          //download(model, `${name}_unoptimized`, "glb", undefined, true)
         }}
       />
       <CustomButton
@@ -250,7 +260,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          download(model, `CharacterCreator_exported`, "vrm")
+          downloadVRM(model, avatar, name)
+          //download(model, name, "vrm")
         }}
       />
     </React.Fragment>

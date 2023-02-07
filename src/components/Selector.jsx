@@ -44,13 +44,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
-    setIsChangingWholeAvatar,
   } = useContext(SceneContext)
   const {
     playSound
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
-  const {setLoading} = useContext(ViewContext)
+  const {isLoading, setIsLoading} = useContext(ViewContext)
+  const {setIsPlayingEffect} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
@@ -59,11 +59,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
-    
+
   },[templateInfo])
 
   const getRestrictions = () => {
-    
+
     const traitRestrictions = templateInfo.traitRestrictions
     const typeRestrictions = {};
 
@@ -142,7 +142,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
-      setIsChangingWholeAvatar(true);
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
@@ -155,13 +154,15 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   },[selectedOptions])
   // user selects an option
   const selectTraitOption = (option) => {
+    const addOption  = option != null
+    if (isLoading) return;
+
     if (option == null){
       option = {
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
     }
-    
     if (option.avatarIndex != null){
       if(isNewClass(option.avatarIndex)){
         selectClass(option.avatarIndex)
@@ -171,7 +172,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
     effectManager.setTransitionEffect('switch_item');
 
-    loadOptions(getAsArray(option)).then((loadedData)=>{
+    option.selected = true
+
+    loadOptions(getAsArray(option),addOption).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -191,9 +194,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   
   // load options first
-  const loadOptions = (options) => {
+  const loadOptions = (options, filterRestrictions = true) => {
     // filter options by restrictions
-    options = filterRestrictedOptions(options);
+
+    if (filterRestrictions)
+      options = filterRestrictedOptions(options);
 
     //save selection to local storage
     saveUserSelection(templateInfo.name, options)
@@ -209,6 +214,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         resolve(options)
       });
     }
+
+    setIsLoading(true);
+    setIsPlayingEffect(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()
@@ -232,7 +240,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadingManager.onLoad = function (){
         setLoadPercentage(0)
         resolve(resultData);
-        setLoading(false)
+        setIsLoading(false)
       };
       loadingManager.onError = function (url){
         console.warn("error loading " + url)
@@ -242,10 +250,12 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       }
 
       const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
-      
+
       // load necesary assets for the options
       options.map((option, index)=>{
-        setSelectValue(option.key)
+        if (option.selected){
+          setSelectValue(option.key)
+        }
         if (option == null){
           resultData[index] = null;
           return;
@@ -259,7 +269,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         })
         
         // load texture trait
-        const loadedTextures = []; 
+        const loadedTextures = [];
         getAsArray(option?.textureTrait?.directory).map((textureDir, i)=>{
           textureLoader.load(baseDir + textureDir,(txt)=>{
             txt.flipY = false;
@@ -275,6 +285,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         resultData[index] = {
           item:option?.item,
           trait:option?.trait,
+          textureTrait:option?.textureTrait,
+          colorTrait:option?.colorTrait,
           models:loadedModels,          
           textures:loadedTextures, 
           colors:loadedColors      
@@ -362,9 +374,12 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const itemAssign = (itemData) => {
     const item = itemData.item;
     const traitData = itemData.trait;
+    const textureItem= itemData.textureTrait;
+    const colorItem = itemData.colorTrait;
     const models = itemData.models;
     const textures = itemData.textures;
     const colors = itemData.colors;
+
     // null section (when user selects to remove an option)
     if ( item == null) {
       // if avatar exists and trait exsits, remove it
@@ -372,7 +387,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         if ( avatar[traitData.name] && avatar[traitData.name].vrm ){
           setTimeout(() => {
             disposeVRM(avatar[traitData.name].vrm)
-            setSelectValue("")
           }, effectManager.transitionTime)
           
         }
@@ -529,18 +543,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     return {
       [traitData.name]: {
         traitInfo: item,
+        textureInfo: textureItem,
+        colorInfo: colorItem,
         name: item.name,
         model: vrm && vrm.scene,
         vrm: vrm,
       }
     }
-    //setAvatar({...avatar, ...newTrait})
-
-    //console.log("AVATAR IS: ", avatar)
-
   }
 
-  
+
   // if head <Skin templateInfo={templateInfo} avatar={avatar} />
 
   function TraitTitle(props) {
@@ -565,6 +577,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         onClick={() => {
           if (effectManager.getTransitionEffect('normal')) {
             selectTraitOption(null) 
+            setSelectValue("")
             effectManager.setTransitionEffect('normal');
           }
         }}
@@ -637,11 +650,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                         : styles["tickStyleInActive"]
                     }
                   />
-                  {active && loadPercentage > 0 && loadPercentage < 100 && (
-                    <div className={styles["loading-trait"]}>
-                      {loadPercentage}
-                    </div>
-                  )}
+                  {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
+                    // TODO: Fill up background from bottom as loadPercentage increases
+                  )}*/}
                 </div>
               )
             })}

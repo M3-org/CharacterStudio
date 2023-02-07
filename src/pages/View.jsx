@@ -3,15 +3,22 @@ import styles from "./View.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import Chat from "../components/Chat"
 import CustomButton from "../components/custom-button"
-import { SceneContext } from "../context/SceneContext"
 
-function ViewComponent() {
+function View({
+  name,
+  bio,
+  greeting,
+  question1,
+  question2,
+  question3,
+  response1,
+  response2,
+  response3,
+}) {
   const { setViewMode } = React.useContext(ViewContext)
-  const { templateInfo } = React.useContext(SceneContext);
 
   const back = () => {
-    console.log("back")
-    setViewMode(ViewMode.MINT)
+    setViewMode(ViewMode.BIO)
   }
 
   return (
@@ -21,7 +28,17 @@ function ViewComponent() {
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
-          <Chat name={ templateInfo?.name == "Drophunter" ? "Scillia" : "Drake"} />
+          <Chat
+            name={name}
+            bio={bio}
+            greeting={greeting}
+            question1={question1}
+            question2={question2}
+            question3={question3}
+            response1={response1}
+            response2={response2}
+            response3={response3}
+          />
         </div>
       </div>
       <div className={styles.buttonContainer}>
@@ -37,4 +54,4 @@ function ViewComponent() {
   )
 }
 
-export default ViewComponent
+export default View

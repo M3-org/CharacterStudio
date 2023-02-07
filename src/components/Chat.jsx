@@ -1,5 +1,6 @@
 import React, { useEffect } from "react"
 import axios from "axios"
+import { voices } from "../constants/voices"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
@@ -22,20 +23,21 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({
-  name,
-  bio,
-  greeting,
-  question1,
-  question2,
-  question3,
-  response1,
-  response2,
-  response3,
-}) {
+export default function ChatBox() {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
-  const [speechrecognition, setSpeechrecognition] = React.useState(false)
+  const [speechRecognition, setSpeechRecognition] = React.useState(false)
+
+  const name = localStorage.getItem("name")
+  const bio = localStorage.getItem("bio")
+  const voice = localStorage.getItem("voice")
+  const greeting = localStorage.getItem("greeting")
+  const question1 = localStorage.getItem("question1")
+  const question2 = localStorage.getItem("question2")
+  const question3 = localStorage.getItem("question3")
+  const response1 = localStorage.getItem("response1")
+  const response2 = localStorage.getItem("response2")
+  const response3 = localStorage.getItem("response3")
 
   const [speaker, setSpeaker] = React.useState(
     localStorage.getItem("speaker") || defaultSpeaker,
@@ -46,8 +48,11 @@ export default function ChatBox({
     localStorage.setItem("speaker", speaker)
   }, [speaker])
 
+
   function composePrompt() {
-    const prompt = `Name: ${name}
+
+    const prompt =
+`Name: ${name}
 Bio: ${bio}
 ${speaker}: Hey ${name}
 ${name}: ${greeting}
@@ -57,9 +62,6 @@ ${speaker}: ${question2}
 ${name}: ${response2}
 ${speaker}: ${question3}
 ${name}: ${response3}`
-
-    console.log("prompt is ******************************")
-    console.log(prompt)
 
     return prompt
   }
@@ -93,14 +95,14 @@ ${name}: ${response3}`
   }, [])
 
   const startSpeech = () => {
-    console.log("starting speech")
-    speechrecognition.start()
+    console.info("starting speech")
+    speechRecognition.start()
     setMicEnabled(true)
   }
 
   const stopSpeech = () => {
-    console.log("stopping speech")
-    speechrecognition.stop()
+    console.info("stopping speech")
+    speechRecognition.stop()
     setMicEnabled(false)
   }
 
@@ -113,45 +115,59 @@ ${name}: ${response3}`
   }
 
   const handleUserChatInput = async (value) => {
-    console.log("handleUserChatInput", handleUserChatInput)
     // Send the message to the localhost endpoint
     const agent = name
     // const spell_handler = "charactercreator";
 
-    const newMessages = [...messages]
-    newMessages.push(speaker + ": " + value)
+    const newMessages = pruneMessages( messages )
+    newMessages.push( `${speaker}: ${value}` )
     setInput("")
-    setMessages(newMessages)
+    setMessages([ ...newMessages ])
 
     try {
       // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
-      const driveId = "1QnOliOAmerMUNuo2wXoH-YoainoSjZen"
-
       const endpoint = "https://upstreet.webaverse.com/api/ai"
 
-      let prompt = `
-${composePrompt()}
-###
-The following is a friendly conversation between #speaker and ${agent}.
-${messages.join("\n")}
-${speaker}: ${input}
+      let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+
+CONTEXT:
+
+Info about ${agent}
+---
+
+Bio: "${bio}"
+
+Question 1: "${question1}"
+Response 1: "${response1}"
+
+Question 2: "${question2}"
+Response 2: "${response2}"
+
+Question 3: "${question3}"
+Response 3: "${response3}"
+
+MOST RECENT MESSAGES:
+
+${newMessages.join("\n")}
 ${agent}:`
 
       const query = {
         prompt,
-        max_tokens: 100,
-        temperature: 0.7,
+        max_tokens: 250,
+        temperature: 0.9,
         top_p: 1,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.5,
+        frequency_penalty: 0,
+        presence_penalty: 0.6,
         stop: [speaker + ":", agent + ":", "\\n"],
       }
 
       axios.post(endpoint, query).then((response) => {
-        console.log("response is", response.data.choices[0].text)
         const output = response.data.choices[0].text
-        const ttsEndpoint = `https://voice.webaverse.com/tts?s=${output}&voice=${driveId}`
+        const ttsEndpoint =
+                'https://voice.webaverse.com/tts?'
+                + 's=' + output
+                + '&voice=' + voices[voice]
 
         // fetch the audio file from ttsEndpoint
 
@@ -173,20 +189,17 @@ ${agent}:`
 
   let hasSet = false
   useEffect(() => {
-    if (speechrecognition || hasSet) return
+    if (speechRecognition || hasSet) return
     hasSet = true
     const speechTest = new SpeechRecognition({})
-    setSpeechrecognition(speechTest)
-
-    console.log("speech recognition", speechTest)
+    setSpeechRecognition(speechTest)
 
     speechTest.onerror = (e) => console.error(e.error, e.message)
     speechTest.onresult = (e) => {
       const i = e.resultIndex
-      console.log(`${e.results[i].isFinal}`)
+
       if (e.results[i].isFinal)
         handleUserChatInput(`${e.results[i][0].transcript}`)
-      else console.log(`${e.results[i][0].transcript}`)
     }
 
     speechTest.interimResults = true
@@ -213,7 +226,8 @@ ${agent}:`
       </div>
 
       <form className={styles["send"]} onSubmit={handleSubmit}>
-        <CustomButton
+        {/* Disabled until state error is fixed */}
+        {/*<CustomButton
           type="icon"
           theme="light"
           icon="microphone"
@@ -221,7 +235,7 @@ ${agent}:`
           size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
-        />
+        />*/}
         <input
           autoComplete="off"
           type="text"
@@ -243,4 +257,27 @@ ${agent}:`
       </form>
     </div>
   )
+}
+
+
+const maxCharacters = 20000
+export function pruneMessages( messages ) {
+  let currentSize = 0
+  const newMessages = []
+
+  for ( let i = messages.length - 1; i >= 0; i-- ) {
+    const message = messages[ i ]
+
+    currentSize += message.length
+
+    // Add up to N characters.
+    if ( currentSize < maxCharacters )
+      newMessages.push( message )
+    else break
+  }
+
+  // Reverse the array so that the newest messages are first.
+  newMessages.reverse()
+
+  return newMessages
 }

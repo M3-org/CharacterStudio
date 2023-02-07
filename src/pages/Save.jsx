@@ -9,14 +9,17 @@ function Save() {
     const { setViewMode } = React.useContext(ViewContext);
 
     const back = () => {
-        console.log('back');
         setViewMode(ViewMode.BIO)
     }
 
     const mint = () => {
-        console.log('mint');
-        setViewMode(ViewMode.MINT)
+        setViewMode(ViewMode.CHAT)
     }
+
+
+  const next = () => {
+    setViewMode(ViewMode.CHAT)
+  }
 
     return (
         <div className={styles.container}>
@@ -30,12 +33,21 @@ function Save() {
                     onClick={back}
                 />
                 <ExportMenu />
+                {/*
                 <CustomButton
                     theme="light"
-                    text="Mint"
+                    text="Chat"
                     size={14}
                     className={styles.buttonRight}
                     onClick={mint}
+                />
+                */}
+                <CustomButton
+                    theme="light"
+                    text="Chat"
+                    size={14}
+                    className={styles.buttonRight}
+                    onClick={next}
                 />
             </div>
         </div>

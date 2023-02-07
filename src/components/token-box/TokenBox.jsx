@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from "react";
+import React from "react";
 import classnames from "classnames";
 import styles from "./TokenBox.module.css";
 
@@ -8,8 +8,6 @@ export const TokenBox = (props) => {
         active,
         onClick,
         level,
-        value,
-        type,
         icon,
         rarity,
         style

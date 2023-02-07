@@ -43,7 +43,6 @@ export class LipSync {
         this.userSpeechAnalyzer = this.audioContext.createAnalyser()
     this.userSpeechAnalyzer.smoothingTimeConstant = 0.5
     this.userSpeechAnalyzer.fftSize = FFT_SIZE
-  
 
     this.audioContext.decodeAudioData(file).then((buffer) => {
         this.mediaStreamSource = this.audioContext.createBufferSource()
@@ -55,10 +54,7 @@ export class LipSync {
 
         // connect the output of mediaStreamSource to the input of userSpeechAnalyzer
         this.mediaStreamSource.connect(this.userSpeechAnalyzer)
-
-
-
-})
+    })
 
     }
 

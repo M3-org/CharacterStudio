@@ -2,8 +2,10 @@ import React, { createContext, useEffect, useState } from "react"
 import { disposeVRM } from "../library/utils"
 import * as THREE from "three"
 import {
-  getRandomizedTemplateOptions
+  getRandomizedTemplateOptions,
+  getOptionsFromAvatarData
 } from "../library/option-utils"
+
 import gsap from "gsap"
 
 export const SceneContext = createContext()
@@ -62,6 +64,42 @@ export const SceneProvider = (props) => {
     _setAvatar(state)
   }
 
+  const loadAvatar = (avatarData) =>{
+    const data = getOptionsFromAvatarData(avatarData,manifest)
+    if (data != null){
+      resetAvatar();
+      setSelectedOptions(data);
+    }
+  }
+  const loadAvatarFromLocalStorage = (loadName) =>{
+    const avatarJsonData = localStorage.getItem(`${templateInfo.id}12223_${loadName}`)
+    if (avatarJsonData){
+      const avatarData = JSON.parse(avatarJsonData)
+      loadAvatar(avatarData);
+    }
+    else{
+      console.log("no local storage for " + loadName + " was found")
+    }
+  }
+  const saveAvatarToLocalStorage = (saveName) =>{
+    const saveAvatar = getSaveAvatar()
+    localStorage.setItem(`${templateInfo.id}12223_${saveName}`, JSON.stringify(saveAvatar))
+  }
+  const getSaveAvatar = () => {
+    // saves the current avatar, it also saves the class
+    const avatarJson = {}
+    templateInfo.traits.forEach(trait => {
+      const prop = trait.trait;
+      avatarJson[prop] = {
+        traitInfo: avatar[prop]?.traitInfo,
+        textureInfo: avatar[prop]?.textureInfo,
+        colorInfo: avatar[prop]?.colorInfo,
+      }
+    });
+    avatarJson.class = templateInfo.id;
+    return avatarJson;
+  }
+
   const saveUserSelection = (name, options) =>{
     const newSelection = loadUserSelection (name) || []
     options.map((opt)=>{
@@ -81,8 +119,10 @@ export const SceneProvider = (props) => {
 
   const loadUserSelection = (name) => {
     const opts = localStorage.getItem(`class2_${name}`)
-    if (opts)
-      return JSON.parse(opts)
+    if (opts){
+      const json= JSON.parse(opts)
+      return json
+    }
     return null
   }
 
@@ -163,6 +203,11 @@ export const SceneProvider = (props) => {
         currentTraitName,
         setCurrentTraitName,
         currentOptions,
+
+        getSaveAvatar,
+        saveAvatarToLocalStorage,
+        loadAvatarFromLocalStorage,
+
         setCurrentOptions,
         setSelectedOptions,
         getRandomCharacter,

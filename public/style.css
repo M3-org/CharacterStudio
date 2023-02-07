@@ -91,56 +91,61 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endCo
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }
 
+.loadingIndicator {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  border-radius: 10px;
+  filter: drop-shadow(1px 1px 2px black);
+}
+.loadingIndicator.active {
+  display: block;
+}
+.loadingIndicator > img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 65%;
+  height: 65%;
+  margin: auto;
+}
+
+.rotate{
+  animation: rotate 2.2s linear infinite;
+}
+
 .sectionTitle {
   position: absolute;
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
-  color: #5EB086;
+  top: 24px;
+  left: 0;
+  color: white;
+  padding: 8px;
   text-transform: uppercase;
-  font-size: 22px;
-  z-index: -1;
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
 }
 
 .generalTitle {
   position: absolute;
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
-  background: #0d1a22;
-  color: #6A96A2;
-  font-size: 14px;
-  padding: 6px 80px;
+  top: 0;
+  left: 0;
+  color: white;
+  opacity: 0.7;
+  font-size: 12px;
+  padding: 8px;
+  text-shadow: 1px 1px 2px black;
   text-transform: uppercase;
-  z-index: -1;
 }
 
-.generalTitle::before {
-  position: absolute;
-  content: " ";
-  display: block;
-  top: 0;
-  left: -14px;
-  height: 100%;
-  width: 40px;
-  transform: skewX(12deg);
-  background-color: #0d1a22;
-  z-index: 0;
-}
-
-.generalTitle::after {
-  position: absolute;
-  content: " ";
-  display: block;
-  top: 0;
-  right: -14px;
-  height: 100%;
-  width: 40px;
-  transform: skewX(-12deg);
-  background-color: #0d1a22;
-  z-index: 0;
+@keyframes rotate{
+  to{ transform: rotate(360deg); }
 }
