@@ -182,7 +182,7 @@ export default class VRMExporter {
             mesh.geometry.userData.targetNames = [];
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({node:0, index:obj.index, weight:obj.weight  }))
+                const morphTargetBinds = expression._binds.map(obj => ({node:nodes.length, index:obj.index, weight:obj.weight  }))
                 let isPreset = false;
                 for (const presetName in VRMExpressionPresetName) {
                     if (prop.toLowerCase() === VRMExpressionPresetName[presetName].toLowerCase()){
