@@ -101,9 +101,11 @@ function Create({ fetchNewModel }) {
                   src={"/assets/backgrounds/class-frame.svg"}
                   className={styles.frame}
                 />
+
                 <div className={styles.mask}>
                   <img src={characterClass["image"]} className={styles.image} />
                 </div>
+
                 {characterClass["disabled"] && (
                   <img
                     src={"/assets/icons/locked.svg"}
