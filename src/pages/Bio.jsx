@@ -41,7 +41,7 @@ export const getBio = (templateInfo, personality) => {
     profession,
     heshe,
     voiceKey,
-    personality: q1,
+    personality: q1, //{question, answer}
     relationship: q2,
     hobbies: q3,
     description
@@ -94,19 +94,10 @@ function BioPage({ templateInfo, personality }) {
     setViewMode(ViewMode.SAVE)
   }
 
-  
-  //const _fullBio = getBio(templateInfo, personality)
-
   const [fullBio, setFullBio] = React.useState(
     loadBioFromStorage(`${templateInfo.id}_fulBio`) 
     ||
     getBio(templateInfo, personality)
-    // const opts = localStorage.getItem(`class2_${name}`)
-    // if (opts)
-    //   return JSON.parse(opts)
-    //localStorage.getItem(`${templateInfo.id}_fulBio`) //stringify
-    //|| 
-    //_fullBio // should be an object
   )
 
   React.useEffect(() => {
@@ -166,8 +157,6 @@ function BioPage({ templateInfo, personality }) {
               className={styles.select}
               defaultValue={fullBio.voiceKey}
               onChange={(e) => setFullBio({...fullBio, ...{voiceKey:e.target.value}})}
-              //setAvatar({...avatar, ...newTrait})
-              //onChange={(e) => setVoice(e.target.value)}
             >
               {voiceKeys.map((option, i) => {
                 return (
@@ -193,7 +182,6 @@ function BioPage({ templateInfo, personality }) {
               className={styles.input}
               defaultValue={fullBio.greeting}
               onChange={(e) => setFullBio({...fullBio, ...{greeting:e.target.value}})}
-              //onChange={(e) => setGreeting(e.target.value)}
             />
           </div>
 
@@ -208,7 +196,6 @@ function BioPage({ templateInfo, personality }) {
               cols="50"
               defaultValue={fullBio.description}
               onChange={(e) => setFullBio({...fullBio, ...{description:e.target.value}})}
-              //onChange={(e) => setBio(e.target.value)}
             />
           </div>
 
@@ -230,7 +217,6 @@ function BioPage({ templateInfo, personality }) {
                   answer:fullBio.personality.answer
                 }
               }})}
-              //onChange={(e) => setQuestion1(e.target.value)}
             >
               {personality.generalPersonalityQuestions.map((question, i) => {
                 return (
@@ -273,7 +259,6 @@ function BioPage({ templateInfo, personality }) {
                   answer:fullBio.relationship.answer
                 }
               }})}
-              //onChange={(e) => setQuestion2(e.target.value)}
             >
               {personality.relationshipQuestions.map((question, i) => {
                 return (
