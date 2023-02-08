@@ -16,6 +16,10 @@ import { downloadGLB, downloadVRM } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
 
+
+const defaultName = "Anon"
+
+
 export const ExportMenu = () => {
   // const type = "_Gen1" // class type
 
@@ -23,6 +27,11 @@ export const ExportMenu = () => {
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
   const { activate, deactivate, account } = useWeb3React()
+
+  const [name] = React.useState(
+    localStorage.getItem("name")
+    || defaultName
+  )
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -44,7 +53,6 @@ export const ExportMenu = () => {
 
   const _setAddress = async (address) => {
     const { name } = await getAccountDetails(address)
-    console.log("ens", name)
     setEnsName(name ? name.slice(0, 15) + "..." : "")
   }
 
@@ -69,7 +77,7 @@ export const ExportMenu = () => {
       deactivate()
       setConnected(false)
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
@@ -84,7 +92,7 @@ export const ExportMenu = () => {
       await activate(injected)
       // setMintStatus("Your wallet has been connected.")
     } catch (ex) {
-      console.log(ex)
+      console.error(ex)
     }
   }
 
@@ -95,7 +103,6 @@ export const ExportMenu = () => {
     atlasSize = 4096,
     isUnoptimized = false,
   ) {
-    console.log("old download")
     // We can use the SaveAs() from file-saver, but as I reviewed a few solutions for saving files,
     // this approach is more cross browser/version tested then the other solutions and doesn't require a plugin.
     const link = document.createElement("a")
@@ -118,8 +125,6 @@ export const ExportMenu = () => {
     const downloadFileName = `${
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
     }`
-
-    console.log("avatarToDownload", avatarToDownload)
 
     const avatarToDownloadClone = avatarToDownload.clone()
     /*
@@ -233,7 +238,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model,true,`CharacterCreator_exported`)
+          downloadGLB(model, true, name)
           //download(model, `CharacterCreator_exported`, "glb")
         }}
       />
@@ -244,8 +249,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model,false,`CharacterCreator_exported`)
-          //download(model, `CharacterCreator_exported_unoptimized`, "glb", undefined, true)
+          downloadGLB(model, false, name)
+          //download(model, `${name}_unoptimized`, "glb", undefined, true)
         }}
       />
       <CustomButton
@@ -255,8 +260,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadVRM(model, avatar, `CharacterCreator_exported`)
-          //download(model, `CharacterCreator_exported`, "vrm")
+          downloadVRM(model, avatar, name)
+          //download(model, name, "vrm")
         }}
       />
     </React.Fragment>

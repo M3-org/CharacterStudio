@@ -89,7 +89,7 @@ async function fetchAnimation(templateInfo) {
 }
 
 async function fetchAll() {
-  const manifest = await fetchManifest()
+  const initialManifest = await fetchManifest()
   const personality = await fetchPersonality()
   const sceneModel = await fetchScene()
 
@@ -98,7 +98,7 @@ async function fetchAll() {
   const effectManager = new EffectManager()
 
   return {
-    manifest,
+    initialManifest,
     personality,
     sceneModel,
     blinkManager,
@@ -139,7 +139,7 @@ const resource = fetchData()
 
 export default function App() {
   const {
-    manifest,
+    initialManifest,
     personality,
     sceneModel,
     blinkManager,
@@ -153,7 +153,7 @@ export default function App() {
 
   const [animationManager, setAnimationManager] = useState({})
 
-  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, templateInfo, moveCamera } = useContext(SceneContext)
+  const { camera, controls, scene, resetAvatar, setAwaitDisplay, setTemplateInfo, templateInfo, moveCamera, setManifest, manifest } = useContext(SceneContext)
   effectManager.camera = camera
   effectManager.scene = scene
 
@@ -175,6 +175,10 @@ export default function App() {
       window.removeEventListener("click", handleTap)
     }
   }, [hideUi])
+
+  useEffect(()=>{
+    setManifest(initialManifest)
+  },[initialManifest])
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return;
@@ -236,6 +240,7 @@ export default function App() {
   }, [viewMode])
 
   const fetchNewModel = (index) => {
+    //setManifest(manifest)
     setAwaitDisplay(true)
     resetAvatar();
     return new Promise((resolve) => {
@@ -270,7 +275,6 @@ export default function App() {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
       <Appearance
-        manifest={manifest}
         animationManager={animationManager}
         blinkManager={blinkManager}
         lookatManager={lookatManager}

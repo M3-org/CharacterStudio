@@ -21,8 +21,6 @@ export default function ARButton() {
             if (almostThereContainer) {
               almostThereContainer.remove()
             }
-            
-            console.log('scene', scene)
           }
           else {
             startAR(scene)

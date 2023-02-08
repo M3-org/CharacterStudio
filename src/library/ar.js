@@ -55,10 +55,8 @@ export const arScenePipelineModule = (scene) => {
     const intersects = raycaster.intersectObject(surface)
 
     if (intersects.length == 1 && intersects[0].object == surface) {
-      console.log('placing object', intersects[0].point.x, intersects[0].point.z)
       scene.position.set(intersects[0].point.x, 0, intersects[0].point.z);
     } else {
-      console.log('no intersection')
     }
   }
 
@@ -104,11 +102,11 @@ export const startAR = async (scene) => {
     // Custom pipeline modules.
     arScenePipelineModule(scene),
   ])
-  
+
   // Open the camera and start running the camera run loop.
   window.XR8?.run({canvas: document.getElementById('editor-scene'), allowedDevices: 'any'})
   if(!window.XR8) {
-    console.log('xr8 not loaded')
+    console.info('xr8 not loaded')
   }
 }
 

@@ -288,11 +288,13 @@ export class EffectManager extends EventTarget{
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
     this.particleEffect.emitSpotLight();
-    this.transitionTime = TRANSITION_TIME_OF_LOADING_AVATAR;
+    this.transitionTime = this.frameRate * ((FADE_OUT_AVATAR_DURATION - FADE_OUT_AVATAR_INITIAL_TIME) / FADE_OUT_AVATAR_SPEED);
+    this.initialFadeOutTimer();
   }
 
   playFadeInEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeInAvatar;
+    this.initialFadeInTimer();
   }
 
   playSwitchItemEffect() {
@@ -305,6 +307,14 @@ export class EffectManager extends EventTarget{
 
   setParticle(scene, camera) {
     this.particleEffect = new ParticleEffect(scene, camera, globalUniforms);
+  }
+
+  initialFadeOutTimer() {
+    globalUniforms.fadeOutAvatarTime.value = FADE_OUT_AVATAR_INITIAL_TIME;
+  }
+
+  initialFadeInTimer() {
+    globalUniforms.fadeInAvatarTime.value = FADE_IN_AVATAR_INITIAL_TIME;
   }
 
   update() {
@@ -358,37 +368,6 @@ export class EffectManager extends EventTarget{
           this.dispatchEvent(new Event('fadeinavatarend'));
         }
       }
-
-
-
-
-
-      // else if (globalUniforms.transitionEffectType.value === transitionEffectTypeNumber.switchAvatar) {
-      //   if (this.isFadeOut) {
-      //     if (globalUniforms.switchAvatarTime.value > SWITCH_AVATAR_EFFECT_FADE_OUT_THRESHOLD) {
-      //       globalUniforms.switchAvatarTime.value -= FADE_OUT_AVATAR_SPEED;
-      //     }
-      //     else {
-      //       this.d = false;
-      //     }
-      //   }
-      //   else {
-      //     if (globalUniforms.switchAvatarTime.value < SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD) {
-      //       globalUniforms.switchAvatarTime.value += SWITCH_AVATAR_EFFECT_FADE_IN_SPEED;
-      //       if (globalUniforms.switchAvatarTime.value < 0.5) {
-      //         this.particleEffect.emitRing(0.5 * (1.0 - globalUniforms.switchAvatarTime.value));
-      //         this.particleEffect.emitRespawnPixel();
-      //       }
-      //     }
-      //     else {
-      //       globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.normal;
-      //       globalUniforms.switchAvatarTime.value = SWITCH_AVATAR_EFFECT_FADE_IN_THRESHOLD;
-      //       this.isFadeOut = true;
-      //     }
-      //   }
-      //   globalUniforms.isFadeOut.value = this.isFadeOut;
-      // }
-
       
       if (this.camera) {
         this.cameraDir.set(0, 0, -1);

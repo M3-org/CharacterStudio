@@ -68,16 +68,25 @@ function getOptimizedGLB(avatarToDownload, atlasSize){
 }
 
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
-  const model = await getOptimizedGLB(avatarToDownload, atlasSize)
+  const model = await optimized ? 
+    getOptimizedGLB(avatarToDownload, atlasSize) :
+    getUnopotimizedGLB(avatarToDownload)
   const glb = await parseGLB(model);
-  console.log(glb)
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 
+export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096){
+  const model = await getOptimizedGLB(avatarToDownload, atlasSize)
+  const vrm = await parseVRM(model, avatar);
+  // save it as glb now
+  return new Blob([vrm], { type: 'model/gltf-binary' });
+}
+
+// returns a promise with the parsed data
 async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true){
   if (optimized){
     const model = await getOptimizedGLB(avatarToDownload, atlasSize)
-    return parseGLB(model); //returns a promise
+    return parseGLB(model); 
   }
   else{
     const model = getUnopotimizedGLB(avatarToDownload)

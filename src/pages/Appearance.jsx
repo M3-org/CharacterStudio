@@ -5,12 +5,12 @@ import { SceneContext } from "../context/SceneContext"
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
-function Appearance({manifest, initialTraits, animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
+
+function Appearance({initialTraits, animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
     const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
+    const { resetAvatar, getRandomCharacter,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
     const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
     const back = () => {
-        console.log('back 1');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
@@ -27,15 +27,22 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, lo
     }, [])
 
     const next = () => {
-        console.log('next B');
         setViewMode(ViewMode.BIO)
     }
 
     const randomize = () => {
         if (!isPlayingEffect) {
             getRandomCharacter()
+            //
         }
     }
+    const reset = () =>{
+        //loadAvatarFromLocalStorage("character");
+    }
+    const save = () =>{
+        //saveAvatarToLocalStorage("character");
+    }
+
 
     return (
         <div className={styles.container}>
@@ -43,7 +50,7 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, lo
                 <img className={"rotate"} src="ui/loading.svg"/>
             </div>
             <div className={"sectionTitle"}>Choose Appearance</div>
-            <Editor manifest = {manifest} animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} lookatManager={lookatManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
+        <Editor animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} lookatManager={lookatManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"
@@ -58,12 +65,6 @@ function Appearance({manifest, initialTraits, animationManager, blinkManager, lo
                     size={14}
                     className={styles.buttonRight}
                     onClick={next}
-                />
-                <CustomButton
-                    theme="light"
-                    text="Reset"
-                    size={14}
-                    className={styles.buttonCenter}
                 />
                 <CustomButton
                     theme="light"
