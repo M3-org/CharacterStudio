@@ -3,17 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/src/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta name="HandheldFriendly" content="true" />
     <title>Character Studio</title>
     <!-- <script src="//cdn.8thwall.com/web/xrextras/xrextras.js"></script>
     <script async src="//apps.8thwall.com/xrweb?appKey=lGxGiv5DGWda9bscMwgrqe0B4teDiezQwPazx0XiWOgwH71NPRZA3B1rIzesZ6TgBc7WVU"></script> -->
 
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
   </head>
   <body>
-    <div id="root" style="overflow: hidden">
-    </div>
-    <canvas id="editor-scene" style="position: fixed; z-index: -1; top: 0; left: 0;" width="100%" height="100%"></canvas>
+    <div id="root"></div>
+    <canvas
+      id="editor-scene"
+      style="position: fixed; z-index: -1; top: 0; left: 0"
+      width="100%"
+      height="100%"
+    ></canvas>
 
     <link rel="stylesheet" href="/public/style.css" />
     <script type="module" src="/src/Main.jsx"></script>
