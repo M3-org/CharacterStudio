@@ -97,10 +97,12 @@ function Create({ fetchNewModel }) {
                 }
               >
                 <div className={styles.classFrame}>
-                  <img
-                    src={"/assets/backgrounds/class-frame.svg"}
-                    className={styles.frame}
-                  />
+                  <div className={styles.frameContainer}>
+                    <img
+                      src={"/assets/backgrounds/class-frame.svg"}
+                      className={styles.frame}
+                    />
+                  </div>
 
                   <div className={styles.mask}>
                     <img
@@ -109,12 +111,14 @@ function Create({ fetchNewModel }) {
                     />
                   </div>
 
-                  {characterClass["disabled"] && (
-                    <img
-                      src={"/assets/icons/locked.svg"}
-                      className={styles.locked}
-                    />
-                  )}
+                  <div className={styles.lockedContainer}>
+                    {characterClass["disabled"] && (
+                      <img
+                        src={"/assets/icons/locked.svg"}
+                        className={styles.locked}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className={styles.icon}>

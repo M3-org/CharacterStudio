@@ -30,6 +30,7 @@
   cursor: pointer;
   flex-direction: column;
   margin: 24px 8px 8px 8px;
+  min-width: 0px;
 }
 
 .classContainer .icon {
@@ -53,49 +54,43 @@
   flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.classContainer .classFrame .frameContainer {
   width: 100%;
 }
 
 .classContainer .classFrame .frame {
   width: 100%;
+  height: auto;
 }
 
 .classContainer .classFrame .mask {
-  /* top: 50%; */
-  /* left: 50%; */
-  /* -ms-transform: translateX(-50%) translateY(-50%); */
-  /* -webkit-transform: translateX(-50%) translateY(-50%); */
-  /* transform: translateX(-100%) translateY(-100%); */
-  /* overflow: hidden; */
-  /* transform: translateY(-100%); */
-
   z-index: 0;
-  /* -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
+  overflow: hidden;
   mask-image: url("/assets/backgrounds/class-mask.svg");
-  -webkit-mask-size: 100%;
+  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
   mask-size: 100%;
+  -webkit-mask-size: 100%;
+  mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat; */
-
-  /* height: 99%; */
-  /* width: 99%; */
-
-  left: -50%;
-  position: relative;
-  /* transform: translateX(-50%); */
-  /* -webkit-transform: translateX(-50%); */
+  position: absolute;
 }
 
 .classContainer .classFrame .image {
   width: 100%;
+  height: auto;
+  max-width: 230px;
+}
+
+.classContainer .classFrame .lockedContainer {
+  position: absolute;
 }
 
 .classContainer .classFrame .locked {
   height: 56px;
-  left: -50%;
-  position: relative;
-  transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
 }
 
 .classContainer .class:hover .name {
