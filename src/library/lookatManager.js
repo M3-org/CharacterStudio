@@ -23,8 +23,8 @@ export class LookAtManager {
     this.maxLookPercent = {
       neck: {max:30, min:10},
       spine: {max:30, min:10},
-      left: {max:30, min:30},
-      right: {max:30, min:30},
+      left: {max:35, min:35},
+      right: {max:35, min:35},
     }
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
