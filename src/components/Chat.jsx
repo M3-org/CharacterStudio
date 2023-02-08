@@ -9,6 +9,7 @@ import {
   sepiaSpeechRecognitionInit,
   SepiaSpeechRecognitionConfig,
 } from "sepia-speechrecognition-polyfill"
+import { pruneMessages } from "../lib/chat"
 
 const sessionId =
   localStorage.getItem("sessionId") ??
@@ -48,11 +49,8 @@ export default function ChatBox() {
     localStorage.setItem("speaker", speaker)
   }, [speaker])
 
-
   function composePrompt() {
-
-    const prompt =
-`Name: ${name}
+    const prompt = `Name: ${name}
 Bio: ${bio}
 ${speaker}: Hey ${name}
 ${name}: ${greeting}
@@ -115,21 +113,27 @@ ${name}: ${response3}`
   }
 
   const handleUserChatInput = async (value) => {
-    // Send the message to the localhost endpoint
-    const agent = name
-    // const spell_handler = "charactercreator";
+    if (value) {
+      // Send the message to the localhost endpoint
+      const agent = name
+      // const spell_handler = "charactercreator";
 
-    const newMessages = pruneMessages( messages )
-    newMessages.push( `${speaker}: ${value}` )
-    setInput("")
-    setMessages([ ...newMessages ])
+      //const newMessages = await pruneMessages(messages);
 
-    try {
-      // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+      // newMessages.push(`${speaker}: ${value}`)
 
-      const endpoint = "https://upstreet.webaverse.com/api/ai"
+      setInput("")
+      setMessages((messages) => [...messages, `${speaker}: ${value}`])
+      
+      const promptMessages = await pruneMessages(messages);
+      promptMessages.push(`${speaker}: ${value}`);
 
-      let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+        try {
+          // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+
+          const endpoint = "https://upstreet.webaverse.com/api/ai"
+
+          let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
 
@@ -149,41 +153,44 @@ Response 3: "${response3}"
 
 MOST RECENT MESSAGES:
 
-${newMessages.join("\n")}
+${promptMessages.join("\n")}
 ${agent}:`
 
-      const query = {
-        prompt,
-        max_tokens: 250,
-        temperature: 0.9,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0.6,
-        stop: [speaker + ":", agent + ":", "\\n"],
-      }
+          const query = {
+            prompt,
+            max_tokens: 250,
+            temperature: 0.9,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0.6,
+            stop: [speaker + ":", agent + ":", "\\n"],
+          }
 
-      axios.post(endpoint, query).then((response) => {
-        const output = response.data.choices[0].text
-        const ttsEndpoint =
-                'https://voice.webaverse.com/tts?'
-                + 's=' + output
-                + '&voice=' + voices[voice]
+          axios.post(endpoint, query).then((response) => {
+            const output = response.data.choices[0].text
+            const ttsEndpoint =
+              "https://voice.webaverse.com/tts?" +
+              "s=" +
+              output +
+              "&voice=" +
+              voices[voice]
 
-        // fetch the audio file from ttsEndpoint
+            // fetch the audio file from ttsEndpoint
 
-        fetch(ttsEndpoint).then(async (response) => {
-          const blob = await response.blob()
+            fetch(ttsEndpoint).then(async (response) => {
+              const blob = await response.blob()
 
-          // convert the blob to an array buffer
-          const arrayBuffer = await blob.arrayBuffer()
+              // convert the blob to an array buffer
+              const arrayBuffer = await blob.arrayBuffer()
 
-          lipSync.startFromAudioFile(arrayBuffer)
-        })
+              lipSync.startFromAudioFile(arrayBuffer)
+            })
 
-        setMessages([...newMessages, agent + ": " + output])
-      })
-    } catch (error) {
-      console.error(error)
+            setMessages((messages) => [...messages, agent + ": " + output]);
+          })
+        } catch (error) {
+          console.error(error)
+        }
     }
   }
 
@@ -227,7 +234,7 @@ ${agent}:`
 
       <form className={styles["send"]} onSubmit={handleSubmit}>
         {/* Disabled until state error is fixed */}
-        {/*<CustomButton
+        <CustomButton
           type="icon"
           theme="light"
           icon="microphone"
@@ -235,7 +242,7 @@ ${agent}:`
           size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
-        />*/}
+        />
         <input
           autoComplete="off"
           type="text"
@@ -257,27 +264,4 @@ ${agent}:`
       </form>
     </div>
   )
-}
-
-
-const maxCharacters = 20000
-export function pruneMessages( messages ) {
-  let currentSize = 0
-  const newMessages = []
-
-  for ( let i = messages.length - 1; i >= 0; i-- ) {
-    const message = messages[ i ]
-
-    currentSize += message.length
-
-    // Add up to N characters.
-    if ( currentSize < maxCharacters )
-      newMessages.push( message )
-    else break
-  }
-
-  // Reverse the array so that the newest messages are first.
-  newMessages.reverse()
-
-  return newMessages
 }
