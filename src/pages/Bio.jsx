@@ -26,8 +26,28 @@ export const getBio = (templateInfo, personality) => {
         return v
       }
   } )
-  const bio = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
-  return { name, bio, voiceKey }
+  const description = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
+  
+  const q1 = getPersonalityQuestionsAndAnswers(personality);
+  const q2 = getRelationshipQuestionsAndAnswers(personality);
+  const q3 = getHobbyQuestionsAndAnswers(personality);
+
+  const fullBio = {
+    name,
+    classType,
+    city,
+    weapon,
+    hobby,
+    profession,
+    heshe,
+    voiceKey,
+    personality: q1,
+    relationship: q2,
+    hobbies: q3,
+    description
+  }
+
+  return fullBio;
 }
 
 export const getPersonalityQuestionsAndAnswers = (personality) => {
@@ -56,6 +76,12 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 // Cache voice keys for performance.
 const voiceKeys = Object.keys(voices)
 
+function loadBioFromStorage(itemName){
+  const fullBioStr = localStorage.getItem(itemName)
+  if (fullBioStr)
+    return JSON.parse(fullBioStr)
+  return null
+}
 
 function BioPage({ templateInfo, personality }) {
   const { setViewMode } = React.useContext(ViewContext)
@@ -68,73 +94,25 @@ function BioPage({ templateInfo, personality }) {
     setViewMode(ViewMode.SAVE)
   }
 
-  const _bio = getBio(templateInfo, personality)
-  //console.log(_bio)
+  
+  //const _fullBio = getBio(templateInfo, personality)
 
-  const [name, setName] = React.useState(
-    localStorage.getItem(`${templateInfo.name}name`)
-    || _bio.name
-  )
-  const [bio, setBio] = React.useState(
-    localStorage.getItem(`${templateInfo.name}bio`)
-    || _bio.bio
-  )
-  const [voice, setVoice] = React.useState(
-    localStorage.getItem(`${templateInfo.name}voice`)
-    || _bio.voiceKey
-  )
-
-  const [greeting, setGreeting] = React.useState(
-    localStorage.getItem(`${templateInfo.name}greeting`) || "Hey there!",
+  const [fullBio, setFullBio] = React.useState(
+    loadBioFromStorage(`${templateInfo.id}_fulBio`) 
+    ||
+    getBio(templateInfo, personality)
+    // const opts = localStorage.getItem(`class2_${name}`)
+    // if (opts)
+    //   return JSON.parse(opts)
+    //localStorage.getItem(`${templateInfo.id}_fulBio`) //stringify
+    //|| 
+    //_fullBio // should be an object
   )
 
-    const q1 = getPersonalityQuestionsAndAnswers(personality);
-    const q2 = getRelationshipQuestionsAndAnswers(personality);
-    const q3 = getHobbyQuestionsAndAnswers(personality);
-
-  const [question1, setQuestion1] = React.useState(
-    localStorage.getItem(`${templateInfo.name}question1`) || q1.question,
-  )
-  const [question2, setQuestion2] = React.useState(
-    localStorage.getItem(`${templateInfo.name}question2`) || q2.question,
-  )
-  const [question3, setQuestion3] = React.useState(
-    localStorage.getItem(`${templateInfo.name}question3`) || q3.question,
-  )
-  const [response1, setResponse1] = React.useState(
-    localStorage.getItem(`${templateInfo.name}response1`) || q1.answer,
-  )
-  const [response2, setResponse2] = React.useState(
-    localStorage.getItem(`${templateInfo.name}response2`) || q2.answer,
-  )
-  const [response3, setResponse3] = React.useState(
-    localStorage.getItem(`${templateInfo.name}response3`) || q3.answer,
-  )
-
-  // after each state is updated, save to local storage
   React.useEffect(() => {
-    localStorage.setItem(`${templateInfo.name}name`, name)
-    localStorage.setItem(`${templateInfo.name}bio`, bio)
-    localStorage.setItem(`${templateInfo.name}voice`, voice)
-    localStorage.setItem(`${templateInfo.name}greeting`, greeting)
-    localStorage.setItem(`${templateInfo.name}question1`, question1)
-    localStorage.setItem(`${templateInfo.name}question2`, question2)
-    localStorage.setItem(`${templateInfo.name}question3`, question3)
-    localStorage.setItem(`${templateInfo.name}response1`, response1)
-    localStorage.setItem(`${templateInfo.name}response2`, response2)
-    localStorage.setItem(`${templateInfo.name}response3`, response3)
-  }, [
-    name,
-    bio,
-    voice,
-    greeting,
-    question1,
-    question2,
-    question3,
-    response1,
-    response2,
-    response3,
-  ])
+    localStorage.setItem(`${templateInfo.id}_fulBio`, JSON.stringify(fullBio))
+  }, [fullBio])
+
 
   // if user presses ctrl c, clear the messages
   useEffect(() => {
@@ -170,8 +148,8 @@ function BioPage({ templateInfo, personality }) {
               type="text"
               name="name"
               className={styles.input}
-              defaultValue={name}
-              onChange={(e) => setName(e.target.value)}
+              defaultValue={fullBio.name}
+              onChange={(e) => setFullBio({...fullBio, ...{name:e.target.value}})}
             />
           </div>
 
@@ -186,8 +164,10 @@ function BioPage({ templateInfo, personality }) {
             <select
               name="voice"
               className={styles.select}
-              defaultValue={voice}
-              onChange={(e) => setVoice(e.target.value)}
+              defaultValue={fullBio.voiceKey}
+              onChange={(e) => setFullBio({...fullBio, ...{voiceKey:e.target.value}})}
+              //setAvatar({...avatar, ...newTrait})
+              //onChange={(e) => setVoice(e.target.value)}
             >
               {voiceKeys.map((option, i) => {
                 return (
@@ -211,8 +191,9 @@ function BioPage({ templateInfo, personality }) {
               type="text"
               name="greeting"
               className={styles.input}
-              defaultValue={greeting}
-              onChange={(e) => setGreeting(e.target.value)}
+              defaultValue={fullBio.greeting}
+              onChange={(e) => setFullBio({...fullBio, ...{greeting:e.target.value}})}
+              //onChange={(e) => setGreeting(e.target.value)}
             />
           </div>
 
@@ -225,8 +206,9 @@ function BioPage({ templateInfo, personality }) {
               className={styles.input}
               rows="4"
               cols="50"
-              defaultValue={bio}
-              onChange={(e) => setBio(e.target.value)}
+              defaultValue={fullBio.description}
+              onChange={(e) => setFullBio({...fullBio, ...{description:e.target.value}})}
+              //onChange={(e) => setBio(e.target.value)}
             />
           </div>
 
@@ -241,8 +223,14 @@ function BioPage({ templateInfo, personality }) {
             <select
               name="question1"
               className={styles.select}
-              defaultValue={question1}
-              onChange={(e) => setQuestion1(e.target.value)}
+              defaultValue={fullBio.personality.question}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                personality:{
+                  question:e.target.value,
+                  answer:fullBio.personality.answer
+                }
+              }})}
+              //onChange={(e) => setQuestion1(e.target.value)}
             >
               {personality.generalPersonalityQuestions.map((question, i) => {
                 return (
@@ -255,8 +243,15 @@ function BioPage({ templateInfo, personality }) {
             <textarea
               name="response1"
               className={styles.input}
-              onChange={(e) => setResponse1(e.target.value)}
-              defaultValue={response1}
+              defaultValue={fullBio.personality.answer}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                personality:{
+                  question:fullBio.personality.question,
+                  answer:e.target.value
+                }
+              }})}
+              
+              
             />
           </div>
 
@@ -271,8 +266,14 @@ function BioPage({ templateInfo, personality }) {
             <select
               name="question2"
               className={styles.select}
-              defaultValue={question2}
-              onChange={(e) => setQuestion2(e.target.value)}
+              defaultValue={fullBio.relationship.question}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                relationship:{
+                  question:e.target.value,
+                  answer:fullBio.relationship.answer
+                }
+              }})}
+              //onChange={(e) => setQuestion2(e.target.value)}
             >
               {personality.relationshipQuestions.map((question, i) => {
                 return (
@@ -286,8 +287,13 @@ function BioPage({ templateInfo, personality }) {
             <textarea
               name="response1"
               className={styles.input}
-              defaultValue={response2}
-              onChange={(e) => setResponse2(e.target.value)}
+              defaultValue={fullBio.relationship.answer}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                relationship:{
+                  question:fullBio.relationship.question,
+                  answer:e.target.value
+                }
+              }})}
             />
           </div>
 
@@ -298,12 +304,16 @@ function BioPage({ templateInfo, personality }) {
               htmlFor="question3">
               Question 3
             </label>
-
             <select
               name="question3"
               className={styles.select}
-              defaultValue={question3}
-              onChange={(e) => setQuestion3(e.target.value)}
+              defaultValue={fullBio.hobbies.question}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                hobbies:{
+                  question:e.target.value,
+                  answer: fullBio.hobbies.answer
+                }
+              }})}
             >
               {personality.hobbyQuestions.map((question, i) => {
                 return (
@@ -317,8 +327,13 @@ function BioPage({ templateInfo, personality }) {
             <textarea
               name="response3"
               className={styles.input}
-              defaultValue={response3}
-              onChange={(e) => setResponse3(e.target.value)}
+              defaultValue={fullBio.hobbies.answer}
+              onChange={(e) => setFullBio({...fullBio, ...{
+                hobbies:{
+                  question:fullBio.hobbies.question,
+                  answer:e.target.value
+                }
+              }})}
             />
           </div>
         </div>
