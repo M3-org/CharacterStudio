@@ -43,7 +43,12 @@ export class LookAtManager {
     function getHotzoneSection(){
       const width = window.innerWidth * screenViewPercentage / 100
       const halfLimit = (window.innerWidth - width) / 2
-      return {xStart: halfLimit, xEnd: window.innerWidth-halfLimit}
+      return {
+        xStart: halfLimit, 
+        xEnd: window.innerWidth-halfLimit, 
+        yStart: 50, 
+        yEnd: window.innerHeight-80
+      }
     }
     setInterval(() => {
       this.update();
@@ -117,7 +122,9 @@ export class LookAtManager {
   }
 
   _setInterest(){
-    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd && this.onCanvas)
+    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
+        this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
+        this.onCanvas)
       this.hasInterest = true
     else
       this.hasInterest = false
