@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 
 export class LookAtManager {
-  constructor (screenViewPercentage){
+  constructor (screenViewPercentage, canvasID){
     this.neckBones = []
     this.spineBones = []
     this.leftEyeBones = []
@@ -16,6 +16,7 @@ export class LookAtManager {
 
     this.clock = new THREE.Clock()
     this.deltaTime = 0
+    this.onCanvas = true;
     
     this.maxLookPercent = {
       neck: 40,
@@ -26,6 +27,15 @@ export class LookAtManager {
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
     })
+    const canvasRef = document.getElementById(canvasID)
+    if (canvasRef){
+      canvasRef.addEventListener("mouseleave", ()=>{
+        this.onCanvas = false;
+      })
+      canvasRef.addEventListener("mouseenter", ()=>{
+        this.onCanvas = true;
+      })
+    }
     window.addEventListener("resize", () => {
       this.hotzoneSection  = getHotzoneSection()
     });
@@ -107,7 +117,7 @@ export class LookAtManager {
   }
 
   _setInterest(){
-    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd)
+    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd && this.onCanvas)
       this.hasInterest = true
     else
       this.hasInterest = false
