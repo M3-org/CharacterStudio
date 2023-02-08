@@ -4,7 +4,7 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-export default function Scene({sceneModel}) {
+export default function Scene({sceneModel, lookatManager}) {
   const {
     scene,
     model, setModel,
@@ -43,7 +43,7 @@ export default function Scene({sceneModel}) {
     )
 
     setCamera(camera)
-
+    lookatManager.setCamera(camera)
     // set the camera position
     camera.position.set(0, 1.3, 2)
 

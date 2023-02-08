@@ -297,7 +297,7 @@ export default function App() {
         Character Creator
       </div>
       <Background />
-      <Scene manifest={manifest} sceneModel={sceneModel} />
+      <Scene manifest={manifest} sceneModel={sceneModel} lookatManager ={lookatManager}  />
       {pages[viewMode]}
     </Fragment>
   )

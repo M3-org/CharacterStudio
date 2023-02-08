@@ -17,12 +17,14 @@ export class LookAtManager {
     this.clock = new THREE.Clock()
     this.deltaTime = 0
     this.onCanvas = true;
+
+    this.camera = null;
     
     this.maxLookPercent = {
-      neck: 40,
-      spine: 20,
-      left: 60,
-      right: 60,
+      neck: {max:30, min:10},
+      spine: {max:30, min:10},
+      left: {max:30, min:30},
+      right: {max:30, min:30},
     }
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
@@ -53,6 +55,9 @@ export class LookAtManager {
     setInterval(() => {
       this.update();
     }, 1000/30);
+  }
+  setCamera(camera){
+    this.camera = camera
   }
 
   addVRM(vrm){
@@ -92,30 +97,34 @@ export class LookAtManager {
       // 3. Find the percentage of that difference (percentage toward edge of screen)
       xPercentage = (xdiff / (w.x / 2)) * 100
       // 4. Convert that to a percentage of the maximum rotation we allow for the neck
-      dx = ((degreeLimit * xPercentage) / 100) * -1
+      dx = ((degreeLimit.max * xPercentage) / 100) * -1
     }
     if (x >= w.x / 2) {
       xdiff = x - w.x / 2
       xPercentage = (xdiff / (w.x / 2)) * 100
-      dx = (degreeLimit * xPercentage) / 100
+      dx = (degreeLimit.min * xPercentage) / 100
     }
+
     if (y <= w.y / 2) {
       ydiff = w.y / 2 - y
       yPercentage = (ydiff / (w.y / 2)) * 100
       // Note that I cut degreeLimit in half when she looks up
-      dy = ((degreeLimit * 0.5 * yPercentage) / 100) * -1
+      dy = ((degreeLimit.max * 0.5 * yPercentage) / 100) * -1
     }
     if (y >= w.y / 2) {
       ydiff = y - w.y / 2
       yPercentage = (ydiff / (w.y / 2)) * 100
-      dy = (degreeLimit * yPercentage) / 100
+      dy = ((degreeLimit.min) * yPercentage) / 100
     }
+
+
     return { x: dx, y: dy }
   }
 
   _moveJoint(joint, degreeLimit){
     if (Object.keys(joint).length !== 0) {
-      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y, degreeLimit)
+      const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight/2;
+      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit)
       joint.rotation.y = THREE.MathUtils.degToRad(degrees.x) * this.lookInterest
       joint.rotation.x = THREE.MathUtils.degToRad(degrees.y) * this.lookInterest
     }
