@@ -96,18 +96,16 @@ function Create({ fetchNewModel }) {
                     : () => selectClass(characterClass)
                 }
               >
-                <div className={styles.classFrame}>
+                <div
+                  className={styles.classFrame}
+                  style={{
+                    "background-image": `url(${characterClass["image"]})`,
+                  }}
+                >
                   <div className={styles.frameContainer}>
                     <img
                       src={"/assets/backgrounds/class-frame.svg"}
                       className={styles.frame}
-                    />
-                  </div>
-
-                  <div className={styles.mask}>
-                    <img
-                      src={characterClass["image"]}
-                      className={styles.image}
                     />
                   </div>
 

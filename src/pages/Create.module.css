@@ -28,34 +28,48 @@
   flex: 1;
   display: flex;
   cursor: pointer;
+  min-width: 0px;
   flex-direction: column;
   margin: 24px 8px 8px 8px;
-  min-width: 0px;
 }
 
 .classContainer .icon {
-  margin-top: -32px;
-  position: relative;
   z-index: 2;
+  width: 100%;
+  margin-top: -32px;
 }
+
 .classContainer .icon img {
   height: 56px;
   background: #000;
 }
 
 .classContainer .name {
-  font-size: 24px;
+  font-size: 2vw;
 }
 .classContainer .description {
-  font-size: 14px;
+  font-size: 1.2vw;
 }
 
 .classContainer .classFrame {
   flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+
+  z-index: 0;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  mask-size: 100%;
+  -webkit-mask-size: 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("/assets/backgrounds/class-mask.svg");
+  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
 }
 
 .classContainer .classFrame .frameContainer {
@@ -65,18 +79,6 @@
 .classContainer .classFrame .frame {
   width: 100%;
   height: auto;
-}
-
-.classContainer .classFrame .mask {
-  z-index: 0;
-  overflow: hidden;
-  mask-image: url("/assets/backgrounds/class-mask.svg");
-  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
-  mask-size: 100%;
-  -webkit-mask-size: 100%;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  position: absolute;
 }
 
 .classContainer .classFrame .image {
