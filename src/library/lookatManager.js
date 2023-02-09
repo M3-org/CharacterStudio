@@ -122,7 +122,7 @@ export class LookAtManager {
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight/2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit)
-      joint.rotation.y = (THREE.MathUtils.degToRad(degrees.x) + this.camera.rotation.y/3) * this.lookInterest * speedMult
+      joint.rotation.y = (THREE.MathUtils.degToRad(degrees.x) + this.camera.rotation.y/3) * this.lookInterest
       joint.rotation.x = THREE.MathUtils.degToRad(degrees.y) * this.lookInterest
     }
   }
