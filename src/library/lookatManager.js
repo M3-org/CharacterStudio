@@ -52,9 +52,9 @@ export class LookAtManager {
         yEnd: window.innerHeight-80
       }
     }
-    setInterval(() => {
-      this.update();
-    }, 1000/60);
+    // setInterval(() => {
+    //   this.update();
+    // }, 1000/60);
   }
   setCamera(camera){
     this.camera = camera

@@ -94,6 +94,7 @@ export default function Scene({sceneModel, lookatManager}) {
       requestAnimationFrame(animate)
       if (currentCameraMode !== CameraMode.AR) {
         controls?.update()
+        lookatManager.update();
         renderer.render(scene, camera)
       }
     }
