@@ -14,6 +14,40 @@ export const getBio = (templateInfo, personality) => {
   const profession = personality.professions[Math.floor(Math.random() * personality.professions.length)]
   const heshe = personality.heShe[classType]
 
+  const voiceKey = Object.keys(voices).find((v) => {
+    if (heshe.toUpperCase() === "SHE"){
+      
+      if (v.includes("Female")){
+        return v
+      }
+    }
+    if (heshe.toUpperCase() === "HE")
+      if (v.includes("Male")){
+        return v
+      }
+  } )
+  const description = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
+  
+  const q1 = getPersonalityQuestionsAndAnswers(personality);
+  const q2 = getRelationshipQuestionsAndAnswers(personality);
+  const q3 = getHobbyQuestionsAndAnswers(personality);
+
+  const fullBio = {
+    name,
+    classType,
+    city,
+    weapon,
+    hobby,
+    profession,
+    heshe,
+    voiceKey,
+    personality: q1, //{question, answer}
+    relationship: q2,
+    hobbies: q3,
+    description, 
+    greeting:"Hello"
+  }
+
   const bio = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
   return { name, bio }
 }

@@ -79,9 +79,8 @@ function Create({fetchNewModel}) {
   return (
     <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>Choose Character Class</div>
+      <div className={styles.topLine} />
       <div className={styles.classContainer}>
-        <div className={styles.topLine} />
-        <div className={styles.bottomLine} />
         {classes.map((characterClass, i) => {
           return (
             <div
@@ -97,17 +96,27 @@ function Create({fetchNewModel}) {
                   : () => selectClass(characterClass)
               }
             >
-              <div className={styles.classFrame}>
-                <img src={"/assets/backgrounds/class-frame.svg"} className={styles.frame} />
-                <div className={styles.mask}>
-                  <img src={characterClass["image"]} className={styles.image} />
-                </div>
-                {characterClass["disabled"] && (
+            <div
+                className={styles.classFrame}
+                style={{
+                  "backgroundImage": `url(${characterClass["image"]})`,
+                }}
+              >
+                <div className={styles.frameContainer}>
                   <img
-                    src={"/assets/icons/locked.svg"}
-                    className={styles.locked}
+                    src={"/assets/backgrounds/class-frame.svg"}
+                    className={styles.frame}
                   />
-                )}
+                </div>
+
+                <div className={styles.lockedContainer}>
+                  {characterClass["disabled"] && (
+                    <img
+                      src={"/assets/icons/locked.svg"}
+                      className={styles.locked}
+                    />
+                  )}
+                </div>
               </div>
               <div className={styles.icon}>
                 <img
@@ -115,6 +124,7 @@ function Create({fetchNewModel}) {
                   alt={characterClass["name"]}
                 />
               </div>
+              
               <div className={styles.name}>{characterClass["name"]}</div>
               <div className={styles.description}>
                 {characterClass["description"]}
@@ -123,6 +133,8 @@ function Create({fetchNewModel}) {
           )
         })}
       </div>
+
+      <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
         { /* <CustomButton
           theme="light"

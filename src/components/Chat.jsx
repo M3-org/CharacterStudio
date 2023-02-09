@@ -24,23 +24,22 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox() {
-  const [micEnabled, setMicEnabled] = React.useState(false)
-
-  const [speechRecognition, setSpeechRecognition] = React.useState(false)
-
+export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
-  const name = localStorage.getItem("name")
-  const bio = localStorage.getItem("bio")
-  const voice = localStorage.getItem("voice")
-  const greeting = localStorage.getItem("greeting")
-  const question1 = localStorage.getItem("question1")
-  const question2 = localStorage.getItem("question2")
-  const question3 = localStorage.getItem("question3")
-  const response1 = localStorage.getItem("response1")
-  const response2 = localStorage.getItem("response2")
-  const response3 = localStorage.getItem("response3")
+  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+  const fullBio = JSON.parse(fullBioStr)
+
+  const name = fullBio.name
+  const bio = fullBio.description
+  const voice = fullBio.voiceKey
+  const greeting = fullBio.greeting
+  const question1 = fullBio.personality.question
+  const question2 = fullBio.relationship.question
+  const question3 = fullBio.hobbies.question
+  const response1 = fullBio.personality.answer
+  const response2 = fullBio.relationship.answer
+  const response3 = fullBio.hobbies.answer
 
   const [speaker, setSpeaker] = React.useState(
     localStorage.getItem("speaker") || defaultSpeaker,
@@ -95,13 +94,11 @@ ${name}: ${response3}`
   }, [])
 
   const startSpeech = () => {
-    console.info("starting speech")
     speechRecognition.start()
     setMicEnabled(true)
   }
 
   const stopSpeech = () => {
-    console.info("stopping speech")
     speechRecognition.stop()
     setMicEnabled(false)
   }
@@ -136,6 +133,7 @@ ${name}: ${response3}`
 
       // newMessages.push(`${speaker}: ${value}`)
 
+      
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
 
@@ -146,7 +144,7 @@ ${name}: ${response3}`
         // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
         const endpoint = "https://upstreet.webaverse.com/api/ai"
-
+        
         let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:

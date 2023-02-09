@@ -4,21 +4,17 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 import Chat from "../components/Chat"
 import CustomButton from "../components/custom-button"
 
-function View({
-  name,
-  bio,
-  greeting,
-  question1,
-  question2,
-  question3,
-  response1,
-  response2,
-  response3,
-}) {
+function View({templateInfo}) {
   const { setViewMode } = React.useContext(ViewContext)
+
+  const [micEnabled, setMicEnabled] = React.useState(false)
+  const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
   const back = () => {
     setViewMode(ViewMode.BIO)
+    if (speechRecognition)
+      speechRecognition.stop()
+    setMicEnabled(false)
   }
 
   return (
@@ -29,15 +25,11 @@ function View({
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           <Chat
-            name={name}
-            bio={bio}
-            greeting={greeting}
-            question1={question1}
-            question2={question2}
-            question3={question3}
-            response1={response1}
-            response2={response2}
-            response3={response3}
+            templateInfo = {templateInfo}
+            micEnabled = {micEnabled}
+            setMicEnabled = {setMicEnabled}
+            speechRecognition = {speechRecognition}
+            setSpeechRecognition = {setSpeechRecognition}
           />
         </div>
       </div>

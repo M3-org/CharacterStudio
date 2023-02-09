@@ -27,7 +27,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, isNewClass, effectManager, selectClass}) {
+export default function Selector({templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -36,10 +36,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     selectedOptions,
     setSelectedOptions,
     model,
-    setTraitsNecks,
-    setTraitsSpines,
-    setTraitsLeftEye,
-    setTraitsRightEye,
     setLipSync,
     mousePosition,
     removeOption,
@@ -416,6 +412,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
         blinkManager.addBlinker(vrm)
 
+      lookatManager.addVRM(vrm)
+
       // animation setup section
       // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
@@ -450,18 +448,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) createBoneDirection(child)
-        }
-        if (child.isBone && child.name == 'neck') { 
-          setTraitsNecks(current => [...current , child])
-        }
-        if (child.isBone && child.name == 'spine') { 
-          setTraitsSpines(current => [...current , child])
-        }
-        if (child.isBone && child.name === 'leftEye') { 
-          setTraitsLeftEye(current => [...current , child])
-        }
-        if (child.isBone && child.name === 'rightEye') { 
-          setTraitsRightEye(current => [...current , child])
         }
       })
 
