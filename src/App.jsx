@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { ViewMode, ViewContext } from "./context/ViewContext"
 
 import { AnimationManager } from "./library/animationManager"
+import { LookAtManager } from "./library/lookatManager"
 import { BlinkManager } from "./library/blinkManager"
 import { getAsArray } from "./library/utils"
 import Background from "./components/Background"
@@ -93,6 +94,7 @@ async function fetchAll() {
   const sceneModel = await fetchScene()
 
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
+  const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
 
   return {
@@ -100,6 +102,7 @@ async function fetchAll() {
     personality,
     sceneModel,
     blinkManager,
+    lookatManager,
     effectManager,
   }
 }
@@ -140,6 +143,7 @@ export default function App() {
     personality,
     sceneModel,
     blinkManager,
+    lookatManager,
     effectManager,
   } = resource.read()
 
@@ -229,6 +233,12 @@ export default function App() {
   
   useEffect(() => {
     updateCameraPosition();
+    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)){
+      lookatManager.enabled = false;
+    }
+    else{
+      lookatManager.enabled = true;
+    }
     window.addEventListener('resize', updateCameraPosition);
     return () => {
       window.removeEventListener('resize', updateCameraPosition);
@@ -273,6 +283,7 @@ export default function App() {
       <Appearance
         animationManager={animationManager}
         blinkManager={blinkManager}
+        lookatManager={lookatManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
       />
@@ -284,7 +295,7 @@ export default function App() {
     [ViewMode.LOAD]: <Load />,
     // [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
-    [ViewMode.CHAT]: <View />,
+    [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
   return (
     <Fragment>
@@ -292,7 +303,7 @@ export default function App() {
         Character Creator
       </div>
       <Background />
-      <Scene manifest={manifest} sceneModel={sceneModel} />
+      <Scene manifest={manifest} sceneModel={sceneModel} lookatManager ={lookatManager}  />
       {pages[viewMode]}
     </Fragment>
   )

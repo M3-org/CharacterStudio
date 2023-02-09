@@ -4,94 +4,20 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-export default function Scene({sceneModel}) {
+export default function Scene({sceneModel, lookatManager}) {
   const {
     scene,
     model, setModel,
     currentCameraMode,
-    traitsSpines,
-    traitsNecks,
-    traitsLeftEye,
-    traitsRightEye,
     setControls,
     setMousePosition,
     setCamera,
   } = useContext(SceneContext)
-  const maxLookPercent = {
-    neck: 20,
-    spine: 5,
-    left: 20,
-    right: 20,
-  }
-
-  const getMouseDegrees = (x, y, degreeLimit) => {
-    let dx = 0,
-      dy = 0,
-      xdiff,
-      xPercentage,
-      ydiff,
-      yPercentage
-
-    let w = { x: window.innerWidth, y: window.innerHeight }
-
-    if (x <= w.x / 2) {
-      // 2. Get the difference between middle of screen and cursor position
-      xdiff = w.x / 2 - x
-      // 3. Find the percentage of that difference (percentage toward edge of screen)
-      xPercentage = (xdiff / (w.x / 2)) * 100
-      // 4. Convert that to a percentage of the maximum rotation we allow for the neck
-      dx = ((degreeLimit * xPercentage) / 100) * -1
-    }
-    if (x >= w.x / 2) {
-      xdiff = x - w.x / 2
-      xPercentage = (xdiff / (w.x / 2)) * 100
-      dx = (degreeLimit * xPercentage) / 100
-    }
-    if (y <= w.y / 2) {
-      ydiff = w.y / 2 - y
-      yPercentage = (ydiff / (w.y / 2)) * 100
-      // Note that I cut degreeLimit in half when she looks up
-      dy = ((degreeLimit * 0.5 * yPercentage) / 100) * -1
-    }
-    if (y >= w.y / 2) {
-      ydiff = y - w.y / 2
-      yPercentage = (ydiff / (w.y / 2)) * 100
-      dy = (degreeLimit * yPercentage) / 100
-    }
-    return { x: dx, y: dy }
-  }
-
+  
   const handleMouseMove = (event) => {
     setMousePosition({x: event.x, y: event.y});
-    const moveJoint = (mouse, joint, degreeLimit) => {
-      if (Object.keys(joint).length !== 0) {
-        let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit)
-        joint.rotation.y = THREE.MathUtils.degToRad(degrees.x)
-        joint.rotation.x = THREE.MathUtils.degToRad(degrees.y)
-      }
-    }
-
-    if (
-      traitsNecks.length !== 0 &&
-      traitsSpines.length !== 0 &&
-      traitsLeftEye.length !== 0 &&
-      traitsLeftEye !== 0
-    ) {
-      traitsNecks.map((neck) => {
-        moveJoint(event, neck, maxLookPercent.neck)
-      })
-      traitsSpines.map((spine) => {
-        moveJoint(event, spine, maxLookPercent.spine)
-      })
-      traitsLeftEye.map((leftEye) => {
-        moveJoint(event, leftEye, maxLookPercent.left)
-      })
-      traitsRightEye.map((rightEye) => {
-        moveJoint(event, rightEye, maxLookPercent.right)
-      })
-    }
   }
-  
+
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove)
     return () => window.removeEventListener("mousemove", handleMouseMove)
@@ -117,7 +43,7 @@ export default function Scene({sceneModel}) {
     )
 
     setCamera(camera)
-
+    lookatManager.setCamera(camera)
     // set the camera position
     camera.position.set(0, 1.3, 2)
 
@@ -168,6 +94,7 @@ export default function Scene({sceneModel}) {
       requestAnimationFrame(animate)
       if (currentCameraMode !== CameraMode.AR) {
         controls?.update()
+        lookatManager.update();
         renderer.render(scene, camera)
       }
     }

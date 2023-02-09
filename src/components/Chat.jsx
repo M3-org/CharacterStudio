@@ -24,23 +24,24 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox() {
+export default function ChatBox({templateInfo}) {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
-  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
+  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+  const fullBio = JSON.parse(fullBioStr)
 
-  const name = localStorage.getItem("name")
-  const bio = localStorage.getItem("bio")
-  const voice = localStorage.getItem("voice")
-  const greeting = localStorage.getItem("greeting")
-  const question1 = localStorage.getItem("question1")
-  const question2 = localStorage.getItem("question2")
-  const question3 = localStorage.getItem("question3")
-  const response1 = localStorage.getItem("response1")
-  const response2 = localStorage.getItem("response2")
-  const response3 = localStorage.getItem("response3")
+  const name = fullBio.name
+  const bio = fullBio.description
+  const voice = fullBio.voiceKey
+  const greeting = fullBio.greeting
+  const question1 = fullBio.personality.question
+  const question2 = fullBio.relationship.question
+  const question3 = fullBio.hobbies.question
+  const response1 = fullBio.personality.answer
+  const response2 = fullBio.relationship.answer
+  const response3 = fullBio.hobbies.answer
 
   const [speaker, setSpeaker] = React.useState(
     localStorage.getItem("speaker") || defaultSpeaker,
