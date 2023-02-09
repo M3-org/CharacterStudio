@@ -29,6 +29,8 @@ export default function ChatBox() {
 
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
+
   const name = localStorage.getItem("name")
   const bio = localStorage.getItem("bio")
   const voice = localStorage.getItem("voice")
@@ -103,17 +105,29 @@ ${name}: ${response3}`
     speechRecognition.stop()
     setMicEnabled(false)
   }
+  
+  useEffect(() => {
+    // Focus back on input when the response is given
+    if (!waitingForResponse) {
+      document.getElementById("messageInput").focus();
+    }
+  }, [waitingForResponse]);
 
   const handleSubmit = async (event) => {
-    if (event.preventDefault) event.preventDefault()
-    // Get the value of the input element
-    const input = event.target.elements.message
-    const value = input.value
-    handleUserChatInput(value)
+    if (event.preventDefault) event.preventDefault();
+    // Stop speech to text when a message is sent through the input
+    stopSpeech();
+    if (!waitingForResponse) {
+      setWaitingForResponse(true)
+      // Get the value of the input element
+      const input = event.target.elements.message
+      const value = input.value
+      handleUserChatInput(value)
+    }
   }
 
   const handleUserChatInput = async (value) => {
-    if (value) {
+    if (value && !waitingForResponse) {
       // Send the message to the localhost endpoint
       const agent = name
       // const spell_handler = "charactercreator";
@@ -124,16 +138,16 @@ ${name}: ${response3}`
 
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
-      
-      const promptMessages = await pruneMessages(messages);
-      promptMessages.push(`${speaker}: ${value}`);
 
-        try {
-          // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+      const promptMessages = await pruneMessages(messages)
+      promptMessages.push(`${speaker}: ${value}`)
 
-          const endpoint = "https://upstreet.webaverse.com/api/ai"
+      try {
+        // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
-          let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+        const endpoint = "https://upstreet.webaverse.com/api/ai"
+
+        let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
 
@@ -156,61 +170,66 @@ MOST RECENT MESSAGES:
 ${promptMessages.join("\n")}
 ${agent}:`
 
-          const query = {
-            prompt,
-            max_tokens: 250,
-            temperature: 0.9,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0.6,
-            stop: [speaker + ":", agent + ":", "\\n"],
-          }
-
-          axios.post(endpoint, query).then((response) => {
-            const output = response.data.choices[0].text
-            const ttsEndpoint =
-              "https://voice.webaverse.com/tts?" +
-              "s=" +
-              output +
-              "&voice=" +
-              voices[voice]
-
-            // fetch the audio file from ttsEndpoint
-
-            fetch(ttsEndpoint).then(async (response) => {
-              const blob = await response.blob()
-
-              // convert the blob to an array buffer
-              const arrayBuffer = await blob.arrayBuffer()
-
-              lipSync.startFromAudioFile(arrayBuffer)
-            })
-
-            setMessages((messages) => [...messages, agent + ": " + output]);
-          })
-        } catch (error) {
-          console.error(error)
+        const query = {
+          prompt,
+          max_tokens: 250,
+          temperature: 0.9,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0.6,
+          stop: [speaker + ":", agent + ":", "\\n"],
         }
+
+        axios.post(endpoint, query).then((response) => {
+          const output = response.data.choices[0].text
+          const ttsEndpoint =
+            "https://voice.webaverse.com/tts?" +
+            "s=" +
+            output +
+            "&voice=" +
+            voices[voice]
+
+          // fetch the audio file from ttsEndpoint
+
+          fetch(ttsEndpoint).then(async (response) => {
+            const blob = await response.blob()
+
+            // convert the blob to an array buffer
+            const arrayBuffer = await blob.arrayBuffer()
+
+            lipSync.startFromAudioFile(arrayBuffer);
+          })
+
+          setMessages((messages) => [...messages, agent + ": " + output])
+          setWaitingForResponse(false);
+        })
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 
   let hasSet = false
   useEffect(() => {
-    if (speechRecognition || hasSet) return
-    hasSet = true
-    const speechTest = new SpeechRecognition({})
-    setSpeechRecognition(speechTest)
+    if (!waitingForResponse) {
+      if (speechRecognition || hasSet) return
+      hasSet = true
+      const speechTest = new SpeechRecognition({})
+      setSpeechRecognition(speechTest)
 
-    speechTest.onerror = (e) => console.error(e.error, e.message)
-    speechTest.onresult = (e) => {
-      const i = e.resultIndex
+      speechTest.onerror = (e) => console.error(e.error, e.message)
+      speechTest.onresult = (e) => {
+        const i = e.resultIndex
 
-      if (e.results[i].isFinal)
-        handleUserChatInput(`${e.results[i][0].transcript}`)
+        if (e.results[i].isFinal) {
+          handleUserChatInput(`${e.results[i][0].transcript}`)
+          setWaitingForResponse(true);
+        }
+      }
+
+      speechTest.interimResults = true
+      speechTest.continuous = true
     }
-
-    speechTest.interimResults = true
-    speechTest.continuous = true
   }, [])
 
   return (
@@ -232,7 +251,7 @@ ${agent}:`
         ))}
       </div>
 
-      <form className={styles["send"]} onSubmit={handleSubmit}>
+      <form className={styles["send"]} style={{opacity: waitingForResponse ? "0.4" : "1"}} onSubmit={handleSubmit}>
         {/* Disabled until state error is fixed */}
         <CustomButton
           type="icon"
@@ -247,9 +266,11 @@ ${agent}:`
           autoComplete="off"
           type="text"
           name="message"
+          id="messageInput"
           value={input}
           onInput={handleChange}
           onChange={handleChange}
+          disabled={waitingForResponse}
         />
         <CustomButton
           theme="light"
