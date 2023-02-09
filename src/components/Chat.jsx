@@ -28,7 +28,8 @@ export default function ChatBox({templateInfo}) {
 
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
-  const fullBio = localStorage.getItem(`${templateInfo.id}_fulBio`)
+  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+  const fullBio = JSON.parse(fullBioStr)
 
   const name = fullBio.name
   const bio = fullBio.description
