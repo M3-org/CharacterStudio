@@ -28,6 +28,7 @@ export default function ChatBox({templateInfo}) {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
