@@ -54,7 +54,7 @@ export class LookAtManager {
     }
     setInterval(() => {
       this.update();
-    }, 1000/30);
+    }, 1000/60);
   }
   setCamera(camera){
     this.camera = camera
