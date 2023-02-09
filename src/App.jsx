@@ -295,7 +295,7 @@ export default function App() {
     [ViewMode.LOAD]: <Load />,
     // [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
-    [ViewMode.CHAT]: <View />,
+    [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
   return (
     <Fragment>
