@@ -9,6 +9,7 @@ import {
   sepiaSpeechRecognitionInit,
   SepiaSpeechRecognitionConfig,
 } from "sepia-speechrecognition-polyfill"
+import { pruneMessages } from "../lib/chat"
 
 const sessionId =
   localStorage.getItem("sessionId") ??
@@ -27,6 +28,8 @@ export default function ChatBox() {
   const [micEnabled, setMicEnabled] = React.useState(false)
 
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
+
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
   const name = localStorage.getItem("name")
   const bio = localStorage.getItem("bio")
@@ -48,11 +51,8 @@ export default function ChatBox() {
     localStorage.setItem("speaker", speaker)
   }, [speaker])
 
-
   function composePrompt() {
-
-    const prompt =
-`Name: ${name}
+    const prompt = `Name: ${name}
 Bio: ${bio}
 ${speaker}: Hey ${name}
 ${name}: ${greeting}
@@ -105,31 +105,49 @@ ${name}: ${response3}`
     speechRecognition.stop()
     setMicEnabled(false)
   }
+  
+  useEffect(() => {
+    // Focus back on input when the response is given
+    if (!waitingForResponse) {
+      document.getElementById("messageInput").focus();
+    }
+  }, [waitingForResponse]);
 
   const handleSubmit = async (event) => {
-    if (event.preventDefault) event.preventDefault()
-    // Get the value of the input element
-    const input = event.target.elements.message
-    const value = input.value
-    handleUserChatInput(value)
+    if (event.preventDefault) event.preventDefault();
+    // Stop speech to text when a message is sent through the input
+    stopSpeech();
+    if (!waitingForResponse) {
+      setWaitingForResponse(true)
+      // Get the value of the input element
+      const input = event.target.elements.message
+      const value = input.value
+      handleUserChatInput(value)
+    }
   }
 
   const handleUserChatInput = async (value) => {
-    // Send the message to the localhost endpoint
-    const agent = name
-    // const spell_handler = "charactercreator";
+    if (value && !waitingForResponse) {
+      // Send the message to the localhost endpoint
+      const agent = name
+      // const spell_handler = "charactercreator";
 
-    const newMessages = pruneMessages( messages )
-    newMessages.push( `${speaker}: ${value}` )
-    setInput("")
-    setMessages([ ...newMessages ])
+      //const newMessages = await pruneMessages(messages);
 
-    try {
-      // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+      // newMessages.push(`${speaker}: ${value}`)
 
-      const endpoint = "https://upstreet.webaverse.com/api/ai"
+      setInput("")
+      setMessages((messages) => [...messages, `${speaker}: ${value}`])
 
-      let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+      const promptMessages = await pruneMessages(messages)
+      promptMessages.push(`${speaker}: ${value}`)
+
+      try {
+        // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+
+        const endpoint = "https://upstreet.webaverse.com/api/ai"
+
+        let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
 
@@ -149,61 +167,69 @@ Response 3: "${response3}"
 
 MOST RECENT MESSAGES:
 
-${newMessages.join("\n")}
+${promptMessages.join("\n")}
 ${agent}:`
 
-      const query = {
-        prompt,
-        max_tokens: 250,
-        temperature: 0.9,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0.6,
-        stop: [speaker + ":", agent + ":", "\\n"],
-      }
+        const query = {
+          prompt,
+          max_tokens: 250,
+          temperature: 0.9,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0.6,
+          stop: [speaker + ":", agent + ":", "\\n"],
+        }
 
-      axios.post(endpoint, query).then((response) => {
-        const output = response.data.choices[0].text
-        const ttsEndpoint =
-                'https://voice.webaverse.com/tts?'
-                + 's=' + output
-                + '&voice=' + voices[voice]
+        axios.post(endpoint, query).then((response) => {
+          const output = response.data.choices[0].text
+          const ttsEndpoint =
+            "https://voice.webaverse.com/tts?" +
+            "s=" +
+            output +
+            "&voice=" +
+            voices[voice]
 
-        // fetch the audio file from ttsEndpoint
+          // fetch the audio file from ttsEndpoint
 
-        fetch(ttsEndpoint).then(async (response) => {
-          const blob = await response.blob()
+          fetch(ttsEndpoint).then(async (response) => {
+            const blob = await response.blob()
 
-          // convert the blob to an array buffer
-          const arrayBuffer = await blob.arrayBuffer()
+            // convert the blob to an array buffer
+            const arrayBuffer = await blob.arrayBuffer()
 
-          lipSync.startFromAudioFile(arrayBuffer)
+            lipSync.startFromAudioFile(arrayBuffer);
+          })
+
+          setMessages((messages) => [...messages, agent + ": " + output])
+          setWaitingForResponse(false);
         })
-
-        setMessages([...newMessages, agent + ": " + output])
-      })
-    } catch (error) {
-      console.error(error)
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 
   let hasSet = false
   useEffect(() => {
-    if (speechRecognition || hasSet) return
-    hasSet = true
-    const speechTest = new SpeechRecognition({})
-    setSpeechRecognition(speechTest)
+    if (!waitingForResponse) {
+      if (speechRecognition || hasSet) return
+      hasSet = true
+      const speechTest = new SpeechRecognition({})
+      setSpeechRecognition(speechTest)
 
-    speechTest.onerror = (e) => console.error(e.error, e.message)
-    speechTest.onresult = (e) => {
-      const i = e.resultIndex
+      speechTest.onerror = (e) => console.error(e.error, e.message)
+      speechTest.onresult = (e) => {
+        const i = e.resultIndex
 
-      if (e.results[i].isFinal)
-        handleUserChatInput(`${e.results[i][0].transcript}`)
+        if (e.results[i].isFinal) {
+          handleUserChatInput(`${e.results[i][0].transcript}`)
+          setWaitingForResponse(true);
+        }
+      }
+
+      speechTest.interimResults = true
+      speechTest.continuous = true
     }
-
-    speechTest.interimResults = true
-    speechTest.continuous = true
   }, [])
 
   return (
@@ -225,9 +251,9 @@ ${agent}:`
         ))}
       </div>
 
-      <form className={styles["send"]} onSubmit={handleSubmit}>
+      <form className={styles["send"]} style={{opacity: waitingForResponse ? "0.4" : "1"}} onSubmit={handleSubmit}>
         {/* Disabled until state error is fixed */}
-        {/*<CustomButton
+        <CustomButton
           type="icon"
           theme="light"
           icon="microphone"
@@ -235,14 +261,16 @@ ${agent}:`
           size={32}
           active={!micEnabled ? false : true}
           onClick={() => (!micEnabled ? startSpeech() : stopSpeech())}
-        />*/}
+        />
         <input
           autoComplete="off"
           type="text"
           name="message"
+          id="messageInput"
           value={input}
           onInput={handleChange}
           onChange={handleChange}
+          disabled={waitingForResponse}
         />
         <CustomButton
           theme="light"
@@ -257,27 +285,4 @@ ${agent}:`
       </form>
     </div>
   )
-}
-
-
-const maxCharacters = 20000
-export function pruneMessages( messages ) {
-  let currentSize = 0
-  const newMessages = []
-
-  for ( let i = messages.length - 1; i >= 0; i-- ) {
-    const message = messages[ i ]
-
-    currentSize += message.length
-
-    // Add up to N characters.
-    if ( currentSize < maxCharacters )
-      newMessages.push( message )
-    else break
-  }
-
-  // Reverse the array so that the newest messages are first.
-  newMessages.reverse()
-
-  return newMessages
 }
