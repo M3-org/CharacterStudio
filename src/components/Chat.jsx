@@ -94,13 +94,11 @@ ${name}: ${response3}`
   }, [])
 
   const startSpeech = () => {
-    console.info("starting speech")
     speechRecognition.start()
     setMicEnabled(true)
   }
 
   const stopSpeech = () => {
-    console.info("stopping speech")
     speechRecognition.stop()
     setMicEnabled(false)
   }
