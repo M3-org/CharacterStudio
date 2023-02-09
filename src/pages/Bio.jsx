@@ -44,7 +44,8 @@ export const getBio = (templateInfo, personality) => {
     personality: q1, //{question, answer}
     relationship: q2,
     hobbies: q3,
-    description
+    description, 
+    greeting:"Hello"
   }
 
   return fullBio;
