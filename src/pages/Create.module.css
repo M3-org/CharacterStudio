@@ -3,89 +3,125 @@
   opacity: 0.5;
 }
 
+.container {
+  display: flex;
+  height: inherit;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .classContainer {
-  position: absolute;
-  width: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  -webkit-transform: translateY(-50%);
   text-align: center;
-  height: -webkit-calc(100vh - 266px);
-  height: calc(100vh - 266px);
   background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
   overflow-x: scroll;
   overflow-y: hidden;
   white-space: nowrap;
-  padding-top: 24px;
+  padding: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .classContainer .class,
 .classContainer .classdisabled {
-  display: inline-block;
-  height: 100%;
+  flex: 1;
+  display: flex;
   cursor: pointer;
+  min-width: 0px;
+  flex-direction: column;
   margin: 24px 8px 8px 8px;
+  align-items: center;
+  justify-content: center;
 }
 
 .classContainer .icon {
-  margin-top: -32px;
-  position: relative;
+  flex: 1;
   z-index: 2;
+  margin-top: -2.5vh;
 }
+
+/* Ipad */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) {
+  .classContainer .icon {
+    flex: 1;
+    z-index: 2;
+    margin-top: -1.5vh;
+  }
+}
+
+/* Smaller */
+@media only screen and (min-device-width: 0) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+  .classContainer .icon {
+    flex: 1;
+    z-index: 2;
+    margin-top: -1vh;
+  }
+}
+
 .classContainer .icon img {
-  height: 56px;
   background: #000;
+  width: 100%;
+  height: auto;
+  max-width: 3.5vw;
 }
 
 .classContainer .name {
-  font-size: 24px;
+  font-size: 2vw;
+  flex: 1;
 }
 .classContainer .description {
-  font-size: 14px;
+  font-size: 1.2vw;
+  flex: 1;
 }
 
 .classContainer .classFrame {
-  height: 60%;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
+
+  z-index: 0;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  mask-size: 100%;
+  -webkit-mask-size: 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("/assets/backgrounds/class-mask.svg");
+  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
+}
+
+.classContainer .classFrame .frameContainer {
+  width: 100%;
+  flex: 1;
 }
 
 .classContainer .classFrame .frame {
-  height: 100%;
-  position: relative;
-  z-index: 1;
-}
-
-.classContainer .classFrame .mask {
-  width: 99%;
-  height: 99%;
-  overflow: hidden;
-  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
-  mask-image: url("/assets/backgrounds/class-mask.svg");
-  -webkit-mask-size: 100%;
-  mask-size: 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translateX(-50%) translateY(-50%);
-  -webkit-transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
-  position: absolute;
-  z-index: 0;
+  width: 100%;
+  height: auto;
 }
 
 .classContainer .classFrame .image {
-  height: 100%;
+  width: 100%;
+  height: auto;
+  max-width: 230px;
+}
+
+.classContainer .classFrame .lockedContainer {
+  position: absolute;
 }
 
 .classContainer .classFrame .locked {
-  height: 56px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  -webkit-transform: translateY(-50%) translateX(-50%);
+  width: 100%;
+  height: auto;
+  max-width: 2vw;
 }
 
 .classContainer .class:hover .name {
@@ -144,9 +180,6 @@
     rgba(0, 149, 100, 0) 100%
   );
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 1px;
 }
@@ -172,9 +205,6 @@
     rgba(0, 149, 100, 0) 100%
   );
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
-  position: absolute;
-  bottom: 0;
-  left: 0;
   width: 100%;
   height: 1px;
 }
