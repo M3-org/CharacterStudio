@@ -51,6 +51,15 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const [selectValue, setSelectValue] = useState("0")
   const [loadPercentage, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
+  const [currentTrait, setCurrentTrait] = useState(new Map());
+
+  const updateCurrentTraitMap = (k,v) => {
+    setCurrentTrait(currentTrait.set(k,v));
+  }
+  const resetCurrentTraitMap = () => {
+    setCurrentTrait(new Map());
+  }
+  // const currentTrait = new Map();
 
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
@@ -141,6 +150,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
+        resetCurrentTraitMap();
       }
 
       loadSelectedOptions(selectedOptions)
@@ -158,7 +168,15 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
+      updateCurrentTraitMap(option.trait.trait, null)
     }
+    else {
+      if (currentTrait.get(option.trait.trait) === option.key) {
+        return;
+      }
+      updateCurrentTraitMap(option.trait.trait, option.key)
+    }
+    
     if (option.avatarIndex != null){
       if(isNewClass(option.avatarIndex)){
         selectClass(option.avatarIndex)
@@ -591,7 +609,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           <div className={styles["selector-container"]}>
             <ClearTraitButton />
             {currentOptions.map((option) => {
-              const active = option.key === selectValue
+              let active = option.key === selectValue
+              if (currentTrait.size === 0) {
+                active = false;
+              }
+              else {
+                active = currentTrait.get(option.trait.trait) === option.key;
+              }
               return (
                 <div
                   key={option.key}
