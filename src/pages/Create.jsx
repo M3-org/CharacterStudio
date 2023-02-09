@@ -136,13 +136,13 @@ function Create({ fetchNewModel }) {
 
       <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
-        <CustomButton
+        { /* <CustomButton
           theme="light"
           text="Back"
           size={14}
           className={styles.buttonLeft}
           onClick={back}
-        />
+      /> */}
       </div>
     </div>
   )
