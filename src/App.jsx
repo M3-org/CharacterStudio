@@ -233,6 +233,12 @@ export default function App() {
   
   useEffect(() => {
     updateCameraPosition();
+    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)){
+      lookatManager.enabled = false;
+    }
+    else{
+      lookatManager.enabled = true;
+    }
     window.addEventListener('resize', updateCameraPosition);
     return () => {
       window.removeEventListener('resize', updateCameraPosition);

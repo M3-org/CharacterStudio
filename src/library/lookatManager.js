@@ -130,7 +130,7 @@ export class LookAtManager {
   _setInterest(){
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
         this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
-        this.camera.position.z > -2 && 
+        this.camera.position.z > -2 && this.enabled &&
         this.onCanvas)
       this.hasInterest = true
     else
@@ -151,20 +151,19 @@ export class LookAtManager {
     this.deltaTime = this.clock.getDelta()
     this._setInterest();
     
-    if (this.enabled){
+    //if (this.enabled){
       this.neckBones.forEach(neck => {
         this._moveJoint(neck, this.maxLookPercent.neck)
       })
       this.spineBones.forEach(spine => {
         this._moveJoint(spine, this.maxLookPercent.spine)
       })
-      // eyes turn faster
       this.leftEyeBones.forEach(leftEye => {
         this._moveJoint(leftEye, this.maxLookPercent.left)
       })
       this.rightEyesBones.forEach(rightEye => {
         this._moveJoint(rightEye, this.maxLookPercent.right)
       })
-    }
+    //}
   }
 }
