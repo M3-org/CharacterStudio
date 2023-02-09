@@ -37,10 +37,6 @@ export const SceneProvider = (props) => {
   const [awaitDisplay, setAwaitDisplay] = useState(false)
 
   const [colorStatus, setColorStatus] = useState("")
-  const [traitsNecks, setTraitsNecks] = useState([])
-  const [traitsSpines, setTraitsSpines] = useState([])
-  const [traitsLeftEye, setTraitsLeftEye] = useState([])
-  const [traitsRightEye, setTraitsRightEye] = useState([])
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null)
 
@@ -230,16 +226,8 @@ export const SceneProvider = (props) => {
         setAvatar,
         resetAvatar,
         moveCamera,
-        traitsNecks,
-        setTraitsNecks,
-        traitsSpines,
-        setTraitsSpines,
         controls,
         setControls,
-        traitsLeftEye,
-        setTraitsLeftEye,
-        traitsRightEye,
-        setTraitsRightEye,
         initializeScene,
         mousePosition, 
         setMousePosition,
