@@ -7,8 +7,14 @@ import CustomButton from "../components/custom-button"
 function View({templateInfo}) {
   const { setViewMode } = React.useContext(ViewContext)
 
+  const [micEnabled, setMicEnabled] = React.useState(false)
+  const [speechRecognition, setSpeechRecognition] = React.useState(false)
+
   const back = () => {
     setViewMode(ViewMode.BIO)
+    if (speechRecognition)
+      speechRecognition.stop()
+    setMicEnabled(false)
   }
 
   return (
@@ -20,6 +26,10 @@ function View({templateInfo}) {
         <div className={styles.scrollContainer}>
           <Chat
             templateInfo = {templateInfo}
+            micEnabled = {micEnabled}
+            setMicEnabled = {setMicEnabled}
+            speechRecognition = {speechRecognition}
+            setSpeechRecognition = {setSpeechRecognition}
           />
         </div>
       </div>

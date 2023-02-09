@@ -24,10 +24,7 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({templateInfo}) {
-  const [micEnabled, setMicEnabled] = React.useState(false)
-
-  const [speechRecognition, setSpeechRecognition] = React.useState(false)
+export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
@@ -97,13 +94,11 @@ ${name}: ${response3}`
   }, [])
 
   const startSpeech = () => {
-    console.info("starting speech")
     speechRecognition.start()
     setMicEnabled(true)
   }
 
   const stopSpeech = () => {
-    console.info("stopping speech")
     speechRecognition.stop()
     setMicEnabled(false)
   }
