@@ -40,17 +40,10 @@
   src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
 }
 
-html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
   font-family: "TTSC-Regular";
-}
-
-#root {
-  height: 100%;
-  overflow: hidden;
 }
 
 ::-webkit-scrollbar {
@@ -60,26 +53,11 @@ body {
   box-shadow: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgb(0, 149, 100);
-  background: -moz-linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  background: -webkit-linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  background: linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
 }
 
 .horizontalScroll ::-webkit-scrollbar {
@@ -89,26 +67,11 @@ body {
   box-shadow: transparent;
 }
 .horizontalScroll ::-webkit-scrollbar-thumb {
-  background: rgb(0, 149, 100);
-  background: -moz-linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  background: -webkit-linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  background: linear-gradient(
-    180deg,
-    rgba(0, 149, 100, 0) 0%,
-    rgba(8, 234, 160, 0.6) 50%,
-    rgba(0, 149, 100, 0) 100%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
 }
 
 .root {
@@ -156,7 +119,7 @@ body {
   margin: auto;
 }
 
-.rotate {
+.rotate{
   animation: rotate 2.2s linear infinite;
 }
 
@@ -183,8 +146,6 @@ body {
   text-transform: uppercase;
 }
 
-@keyframes rotate {
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes rotate{
+  to{ transform: rotate(360deg); }
 }
