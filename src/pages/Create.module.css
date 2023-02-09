@@ -8,6 +8,7 @@
   height: inherit;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 .classContainer {
@@ -31,24 +32,48 @@
   min-width: 0px;
   flex-direction: column;
   margin: 24px 8px 8px 8px;
+  align-items: center;
+  justify-content: center;
 }
 
 .classContainer .icon {
+  flex: 1;
   z-index: 2;
-  width: 100%;
-  margin-top: -32px;
+  margin-top: -2.5vh;
+}
+
+/* Ipad */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) {
+  .classContainer .icon {
+    flex: 1;
+    z-index: 2;
+    margin-top: -1.5vh;
+  }
+}
+
+/* Smaller */
+@media only screen and (min-device-width: 0) and (max-device-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+  .classContainer .icon {
+    flex: 1;
+    z-index: 2;
+    margin-top: -1vh;
+  }
 }
 
 .classContainer .icon img {
-  height: 56px;
   background: #000;
+  width: 100%;
+  height: auto;
+  max-width: 3.5vw;
 }
 
 .classContainer .name {
   font-size: 2vw;
+  flex: 1;
 }
 .classContainer .description {
   font-size: 1.2vw;
+  flex: 1;
 }
 
 .classContainer .classFrame {
@@ -57,6 +82,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 
   z-index: 0;
   overflow: hidden;
@@ -74,6 +100,7 @@
 
 .classContainer .classFrame .frameContainer {
   width: 100%;
+  flex: 1;
 }
 
 .classContainer .classFrame .frame {
@@ -92,7 +119,9 @@
 }
 
 .classContainer .classFrame .locked {
-  height: 56px;
+  width: 100%;
+  height: auto;
+  max-width: 2vw;
 }
 
 .classContainer .class:hover .name {

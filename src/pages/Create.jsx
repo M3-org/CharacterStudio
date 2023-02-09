@@ -78,65 +78,63 @@ function Create({ fetchNewModel }) {
   return (
     <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>Choose Character Class</div>
-      <div>
-        <div className={styles.topLine} />
-        <div className={styles.classContainer}>
-          {classes.map((characterClass, i) => {
-            return (
+      <div className={styles.topLine} />
+      <div className={styles.classContainer}>
+        {classes.map((characterClass, i) => {
+          return (
+            <div
+              key={i}
+              className={
+                !characterClass["disabled"]
+                  ? styles.class
+                  : styles.classdisabled
+              }
+              onClick={
+                characterClass["disabled"]
+                  ? null
+                  : () => selectClass(characterClass)
+              }
+            >
               <div
-                key={i}
-                className={
-                  !characterClass["disabled"]
-                    ? styles.class
-                    : styles.classdisabled
-                }
-                onClick={
-                  characterClass["disabled"]
-                    ? null
-                    : () => selectClass(characterClass)
-                }
+                className={styles.classFrame}
+                style={{
+                  "background-image": `url(${characterClass["image"]})`,
+                }}
               >
-                <div
-                  className={styles.classFrame}
-                  style={{
-                    "background-image": `url(${characterClass["image"]})`,
-                  }}
-                >
-                  <div className={styles.frameContainer}>
-                    <img
-                      src={"/assets/backgrounds/class-frame.svg"}
-                      className={styles.frame}
-                    />
-                  </div>
-
-                  <div className={styles.lockedContainer}>
-                    {characterClass["disabled"] && (
-                      <img
-                        src={"/assets/icons/locked.svg"}
-                        className={styles.locked}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.icon}>
+                <div className={styles.frameContainer}>
                   <img
-                    src={characterClass["icon"]}
-                    alt={characterClass["name"]}
+                    src={"/assets/backgrounds/class-frame.svg"}
+                    className={styles.frame}
                   />
                 </div>
 
-                <div className={styles.name}>{characterClass["name"]}</div>
-                <div className={styles.description}>
-                  {characterClass["description"]}
+                <div className={styles.lockedContainer}>
+                  {characterClass["disabled"] && (
+                    <img
+                      src={"/assets/icons/locked.svg"}
+                      className={styles.locked}
+                    />
+                  )}
                 </div>
               </div>
-            )
-          })}
-        </div>
 
-        <div className={styles.bottomLine} />
+              <div className={styles.icon}>
+                <img
+                  src={characterClass["icon"]}
+                  alt={characterClass["name"]}
+                />
+              </div>
+
+              <div className={styles.name}>{characterClass["name"]}</div>
+              <div className={styles.description}>
+                {characterClass["description"]}
+              </div>
+            </div>
+          )
+        })}
       </div>
+
+      <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
