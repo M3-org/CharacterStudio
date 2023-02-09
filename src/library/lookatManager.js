@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 
+const localVector = new THREE.Vector3();
+
 export class LookAtManager {
   constructor (screenViewPercentage, canvasID){
     this.neckBones = []
@@ -27,7 +29,7 @@ export class LookAtManager {
       right: {maxy:15, miny:20,maxx:35, minx:35},
     }
     window.addEventListener("mousemove", (e)=>{
-        this.curMousePos = {x:e.clientX, y: e.clientY}
+      this.curMousePos = {x:e.clientX, y: e.clientY}
     })
     const canvasRef = document.getElementById(canvasID)
     if (canvasRef){
@@ -128,9 +130,13 @@ export class LookAtManager {
   }
 
   _setInterest(){
+    localVector.set(0, 0, 1);
+    localVector.applyQuaternion(this.camera.quaternion);
+    const cameraRotationThreshold = localVector.z > 0.; // if camera rotation is not larger than 90
+    
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
         this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
-        this.camera.position.z > -2 && this.enabled &&
+        cameraRotationThreshold && this.enabled &&
         this.onCanvas)
       this.hasInterest = true
     else
@@ -148,6 +154,8 @@ export class LookAtManager {
   }
 
   update(){
+    
+    
     this.deltaTime = this.clock.getDelta()
     this._setInterest();
     
