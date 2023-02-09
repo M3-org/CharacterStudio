@@ -21,10 +21,10 @@ export class LookAtManager {
     this.camera = null;
     
     this.maxLookPercent = {
-      neck: {max:30, min:10},
-      spine: {max:30, min:10},
-      left: {max:35, min:35},
-      right: {max:35, min:35},
+      neck: {maxy:15, miny:10,maxx:30, minx:10},
+      spine: {maxy:0, miny:0,maxx:30, minx:10},
+      left: {maxy:15, miny:20,maxx:35, minx:35},
+      right: {maxy:15, miny:20,maxx:35, minx:35},
     }
     window.addEventListener("mousemove", (e)=>{
         this.curMousePos = {x:e.clientX, y: e.clientY}
@@ -90,34 +90,31 @@ export class LookAtManager {
       yPercentage
 
     let w = { x: window.innerWidth, y: window.innerHeight }
-
     if (x <= w.x / 2) {
       // 2. Get the difference between middle of screen and cursor position
       xdiff = w.x / 2 - x
       // 3. Find the percentage of that difference (percentage toward edge of screen)
-      xPercentage = (xdiff / (w.x / 2)) * 100
+      xPercentage = ((xdiff / (w.x / 2)) ) * 100
       // 4. Convert that to a percentage of the maximum rotation we allow for the neck
-      dx = ((degreeLimit.max * xPercentage) / 100) * -1
+      dx = ((degreeLimit.maxx * xPercentage) / 100) * -1
     }
     if (x >= w.x / 2) {
       xdiff = x - w.x / 2
-      xPercentage = (xdiff / (w.x / 2)) * 100
-      dx = (degreeLimit.min * xPercentage) / 100
+      xPercentage = ((xdiff / (w.x / 2))) * 100
+      dx = (degreeLimit.minx * xPercentage) / 100
     }
 
     if (y <= w.y / 2) {
       ydiff = w.y / 2 - y
       yPercentage = (ydiff / (w.y / 2)) * 100
       // Note that I cut degreeLimit in half when she looks up
-      dy = ((degreeLimit.max * 0.5 * yPercentage) / 100) * -1
+      dy = ((degreeLimit.maxy * 0.5 * yPercentage) / 100) * -1
     }
     if (y >= w.y / 2) {
       ydiff = y - w.y / 2
       yPercentage = (ydiff / (w.y / 2)) * 100
-      dy = ((degreeLimit.min) * yPercentage) / 100
+      dy = ((degreeLimit.miny) * yPercentage) / 100
     }
-
-
     return { x: dx, y: dy }
   }
 
@@ -125,7 +122,7 @@ export class LookAtManager {
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight/2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit)
-      joint.rotation.y = THREE.MathUtils.degToRad(degrees.x) * this.lookInterest
+      joint.rotation.y = (THREE.MathUtils.degToRad(degrees.x) + this.camera.rotation.y/3) * this.lookInterest * speedMult
       joint.rotation.x = THREE.MathUtils.degToRad(degrees.y) * this.lookInterest
     }
   }
@@ -133,6 +130,7 @@ export class LookAtManager {
   _setInterest(){
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
         this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
+        this.camera.position.z > -2 && 
         this.onCanvas)
       this.hasInterest = true
     else
@@ -160,6 +158,7 @@ export class LookAtManager {
       this.spineBones.forEach(spine => {
         this._moveJoint(spine, this.maxLookPercent.spine)
       })
+      // eyes turn faster
       this.leftEyeBones.forEach(leftEye => {
         this._moveJoint(leftEye, this.maxLookPercent.left)
       })
