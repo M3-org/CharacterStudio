@@ -40,10 +40,17 @@
   src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
 }
 
+html,
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
   font-family: "TTSC-Regular";
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar {
