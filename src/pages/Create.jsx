@@ -98,7 +98,7 @@ function Create({ fetchNewModel }) {
               <div
                 className={styles.classFrame}
                 style={{
-                  "background-image": `url(${characterClass["image"]})`,
+                  "backgroundImage": `url(${characterClass["image"]})`,
                 }}
               >
                 <div className={styles.frameContainer}>
