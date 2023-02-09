@@ -133,6 +133,7 @@ ${name}: ${response3}`
 
       // newMessages.push(`${speaker}: ${value}`)
 
+      
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
 
@@ -143,7 +144,7 @@ ${name}: ${response3}`
         // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
         const endpoint = "https://upstreet.webaverse.com/api/ai"
-
+        
         let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
