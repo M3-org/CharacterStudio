@@ -59,8 +59,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const resetCurrentTraitMap = () => {
     setCurrentTrait(new Map());
   }
-  // const currentTrait = new Map();
-
+  
   useEffect(() => {
     //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
