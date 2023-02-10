@@ -21,8 +21,6 @@ export class ScreenshotManager {
       0.1,
       1000,
     )
-    // this.setUpCamera();
-    this.update();
   }
 
   setCamera(height, playerCameraDistance) {
@@ -36,17 +34,18 @@ export class ScreenshotManager {
 
   }
 
-  saveAsImage() {
+  saveAsImage(imageName) {
     let imgData;
     try {
       this.renderer.render(this.scene, this.camera);
       const strDownloadMime = "image/octet-stream";
-      const strMime = "image/jpeg";
+      const strMime = "image/png";
       imgData = this.renderer.domElement.toDataURL(strMime);
-      this.saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
+      this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+      return true;
     } catch (e) {
       console.log(e);
-      return;
+      return false;
     }
 
   }
@@ -63,15 +62,5 @@ export class ScreenshotManager {
       location.replace(uri);
     }
   }
-
-  update() {
-    setInterval(() => {
-      
-      // this.renderer.render(this.scene, this.camera);
-
-    }, this.frameRate);
-  }
-
-  
 
 }
