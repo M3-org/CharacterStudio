@@ -89,10 +89,14 @@ export default function Scene({sceneModel, lookatManager}) {
 
     setControls(controls)
 
+    const minPan = new THREE.Vector3(-0.5,0,-0.5);
+    const maxPan = new THREE.Vector3(0.5,1.5,0.5);
+
     // start animation frame loop to render
     const animate = () => {
       requestAnimationFrame(animate)
       if (currentCameraMode !== CameraMode.AR) {
+        controls.target.clamp(minPan,maxPan)
         controls?.update()
         lookatManager.update();
         renderer.render(scene, camera)
