@@ -167,13 +167,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
-      updateCurrentTraitMap(option.trait.trait, null)
     }
     else {
       if (currentTrait.get(option.trait.trait) === option.key) {
         return;
       }
-      updateCurrentTraitMap(option.trait.trait, option.key)
     }
     
     if (option.avatarIndex != null){
@@ -208,6 +206,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   // load options first
   const loadOptions = (options, filterRestrictions = true) => {
+    for (const option of options) {
+      updateCurrentTraitMap(option.trait.trait, option.key)
+    }
     // filter options by restrictions
 
     if (filterRestrictions)
