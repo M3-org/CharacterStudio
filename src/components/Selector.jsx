@@ -344,6 +344,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     // now update uptions
     removeTraits.forEach(trait => {
       let removed = false;
+      updateCurrentTraitMap(trait, null);
       
       for (let i =0; i < options.length;i++){
         // find an option with the trait name 
