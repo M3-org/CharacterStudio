@@ -90,7 +90,6 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
   }
 
   const mintAsset = async (avatar) => {
-    console.log(templateInfo)
     // let walletAddress = await connectWallet()
 
     // const pass = await checkOT(walletAddress);
@@ -99,11 +98,14 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
       setMintStatus("Uploading...")
       let imageHash, glbHash;
       
-      const headPosition = templateInfo.traits[0].cameraTarget.height;
+      const female = templateInfo.name === 'Drophunter' ? true : false;
+      const headPosition = female ? 1.35 : 1.45;
       const cameraFov = 1.0;
+
       screenshotManager.setCamera(headPosition, cameraFov);
+      let imageName = "AvatarImage_" + Date.now() + ".png";
+      screenshotManager.saveAsImage(imageName);
       
-      screenshotManager.saveAsImage();
 
       // const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
       // if (screenshot) {
