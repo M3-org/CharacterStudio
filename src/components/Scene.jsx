@@ -89,7 +89,7 @@ export default function Scene({sceneModel, lookatManager}) {
 
     setControls(controls)
 
-    const minPan = new THREE.Vector3(-0.5,-0.5,0);
+    const minPan = new THREE.Vector3(-0.5,0,-0.5);
     const maxPan = new THREE.Vector3(0.5,1.5,0.5);
 
     // start animation frame loop to render
