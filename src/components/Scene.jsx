@@ -97,8 +97,7 @@ export default function Scene({sceneModel, lookatManager}) {
       if (controls.target.x < -0.5) controls.target.x = -0.5;
 
       if (controls.target.z > 0.5) controls.target.z = 0.5;
-      if (controls.target.z < -0.5) controls.target.z = -0.5;
-        
+      if (controls.target.z < -0.5) controls.target.z = -0.5;   
     }
 
     // start animation frame loop to render
@@ -107,7 +106,6 @@ export default function Scene({sceneModel, lookatManager}) {
       if (currentCameraMode !== CameraMode.AR) {
         limitControls();
         controls?.update()
-        
         lookatManager.update();
         renderer.render(scene, camera)
       }
