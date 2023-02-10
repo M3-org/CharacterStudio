@@ -1,11 +1,10 @@
 import * as THREE from "three"
+import { Buffer } from "buffer";
 
 const localVector = new THREE.Vector3();
 
 export class ScreenshotManager {
   constructor() {
-    this.frameRate = 1000 / 30;
-    
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true
     });
@@ -41,8 +40,15 @@ export class ScreenshotManager {
       const strDownloadMime = "image/octet-stream";
       const strMime = "image/png";
       imgData = this.renderer.domElement.toDataURL(strMime);
+
+      const base64Data = Buffer.from(
+        imgData.replace(/^data:image\/\w+;base64,/, ""),
+        "base64"
+      );
+      const blob = new Blob([base64Data], { type: "image/jpeg" });
+      
       this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
-      return true;
+      return blob;
     } catch (e) {
       console.log(e);
       return false;
