@@ -12,9 +12,9 @@ function Save() {
         setViewMode(ViewMode.BIO)
     }
 
-    const mint = () => {
-        setViewMode(ViewMode.MINT)
-    }
+    // const mint = () => {
+    //     setViewMode(ViewMode.MINT)
+    // }
 
 
   const next = () => {
@@ -39,13 +39,13 @@ function Save() {
                 <ExportMenu />
 
                 <div className={styles.rightButtonContainer}>
-                    <CustomButton
+                    {/* <CustomButton
                         theme="light"
                         text="Mint"
                         size={14}
                         className={styles.buttonRight}
                         onClick={mint}
-                    />
+                    /> */}
                 
                     <CustomButton
                         theme="light"
