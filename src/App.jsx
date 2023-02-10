@@ -187,6 +187,7 @@ export default function App() {
   effectManager.scene = scene
 
   screenshotManager.scene = scene
+  screenshotManager.blinkManager = blinkManager
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return

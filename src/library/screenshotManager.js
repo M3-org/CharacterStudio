@@ -9,14 +9,16 @@ export class ScreenshotManager {
       preserveDrawingBuffer: true
     });
 
-    this.renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+    const width = 500;
+    const height = 750;
+    this.renderTarget = new THREE.WebGLRenderTarget(width, height);
     this.renderTarget.texture.encoding = THREE.sRGBEncoding;
 
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(width, height);
 
     this.camera = new THREE.PerspectiveCamera(
       30,
-      window.innerWidth / window.innerHeight,
+      width / height,
       0.1,
       1000,
     )
@@ -36,6 +38,7 @@ export class ScreenshotManager {
   saveAsImage(imageName) {
     let imgData;
     try {
+      this.blinkManager.setEyeOpen();
       this.renderer.render(this.scene, this.camera);
       const strDownloadMime = "image/octet-stream";
       const strMime = "image/png";
