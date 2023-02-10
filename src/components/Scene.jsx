@@ -89,22 +89,14 @@ export default function Scene({sceneModel, lookatManager}) {
 
     setControls(controls)
 
-    const limitControls = () =>{
-      if (controls.target.y > 1.5) controls.target.y = 1.5;
-      if (controls.target.y < 0) controls.target.y = 0;
-
-      if (controls.target.x > 0.5) controls.target.x = 0.5;
-      if (controls.target.x < -0.5) controls.target.x = -0.5;
-
-      if (controls.target.z > 0.5) controls.target.z = 0.5;
-      if (controls.target.z < -0.5) controls.target.z = -0.5;   
-    }
+    const minPan = new THREE.Vector3(-0.5,-0.5,0);
+    const maxPan = new THREE.Vector3(0.5,1.5,0.5);
 
     // start animation frame loop to render
     const animate = () => {
       requestAnimationFrame(animate)
       if (currentCameraMode !== CameraMode.AR) {
-        limitControls();
+        controls.target.clamp(minPan,maxPan)
         controls?.update()
         lookatManager.update();
         renderer.render(scene, camera)
