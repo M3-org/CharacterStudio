@@ -75,9 +75,17 @@ export class AnimationManager{
         offset[2]
       );
     }
+    this.paused = false;
     setInterval(() => {
-      //this.update();
+      if (!this.paused)
+        this.update();
     }, 1000/30);
+  }
+  pause(){
+    this.paused = true;
+  }
+  resume(){
+    this.paused = false;
   }
   async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
