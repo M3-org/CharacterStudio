@@ -8,11 +8,10 @@ export class ScreenshotManager {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true
     });
+    this.renderer.outputEncoding = THREE.sRGBEncoding
 
     const width = 500;
     const height = 750;
-    this.renderTarget = new THREE.WebGLRenderTarget(width, height);
-    this.renderTarget.texture.encoding = THREE.sRGBEncoding;
 
     this.renderer.setSize(width, height);
 
