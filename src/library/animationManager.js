@@ -48,11 +48,6 @@ class AnimationControl {
     this.actions[curIdx].play();
   }
 
-  reset(){
-    this.to.reset();
-    this.to.play();
-  }
-
   dispose(){
     this.animationManager.disposeAnimation(this);
     //console.log("todo dispose animation control")
@@ -80,22 +75,9 @@ export class AnimationManager{
         offset[2]
       );
     }
-    this.paused = false;
     setInterval(() => {
-      if (!this.paused)
-        this.update();
+      this.update();
     }, 1000/30);
-  }
-  pause(){
-    this.paused = true;
-  }
-  resume(){
-    this.paused = false;
-  }
-  reset(){
-    this.animationControls.forEach(control => {
-      control.reset()
-    }); 
   }
   async loadAnimations(path){
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;

@@ -37,7 +37,6 @@ export class ScreenshotManager {
   saveAsImage(imageName) {
     let imgData;
     try {
-      this.blinkManager.setEyeOpen();
       this.renderer.render(this.scene, this.camera);
       const strDownloadMime = "image/octet-stream";
       const strMime = "image/png";

@@ -184,7 +184,6 @@ export default function App() {
   effectManager.scene = scene
 
   screenshotManager.scene = scene
-  screenshotManager.blinkManager = blinkManager
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return
@@ -300,7 +299,7 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} animationManager = {animationManager}/>,
+    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager}/>,
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
