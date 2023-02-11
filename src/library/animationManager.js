@@ -76,7 +76,7 @@ export class AnimationManager{
       );
     }
     setInterval(() => {
-      this.update();
+      //this.update();
     }, 1000/30);
   }
   async loadAnimations(path){
