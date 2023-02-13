@@ -12,6 +12,8 @@ import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from
 import { getGLBBlobData } from "../library/download-utils"
 import styles from "./Mint.module.css"
 
+const localVector = new THREE.Vector3();
+
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
@@ -90,21 +92,25 @@ export default function MintPopup({screenshotManager}) {
     })
     return metadataTraits
   }
-  const headPosition = new THREE.Vector3();
+
+  
   const mintAsset = async (avatar) => {
-    avatar.traverse(o => {
-      if (o.isSkinnedMesh) {
-        const headBone = o.skeleton.bones.filter(bone=>bone.name==='head')[0]
-        headBone.getWorldPosition(headPosition)
-      }
-    });
     // let walletAddress = await connectWallet()
 
     // const pass = await checkOT(walletAddress);
     const pass = true;
+
     if(pass) {
       setMintStatus("Uploading...")
       let imageHash, glbHash;
+
+      avatar.traverse(o => {
+        if (o.isSkinnedMesh) {
+          const headBone = o.skeleton.bones.filter(bone=>bone.name==='head')[0]
+          headBone.getWorldPosition(localVector)
+        }
+      });
+      const headPosition = localVector;
       const cameraFov = 1.0;
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
