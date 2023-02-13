@@ -92,7 +92,6 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
   }
   const headPosition = new THREE.Vector3();
   const mintAsset = async (avatar) => {
-    console.log(avatar)
     avatar.traverse(o => {
       if (o.isSkinnedMesh) {
         const headBone = o.skeleton.bones.filter(bone=>bone.name==='head')[0]
