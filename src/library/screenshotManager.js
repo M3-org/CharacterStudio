@@ -23,14 +23,14 @@ export class ScreenshotManager {
     )
   }
 
-  setCamera(height, playerCameraDistance) {
-    this.camera.position.y = height;
+  setCamera(headPosition, playerCameraDistance) {
+    this.camera.position.copy(headPosition);
 
     localVector.set(0, 0, -1);
     this.cameraDir = localVector.applyQuaternion(this.camera.quaternion);
     this.cameraDir.normalize();
-    this.camera.position.x = -this.cameraDir.x * playerCameraDistance;
-    this.camera.position.z = -this.cameraDir.z * playerCameraDistance;
+    this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
+    this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
 
   }
 

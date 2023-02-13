@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
 import React, { Fragment, useContext, useState, useEffect } from "react"
@@ -88,8 +90,15 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
     })
     return metadataTraits
   }
-
+  const headPosition = new THREE.Vector3();
   const mintAsset = async (avatar) => {
+    console.log(avatar)
+    avatar.traverse(o => {
+      if (o.isSkinnedMesh) {
+        const headBone = o.skeleton.bones.filter(bone=>bone.name==='head')[0]
+        headBone.getWorldPosition(headPosition)
+      }
+    });
     // let walletAddress = await connectWallet()
 
     // const pass = await checkOT(walletAddress);
@@ -97,9 +106,6 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
     if(pass) {
       setMintStatus("Uploading...")
       let imageHash, glbHash;
-      
-      const female = templateInfo.name === 'Drophunter' ? true : false;
-      const headPosition = female ? 1.35 : 1.45;
       const cameraFov = 1.0;
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
