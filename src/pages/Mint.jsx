@@ -7,7 +7,7 @@ import CustomButton from "../components/custom-button"
 
 function MintComponent({screenshotManager}) {
   const { setViewMode } = React.useContext(ViewContext)
-  const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
+  // const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
 
   const back = () => {
     setViewMode(ViewMode.SAVE)
@@ -25,7 +25,7 @@ function MintComponent({screenshotManager}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           
-          <Mint screenshotManager = {screenshotManager} screenshotPosition = {screenshotPosition}/>
+          <Mint screenshotManager = {screenshotManager}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>

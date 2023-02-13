@@ -17,7 +17,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({screenshotPosition, screenshotManager}) {
+export default function MintPopup({screenshotManager}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
   const [tokenPrice, setTokenPrice] = useState(null);
@@ -198,10 +198,10 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
     }
   }
 
-  const  takeScreenshot = async () => {
-    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
-    const glb = await getGLBBlobData(model)
-  }
+  // const  takeScreenshot = async () => {
+  //   const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+  //   const glb = await getGLBBlobData(model)
+  // }
 
   const checkOT = async (address) => {
     if(address) {
