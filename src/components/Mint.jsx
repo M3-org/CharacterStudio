@@ -106,8 +106,8 @@ export default function MintPopup({screenshotManager}) {
 
       avatar.traverse(o => {
         if (o.isSkinnedMesh) {
-          const headBone = o.skeleton.bones.filter(bone=>bone.name==='head')[0]
-          headBone.getWorldPosition(localVector)
+          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+          headBone.getWorldPosition(localVector);
         }
       });
       const headPosition = localVector;
