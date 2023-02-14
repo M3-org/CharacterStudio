@@ -36,7 +36,7 @@ export class ScreenshotManager {
     this.cameraDir.normalize();
     this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
     this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
-
+    
   }
 
   saveAsImage(imageName) {
