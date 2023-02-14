@@ -111,7 +111,8 @@ export default function MintPopup({screenshotManager}) {
         }
       });
       const headPosition = localVector;
-      const cameraFov = 1.0;
+      const female = templateInfo.name === "Drophunter";
+      const cameraFov = female ? 0.78 : 0.85;
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
       const screenshot = screenshotManager.saveAsImage(imageName);
