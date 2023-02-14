@@ -1,6 +1,8 @@
 import * as THREE from "three"
 import { Buffer } from "buffer";
 
+const screenshotSize = 4096;
+
 const localVector = new THREE.Vector3();
 
 const textureLoader = new THREE.TextureLoader();
@@ -13,19 +15,10 @@ export class ScreenshotManager {
       preserveDrawingBuffer: true,
       antialias: true
     });
-    this.renderer.outputEncoding = THREE.sRGBEncoding
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.setSize(screenshotSize, screenshotSize);
 
-    const width = 512;
-    const height = 512;
-
-    this.renderer.setSize(width, height);
-
-    this.camera = new THREE.PerspectiveCamera(
-      30,
-      width / height,
-      0.1,
-      1000,
-    )
+    this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
   }
 
   setCamera(headPosition, playerCameraDistance) {
@@ -36,7 +29,7 @@ export class ScreenshotManager {
     this.cameraDir.normalize();
     this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
     this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
-    
+
   }
 
   saveAsImage(imageName) {
