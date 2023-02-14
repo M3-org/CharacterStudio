@@ -8,7 +8,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 
-function MintComponent({screenshotManager, blinkManager}) {
+function MintComponent({screenshotManager, blinkManager, animationManager}) {
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -31,7 +31,7 @@ function MintComponent({screenshotManager, blinkManager}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           
-          <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager}/>
+          <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>

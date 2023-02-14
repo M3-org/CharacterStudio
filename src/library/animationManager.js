@@ -48,6 +48,15 @@ class AnimationControl {
     this.actions[curIdx].play();
   }
 
+  enableScreenshot() {
+    this.mixer.setTime(0);
+    this.to.paused = true;
+  }
+
+  disableScreenshot() {
+    this.to.paused = false;
+  }
+
   dispose(){
     this.animationManager.disposeAnimation(this);
     //console.log("todo dispose animation control")
@@ -91,6 +100,18 @@ export class AnimationManager{
     this.mainControl = new AnimationControl(this, anim, anim.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(this.mainControl)
   
+  }
+
+  enableScreenshot() {
+    this.animationControls.forEach(control => {
+      control.enableScreenshot()
+    }); 
+  }
+
+  disableScreenshot() {
+    this.animationControls.forEach(control => {
+      control.disableScreenshot()
+    }); 
   }
 
   offsetHips(){

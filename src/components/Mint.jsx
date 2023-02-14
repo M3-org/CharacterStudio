@@ -19,7 +19,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({screenshotManager, blinkManager}) {
+export default function MintPopup({screenshotManager, blinkManager, animationManager}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
   const [tokenPrice, setTokenPrice] = useState(null);
@@ -101,6 +101,7 @@ export default function MintPopup({screenshotManager, blinkManager}) {
     const pass = true;
 
     if(pass) {
+      animationManager.enableScreenshot();
       blinkManager.enableScreenshot();
       setMintStatus("Uploading...")
       let imageHash, glbHash;
@@ -116,8 +117,10 @@ export default function MintPopup({screenshotManager, blinkManager}) {
       const cameraFov = female ? 0.78 : 0.85;
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
+      
       const screenshot = screenshotManager.saveAsImage(imageName);
       blinkManager.disableScreenshot();
+      animationManager.disableScreenshot();
 
       // const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
       if (screenshot) {
