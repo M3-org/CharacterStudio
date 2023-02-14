@@ -73,7 +73,8 @@ export class ScreenshotManager {
       link.click();
       document.body.removeChild(link); //remove the link when done
     } else {
-      location.replace(uri);
+      const win = window.open(strData, "_blank");
+      win.document.write("<title>" + filename + "</title><img src='" + strData + "'/>");
     }
   }
 
