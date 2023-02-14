@@ -255,21 +255,7 @@ export default function App() {
       async function asyncResolve() {
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-        let initialTraits = localStorage.getItem("initialTraits")
-        if (!initialTraits) {
-          initialTraits = initialTraits = [
-            ...new Set([
-              ...getAsArray(manifest[index].requiredTraits),
-              ...getAsArray(manifest[index].randomTraits),
-            ]),
-          ]
-          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-        } else {
-          initialTraits = JSON.parse(initialTraits)
-        }
-
         setTemplateInfo(manifest[index])
-
         resolve(manifest[index])
       }
     })

@@ -6,10 +6,9 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { getAsArray } from "../library/utils"
 import {
-  getMultipleRandomTraits,
-  getInitialTraits, 
-  getTraitOptions,
-  getClassOptions
+  getClassOptions,
+  getRandomizedTemplateOptions,
+  getTraitOptions
 } from "../library/option-utils"
 
 import styles from "./Editor.module.css"
@@ -32,8 +31,9 @@ export default function Editor({animationManager, blinkManager, lookatManager, e
   useEffect(() => {
     if (awaitDisplay){
       setSelectedOptions(
-        loadUserSelection(templateInfo.name) ||
-        getMultipleRandomTraits(getInitialTraits(templateInfo), templateInfo))
+        loadUserSelection(templateInfo.name)
+        || getRandomizedTemplateOptions(templateInfo)
+      )
         setAwaitDisplay(false)
     }
     setCurrentTraitName(null)
