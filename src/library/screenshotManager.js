@@ -10,7 +10,8 @@ backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
 export class ScreenshotManager {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({
-      preserveDrawingBuffer: true
+      preserveDrawingBuffer: true,
+      antialias: true
     });
     this.renderer.outputEncoding = THREE.sRGBEncoding
 
