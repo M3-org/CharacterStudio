@@ -9,9 +9,7 @@ import { downloadGLB, downloadVRM } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
 
-
 const defaultName = "Anon"
-
 
 export const ExportMenu = () => {
   const { setEnsName, setConnected } = useContext(AccountContext)
