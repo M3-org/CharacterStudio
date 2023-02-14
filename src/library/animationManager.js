@@ -48,12 +48,12 @@ class AnimationControl {
     this.actions[curIdx].play();
   }
 
-  enableScreenshot() {
+  reset() {
     this.mixer.setTime(0);
     this.to.paused = true;
   }
 
-  disableScreenshot() {
+  resume() {
     this.to.paused = false;
   }
 
@@ -104,13 +104,13 @@ export class AnimationManager{
 
   enableScreenshot() {
     this.animationControls.forEach(control => {
-      control.enableScreenshot()
+      control.reset()
     }); 
   }
 
   disableScreenshot() {
     this.animationControls.forEach(control => {
-      control.disableScreenshot()
+      control.resume()
     }); 
   }
 
