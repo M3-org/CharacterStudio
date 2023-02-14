@@ -5,7 +5,7 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 import Mint from "../components/Mint"
 import CustomButton from "../components/custom-button"
 
-function MintComponent({screenshotManager, blinkManager}) {
+function MintComponent({screenshotManager, blinkManager, animationManager}) {
   const { setViewMode } = React.useContext(ViewContext)
   // const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
 
@@ -25,7 +25,7 @@ function MintComponent({screenshotManager, blinkManager}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           
-          <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager}/>
+          <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>
