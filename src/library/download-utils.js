@@ -3,6 +3,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { cloneSkeleton, combine } from "./merge-geometry"
 import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
+import VRMExporterv0 from "./VRMExporterv0"
 
 
 function cloneAvatarModel (avatarToClone){
@@ -152,11 +153,13 @@ function parseGLB (glbModel){
 function parseVRM (glbModel, avatar){
   return new Promise((resolve) => {
     const exporter = new VRMExporter()
+    const exporterv0 = new VRMExporterv0()
+    console.log(exporterv0)
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
     }
-    exporter.parse(vrmData, glbModel, (vrm) => {
+    exporterv0.parse(vrmData, glbModel, (vrm) => {
       resolve(vrm)
     })
   })
