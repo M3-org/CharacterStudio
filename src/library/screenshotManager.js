@@ -10,8 +10,8 @@ export class ScreenshotManager {
     });
     this.renderer.outputEncoding = THREE.sRGBEncoding
 
-    const width = 500;
-    const height = 750;
+    const width = 512;
+    const height = 512;
 
     this.renderer.setSize(width, height);
 
