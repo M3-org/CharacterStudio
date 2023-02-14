@@ -3,6 +3,10 @@ import { Buffer } from "buffer";
 
 const localVector = new THREE.Vector3();
 
+const textureLoader = new THREE.TextureLoader();
+const backgroundTexture = textureLoader.load(`/assets/backgrounds/main-background2.jpg`);
+backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
+
 export class ScreenshotManager {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({
@@ -37,6 +41,7 @@ export class ScreenshotManager {
   saveAsImage(imageName) {
     let imgData;
     try {
+      this.scene.background = backgroundTexture;
       this.renderer.render(this.scene, this.camera);
       const strDownloadMime = "image/octet-stream";
       const strMime = "image/png";
@@ -49,6 +54,7 @@ export class ScreenshotManager {
       const blob = new Blob([base64Data], { type: "image/jpeg" });
       
       this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+      this.scene.background = null;
       return blob;
     } catch (e) {
       console.log(e);
