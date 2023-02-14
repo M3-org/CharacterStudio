@@ -42,8 +42,6 @@ export const SceneProvider = (props) => {
 
   const [blinkManager, setBlinkManager] = useState(null)
 
-  const [initialTraits, setInitialTraits] = useState(null)
-
   const [controls, setControls] = useState(null)
 
   const [lipSync, setLipSync] = useState(null)
@@ -186,8 +184,6 @@ export const SceneProvider = (props) => {
         setTemplateInfo,
         blinkManager,
         setBlinkManager,
-        initialTraits,
-        setInitialTraits,
         manifest,
         setManifest,
         sceneModel,

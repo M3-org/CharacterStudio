@@ -5,11 +5,6 @@ export function getRandomizedTemplateOptions (template) {
   return getMultipleRandomTraits(getInitialTraits(template),template)
 }
 
-// const resetCurrentCharacter = () =>{
-//   setSelectedOptions(
-//     loadUserSelection(templateInfo.name)
-//   )
-// }
 export function getInitialTraits(template){
 
   return[
