@@ -1,8 +1,8 @@
 import * as THREE from "three"
 import { getAsArray } from "./utils"
 
-export function getRandomizedTemplateOptions (template) {
-  return getMultipleRandomTraits(getInitialTraits(template),template)
+export function getRandomizedTemplateOptions(template) {
+  return getMultipleRandomTraits(getInitialTraits(template),template);
 }
 
 export function getInitialTraits(template){
