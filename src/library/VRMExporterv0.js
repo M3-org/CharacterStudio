@@ -221,7 +221,7 @@ export default class VRMExporterv0 {
             mesh.geometry.userData.targetNames = [];
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({mesh:outputNodes.length, index:obj.index, weight:obj.weight * 100  }))
+                const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
                 let isPreset = false;
                 for (const presetName in VRMExpressionPresetName) {
                     if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
@@ -492,7 +492,7 @@ export default class VRMExporterv0 {
             bufferViews: outputBufferViews,
             extensions: {
                 VRM: {
-                  blendshape: blendShapeGroups,
+                    blendShapeMaster: {blendShapeGroups},
                     //firstPerson: vrmFirstPerson,
                     humanoid: vrmHumanoid,
                     lookAt: vrmLookAt,
