@@ -30,7 +30,7 @@ export function cloneSkeleton(skinnedMesh) {
     return newSkeleton;
 }
 
-function createMergedSkeleton(meshes, isVrm0 = false){
+function createMergedSkeleton(meshes){
     /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
     for example ones that come from head (to add hair movement), should start with vrm's connected bone 
     followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
@@ -50,11 +50,6 @@ function createMergedSkeleton(meshes, isVrm0 = false){
                         bone:bone.clone(false),
                         parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                     }   
-                    if (isVrm0){
-                        // boneData.boneInverses.scale(zxNeg)
-                        // bone.position.x *= -1;
-                        // bone.position.z *= -1;
-                    }
                     index++
                     boneClones.set(bone.name, boneData);
                 }        
@@ -116,7 +111,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
 
-    const newSkeleton = createMergedSkeleton(meshes, isVrm0);
+    const newSkeleton = createMergedSkeleton(meshes);
 
     meshes.forEach((mesh) => {
         const geometry = mesh.geometry;
