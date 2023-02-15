@@ -260,7 +260,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadVRM(model, avatar, name, 4096, false)
+          downloadVRM(model, avatar, name, 4096, true)
           //download(model, name, "vrm")
         }}
       />

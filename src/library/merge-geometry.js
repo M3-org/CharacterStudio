@@ -8,6 +8,8 @@ export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
     for (const bone of skinnedMesh.skeleton.bones) {
         const clone = bone.clone(false);
+        // clone.position.x *= -1;
+        // clone.position.z *= -1;
         boneClones.set(bone, clone);
     }
     // Preserve original bone structure
@@ -49,7 +51,9 @@ function createMergedSkeleton(meshes, isVrm0 = false){
                         parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                     }   
                     if (isVrm0){
-                        boneData.boneInverses.scale(zxNeg)
+                        // boneData.boneInverses.scale(zxNeg)
+                        // bone.position.x *= -1;
+                        // bone.position.z *= -1;
                     }
                     index++
                     boneClones.set(bone.name, boneData);
