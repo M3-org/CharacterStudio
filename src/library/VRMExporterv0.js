@@ -225,26 +225,29 @@ export default class VRMExporterv0 {
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
                 const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
-                let isPreset = false;
-                for (const presetName in VRMExpressionPresetName) {
-                    if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
-                      blendShapeGroups.push({
+                //only add those that have connected binds
+                if (morphTargetBinds.length > 0){
+                    let isPreset = false;
+                    for (const presetName in VRMExpressionPresetName) {
+                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
+                        blendShapeGroups.push({
+                            name:prop,
+                            presetName: getVRM0BlendshapeName(prop),
+                            binds:morphTargetBinds,
+                            isBinary:expression.isBinary,
+                        })
+                        isPreset = true;
+                        break;
+                        }
+                    }
+                    if (isPreset === false){
+                    blendShapeGroups.push({
                         name:prop,
-                        presetName: getVRM0BlendshapeName(prop),
+                        presetName: "unknown",
                         binds:morphTargetBinds,
                         isBinary:expression.isBinary,
-                      })
-                      isPreset = true;
-                      break;
+                    })
                     }
-                }
-                if (isPreset === false){
-                  blendShapeGroups.push({
-                    name:prop,
-                    presetName: "unknown",
-                    binds:morphTargetBinds,
-                    isBinary:expression.isBinary,
-                  })
                 }
                 
                 // to do, material target binds, and texture transform binds
@@ -360,7 +363,7 @@ export default class VRMExporterv0 {
                 // _CullMode : 0,
                 // _Cutoff : 0.5,
                 // _DebugMode : 0,
-                // _DstBlend : 0,
+                _DstBlend : 0.5,
                 // _IndirectLightIntensity : 0.1,
                 // _LightColorAttenuation : 0,
                 // _MToonVersion : 38, 
@@ -374,9 +377,9 @@ export default class VRMExporterv0 {
                 // _RimFresnelPower : 1, 
                 // _RimLift : 0, 
                 // _RimLightingMix : 0, 
-                // _ShadeShift : 0, 
-                // _ShadeToony : 0.9, 
-                // _ShadingGradeRate : 1, 
+                _ShadeShift : 0.5, 
+                _ShadeToony : 0.5, 
+                _ShadingGradeRate : 0.5, 
                 // _SrcBlend : 1, 
                 // _UvAnimRotation : 0,
                 // _UvAnimScrollX : 0, 
