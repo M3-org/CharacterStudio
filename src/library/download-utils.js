@@ -1,8 +1,9 @@
-import { Group, MeshStandardMaterial, Color } from "three"
+import { Group, MeshStandardMaterial, Color, Vector3 } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { cloneSkeleton, combine } from "./merge-geometry"
 import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
+import VRMExporterv0 from "./VRMExporterv0"
 
 
 function cloneAvatarModel (avatarToClone){
@@ -58,13 +59,13 @@ function getUnopotimizedGLB (avatarToDownload){
 
     return unoptimizedGLB;
 }
-function getOptimizedGLB(avatarToDownload, atlasSize){
+function getOptimizedGLB(avatarToDownload, atlasSize, isVrm0 = false){
     const avatarToDownloadClone = cloneAvatarModel(avatarToDownload)
     return combine({
       transparentColor: new Color(1,1,1),
       avatar: avatarToDownloadClone,
       atlasSize,
-    })
+    }, isVrm0)
 }
 
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
@@ -75,9 +76,9 @@ export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimi
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 
-export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096){
-  const model = await getOptimizedGLB(avatarToDownload, atlasSize)
-  const vrm = await parseVRM(model, avatar);
+export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
+  const model = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0)
+  const vrm = await parseVRM(model, avatar, isVrm0);
   // save it as glb now
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
@@ -92,18 +93,18 @@ async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true)
     const model = getUnopotimizedGLB(avatarToDownload)
     return parseGLB(model);
   }
-}
-async function getVRMData(avatarToDownload, avatar, atlasSize  = 4096){
+} 
+async function getVRMData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
 
-  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize);
-  return parseVRM(vrmModel,avatar) 
+  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
+  return parseVRM(vrmModel,avatar, isVrm0) 
 }
 
-export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096){
+export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096, isVrm0 = false){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
-  getVRMData(avatarToDownload, avatar, atlasSize).then((vrm)=>{
+  getVRMData(avatarToDownload, avatar, atlasSize, isVrm0).then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
@@ -149,13 +150,37 @@ function parseGLB (glbModel){
   })
 }
 
-function parseVRM (glbModel, avatar){
+function parseVRM (glbModel, avatar, isVrm0 = false){
   return new Promise((resolve) => {
-    const exporter = new VRMExporter()
+    const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
     }
+    let skinnedMesh;
+    glbModel.traverse(child => {
+      if (child.isSkinnedMesh) skinnedMesh = child;
+    })
+    // debugger
+    skinnedMesh.skeleton.bones.forEach(bone => {
+      bone._worldPosition = bone.getWorldPosition(new Vector3());
+      bone._worldPosition.x *= -1;
+      bone._worldPosition.z *= -1;
+    })
+    skinnedMesh.skeleton.bones.forEach(bone => {
+      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.startsWith('Bone')) {
+        bone.position.x = bone._worldPosition.x - bone.parent._worldPosition.x;
+        bone.position.z = bone._worldPosition.z - bone.parent._worldPosition.z;
+      }
+    })
+    skinnedMesh.skeleton.bones.forEach(bone => {
+      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.startsWith('Bone')) {
+        bone.updateMatrixWorld();
+      }
+    })
+    skinnedMesh.skeleton.calculateInverses();
+    skinnedMesh.skeleton.computeBoneTexture();
+    skinnedMesh.skeleton.update();
     exporter.parse(vrmData, glbModel, (vrm) => {
       resolve(vrm)
     })
