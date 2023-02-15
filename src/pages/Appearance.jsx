@@ -7,17 +7,13 @@ import CustomButton from '../components/custom-button'
 
 
 function Appearance({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
-    const { setViewMode } = React.useContext(ViewContext);
-    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
-
+    const { isLoading, setViewMode } = React.useContext(ViewContext)
     const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
+    
     const back = () => {
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    effectManager.addEventListener('fadeinavatarend', () => {
-        setIsChangingWholeAvatar(false);
-    })
 
     const next = () => {
         setViewMode(ViewMode.BIO)
@@ -29,12 +25,17 @@ function Appearance({animationManager, blinkManager, lookatManager, effectManage
             //
         }
     }
-    const reset = () =>{
-        //loadAvatarFromLocalStorage("character");
-    }
-    const save = () =>{
-        //saveAvatarToLocalStorage("character");
-    }
+
+    useEffect(() => {
+        const setIsChangingWholeAvatarFalse = () => setIsChangingWholeAvatar(false);
+
+        effectManager.addEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        }
+    }, [])
 
 
     return (

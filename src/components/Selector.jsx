@@ -47,10 +47,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {isLoading, setIsLoading} = useContext(ViewContext)
-  const {setIsPlayingEffect} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
-  const [loadPercentage, setLoadPercentage] = useState(1)
+  const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
 
@@ -231,7 +230,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
     setIsLoading(true);
-    setIsPlayingEffect(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()
