@@ -1,4 +1,4 @@
-import { BufferAttribute, } from "three";
+import { BufferAttribute, Euler } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
@@ -162,6 +162,9 @@ export default class VRMExporterv0 {
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
         }); // TODO: 画像がないMaterialもある\
 
+        
+        
+
         const images = mainImages.concat(shadeImages);
 
         const outputImages = toOutputImages(images, icon);
@@ -172,7 +175,10 @@ export default class VRMExporterv0 {
             child.children[0].type === VRMObjectType.Bone)[0];
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
         const nodeNames = nodes.map((node) => node.name);
-        const outputNodes = nodes.map((node) => ({
+        const outputNodes = nodes.map((node) => {
+            //const rotation = new Euler().setFromQuaternion( node.quaternion, 'XYZ' );
+            //console.log(node.quaternion)
+            return {
             children: node.children
                 .filter((childNode) => childNode.name !== SPRINGBONE_COLLIDER_NAME)
                 .map((childNode) => nodeNames.indexOf(childNode.name)),
@@ -185,7 +191,8 @@ export default class VRMExporterv0 {
             ],
             scale: [node.scale.x, node.scale.y, node.scale.z],
             translation: [node.position.x, node.position.y, node.position.z],
-        }));
+            }
+        });
         const outputAccessors = [];
         const meshes = avatar.children.filter((child) => child.type === VRMObjectType.Group ||
             child.type === VRMObjectType.SkinnedMesh);
