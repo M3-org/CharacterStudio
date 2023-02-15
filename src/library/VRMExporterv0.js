@@ -108,7 +108,6 @@ export default class VRMExporterv0 {
         //const expressionsPreset = {};
         //const expressionCustom = {};
         const blendShapeGroups = [];
-        const lookAt = vrm.lookAt;
 
         // to do, add support to spring bones
         //const springBone = vrm.springBoneManager;
@@ -129,9 +128,6 @@ export default class VRMExporterv0 {
         }
         else if (!materials) {
             throw new Error("materials is undefined or null");
-        }
-        else if (!lookAt) {
-            throw new Error("lookAt is undefined or null");
         }
 
         // add support to spring bones
@@ -323,96 +319,6 @@ export default class VRMExporterv0 {
         //     ],
         // });
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
-        // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        // const blendShapeMaster = {
-        //     blendShapeGroups: Object.values(blendShapeProxy._blendShapeGroups).map((blendShape) => ({
-        //         binds: blendShape._binds.map((bind) => ({
-        //             index: bind.morphTargetIndex,
-        //             mesh: outputMeshes
-        //                 .map((mesh) => mesh.name)
-        //                 .indexOf(bind.meshes[0].name),
-        //             weight: bind.weight * 100,
-        //         })),
-        //         isBinary: blendShape.isBinary,
-        //         materialValues: blendShape._materialValues,
-        //         name: blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""),
-        //         presetName: Object.entries(blendShapeProxy.blendShapePresetMap).filter((x) => 
-        //         x[1] === blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""))[0][0],
-        //     })),
-        // };
-        // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
-        const vrmLookAt = {
-          //offsetFromHeadBone: [lookAt.offsetFromHeadBone.x,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
-          offsetFromHeadBone: [0,0,0],
-          rangeMapHorizontalInner: {
-              inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapHorizontalInner.outputScale,
-          },
-          rangeMapHorizontalOuter: {
-              inputMaxValue: lookAt.applier.rangeMapHorizontalOuter.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapHorizontalOuter.outputScale,
-          },
-          rangeMapVerticalDown: {
-              inputMaxValue: lookAt.applier.rangeMapVerticalDown.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapVerticalDown.outputScale,
-          },
-          rangeMapVerticalUp: {
-              inputMaxValue: lookAt.applier.rangeMapVerticalUp.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapVerticalUp.outputScale,
-          },
-          type: "bone"
-        };
-
-        //temporal, taking the first node as it is the skinned mesh renderer
-        // const vrmFirstPerson = {
-        //     meshAnnotations:[
-        //         {node:243, type:"auto"}
-        //     ]
-        // }
-
-        // const vrmFirstPerson = {
-        //     firstPersonBone: nodeNames.indexOf(
-        //     lookAt.firstPerson._firstPersonBone.name),
-        //     firstPersonBoneOffset: lookAt.firstPerson._firstPersonBoneOffset,
-        //     lookAtHorizontalInner: {
-        //         curve: lookAt.applyer._curveHorizontalInner.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalInner.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalInner.curveYRangeDegree),
-        //     },
-        //     lookAtHorizontalOuter: {
-        //         curve: lookAt.applyer._curveHorizontalOuter.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalOuter.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalOuter.curveYRangeDegree),
-        //     },
-        //     lookAtTypeName: lookAt.applyer.type,
-        //     lookAtVerticalDown: {
-        //         curve: lookAt.applyer._curveVerticalDown.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalDown.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalDown.curveYRangeDegree),
-        //     },
-        //     lookAtVerticalUp: {
-        //         curve: lookAt.applyer._curveVerticalUp.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalUp.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalUp.curveYRangeDegree),
-        //     },
-        //     meshAnnotations: lookAt.firstPerson.meshAnnotations.map((annotation) => ({
-        //         firstPersonFlag: annotation.firstPersonFlag === 0 ? "Auto" : "",
-        //         mesh: outputMeshes
-        //             .map((mesh) => mesh.name)
-        //             .indexOf(annotation.primitives[0].name), // TODO: とりあえず対応
-        //     })),
-        // };
-
-
 
         const vrmHumanoid = {
           humanBones: []
@@ -446,9 +352,72 @@ export default class VRMExporterv0 {
         //     upperArmTwist: humanoid.humanDescription.upperArmTwist,
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
-        const materialProperties = uniqueMaterials.map((material) => 
-            material.userData.vrmMaterialProperties
-        );
+        
+        const materialProperties = [{
+            floatProperties : {
+                _BlendMode : 0, 
+                _BumpScale : 1, 
+                _CullMode : 0,
+                _Cutoff : 0.5,
+                _DebugMode : 0,
+                _DstBlend : 0,
+                _IndirectLightIntensity : 0.1,
+                _LightColorAttenuation : 0,
+                _MToonVersion : 38, 
+                _OutlineColorMode : 0,
+                _OutlineCullMode : 1, 
+                _OutlineLightingMix : 1,
+                _OutlineScaledMaxDistance : 1, 
+                _OutlineWidth : 0.079, 
+                _OutlineWidthMode : 1, 
+                _ReceiveShadowRate : 1,
+                _RimFresnelPower : 1, 
+                _RimLift : 0, 
+                _RimLightingMix : 0, 
+                _ShadeShift : 0, 
+                _ShadeToony : 0.9, 
+                _ShadingGradeRate : 1, 
+                _SrcBlend : 1, 
+                _UvAnimRotation : 0,
+                _UvAnimScrollX : 0, 
+                _UvAnimScrollY : 0, 
+                _ZWrite : 1
+            },
+            keywordMap : {
+                _NORMALMAP : false, 
+                MTOON_OUTLINE_COLOR_FIXED : true, 
+                MTOON_OUTLINE_WIDTH_WORLD : true
+            }, 
+            name : "CombinedMat", 
+            renderQueue : 2000, 
+            shader : "VRM/MToon", 
+            tagMap : {
+                RenderType : "Opaque"
+            }, 
+            textureProperties : {
+                _BumpMap : 1, 
+                _MainTex : 0, 
+                _ShadeTexture : 0
+            }, 
+            vectorProperties : {
+                _BumpMap : [0, 0, 1, 1], 
+                _Color : [1, 1, 1, 1], 
+                _EmissionColor : [0, 0, 0, 1], 
+                _EmissionMap : [0, 0, 1, 1], 
+                _MainTex : [0, 0, 1, 1], 
+                _OutlineColor : [0, 0, 0, 1], 
+                _OutlineWidthTexture : [0, 0, 1, 1], 
+                _ReceiveShadowTexture : [0, 0, 1, 1], 
+                _RimColor : [0, 0, 0, 1], 
+                _RimTexture : [0, 0, 1, 1], 
+                _ShadeColor : [0.745283, 0.6573959, 0.684599, 1], 
+                _ShadeTexture : [0, 0, 1, 1], 
+                _ShadingGradeTexture : [0, 0, 1, 1], 
+                _SphereAdd : [0, 0, 1, 1], 
+                _UvAnimMaskTexture : [0, 0, 1, 1]
+            }
+        }]
+
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
         //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
@@ -510,10 +479,9 @@ export default class VRMExporterv0 {
                         lookAtVerticalDown: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
                         lookAtVerticalUp: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
                     },
+                    materialProperties,
                     humanoid: vrmHumanoid,
-                    lookAt: vrmLookAt,
                     meta: outputVrmMeta,
-                    //materialProperties: materialProperties,
                     //secondaryAnimation: outputSecondaryAnimation,
                     specVersion: "0.0"
                 },
