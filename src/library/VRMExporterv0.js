@@ -1,4 +1,4 @@
-import { BufferAttribute, Euler } from "three";
+import { BufferAttribute, Euler, Vector3 } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
@@ -501,6 +501,15 @@ export default class VRMExporterv0 {
                 VRM: {
                     blendShapeMaster: {blendShapeGroups},
                     //firstPerson: vrmFirstPerson,
+                    firstPerson: {
+                        firstPersonBone: 44,
+                        firstPersonBoneOffset: new Vector3(),
+                        lookAtHorizontalInner: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtHorizontalOuter: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtTypeName: 'Bone',
+                        lookAtVerticalDown: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtVerticalUp: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                    },
                     humanoid: vrmHumanoid,
                     lookAt: vrmLookAt,
                     meta: outputVrmMeta,
