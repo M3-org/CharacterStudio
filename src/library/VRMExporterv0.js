@@ -98,11 +98,8 @@ function getVRM0BoneName(name){
 }
 export default class VRMExporterv0 {
     parse(vrm, avatar, onDone) {
-      console.log("EXPORT VRM 0")
-        console.log("VRM HERE", vrm)
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
-        console.log(humanoid)
         
         const materials = vrm.materials;
         //const expressionsPreset = {};
@@ -335,7 +332,6 @@ export default class VRMExporterv0 {
             useDefaultValues:true
           })
         });
-        console.log(vrmHumanoid)
 
         //rest of the data is stored in VRMHumanoidDescription
         // const vrmHumanoid = {
@@ -502,7 +498,6 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);

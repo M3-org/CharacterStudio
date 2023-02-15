@@ -110,7 +110,6 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
-    console.log(isVrm0)
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)

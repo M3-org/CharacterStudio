@@ -153,7 +153,6 @@ function parseGLB (glbModel){
 function parseVRM (glbModel, avatar, isVrm0 = false){
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
-    console.log(exporter)
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
