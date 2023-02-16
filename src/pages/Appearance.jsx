@@ -22,7 +22,6 @@ function Appearance({animationManager, blinkManager, lookatManager, effectManage
     const randomize = () => {
         if (!isChangingWholeAvatar) {
             getRandomCharacter()
-            //
         }
     }
 
