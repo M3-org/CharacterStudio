@@ -19,6 +19,7 @@ import Background from "./components/Background"
 import View from "./pages/View"
 import Save from "./pages/Save"
 import Load from "./pages/Load"
+import Mint from "./pages/Mint"
 import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
@@ -188,7 +189,7 @@ export default function App() {
   const updateCameraPosition = () => {
     if (!effectManager.camera) return
 
-    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
+    if ([ViewMode.BIO, ViewMode.CHAT].includes(viewMode)) {
       // auto move camera
       if (viewMode === ViewMode.CHAT) {
         cameraDistance = cameraDistanceChat
@@ -262,21 +263,7 @@ export default function App() {
       async function asyncResolve() {
         const animManager = await fetchAnimation(manifest[index])
         setAnimationManager(animManager)
-        let initialTraits = localStorage.getItem("initialTraits")
-        if (!initialTraits) {
-          initialTraits = initialTraits = [
-            ...new Set([
-              ...getAsArray(manifest[index].requiredTraits),
-              ...getAsArray(manifest[index].randomTraits),
-            ]),
-          ]
-          localStorage.setItem("initialTraits", JSON.stringify(initialTraits))
-        } else {
-          initialTraits = JSON.parse(initialTraits)
-        }
-
         setTemplateInfo(manifest[index])
-
         resolve(manifest[index])
       }
     })
@@ -299,7 +286,11 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
+///<<<<<<< tcm-screenshot
+    ///[ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
+///=======
+    [ViewMode.MINT]: <Mint />,
+///>>>>>>> full-mint-support
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }

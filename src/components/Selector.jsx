@@ -40,16 +40,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     mousePosition,
     removeOption,
     saveUserSelection,
+    setIsChangingWholeAvatar,
   } = useContext(SceneContext)
   const {
     playSound
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {isLoading, setIsLoading} = useContext(ViewContext)
-  const {setIsPlayingEffect} = useContext(ViewContext)
 
   const [selectValue, setSelectValue] = useState("0")
-  const [loadPercentage, setLoadPercentage] = useState(1)
+  const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
 
@@ -61,7 +61,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   }
   
   useEffect(() => {
-    //setSelectedOptions (getMultipleRandomTraits(initialTraits))
     setRestrictions(getRestrictions());
 
   },[templateInfo])
@@ -146,6 +145,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // options are selected by random or start
   useEffect(() => {
     if (selectedOptions.length > 0){
+      setIsChangingWholeAvatar(true);
       if (selectedOptions.length > 1){
         effectManager.setTransitionEffect('fade_out_avatar');
         effectManager.playFadeOutEffect();
@@ -167,13 +167,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         item:null,
         trait:templateInfo.traits.find((t) => t.name === currentTraitName)
       }
-      updateCurrentTraitMap(option.trait.trait, null)
     }
     else {
       if (currentTrait.get(option.trait.trait) === option.key) {
         return;
       }
-      updateCurrentTraitMap(option.trait.trait, option.key)
     }
     
     if (option.avatarIndex != null){
@@ -208,6 +206,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   // load options first
   const loadOptions = (options, filterRestrictions = true) => {
+    for (const option of options) {
+      updateCurrentTraitMap(option.trait.trait, option.key)
+    }
     // filter options by restrictions
 
     if (filterRestrictions)
@@ -229,7 +230,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
     setIsLoading(true);
-    setIsPlayingEffect(true);
 
     //create the manager for all the options
     const loadingManager = new THREE.LoadingManager()

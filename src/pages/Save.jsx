@@ -12,9 +12,9 @@ function Save() {
         setViewMode(ViewMode.BIO)
     }
 
-    const mint = () => {
-        setViewMode(ViewMode.CHAT)
-    }
+    // const mint = () => {
+    //     setViewMode(ViewMode.MINT)
+    // }
 
 
   const next = () => {
@@ -25,30 +25,36 @@ function Save() {
         <div className={styles.container}>
             <div className={"sectionTitle"}>Save Your Character</div>
             <div className={styles.buttonContainer}>
-                <CustomButton
-                    theme="light"
-                    text="Back"
-                    size={14}
-                    className={styles.buttonLeft}
-                    onClick={back}
-                />
+                <div className={styles.leftButtonContainer}>
+                    <CustomButton
+                        theme="light"
+                        text="Back"
+                        size={14}
+                        className={styles.buttonLeft}
+                        onClick={back}
+                    />
+                </div>
+                
+
                 <ExportMenu />
-                {/*
-                <CustomButton
-                    theme="light"
-                    text="Chat"
-                    size={14}
-                    className={styles.buttonRight}
-                    onClick={mint}
-                />
-                */}
-                <CustomButton
-                    theme="light"
-                    text="Chat"
-                    size={14}
-                    className={styles.buttonRight}
-                    onClick={next}
-                />
+
+                <div className={styles.rightButtonContainer}>
+                    {/* <CustomButton
+                        theme="light"
+                        text="Mint"
+                        size={14}
+                        className={styles.buttonRight}
+                        onClick={mint}
+                    /> */}
+                
+                    <CustomButton
+                        theme="light"
+                        text="Chat"
+                        size={14}
+                        className={styles.buttonRight}
+                        onClick={next}
+                    />
+                </div>
             </div>
         </div>
     );

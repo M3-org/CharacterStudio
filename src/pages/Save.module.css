@@ -1,18 +1,26 @@
+.container{
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
 .buttonContainer {
-    position: absolute;
-    bottom: 20px;
-    left: 32px;
-    width: calc(100% - 64px);
-    width: -webkit-calc(100% - 64px);
-    text-align: center;
+    z-index: 0;
+    width: 100%;
+    padding: 20px 32px;
+    display: flex;
 }
 
-.buttonContainer .buttonLeft {
-    float: left;
+.buttonContainer .leftButtonContainer{
+    margin-right: auto;
+    display: inline-flex;
+
 }
 
-.buttonContainer .buttonRight {
-    float: Right;
+.buttonContainer .rightButtonContainer{
+    margin-left: auto;
+    display: inline-flex;
 }
 
 .buttonContainer .buttonCenter {

@@ -6,42 +6,36 @@ import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
 
-function Appearance({initialTraits, animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
-    const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter,saveAvatarToLocalStorage,loadAvatarFromLocalStorage } = React.useContext(SceneContext)
-    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
+function Appearance({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
+    const { isLoading, setViewMode } = React.useContext(ViewContext)
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
+    
     const back = () => {
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    useEffect(() => {
-        const setIsPlayingEffectFalse = () => {
-            setIsPlayingEffect(false);
-        }
-        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
-        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        return () => {
-            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
-            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        }
-    }, [])
 
     const next = () => {
         setViewMode(ViewMode.BIO)
     }
 
     const randomize = () => {
-        if (!isPlayingEffect) {
+        if (!isChangingWholeAvatar) {
             getRandomCharacter()
             //
         }
     }
-    const reset = () =>{
-        //loadAvatarFromLocalStorage("character");
-    }
-    const save = () =>{
-        //saveAvatarToLocalStorage("character");
-    }
+
+    useEffect(() => {
+        const setIsChangingWholeAvatarFalse = () => setIsChangingWholeAvatar(false);
+
+        effectManager.addEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        }
+    }, [])
 
 
     return (
@@ -50,7 +44,7 @@ function Appearance({initialTraits, animationManager, blinkManager, lookatManage
                 <img className={"rotate"} src="ui/loading.svg"/>
             </div>
             <div className={"sectionTitle"}>Choose Appearance</div>
-        <Editor animationManager={animationManager} initialTraits={initialTraits} blinkManager={blinkManager} lookatManager={lookatManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
+        <Editor animationManager={animationManager} blinkManager={blinkManager} lookatManager={lookatManager} effectManager={effectManager} fetchNewModel={fetchNewModel} />
             <div className={styles.buttonContainer}>
                 <CustomButton
                     theme="light"
