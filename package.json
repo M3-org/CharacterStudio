@@ -53,6 +53,7 @@
     "eslint-plugin-no-inline-styles": "^1.0.5",
     "eslint-plugin-react": "^7.31.11",
     "prettier": "^2.3.2",
+    "sass": "^1.58.0",
     "vite": "^4.0.0"
   }
 }
