@@ -8,6 +8,8 @@ export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
     for (const bone of skinnedMesh.skeleton.bones) {
         const clone = bone.clone(false);
+        // clone.position.x *= -1;
+        // clone.position.z *= -1;
         boneClones.set(bone, clone);
     }
     // Preserve original bone structure
@@ -35,6 +37,7 @@ function createMergedSkeleton(meshes){
     this will avoid an error of not adding bones if they have they same name but are in different hierarchy location
     todo: add to a user guide how to name bones to avoid this error */
     const boneClones = new Map();
+    const zxNeg = new THREE.Vector3(-1,1,-1)
     let index = 0;
     meshes.forEach(mesh => {
         if (mesh.skeleton){
@@ -46,7 +49,7 @@ function createMergedSkeleton(meshes){
                         boneInverses:mesh.skeleton.boneInverses[boneInd],
                         bone:bone.clone(false),
                         parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
-                    }
+                    }   
                     index++
                     boneClones.set(bone.name, boneData);
                 }        
@@ -57,11 +60,15 @@ function createMergedSkeleton(meshes){
     const finalBones = [];
     const finalBoneInverses = [];
     let boneClonesArr =[ ...boneClones.values() ];
+    // console.log(boneClonesArr[0])
+    // console.log(boneClonesArr[1])
+    //boneClonesArr[0].boneInverses.makeScale(-1,1,1)
+    // boneClonesArr[1].bone.rotateY ( 3.14159 )
     boneClonesArr.forEach(bnClone => {
         finalBones.push(bnClone.bone)
         finalBoneInverses.push(bnClone.boneInverses)
         if (bnClone.parentName != null){
-            const parent = boneClones.get(bnClone.parentName)?.bone
+            const parent = boneClones.get(bnClone.parentName)?.bone 
             if (parent)
                 parent.add(bnClone.bone)
         }
@@ -97,7 +104,7 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
     }
 }
 
-export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
+export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
@@ -125,8 +132,16 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
         }
     });
     
-    const { dest } = mergeGeometry({ meshes });
+    const { dest } = mergeGeometry({ meshes },isVrm0);
     const geometry = new THREE.BufferGeometry();
+
+    if (isVrm0){
+        for (let i = 0; i < dest.attributes.position.array.length; i+=3){
+            dest.attributes.position.array[i] *= -1
+            dest.attributes.position.array[i+2] *= -1
+        }
+    }
+
     geometry.attributes = dest.attributes;
     geometry.morphAttributes = dest.morphAttributes;
     geometry.morphTargetsRelative = true;
@@ -146,7 +161,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }) {
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
-    
     mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
@@ -217,7 +231,7 @@ function mergeSourceMorphTargetDictionaries({ sourceMorphTargetDictionaries }) {
     });
     return destMorphTargetDictionary;
 }
-function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, }) {
+function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, }, isVrm0 = false) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
     allSourceMorphAttributes.forEach((sourceMorphAttributes) => {
@@ -252,6 +266,13 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         merged[propName] = [];
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
             merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
+            if (isVrm0){
+                const buffArr = merged[propName][i].array;
+                for (let j = 0; j < buffArr.length; j+=3){
+                    buffArr[j] *= -1;
+                    buffArr[j+2] *= -1;
+                }
+            }
         }
     });
     return merged;
@@ -441,7 +462,7 @@ function mergeSourceIndices({ meshes }) {
 // function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
 //     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 // }
-export function mergeGeometry({ meshes }) {
+export function mergeGeometry({ meshes }, isVrm0 = false) {
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
@@ -473,7 +494,7 @@ export function mergeGeometry({ meshes }) {
         sourceMorphAttributes: source.morphAttributes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
-    });
+    },isVrm0);
     dest.morphTargetInfluences = mergeMorphTargetInfluences({
         meshes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,

@@ -7,35 +7,36 @@ import CustomButton from '../components/custom-button'
 
 
 function Appearance({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
-    const { setViewMode } = React.useContext(ViewContext);
-    const { resetAvatar, getRandomCharacter } = React.useContext(SceneContext)
-    const { isLoading, isPlayingEffect, setIsPlayingEffect } = React.useContext(ViewContext)
+    const { isLoading, setViewMode } = React.useContext(ViewContext)
+    const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
+    
     const back = () => {
         resetAvatar();
         setViewMode(ViewMode.CREATE)
     }
-    useEffect(() => {
-        const setIsPlayingEffectFalse = () => {
-            setIsPlayingEffect(false);
-        }
-        effectManager.addEventListener('fadeintraitend', setIsPlayingEffectFalse)
-        effectManager.addEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        return () => {
-            effectManager.removeEventListener('fadeintraitend', setIsPlayingEffectFalse)
-            effectManager.removeEventListener('fadeinavatarend', setIsPlayingEffectFalse)
-        }
-    }, [])
 
     const next = () => {
         setViewMode(ViewMode.BIO)
     }
 
     const randomize = () => {
-        if (!isPlayingEffect) {
+        if (!isChangingWholeAvatar) {
             getRandomCharacter()
             //
         }
     }
+
+    useEffect(() => {
+        const setIsChangingWholeAvatarFalse = () => setIsChangingWholeAvatar(false);
+
+        effectManager.addEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+        effectManager.addEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        return () => {
+            effectManager.removeEventListener('fadeintraitend', setIsChangingWholeAvatarFalse)
+            effectManager.removeEventListener('fadeinavatarend', setIsChangingWholeAvatarFalse)
+        }
+    }, [])
+
 
     return (
         <div className={styles.container}>
