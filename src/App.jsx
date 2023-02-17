@@ -284,7 +284,7 @@ export default function App() {
     let imageName = "AvatarImage_" + Date.now() + ".png";
     
     //const screenshot = screenshotManager.saveAsImage(imageName);
-    const screenshot = screenshotManager.getScreenhotImage();
+    const screenshot = screenshotManager.getScreenshotTexture(256,256);
     blinkManager.disableScreenshot();
     animationManager.disableScreenshot();
 

@@ -57,40 +57,41 @@ export class ScreenshotManager {
 
   }
 
-  _createImage(){
+  _createImage(width, height){
+    this.renderer.setSize(width, height);
     try {
       this.scene.background = backgroundTexture;
       this.renderer.render(this.scene, this.camera);
       const strMime = "image/png";
       let imgData = this.renderer.domElement.toDataURL(strMime);
+      this.scene.background = null;
       return  imgData
     } catch (e) {
       console.log(e);
       return null;
     }
   }
-  saveScreenshot(imageName){
-    const imgData =  this._createImage()
+  saveScreenshot(imageName,width, height){
+    const imgData =  this._createImage(width, height)
     const strDownloadMime = "image/octet-stream";
     const strMime = "image/png";
     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
   }
 
-  getScreenhotImage(){
-    const imgData = this._createImage();
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = imgData.width;
-    canvas.height = imgData.height;
-    ctx.putImageData(imgData, 0, 0);
-
-    var image = new Image();
-    image.src = canvas.toDataURL();
-    return image;
+  getScreenshotImage(width, height){
+    const imgData = this._createImage(width, height);
+    const img = new Image();
+    img.src = imgData;
+    return img;
   }
-  getScreenshotBlob(){
-    const imgData = this._createImage()
+  getScreenshotTexture(width, height){
+    const img = this.getScreenshotImage(width,height)
+    const texture = new THREE.Texture(img);
+    texture.needsUpdate = true;
+    return texture;
+  }
+  getScreenshotBlob(width, height){
+    const imgData = this._createImage(width, height)
     const base64Data = Buffer.from(
       imgData.replace(/^data:image\/\w+;base64,/, ""),
       "base64"

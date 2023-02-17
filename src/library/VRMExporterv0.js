@@ -137,12 +137,11 @@ export default class VRMExporterv0 {
             .map((material) => material);
 
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
-        console.log(vrmMeta.texture)
-        console.log(screenshot)
-        const icon = { name: "icon", imageBitmap: screenshot }
-        // const icon = vrmMeta.texture
-        //     ? { name: "icon", imageBitmap: vrmMeta.texture.image }
-        //     : null; // TODO: ない場合もある
+
+        const icon = screenshot
+            ? { name: "icon", imageBitmap: screenshot.image }
+            : null; // TODO: ない場合もある
+        
         const mainImages = uniqueMaterials
             .filter((material) => material.map)
             .map((material) => {
@@ -157,10 +156,7 @@ export default class VRMExporterv0 {
                 throw new Error(material.userData.shadeTexture + " map is null");
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
         }); // TODO: 画像がないMaterialもある\
-
         
-        
-
         const images = mainImages.concat(shadeImages);
 
         const outputImages = toOutputImages(images, icon);
@@ -193,6 +189,7 @@ export default class VRMExporterv0 {
         const meshes = avatar.children.filter((child) => child.type === VRMObjectType.Group ||
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
+        
         meshes.forEach((object) => {
             const mesh = (object.type === VRMObjectType.Group
                 ? object.children[0]
@@ -420,6 +417,8 @@ export default class VRMExporterv0 {
 
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
+        outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
+
         //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
         const bufferViews = [];
         bufferViews.push(...images.map((image) => ({
