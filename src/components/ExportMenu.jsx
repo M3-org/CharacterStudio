@@ -20,7 +20,7 @@ import styles from "./ExportMenu.module.css"
 const defaultName = "Anon"
 
 
-export const ExportMenu = () => {
+export const ExportMenu = ({takeFaceScreenshot}) => {
   // const type = "_Gen1" // class type
 
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
@@ -260,6 +260,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
+          takeFaceScreenshot();
           downloadVRM(model, avatar, name, 4096, true)
           //download(model, name, "vrm")
         }}
