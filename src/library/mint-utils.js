@@ -154,6 +154,7 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
         const metadataIpfs = `ipfs://${metaDataHash.IpfsHash}`
 
         let price = await getTokenPrice()
+        console.log(price)
 
         const signer = new ethers.providers.Web3Provider(
           window.ethereum,
