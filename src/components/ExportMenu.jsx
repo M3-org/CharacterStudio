@@ -260,8 +260,8 @@ export const ExportMenu = ({takeFaceScreenshot}) => {
         size={14}
         className={styles.button}
         onClick={() => {
-          takeFaceScreenshot();
-          downloadVRM(model, avatar, name, 4096, true)
+          const screenshot = takeFaceScreenshot();
+          downloadVRM(model, avatar, name, screenshot, 4096, true)
           //download(model, name, "vrm")
         }}
       />

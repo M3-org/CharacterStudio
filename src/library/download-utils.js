@@ -76,9 +76,9 @@ export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimi
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 
-export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
+export async function getVRMBlobData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, isVrm0 = false){
   const model = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0)
-  const vrm = await parseVRM(model, avatar, isVrm0);
+  const vrm = await parseVRM(model, avatar, screenshot, isVrm0);
   // save it as glb now
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
@@ -94,17 +94,17 @@ async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true)
     return parseGLB(model);
   }
 } 
-async function getVRMData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
+async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, isVrm0 = false){
 
   const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
-  return parseVRM(vrmModel,avatar, isVrm0) 
+  return parseVRM(vrmModel,avatar,screenshot, isVrm0) 
 }
 
-export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096, isVrm0 = false){
+export async function downloadVRM(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, isVrm0 = false){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
-  getVRMData(avatarToDownload, avatar, atlasSize, isVrm0).then((vrm)=>{
+  getVRMData(avatarToDownload, avatar, screenshot, atlasSize, isVrm0).then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
@@ -150,7 +150,7 @@ function parseGLB (glbModel){
   })
 }
 
-function parseVRM (glbModel, avatar, isVrm0 = false){
+function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
@@ -181,7 +181,7 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     skinnedMesh.skeleton.calculateInverses();
     skinnedMesh.skeleton.computeBoneTexture();
     skinnedMesh.skeleton.update();
-    exporter.parse(vrmData, glbModel, (vrm) => {
+    exporter.parse(vrmData, glbModel,screenshot, (vrm) => {
       resolve(vrm)
     })
   })

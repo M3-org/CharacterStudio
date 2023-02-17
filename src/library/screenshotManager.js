@@ -57,6 +57,36 @@ export class ScreenshotManager {
 
   }
 
+  _createImage(){
+    try {
+      this.scene.background = backgroundTexture;
+      this.renderer.render(this.scene, this.camera);
+      const strMime = "image/png";
+      let imgData = this.renderer.domElement.toDataURL(strMime);
+      return  imgData
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+  saveScreenshot(){
+    const imgData =  this._createImage()
+    this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+  }
+
+  getScreenhotImage(){
+    return this._createImage();
+  }
+  getScreenshotBlob(){
+    const imgData = this._createImage()
+    const base64Data = Buffer.from(
+      imgData.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+    const blob = new Blob([base64Data], { type: "image/jpeg" }); 
+    return blob; 
+  }
+
   saveFile (strData, filename) {
     const link = document.createElement('a');
     if (typeof link.download === 'string') {

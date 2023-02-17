@@ -97,7 +97,7 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, onDone) {
+    parse(vrm, avatar, screenshot, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -137,9 +137,12 @@ export default class VRMExporterv0 {
             .map((material) => material);
 
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
-        const icon = vrmMeta.texture
-            ? { name: "icon", imageBitmap: vrmMeta.texture.image }
-            : null; // TODO: ない場合もある
+        console.log(vrmMeta.texture)
+        console.log(screenshot)
+        const icon = { name: "icon", imageBitmap: screenshot }
+        // const icon = vrmMeta.texture
+        //     ? { name: "icon", imageBitmap: vrmMeta.texture.image }
+        //     : null; // TODO: ない場合もある
         const mainImages = uniqueMaterials
             .filter((material) => material.map)
             .map((material) => {
