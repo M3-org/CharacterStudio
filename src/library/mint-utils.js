@@ -6,7 +6,7 @@ import axios from "axios"
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
-const mintCost = 0.01
+//const mintCost = 0.01
 const chainId = "0x89";
 let tokenPrice;
 
@@ -76,10 +76,12 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
     if (!model)
         throw new Error("No model was provided")
 
-    const walletAddress = connectWallet();
+    const walletAddress = await connectWallet();
+    if (walletAddress == "")
+      throw new Error("No adress was connected") 
 
     const pass = !needCheckOT || await checkOT(walletAddress);
-
+    console.log("debug")
     if (pass){
         console.log("minting")
         // set image
@@ -102,10 +104,12 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           return 'failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
         })
-
+        console.log("debug")
         const glb = await getGLBBlobData(model)
+        console.log(glb)
         let glbHash;
         if (glb) {
+          console.log("debug")
             let glbName = "AvatarGlb_" + Date.now() + ".glb";
             glbHash = await (async() => {
             for (let i = 0; i < 10; i++) { // hack: give it a few tries, sometimes uploading to pinata fail for some reason
@@ -132,7 +136,7 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           
           return 'Unable to get glb'
         }
-
+        console.log("debug")
         // attributes are noew provided as parameter
         // const attributes = getAvatarTraits()
         const metadata = {
