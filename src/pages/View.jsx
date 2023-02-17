@@ -44,13 +44,13 @@ function View({templateInfo}) {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <CustomButton
+        {/* <CustomButton
           theme="light"
           text="Next"
           size={14}
           className={styles.buttonRight}
           onClick={next}
-        />
+        /> */}
       </div>
     </div>
   )
