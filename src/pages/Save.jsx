@@ -5,7 +5,7 @@ import { ExportMenu } from '../components/ExportMenu';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import CustomButton from '../components/custom-button';
 
-function Save({takeFaceScreenshot}) {
+function Save({getFaceScreenshot}) {
     const { setViewMode } = React.useContext(ViewContext);
 
     const back = () => {
@@ -36,7 +36,7 @@ function Save({takeFaceScreenshot}) {
                 </div>
                 
 
-                <ExportMenu takeFaceScreenshot = {takeFaceScreenshot}/>
+                <ExportMenu getFaceScreenshot = {getFaceScreenshot}/>
 
                 <div className={styles.rightButtonContainer}>
                     {/* <CustomButton

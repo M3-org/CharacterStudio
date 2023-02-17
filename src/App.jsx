@@ -269,7 +269,7 @@ export default function App() {
     })
   }
 
-  const takeFaceScreenshot = () => {
+  const getFaceScreenshot = () => {
     blinkManager.enableScreenshot();
     model.traverse(o => {
       if (o.isSkinnedMesh) {
@@ -283,7 +283,8 @@ export default function App() {
     screenshotManager.setCamera(headPosition, cameraFov);
     let imageName = "AvatarImage_" + Date.now() + ".png";
     
-    const screenshot = screenshotManager.saveAsImage(imageName);
+    //const screenshot = screenshotManager.saveAsImage(imageName);
+    const screenshot = screenshotManager.getScreenhotImage();
     blinkManager.disableScreenshot();
     animationManager.disableScreenshot();
 
@@ -308,7 +309,7 @@ export default function App() {
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
-    [ViewMode.SAVE]: <Save takeFaceScreenshot = {takeFaceScreenshot}/>,
+    [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
 

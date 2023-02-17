@@ -69,13 +69,25 @@ export class ScreenshotManager {
       return null;
     }
   }
-  saveScreenshot(){
+  saveScreenshot(imageName){
     const imgData =  this._createImage()
+    const strDownloadMime = "image/octet-stream";
+    const strMime = "image/png";
     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
   }
 
   getScreenhotImage(){
-    return this._createImage();
+    const imgData = this._createImage();
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = imgData.width;
+    canvas.height = imgData.height;
+    ctx.putImageData(imgData, 0, 0);
+
+    var image = new Image();
+    image.src = canvas.toDataURL();
+    return image;
   }
   getScreenshotBlob(){
     const imgData = this._createImage()
