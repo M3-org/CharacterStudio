@@ -168,13 +168,13 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
       bone._worldPosition.z *= -1;
     })
     skinnedMesh.skeleton.bones.forEach(bone => {
-      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.startsWith('Bone')) {
+      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.includes('Bang') && !bone.name.startsWith('Bone')) {
         bone.position.x = bone._worldPosition.x - bone.parent._worldPosition.x;
         bone.position.z = bone._worldPosition.z - bone.parent._worldPosition.z;
       }
     })
     skinnedMesh.skeleton.bones.forEach(bone => {
-      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.startsWith('Bone')) {
+      if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.includes('Bang') && !bone.name.startsWith('Bone')) {
         bone.updateMatrixWorld();
       }
     })
