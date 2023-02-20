@@ -3,18 +3,28 @@ import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
+
 function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
 
   const back = () => {
     setViewMode(ViewMode.LANDING)
+    !isMute && playSound('backNextButton');
   }
 
   const selectClass = (characterClass) => {
     fetchNewModel(characterClass.templateIndex).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
+    !isMute && playSound('classSelect');
 
+  }
+  const hoverClass = () => {
+    !isMute && playSound('classMouseOver');
   }
 
   const classes = [
@@ -94,6 +104,11 @@ function Create({fetchNewModel}) {
                 characterClass["disabled"]
                   ? null
                   : () => selectClass(characterClass)
+              }
+              onMouseOver={
+                characterClass["disabled"]
+                  ? null
+                  : () => hoverClass()
               }
             >
             <div

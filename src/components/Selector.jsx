@@ -137,6 +137,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         if (Object.keys(finalAvatar).length > 0) {
           cullHiddenMeshes(finalAvatar)
         }
+        !isMute && playSound('characterLoad');
       }, effectManager.transitionTime);
       setAvatar(finalAvatar)
     })

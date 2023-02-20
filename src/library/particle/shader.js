@@ -233,6 +233,10 @@ const spotLightFragment = `\
     gl_FragColor = vec4(rimColor, pow(1. - rim, 2.0));
     gl_FragColor *= pow(1. - vUv.y, 3.0);
     gl_FragColor *= opacity;
+    float avatarGroundPosition = -0.1;
+    if (vWorldPosition.y < avatarGroundPosition) {
+      discard;
+    }
   }
 `
 

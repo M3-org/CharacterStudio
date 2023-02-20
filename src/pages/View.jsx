@@ -4,14 +4,21 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 import Chat from "../components/Chat"
 import CustomButton from "../components/custom-button"
 
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
+
 function View({templateInfo}) {
   const { setViewMode } = React.useContext(ViewContext)
 
   const [micEnabled, setMicEnabled] = React.useState(false)
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
+
   const back = () => {
     setViewMode(ViewMode.BIO)
+    !isMute && playSound('backNextButton');
     if (speechRecognition)
       speechRecognition.stop()
     setMicEnabled(false)

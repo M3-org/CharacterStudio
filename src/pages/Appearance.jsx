@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import styles from './Appearance.module.css';
 import { ViewMode, ViewContext } from '../context/ViewContext';
 import { SceneContext } from "../context/SceneContext"
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
 import Editor from '../components/Editor';
 import CustomButton from '../components/custom-button'
 
@@ -9,18 +11,24 @@ import CustomButton from '../components/custom-button'
 function Appearance({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
     const { isLoading, setViewMode } = React.useContext(ViewContext)
     const { resetAvatar, getRandomCharacter, isChangingWholeAvatar, setIsChangingWholeAvatar } = React.useContext(SceneContext)
-    
+    const { playSound } = React.useContext(SoundContext)
+    const { isMute } = React.useContext(AudioContext)
     const back = () => {
+        !isMute && playSound('backNextButton');
         resetAvatar();
         setViewMode(ViewMode.CREATE)
+        
     }
 
     const next = () => {
+        !isMute && playSound('backNextButton');
         setViewMode(ViewMode.BIO)
+        
     }
 
     const randomize = () => {
         if (!isChangingWholeAvatar) {
+            !isMute && playSound('randomizeButton');
             getRandomCharacter()
         }
     }
