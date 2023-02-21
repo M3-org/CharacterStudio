@@ -33,7 +33,7 @@ function Save() {
           text="Back"
           size={14}
           className={styles.buttonLeft}
-          onClick={back}
+          onClick={t('callToAction.back')}
         />
         <ExportMenu />
         {/*
@@ -47,7 +47,7 @@ function Save() {
                 */}
         <CustomButton
           theme="light"
-          text="Chat"
+          text={t('callToAction.chat')}
           size={14}
           className={styles.buttonRight}
           onClick={next}

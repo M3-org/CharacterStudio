@@ -42,7 +42,19 @@
         "callToAction": {
           "next": "Next",
           "back": "Back",
-          "randomize": "Randomize"
+          "randomize": "Randomize",
+          "chat": "Chat"
+        },
+        "editor": {
+            "title": "Appearance",
+            "head": "Head",
+            "body": "Body",
+            "eyes": "Eyes",
+            "outer": "Outer",
+            "chest": "Chest",
+            "legs": "Legs",
+            "feet": "Feet",
+            "accessories": "Accessories"
         }
     }
   }
