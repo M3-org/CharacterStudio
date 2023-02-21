@@ -78,21 +78,21 @@ function Appearance({
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
-          text="Back"
+          text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
         />
         <CustomButton
           theme="light"
-          text="Next"
+          text={t('callToAction.next')}
           size={14}
           className={styles.buttonRight}
           onClick={next}
         />
         <CustomButton
           theme="light"
-          text="Randomize"
+          text={t('callToAction.randomize')}
           size={14}
           className={styles.buttonCenter}
           onClick={randomize}

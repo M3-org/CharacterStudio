@@ -144,7 +144,7 @@ function Create({fetchNewModel}) {
       <div className={styles.buttonContainer}>
         { /* <CustomButton
           theme="light"
-          text="Back"
+          text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}

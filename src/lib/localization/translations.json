@@ -38,6 +38,11 @@
             "name": "Bruiser",
             "description": "Bruises things"
           }
+        },
+        "callToAction": {
+          "next": "Next",
+          "back": "Back",
+          "randomize": "Randomize"
         }
     }
   }
