@@ -2,9 +2,14 @@ import React from "react"
 import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
+import { LanguageContext } from "../context/LanguageContext"
+import { useContext } from "react"
 
 function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
+
+  // Translate hook
+  const {t} = useContext(LanguageContext);
 
   const back = () => {
     setViewMode(ViewMode.LANDING)
@@ -78,7 +83,7 @@ function Create({fetchNewModel}) {
 
   return (
     <div className={`${styles.container} horizontalScroll`}>
-      <div className={"sectionTitle"}>Choose Character Class</div>
+      <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
       <div className={styles.topLine} />
       <div className={styles.classContainer}>
         {classes.map((characterClass, i) => {

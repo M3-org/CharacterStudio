@@ -4,6 +4,7 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 import { SceneContext } from "./context/SceneContext"
+import { LanguageContext } from "./context/LanguageContext"
 import { ViewMode, ViewContext } from "./context/ViewContext"
 
 import { getAsArray } from "./library/utils"
@@ -319,9 +320,12 @@ export default function App() {
     setManifest(initialManifest)
   }, [initialManifest])
 
+  // Translate hook
+  const {t} = useContext(LanguageContext);
+
   return (
     <Fragment>
-      <div className="generalTitle">Character Creator</div>
+      <div className="generalTitle">Character Studio</div>
       <Background />
       <Scene
         manifest={manifest}
