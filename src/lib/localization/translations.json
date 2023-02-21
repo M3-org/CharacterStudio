@@ -1,62 +1,67 @@
 {
-    
   "en": {
     "translation": {
-        "pageTitles": {
-            "chooseClass": "Choose Character Class",
-            "chooseAppearance": "Choose Appearance",
-            "createBio": "Create Bio",
-            "saveCharacter": "Save Your Character",
-            "chat": "Chat With Your Character"
+      "pageTitles": {
+        "chooseClass": "Choose Character Class",
+        "chooseAppearance": "Choose Appearance",
+        "createBio": "Create Bio",
+        "saveCharacter": "Save Your Character",
+        "chat": "Chat With Your Character"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "Beast Painter",
+          "description": "Paints beasts"
         },
-        "classes": {
-          "beastPainter": {
-            "name": "Beast Painter",
-            "description": "Paints beasts"
-          },
-          "engineer": {
-            "name": "Engineer",
-            "description": "Builds things"
-          },
-          "dropHunter": {
-            "name": "Drop Hunter",
-            "description": "Hunts drops"
-          },
-          "theDegen": {
-            "name": "The Degen",
-            "description": "Degens"
-          },
-          "neuralHacker": {
-            "name": "Neural Hacker",
-            "description": "Hacks neural networks"
-          },
-          "liskWitch": {
-            "name": "Lisk Witch",
-            "description": "Witches lisk"
-          },
-          "bruiser": {
-            "name": "Bruiser",
-            "description": "Bruises things"
-          }
+        "engineer": {
+          "name": "Engineer",
+          "description": "Builds things"
         },
-        "callToAction": {
-          "next": "Next",
-          "back": "Back",
-          "randomize": "Randomize",
-          "chat": "Chat"
+        "dropHunter": {
+          "name": "Drop Hunter",
+          "description": "Hunts drops"
         },
-        "editor": {
-            "title": "Appearance",
-            "head": "Head",
-            "body": "Body",
-            "eyes": "Eyes",
-            "outer": "Outer",
-            "chest": "Chest",
-            "legs": "Legs",
-            "feet": "Feet",
-            "accessories": "Accessories"
+        "theDegen": {
+          "name": "The Degen",
+          "description": "Degens"
+        },
+        "neuralHacker": {
+          "name": "Neural Hacker",
+          "description": "Hacks neural networks"
+        },
+        "liskWitch": {
+          "name": "Lisk Witch",
+          "description": "Witches lisk"
+        },
+        "bruiser": {
+          "name": "Bruiser",
+          "description": "Bruises things"
         }
+      },
+      "callToAction": {
+        "next": "Next",
+        "back": "Back",
+        "randomize": "Randomize",
+        "chat": "Chat"
+      },
+      "editor": {
+        "title": "Appearance",
+        "head": "Head",
+        "body": "Body",
+        "eyes": "Eyes",
+        "outer": "Outer",
+        "chest": "Chest",
+        "legs": "Legs",
+        "feet": "Feet",
+        "accessories": "Accessories"
+      },
+      "labels": {
+        "name": "Name",
+        "voice": "Voice",
+        "preferredGreeting": "Preferred Greeting",
+        "bio": "Bio",
+        "question": "Question"
+      }
     }
   }
-
 }

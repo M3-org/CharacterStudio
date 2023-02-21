@@ -137,7 +137,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="name">
-                Name
+                {t("labels.name")}
               </label>
 
               <input
@@ -154,7 +154,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="voice">
-                Voice
+                {t("labels.voice")}
               </label>
 
               <select
@@ -178,7 +178,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="greeting">
-                Preferred Greeting
+                {t("labels.preferredGreeting")}
               </label>
 
               <input
@@ -192,7 +192,7 @@ function BioPage({ templateInfo, personality }) {
 
             {/* Bio */}
             <div className={styles.section}>
-              <label className={styles.label} htmlFor="bio">Bio</label>
+              <label className={styles.label} htmlFor="bio">{t("labels.bio")}</label>
 
               <textarea
                 name="bio"
@@ -209,7 +209,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question1">
-                Question 1
+                {t("labels.question")} 1
               </label>
 
               <select
@@ -251,7 +251,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question2">
-                Question 2
+                {t("labels.question")} 2
               </label>
 
               <select
@@ -292,7 +292,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question3">
-                Question 3
+                {t("labels.question")} 3
               </label>
               <select
                 name="question3"
