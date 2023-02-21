@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useContext } from "react"
 import styles from "./View.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import Chat from "../components/Chat"
 import CustomButton from "../components/custom-button"
+import { LanguageContext } from "../context/LanguageContext"
 
 function View({templateInfo}) {
   const { setViewMode } = React.useContext(ViewContext)
@@ -17,9 +18,12 @@ function View({templateInfo}) {
     setMicEnabled(false)
   }
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   return (
     <div className={styles.container}>
-      <div className={"sectionTitle"}>Chat With Your Character</div>
+      <div className={"sectionTitle"}>{t("pageTitles.chat")}</div>
       <div className={styles.chatContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />

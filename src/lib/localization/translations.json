@@ -3,9 +3,13 @@
   "en": {
     "translation": {
         "pageTitles": {
-            "chooseClass": "Choose Character Class"
+            "chooseClass": "Choose Character Class",
+            "chooseAppearance": "Choose Appearance",
+            "createBio": "Create Bio",
+            "saveCharacter": "Save Your Character",
+            "chat": "Chat With Your Character"
         }
     }
   }
-  
+
 }

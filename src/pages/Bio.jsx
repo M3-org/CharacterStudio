@@ -1,8 +1,9 @@
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import { voices } from "../constants/voices"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
+import { LanguageContext } from "../context/LanguageContext"
 
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
@@ -119,9 +120,12 @@ function BioPage({ templateInfo, personality }) {
     }
   }, [])
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   return (
     <div className={styles.container}>
-      <div className={"sectionTitle"}>Create Bio</div>
+      <div className={"sectionTitle"}>{t("pageTitles.createBio")}</div>
       <div className={styles.bioContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />

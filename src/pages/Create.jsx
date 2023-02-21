@@ -8,9 +8,6 @@ import { useContext } from "react"
 function Create({fetchNewModel}) {
   const { setViewMode } = React.useContext(ViewContext)
 
-  // Translate hook
-  const {t} = useContext(LanguageContext);
-
   const back = () => {
     setViewMode(ViewMode.LANDING)
   }
@@ -80,6 +77,9 @@ function Create({fetchNewModel}) {
         templateIndex:5
       },
   ]
+
+  // Translate hook
+  const {t} = useContext(LanguageContext);
 
   return (
     <div className={`${styles.container} horizontalScroll`}>
