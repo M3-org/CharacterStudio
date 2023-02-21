@@ -6,6 +6,10 @@ import { LanguageContext } from "../context/LanguageContext"
 import { useContext } from "react"
 
 function Create({fetchNewModel}) {
+
+  // Translate hook
+  const {t} = useContext(LanguageContext);
+
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
@@ -21,65 +25,62 @@ function Create({fetchNewModel}) {
 
   const classes = [
     {
-        name: "Beast Painter",
+        name: t('classes.beastPainter.name'),
         image: "/assets/media/disabled.png",
-        description: "Paints beasts",
+        description: t('classes.beastPainter.description'),
         icon: "/assets/icons/class-beast-painter.svg",
         disabled: true,
         templateIndex:2
       },
       {
-        name: "Engineer",
+        name: t('classes.engineer.name'),
         image: "/assets/media/disabled.png",
-        description: "Builds things",
+        description: t('classes.engineer.description'),
         icon: "/assets/icons/class-engineer.svg",
         disabled: true,
         templateIndex:3
       },
       {
-        name: "Drop Hunter",
+        name: t('classes.dropHunter.name'),
         image: "/assets/media/DropHunter.png",
-        description: "Hunts drops",
+        description: t('classes.dropHunter.description'),
         icon: "/assets/icons/class-drop-hunter.svg",
         disabled: false,
         templateIndex:0
       },
       {
-        name: "The Degen",
+        name: t('classes.theDegen.name'),
         image: "/assets/media/degens.gif",
-        description: "Degens",
+        description: t('classes.theDegen.description'),
         icon: "/assets/icons/class-the-degen.svg",
         disabled: true,
         templateIndex:6
       },
       {
-        name: "Neural Hacker",
+        name: t('classes.neuralHacker.name'),
         image: "/assets/media/NeuralHacker.png",
-        description: "Hacks neural networks",
+        description: t('classes.neuralHacker.description'),
         icon: "/assets/icons/class-neural-hacker.svg",
         disabled: false,
         templateIndex:1
       },
       {
-        name: "Lisk Witch",
+        name: t('classes.liskWitch.name'),
         image: "/assets/media/disabled.png",
-        description: "Witches lisk",
+        description: t('classes.liskWitch.description'),
         icon: "/assets/icons/class-lisk-witch.svg",
         disabled: true,
         templateIndex:4
       },
       {
-        name: "Bruiser",
+        name: t('classes.bruiser.name'),
         image: "/assets/media/disabled.png",
-        description: "Bruises things",
+        description: t('classes.bruiser.description'),
         icon: "/assets/icons/class-bruiser.svg",
         disabled: true,
         templateIndex:5
       },
   ]
-
-  // Translate hook
-  const {t} = useContext(LanguageContext);
 
   return (
     <div className={`${styles.container} horizontalScroll`}>

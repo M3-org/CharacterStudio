@@ -8,6 +8,36 @@
             "createBio": "Create Bio",
             "saveCharacter": "Save Your Character",
             "chat": "Chat With Your Character"
+        },
+        "classes": {
+          "beastPainter": {
+            "name": "Beast Painter",
+            "description": "Paints beasts"
+          },
+          "engineer": {
+            "name": "Engineer",
+            "description": "Builds things"
+          },
+          "dropHunter": {
+            "name": "Drop Hunter",
+            "description": "Hunts drops"
+          },
+          "theDegen": {
+            "name": "The Degen",
+            "description": "Degens"
+          },
+          "neuralHacker": {
+            "name": "Neural Hacker",
+            "description": "Hacks neural networks"
+          },
+          "liskWitch": {
+            "name": "Lisk Witch",
+            "description": "Witches lisk"
+          },
+          "bruiser": {
+            "name": "Bruiser",
+            "description": "Bruises things"
+          }
         }
     }
   }
