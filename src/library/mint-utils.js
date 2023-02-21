@@ -81,7 +81,6 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
       throw new Error("No adress was connected") 
 
     const pass = !needCheckOT || await checkOT(walletAddress);
-    console.log("debug")
     if (pass){
         console.log("minting")
         // set image
@@ -104,12 +103,9 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           return 'failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
         })
-        console.log("debug")
         const glb = await getGLBBlobData(model)
-        console.log(glb)
         let glbHash;
         if (glb) {
-          console.log("debug")
             let glbName = "AvatarGlb_" + Date.now() + ".glb";
             glbHash = await (async() => {
             for (let i = 0; i < 10; i++) { // hack: give it a few tries, sometimes uploading to pinata fail for some reason
@@ -119,7 +115,7 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
                     glbName
                 ).catch((reason) => {
                     console.error(i, "---", reason)
-                    console.log(("Couldn't save glb to pinata"))
+                    return "Couldn't save glb to pinata"
                     //setMintStatus("Couldn't save glb to pinata")
                 })
                 return glb_hash
@@ -127,8 +123,6 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
                 console.warn(err);
                 }
             }
-            //console.log(("Couldn't save glb to pinata"))
-            //setMintStatus("Couldn't save glb to pinata")
             return 'failed to upload glb'
             //throw new Error('failed to upload glb');
             })();
@@ -136,9 +130,6 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           
           return 'Unable to get glb'
         }
-        console.log("debug")
-        // attributes are noew provided as parameter
-        // const attributes = getAvatarTraits()
         const metadata = {
             name: "Avatars",
             description: "Character Studio Avatars.",
@@ -154,7 +145,6 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
         const metadataIpfs = `ipfs://${metaDataHash.IpfsHash}`
 
         let price = await getTokenPrice()
-        console.log(price)
 
         const signer = new ethers.providers.Web3Provider(
           window.ethereum,
