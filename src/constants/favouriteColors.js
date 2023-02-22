@@ -1,20 +1,11 @@
-const cols = [
-    "favouriteColors":{
-
-        "black":"#000000",
-        "white":"#FFFFFF"
-      }
-
-]
-
 export const favouriteColors = {
     red:{
         color:"#FF0000",
-        fontColor:"#FF9494",
+        fontColor:"#FF9494"
     },
     orange:{
         color:"#FF7300",
-        fontColor:"#FF9A47",
+        fontColor:"#FF9A47"
     },
     yellow:{
         color:"#FFC800",

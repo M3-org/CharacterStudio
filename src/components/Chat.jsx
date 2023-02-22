@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
@@ -30,9 +31,11 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
 
+
   const name = fullBio.name
   const bio = fullBio.description
   const voice = fullBio.voiceKey
+  const fontColor = favouriteColors[fullBio.colorKey]?.fontColor || "#FFFFFF"
   const greeting = fullBio.greeting
   const question1 = fullBio.personality.question
   const question2 = fullBio.relationship.question
@@ -245,7 +248,7 @@ ${agent}:`
       <label>Conversation</label>
       <div id={"msgscroll"} className={styles["messages"]}>
         {messages.map((message, index) => (
-          <div key={index}>{message}</div>
+          <div key={index} style = {index%2!==0?{color:fontColor}:{}}>{message}</div>
         ))}
       </div>
 
