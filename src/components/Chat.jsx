@@ -36,7 +36,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const bio = fullBio.description
   const voice = fullBio.voiceKey
   const fontColor = favouriteColors[fullBio.colorKey]?.fontColor || favouriteColors[Object.keys(favouriteColors)[0]].fontColor
-  console.log(fontColor)
   const greeting = fullBio.greeting
   const question1 = fullBio.personality.question
   const question2 = fullBio.relationship.question
