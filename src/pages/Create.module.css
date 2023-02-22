@@ -183,6 +183,7 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
   width: 100%;
   height: 1px;
+  z-index: 10;
 }
 
 .bottomLine {
@@ -208,4 +209,5 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
   width: 100%;
   height: 1px;
+  z-index: 10;
 }

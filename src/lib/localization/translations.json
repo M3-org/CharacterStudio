@@ -1,4 +1,5 @@
 {
+
   "en": {
     "translation": {
       "pageTitles": {
@@ -42,7 +43,8 @@
         "next": "Next",
         "back": "Back",
         "randomize": "Randomize",
-        "chat": "Chat"
+        "chat": "Chat",
+        "send": "Send"
       },
       "editor": {
         "title": "Appearance",
@@ -60,7 +62,84 @@
         "voice": "Voice",
         "preferredGreeting": "Preferred Greeting",
         "bio": "Bio",
-        "question": "Question"
+        "question": "Question",
+        "yourName": "Your Name",
+        "conversation": "Conversation"
+      },
+      "text": {
+        "unoptimized": "Unoptimized"
+      }
+    }
+  },
+
+  "ru": {
+    "translation": {
+      "pageTitles": {
+        "chooseClass": "Выбрать Класс Персонажа",
+        "chooseAppearance": "Выбрать Внешность",
+        "createBio": "Создать Биографию",
+        "saveCharacter": "Сохранить Персонажа",
+        "chat": "Чат Со Своим Персонажем"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "Beast Painter",
+          "description": "Paints beasts"
+        },
+        "engineer": {
+          "name": "Engineer",
+          "description": "Builds things"
+        },
+        "dropHunter": {
+          "name": "Охотник за дропами",
+          "description": "Hunts drops"
+        },
+        "theDegen": {
+          "name": "The Degen",
+          "description": "Degens"
+        },
+        "neuralHacker": {
+          "name": "Neural Hacker",
+          "description": "Hacks neural networks"
+        },
+        "liskWitch": {
+          "name": "Lisk Witch",
+          "description": "Witches lisk"
+        },
+        "bruiser": {
+          "name": "Bruiser",
+          "description": "Bruises things"
+        }
+      },
+      "callToAction": {
+        "next": "Next",
+        "back": "Back",
+        "randomize": "Рандомизировать",
+        "chat": "Чат",
+        "send": "Отправить"
+      },
+      "editor": {
+        "title": "Внешность",
+        "head": "Голова",
+        "body": "Тело",
+        "eyes": "Глаза",
+        "outer": "Outer",
+        "chest": "Грудь",
+        "legs": "Ноги",
+        "feet": "Стопы",
+        "accessories": "Аксессуары"
+      },
+      "labels": {
+        "name": "Имя",
+        "voice": "Голос",
+        "preferredGreeting": "Предпочитаемое Приветствие",
+        "bio": "Биография",
+        "question": "Вопрос",
+        "yourName": "Ваше Имя",
+        "conversation": "Разговор"
+      },
+      "text": {
+        "unoptimized": "Unoptimized"
       }
     }
   }
