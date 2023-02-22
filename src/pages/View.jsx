@@ -12,7 +12,7 @@ function View({templateInfo}) {
   const [speechRecognition, setSpeechRecognition] = React.useState(false)
 
   const back = () => {
-    setViewMode(ViewMode.BIO)
+    setViewMode(ViewMode.SAVE)
     if (speechRecognition)
       speechRecognition.stop()
     setMicEnabled(false)
