@@ -3,8 +3,12 @@ import { useTranslation, Trans } from "react-i18next"
 import styles from "./LanguageSwitch.module.css"
 
 const lngs = {
+  // English
   en: { nativeName: "English" },
+  // Russian
   ru: { nativeName: "Русский" },
+  // Chinese
+  zh: { nativeName: "中文" },
 }
 
 export default function LanguageSwitch() {

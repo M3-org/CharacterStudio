@@ -100,7 +100,7 @@
         },
         "neuralHacker": {
           "name": "Нейронный Хакер",
-          "description": "Взламывает нейронные сети"
+          "description": "Взламывает нейр. сети"
         },
         "liskWitch": {
           "name": "Лиск Ведьма",
@@ -140,6 +140,78 @@
       },
       "text": {
         "unoptimized": "Неоптимизи­рованный"
+      }
+    }
+  },
+
+  "zh": {
+    "translation": {
+      "pageTitles": {
+        "chooseClass": "选择角色类型",
+        "chooseAppearance": "选择外观",
+        "createBio": "创建简介",
+        "saveCharacter": "保存角色",
+        "chat": "与你的角色聊天"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "野兽画家",
+          "description": "画野兽"
+        },
+        "engineer": {
+          "name": "工程师",
+          "description": "建造物品"
+        },
+        "dropHunter": {
+          "name": "投放猎手",
+          "description": "猎取投放品"
+        },
+        "theDegen": {
+          "name": "豪赌者",
+          "description": "资深赌徒"
+        },
+        "neuralHacker": {
+          "name": "神经黑客",
+          "description": "侵入神经网络"
+        },
+        "liskWitch": {
+          "name": "Lisk 巫师",
+          "description": "施法于 Lisk"
+        },
+        "bruiser": {
+          "name": "碾压者",
+          "description": "碾碎一切"
+        }
+      },
+      "callToAction": {
+        "next": "下一步",
+        "back": "返回",
+        "randomize": "随机",
+        "chat": "聊天",
+        "send": "发送"
+      },
+      "editor": {
+        "title": "外观",
+        "head": "头",
+        "body": "身体",
+        "eyes": "眼睛",
+        "outer": "外套",
+        "chest": "上身",
+        "legs": "腿部",
+        "feet": "脚部",
+        "accessories": "配件"
+      },
+      "labels": {
+        "name": "名字",
+        "voice": "语音",
+        "preferredGreeting": "首选问候语",
+        "bio": "简介",
+        "question": "问题",
+        "yourName": "你的名字",
+        "conversation": "对话"
+      },
+      "text": {
+        "unoptimized": "未优化"
       }
     }
   }

@@ -40,7 +40,7 @@
 .classContainer .icon {
   flex: 1;
   z-index: 2;
-  margin-top: -2.5vh;
+  margin-top: -4vh;
 }
 
 /* Ipad */
@@ -69,15 +69,16 @@
 }
 
 .classContainer .name {
-  font-size: 2vw;
+  font-size: 1.8vw;
   flex: 1;
   white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  margin-top: 1vh;
 }
 .classContainer .description {
-  font-size: 1.2vw;
+  font-size: 1.1vw;
   flex: 1;
 }
 
