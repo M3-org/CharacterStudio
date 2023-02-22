@@ -8,7 +8,6 @@ import styles from "./Bio.module.css"
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
 
-  console.log(personality)
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
   const city = personality.cities[Math.floor(Math.random() * personality.cities.length)]
   const weapon = personality.weapons[Math.floor(Math.random() * personality.weapons.length)]

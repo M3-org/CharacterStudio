@@ -31,7 +31,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
 
-
   const name = fullBio.name
   const bio = fullBio.description
   const voice = fullBio.voiceKey
