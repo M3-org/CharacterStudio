@@ -15,18 +15,16 @@ export default function LanguageSwitch() {
   const { t, i18n } = useTranslation()
   return (
     <div className={styles.languageSwitchWrap}>
-      {Object.keys(lngs).map((lng) => (
-        <button
-          key={lng}
-          style={{
-            fontWeight: i18n.resolvedLanguage === lng ? "bold" : "normal",
-          }}
-          type="submit"
-          onClick={() => i18n.changeLanguage(lng)}
-        >
-          {lngs[lng].nativeName}
-        </button>
-      ))}
+      <select
+        onChange={(e) => i18n.changeLanguage(e.target.value)}
+        value={i18n.resolvedLanguage}
+      >
+        {Object.keys(lngs).map((lng) => (
+          <option key={lng} value={lng}>
+            {lngs[lng].nativeName}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }
