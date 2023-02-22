@@ -71,6 +71,10 @@
 .classContainer .name {
   font-size: 2vw;
   flex: 1;
+  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 .classContainer .description {
   font-size: 1.2vw;

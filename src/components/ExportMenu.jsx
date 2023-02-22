@@ -248,7 +248,7 @@ export const ExportMenu = () => {
       />
       <CustomButton
         theme="light"
-        text={`GLB ${t('text.unoptimized')}`}
+        text={`GLB (${t('text.unoptimized')})`}
         icon="download"
         size={14}
         className={styles.button}

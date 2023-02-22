@@ -79,41 +79,41 @@
         "chooseAppearance": "Выбрать Внешность",
         "createBio": "Создать Биографию",
         "saveCharacter": "Сохранить Персонажа",
-        "chat": "Чат Со Своим Персонажем"
+        "chat": "Общаться Со Своим Персонажем"
       },
       "classes": {
         "beastPainter": {
-          "name": "Beast Painter",
-          "description": "Paints beasts"
+          "name": "Анималист",
+          "description": "Рисует зверей"
         },
         "engineer": {
-          "name": "Engineer",
-          "description": "Builds things"
+          "name": "Инженер",
+          "description": "Строит вещи"
         },
         "dropHunter": {
           "name": "Охотник за дропами",
-          "description": "Hunts drops"
+          "description": "Охотится на дропы"
         },
         "theDegen": {
-          "name": "The Degen",
-          "description": "Degens"
+          "name": "Деген",
+          "description": "Дегены"
         },
         "neuralHacker": {
-          "name": "Neural Hacker",
-          "description": "Hacks neural networks"
+          "name": "Нейронный Хакер",
+          "description": "Взламывает нейронные сети"
         },
         "liskWitch": {
-          "name": "Lisk Witch",
-          "description": "Witches lisk"
+          "name": "Лиск Ведьма",
+          "description": "Лиск Ведьмы"
         },
         "bruiser": {
-          "name": "Bruiser",
-          "description": "Bruises things"
+          "name": "Громила",
+          "description": "Громит вещи"
         }
       },
       "callToAction": {
-        "next": "Next",
-        "back": "Back",
+        "next": "Далее",
+        "back": "Назад",
         "randomize": "Рандомизировать",
         "chat": "Чат",
         "send": "Отправить"
@@ -123,7 +123,7 @@
         "head": "Голова",
         "body": "Тело",
         "eyes": "Глаза",
-        "outer": "Outer",
+        "outer": "Внешний",
         "chest": "Грудь",
         "legs": "Ноги",
         "feet": "Стопы",
@@ -139,7 +139,7 @@
         "conversation": "Разговор"
       },
       "text": {
-        "unoptimized": "Unoptimized"
+        "unoptimized": "Неоптимизи­рованный"
       }
     }
   }

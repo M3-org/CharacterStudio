@@ -1,0 +1,7 @@
+.languageSwitchWrap {
+    position: absolute;
+    z-index: 10000000;
+    top: 24px;
+    right: 32px;
+    color: white;
+}
