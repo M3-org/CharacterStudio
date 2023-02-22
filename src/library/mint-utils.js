@@ -23,16 +23,17 @@ async function getTokenPrice(){
 
 // ready to test
 async function connectWallet(){
-    if (window.ethereum) {
-      try {
-        const chain = await window.ethereum.request({ method: 'eth_chainId' })
-        if (parseInt(chain, 16) == parseInt(chainId, 16)) {
-          const addressArray = await window.ethereum.request({
-            method: 'eth_requestAccounts',
-          })
-          return addressArray.length > 0 ? addressArray[0] : ""
-        } else {
-            window.ethereum.request({
+  if (window.ethereum) {
+    try {
+      const chain = await window.ethereum.request({ method: 'eth_chainId' })
+      if (parseInt(chain, 16) == parseInt(chainId, 16)) {
+        const addressArray = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        })
+        return addressArray.length > 0 ? addressArray[0] : ""
+      } else {
+          try {
+            await window.ethereum.request({
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: chainId }],
             })
@@ -40,13 +41,44 @@ async function connectWallet(){
               method: 'eth_requestAccounts',
             })
             return addressArray.length > 0 ? addressArray[0] : ""
-        }
-      } catch (err) {
-        return "";
+          } catch (err) {
+            console.log("polygon not find:", err)
+            // Add Polygon chain to the metamask.
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {   
+                    chainId: '0x89',
+                    chainName: 'Polygon Mainnet',
+                    rpcUrls: ['https://polygon-rpc.com'],
+                    nativeCurrency: {
+                        name: "Matic",
+                        symbol: "MATIC",
+                        decimals: 18
+                    },
+                    blockExplorerUrls: ['https://polygonscan.com/']                      },
+                ]
+              });
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: chainId }],
+            })
+            const addressArray = await window.ethereum.request({
+              method: 'eth_requestAccounts',
+            })
+          return addressArray.length > 0 ? addressArray[0] : ""
+            } catch (error) {
+              console.log("Adding polygon chain failed", error);
+            }
+          }
       }
-    } else {
+    } catch (err) {
       return "";
     }
+  } else {
+    return "";
+  }
 }
 
 // ready to test
