@@ -1,5 +1,6 @@
 import React, { useEffect } from "react"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
@@ -7,6 +8,7 @@ import styles from "./Bio.module.css"
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
 
+  console.log(personality)
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
   const city = personality.cities[Math.floor(Math.random() * personality.cities.length)]
   const weapon = personality.weapons[Math.floor(Math.random() * personality.weapons.length)]
@@ -155,6 +157,30 @@ function BioPage({ templateInfo, personality }) {
 
               <select
                 name="voice"
+                className={styles.select}
+                defaultValue={fullBio.voiceKey}
+                onChange={(e) => setFullBio({...fullBio, ...{voiceKey:e.target.value}})}
+              >
+                {voiceKeys.map((option, i) => {
+                  return (
+                    <option key={i} value={option}>
+                      {option}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
+            {/* Favourite Color */}
+            <div className={styles.section}>
+              <label
+                className={styles.label}
+                htmlFor="favcolor">
+                Favourite Color
+              </label>
+
+              <select
+                name="favcolor"
                 className={styles.select}
                 defaultValue={fullBio.voiceKey}
                 onChange={(e) => setFullBio({...fullBio, ...{voiceKey:e.target.value}})}
