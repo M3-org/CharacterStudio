@@ -41,22 +41,8 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
     const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
     const fullBio = JSON.parse(fullBioStr)
     const screenshot = takeScreenshot();
-    const result = await mintAsset(getAvatarTraits(),screenshot,model, fullBio.name)
+    const result = await mintAsset(avatar,screenshot,model, fullBio.name)
     console.log(result);
-  }
-
-  // 
-  const getAvatarTraits = () => {
-    let metadataTraits = []
-    Object.keys(avatar).map((trait) => {
-      if (Object.keys(avatar[trait]).length !== 0) {
-        metadataTraits.push({
-          trait_type: trait,
-          value: avatar[trait].name,
-        })
-      }
-    })
-    return metadataTraits
   }
 
   function takeScreenshot(){

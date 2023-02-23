@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers"
-import { getGLBBlobData } from "./download-utils"
+import { getGLBBlobData, getVRMBlobData } from "./download-utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
 import axios from "axios"
 
@@ -100,9 +100,22 @@ async function saveFileToPinata(fileData, fileName) {
     return resultOfUpload.data
 }
 
-export async function mintAsset(attributes, screenshot, model, name, needCheckOT){
-    if (!attributes)
-        throw new Error("No attributes was provided")
+const getAvatarTraits = (avatar) => {
+  let metadataTraits = []
+  Object.keys(avatar).map((trait) => {
+    if (Object.keys(avatar[trait]).length !== 0) {
+      metadataTraits.push({
+        trait_type: trait,
+        value: avatar[trait].name,
+      })
+    }
+  })
+  return metadataTraits
+}
+
+export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
+    if (!avatar)
+        throw new Error("No avatar was provided")
     if (!screenshot)
         throw new Error("No screenshot was provided")
     if (!model)
@@ -135,7 +148,7 @@ export async function mintAsset(attributes, screenshot, model, name, needCheckOT
           return 'failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
         })()
-        const glb = await getGLBBlobData(model)
+        const glb = await getVRMBlobData(model,avatar,4096,true)
         let glbHash;
         if (glb) {
             let glbName = "AvatarGlb_" + Date.now() + ".glb";
@@ -167,7 +180,7 @@ export async function mintAsset(attributes, screenshot, model, name, needCheckOT
             description: "Character Studio Avatars.",
             image: `ipfs://${imageHash.IpfsHash}`,
             animation_url: `ipfs://${glbHash.IpfsHash}`,
-            attributes: attributes
+            attributes: getAvatarTraits(avatar)
         }
         const str = JSON.stringify(metadata)
         const metaDataHash = await saveFileToPinata(
