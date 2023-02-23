@@ -134,7 +134,7 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           }
           return 'failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
-        })
+        })()
         const glb = await getGLBBlobData(model)
         let glbHash;
         if (glb) {
