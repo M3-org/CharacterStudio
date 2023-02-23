@@ -789,7 +789,6 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               texCoord: 0, // TODO:
           } :
           undefined;
-          console.log(material.type)
       const metallicFactor = (() => {
           switch (material.type) {
               case MaterialType.MeshStandardMaterial:
