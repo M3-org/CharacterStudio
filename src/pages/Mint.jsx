@@ -38,8 +38,10 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
   }
 
   async function Mint(){
+    const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+    const fullBio = JSON.parse(fullBioStr)
     const screenshot = takeScreenshot();
-    const result = await mintAsset(getAvatarTraits(),screenshot,model)
+    const result = await mintAsset(getAvatarTraits(),screenshot,model, fullBio.name)
     console.log(result);
   }
 

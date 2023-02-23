@@ -100,7 +100,7 @@ async function saveFileToPinata(fileData, fileName) {
     return resultOfUpload.data
 }
 
-export async function mintAsset(attributes, screenshot, model, needCheckOT){
+export async function mintAsset(attributes, screenshot, model, name, needCheckOT){
     if (!attributes)
         throw new Error("No attributes was provided")
     if (!screenshot)
@@ -163,7 +163,7 @@ export async function mintAsset(attributes, screenshot, model, needCheckOT){
           return 'Unable to get glb'
         }
         const metadata = {
-            name: "Avatars",
+            name: name || "Avatars",
             description: "Character Studio Avatars.",
             image: `ipfs://${imageHash.IpfsHash}`,
             animation_url: `ipfs://${glbHash.IpfsHash}`,
