@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers"
-import { getGLBBlobData, getVRMBlobData } from "./download-utils"
+import { getVRMBlobData } from "./download-utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
 import axios from "axios"
 
