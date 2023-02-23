@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
+import { errorResponses } from "../constants/defaultReplies"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
@@ -127,13 +128,7 @@ ${name}: ${response3}`
     if (value && !waitingForResponse) {
       // Send the message to the localhost endpoint
       const agent = name
-      // const spell_handler = "charactercreator";
 
-      //const newMessages = await pruneMessages(messages);
-
-      // newMessages.push(`${speaker}: ${value}`)
-
-      
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
 
@@ -145,7 +140,9 @@ ${name}: ${response3}`
 
         const endpoint = "https://upstreet.webaverse.com/api/ai"
         
-        let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+        let prompt = 
+        
+`The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
 
@@ -180,6 +177,8 @@ ${agent}:`
 
         axios.post(endpoint, query).then((response) => {
           const output = response.data.choices[0].text
+          if (output === "") console.log("no output")
+             
           const ttsEndpoint =
             "https://voice.webaverse.com/tts?" +
             "s=" +
@@ -187,8 +186,8 @@ ${agent}:`
             "&voice=" +
             voices[voice]
 
-          // fetch the audio file from ttsEndpoint
-
+          // fetch the audio file from ttsEndpoint q
+          console.log(response)
           fetch(ttsEndpoint).then(async (response) => {
             const blob = await response.blob()
 
@@ -200,8 +199,16 @@ ${agent}:`
 
           setMessages((messages) => [...messages, agent + ": " + output])
           setWaitingForResponse(false);
+        }).catch((err)=>{
+          const output = errorResponses.silent[0]
+          setMessages((messages) => [...messages, agent + ": " + output])
+          setWaitingForResponse(false);
+          console.log(err)
         })
       } catch (error) {
+        const output = errorResponses.silent[0]
+        setMessages((messages) => [...messages, agent + ": " + output])
+        setWaitingForResponse(false);
         console.error(error)
       }
     }
