@@ -118,7 +118,7 @@ ${name}: ${response3}`
       setWaitingForResponse(true)
       // Get the value of the input element
       const input = event.target.elements.message
-      const value = input.value
+      const value = input.value !== "" ? input.value : "..."
       handleUserChatInput(value)
     }
   }
