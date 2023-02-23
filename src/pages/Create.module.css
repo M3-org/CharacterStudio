@@ -22,6 +22,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 10;
 }
 
 .classContainer .class,
@@ -39,7 +40,7 @@
 .classContainer .icon {
   flex: 1;
   z-index: 2;
-  margin-top: -2.5vh;
+  margin-top: -4vh;
 }
 
 /* Ipad */
@@ -68,11 +69,16 @@
 }
 
 .classContainer .name {
-  font-size: 2vw;
+  font-size: 1.8vw;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  margin-top: 1vh;
 }
 .classContainer .description {
-  font-size: 1.2vw;
+  font-size: 1.1vw;
   flex: 1;
 }
 
@@ -182,6 +188,7 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
   width: 100%;
   height: 1px;
+  z-index: 10;
 }
 
 .bottomLine {
@@ -207,4 +214,5 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
   width: 100%;
   height: 1px;
+  z-index: 10;
 }
