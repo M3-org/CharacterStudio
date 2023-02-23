@@ -190,7 +190,7 @@ export async function mintAsset(attributes, screenshot, model, name, needCheckOT
           const tx = await contract.mintToken(1, metadataIpfs, options)
           let res = await tx.wait()
           if (res.transactionHash) {
-            //console.log("Mint success!")
+            console.log("Mint success!")
             return "Mint success!";
           }
         } catch (err) {
