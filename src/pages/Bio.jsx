@@ -1,9 +1,10 @@
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import { voices } from "../constants/voices"
 import { favouriteColors } from "../constants/favouriteColors"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
+import { LanguageContext } from "../context/LanguageContext"
 
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
@@ -123,9 +124,12 @@ function BioPage({ templateInfo, personality }) {
     }
   }, [])
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   return (
     <div className={styles.container}>
-      <div className={"sectionTitle"}>Create Bio</div>
+      <div className={"sectionTitle"}>{t("pageTitles.createBio")}</div>
       <div className={styles.bioContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
@@ -137,7 +141,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="name">
-                Name
+                {t("labels.name")}
               </label>
 
               <input
@@ -154,7 +158,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="voice">
-                Voice
+                {t("labels.voice")}
               </label>
 
               <select
@@ -202,7 +206,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="greeting">
-                Preferred Greeting
+                {t("labels.preferredGreeting")}
               </label>
 
               <input
@@ -216,7 +220,7 @@ function BioPage({ templateInfo, personality }) {
 
             {/* Bio */}
             <div className={styles.section}>
-              <label className={styles.label} htmlFor="bio">Bio</label>
+              <label className={styles.label} htmlFor="bio">{t("labels.bio")}</label>
 
               <textarea
                 name="bio"
@@ -233,7 +237,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question1">
-                Question 1
+                {t("labels.question")} 1
               </label>
 
               <select
@@ -275,7 +279,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question2">
-                Question 2
+                {t("labels.question")} 2
               </label>
 
               <select
@@ -316,7 +320,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question3">
-                Question 3
+                {t("labels.question")} 3
               </label>
               <select
                 name="question3"
@@ -356,14 +360,14 @@ function BioPage({ templateInfo, personality }) {
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
-          text="Back"
+          text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
         />
         <CustomButton
           theme="light"
-          text="Next"
+          text={t('callToAction.next')}
           size={14}
           className={styles.buttonRight}
           onClick={next}

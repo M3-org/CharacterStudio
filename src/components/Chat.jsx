@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
 import { favouriteColors } from "../constants/favouriteColors"
@@ -11,6 +11,7 @@ import {
   SepiaSpeechRecognitionConfig,
 } from "sepia-speechrecognition-polyfill"
 import { pruneMessages } from "../lib/chat"
+import { LanguageContext } from "../context/LanguageContext"
 
 const sessionId =
   localStorage.getItem("sessionId") ??
@@ -26,7 +27,10 @@ const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
-  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false);
+
+  // Translate hook
+  const { t } = useContext(LanguageContext);
 
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
@@ -235,7 +239,7 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
-        <label htmlFor="speaker">Your Name</label>
+        <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
           name="speaker"
@@ -244,7 +248,7 @@ ${agent}:`
         />
       </div>
 
-      <label>Conversation</label>
+      <label>{t("labels.conversation")}</label>
       <div id={"msgscroll"} className={styles["messages"]}>
         {messages.map((message, index) => (
           <div key={index} style = {index%2!==0?{color:fontColor}:{}}>{message}</div>
@@ -274,7 +278,7 @@ ${agent}:`
         />
         <CustomButton
           theme="light"
-          text="Send"
+          text={t("callToAction.send")}
           size={14}
           onSubmit={handleSubmit}
           className={styles.sendButton}

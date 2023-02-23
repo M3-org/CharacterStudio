@@ -21,6 +21,7 @@ import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 import { TokenBox } from "./token-box/TokenBox"
+import { LanguageContext } from "../context/LanguageContext"
 
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -47,6 +48,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {isLoading, setIsLoading} = useContext(ViewContext)
+
+  // Translate hook
+  const { t } = useContext(LanguageContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [, setLoadPercentage] = useState(1)
@@ -600,10 +604,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       <></>
     )
   }
+  
   return (
     !!currentTraitName && (
       <div className={styles["SelectorContainerPos"]}>
-        <TraitTitle title={currentTraitName} />
+        <TraitTitle title={t(`editor.${currentTraitName}`)} />
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>

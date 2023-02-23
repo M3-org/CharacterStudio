@@ -1,0 +1,21 @@
+.languageSwitchWrap {
+    position: absolute;
+    z-index: 10000000;
+    top: 26px;
+    right: 32px;
+    color: white;
+}
+
+.languageSwitchWrap select {
+    background: none !important;
+    color: white;
+    border: none;
+    font-size: 16px;
+    padding-right: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    -webkit-appearance: button;
+    appearance: button;
+    outline: none;
+    text-align: right;
+}
+
