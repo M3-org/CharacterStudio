@@ -538,7 +538,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // play transition effect
         if (effectManager.getTransitionEffect('switch_item')) {
           effectManager.playSwitchItemEffect();
-          !isMute && playSound('switchItem');
+          // !isMute && playSound('switchItem');
         }
         else {
           effectManager.playFadeInEffect();
