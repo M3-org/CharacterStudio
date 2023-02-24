@@ -33,15 +33,13 @@ const SpeechRecognition =
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
-  const [fullBio,setFullBio] = React.useState()
+  const [fullBio] = React.useState(
+    local[`${templateInfo.id}_fulBio`]
+  )
 
   const [speaker, setSpeaker] = React.useState(
     local.speaker || defaultSpeaker,
   )
-
-  useEffect(() => {
-    setFullBio(local[`${templateInfo.id}_fulBio`])
-  }, [])
 
   // on speaker changer, set local storage
   useEffect(() => {

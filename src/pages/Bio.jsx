@@ -3,6 +3,7 @@ import { voices } from "../constants/voices"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
+import { local } from "../library/store"
 
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
@@ -77,13 +78,6 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 // Cache voice keys for performance.
 const voiceKeys = Object.keys(voices)
 
-function loadBioFromStorage(itemName){
-  const fullBioStr = localStorage.getItem(itemName)
-  if (fullBioStr)
-    return JSON.parse(fullBioStr)
-  return null
-}
-
 function BioPage({ templateInfo, personality }) {
   const { setViewMode } = React.useContext(ViewContext)
 
@@ -96,7 +90,7 @@ function BioPage({ templateInfo, personality }) {
   }
 
   const [fullBio, setFullBio] = React.useState(
-    loadBioFromStorage(`${templateInfo.id}_fulBio`)
+    local[`${templateInfo.id}_fulBio`]
     ||
     getBio(templateInfo, personality)
   )
