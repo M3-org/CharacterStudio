@@ -96,7 +96,7 @@ function BioPage({ templateInfo, personality }) {
   )
 
   React.useEffect(() => {
-    localStorage.setItem(`${templateInfo.id}_fulBio`, JSON.stringify(fullBio))
+    local[`${templateInfo.id}_fulBio`]  = fullBio;
   }, [fullBio])
 
 
