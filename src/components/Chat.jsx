@@ -33,25 +33,15 @@ const SpeechRecognition =
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
-  console.log(local[`${templateInfo.id}_fulBio`])
-
-  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
-  const fullBio = JSON.parse(fullBioStr)
-
-  const name = fullBio.name
-  const bio = fullBio.description
-  const voice = fullBio.voiceKey
-  const greeting = fullBio.greeting
-  const question1 = fullBio.personality.question
-  const question2 = fullBio.relationship.question
-  const question3 = fullBio.hobbies.question
-  const response1 = fullBio.personality.answer
-  const response2 = fullBio.relationship.answer
-  const response3 = fullBio.hobbies.answer
+  const [fullBio,setFullBio] = React.useState()
 
   const [speaker, setSpeaker] = React.useState(
     localStorage.getItem("speaker") || defaultSpeaker,
   )
+
+  useEffect(() => {
+    setFullBio(local[`${templateInfo.id}_fulBio`])
+  }, [])
 
   // on speaker changer, set local storage
   useEffect(() => {
@@ -104,12 +94,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   }, [waitingForResponse]);
 
   const handleSubmit = async (event) => {
-    console.log("string", local.stringVal)
-    console.log("object", local.objectValue)
-    console.log("array", local.arrayValue)
-    local.stringVal = event.target.elements.message.value;
-    local.objectValue = {val:event.target.elements.message.value}
-    local.arrayValue = [event.target.elements.message.value]
     if (event.preventDefault) event.preventDefault();
     // Stop speech to text when a message is sent through the input
     stopSpeech();
@@ -125,7 +109,7 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const handleUserChatInput = async (value) => {
     if (value && !waitingForResponse) {
       // Send the message to the localhost endpoint
-      const agent = name
+      const agent = fullBio.name
       // const spell_handler = "charactercreator";
 
       //const newMessages = await pruneMessages(messages);
@@ -151,16 +135,16 @@ CONTEXT:
 Info about ${agent}
 ---
 
-Bio: "${bio}"
+Bio: "${fullBio.bio}"
 
-Question 1: "${question1}"
-Response 1: "${response1}"
+Question 1: "${fullBio.question1}"
+Response 1: "${fullBio.response1}"
 
-Question 2: "${question2}"
-Response 2: "${response2}"
+Question 2: "${fullBio.question2}"
+Response 2: "${fullBio.response2}"
 
-Question 3: "${question3}"
-Response 3: "${response3}"
+Question 3: "${fullBio.question3}"
+Response 3: "${fullBio.response3}"
 
 MOST RECENT MESSAGES:
 
@@ -184,7 +168,7 @@ ${agent}:`
             "s=" +
             output +
             "&voice=" +
-            voices[voice]
+            voices[fullBio.voiceKey]
 
           // fetch the audio file from ttsEndpoint
 
