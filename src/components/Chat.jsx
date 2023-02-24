@@ -121,7 +121,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
         const output = getRandomArrayValue(getRandomObjectKey(errorResponses))
 
         if (output.replaceAll(' ', '') !== "" && output !== "..."){
-
           const ttsEndpoint =
           "https://voice.webaverse.com/tts?" +
           "s=" +
@@ -184,6 +183,7 @@ ${agent}:`
           }
 
           axios.post(endpoint, query).then((response) => {
+            console.log(response)
             const output = response.data.choices[0].text
             // fetch the audio file from ttsEndpoint q
             if (output.replaceAll(' ', '') !== "" && output !== "..."){
