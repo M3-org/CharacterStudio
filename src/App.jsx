@@ -12,6 +12,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 import { AnimationManager } from "./library/animationManager"
+import { local } from "./library/store"
 
 import Scene from "./components/Scene"
 import Background from "./components/Background"
@@ -23,7 +24,6 @@ import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
-import { local } from "./library/store"
 import LanguageSwitch from "./components/LanguageSwitch"
 
 // dynamically import the manifest

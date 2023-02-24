@@ -6,9 +6,6 @@ import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
 import { local } from '../library/store'
 
-
-
-
 import {
   sepiaSpeechRecognitionInit,
   SepiaSpeechRecognitionConfig,
@@ -30,7 +27,6 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-  
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false);
 
@@ -112,13 +108,7 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
     if (value && !waitingForResponse) {
       // Send the message to the localhost endpoint
       const agent = fullBio.name
-      // const spell_handler = "charactercreator";
 
-      //const newMessages = await pruneMessages(messages);
-
-      // newMessages.push(`${speaker}: ${value}`)
-
-      
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
 
