@@ -6,6 +6,7 @@ import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
 import { local } from '../library/store'
+import { getRandomObjectKey, getRandomArrayValue } from '../library/utils'
 
 import {
   sepiaSpeechRecognitionInit,
@@ -116,12 +117,38 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
       const promptMessages = await pruneMessages(messages)
       promptMessages.push(`${speaker}: ${value}`)
 
-      try {
-        // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+      if (value.replaceAll(' ', '') === "" || value === "..."){
+        const output = getRandomArrayValue(getRandomObjectKey(errorResponses))
 
-        const endpoint = "https://upstreet.webaverse.com/api/ai"
+        if (output.replaceAll(' ', '') !== "" && output !== "..."){
+
+          const ttsEndpoint =
+          "https://voice.webaverse.com/tts?" +
+          "s=" +
+          output +
+          "&voice=" +
+          voices[fullBio.voiceKey]
+
+          fetch(ttsEndpoint).then(async (response) => {
+            const blob = await response.blob()
+
+            // convert the blob to an array buffer
+            const arrayBuffer = await blob.arrayBuffer()
+
+            lipSync.startFromAudioFile(arrayBuffer);
+          })
+        }
+        setMessages((messages) => [...messages, agent + ": " + output])
+        setWaitingForResponse(false)
+      }
+      else{
         
-        let prompt = 
+        try {
+          // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+
+          const endpoint = "https://upstreet.webaverse.com/api/ai"
+          
+          let prompt = 
         
 `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
@@ -146,51 +173,51 @@ MOST RECENT MESSAGES:
 ${promptMessages.join("\n")}
 ${agent}:`
 
-        const query = {
-          prompt,
-          max_tokens: 250,
-          temperature: 0.9,
-          top_p: 1,
-          frequency_penalty: 0,
-          presence_penalty: 0.6,
-          stop: [speaker + ":", agent + ":", "\\n"],
-        }
+          const query = {
+            prompt,
+            max_tokens: 250,
+            temperature: 0.9,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0.6,
+            stop: [speaker + ":", agent + ":", "\\n"],
+          }
 
-        axios.post(endpoint, query).then((response) => {
-          const output = response.data.choices[0].text
-          if (output === "") console.log("no output")
-             
-          const ttsEndpoint =
-            "https://voice.webaverse.com/tts?" +
-            "s=" +
-            output +
-            "&voice=" +
-            voices[fullBio.voiceKey]
+          axios.post(endpoint, query).then((response) => {
+            const output = response.data.choices[0].text
+            // fetch the audio file from ttsEndpoint q
+            if (output.replaceAll(' ', '') !== "" && output !== "..."){
+              const ttsEndpoint =
+              "https://voice.webaverse.com/tts?" +
+              "s=" +
+              output +
+              "&voice=" +
+              voices[fullBio.voiceKey]
+              fetch(ttsEndpoint).then(async (response) => {
 
-          // fetch the audio file from ttsEndpoint q
-          console.log(response)
-          fetch(ttsEndpoint).then(async (response) => {
-            const blob = await response.blob()
+                const blob = await response.blob()
 
-            // convert the blob to an array buffer
-            const arrayBuffer = await blob.arrayBuffer()
+                // convert the blob to an array buffer
+                const arrayBuffer = await blob.arrayBuffer()
 
-            lipSync.startFromAudioFile(arrayBuffer);
+                lipSync.startFromAudioFile(arrayBuffer);
+              })
+            }
+
+            setMessages((messages) => [...messages, agent + ": " + output])
+            setWaitingForResponse(false);
+          }).catch((err)=>{
+            const output = errorResponses.silent[0]
+            setMessages((messages) => [...messages, agent + ": " + output])
+            setWaitingForResponse(false);
+            console.log(err)
           })
-
-          setMessages((messages) => [...messages, agent + ": " + output])
-          setWaitingForResponse(false);
-        }).catch((err)=>{
+        } catch (error) {
           const output = errorResponses.silent[0]
           setMessages((messages) => [...messages, agent + ": " + output])
           setWaitingForResponse(false);
-          console.log(err)
-        })
-      } catch (error) {
-        const output = errorResponses.silent[0]
-        setMessages((messages) => [...messages, agent + ": " + output])
-        setWaitingForResponse(false);
-        console.error(error)
+          console.error(error)
+        }
       }
     }
   }
