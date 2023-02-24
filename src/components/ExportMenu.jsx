@@ -15,7 +15,8 @@ import CustomButton from "./custom-button"
 import { downloadGLB, downloadVRM } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
-
+import { local } from "../library/store"
+import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"
 
@@ -23,13 +24,16 @@ const defaultName = "Anon"
 export const ExportMenu = () => {
   // const type = "_Gen1" // class type
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   const [showDownloadOptions, setShowDownloadOptions] = useState(false)
   const { ensName, setEnsName, connected, setConnected } =
     useContext(AccountContext)
   const { activate, deactivate, account } = useWeb3React()
 
   const [name] = React.useState(
-    localStorage.getItem("name")
+    local.name
     || defaultName
   )
 
@@ -244,7 +248,7 @@ export const ExportMenu = () => {
       />
       <CustomButton
         theme="light"
-        text="GLB Unoptimized"
+        text={`GLB (${t('text.unoptimized')})`}
         icon="download"
         size={14}
         className={styles.button}

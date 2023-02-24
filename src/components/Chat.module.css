@@ -83,7 +83,7 @@
     color: #fff;
     border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 144px);
+    width: calc(100% - 214px);
     margin-left: 10px;
     margin-right: 8px;
     height: 18px;
@@ -97,6 +97,7 @@
 .sendButton {
     vertical-align: bottom;
     float: right;
+    width: 140px;
 }
 
 .speaker {

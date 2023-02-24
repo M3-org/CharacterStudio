@@ -1,22 +1,25 @@
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
 import { errorResponses } from "../constants/defaultReplies"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
+import { local } from '../library/store'
 
 import {
   sepiaSpeechRecognitionInit,
   SepiaSpeechRecognitionConfig,
 } from "sepia-speechrecognition-polyfill"
 import { pruneMessages } from "../lib/chat"
+import { LanguageContext } from "../context/LanguageContext"
 
 const sessionId =
-  localStorage.getItem("sessionId") ??
+  local.sessionId ??
   Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
-localStorage.setItem("sessionId", sessionId)
+
+local.sessionId = sessionId
 
 const config = new SepiaSpeechRecognitionConfig()
 
@@ -26,45 +29,23 @@ const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
-  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false);
 
-  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
-  const fullBio = JSON.parse(fullBioStr)
+  // Translate hook
+  const { t } = useContext(LanguageContext);
 
-  const name = fullBio.name
-  const bio = fullBio.description
-  const voice = fullBio.voiceKey
-  const greeting = fullBio.greeting
-  const question1 = fullBio.personality.question
-  const question2 = fullBio.relationship.question
-  const question3 = fullBio.hobbies.question
-  const response1 = fullBio.personality.answer
-  const response2 = fullBio.relationship.answer
-  const response3 = fullBio.hobbies.answer
+  const [fullBio] = React.useState(
+    local[`${templateInfo.id}_fulBio`]
+  )
 
   const [speaker, setSpeaker] = React.useState(
-    localStorage.getItem("speaker") || defaultSpeaker,
+    local.speaker || defaultSpeaker,
   )
 
   // on speaker changer, set local storage
   useEffect(() => {
-    localStorage.setItem("speaker", speaker)
+    local.speaker = speaker
   }, [speaker])
-
-  function composePrompt() {
-    const prompt = `Name: ${name}
-Bio: ${bio}
-${speaker}: Hey ${name}
-${name}: ${greeting}
-${speaker}: ${question1}
-${name}: ${response1}
-${speaker}: ${question2}
-${name}: ${response2}
-${speaker}: ${question3}
-${name}: ${response3}`
-
-    return prompt
-  }
 
   const { lipSync } = React.useContext(SceneContext)
   const [input, setInput] = React.useState("")
@@ -127,7 +108,7 @@ ${name}: ${response3}`
   const handleUserChatInput = async (value) => {
     if (value && !waitingForResponse) {
       // Send the message to the localhost endpoint
-      const agent = name
+      const agent = fullBio.name
 
       setInput("")
       setMessages((messages) => [...messages, `${speaker}: ${value}`])
@@ -149,16 +130,16 @@ CONTEXT:
 Info about ${agent}
 ---
 
-Bio: "${bio}"
+Bio: "${fullBio.bio}"
 
-Question 1: "${question1}"
-Response 1: "${response1}"
+Question 1: "${fullBio.question1}"
+Response 1: "${fullBio.response1}"
 
-Question 2: "${question2}"
-Response 2: "${response2}"
+Question 2: "${fullBio.question2}"
+Response 2: "${fullBio.response2}"
 
-Question 3: "${question3}"
-Response 3: "${response3}"
+Question 3: "${fullBio.question3}"
+Response 3: "${fullBio.response3}"
 
 MOST RECENT MESSAGES:
 
@@ -184,7 +165,7 @@ ${agent}:`
             "s=" +
             output +
             "&voice=" +
-            voices[voice]
+            voices[fullBio.voiceKey]
 
           // fetch the audio file from ttsEndpoint q
           console.log(response)
@@ -240,7 +221,7 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
-        <label htmlFor="speaker">Your Name</label>
+        <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
           name="speaker"
@@ -249,7 +230,7 @@ ${agent}:`
         />
       </div>
 
-      <label>Conversation</label>
+      <label>{t("labels.conversation")}</label>
       <div id={"msgscroll"} className={styles["messages"]}>
         {messages.map((message, index) => (
           <div key={index}>{message}</div>
@@ -279,7 +260,7 @@ ${agent}:`
         />
         <CustomButton
           theme="light"
-          text="Send"
+          text={t("callToAction.send")}
           size={14}
           onSubmit={handleSubmit}
           className={styles.sendButton}

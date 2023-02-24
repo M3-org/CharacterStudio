@@ -7,6 +7,7 @@ import {
 } from "../library/option-utils"
 
 import gsap from "gsap"
+import { local } from "../library/store"
 
 export const SceneContext = createContext()
 
@@ -66,18 +67,19 @@ export const SceneProvider = (props) => {
     }
   }
   const loadAvatarFromLocalStorage = (loadName) =>{
-    const avatarJsonData = localStorage.getItem(`${templateInfo.id}12223_${loadName}`)
-    if (avatarJsonData){
-      const avatarData = JSON.parse(avatarJsonData)
+    const avatarData = local[`${templateInfo.id}12223_${loadName}`]
+    console.log(avatarData)
+    if (avatarData){
       loadAvatar(avatarData);
     }
     else{
       console.log("no local storage for " + loadName + " was found")
     }
   }
+
   const saveAvatarToLocalStorage = (saveName) =>{
     const saveAvatar = getSaveAvatar()
-    localStorage.setItem(`${templateInfo.id}12223_${saveName}`, JSON.stringify(saveAvatar))
+    local[`${templateInfo.id}12223_${saveName}`] = saveAvatar
   }
   const getSaveAvatar = () => {
     // saves the current avatar, it also saves the class
@@ -108,16 +110,11 @@ export const SceneProvider = (props) => {
       if (newOpt === true)
         newSelection.push(opt)
     })
-    localStorage.setItem(`class2_${name}`, JSON.stringify(newSelection))
+    local[`class2_${name}`] = newSelection;
   }
 
   const loadUserSelection = (name) => {
-    const opts = localStorage.getItem(`class2_${name}`)
-    if (opts){
-      const json= JSON.parse(opts)
-      return json
-    }
-    return null
+    return local[`class2_${name}`]
   }
 
   const getRandomCharacter = () => {
