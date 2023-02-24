@@ -6,7 +6,6 @@
     background:rgba(255,255,255,0.05);
     box-shadow: 0 1px 1px rgba(0,0,0,0.4);
     position: relative;
-    padding-left: 38px;
     margin-bottom: 8px;
 }
 
@@ -31,17 +30,8 @@
     font-size: 10px;
     display: inline-block;
     color: rgba(255,255,255,0.4);
-    position: absolute;
-    right: 6px;
-    bottom: 6px;
 }
 
 .speaker {
     text-align: right;
-}
-
-.message .chat-bubble {
-    display: inline-block;
-    padding: 6px 10px;
-    padding-right: 38px;
 }
