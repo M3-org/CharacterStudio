@@ -130,7 +130,6 @@ ${name}: ${response3}`
     // Stop speech to text when a message is sent through the input
     stopSpeech()
     if (!waitingForResponse) {
-      setWaitingForResponse(true)
       // Get the value of the input element
       const input = event.target.elements.message
       const value = input.value
@@ -139,7 +138,8 @@ ${name}: ${response3}`
   }
 
   const handleUserChatInput = async (value) => {
-    if (value && !waitingForResponse) {
+    if (value && value !== "" && !waitingForResponse) {
+      setWaitingForResponse(true)
       // Send the message to the localhost endpoint
       const agent = name
       // const spell_handler = "charactercreator";
@@ -272,8 +272,8 @@ ${agent}:`
       </div>
 
       <label>{t("labels.conversation")}</label>
-      <div id={"msgscroll"} className={styles["messages"]}>
-        <div className={styles["scrollBox"]}>
+      <div className={styles["messages"]}>
+        <div className={styles["scrollBox"]} id={"msgscroll"}>
           {messages.map((msg, index) => {
             console.log(msg)
             if (msg.timestamp)
