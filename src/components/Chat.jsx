@@ -125,13 +125,8 @@ ${name}: ${response3}`
     console.log("object", _store.objectValue)
     console.log("array", _store.arrayValue)
     _store.stringVal = "hello!";
-    _store.objectValue = {val:"hello!"}
+    _store.objectValue = {}
     _store.arrayValue = ["hello!"]
-    //localStorage.setItem("quicktest", {val1:1,val2:2})
-    //local.setItem({quicktest:{val1:1,val2:2}})
-    //console.log(local.setItem)
-    //const bio  = local.getItem(`${templateInfo.id}_fulBio`);
-    //console.log(bio)
     if (event.preventDefault) event.preventDefault();
     // Stop speech to text when a message is sent through the input
     stopSpeech();

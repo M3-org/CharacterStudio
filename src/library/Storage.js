@@ -6,7 +6,7 @@
 
     if (localStorage){
         Object.keys(localStorage).map((key)=>{
-            this.setItem(key, localStorage[key])
+            this.setItem(key, localStorage[key], false)
         })
     }
 
@@ -31,11 +31,11 @@
     return this[key]
   }
   
-  Storage.prototype.setItem = function( key, val ) {
-
-    return typeof val === 'string'
-      ? this[key] = val
-      : this[key] = JSON.stringify( val )
+  Storage.prototype.setItem = function( key, val, setLocal = true ) {
+    const stVal = typeof val === 'string' ? val:JSON.stringify( val );
+    if (setLocal)
+        localStorage.setItem(key,stVal)
+    return this[key] = stVal;
   }
   
   Storage.prototype.removeItem = function( key ) {
