@@ -4,6 +4,10 @@ import { voices } from "../constants/voices"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
+import { store } from '../library/store'
+
+
+
 
 import {
   sepiaSpeechRecognitionInit,
@@ -111,6 +115,23 @@ ${name}: ${response3}`
   }, [waitingForResponse]);
 
   const handleSubmit = async (event) => {
+    // console.log(local._222_test)
+    // console.log(2)
+    // console.log(local)
+
+    // local._222_test = event.target.elements.message.value;
+    const _store = store();
+    console.log("string", _store.stringVal)
+    console.log("object", _store.objectValue)
+    console.log("array", _store.arrayValue)
+    _store.stringVal = "hello!";
+    _store.objectValue = {val:"hello!"}
+    _store.arrayValue = ["hello!"]
+    //localStorage.setItem("quicktest", {val1:1,val2:2})
+    //local.setItem({quicktest:{val1:1,val2:2}})
+    //console.log(local.setItem)
+    //const bio  = local.getItem(`${templateInfo.id}_fulBio`);
+    //console.log(bio)
     if (event.preventDefault) event.preventDefault();
     // Stop speech to text when a message is sent through the input
     stopSpeech();
