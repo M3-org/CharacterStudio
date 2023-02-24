@@ -15,7 +15,8 @@ const localStorageAdapter = object => ({
 })
 
 // Use Storage API adapter
-export function store( object = storeObject ) {
-    console.log(object)
+const store = ( object = storeObject ) => {
   return new Proxy({}, localStorageAdapter( object ))
 }
+
+export const local = store();

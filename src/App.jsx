@@ -22,6 +22,7 @@ import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
+import { local } from "./library/store"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -61,24 +62,24 @@ const xAxis = new THREE.Vector3(1, 0, 0)
 const yAxis = new THREE.Vector3(0, 1, 0)
 
 async function fetchManifest() {
-  const manifest = localStorage.getItem("manifest")
+  const manifest = local.manifest;
   if (manifest) {
-    return JSON.parse(manifest)
+    return manifest
   }
   const response = await fetch(assetImportPath)
   const data = await response.json()
-  localStorage.setItem("manifest", JSON.stringify(data))
+  local.manifest = data
   return data
 }
 
 async function fetchPersonality() {
-  const personality = localStorage.getItem("personality")
+  const personality = local.personality
   if (personality) {
-    return JSON.parse(personality)
+    return personality
   }
   const response = await fetch(peresonalityImportPath)
   const data = await response.json()
-  localStorage.setItem("personality", JSON.stringify(data))
+  local.personality = data
   return data
 }
 

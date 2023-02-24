@@ -4,7 +4,7 @@ import { voices } from "../constants/voices"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
-import { store } from '../library/store'
+import { local } from '../library/store'
 
 
 
@@ -16,10 +16,11 @@ import {
 import { pruneMessages } from "../lib/chat"
 
 const sessionId =
-  localStorage.getItem("sessionId") ??
+  local.sessionId ??
   Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
-localStorage.setItem("sessionId", sessionId)
+
+local.sessionId = sessionId
 
 const config = new SepiaSpeechRecognitionConfig()
 
@@ -115,18 +116,12 @@ ${name}: ${response3}`
   }, [waitingForResponse]);
 
   const handleSubmit = async (event) => {
-    // console.log(local._222_test)
-    // console.log(2)
-    // console.log(local)
-
-    // local._222_test = event.target.elements.message.value;
-    const _store = store();
-    console.log("string", _store.stringVal)
-    console.log("object", _store.objectValue)
-    console.log("array", _store.arrayValue)
-    _store.stringVal = "hello!";
-    _store.objectValue = {}
-    _store.arrayValue = ["hello!"]
+    console.log("string", local.stringVal)
+    console.log("object", local.objectValue)
+    console.log("array", local.arrayValue)
+    local.stringVal = event.target.elements.message.value;
+    local.objectValue = {val:event.target.elements.message.value}
+    local.arrayValue = [event.target.elements.message.value]
     if (event.preventDefault) event.preventDefault();
     // Stop speech to text when a message is sent through the input
     stopSpeech();
