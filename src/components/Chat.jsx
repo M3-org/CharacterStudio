@@ -36,7 +36,7 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const [fullBio,setFullBio] = React.useState()
 
   const [speaker, setSpeaker] = React.useState(
-    localStorage.getItem("speaker") || defaultSpeaker,
+    local.speaker || defaultSpeaker,
   )
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
 
   // on speaker changer, set local storage
   useEffect(() => {
-    localStorage.setItem("speaker", speaker)
+    local.speaker = speaker
   }, [speaker])
 
   const { lipSync } = React.useContext(SceneContext)
