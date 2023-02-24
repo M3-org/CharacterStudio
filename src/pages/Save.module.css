@@ -1,28 +1,18 @@
-.container{
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-
 .buttonContainer {
-    z-index: 0;
-    width: 100%;
-    padding: 20px 32px;
-    display: flex;
-    justify-content: space-between;
+    position: absolute;
+    bottom: 20px;
+    left: 32px;
+    width: calc(100% - 64px);
+    width: -webkit-calc(100% - 64px);
+    text-align: center;
 }
 
-.buttonContainer .leftButtonContainer{
-    margin-right: auto;
-    display: inline-flex;
-
+.buttonContainer .buttonLeft {
+    float: left;
 }
 
-.buttonContainer .rightButtonContainer{
-    margin-left: auto; 
-    margin-right: 0;
-    order: 5;
+.buttonContainer .buttonRight {
+    float: Right;
 }
 
 .buttonContainer .buttonCenter {
