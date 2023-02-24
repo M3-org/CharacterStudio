@@ -119,7 +119,7 @@ export default function CustomButton(props) {
         onSubmit={onSubmit}
         type={type}
       >
-        <div className={styles.innerWrap} style={{fontSize: size}}>
+        <div className={styles.innerWrap} style={{fontSize: size, lineHeight: size + "px"}}>
           {icon && (
             <span
               ref={svgRef}

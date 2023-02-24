@@ -54,27 +54,24 @@
     height: 180px;
     overflow: auto;
     margin-bottom: 20px;
-    overflow-y: scroll;
-    overflow-x: none;
     background-color: #193234;
     color: #fff;
     border: 1px solid #C5DCD0;
-    padding: .5em;
+    padding: 16px 8px 16px 16px;
     box-sizing: border-box;
     width: 100%;
-    height: calc(100% - 132px);
-    height: -webkit-calc(100% - 132px);
+    height: calc(100% - 142px);
+    height: -webkit-calc(100% - 142px);
 }
 
-/* make the scrollbar transparent with a white thumb */
-.messages::-webkit-scrollbar {
-    width: 10px;
-    background-color: transparent;
-}
-
-.messages::-webkit-scrollbar-thumb {
-    background-color: #fff;
-    border-radius: 5px;
+.messages .scrollBox {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    padding-right: 8px;
+    box-sizing: border-box;
+    padding-top: 14px;
 }
 
 /* set the input0 text color to white */

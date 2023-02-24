@@ -182,7 +182,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="favcolor">
-                Favourite Color
+                {t("labels.favoriteColor")}
               </label>
 
               <select

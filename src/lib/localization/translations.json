@@ -60,6 +60,7 @@
       "labels": {
         "name": "Name",
         "voice": "Voice",
+        "favoriteColor": "Favorite Color",
         "preferredGreeting": "Preferred Greeting",
         "bio": "Bio",
         "question": "Question",
@@ -132,6 +133,7 @@
       "labels": {
         "name": "Имя",
         "voice": "Голос",
+        "favoriteColor": "Любимый Цвет",
         "preferredGreeting": "Предпочитаемое Приветствие",
         "bio": "Биография",
         "question": "Вопрос",
@@ -204,6 +206,7 @@
       "labels": {
         "name": "名字",
         "voice": "语音",
+        "favoriteColor": "颜色偏好",
         "preferredGreeting": "首选问候语",
         "bio": "简介",
         "question": "问题",

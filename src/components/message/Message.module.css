@@ -1,0 +1,47 @@
+.message .chat-bubble {
+    display: inline-block;
+    padding: 6px 10px;
+    max-width: 60%;
+    border-radius: 4px;
+    background:rgba(255,255,255,0.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    position: relative;
+    padding-left: 38px;
+    margin-bottom: 8px;
+}
+
+.message .chat-bubble .colorBg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.2;
+    border-radius: 4px;
+}
+
+.message .name {
+    margin-bottom: 2px;
+    padding-left: 1px;
+    margin-top: -16px;
+    font-size: 12px;
+}
+
+.message span {
+    font-size: 10px;
+    display: inline-block;
+    color: rgba(255,255,255,0.4);
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+}
+
+.speaker {
+    text-align: right;
+}
+
+.message .chat-bubble {
+    display: inline-block;
+    padding: 6px 10px;
+    padding-right: 38px;
+}
