@@ -8,7 +8,7 @@ export const Message = (props) => {
   const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
   const time = `${hours}:${minutes}`
   return (
-    <div className={`${styles["message"]} ${type ? styles["speaker"] : styles["agent"]}`}>
+    <div className={`${styles["message"]} ${type && styles["speaker"]}`}>
       <div className={styles["name"]} style={!type ? { color: color } : {}}>
         {name}, <span>{time}</span>
       </div>

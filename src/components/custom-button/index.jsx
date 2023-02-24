@@ -132,7 +132,7 @@ export default function CustomButton(props) {
       >
         <div
           className={styles.innerWrap}
-          style={{ fontSize: size, lineHeight: size + "px" }}
+          style={{ fontSize: size }}
         >
           {icon && (
             <span
