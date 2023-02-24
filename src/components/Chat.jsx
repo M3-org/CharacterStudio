@@ -29,8 +29,11 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
+  
 export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
   const [waitingForResponse, setWaitingForResponse] = React.useState(false)
+
+  console.log(local[`${templateInfo.id}_fulBio`])
 
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
@@ -54,21 +57,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   useEffect(() => {
     localStorage.setItem("speaker", speaker)
   }, [speaker])
-
-  function composePrompt() {
-    const prompt = `Name: ${name}
-Bio: ${bio}
-${speaker}: Hey ${name}
-${name}: ${greeting}
-${speaker}: ${question1}
-${name}: ${response1}
-${speaker}: ${question2}
-${name}: ${response2}
-${speaker}: ${question3}
-${name}: ${response3}`
-
-    return prompt
-  }
 
   const { lipSync } = React.useContext(SceneContext)
   const [input, setInput] = React.useState("")
