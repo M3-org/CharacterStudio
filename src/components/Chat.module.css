@@ -118,4 +118,13 @@
     margin-bottom: 8px;
 }
 
+.warning {
+    display: inline-block;
+    position: absolute;
+    right: 24px;
+    top: 9px;
+    font-size: 14px;
+    color: burlywood;
+}
+
   

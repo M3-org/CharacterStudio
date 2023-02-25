@@ -202,6 +202,10 @@ ${agent}:`
 
         axios.post(endpoint, query).then((response) => {
           const output = response.data.choices[0].text
+  
+          ////////////////////////////////////////////////////////
+          // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
+          /*
           const ttsEndpoint =
             "https://voice.webaverse.com/tts?" +
             "s=" +
@@ -210,7 +214,7 @@ ${agent}:`
             voices[voice]
 
           // fetch the audio file from ttsEndpoint
-
+          
           fetch(ttsEndpoint).then(async (response) => {
             const blob = await response.blob()
 
@@ -219,6 +223,8 @@ ${agent}:`
 
             lipSync.startFromAudioFile(arrayBuffer)
           })
+          */
+          ////////////////////////////////////////////////////////
 
           const agentMessageOutputObject = {
             name: agent,
@@ -262,6 +268,7 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
+      <p className={styles["warning"]}>Voice generation API is temporarily disabled for maintenance!</p>
         <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
@@ -275,7 +282,6 @@ ${agent}:`
       <div className={styles["messages"]}>
         <div className={styles["scrollBox"]} id={"msgscroll"}>
           {messages.map((msg, index) => {
-            console.log(msg)
             if (msg.timestamp)
               return (
                 <Message
