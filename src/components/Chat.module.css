@@ -127,4 +127,14 @@
     color: burlywood;
 }
 
+.isTyping {
+    padding: 0;
+    margin: 4px 0 0 45px;
+    display: none;
+}
+
+.isTyping.show {
+    display: inline-block;
+}
+
   

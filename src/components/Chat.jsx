@@ -202,7 +202,7 @@ ${agent}:`
 
         axios.post(endpoint, query).then((response) => {
           const output = response.data.choices[0].text
-  
+
           ////////////////////////////////////////////////////////
           // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
           /*
@@ -268,7 +268,9 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
-      <p className={styles["warning"]}>Voice generation API is temporarily disabled for maintenance!</p>
+        <p className={styles["warning"]}>
+          Voice generation API is temporarily disabled for maintenance!
+        </p>
         <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
@@ -333,6 +335,9 @@ ${agent}:`
         {/* add a microphone button that will allow the user to speak into the mic and have the text appear in the input field */}
         {/* on click, indicate with style that the mic is active */}
       </form>
+      <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
+        <span style={{ color: fontColor }}>{name}</span> is typing...
+      </p>
     </div>
   )
 }
