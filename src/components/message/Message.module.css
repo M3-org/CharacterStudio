@@ -7,6 +7,7 @@
     box-shadow: 0 1px 1px rgba(0,0,0,0.4);
     position: relative;
     margin-bottom: 8px;
+    font-size: 16px;
 }
 
 .message .chat-bubble .colorBg {
@@ -20,14 +21,16 @@
 }
 
 .message .name {
-    margin-bottom: 2px;
-    padding-left: 1px;
+    margin-bottom: 8px;
+    padding-left: 4px;
     margin-top: -16px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .message span {
     font-size: 10px;
+    margin-left: 4px;
+    margin-right: 4px;
     display: inline-block;
     color: rgba(255,255,255,0.4);
 }
