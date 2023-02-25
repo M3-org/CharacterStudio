@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
@@ -11,6 +12,7 @@ import {
 } from "sepia-speechrecognition-polyfill"
 import { pruneMessages } from "../lib/chat"
 import { LanguageContext } from "../context/LanguageContext"
+import { Message } from "./message"
 
 const sessionId =
   localStorage.getItem("sessionId") ??
@@ -25,11 +27,17 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
-  const [waitingForResponse, setWaitingForResponse] = React.useState(false);
+export default function ChatBox({
+  templateInfo,
+  micEnabled,
+  setMicEnabled,
+  speechRecognition,
+  setSpeechRecognition,
+}) {
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
   // Translate hook
-  const { t } = useContext(LanguageContext);
+  const { t } = useContext(LanguageContext)
 
   const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
   const fullBio = JSON.parse(fullBioStr)
@@ -37,6 +45,9 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   const name = fullBio.name
   const bio = fullBio.description
   const voice = fullBio.voiceKey
+  const fontColor =
+    favouriteColors[fullBio.colorKey]?.fontColor ||
+    favouriteColors[Object.keys(favouriteColors)[0]].fontColor
   const greeting = fullBio.greeting
   const question1 = fullBio.personality.question
   const question2 = fullBio.relationship.question
@@ -106,20 +117,19 @@ ${name}: ${response3}`
     speechRecognition.stop()
     setMicEnabled(false)
   }
-  
+
   useEffect(() => {
     // Focus back on input when the response is given
     if (!waitingForResponse) {
-      document.getElementById("messageInput").focus();
+      document.getElementById("messageInput").focus()
     }
-  }, [waitingForResponse]);
+  }, [waitingForResponse])
 
   const handleSubmit = async (event) => {
-    if (event.preventDefault) event.preventDefault();
+    if (event.preventDefault) event.preventDefault()
     // Stop speech to text when a message is sent through the input
-    stopSpeech();
+    stopSpeech()
     if (!waitingForResponse) {
-      setWaitingForResponse(true)
       // Get the value of the input element
       const input = event.target.elements.message
       const value = input.value
@@ -128,7 +138,8 @@ ${name}: ${response3}`
   }
 
   const handleUserChatInput = async (value) => {
-    if (value && !waitingForResponse) {
+    if (value && value !== "" && !waitingForResponse) {
+      setWaitingForResponse(true)
       // Send the message to the localhost endpoint
       const agent = name
       // const spell_handler = "charactercreator";
@@ -137,9 +148,16 @@ ${name}: ${response3}`
 
       // newMessages.push(`${speaker}: ${value}`)
 
-      
       setInput("")
-      setMessages((messages) => [...messages, `${speaker}: ${value}`])
+
+      const userMessageOutputObject = {
+        name: speaker,
+        message: value,
+        timestamp: Date.now(),
+        type: 1,
+      }
+
+      setMessages((messages) => [...messages, userMessageOutputObject])
 
       const promptMessages = await pruneMessages(messages)
       promptMessages.push(`${speaker}: ${value}`)
@@ -148,7 +166,7 @@ ${name}: ${response3}`
         // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
 
         const endpoint = "https://upstreet.webaverse.com/api/ai"
-        
+
         let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
@@ -174,7 +192,7 @@ ${agent}:`
 
         const query = {
           prompt,
-          max_tokens: 250,
+          max_tokens: 400,
           temperature: 0.9,
           top_p: 1,
           frequency_penalty: 0,
@@ -184,6 +202,10 @@ ${agent}:`
 
         axios.post(endpoint, query).then((response) => {
           const output = response.data.choices[0].text
+
+          ////////////////////////////////////////////////////////
+          // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
+          /*
           const ttsEndpoint =
             "https://voice.webaverse.com/tts?" +
             "s=" +
@@ -192,18 +214,27 @@ ${agent}:`
             voices[voice]
 
           // fetch the audio file from ttsEndpoint
-
+          
           fetch(ttsEndpoint).then(async (response) => {
             const blob = await response.blob()
 
             // convert the blob to an array buffer
             const arrayBuffer = await blob.arrayBuffer()
 
-            lipSync.startFromAudioFile(arrayBuffer);
+            lipSync.startFromAudioFile(arrayBuffer)
           })
+          */
+          ////////////////////////////////////////////////////////
 
-          setMessages((messages) => [...messages, agent + ": " + output])
-          setWaitingForResponse(false);
+          const agentMessageOutputObject = {
+            name: agent,
+            message: output,
+            timestamp: Date.now(),
+            type: 0,
+          }
+
+          setMessages((messages) => [...messages, agentMessageOutputObject])
+          setWaitingForResponse(false)
         })
       } catch (error) {
         console.error(error)
@@ -225,7 +256,7 @@ ${agent}:`
 
         if (e.results[i].isFinal) {
           handleUserChatInput(`${e.results[i][0].transcript}`)
-          setWaitingForResponse(true);
+          setWaitingForResponse(true)
         }
       }
 
@@ -237,6 +268,9 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
+        <p className={styles["warning"]}>
+          Voice generation API is temporarily disabled for maintenance!
+        </p>
         <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
@@ -247,13 +281,29 @@ ${agent}:`
       </div>
 
       <label>{t("labels.conversation")}</label>
-      <div id={"msgscroll"} className={styles["messages"]}>
-        {messages.map((message, index) => (
-          <div key={index}>{message}</div>
-        ))}
+      <div className={styles["messages"]}>
+        <div className={styles["scrollBox"]} id={"msgscroll"}>
+          {messages.map((msg, index) => {
+            if (msg.timestamp)
+              return (
+                <Message
+                  key={index}
+                  name={msg.name}
+                  timestamp={msg.timestamp}
+                  message={msg.message}
+                  type={msg.type}
+                  color={fontColor}
+                />
+              )
+          })}
+        </div>
       </div>
 
-      <form className={styles["send"]} style={{opacity: waitingForResponse ? "0.4" : "1"}} onSubmit={handleSubmit}>
+      <form
+        className={styles["send"]}
+        style={{ opacity: waitingForResponse ? "0.4" : "1" }}
+        onSubmit={handleSubmit}
+      >
         {/* Disabled until state error is fixed */}
         <CustomButton
           type="icon"
@@ -285,6 +335,9 @@ ${agent}:`
         {/* add a microphone button that will allow the user to speak into the mic and have the text appear in the input field */}
         {/* on click, indicate with style that the mic is active */}
       </form>
+      <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
+        <span style={{ color: fontColor }}>{name}</span> is typing...
+      </p>
     </div>
   )
 }
