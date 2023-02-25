@@ -192,7 +192,7 @@ ${agent}:`
 
         const query = {
           prompt,
-          max_tokens: 250,
+          max_tokens: 400,
           temperature: 0.9,
           top_p: 1,
           frequency_penalty: 0,
