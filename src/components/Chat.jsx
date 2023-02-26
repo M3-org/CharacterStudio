@@ -269,7 +269,7 @@ ${agent}:`
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
         <p className={styles["warning"]}>
-          Voice generation API is temporarily disabled for maintenance!
+          {t("text.apiUnderMaintnance")}
         </p>
         <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input

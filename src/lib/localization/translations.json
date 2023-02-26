@@ -68,7 +68,8 @@
         "conversation": "Conversation"
       },
       "text": {
-        "unoptimized": "Unoptimized"
+        "unoptimized": "Unoptimized",
+        "apiUnderMaintnance": "Voice generation API is temporarily disabled for maintenance!"
       }
     }
   },
@@ -141,7 +142,8 @@
         "conversation": "Разговор"
       },
       "text": {
-        "unoptimized": "Неоптимизи­рованный"
+        "unoptimized": "Неоптимизи­рованный",
+        "apiUnderMaintnance": "API генерации голоса временно отключен на техническое обслуживание."
       }
     }
   },
@@ -214,7 +216,8 @@
         "conversation": "对话"
       },
       "text": {
-        "unoptimized": "未优化"
+        "unoptimized": "未优化",
+        "apiUnderMaintnance": "语音生成API暂时关闭进行维护!"
       }
     }
   }
