@@ -595,9 +595,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           resolution={2048}
           numFrames={128}
           id="head"
-          active={!currentTraitName ? true : false}
           icon={cancel}
-          rarity={"none"}
+          rarity={!currentTraitName ? "mystic" : "none"}
         />
       </div>
     ) : (
@@ -639,8 +638,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                     resolution={2048}
                     numFrames={128}
                     icon={option.icon}
-                    rarity={"none"}
-                    active={active ? true : false}
+                    rarity={active ? "mythic" : "none"}
                     style={
                       option.iconHSL
                         ? {
