@@ -162,41 +162,18 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
       if (child.isSkinnedMesh) skinnedMesh = child;
     })
     skinnedMesh.skeleton.bones.forEach(bone => {
-      // if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.includes('Bang') && !bone.name.startsWith('Bone')) {
-        bone.updateMatrix();
-        bone.updateMatrixWorld();
-      // }
-    })
-    debugger
-    // skinnedMesh.skeleton.bones.forEach(bone => {
-    //   bone._worldPosition = bone.getWorldPosition(new Vector3());
-    //   bone._worldPosition.x *= -1;
-    //   bone._worldPosition.z *= -1;
-    // })
-    // skinnedMesh.skeleton.bones.forEach(bone => {
-    //   // if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.includes('Bang') && !bone.name.startsWith('Bone')) {
-    //   if (bone.name !== 'root') {
-    //     bone.position.x = bone._worldPosition.x - bone.parent._worldPosition.x;
-    //     bone.position.z = bone._worldPosition.z - bone.parent._worldPosition.z;
-    //   }
-    // })
-    skinnedMesh.skeleton.bones.forEach(bone => {
       if (bone.name !== 'root') {
         bone.position.x *= -1;
         bone.position.z *= -1;
       }
     })
-    debugger
     skinnedMesh.skeleton.bones.forEach(bone => {
-      // if (bone.name !== 'root' && !bone.name.includes('Hair') && !bone.name.includes('Bang') && !bone.name.startsWith('Bone')) {
-        bone.updateMatrix();
-        bone.updateMatrixWorld();
-      // }
+      bone.updateMatrix();
+      bone.updateMatrixWorld();
     })
     skinnedMesh.skeleton.calculateInverses();
     skinnedMesh.skeleton.computeBoneTexture();
     skinnedMesh.skeleton.update();
-    debugger
     exporter.parse(vrmData, glbModel, (vrm) => {
       resolve(vrm)
     })
