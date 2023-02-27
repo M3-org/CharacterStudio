@@ -181,6 +181,7 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     skinnedMesh.skeleton.calculateInverses();
     skinnedMesh.skeleton.computeBoneTexture();
     skinnedMesh.skeleton.update();
+    // debugger
     exporter.parse(vrmData, glbModel, (vrm) => {
       resolve(vrm)
     })

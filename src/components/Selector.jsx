@@ -281,6 +281,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         const loadedModels = [];
         getAsArray(option?.item?.directory).map((modelDir, i) => {
           gltfLoader.loadAsync (baseDir + modelDir).then((mod) => {
+            // debugger // mark
             loadedModels[i] = mod;
           })
         })
