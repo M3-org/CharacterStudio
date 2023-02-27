@@ -2,9 +2,12 @@ import React, { useContext, useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
 import { favouriteColors } from "../constants/favouriteColors"
+import { errorResponses } from "../constants/defaultReplies"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
 import CustomButton from "./custom-button"
+import { local } from '../library/store'
+import { getRandomObjectKey, getRandomArrayValue } from '../library/utils'
 
 import {
   sepiaSpeechRecognitionInit,
@@ -15,10 +18,11 @@ import { LanguageContext } from "../context/LanguageContext"
 import { Message } from "./message"
 
 const sessionId =
-  localStorage.getItem("sessionId") ??
+  local.sessionId ??
   Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
-localStorage.setItem("sessionId", sessionId)
+
+local.sessionId = sessionId
 
 const config = new SepiaSpeechRecognitionConfig()
 
@@ -39,46 +43,18 @@ export default function ChatBox({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
-  const fullBio = JSON.parse(fullBioStr)
-
-  const name = fullBio.name
-  const bio = fullBio.description
-  const voice = fullBio.voiceKey
-  const fontColor =
-    favouriteColors[fullBio.colorKey]?.fontColor ||
-    favouriteColors[Object.keys(favouriteColors)[0]].fontColor
-  const greeting = fullBio.greeting
-  const question1 = fullBio.personality.question
-  const question2 = fullBio.relationship.question
-  const question3 = fullBio.hobbies.question
-  const response1 = fullBio.personality.answer
-  const response2 = fullBio.relationship.answer
-  const response3 = fullBio.hobbies.answer
+  const [fullBio] = React.useState(
+    local[`${templateInfo.id}_fulBio`]
+  )
 
   const [speaker, setSpeaker] = React.useState(
-    localStorage.getItem("speaker") || defaultSpeaker,
+    local.speaker || defaultSpeaker,
   )
 
   // on speaker changer, set local storage
   useEffect(() => {
-    localStorage.setItem("speaker", speaker)
+    local.speaker = speaker
   }, [speaker])
-
-  function composePrompt() {
-    const prompt = `Name: ${name}
-Bio: ${bio}
-${speaker}: Hey ${name}
-${name}: ${greeting}
-${speaker}: ${question1}
-${name}: ${response1}
-${speaker}: ${question2}
-${name}: ${response2}
-${speaker}: ${question3}
-${name}: ${response3}`
-
-    return prompt
-  }
 
   const { lipSync } = React.useContext(SceneContext)
   const [input, setInput] = React.useState("")
@@ -132,7 +108,7 @@ ${name}: ${response3}`
     if (!waitingForResponse) {
       // Get the value of the input element
       const input = event.target.elements.message
-      const value = input.value
+      const value = input.value !== "" ? input.value : "..."
       handleUserChatInput(value)
     }
   }
@@ -141,12 +117,7 @@ ${name}: ${response3}`
     if (value && value !== "" && !waitingForResponse) {
       setWaitingForResponse(true)
       // Send the message to the localhost endpoint
-      const agent = name
-      // const spell_handler = "charactercreator";
-
-      //const newMessages = await pruneMessages(messages);
-
-      // newMessages.push(`${speaker}: ${value}`)
+      const agent = fullBio.name
 
       setInput("")
 
@@ -162,82 +133,110 @@ ${name}: ${response3}`
       const promptMessages = await pruneMessages(messages)
       promptMessages.push(`${speaker}: ${value}`)
 
-      try {
-        // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+      if (value.replaceAll(' ', '') === "" || value === "..."){
+        const output = getRandomArrayValue(getRandomObjectKey(errorResponses))
 
-        const endpoint = "https://upstreet.webaverse.com/api/ai"
+        if (output.replaceAll(' ', '') !== "" && output !== "..."){
+          const ttsEndpoint =
+          "https://voice.webaverse.com/tts?" +
+          "s=" +
+          output +
+          "&voice=" +
+          voices[fullBio.voiceKey]
 
-        let prompt = `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
+          fetch(ttsEndpoint).then(async (response) => {
+            const blob = await response.blob()
+            // convert the blob to an array buffer
+            const arrayBuffer = await blob.arrayBuffer()
+
+            lipSync.startFromAudioFile(arrayBuffer);
+          })
+        }
+        setMessages((messages) => [...messages, agent + ": " + output])
+        setWaitingForResponse(false)
+      }
+      else{
+        
+        try {
+          // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+
+          const endpoint = "https://upstreet.webaverse.com/api/ai"
+          
+          let prompt = 
+        
+`The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
 
 Info about ${agent}
 ---
 
-Bio: "${bio}"
+Bio: "${fullBio.bio}"
 
-Question 1: "${question1}"
-Response 1: "${response1}"
+Question 1: "${fullBio.question1}"
+Response 1: "${fullBio.response1}"
 
-Question 2: "${question2}"
-Response 2: "${response2}"
+Question 2: "${fullBio.question2}"
+Response 2: "${fullBio.response2}"
 
-Question 3: "${question3}"
-Response 3: "${response3}"
+Question 3: "${fullBio.question3}"
+Response 3: "${fullBio.response3}"
 
 MOST RECENT MESSAGES:
 
 ${promptMessages.join("\n")}
 ${agent}:`
 
-        const query = {
-          prompt,
-          max_tokens: 400,
-          temperature: 0.9,
-          top_p: 1,
-          frequency_penalty: 0,
-          presence_penalty: 0.6,
-          stop: [speaker + ":", agent + ":", "\\n"],
-        }
-
-        axios.post(endpoint, query).then((response) => {
-          const output = response.data.choices[0].text
-
-          ////////////////////////////////////////////////////////
-          // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
-          /*
-          const ttsEndpoint =
-            "https://voice.webaverse.com/tts?" +
-            "s=" +
-            output +
-            "&voice=" +
-            voices[voice]
-
-          // fetch the audio file from ttsEndpoint
-          
-          fetch(ttsEndpoint).then(async (response) => {
-            const blob = await response.blob()
-
-            // convert the blob to an array buffer
-            const arrayBuffer = await blob.arrayBuffer()
-
-            lipSync.startFromAudioFile(arrayBuffer)
-          })
-          */
-          ////////////////////////////////////////////////////////
-
-          const agentMessageOutputObject = {
-            name: agent,
-            message: output,
-            timestamp: Date.now(),
-            type: 0,
+          const query = {
+            prompt,
+            max_tokens: 250,
+            temperature: 0.9,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0.6,
+            stop: [speaker + ":", agent + ":", "\\n"],
           }
 
-          setMessages((messages) => [...messages, agentMessageOutputObject])
-          setWaitingForResponse(false)
-        })
-      } catch (error) {
-        console.error(error)
+          axios.post(endpoint, query).then((response) => {
+            console.log(response)
+            const output = response.data.choices[0].text
+            ////////////////////////////////////////////////////////
+            // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
+            /*
+            if (output.replaceAll(' ', '') !== "" && output !== "..."){
+              const ttsEndpoint =
+              "https://voice.webaverse.com/tts?" +
+              "s=" +
+              output +
+              "&voice=" +
+              voices[fullBio.voiceKey]
+              fetch(ttsEndpoint).then(async (response) => {
+
+                const blob = await response.blob()
+
+                // convert the blob to an array buffer
+                const arrayBuffer = await blob.arrayBuffer()
+
+                lipSync.startFromAudioFile(arrayBuffer);
+              })
+              */
+              ////////////////////////////////////////////////////////
+            }
+
+            setMessages((messages) => [...messages, agent + ": " + output])
+            setWaitingForResponse(false);
+          }).catch((err)=>{
+            const output = errorResponses.silent[0]
+            setMessages((messages) => [...messages, agent + ": " + output])
+            setWaitingForResponse(false);
+            console.log(err)
+          })
+        } catch (error) {
+          const output = errorResponses.silent[0]
+          setMessages((messages) => [...messages, agent + ": " + output])
+          setWaitingForResponse(false);
+          console.error(error)
+        }
       }
     }
   }
