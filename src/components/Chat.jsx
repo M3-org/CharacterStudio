@@ -136,6 +136,9 @@ export default function ChatBox({
       if (value.replaceAll(' ', '') === "" || value === "..."){
         const output = getRandomArrayValue(getRandomObjectKey(errorResponses))
 
+        ////////////////////////////////////////////////////////
+        // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
+        /*
         if (output.replaceAll(' ', '') !== "" && output !== "..."){
           const ttsEndpoint =
           "https://voice.webaverse.com/tts?" +
@@ -152,6 +155,7 @@ export default function ChatBox({
             lipSync.startFromAudioFile(arrayBuffer);
           })
         }
+        */
         setMessages((messages) => [...messages, agent + ": " + output])
         setWaitingForResponse(false)
       }
@@ -219,9 +223,9 @@ ${agent}:`
 
                 lipSync.startFromAudioFile(arrayBuffer);
               })
-              */
-              ////////////////////////////////////////////////////////
             }
+            */
+            ////////////////////////////////////////////////////////
 
             setMessages((messages) => [...messages, agent + ": " + output])
             setWaitingForResponse(false);
@@ -229,7 +233,7 @@ ${agent}:`
             const output = errorResponses.silent[0]
             setMessages((messages) => [...messages, agent + ": " + output])
             setWaitingForResponse(false);
-            console.log(err)
+            console.error(err)
           })
         } catch (error) {
           const output = errorResponses.silent[0]
