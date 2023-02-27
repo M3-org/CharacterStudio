@@ -16,8 +16,6 @@ export class LookAtManager {
     this.hasInterest = true
     this.interestSpeed = 0.3
 
-    this.clock = new THREE.Clock()
-    this.deltaTime = 0
     this.onCanvas = true;
 
     this.camera = null;
@@ -120,46 +118,25 @@ export class LookAtManager {
     return { x: dx, y: dy }
   }
 
+  lerp(a, b, t) {
+    return (1 - t) * a + t * b;
+  }
+
   _moveJoint(joint, degreeLimit){
     if (Object.keys(joint).length !== 0) {
-      const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight/2;
-      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit)
-      joint.rotation.y = (THREE.MathUtils.degToRad(degrees.x) + this.camera.rotation.y/3) * this.lookInterest
-      joint.rotation.x = THREE.MathUtils.degToRad(degrees.y) * this.lookInterest
+      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y, degreeLimit);
+      const rotationLerp = 0.8;
+      joint.rotation.y = this.lerp(THREE.MathUtils.degToRad(degrees.x), joint.rotation.y, rotationLerp); 
+      joint.rotation.x = this.lerp(THREE.MathUtils.degToRad(degrees.y), joint.rotation.x, rotationLerp);
     }
   }
 
-  _setInterest(){
+  update(){
     localVector.set(0, 0, 1);
     localVector.applyQuaternion(this.camera.quaternion);
     const cameraRotationThreshold = localVector.z > 0.; // if camera rotation is not larger than 90
     
-    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
-        this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
-        cameraRotationThreshold && this.enabled &&
-        this.onCanvas)
-      this.hasInterest = true
-    else
-      this.hasInterest = false
-
-    if (this.hasInterest && this.lookInterest < 1){
-      const newInterest =  this.lookInterest + this.deltaTime/this.interestSpeed
-      this.lookInterest = newInterest > 1 ? 1 : newInterest
-    }
-    if (!this.hasInterest && this.lookInterest > 0){
-      const newInterest =  this.lookInterest - this.deltaTime/this.interestSpeed
-      this.lookInterest = newInterest < 0 ? 0 : newInterest
-    }
-
-  }
-
-  update(){
-    
-    
-    this.deltaTime = this.clock.getDelta()
-    this._setInterest();
-    
-    //if (this.enabled){
+    if (cameraRotationThreshold) {
       this.neckBones.forEach(neck => {
         this._moveJoint(neck, this.maxLookPercent.neck)
       })
@@ -172,6 +149,6 @@ export class LookAtManager {
       this.rightEyesBones.forEach(rightEye => {
         this._moveJoint(rightEye, this.maxLookPercent.right)
       })
-    //}
+    }
   }
 }
