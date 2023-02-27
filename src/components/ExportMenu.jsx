@@ -32,19 +32,21 @@ export const ExportMenu = () => {
     useContext(AccountContext)
   const { activate, deactivate, account } = useWeb3React()
 
-  const [name] = React.useState(
-    local.name
-    || defaultName
-  )
+ 
 
   const injected = new InjectedConnector({
     supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
   })
 
-  const { skinColor, model, avatar } = useContext(SceneContext)
+  const { skinColor, model, avatar, templateInfo } = useContext(SceneContext)
 
   // const [mintStatus, setMintStatus] = useState("")
+  const [name] = React.useState(
+    local[`${templateInfo.id}_fulBio`].name
+    || defaultName
+  )
 
+  
   useEffect(() => {
     if (account) {
       _setAddress(account)
