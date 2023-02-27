@@ -47,7 +47,6 @@ export default function ChatBox({
     local[`${templateInfo.id}_fulBio`]
   )
 
-
   const [speaker, setSpeaker] = React.useState(
     local.speaker || defaultSpeaker,
   )
@@ -157,7 +156,14 @@ export default function ChatBox({
           })
         }
         */
-        setMessages((messages) => [...messages, agent + ": " + output])
+        const agentMessageOutputObject = {
+          name: agent,
+          message: output,
+          timestamp: Date.now(),
+          type: 0,
+        }
+
+        setMessages((messages) => [...messages, agentMessageOutputObject])
         setWaitingForResponse(false)
       }
       else{
@@ -228,17 +234,26 @@ ${agent}:`
             */
             ////////////////////////////////////////////////////////
 
-            setMessages((messages) => [...messages, agent + ": " + output])
-            setWaitingForResponse(false);
+            const agentMessageOutputObject = {
+              name: agent,
+              message: output,
+              timestamp: Date.now(),
+              type: 0,
+            }
+            setMessages((messages) => [...messages, agentMessageOutputObject])
+            setWaitingForResponse(false)
+            
           }).catch((err)=>{
-            const output = errorResponses.silent[0]
-            setMessages((messages) => [...messages, agent + ": " + output])
+            // maybe set a message, "unable to send message"
+            //const output = errorResponses.silent[0]
+            //setMessages((messages) => [...messages, agent + ": " + output])
             setWaitingForResponse(false);
             console.error(err)
           })
         } catch (error) {
-          const output = errorResponses.silent[0]
-          setMessages((messages) => [...messages, agent + ": " + output])
+          // maybe set a message, "unable to send message"
+          //const output = errorResponses.silent[0]
+          //setMessages((messages) => [...messages, agent + ": " + output])
           setWaitingForResponse(false);
           console.error(error)
         }
@@ -248,16 +263,19 @@ ${agent}:`
 
   let hasSet = false
   useEffect(() => {
+    console.log("e")
     if (!waitingForResponse) {
+      console.log("e1")
       if (speechRecognition || hasSet) return
+      console.log("e2")
       hasSet = true
       const speechTest = new SpeechRecognition({})
       setSpeechRecognition(speechTest)
-
+      console.log("tetet")
       speechTest.onerror = (e) => console.error(e.error, e.message)
       speechTest.onresult = (e) => {
         const i = e.resultIndex
-
+        console.log("test")
         if (e.results[i].isFinal) {
           handleUserChatInput(`${e.results[i][0].transcript}`)
           setWaitingForResponse(true)
@@ -296,7 +314,7 @@ ${agent}:`
                   timestamp={msg.timestamp}
                   message={msg.message}
                   type={msg.type}
-                  color={fullBio.colorKey.fontColor}
+                  color={favouriteColors[fullBio.colorKey].fontColor}
                 />
               )
           })}
@@ -340,7 +358,7 @@ ${agent}:`
         {/* on click, indicate with style that the mic is active */}
       </form>
       <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
-        <span style={{ color: fullBio.colorKey.fontColor }}>{name}</span> is typing...
+        <span style={{ color: favouriteColors[fullBio.colorKey].fontColor }}>{fullBio.name}</span> is typing...
       </p>
     </div>
   )
