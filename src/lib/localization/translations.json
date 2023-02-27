@@ -60,6 +60,7 @@
       "labels": {
         "name": "Name",
         "voice": "Voice",
+        "favoriteColor": "Favorite Color",
         "preferredGreeting": "Preferred Greeting",
         "bio": "Bio",
         "question": "Question",
@@ -67,7 +68,8 @@
         "conversation": "Conversation"
       },
       "text": {
-        "unoptimized": "Unoptimized"
+        "unoptimized": "Unoptimized",
+        "apiUnderMaintnance": "Voice generation API is temporarily disabled for maintenance!"
       }
     }
   },
@@ -132,6 +134,7 @@
       "labels": {
         "name": "Имя",
         "voice": "Голос",
+        "favoriteColor": "Любимый Цвет",
         "preferredGreeting": "Предпочитаемое Приветствие",
         "bio": "Биография",
         "question": "Вопрос",
@@ -139,7 +142,8 @@
         "conversation": "Разговор"
       },
       "text": {
-        "unoptimized": "Неоптимизи­рованный"
+        "unoptimized": "Неоптимизи­рованный",
+        "apiUnderMaintnance": "API генерации голоса временно отключен на техническое обслуживание."
       }
     }
   },
@@ -204,6 +208,7 @@
       "labels": {
         "name": "名字",
         "voice": "语音",
+        "favoriteColor": "颜色偏好",
         "preferredGreeting": "首选问候语",
         "bio": "简介",
         "question": "问题",
@@ -211,7 +216,8 @@
         "conversation": "对话"
       },
       "text": {
-        "unoptimized": "未优化"
+        "unoptimized": "未优化",
+        "apiUnderMaintnance": "语音生成API暂时关闭进行维护!"
       }
     }
   }

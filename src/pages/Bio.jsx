@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
@@ -18,7 +19,6 @@ export const getBio = (templateInfo, personality) => {
 
   const voiceKey = Object.keys(voices).find((v) => {
     if (heshe.toUpperCase() === "SHE"){
-      
       if (v.includes("Female")){
         return v
       }
@@ -28,6 +28,8 @@ export const getBio = (templateInfo, personality) => {
         return v
       }
   } )
+  const randIndexColor = Math.floor(Math.random() * Object.keys(favouriteColors).length);
+  const favColor = Object.keys(favouriteColors)[randIndexColor]
   const description = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
   
   const q1 = getPersonalityQuestionsAndAnswers(personality);
@@ -43,6 +45,7 @@ export const getBio = (templateInfo, personality) => {
     profession,
     heshe,
     voiceKey,
+    favColor,
     personality: q1, //{question, answer}
     relationship: q2,
     hobbies: q3,
@@ -78,6 +81,7 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 
 // Cache voice keys for performance.
 const voiceKeys = Object.keys(voices)
+const colorKeys = Object.keys(favouriteColors)
 
 function BioPage({ templateInfo, personality }) {
   const { setViewMode } = React.useContext(ViewContext)
@@ -161,6 +165,30 @@ function BioPage({ templateInfo, personality }) {
                   return (
                     <option key={i} value={option}>
                       {option}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
+            {/* Favourite Color */}
+            <div className={styles.section}>
+              <label
+                className={styles.label}
+                htmlFor="favcolor">
+                {t("labels.favoriteColor")}
+              </label>
+
+              <select
+                name="favcolor"
+                className={styles.select}
+                defaultValue={fullBio.colorKey}
+                onChange={(e) => setFullBio({...fullBio, ...{colorKey:e.target.value}})}
+              >
+                {colorKeys.map((option, i) => {
+                  return (
+                    <option key={i} value={option}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
                     </option>
                   )
                 })}

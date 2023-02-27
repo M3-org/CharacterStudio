@@ -576,6 +576,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   function ClearTraitButton() {
     // clear the current trait
+    const isSelected = currentTrait.get(currentTraitName) ? true : false;
     return removeOption ? (
       <div
         key={"no-trait"}
@@ -595,9 +596,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           resolution={2048}
           numFrames={128}
           id="head"
-          active={!currentTraitName ? true : false}
           icon={cancel}
-          rarity={"none"}
+          rarity={!isSelected ? "mythic" : "none"}
         />
       </div>
     ) : (
@@ -639,8 +639,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                     resolution={2048}
                     numFrames={128}
                     icon={option.icon}
-                    rarity={"none"}
-                    active={active ? true : false}
+                    rarity={active ? "mythic" : "none"}
                     style={
                       option.iconHSL
                         ? {

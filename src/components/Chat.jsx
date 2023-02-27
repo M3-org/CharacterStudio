@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react"
 import axios from "axios"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import { errorResponses } from "../constants/defaultReplies"
 import { SceneContext } from "../context/SceneContext"
 import styles from "./Chat.module.css"
@@ -14,6 +15,7 @@ import {
 } from "sepia-speechrecognition-polyfill"
 import { pruneMessages } from "../lib/chat"
 import { LanguageContext } from "../context/LanguageContext"
+import { Message } from "./message"
 
 const sessionId =
   local.sessionId ??
@@ -29,11 +31,17 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
-export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speechRecognition, setSpeechRecognition}) {
-  const [waitingForResponse, setWaitingForResponse] = React.useState(false);
+export default function ChatBox({
+  templateInfo,
+  micEnabled,
+  setMicEnabled,
+  speechRecognition,
+  setSpeechRecognition,
+}) {
+  const [waitingForResponse, setWaitingForResponse] = React.useState(false)
 
   // Translate hook
-  const { t } = useContext(LanguageContext);
+  const { t } = useContext(LanguageContext)
 
   const [fullBio] = React.useState(
     local[`${templateInfo.id}_fulBio`]
@@ -85,20 +93,19 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
     speechRecognition.stop()
     setMicEnabled(false)
   }
-  
+
   useEffect(() => {
     // Focus back on input when the response is given
     if (!waitingForResponse) {
-      document.getElementById("messageInput").focus();
+      document.getElementById("messageInput").focus()
     }
-  }, [waitingForResponse]);
+  }, [waitingForResponse])
 
   const handleSubmit = async (event) => {
-    if (event.preventDefault) event.preventDefault();
+    if (event.preventDefault) event.preventDefault()
     // Stop speech to text when a message is sent through the input
-    stopSpeech();
+    stopSpeech()
     if (!waitingForResponse) {
-      setWaitingForResponse(true)
       // Get the value of the input element
       const input = event.target.elements.message
       const value = input.value !== "" ? input.value : "..."
@@ -107,12 +114,21 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
   }
 
   const handleUserChatInput = async (value) => {
-    if (value && !waitingForResponse) {
+    if (value && value !== "" && !waitingForResponse) {
+      setWaitingForResponse(true)
       // Send the message to the localhost endpoint
       const agent = fullBio.name
 
       setInput("")
-      setMessages((messages) => [...messages, `${speaker}: ${value}`])
+
+      const userMessageOutputObject = {
+        name: speaker,
+        message: value,
+        timestamp: Date.now(),
+        type: 1,
+      }
+
+      setMessages((messages) => [...messages, userMessageOutputObject])
 
       const promptMessages = await pruneMessages(messages)
       promptMessages.push(`${speaker}: ${value}`)
@@ -130,7 +146,6 @@ export default function ChatBox({templateInfo, micEnabled, setMicEnabled, speech
 
           fetch(ttsEndpoint).then(async (response) => {
             const blob = await response.blob()
-
             // convert the blob to an array buffer
             const arrayBuffer = await blob.arrayBuffer()
 
@@ -185,7 +200,9 @@ ${agent}:`
           axios.post(endpoint, query).then((response) => {
             console.log(response)
             const output = response.data.choices[0].text
-            // fetch the audio file from ttsEndpoint q
+            ////////////////////////////////////////////////////////
+            // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
+            /*
             if (output.replaceAll(' ', '') !== "" && output !== "..."){
               const ttsEndpoint =
               "https://voice.webaverse.com/tts?" +
@@ -202,6 +219,8 @@ ${agent}:`
 
                 lipSync.startFromAudioFile(arrayBuffer);
               })
+              */
+              ////////////////////////////////////////////////////////
             }
 
             setMessages((messages) => [...messages, agent + ": " + output])
@@ -236,7 +255,7 @@ ${agent}:`
 
         if (e.results[i].isFinal) {
           handleUserChatInput(`${e.results[i][0].transcript}`)
-          setWaitingForResponse(true);
+          setWaitingForResponse(true)
         }
       }
 
@@ -248,6 +267,9 @@ ${agent}:`
   return (
     <div className={styles["chatBox"]}>
       <div className={styles["speaker"]}>
+        <p className={styles["warning"]}>
+          {t("text.apiUnderMaintnance")}
+        </p>
         <label htmlFor="speaker">{t("labels.yourName")}</label>
         <input
           type="text"
@@ -258,13 +280,29 @@ ${agent}:`
       </div>
 
       <label>{t("labels.conversation")}</label>
-      <div id={"msgscroll"} className={styles["messages"]}>
-        {messages.map((message, index) => (
-          <div key={index}>{message}</div>
-        ))}
+      <div className={styles["messages"]}>
+        <div className={styles["scrollBox"]} id={"msgscroll"}>
+          {messages.map((msg, index) => {
+            if (msg.timestamp)
+              return (
+                <Message
+                  key={index}
+                  name={msg.name}
+                  timestamp={msg.timestamp}
+                  message={msg.message}
+                  type={msg.type}
+                  color={fontColor}
+                />
+              )
+          })}
+        </div>
       </div>
 
-      <form className={styles["send"]} style={{opacity: waitingForResponse ? "0.4" : "1"}} onSubmit={handleSubmit}>
+      <form
+        className={styles["send"]}
+        style={{ opacity: waitingForResponse ? "0.4" : "1" }}
+        onSubmit={handleSubmit}
+      >
         {/* Disabled until state error is fixed */}
         <CustomButton
           type="icon"
@@ -296,6 +334,9 @@ ${agent}:`
         {/* add a microphone button that will allow the user to speak into the mic and have the text appear in the input field */}
         {/* on click, indicate with style that the mic is active */}
       </form>
+      <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
+        <span style={{ color: fontColor }}>{name}</span> is typing...
+      </p>
     </div>
   )
 }
