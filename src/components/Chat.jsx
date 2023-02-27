@@ -249,6 +249,8 @@ ${agent}:`
             setWaitingForResponse(false)
             
           }).catch((err)=>{
+            userMessageOutputObject.error = true
+            //console.log()
             // maybe set a message, "unable to send message"
             //const output = errorResponses.silent[0]
             //setMessages((messages) => [...messages, agent + ": " + output])
@@ -256,6 +258,7 @@ ${agent}:`
             console.error(err)
           })
         } catch (error) {
+          console.log("here2")
           // maybe set a message, "unable to send message"
           //const output = errorResponses.silent[0]
           //setMessages((messages) => [...messages, agent + ": " + output])
@@ -315,6 +318,7 @@ ${agent}:`
                   message={msg.message}
                   type={msg.type}
                   color={fontColor}
+                  err = {msg.error}
                 />
               )
           })}
