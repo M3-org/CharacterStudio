@@ -1,4 +1,4 @@
-import { Group, MeshStandardMaterial, Color, Vector3 } from "three"
+import { Group, MeshStandardMaterial, Color } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { cloneSkeleton, combine } from "./merge-geometry"
 import { getAvatarData } from "./utils"
