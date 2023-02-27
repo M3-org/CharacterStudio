@@ -47,6 +47,7 @@ export default function ChatBox({
     local[`${templateInfo.id}_fulBio`]
   )
 
+
   const [speaker, setSpeaker] = React.useState(
     local.speaker || defaultSpeaker,
   )
@@ -295,7 +296,7 @@ ${agent}:`
                   timestamp={msg.timestamp}
                   message={msg.message}
                   type={msg.type}
-                  color={fontColor}
+                  color={fullBio.colorKey.fontColor}
                 />
               )
           })}
@@ -339,7 +340,7 @@ ${agent}:`
         {/* on click, indicate with style that the mic is active */}
       </form>
       <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
-        <span style={{ color: fontColor }}>{name}</span> is typing...
+        <span style={{ color: fullBio.colorKey.fontColor }}>{name}</span> is typing...
       </p>
     </div>
   )
