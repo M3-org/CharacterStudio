@@ -47,6 +47,12 @@ export default function ChatBox({
     local[`${templateInfo.id}_fulBio`]
   )
 
+  const [fontColor] = React.useState(
+    local[`${templateInfo.id}_fulBio`].colorKey ? 
+      favouriteColors[local[`${templateInfo.id}_fulBio`].colorKey].fontColor:
+      favouriteColors[Object.keys(favouriteColors)[0]].fontColor
+  )
+
   const [speaker, setSpeaker] = React.useState(
     local.speaker || defaultSpeaker,
   )
@@ -209,7 +215,6 @@ ${agent}:`
           }
 
           axios.post(endpoint, query).then((response) => {
-            console.log(response)
             const output = response.data.choices[0].text
             ////////////////////////////////////////////////////////
             // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
@@ -263,19 +268,14 @@ ${agent}:`
 
   let hasSet = false
   useEffect(() => {
-    console.log("e")
     if (!waitingForResponse) {
-      console.log("e1")
       if (speechRecognition || hasSet) return
-      console.log("e2")
       hasSet = true
       const speechTest = new SpeechRecognition({})
       setSpeechRecognition(speechTest)
-      console.log("tetet")
       speechTest.onerror = (e) => console.error(e.error, e.message)
       speechTest.onresult = (e) => {
         const i = e.resultIndex
-        console.log("test")
         if (e.results[i].isFinal) {
           handleUserChatInput(`${e.results[i][0].transcript}`)
           setWaitingForResponse(true)
@@ -314,7 +314,7 @@ ${agent}:`
                   timestamp={msg.timestamp}
                   message={msg.message}
                   type={msg.type}
-                  color={favouriteColors[fullBio.colorKey].fontColor}
+                  color={fontColor}
                 />
               )
           })}
@@ -358,7 +358,7 @@ ${agent}:`
         {/* on click, indicate with style that the mic is active */}
       </form>
       <p className={`${styles["isTyping"]} ${waitingForResponse && styles["show"]}`}>
-        <span style={{ color: favouriteColors[fullBio.colorKey].fontColor }}>{fullBio.name}</span> is typing...
+        <span style={{ color: fontColor }}>{fullBio.name}</span> is typing...
       </p>
     </div>
   )
