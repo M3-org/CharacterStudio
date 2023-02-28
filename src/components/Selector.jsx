@@ -162,23 +162,40 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   },[selectedOptions])
 
-  
+  const loadCustom = (file) => {
+    const url = URL.createObjectURL(file);
+    const option = {
+      item:{
+        id:"custom_" + currentTraitName,
+        name:"Custom " + currentTraitName,
+        directory:url
+      },
+      trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+    }
+    console.log("here")
+    loadOptions([option], false, false, false).then((loadedData)=>{
+      URL.revokeObjectURL(url);
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      setAvatar(newAvatar)
+    })
+  }
+
   const uploadTrait = () =>{
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
+
+
+    
+
     input.onchange = e => { 
       var file = e.target.files[0]; 
       if (file.name.endsWith(".vrm")){
         console.log("vrm file")
-        const option = {
-          item:{
-            directory:"",
-            id:"custom_" + currentTraitName,
-            name:"Custom " + currentTraitName,
-          },
-          trait:templateInfo.traits.find((t) => t.name === currentTraitName)
-        }
+        loadCustom(file)
       }
     }
     input.click();
@@ -231,8 +248,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   }
 
   
+  
   // load options first
-  const loadOptions = (options, filterRestrictions = true) => {
+  const loadOptions = (options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true) => {
+  //const loadOptions = (options, filterRestrictions = true) => {
+    console.log(options[0])
     for (const option of options) {
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
@@ -242,7 +262,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       options = filterRestrictedOptions(options);
 
     //save selection to local storage
-    saveUserSelection(templateInfo.name, options)
+    if (saveUserSel)
+      saveUserSelection(templateInfo.name, options)
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -289,7 +310,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         setLoadPercentage(Math.round(loaded/total * 100 ))
       }
 
-      const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
+      const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : ""// (maybe set in loading manager)
 
       // load necesary assets for the options
       options.map((option, index)=>{
