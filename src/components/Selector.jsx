@@ -672,6 +672,12 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
             })}
           </div>
         </div>
+        <div className={styles["uploadContainer"]}>
+          <div className={styles["uploadButton"]}>
+            <div> Upload </div>
+          </div>
+          
+        </div>
       </div>
     )
   )
