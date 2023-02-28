@@ -124,7 +124,8 @@ export class LookAtManager {
 
   _moveJoint(joint, degreeLimit){
     if (Object.keys(joint).length !== 0) {
-      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y, degreeLimit);
+      const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight / 2;
+      let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit);
       const rotationLerp = 0.8;
       joint.rotation.y = this.lerp(THREE.MathUtils.degToRad(degrees.x), joint.rotation.y, rotationLerp); 
       joint.rotation.x = this.lerp(THREE.MathUtils.degToRad(degrees.y), joint.rotation.x, rotationLerp);
