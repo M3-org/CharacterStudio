@@ -1,0 +1,224 @@
+{
+
+  "en": {
+    "translation": {
+      "pageTitles": {
+        "chooseClass": "Choose Character Class",
+        "chooseAppearance": "Choose Appearance",
+        "createBio": "Create Bio",
+        "saveCharacter": "Save Your Character",
+        "chat": "Chat With Your Character"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "Beast Painter",
+          "description": "Paints beasts"
+        },
+        "engineer": {
+          "name": "Engineer",
+          "description": "Builds things"
+        },
+        "dropHunter": {
+          "name": "Drop Hunter",
+          "description": "Hunts drops"
+        },
+        "theDegen": {
+          "name": "The Degen",
+          "description": "Degens"
+        },
+        "neuralHacker": {
+          "name": "Neural Hacker",
+          "description": "Hacks neural networks"
+        },
+        "liskWitch": {
+          "name": "Lisk Witch",
+          "description": "Witches lisk"
+        },
+        "bruiser": {
+          "name": "Bruiser",
+          "description": "Bruises things"
+        }
+      },
+      "callToAction": {
+        "next": "Next",
+        "back": "Back",
+        "randomize": "Randomize",
+        "chat": "Chat",
+        "send": "Send"
+      },
+      "editor": {
+        "title": "Appearance",
+        "head": "Head",
+        "body": "Body",
+        "eyes": "Eyes",
+        "outer": "Outer",
+        "chest": "Chest",
+        "legs": "Legs",
+        "feet": "Feet",
+        "accessories": "Accessories"
+      },
+      "labels": {
+        "name": "Name",
+        "voice": "Voice",
+        "favoriteColor": "Favorite Color",
+        "preferredGreeting": "Preferred Greeting",
+        "bio": "Bio",
+        "question": "Question",
+        "yourName": "Your Name",
+        "conversation": "Conversation"
+      },
+      "text": {
+        "unoptimized": "Unoptimized",
+        "apiUnderMaintnance": "Voice generation API is temporarily disabled for maintenance!"
+      }
+    }
+  },
+
+  "ru": {
+    "translation": {
+      "pageTitles": {
+        "chooseClass": "Выбрать Класс Персонажа",
+        "chooseAppearance": "Выбрать Внешность",
+        "createBio": "Создать Биографию",
+        "saveCharacter": "Сохранить Персонажа",
+        "chat": "Общаться Со Своим Персонажем"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "Анималист",
+          "description": "Рисует зверей"
+        },
+        "engineer": {
+          "name": "Инженер",
+          "description": "Строит вещи"
+        },
+        "dropHunter": {
+          "name": "Охотник за дропами",
+          "description": "Охотится на дропы"
+        },
+        "theDegen": {
+          "name": "Деген",
+          "description": "Дегены"
+        },
+        "neuralHacker": {
+          "name": "Нейронный Хакер",
+          "description": "Взламывает нейр. сети"
+        },
+        "liskWitch": {
+          "name": "Лиск Ведьма",
+          "description": "Лиск Ведьмы"
+        },
+        "bruiser": {
+          "name": "Громила",
+          "description": "Громит вещи"
+        }
+      },
+      "callToAction": {
+        "next": "Далее",
+        "back": "Назад",
+        "randomize": "Рандомизировать",
+        "chat": "Чат",
+        "send": "Отправить"
+      },
+      "editor": {
+        "title": "Внешность",
+        "head": "Голова",
+        "body": "Тело",
+        "eyes": "Глаза",
+        "outer": "Внешний",
+        "chest": "Грудь",
+        "legs": "Ноги",
+        "feet": "Стопы",
+        "accessories": "Аксессуары"
+      },
+      "labels": {
+        "name": "Имя",
+        "voice": "Голос",
+        "favoriteColor": "Любимый Цвет",
+        "preferredGreeting": "Предпочитаемое Приветствие",
+        "bio": "Биография",
+        "question": "Вопрос",
+        "yourName": "Ваше Имя",
+        "conversation": "Разговор"
+      },
+      "text": {
+        "unoptimized": "Неоптимизи­рованный",
+        "apiUnderMaintnance": "API генерации голоса временно отключен на техническое обслуживание."
+      }
+    }
+  },
+
+  "zh": {
+    "translation": {
+      "pageTitles": {
+        "chooseClass": "选择角色类型",
+        "chooseAppearance": "选择外观",
+        "createBio": "创建简介",
+        "saveCharacter": "保存角色",
+        "chat": "与你的角色聊天"
+      },
+      "classes": {
+        "beastPainter": {
+          "name": "野兽画家",
+          "description": "画野兽"
+        },
+        "engineer": {
+          "name": "工程师",
+          "description": "建造物品"
+        },
+        "dropHunter": {
+          "name": "投放猎手",
+          "description": "猎取投放品"
+        },
+        "theDegen": {
+          "name": "豪赌家",
+          "description": "资深赌徒"
+        },
+        "neuralHacker": {
+          "name": "神经黑客",
+          "description": "侵入神经网络"
+        },
+        "liskWitch": {
+          "name": "Lisk 巫师",
+          "description": "施法于 Lisk"
+        },
+        "bruiser": {
+          "name": "碾压者",
+          "description": "碾碎一切"
+        }
+      },
+      "callToAction": {
+        "next": "下一步",
+        "back": "返回",
+        "randomize": "随机",
+        "chat": "聊天",
+        "send": "发送"
+      },
+      "editor": {
+        "title": "外观",
+        "head": "头部",
+        "body": "身体",
+        "eyes": "眼睛",
+        "outer": "外套",
+        "chest": "上身",
+        "legs": "腿部",
+        "feet": "脚部",
+        "accessories": "配件"
+      },
+      "labels": {
+        "name": "名字",
+        "voice": "语音",
+        "favoriteColor": "颜色偏好",
+        "preferredGreeting": "首选问候语",
+        "bio": "简介",
+        "question": "问题",
+        "yourName": "你的名字",
+        "conversation": "对话"
+      },
+      "text": {
+        "unoptimized": "未优化",
+        "apiUnderMaintnance": "语音生成API暂时关闭进行维护!"
+      }
+    }
+  }
+}

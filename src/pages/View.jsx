@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useContext } from "react"
 import styles from "./View.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import Chat from "../components/Chat"
 import CustomButton from "../components/custom-button"
+import { LanguageContext } from "../context/LanguageContext"
 
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
@@ -17,16 +18,19 @@ function View({templateInfo}) {
   const { isMute } = React.useContext(AudioContext)
 
   const back = () => {
-    setViewMode(ViewMode.BIO)
+    setViewMode(ViewMode.SAVE)
     !isMute && playSound('backNextButton');
     if (speechRecognition)
       speechRecognition.stop()
     setMicEnabled(false)
   }
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   return (
     <div className={styles.container}>
-      <div className={"sectionTitle"}>Chat With Your Character</div>
+      <div className={"sectionTitle"}>{t("pageTitles.chat")}</div>
       <div className={styles.chatContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
@@ -43,7 +47,7 @@ function View({templateInfo}) {
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
-          text="Back"
+          text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
