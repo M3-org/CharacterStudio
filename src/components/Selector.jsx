@@ -161,6 +161,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
   },[selectedOptions])
+  const uploadTrait = () =>{
+    console.log("upload")
+  }
   // user selects an option
   const selectTraitOption = (option) => {
     const addOption  = option != null
@@ -673,8 +676,11 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           </div>
         </div>
         <div className={styles["uploadContainer"]}>
-          <div className={styles["uploadButton"]}>
-            <div> Upload </div>
+          <div 
+            className={styles["uploadButton"]}
+            onClick={() => {uploadTrait()}}>
+            <div> 
+              Upload </div>
           </div>
           
         </div>
