@@ -161,8 +161,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
   },[selectedOptions])
+
+  
   const uploadTrait = () =>{
-    console.log("upload")
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = e => { 
+      var file = e.target.files[0]; 
+      //console.log(file
+    }
+    input.click();
   }
   // user selects an option
   const selectTraitOption = (option) => {
@@ -676,6 +684,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           </div>
         </div>
         <div className={styles["uploadContainer"]}>
+          
           <div 
             className={styles["uploadButton"]}
             onClick={() => {uploadTrait()}}>
