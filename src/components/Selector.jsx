@@ -166,14 +166,26 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const uploadTrait = () =>{
     var input = document.createElement('input');
     input.type = 'file';
+    input.accept=".vrm"
     input.onchange = e => { 
       var file = e.target.files[0]; 
-      //console.log(file
+      if (file.name.endsWith(".vrm")){
+        console.log("vrm file")
+        const option = {
+          item:{
+            directory:"",
+            id:"custom_" + currentTraitName,
+            name:"Custom " + currentTraitName,
+          },
+          trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+        }
+      }
     }
     input.click();
   }
   // user selects an option
   const selectTraitOption = (option) => {
+    console.log(option)
     const addOption  = option != null
     if (isLoading) return;
 
