@@ -15,14 +15,16 @@ export const SoundProvider = (props) => {
       classSelect: [_getSoundFiles(/class-select/).offset, _getSoundFiles(/class-select/).duration],
       characterLoad: [_getSoundFiles(/character-load/).offset, _getSoundFiles(/character-load/).duration],
       randomizeButton: [_getSoundFiles(/randomize-button/).offset, _getSoundFiles(/randomize-button/).duration],
-      characterLoad: [_getSoundFiles(/character-load/).offset, _getSoundFiles(/character-load/).duration],
       classMouseOver: [_getSoundFiles(/class-mouse-over/).offset, _getSoundFiles(/class-mouse-over/).duration],
       backNextButton: [_getSoundFiles(/back-next-button/).offset, _getSoundFiles(/back-next-button/).duration],
     }
   });
 
-  const playSound = (name) => {
-    play({ id: name });
+  const playSound = (name, delay = 0) => {
+    console.log(delay)
+    delay === 0 ? play({ id: name }) : setTimeout(() => {
+      play({ id: name });
+    },delay);
   }
 
   return (
