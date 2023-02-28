@@ -114,7 +114,7 @@ export default function ChatBox({
     if (!waitingForResponse) {
       // Get the value of the input element
       const input = event.target.elements.message
-      const value = input.value !== "";
+      const value = input.value
       handleUserChatInput(value)
     }
   }
@@ -139,7 +139,7 @@ export default function ChatBox({
       const promptMessages = await pruneMessages(messages)
       promptMessages.push(`${speaker}: ${value}`)
 
-      if (value.replaceAll(' ', '') === "" || value === "..."){
+      if (value.replaceAll(' ', '') === ""){
         const output = getRandomArrayValue(getRandomObjectKey(errorResponses))
 
         ////////////////////////////////////////////////////////
