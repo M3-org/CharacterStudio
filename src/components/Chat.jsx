@@ -114,7 +114,7 @@ export default function ChatBox({
     if (!waitingForResponse) {
       // Get the value of the input element
       const input = event.target.elements.message
-      const value = input.value !== "" ? input.value : "..."
+      const value = input.value !== "";
       handleUserChatInput(value)
     }
   }
@@ -145,7 +145,7 @@ export default function ChatBox({
         ////////////////////////////////////////////////////////
         // COMMENTED OUT THE VOICE GENERATION UNTIL THE SCALE UP
         /*
-        if (output.replaceAll(' ', '') !== "" && output !== "..."){
+        if (output.replaceAll(' ', '') !== ""){
           const ttsEndpoint =
           "https://voice.webaverse.com/tts?" +
           "s=" +
