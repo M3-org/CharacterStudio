@@ -135,8 +135,9 @@ export class LookAtManager {
     localVector.set(0, 0, 1);
     localVector.applyQuaternion(this.camera.quaternion);
     const cameraRotationThreshold = localVector.z > 0.; // if camera rotation is not larger than 90
-    
-    if (cameraRotationThreshold) {
+    if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
+      this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
+      cameraRotationThreshold) {
       this.neckBones.forEach(neck => {
         this._moveJoint(neck, this.maxLookPercent.neck)
       })
