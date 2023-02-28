@@ -21,7 +21,6 @@ export const SoundProvider = (props) => {
   });
 
   const playSound = (name, delay = 0) => {
-    console.log(delay)
     delay === 0 ? play({ id: name }) : setTimeout(() => {
       play({ id: name });
     },delay);
