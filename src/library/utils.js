@@ -405,6 +405,7 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
+  
   for (const boneName in bones) {
     bones[boneName].node.name = boneName;
   }
