@@ -179,7 +179,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       loadedData.map((data)=>{
         newAvatar = {...newAvatar, ...itemAssign(data)}
       })
-      setAvatar(newAvatar)
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
     })
   }
 
@@ -187,9 +193,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
-
-
-    
 
     input.onchange = e => { 
       var file = e.target.files[0]; 

@@ -15,8 +15,8 @@ let mainScene;
 export const CullHiddenFaces = async(meshes) => {
     // make a 2 dimensional array that will hold the layers
     const culls = [];
-
     mainScene = meshes[0].parent;
+    
     if (mainScene.lines != null){
         mainScene.lines.forEach(line => {
             line.visible = false;
