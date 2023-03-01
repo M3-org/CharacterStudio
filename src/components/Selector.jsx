@@ -172,7 +172,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       },
       trait:templateInfo.traits.find((t) => t.name === currentTraitName)
     }
-    console.log("here")
+    effectManager.setTransitionEffect('switch_item');
     loadOptions([option], false, false, false).then((loadedData)=>{
       URL.revokeObjectURL(url);
       let newAvatar = {};
@@ -194,7 +194,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     input.onchange = e => { 
       var file = e.target.files[0]; 
       if (file.name.endsWith(".vrm")){
-        console.log("vrm file")
         loadCustom(file)
       }
     }
@@ -202,7 +201,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   }
   // user selects an option
   const selectTraitOption = (option) => {
-    console.log(option)
     const addOption  = option != null
     if (isLoading) return;
 
@@ -252,7 +250,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   // load options first
   const loadOptions = (options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true) => {
   //const loadOptions = (options, filterRestrictions = true) => {
-    console.log(options[0])
     for (const option of options) {
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
@@ -503,8 +500,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
-          effectManager.setCustomShader(child.material[0]);
-          effectManager.setCustomShader(child.material[1]);
+          if (child.material.length){
+            effectManager.setCustomShader(child.material[0]);
+            effectManager.setCustomShader(child.material[1]);
+          }
+          else{
+            effectManager.setCustomShader(child.material);
+          }
           // if a mesh is found in name to be ignored, dont add it to target cull meshes
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
