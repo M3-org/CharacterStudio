@@ -5,7 +5,7 @@ let direction = new Vector3();
 const intersections = [];
 
 const raycaster = new Raycaster();
-raycaster.firstHitOnly = true;
+//raycaster.firstHitOnly = true;
 
 const distance = 0.03;
 const distanceAfter = 0.03;
@@ -120,6 +120,9 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
 
         const idxBase = i * 3;
         //if at least 1 vertex collides with nothing, it is visible
+        let sameHit = true
+        let initHit = null
+        let intersectedDups = [];
         for (let j = 0; j < 3 ; j++){
             // reset intersections
             intersections.length = 0;
@@ -137,8 +140,9 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
 
-            // if it hits it means vertex is visible
-            if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
+            // main model is ignored, if it hits with something it means base mesh is behind a mesh
+            const hitObjs = raycaster.intersectObjects( intersectModels, false, intersections )
+            if (hitObjs.length === 0){
                 //if (debug)
                     //DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,mainScene );
                 for (let k = 0; k < 3 ; k++){
@@ -147,6 +151,32 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 break;
             }
             else{
+                /*
+                Ignore when different meshes are hiding the mesh below
+                this to avoids for example: when a shirt model, is close to a pants model
+                but there is a small gap between them, not doing the code below, it would
+                remove the face and make an undesired a hole in the base mesh
+                */
+                if (j === 0){ 
+                    // save the initial hits
+                    intersectedDups = hitObjs.map(v => v.object)
+                }
+                else{ 
+                    // only store repeated hits
+                    intersectedDups = hitObjs.map(v => {
+                        if (intersectedDups.indexOf(v.object) !== -1)
+                            return v.object;
+                    })
+
+                    // check only hits that repeated across
+                    if (j === 2){
+                        if (intersectedDups.filter(n=>n).length === 0){
+                            for (let k = 0; k < 3 ; k++){
+                                indexCustomArr.push(index[idxBase+k])
+                            }
+                        }
+                    }
+                }
                 if (debug)
                     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xff0000,mainScene );
             }
