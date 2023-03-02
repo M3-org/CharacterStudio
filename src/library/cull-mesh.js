@@ -115,8 +115,6 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     for (let i =0; i < index.length/3 ;i++){
 
         //set the direction of the raycast with the normals of the faces
-        direction = faceNormals[i].clone()//.normalize();
-
         if (faceNormals)
             direction.set(faceNormals[i].x,faceNormals[i].y,faceNormals[i].z).normalize();
 
