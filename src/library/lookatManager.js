@@ -66,8 +66,10 @@ export class LookAtManager {
     const bones = vrm.humanoid.humanBones // if vrm0 location of bones is dfferent
     this.neckBones.push(bones.neck.node)
     this.spineBones.push(bones.spine.node)
-    this.leftEyeBones.push(bones.leftEye.node)
-    this.rightEyesBones.push(bones.rightEye.node)
+    if (bones.leftEye)
+      this.leftEyeBones.push(bones.leftEye.node)
+    if (bones.rightEye)
+      this.rightEyesBones.push(bones.rightEye.node)
   }
 
   _getMouseDegrees (x, y, degreeLimit){
