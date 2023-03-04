@@ -162,12 +162,6 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
 
-            
-            // invMat.copy( mesh.matrixWorld ).invert();
-            // raycaster.ray.applyMatrix4( invMat );
-            // const hitObjs = bvh.raycast(raycaster.ray,FrontSide)
-            //hit.point.applyMatrixWorld( mesh.matrixWorld );
-
             // main model is ignored, if it hits with something it means base mesh is behind a mesh
             const hitObjs = raycaster.intersectObjects( intersectModels, false, intersections )
             if (hitObjs.length === 0){
@@ -179,6 +173,12 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 break;
             }
             else{
+                /*
+                Double cullig section:
+                2 meshes were created for the raycast, 1 material is facing front and the other back
+                if the raycast hits the mesh with the back face, it will hits with front face
+                this way we make sure only elements that are truly behind a single face geometry are hidden
+                */
                 const invHits = hitObjs.map(v => v.object)
                 
                 // using for to update the modify and update the array
