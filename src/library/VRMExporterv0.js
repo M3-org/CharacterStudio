@@ -464,16 +464,29 @@ export default class VRMExporterv0 {
         // };
 
         debugger
-        const bones = [];
-        nodes.forEach((node, i) => {
-            if(node.name === 'L_Hair5_Bang' || node.name === 'R_Hair5_Bang' || node.name === 'Hair5_Front_Bang') {
-                bones.push(i);
-            }
+        const rootSpringBones = [];
+        const headBone = nodes.filter(node => node.name === 'head')[0];
+        headBone.children.forEach(hairTypeGroup => {
+            if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye') return;
+            hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    if (node.name === rootSpringBone.name) {
+                        rootSpringBones.push(i);
+                        break;
+                    }
+                }
+            })
         });
+        // nodes.forEach((node, i) => {
+        //     if(node.name === 'L_Hair5_Bang' || node.name === 'R_Hair5_Bang' || node.name === 'Hair5_Front_Bang') {
+        //         rootSpringBones.push(i);
+        //     }
+        // });
         const outputSecondaryAnimation = {
             "boneGroups": [
                 {
-                "bones": bones,
+                "bones": rootSpringBones,
                 "center": -1,
                 "colliderGroups": [ 0, 1, 2 ],
                 "dragForce": 0.452,
