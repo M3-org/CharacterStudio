@@ -484,44 +484,15 @@ export default class VRMExporterv0 {
                 {
                 "bones": rootSpringBonesIndexes,
                 "center": -1,
-                "colliderGroups": [ 0, 1, 2 ],
+                "colliderGroups": [ ],
                 "dragForce": 0.452,
                 "gravityDir": { "x": 0, "y": 0, "z": 0 },
                 "gravityPower": 0,
                 "hitRadius": 0.02,
                 "stiffiness": 1
-                },
-                {
-                "bones": [ 21 ],
-                "center": -1,
-                "colliderGroups": [],
-                "dragForce": 1,
-                "gravityDir": { "x": 0, "y": -1, "z": 0 },
-                "gravityPower": 0,
-                "hitRadius": 0.02,
-                "stiffiness": 3.32
                 }
             ],
-            "colliderGroups": [
-                {
-                "colliders": [
-                    { "offset": { "x": -0.06999998, "y": -0.0544500351, "z": 0.00253520347 }, "radius": 0.05 }
-                ],
-                "node": 24
-                },
-                {
-                "colliders": [
-                    { "offset": { "x": -1.13197887e-8, "y": 0.0599999428, "z": 0.0395975038 }, "radius": 0.04 }
-                ],
-                "node": 44
-                },
-                {
-                "colliders": [
-                    { "offset": { "x": 0.07000001, "y": -0.0544500351, "z": 0.002535183 }, "radius": 0.05 }
-                ],
-                "node": 101
-                }
-            ]
+            "colliderGroups": [ ]
         };
         
         const bufferViews = [];
