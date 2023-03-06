@@ -97,7 +97,7 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, onDone) {
+    parse(vrm, avatar, rootSpringBones, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -464,29 +464,25 @@ export default class VRMExporterv0 {
         // };
 
         debugger
-        const rootSpringBones = [];
-        const headBone = nodes.filter(node => node.name === 'head')[0];
-        headBone.children.forEach(hairTypeGroup => {
-            if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
-            hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
-                for (let i = 0; i < nodes.length; i++) {
-                    const node = nodes[i];
-                    if (node.name === rootSpringBone.name) {
-                        rootSpringBones.push(i);
-                        break;
-                    }
+        const rootSpringBonesIndexes = [];
+        rootSpringBones.forEach(rootSpringBone => {
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.name === rootSpringBone.name) {
+                    rootSpringBonesIndexes.push(i);
+                    break;
                 }
-            })
-        });
+            }
+        })
         // nodes.forEach((node, i) => {
         //     if(node.name === 'L_Hair5_Bang' || node.name === 'R_Hair5_Bang' || node.name === 'Hair5_Front_Bang') {
-        //         rootSpringBones.push(i);
+        //         rootSpringBonesIndexes.push(i);
         //     }
         // });
         const outputSecondaryAnimation = {
             "boneGroups": [
                 {
-                "bones": rootSpringBones,
+                "bones": rootSpringBonesIndexes,
                 "center": -1,
                 "colliderGroups": [ 0, 1, 2 ],
                 "dragForce": 0.452,

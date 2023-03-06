@@ -157,25 +157,43 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
     }
+
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
     })
-    skinnedMesh.skeleton.bones.forEach(bone => {
-      if (bone.name !== 'root') {
-        bone.position.x *= -1;
-        bone.position.z *= -1;
-      }
-    })
-    skinnedMesh.skeleton.bones.forEach(bone => {
-      bone.updateMatrix();
-      bone.updateMatrixWorld();
-    })
-    skinnedMesh.skeleton.calculateInverses();
-    skinnedMesh.skeleton.computeBoneTexture();
-    skinnedMesh.skeleton.update();
+
+    const reverseBonesXZ = () => {
+      skinnedMesh.skeleton.bones.forEach(bone => {
+        if (bone.name !== 'root') {
+          bone.position.x *= -1;
+          bone.position.z *= -1;
+        }
+      })
+      skinnedMesh.skeleton.bones.forEach(bone => {
+        bone.updateMatrix();
+        bone.updateMatrixWorld();
+      })
+      skinnedMesh.skeleton.calculateInverses();
+      skinnedMesh.skeleton.computeBoneTexture();
+      skinnedMesh.skeleton.update();
+    }
+    reverseBonesXZ();
+
+    const rootSpringBones = [];
+    const processSpringBones = () => {
+      const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
+      headBone.children.forEach(hairTypeGroup => {
+          if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
+          hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
+            rootSpringBones.push(rootSpringBone);
+          });
+      });
+    }
+    processSpringBones();
+
     // debugger
-    exporter.parse(vrmData, glbModel, (vrm) => {
+    exporter.parse(vrmData, glbModel, rootSpringBones, (vrm) => {
       resolve(vrm)
     })
   })
