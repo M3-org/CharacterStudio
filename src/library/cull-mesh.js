@@ -44,8 +44,6 @@ export const CullHiddenFaces = async(meshes) => {
             const cloneN = mesh.clone()
             cloneN.userData.cancelMesh = cloneP;
             cloneN.material = backMat;
-
-            console.log(mesh.userData.maxCullDistance)
             
             meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
             meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)
@@ -126,6 +124,8 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     let distIn = distArr[0];
     let distOut = distArr[1];
 
+    console.log(distIn)
+
     raycaster.far = distIn + distOut;
     
     for (let i =0; i < index.length/3 ;i++){
@@ -156,6 +156,13 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
 
             // main model is ignored, if it hits with something it means base mesh is behind a mesh
             const hitObjs = raycaster.intersectObjects( intersectModels, false, intersections )
+            // remove if value is higher than the max hit distance
+            for (let k = hitObjs.length - 1; k >= 0;k--){
+                if (hitObjs[k].distance >= hitObjs[k].object.userData.maxCullDistance)
+                    hitObjs.splice(k,1)
+            }
+            // remove hit objects whose distance is further
+            
             if (hitObjs.length === 0){
                 // no object is interfering with the view of this vertex, so its visible
                 //if (debug) DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,mainScene );
