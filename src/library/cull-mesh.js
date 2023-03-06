@@ -44,6 +44,7 @@ export const CullHiddenFaces = async(meshes) => {
             const cloneN = mesh.clone()
             cloneN.userData.cancelMesh = cloneP;
             cloneN.material = backMat;
+            cloneP.userData.maxCullDistance  = cloneN.userData.maxCullDistance =mesh.userData.maxCullDistance;
             
             meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
             meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)
@@ -124,8 +125,6 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     let distIn = distArr[0];
     let distOut = distArr[1];
 
-    console.log(distIn)
-
     raycaster.far = distIn + distOut;
     
     for (let i =0; i < index.length/3 ;i++){
@@ -158,8 +157,9 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
             const hitObjs = raycaster.intersectObjects( intersectModels, false, intersections )
             // remove if value is higher than the max hit distance
             for (let k = hitObjs.length - 1; k >= 0;k--){
-                if (hitObjs[k].distance >= hitObjs[k].object.userData.maxCullDistance)
+                if (hitObjs[k].distance >= hitObjs[k].object.userData.maxCullDistance){
                     hitObjs.splice(k,1)
+                }
             }
             // remove hit objects whose distance is further
             
