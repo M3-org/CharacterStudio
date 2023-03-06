@@ -179,12 +179,14 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
       skinnedMesh.skeleton.update();
     }
     reverseBonesXZ();
+    
+    const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
 
     const rootSpringBones = [];
     const processSpringBones = () => {
-      const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
       headBone.children.forEach(hairTypeGroup => {
-          if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
+          // if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
+          if (hairTypeGroup.name !== 'Hair5_Root') return; // test: temp: only export Hair5/hair_option_1 springBones.
           hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
             rootSpringBones.push(rootSpringBone);
           });
@@ -192,8 +194,14 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     }
     processSpringBones();
 
+    const colliderBones = [];
+    const processColliderBones = () => {
+      colliderBones.push(headBone);
+    }
+    processColliderBones();
+
     // debugger
-    exporter.parse(vrmData, glbModel, rootSpringBones, (vrm) => {
+    exporter.parse(vrmData, glbModel, rootSpringBones, colliderBones, (vrm) => {
       resolve(vrm)
     })
   })

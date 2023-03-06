@@ -97,7 +97,7 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, rootSpringBones, onDone) {
+    parse(vrm, avatar, rootSpringBones, colliderBones, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -479,20 +479,35 @@ export default class VRMExporterv0 {
         //         rootSpringBonesIndexes.push(i);
         //     }
         // });
+
+        const colliderGroups = [];
+        const colliderGroupsIndexes = [];
+        colliderBones.forEach((colliderBone, i) => {
+            const nodeIndex = nodes.indexOf(colliderBone);
+            const colliderGroup = {
+                "colliders": [
+                    { "offset": { "x": 0, "y": 0.03, "z": 0 }, "radius": 0.08 }
+                ],
+                "node": nodeIndex
+            }
+            colliderGroups.push(colliderGroup);
+            colliderGroupsIndexes.push(i);
+        })
+
         const outputSecondaryAnimation = {
             "boneGroups": [
                 {
                 "bones": rootSpringBonesIndexes,
                 "center": -1,
-                "colliderGroups": [ ],
+                "colliderGroups": colliderGroupsIndexes,
                 "dragForce": 0.452,
                 "gravityDir": { "x": 0, "y": 0, "z": 0 },
                 "gravityPower": 0,
-                "hitRadius": 0.02,
+                "hitRadius": 0.01,
                 "stiffiness": 1
                 }
             ],
-            "colliderGroups": [ ]
+            "colliderGroups": colliderGroups,
         };
         
         const bufferViews = [];
