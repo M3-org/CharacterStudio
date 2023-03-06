@@ -44,6 +44,8 @@ export const CullHiddenFaces = async(meshes) => {
             const cloneN = mesh.clone()
             cloneN.userData.cancelMesh = cloneP;
             cloneN.material = backMat;
+
+            console.log(mesh.userData.maxCullDistance)
             
             meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
             meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)

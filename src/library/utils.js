@@ -57,6 +57,7 @@ export const cullHiddenMeshes = (avatar) => {
         vrm.data.cullingMeshes.map((mesh)=>{
           mesh.userData.cullLayer = cullLayer
           mesh.userData.cullDistance = vrm.data.cullingDistance
+          mesh.userData.maxCullDistance = vrm.data.maxCullingDistance
           models.push(mesh)
         })
       }

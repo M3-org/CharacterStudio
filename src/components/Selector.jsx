@@ -532,6 +532,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           item.cullingDistance != null ? item.cullingDistance: 
           traitData.cullingDistance != null ? traitData.cullingDistance:
           templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
+        maxCullingDistance:
+          item.maxCullingDistance != null ? item.maxCullingDistance: 
+          traitData.maxCullingDistance != null ? traitData.maxCullingDistance:
+          templateInfo.maxCullingDistance != null ? templateInfo.maxCullingDistance: Infinity,
         cullingMeshes
       })  
     })
