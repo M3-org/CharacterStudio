@@ -178,8 +178,11 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                     if (o != null){
                         if (o.userData.cancelMesh){
                             const index = invHits.indexOf(o.userData.cancelMesh)
-                            invHits[index] = null;
                             invHits[i] = null;
+                            if (index != -1 && index < i){  //only remove previous hit elements
+                                invHits[index] = null;
+                            }
+
                         }
                     }
                 }
