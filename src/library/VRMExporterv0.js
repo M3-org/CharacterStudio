@@ -467,7 +467,7 @@ export default class VRMExporterv0 {
         const rootSpringBones = [];
         const headBone = nodes.filter(node => node.name === 'head')[0];
         headBone.children.forEach(hairTypeGroup => {
-            if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye') return;
+            if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
             hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
                 for (let i = 0; i < nodes.length; i++) {
                     const node = nodes[i];
