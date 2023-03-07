@@ -7,7 +7,7 @@ import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
 import { VRMLoaderPlugin } from "@pixiv/three-vrm"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRMHumanBoneName } from "@pixiv/three-vrm";
+import { VRMHumanBoneName, VRMHumanBoneParentMap } from "@pixiv/three-vrm";
 
 export function getAsArray(target) {
   if (target == null) return []
@@ -406,9 +406,23 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-  
-  for (const boneName in bones) {
-    bones[boneName].node.name = boneName;
+  const newBones = []
+  for (let boneName in VRMHumanBoneName) {
+    boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
+    if (bones[boneName]?.node){
+      bones[boneName].node.name = boneName;
+    }
+    else{
+      bones[boneName] = {
+        node:new THREE.Bone()
+      }
+      bones[boneName].node.name = boneName;
+      newBones[boneName] = bones[boneName]
+    }
+  }
+  for (const boneName in newBones) {
+    const parentBoneName = VRMHumanBoneParentMap[boneName]
+    bones[parentBoneName].node.add(newBones[boneName].node)
   }
 };
 
