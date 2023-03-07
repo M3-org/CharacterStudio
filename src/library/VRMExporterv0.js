@@ -463,7 +463,7 @@ export default class VRMExporterv0 {
         //     ]
         // };
 
-        debugger
+        // debugger
         const rootSpringBonesIndexes = [];
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
@@ -486,7 +486,7 @@ export default class VRMExporterv0 {
             const nodeIndex = nodes.indexOf(colliderBone);
             const colliderGroup = {
                 "colliders": [
-                    { "offset": { "x": 0, "y": 0.03, "z": 0 }, "radius": 0.08 }
+                    { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
                 ],
                 "node": nodeIndex
             }
