@@ -1,9 +1,9 @@
 .SelectorContainerPos {
   position: absolute;
-  top: 88px;
+  top: 98px;
   right: 32px;
-  height: -webkit-calc(100vh - 166px);
-  height: calc(100vh - 166px);
+  height: -webkit-calc(100vh - 176px);
+  height: calc(100vh - 176px);
   backdrop-filter: blur(22.5px);
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;
@@ -122,26 +122,6 @@
 
 .active {
   opacity: 1;
-}
-
-.SelectorContainerPos::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-/* Track */
-.SelectorContainerPos::-webkit-scrollbar-track {
-  background: none;
-}
-
-/* Handle */
-.SelectorContainerPos::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Handle on hover */
-.SelectorContainerPos::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
 }
 
 .selectorButton {

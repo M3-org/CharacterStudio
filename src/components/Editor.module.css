@@ -1,9 +1,9 @@
 .SideMenu {
   position: fixed;
   left: 32px;
-  top: 88px;
-  height: -webkit-calc(100vh - 166px);
-  height: calc(100vh - 166px);
+  top: 98px;
+  height: -webkit-calc(100vh - 176px);
+  height: calc(100vh - 176px);
   backdrop-filter: blur(22.5px);
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;

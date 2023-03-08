@@ -5,10 +5,15 @@ import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from "@web3-react/injected-connector"
 import { ViewContext, ViewMode } from '../context/ViewContext';
 
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
+
 function Load() {
     const { account, library, activate } = useWeb3React();
     const [characters, setCharacters] = useState([]);
     const { setViewMode } = React.useContext(ViewContext);
+    const { playSound } = React.useContext(SoundContext)
+    const { isMute } = React.useContext(AudioContext)
 
     const injectedConnector = new InjectedConnector({
         supportedChainIds: [137, 1, 3, 4, 5, 42, 97],
@@ -45,11 +50,13 @@ function Load() {
     }
 
     const loadCharacter = (character) => {
+        !isMute && playSound('backNextButton');
         setViewMode(ViewMode.APPEARANCE)
     }
 
     const back = () => {
         setViewMode(ViewMode.LANDING)
+        !isMute && playSound('backNextButton');
     }
 
     return (

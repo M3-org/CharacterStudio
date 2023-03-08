@@ -54,27 +54,24 @@
     height: 180px;
     overflow: auto;
     margin-bottom: 20px;
-    overflow-y: scroll;
-    overflow-x: none;
     background-color: #193234;
     color: #fff;
     border: 1px solid #C5DCD0;
-    padding: .5em;
+    padding: 16px 8px 16px 16px;
     box-sizing: border-box;
     width: 100%;
-    height: calc(100% - 132px);
-    height: -webkit-calc(100% - 132px);
+    height: calc(100% - 142px);
+    height: -webkit-calc(100% - 142px);
 }
 
-/* make the scrollbar transparent with a white thumb */
-.messages::-webkit-scrollbar {
-    width: 10px;
-    background-color: transparent;
-}
-
-.messages::-webkit-scrollbar-thumb {
-    background-color: #fff;
-    border-radius: 5px;
+.messages .scrollBox {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    padding-right: 8px;
+    box-sizing: border-box;
+    padding-top: 14px;
 }
 
 /* set the input0 text color to white */
@@ -83,7 +80,7 @@
     color: #fff;
     border: 1px solid #C5DCD0;
     padding: .5em;
-    width: calc(100% - 144px);
+    width: calc(100% - 214px);
     margin-left: 10px;
     margin-right: 8px;
     height: 18px;
@@ -97,6 +94,7 @@
 .sendButton {
     vertical-align: bottom;
     float: right;
+    width: 140px;
 }
 
 .speaker {
@@ -118,6 +116,25 @@
     height: 100%;
     box-sizing: border-box;
     margin-bottom: 8px;
+}
+
+.warning {
+    display: inline-block;
+    position: absolute;
+    right: 24px;
+    top: 9px;
+    font-size: 14px;
+    color: burlywood;
+}
+
+.isTyping {
+    padding: 0;
+    margin: 4px 0 0 45px;
+    display: none;
+}
+
+.isTyping.show {
+    display: inline-block;
 }
 
   

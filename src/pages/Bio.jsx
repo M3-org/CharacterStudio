@@ -1,8 +1,13 @@
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 import { voices } from "../constants/voices"
+import { favouriteColors } from "../constants/favouriteColors"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
+import { LanguageContext } from "../context/LanguageContext"
+
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
 
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
@@ -16,7 +21,6 @@ export const getBio = (templateInfo, personality) => {
 
   const voiceKey = Object.keys(voices).find((v) => {
     if (heshe.toUpperCase() === "SHE"){
-      
       if (v.includes("Female")){
         return v
       }
@@ -26,6 +30,8 @@ export const getBio = (templateInfo, personality) => {
         return v
       }
   } )
+  const randIndexColor = Math.floor(Math.random() * Object.keys(favouriteColors).length);
+  const favColor = Object.keys(favouriteColors)[randIndexColor]
   const description = `${name} is a ${personality.classes[classType]} from ${city}. ${heshe} is ${hobby}. ${heshe} also enjoys ${profession}. ${heshe} is armed with a ${weapon}.`
   
   const q1 = getPersonalityQuestionsAndAnswers(personality);
@@ -41,6 +47,7 @@ export const getBio = (templateInfo, personality) => {
     profession,
     heshe,
     voiceKey,
+    favColor,
     personality: q1, //{question, answer}
     relationship: q2,
     hobbies: q3,
@@ -76,6 +83,7 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 
 // Cache voice keys for performance.
 const voiceKeys = Object.keys(voices)
+const colorKeys = Object.keys(favouriteColors)
 
 function loadBioFromStorage(itemName){
   const fullBioStr = localStorage.getItem(itemName)
@@ -85,14 +93,18 @@ function loadBioFromStorage(itemName){
 }
 
 function BioPage({ templateInfo, personality }) {
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
     setViewMode(ViewMode.APPEARANCE)
+    !isMute && playSound('backNextButton');
   }
 
   const next = () => {
     setViewMode(ViewMode.SAVE)
+    !isMute && playSound('backNextButton');
   }
 
   const [fullBio, setFullBio] = React.useState(
@@ -119,9 +131,12 @@ function BioPage({ templateInfo, personality }) {
     }
   }, [])
 
+  // Translate hook
+  const { t } = useContext(LanguageContext);
+
   return (
     <div className={styles.container}>
-      <div className={"sectionTitle"}>Create Bio</div>
+      <div className={"sectionTitle"}>{t("pageTitles.createBio")}</div>
       <div className={styles.bioContainer}>
         <div className={styles.topLine} />
         <div className={styles.bottomLine} />
@@ -133,7 +148,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="name">
-                Name
+                {t("labels.name")}
               </label>
 
               <input
@@ -150,7 +165,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="voice">
-                Voice
+                {t("labels.voice")}
               </label>
 
               <select
@@ -169,12 +184,36 @@ function BioPage({ templateInfo, personality }) {
               </select>
             </div>
 
+            {/* Favourite Color */}
+            <div className={styles.section}>
+              <label
+                className={styles.label}
+                htmlFor="favcolor">
+                {t("labels.favoriteColor")}
+              </label>
+
+              <select
+                name="favcolor"
+                className={styles.select}
+                defaultValue={fullBio.colorKey}
+                onChange={(e) => setFullBio({...fullBio, ...{colorKey:e.target.value}})}
+              >
+                {colorKeys.map((option, i) => {
+                  return (
+                    <option key={i} value={option}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
             {/* Preferred Greeting */}
             <div className={styles.section}>
               <label
                 className={styles.label}
                 htmlFor="greeting">
-                Preferred Greeting
+                {t("labels.preferredGreeting")}
               </label>
 
               <input
@@ -188,7 +227,7 @@ function BioPage({ templateInfo, personality }) {
 
             {/* Bio */}
             <div className={styles.section}>
-              <label className={styles.label} htmlFor="bio">Bio</label>
+              <label className={styles.label} htmlFor="bio">{t("labels.bio")}</label>
 
               <textarea
                 name="bio"
@@ -205,7 +244,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question1">
-                Question 1
+                {t("labels.question")} 1
               </label>
 
               <select
@@ -247,7 +286,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question2">
-                Question 2
+                {t("labels.question")} 2
               </label>
 
               <select
@@ -288,7 +327,7 @@ function BioPage({ templateInfo, personality }) {
               <label
                 className={styles.label}
                 htmlFor="question3">
-                Question 3
+                {t("labels.question")} 3
               </label>
               <select
                 name="question3"
@@ -328,14 +367,14 @@ function BioPage({ templateInfo, personality }) {
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
-          text="Back"
+          text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
         />
         <CustomButton
           theme="light"
-          text="Next"
+          text={t('callToAction.next')}
           size={14}
           className={styles.buttonRight}
           onClick={next}

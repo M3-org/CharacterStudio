@@ -2,17 +2,23 @@ import React from "react"
 import styles from "./Mint.module.scss"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
 
 function MintComponent({screenshotManager, blinkManager, animationManager}) {
   const { setViewMode } = React.useContext(ViewContext)
-  // const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
+  const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
 
   const back = () => {
     setViewMode(ViewMode.SAVE)
+    !isMute && playSound('backNextButton');
   }
 
   const next = () => {
     setViewMode(ViewMode.CHAT)
+    !isMute && playSound('backNextButton');
   }
 
   function MenuTitle() {

@@ -796,7 +796,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               case MaterialType.MeshBasicMaterial:
                   return 0;
               default:
-                  return 0.5;
+                  return 0;
           }
       })();
       const roughnessFactor = (() => {
@@ -806,7 +806,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               case MaterialType.MeshBasicMaterial:
                   return 0.9;
               default:
-                  return 0.5;
+                  return 0.9;
           }
       })();
       return {

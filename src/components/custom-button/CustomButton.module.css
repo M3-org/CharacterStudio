@@ -131,6 +131,7 @@
     color: #000000;
     padding: 8px 14px 6px 14px !important;
     text-transform: uppercase !important;
+    line-height: 106%;
 }
 
 .buttonWrap.dark .innerWrap {

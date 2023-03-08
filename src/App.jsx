@@ -4,6 +4,7 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 import { SceneContext } from "./context/SceneContext"
+import { LanguageContext } from "./context/LanguageContext"
 import { ViewMode, ViewContext } from "./context/ViewContext"
 
 import { getAsArray } from "./library/utils"
@@ -24,6 +25,7 @@ import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
+import LanguageSwitch from "./components/LanguageSwitch"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -349,9 +351,13 @@ export default function App() {
     setManifest(initialManifest)
   }, [initialManifest])
 
+  // Translate hook
+  const {t} = useContext(LanguageContext);
+
   return (
     <Fragment>
-      <div className="generalTitle">Character Creator</div>
+      <div className="generalTitle">Character Studio</div>
+      <LanguageSwitch />
       <Background />
       <Scene
         manifest={manifest}
