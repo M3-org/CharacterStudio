@@ -13,3 +13,4 @@ character-assets
 .env
 .eslintcache
 lerna-debug.log
+.vscode

@@ -8,7 +8,8 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Save() {
+
+function Save({getFaceScreenshot}) {
   const { setViewMode } = React.useContext(ViewContext);
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -25,6 +26,7 @@ function Save() {
     !isMute && playSound('backNextButton');
   }
 
+
   // Translate hook
   const { t } = useContext(LanguageContext);
 
@@ -39,7 +41,7 @@ function Save() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <ExportMenu />
+        <ExportMenu getFaceScreenshot = {getFaceScreenshot}/>
         {/*
                 <CustomButton
                     theme="light"

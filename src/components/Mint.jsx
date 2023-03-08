@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 import axios from "axios"
 import { BigNumber, ethers } from "ethers"
 import React, { Fragment, useContext, useState, useEffect } from "react"
@@ -10,17 +12,19 @@ import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from
 import { getGLBBlobData } from "../library/download-utils"
 import styles from "./Mint.module.css"
 
+const localVector = new THREE.Vector3();
+
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({screenshotPosition}) {
+export default function MintPopup({screenshotManager, blinkManager, animationManager}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
   const [tokenPrice, setTokenPrice] = useState(null);
   const chainId = "0x89";
-
+  
   useEffect(() => {
     ( async () => {
         const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
@@ -89,14 +93,36 @@ export default function MintPopup({screenshotPosition}) {
     return metadataTraits
   }
 
+  
   const mintAsset = async (avatar) => {
-    let walletAddress = await connectWallet()
+    // let walletAddress = await connectWallet()
 
-    const pass = await checkOT(walletAddress);
+    // const pass = await checkOT(walletAddress);
+    const pass = true;
+
     if(pass) {
+      animationManager.enableScreenshot();
+      blinkManager.enableScreenshot();
       setMintStatus("Uploading...")
       let imageHash, glbHash;
-      const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+
+      avatar.traverse(o => {
+        if (o.isSkinnedMesh) {
+          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+          headBone.getWorldPosition(localVector);
+        }
+      });
+      const headPosition = localVector;
+      const female = templateInfo.name === "Drophunter";
+      const cameraFov = female ? 0.78 : 0.85;
+      screenshotManager.setCamera(headPosition, cameraFov);
+      let imageName = "AvatarImage_" + Date.now() + ".png";
+      
+      const screenshot = screenshotManager.saveAsImage(imageName);
+      blinkManager.disableScreenshot();
+      animationManager.disableScreenshot();
+
+      // const screenshot = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
       if (screenshot) {
         let imageName = "AvatarImage_" + Date.now() + ".png";
         imageHash = await (async() => {
@@ -183,10 +209,10 @@ export default function MintPopup({screenshotPosition}) {
     }
   }
 
-  const  takeScreenshot = async () => {
-    const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
-    const glb = await getGLBBlobData(model)
-  }
+  // const  takeScreenshot = async () => {
+  //   const img = await getCroppedScreenshot("editor-scene",screenshotPosition.x, screenshotPosition.y, screenshotPosition.width, screenshotPosition.height, true)
+  //   const glb = await getGLBBlobData(model)
+  // }
 
   const checkOT = async (address) => {
     if(address) {

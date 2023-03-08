@@ -12,6 +12,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 import { AnimationManager } from "./library/animationManager"
+import { ScreenshotManager } from "./library/screenshotManager"
 
 import Scene from "./components/Scene"
 import Background from "./components/Background"
@@ -19,6 +20,7 @@ import Background from "./components/Background"
 import View from "./pages/View"
 import Save from "./pages/Save"
 import Load from "./pages/Load"
+import Mint from "./pages/Mint"
 import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
@@ -109,6 +111,7 @@ async function fetchAll() {
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
   const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
+  const screenshotManager = new ScreenshotManager()
 
   return {
     initialManifest,
@@ -117,6 +120,7 @@ async function fetchAll() {
     blinkManager,
     lookatManager,
     effectManager,
+    screenshotManager,
   }
 }
 
@@ -158,6 +162,7 @@ export default function App() {
     blinkManager,
     lookatManager,
     effectManager,
+    screenshotManager,
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
@@ -174,16 +179,19 @@ export default function App() {
     moveCamera,
     setManifest,
     manifest,
+    model,
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
   effectManager.camera = camera
   effectManager.scene = scene
 
+  screenshotManager.scene = scene
+
   const updateCameraPosition = () => {
     if (!effectManager.camera) return
 
-    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
+    if ([ViewMode.BIO, ViewMode.CHAT].includes(viewMode)) {
       // auto move camera
       if (viewMode === ViewMode.CHAT) {
         cameraDistance = cameraDistanceChat
@@ -239,7 +247,7 @@ export default function App() {
 
     if (controls) {
       if (
-        [ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.MINT].includes(viewMode)
+        [ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)
       ) {
         controls.enabled = true
       } else {
@@ -263,6 +271,28 @@ export default function App() {
     })
   }
 
+  const getFaceScreenshot = () => {
+    blinkManager.enableScreenshot();
+    model.traverse(o => {
+      if (o.isSkinnedMesh) {
+        const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+        headBone.getWorldPosition(localVector3);
+      }
+    });
+    const headPosition = localVector3;
+    const female = templateInfo.name === "Drophunter";
+    const cameraFov = female ? 0.78 : 0.85;
+    screenshotManager.setCamera(headPosition, cameraFov);
+    let imageName = "AvatarImage_" + Date.now() + ".png";
+    
+    //const screenshot = screenshotManager.saveAsImage(imageName);
+    const screenshot = screenshotManager.getScreenshotTexture(256,256);
+    blinkManager.disableScreenshot();
+    animationManager.disableScreenshot();
+
+    return screenshot;
+  }
+
   // map current app mode to a page
   const pages = {
     [ViewMode.LANDING]: <Landing />,
@@ -280,8 +310,8 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    // [ViewMode.MINT]: <Mint />,
-    [ViewMode.SAVE]: <Save />,
+    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
+    [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
 
