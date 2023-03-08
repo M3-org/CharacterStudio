@@ -406,7 +406,6 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-  const newBones = []
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
     if (bones[boneName]?.node){
@@ -417,12 +416,12 @@ export const renameVRMBones = (vrm) => {
         node:new THREE.Bone()
       }
       bones[boneName].node.name = boneName;
-      newBones[boneName] = bones[boneName]
     }
   }
-  for (const boneName in newBones) {
+  for (const boneName in bones) {
     const parentBoneName = VRMHumanBoneParentMap[boneName]
-    bones[parentBoneName].node.add(newBones[boneName].node)
+    if (parentBoneName)
+      bones[parentBoneName].node.add(bones[boneName].node)
   }
 };
 
