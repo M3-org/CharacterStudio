@@ -12,7 +12,6 @@ const defaultName = "Anon"
 export const ExportMenu = () => {
   // Translate hook
   const { t } = useContext(LanguageContext);
-
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
   const { model, avatar } = useContext(SceneContext)
 
