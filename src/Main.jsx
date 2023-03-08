@@ -8,10 +8,13 @@ import { AccountProvider } from "./context/AccountContext"
 import { SceneProvider } from "./context/SceneContext"
 import { ViewProvider } from "./context/ViewContext"
 
-import LoadingOverlay from "./components/LoadingOverlay"
 import { SoundProvider } from "./context/SoundContext"
 
+// import i18n (needs to be bundled ;))
+import "./lib/localization/i18n"
+
 import App from "./App"
+import { LanguageProvider } from "./context/LanguageContext"
 
 const getLibrary = (provider) => {
   const library = new Web3Provider(provider)
@@ -23,17 +26,19 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
       <AccountProvider>
-        <AudioProvider>
-          <ViewProvider>
-            <SceneProvider>
-              <SoundProvider>
-                <Suspense>
-                  <App />
-                </Suspense>
-              </SoundProvider>
-            </SceneProvider>
-          </ViewProvider>
-        </AudioProvider>
+        <LanguageProvider>
+          <AudioProvider>
+            <ViewProvider>
+              <SceneProvider>
+                <SoundProvider>
+                  <Suspense>
+                    <App />
+                  </Suspense>
+                </SoundProvider>
+              </SceneProvider>
+            </ViewProvider>
+          </AudioProvider>
+        </LanguageProvider>
       </AccountProvider>
     </Web3ReactProvider>
   </React.StrictMode>,

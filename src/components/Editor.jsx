@@ -6,21 +6,24 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { getAsArray } from "../library/utils"
 import {
-  getMultipleRandomTraits,
-  getInitialTraits, 
-  getTraitOptions,
-  getClassOptions
+  getClassOptions,
+  getRandomizedTemplateOptions,
+  getTraitOptions
 } from "../library/option-utils"
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
 import { TokenBox } from "./token-box/TokenBox"
+import { LanguageContext } from "../context/LanguageContext"
 
 
 export default function Editor({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
   const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
+
+  // Translate hook
+  const { t } = useContext(LanguageContext)
 
   const {
     playSound
@@ -32,8 +35,9 @@ export default function Editor({animationManager, blinkManager, lookatManager, e
   useEffect(() => {
     if (awaitDisplay){
       setSelectedOptions(
-        loadUserSelection(templateInfo.name) ||
-        getMultipleRandomTraits(getInitialTraits(templateInfo), templateInfo))
+        loadUserSelection(templateInfo.name)
+        || getRandomizedTemplateOptions(templateInfo)
+      )
         setAwaitDisplay(false)
     }
     setCurrentTraitName(null)
@@ -89,7 +93,7 @@ export default function Editor({animationManager, blinkManager, lookatManager, e
   return (
     <Fragment>
       <div className={styles["SideMenu"]}>
-        <MenuTitle title={"Appearance"} />
+        <MenuTitle title={t("editor.title")} />
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>

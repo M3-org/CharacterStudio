@@ -6,10 +6,11 @@ const messagesMaxCharacters = 20000
 
 export async function pruneMessages(messages) {
   let currentSize = 0
-  const newMessages = []
+  const newMessages = [];
 
   for (let i = messages.length - 1; i >= 0; i--) {
-    const message = messages[i]
+    const messageItem = messages[i];
+    const message = `${messageItem?.name}: ${messageItem?.message}`;
 
     currentSize += message.length
 

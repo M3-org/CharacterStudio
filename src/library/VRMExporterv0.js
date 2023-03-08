@@ -1,44 +1,22 @@
-import { BufferAttribute, } from "three";
+import { BufferAttribute, Euler, Vector3 } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
-// function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
-//     return {
-//         allowedUserName: vrmMeta.allowedUserName,
-//         author: vrmMeta.author,
-//         commercialUssageName: vrmMeta.commercialUssageName,
-//         contactInformation: vrmMeta.contactInformation,
-//         licenseName: vrmMeta.licenseName,
-//         otherLicenseUrl: vrmMeta.otherLicenseUrl,
-//         otherPermissionUrl: vrmMeta.otherPermissionUrl,
-//         reference: vrmMeta.reference,
-//         sexualUssageName: vrmMeta.sexualUssageName,
-//         texture: icon ? outputImage.length - 1 : undefined,
-//         title: vrmMeta.title,
-//         version: vrmMeta.version,
-//         violentUssageName: vrmMeta.violentUssageName,
-//     };
-// }
-// function getVRM0BlendshapeName(curName){
-//     switch(curName){
-//       case "happy":
-//         return "joy"
-//       case "sad":
-//         return "sorrow"
-//       case "relaxed":
-//         return "fun"
-//       case "aa":
-//         return "a"
-//       case "ih":
-//         return "i"
-//       case "ou":
-//         return "u"
-//       case "ee":
-//         return "e"
-//       case "oh":
-//         return "o"
-//       default:
-//         return curName;
-//     }
-//   }
+function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
+    return {
+        allowedUserName: vrmMeta.allowedUserName,
+        author: vrmMeta.author,
+        commercialUssageName: vrmMeta.commercialUssageName,
+        contactInformation: vrmMeta.contactInformation,
+        licenseName: vrmMeta.licenseName,
+        otherLicenseUrl: vrmMeta.otherLicenseUrl,
+        otherPermissionUrl: vrmMeta.otherPermissionUrl,
+        reference: vrmMeta.reference,
+        sexualUssageName: vrmMeta.sexualUssageName,
+        texture: icon ? outputImage.length - 1 : undefined,
+        title: vrmMeta.title,
+        version: vrmMeta.version,
+        violentUssageName: vrmMeta.violentUssageName,
+    };
+}
 // WebGL(OpenGL)マクロ定数
 var WEBGL_CONST;
 (function (WEBGL_CONST) {
@@ -54,22 +32,79 @@ var WEBGL_CONST;
     WEBGL_CONST[WEBGL_CONST["REPEAT"] = 10497] = "REPEAT";
 })(WEBGL_CONST || (WEBGL_CONST = {}));
 const BLENDSHAPE_PREFIX = "blend_";
-// const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
+const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
 const SPRINGBONE_COLLIDER_NAME = "vrmColliderSphere";
-// const EXPORTER_VERSION = "alpha-v1.0";
-// const CHUNK_TYPE_JSON = "JSON";
-// const CHUNK_TYPE_BIN = "BIN\x00";
-// const GLTF_VERSION = 2;
-// const HEADER_SIZE = 12;
-export default class VRMExporter {
+const EXPORTER_VERSION = "alpha-v1.0";
+const CHUNK_TYPE_JSON = "JSON";
+const CHUNK_TYPE_BIN = "BIN\x00";
+const GLTF_VERSION = 2;
+const HEADER_SIZE = 12;
+function convertMetaToVRM0(meta){
+  return {
+    title:meta.name,
+    version:"v0", 
+    author: meta.authors[0] || "",
+    contactInformation: meta.contactInformation,
+    allowedUserName:meta.allowedUserName,
+    violentUssageName: meta.allowExcessivelyViolentUsage ? "Allow":"Disallow",
+    sexualUssageName: meta.allowExcessivelySexualUsage ? "Allow":"Disallow",
+    commercialUssageName: "Disallow",
+  }
+}
+function convertHumanoidToVRM0(humanoid){
+  const newHumanBones = [];
+  for (const prop in humanoid.humanBones){
+    newHumanBones.push({
+      bone:prop,
+      node:humanoid.humanBones[prop].node
+    })
+  }
+  return {
+    humanBones:newHumanBones
+  }
+}
+
+function getVRM0BlendshapeName(curName){
+  switch(curName){
+    case "happy":
+      return "joy"
+    case "sad":
+      return "sorrow"
+    case "relaxed":
+      return "fun"
+    case "aa":
+      return "a"
+    case "ih":
+      return "i"
+    case "ou":
+      return "u"
+    case "ee":
+      return "e"
+    case "oh":
+      return "o"
+    default:
+      return curName;
+  }
+}
+
+function getVRM0BoneName(name){
+  if (name.includes("Thumb")){
+    if (name.includes ("Metacarpal"))
+      return name.replace("Metacarpal", "Proximal")
+    if (name.includes ("Proximal"))
+      return name.replace("Proximal", "Intermediate")
+  }
+  return name;
+}
+export default class VRMExporterv0 {
     parse(vrm, avatar, onDone) {
-        const humanoid = vrm.humanoid;
-        const vrmMeta = vrm.meta;
+        const vrmMeta = convertMetaToVRM0(vrm.meta);
+        const humanoid = convertHumanoidToVRM0(vrm.humanoid);
+        
         const materials = vrm.materials;
-        const expressionsPreset = {};
-        const expressionCustom = {};
-        const expressions = {};
-        const lookAt = vrm.lookAt;
+        //const expressionsPreset = {};
+        //const expressionCustom = {};
+        const blendShapeGroups = [];
 
         // to do, add support to spring bones
         //const springBone = vrm.springBoneManager;
@@ -90,9 +125,6 @@ export default class VRMExporter {
         }
         else if (!materials) {
             throw new Error("materials is undefined or null");
-        }
-        else if (!lookAt) {
-            throw new Error("lookAt is undefined or null");
         }
 
         // add support to spring bones
@@ -123,6 +155,9 @@ export default class VRMExporter {
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
         }); // TODO: 画像がないMaterialもある\
 
+        
+        
+
         const images = mainImages.concat(shadeImages);
 
         const outputImages = toOutputImages(images, icon);
@@ -133,7 +168,10 @@ export default class VRMExporter {
             child.children[0].type === VRMObjectType.Bone)[0];
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
         const nodeNames = nodes.map((node) => node.name);
-        const outputNodes = nodes.map((node) => ({
+        const outputNodes = nodes.map((node) => {
+            //const rotation = new Euler().setFromQuaternion( node.quaternion, 'XYZ' );
+            //console.log(node.quaternion)
+            return {
             children: node.children
                 .filter((childNode) => childNode.name !== SPRINGBONE_COLLIDER_NAME)
                 .map((childNode) => nodeNames.indexOf(childNode.name)),
@@ -146,7 +184,8 @@ export default class VRMExporter {
             ],
             scale: [node.scale.x, node.scale.y, node.scale.z],
             translation: [node.position.x, node.position.y, node.position.z],
-        }));
+            }
+        });
         const outputAccessors = [];
         const meshes = avatar.children.filter((child) => child.type === VRMObjectType.Group ||
             child.type === VRMObjectType.SkinnedMesh);
@@ -182,38 +221,29 @@ export default class VRMExporter {
             mesh.geometry.userData.targetNames = [];
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({node:nodes.length, index:obj.index, weight:obj.weight  }))
-                let isPreset = false;
-                for (const presetName in VRMExpressionPresetName) {
-                    if (prop.toLowerCase() === VRMExpressionPresetName[presetName].toLowerCase()){
-                        expressionsPreset[VRMExpressionPresetName[presetName]] = {
-                            morphTargetBinds,
+                const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
+                //only add those that have connected binds
+                if (morphTargetBinds.length > 0){
+                    let isPreset = false;
+                    for (const presetName in VRMExpressionPresetName) {
+                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
+                        blendShapeGroups.push({
+                            name:prop,
+                            presetName: getVRM0BlendshapeName(prop),
+                            binds:morphTargetBinds,
                             isBinary:expression.isBinary,
-                            overrideBlink:expression.overrideBlink,
-                            overrideLookAt:expression.overrideLookAt,
-                            overrideMouth:expression.overrideMouth,
-                        }
+                        })
                         isPreset = true;
                         break;
+                        }
                     }
-                }
-                if (!isPreset && prop.toLowerCase() === "surprise"){
-                    expressionsPreset["surprised"] = {
-                        morphTargetBinds,
+                    if (isPreset === false){
+                    blendShapeGroups.push({
+                        name:prop,
+                        presetName: "unknown",
+                        binds:morphTargetBinds,
                         isBinary:expression.isBinary,
-                        overrideBlink:expression.overrideBlink,
-                        overrideLookAt:expression.overrideLookAt,
-                        overrideMouth:expression.overrideMouth,
-                    }
-                    isPreset = true;
-                }
-                if (isPreset === false){
-                    expressionCustom[prop] = {
-                        morphTargetBinds,
-                        isBinary:expression.isBinary,
-                        overrideBlink:expression.overrideBlink,
-                        overrideLookAt:expression.overrideLookAt,
-                        overrideMouth:expression.overrideMouth,
+                    })
                     }
                 }
                 
@@ -231,11 +261,6 @@ export default class VRMExporter {
                 meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
             }
         });
-        if (Object.keys(expressionsPreset).length > 0)
-            expressions.preset = expressionsPreset
-
-        if (Object.keys(expressionCustom).length > 0)
-            expressions.custom = expressionCustom
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
         meshes.forEach((object) => {
@@ -294,106 +319,20 @@ export default class VRMExporter {
         //     ],
         // });
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
-        // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        // const blendShapeMaster = {
-        //     blendShapeGroups: Object.values(blendShapeProxy._blendShapeGroups).map((blendShape) => ({
-        //         binds: blendShape._binds.map((bind) => ({
-        //             index: bind.morphTargetIndex,
-        //             mesh: outputMeshes
-        //                 .map((mesh) => mesh.name)
-        //                 .indexOf(bind.meshes[0].name),
-        //             weight: bind.weight * 100,
-        //         })),
-        //         isBinary: blendShape.isBinary,
-        //         materialValues: blendShape._materialValues,
-        //         name: blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""),
-        //         presetName: Object.entries(blendShapeProxy.blendShapePresetMap).filter((x) => 
-        //         x[1] === blendShape.name.replace(MORPH_CONTROLLER_PREFIX, ""))[0][0],
-        //     })),
-        // };
-        // TODO: javascript版の弊害によるエラーなので将来的に実装を変える
-        //lookAt.firstPerson._firstPersonBoneOffset.z *= -1; // TODO:
-        const vrmLookAt = {
-          //offsetFromHeadBone: [lookAt.offsetFromHeadBone.x,lookAt.offsetFromHeadBone.y,lookAt.offsetFromHeadBone.z],
-          offsetFromHeadBone: [0,0,0],
-          rangeMapHorizontalInner: {
-              inputMaxValue: lookAt.applier.rangeMapHorizontalInner.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapHorizontalInner.outputScale,
-          },
-          rangeMapHorizontalOuter: {
-              inputMaxValue: lookAt.applier.rangeMapHorizontalOuter.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapHorizontalOuter.outputScale,
-          },
-          rangeMapVerticalDown: {
-              inputMaxValue: lookAt.applier.rangeMapVerticalDown.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapVerticalDown.outputScale,
-          },
-          rangeMapVerticalUp: {
-              inputMaxValue: lookAt.applier.rangeMapVerticalUp.inputMaxValue,
-              outputScale: lookAt.applier.rangeMapVerticalUp.outputScale,
-          },
-          type: "bone"
-        };
-
-        //temporal, taking the first node as it is the skinned mesh renderer
-        // const vrmFirstPerson = {
-        //     meshAnnotations:[
-        //         {node:243, type:"auto"}
-        //     ]
-        // }
-
-        // const vrmFirstPerson = {
-        //     firstPersonBone: nodeNames.indexOf(
-        //     lookAt.firstPerson._firstPersonBone.name),
-        //     firstPersonBoneOffset: lookAt.firstPerson._firstPersonBoneOffset,
-        //     lookAtHorizontalInner: {
-        //         curve: lookAt.applyer._curveHorizontalInner.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalInner.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalInner.curveYRangeDegree),
-        //     },
-        //     lookAtHorizontalOuter: {
-        //         curve: lookAt.applyer._curveHorizontalOuter.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalOuter.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveHorizontalOuter.curveYRangeDegree),
-        //     },
-        //     lookAtTypeName: lookAt.applyer.type,
-        //     lookAtVerticalDown: {
-        //         curve: lookAt.applyer._curveVerticalDown.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalDown.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalDown.curveYRangeDegree),
-        //     },
-        //     lookAtVerticalUp: {
-        //         curve: lookAt.applyer._curveVerticalUp.curve,
-        //         xRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalUp.curveXRangeDegree),
-        //         yRange: radian2Degree(
-        //         lookAt.applyer._curveVerticalUp.curveYRangeDegree),
-        //     },
-        //     meshAnnotations: lookAt.firstPerson.meshAnnotations.map((annotation) => ({
-        //         firstPersonFlag: annotation.firstPersonFlag === 0 ? "Auto" : "",
-        //         mesh: outputMeshes
-        //             .map((mesh) => mesh.name)
-        //             .indexOf(annotation.primitives[0].name), // TODO: とりあえず対応
-        //     })),
-        // };
-
-
 
         const vrmHumanoid = {
-          humanBones: {}
+          humanBones: []
           //humanBones2: Object.assign(humanoid.humanBones)
 
         };
-        for (const bone in humanoid.humanBones) {
-            //console.log(`${property}: ${object[property]}`);
-            vrmHumanoid.humanBones[bone] = { node: nodeNames.indexOf(humanoid.humanBones[bone].node.name)}
-        }
+        humanoid.humanBones.forEach(bone => {
+          vrmHumanoid.humanBones.push({
+            bone: getVRM0BoneName(bone.bone), //for thumb
+            node: nodeNames.indexOf(bone.node.name),
+            useDefaultValues:true
+          })
+        });
+
         //rest of the data is stored in VRMHumanoidDescription
         // const vrmHumanoid = {
         //     armStretch: humanoid.humanDescription.armStretch,
@@ -412,9 +351,70 @@ export default class VRMExporter {
         //     upperArmTwist: humanoid.humanDescription.upperArmTwist,
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
-        // const materialProperties = uniqueMaterials.map((material) => 
-        //     material.userData.vrmMaterialProperties
-        // );
+        
+        const materialProperties = [{
+            floatProperties : {
+                // _BlendMode : 0, 
+                // _BumpScale : 1, 
+                // _CullMode : 0,
+                // _Cutoff : 0.5,
+                // _DebugMode : 0,
+                _DstBlend : 0.5,
+                // _IndirectLightIntensity : 0.1,
+                // _LightColorAttenuation : 0,
+                // _MToonVersion : 38, 
+                // _OutlineColorMode : 0,
+                // _OutlineCullMode : 1, 
+                // _OutlineLightingMix : 1,
+                // _OutlineScaledMaxDistance : 1, 
+                // _OutlineWidth : 0.079, 
+                // _OutlineWidthMode : 1, 
+                // _ReceiveShadowRate : 1,
+                // _RimFresnelPower : 1, 
+                // _RimLift : 0, 
+                // _RimLightingMix : 0, 
+                _ShadeShift : 0.5, 
+                _ShadeToony : 0.5, 
+                _ShadingGradeRate : 0.5, 
+                // _SrcBlend : 1, 
+                // _UvAnimRotation : 0,
+                // _UvAnimScrollX : 0, 
+                // _UvAnimScrollY : 0, 
+                // _ZWrite : 1
+            },
+            keywordMap : {
+                _NORMALMAP : false, 
+                MTOON_OUTLINE_COLOR_FIXED : true, 
+                MTOON_OUTLINE_WIDTH_WORLD : true
+            }, 
+            name : "CombinedMat", 
+            renderQueue : 2000, 
+            shader : "VRM/MToon", 
+            tagMap : {
+                RenderType : "Opaque"
+            }, 
+            textureProperties : {
+                _MainTex : 0, 
+                _ShadeTexture : 0
+            }, 
+            vectorProperties : {
+                _Color : [1, 1, 1, 1], 
+                _EmissionColor : [0, 0, 0, 1], 
+                _EmissionMap : [0, 0, 1, 1], 
+                _MainTex : [0, 0, 1, 1], 
+                _OutlineColor : [0, 0, 0, 1], 
+                _OutlineWidthTexture : [0, 0, 1, 1], 
+                _ReceiveShadowTexture : [0, 0, 1, 1], 
+                _RimColor : [0, 0, 0, 1], 
+                _RimTexture : [0, 0, 1, 1], 
+                _ShadeColor : [0.9, 0.9, 0.9, 1], 
+                // _ShadeTexture : [0, 0, 1, 1], 
+                // _ShadingGradeTexture : [0, 0, 1, 1], 
+                // _SphereAdd : [0, 0, 1, 1], 
+                // _UvAnimMaskTexture : [0, 0, 1, 1]
+            }
+        }]
+
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
         //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
@@ -442,7 +442,7 @@ export default class VRMExporter {
                     ? undefined
                     : bufferView.type === MeshDataType.INDEX
                         ? WEBGL_CONST.ELEMENT_ARRAY_BUFFER
-                        : WEBGL_CONST.ARRAY_BUFFER, // TODO: Mesh/indicesだけELEMENT...
+                        : WEBGL_CONST.ARRAY_BUFFER, // TODO: だいたいこれだったの　Mesh/indicesだけELEMENT...
             };
             bufferOffset += bufferView.buffer.byteLength;
             if (bufferView.type === MeshDataType.IMAGE) {
@@ -464,22 +464,29 @@ export default class VRMExporter {
             ],
             bufferViews: outputBufferViews,
             extensions: {
-                VRMC_vrm: {
-                    expressions,
+                VRM: {
+                    blendShapeMaster: {blendShapeGroups},
                     //firstPerson: vrmFirstPerson,
+                    firstPerson: {
+                        firstPersonBone: 44,
+                        firstPersonBoneOffset: new Vector3(),
+                        lookAtHorizontalInner: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtHorizontalOuter: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtTypeName: 'Bone',
+                        lookAtVerticalDown: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtVerticalUp: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                    },
+                    materialProperties,
                     humanoid: vrmHumanoid,
-                    lookAt: vrmLookAt,
                     meta: outputVrmMeta,
-                    //materialProperties: materialProperties,
                     //secondaryAnimation: outputSecondaryAnimation,
-                    specVersion: "1.0", 
+                    specVersion: "0.0"
                 },
             },
             extensionsUsed: [
               "KHR_materials_unlit",
               "KHR_texture_transform",
-              "VRMC_materials_mtoon",
-              "VRMC_vrm",
+              "VRM",
             ],
             images: outputImages,
             materials: outputMaterials,
@@ -491,7 +498,6 @@ export default class VRMExporter {
             skins: outputSkins,
             textures: outputTextures,
         };
-        //console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -503,9 +509,9 @@ export default class VRMExporter {
         onDone(concatBinary([header, fileData]));
     }
 }
-// function radian2Degree(radian) {
-//     return radian * (180 / Math.PI);
-// }
+function radian2Degree(radian) {
+    return radian * (180 / Math.PI);
+}
 function getNodes(parentNode) {
     if (parentNode.children.length <= 0)
         return [parentNode];
@@ -865,56 +871,56 @@ const toOutputScenes = (avatar, outputNodes) => {
         },
     ];
 };
-// const toOutputSecondaryAnimation = (springBone, nodeNames) => {
-//     return {
-//         boneGroups: springBone.springBoneGroupList[0] &&
-//             springBone.springBoneGroupList[0].length > 0
-//             ? springBone.springBoneGroupList.map((group) => ({
-//                 bones: group.map((e) => nodeNames.indexOf(e.bone.name)),
-//                 center: group[0].center
-//                     ? nodeNames.indexOf(group[0].center.name) // TODO: nullになっていて実際のデータはわからん
-//                     : -1,
-//                 colliderGroups: springBone.colliderGroups.map((_, index) => index),
-//                 dragForce: group[0].dragForce,
-//                 gravityDir: {
-//                     x: group[0].gravityDir.x,
-//                     y: group[0].gravityDir.y,
-//                     z: group[0].gravityDir.z, // TODO: それっぽいやつをいれた
-//                 },
-//                 gravityPower: group[0].gravityPower,
-//                 hitRadius: group[0].radius,
-//                 stiffiness: group[0].stiffnessForce, // TODO: それっぽいやつをいれた
-//             }))
-//             : [
-//                 {
-//                     bones: [],
-//                     center: -1,
-//                     colliderGroups: [],
-//                     dragForce: 0.4,
-//                     gravityDir: {
-//                         x: 0,
-//                         y: -1,
-//                         z: 0,
-//                     },
-//                     gravityPower: 0,
-//                     hitRadius: 0.02,
-//                     stiffiness: 1,
-//                 },
-//             ],
-//         colliderGroups: springBone.colliderGroups.map((group) => ({
-//             colliders: [
-//                 {
-//                     offset: {
-//                         x: group.colliders[0].position.x,
-//                         y: group.colliders[0].position.y,
-//                         z: group.colliders[0].position.z,
-//                     },
-//                     radius: group.colliders[0].geometry.boundingSphere
-//                         ? group.colliders[0].geometry.boundingSphere.radius
-//                         : undefined,
-//                 },
-//             ],
-//             node: group.node,
-//         })),
-//     };
-// };
+const toOutputSecondaryAnimation = (springBone, nodeNames) => {
+    return {
+        boneGroups: springBone.springBoneGroupList[0] &&
+            springBone.springBoneGroupList[0].length > 0
+            ? springBone.springBoneGroupList.map((group) => ({
+                bones: group.map((e) => nodeNames.indexOf(e.bone.name)),
+                center: group[0].center
+                    ? nodeNames.indexOf(group[0].center.name) // TODO: nullになっていて実際のデータはわからん
+                    : -1,
+                colliderGroups: springBone.colliderGroups.map((_, index) => index),
+                dragForce: group[0].dragForce,
+                gravityDir: {
+                    x: group[0].gravityDir.x,
+                    y: group[0].gravityDir.y,
+                    z: group[0].gravityDir.z, // TODO: それっぽいやつをいれた
+                },
+                gravityPower: group[0].gravityPower,
+                hitRadius: group[0].radius,
+                stiffiness: group[0].stiffnessForce, // TODO: それっぽいやつをいれた
+            }))
+            : [
+                {
+                    bones: [],
+                    center: -1,
+                    colliderGroups: [],
+                    dragForce: 0.4,
+                    gravityDir: {
+                        x: 0,
+                        y: -1,
+                        z: 0,
+                    },
+                    gravityPower: 0,
+                    hitRadius: 0.02,
+                    stiffiness: 1,
+                },
+            ],
+        colliderGroups: springBone.colliderGroups.map((group) => ({
+            colliders: [
+                {
+                    offset: {
+                        x: group.colliders[0].position.x,
+                        y: group.colliders[0].position.y,
+                        z: group.colliders[0].position.z,
+                    },
+                    radius: group.colliders[0].geometry.boundingSphere
+                        ? group.colliders[0].geometry.boundingSphere.radius
+                        : undefined,
+                },
+            ],
+            node: group.node,
+        })),
+    };
+};
