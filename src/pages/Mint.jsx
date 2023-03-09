@@ -5,10 +5,11 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 import Mint from "../components/Mint"
 import CustomButton from "../components/custom-button"
 
+
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function MintComponent({screenshotManager}) {
+function MintComponent({screenshotManager, animationManager}) {
 
   const { setViewMode } = React.useContext(ViewContext)
   const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
@@ -33,7 +34,7 @@ function MintComponent({screenshotManager}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           
-          <Mint screenshotManager = {screenshotManager} screenshotPosition = {screenshotPosition}/>
+          <Mint screenshotManager = {screenshotManager} screenshotPosition = {screenshotPosition} animationManager = {animationManager}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>

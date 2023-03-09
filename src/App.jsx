@@ -289,7 +289,7 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager}/>,
+    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} animationManager = {animationManager}/>,
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }

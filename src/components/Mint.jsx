@@ -15,12 +15,12 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({screenshotPosition, screenshotManager}) {
+export default function MintPopup({screenshotPosition, screenshotManager, animationManager}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
   const [tokenPrice, setTokenPrice] = useState(null);
   const chainId = "0x89";
-
+  
   useEffect(() => {
     ( async () => {
         const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
@@ -101,7 +101,7 @@ export default function MintPopup({screenshotPosition, screenshotManager}) {
       const female = templateInfo.name === 'Drophunter' ? true : false;
       const headPosition = female ? 1.35 : 1.45;
       const cameraFov = 1.0;
-
+      animationManager.reset();
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
       const screenshot = screenshotManager.saveAsImage(imageName);
