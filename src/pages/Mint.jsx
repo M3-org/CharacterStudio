@@ -4,19 +4,12 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 
 import Mint from "../components/Mint"
 import CustomButton from "../components/custom-button"
-
-<<<<<<< HEAD
-
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function MintComponent({screenshotManager, animationManager}) {
-
-=======
 function MintComponent({screenshotManager}) {
->>>>>>> d1a3866 (revert blink manager and animation manager)
+
   const { setViewMode } = React.useContext(ViewContext)
-  const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
 
@@ -38,7 +31,7 @@ function MintComponent({screenshotManager}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           
-          <Mint screenshotManager = {screenshotManager} screenshotPosition = {screenshotPosition}/>
+          <Mint screenshotManager = {screenshotManager}/>
         </div>
       </div>
       <div className={styles.buttonContainer}>
