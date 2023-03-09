@@ -123,4 +123,12 @@ export const IconCollection = [
     name: 'soundoff',
     file: '/assets/icons/soundoff.svg',
   },
+  {
+    name: 'soundoff',
+    file: '/assets/icons/soundoff.svg',
+  },
+  {
+    name: 'polygon',
+    file: '/assets/icons/polygon.svg',
+  },
 ];

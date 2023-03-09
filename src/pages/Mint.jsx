@@ -1,8 +1,6 @@
 import React from "react"
-import styles from "./Mint.module.css"
+import styles from "./Mint.module.scss"
 import { ViewMode, ViewContext } from "../context/ViewContext"
-
-import Mint from "../components/Mint"
 import CustomButton from "../components/custom-button"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
@@ -23,18 +21,48 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
     !isMute && playSound('backNextButton');
   }
 
+  function MenuTitle() {
+    return (
+      <div className={styles["mainTitleWrap"]}>
+        <div className={styles["topLine"]} />
+        <div className={styles["mainTitle"]}>Mint</div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>Mint Your Character</div>
+      
+      {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
+
       <div className={styles.mintContainer}>
-        <div className={styles.topLine} />
-        <div className={styles.bottomLine} />
-        <div className={styles.scrollContainer}>
-          
-          <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/>
+        <MenuTitle />
+
+        <div className={styles.mintButtonContainer}>
+          <CustomButton
+            size={16}
+            theme="light"
+            icon="polygon"
+            text="Open Edition"
+            className={styles.mintButton}
+          />
+
+          <div className={styles.divider}></div>
+
+          <CustomButton
+            size={16}
+            theme="light"
+            icon="tokens"
+            text="Genesis Edition"
+            className={styles.mintButton}
+          />
+
+          <span className={styles.genesisText}>(<span className={styles.required}>Genesis pass holders only</span>)</span>
         </div>
       </div>
-      <div className={styles.buttonContainer}>
+
+      <div className={styles.bottomContainer}>
         <CustomButton
           theme="light"
           text="Back"
