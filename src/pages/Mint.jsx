@@ -1,12 +1,19 @@
 import React from "react"
 import styles from "./Mint.module.scss"
 import { ViewMode, ViewContext } from "../context/ViewContext"
+
+import { SceneContext } from "../context/SceneContext"
+import * as THREE from 'three'
+
 import CustomButton from "../components/custom-button"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 
+const localVector = new THREE.Vector3();
+
 function MintComponent({screenshotManager, blinkManager, animationManager}) {
+  const { templateInfo, model } = React.useContext(SceneContext)
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -30,19 +37,41 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
     )
   }
 
+  function Mint(){
+    takeScreenshot();
+  }
+
+  function takeScreenshot(){
+    animationManager.enableScreenshot();
+    blinkManager.enableScreenshot();
+
+    model.traverse(o => {
+      if (o.isSkinnedMesh) {
+        const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+        headBone.getWorldPosition(localVector);
+      }
+    });
+    const headPosition = localVector;
+
+    // change it to work from manifest
+    const female = templateInfo.name === "Drophunter";
+    const cameraFov = female ? 0.78 : 0.85;
+    screenshotManager.setCamera(headPosition, cameraFov);
+    let imageName = "AvatarImage_" + Date.now() + ".png";
+    
+    const screenshot = screenshotManager.saveAsImage(imageName);
+    blinkManager.disableScreenshot();
+    animationManager.disableScreenshot();
+    return screenshot;
+  }
+
   return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>Mint Your Character</div>
- {/* tcm-screenshot
-      ///<div className={styles.mintContainer}>
-        ///<div className={styles.topLine} />
-       /// <div className={styles.bottomLine} />
-        ///<div className={styles.scrollContainer}>
           
-         /// <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/>
-======= */}
+        {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
       
-      {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
+        {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
 
       <div className={styles.mintContainer}>
         <MenuTitle />
@@ -54,6 +83,7 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
             icon="polygon"
             text="Open Edition"
             className={styles.mintButton}
+            onClick= {Mint}
           />
 
           <div className={styles.divider}></div>
@@ -64,6 +94,7 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
             icon="tokens"
             text="Genesis Edition"
             className={styles.mintButton}
+            onClick= {Mint}
           />
 
           <span className={styles.genesisText}>(<span className={styles.required}>Genesis pass holders only</span>)</span>
