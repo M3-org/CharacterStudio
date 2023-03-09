@@ -10,6 +10,7 @@
     width: 100%;
     padding: 20px 32px;
     display: flex;
+    justify-content: space-between;
 }
 
 .buttonContainer .leftButtonContainer{
@@ -19,8 +20,9 @@
 }
 
 .buttonContainer .rightButtonContainer{
-    margin-left: auto;
-    display: inline-flex;
+    margin-left: auto; 
+    margin-right: 0;
+    order: 5;
 }
 
 .buttonContainer .buttonCenter {
