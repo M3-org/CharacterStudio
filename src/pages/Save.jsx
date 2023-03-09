@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+  import React, { useContext } from "react"
 import styles from "./Save.module.css"
 import { ExportMenu } from "../components/ExportMenu"
 
@@ -15,13 +15,15 @@ function Save() {
   const { isMute } = React.useContext(AudioContext)
   
 
-    const { setViewMode } = React.useContext(ViewContext);
+  const { setViewMode } = React.useContext(ViewContext);
 
-    const back = () => {
-        setViewMode(ViewMode.BIO)
-        !isMute && playSound('backNextButton');
-    }
-
+  const back = () => {
+      setViewMode(ViewMode.BIO)
+      !isMute && playSound('backNextButton');
+  }
+  const mint = () => {
+      setViewMode(ViewMode.MINT)
+  }
   const next = () => {
     setViewMode(ViewMode.CHAT)
     !isMute && playSound('backNextButton');
@@ -45,13 +47,13 @@ function Save() {
                 <ExportMenu />
 
                 <div className={styles.rightButtonContainer}>
-                    {/* <CustomButton
+                    <CustomButton
                         theme="light"
                         text={t('callToAction.chat')}
                         size={14}
                         className={styles.buttonRight}
                         onClick={mint}
-                    /> */}
+                    />
                 
                     <CustomButton
                         theme="light"

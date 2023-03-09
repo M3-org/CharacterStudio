@@ -33,6 +33,14 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
   return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>Mint Your Character</div>
+ {/* tcm-screenshot
+      ///<div className={styles.mintContainer}>
+        ///<div className={styles.topLine} />
+       /// <div className={styles.bottomLine} />
+        ///<div className={styles.scrollContainer}>
+          
+         /// <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/>
+======= */}
       
       {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
 
