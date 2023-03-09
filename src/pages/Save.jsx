@@ -44,7 +44,7 @@ function Save() {
         
         <CustomButton
             theme="light"
-            text={t('callToAction.chat')}
+            text={t('callToAction.mint')}
             size={14}
             className={styles.buttonRight}
             onClick={mint}
