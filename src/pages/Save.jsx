@@ -22,11 +22,6 @@ function Save() {
         !isMute && playSound('backNextButton');
     }
 
-    const mint = () => {
-        setViewMode(ViewMode.MINT)
-        !isMute && playSound('backNextButton');
-    }
-
   const next = () => {
     setViewMode(ViewMode.CHAT)
     !isMute && playSound('backNextButton');
@@ -50,13 +45,13 @@ function Save() {
                 <ExportMenu />
 
                 <div className={styles.rightButtonContainer}>
-                    <CustomButton
+                    {/* <CustomButton
                         theme="light"
                         text={t('callToAction.chat')}
                         size={14}
                         className={styles.buttonRight}
                         onClick={mint}
-                    />
+                    /> */}
                 
                     <CustomButton
                         theme="light"
