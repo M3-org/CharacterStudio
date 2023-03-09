@@ -15,7 +15,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 const mintCost = 0.01
 
-export default function MintPopup({screenshotPosition, screenshotManager, animationManager}) {
+export default function MintPopup({screenshotPosition, screenshotManager}) {
   const { avatar, skinColor, model, templateInfo } = useContext(SceneContext)
   const [mintStatus, setMintStatus] = useState("")
   const [tokenPrice, setTokenPrice] = useState(null);
@@ -101,7 +101,6 @@ export default function MintPopup({screenshotPosition, screenshotManager, animat
       const female = templateInfo.name === 'Drophunter' ? true : false;
       const headPosition = female ? 1.35 : 1.45;
       const cameraFov = 1.0;
-      animationManager.reset();
       screenshotManager.setCamera(headPosition, cameraFov);
       let imageName = "AvatarImage_" + Date.now() + ".png";
       const screenshot = screenshotManager.saveAsImage(imageName);

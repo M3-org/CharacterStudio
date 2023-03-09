@@ -24,10 +24,6 @@ export class BlinkManager {
     this.vrmBlinkers.push(vrm)
   }
 
-  setEyeOpen() {
-    this._eyeOpen = 2;
-  }
-  
   update(){
     setInterval(() => {
       const deltaTime = this.clock.getDelta()
