@@ -24,6 +24,9 @@ function View({templateInfo}) {
       speechRecognition.stop()
     setMicEnabled(false)
   }
+  const next = () =>{
+    setViewMode(ViewMode.MINT)
+  }
 
   // Translate hook
   const { t } = useContext(LanguageContext);
@@ -51,6 +54,13 @@ function View({templateInfo}) {
           size={14}
           className={styles.buttonLeft}
           onClick={back}
+        />
+        <CustomButton
+          theme="light"
+          text="Next"
+          size={14}
+          className={styles.buttonRight}
+          onClick={next}
         />
       </div>
     </div>

@@ -12,6 +12,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 import { AnimationManager } from "./library/animationManager"
+import { ScreenshotManager } from "./library/screenshotManager"
 
 import Scene from "./components/Scene"
 import Background from "./components/Background"
@@ -24,6 +25,8 @@ import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
 import LanguageSwitch from "./components/LanguageSwitch"
+import Mint from "./pages/Mint"
+
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -109,6 +112,7 @@ async function fetchAll() {
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
   const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
+  const screenshotManager = new ScreenshotManager()
 
   return {
     initialManifest,
@@ -117,6 +121,7 @@ async function fetchAll() {
     blinkManager,
     lookatManager,
     effectManager,
+    screenshotManager,
   }
 }
 
@@ -158,6 +163,7 @@ export default function App() {
     blinkManager,
     lookatManager,
     effectManager,
+    screenshotManager,
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
@@ -179,6 +185,8 @@ export default function App() {
 
   effectManager.camera = camera
   effectManager.scene = scene
+
+  screenshotManager.scene = scene
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return
@@ -239,7 +247,7 @@ export default function App() {
 
     if (controls) {
       if (
-        [ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.MINT].includes(viewMode)
+        [ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)
       ) {
         controls.enabled = true
       } else {
@@ -280,7 +288,7 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    // [ViewMode.MINT]: <Mint />,
+    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager}/>,
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
