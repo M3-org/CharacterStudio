@@ -8,12 +8,12 @@ import * as THREE from 'three'
 import CustomButton from "../components/custom-button"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
-
+import { mintAsset } from "../library/mint-utils"
 
 const localVector = new THREE.Vector3();
 
 function MintComponent({screenshotManager, blinkManager, animationManager}) {
-  const { templateInfo, model } = React.useContext(SceneContext)
+  const { templateInfo, model, avatar } = React.useContext(SceneContext)
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -37,8 +37,26 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
     )
   }
 
-  function Mint(){
-    takeScreenshot();
+  async function Mint(){
+    const screenshot = takeScreenshot();
+    console.log(screenshot)
+    console.log(mintAsset)
+    const result = await mintAsset(getAvatarTraits(),screenshot,model)
+    console.log(result);
+  }
+
+  // 
+  const getAvatarTraits = () => {
+    let metadataTraits = []
+    Object.keys(avatar).map((trait) => {
+      if (Object.keys(avatar[trait]).length !== 0) {
+        metadataTraits.push({
+          trait_type: trait,
+          value: avatar[trait].name,
+        })
+      }
+    })
+    return metadataTraits
   }
 
   function takeScreenshot(){
