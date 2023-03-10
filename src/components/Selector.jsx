@@ -175,17 +175,22 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     effectManager.setTransitionEffect('switch_item');
     loadOptions([option], false, false, false).then((loadedData)=>{
       URL.revokeObjectURL(url);
-      let newAvatar = {};
-      loadedData.map((data)=>{
-        newAvatar = {...newAvatar, ...itemAssign(data)}
-      })
-      const finalAvatar = {...avatar, ...newAvatar}
-      setTimeout(() => {
-        if (Object.keys(finalAvatar).length > 0) {
-          cullHiddenMeshes(finalAvatar)
-        }
-      }, effectManager.transitionTime);
-      setAvatar(finalAvatar)
+      if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
+        let newAvatar = {};
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
+        })
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        setAvatar(finalAvatar)
+      }
+      else{
+        console.log("Only vrm1 file supported")
+      }
     })
   }
 
