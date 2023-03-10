@@ -57,6 +57,48 @@ export class ScreenshotManager {
 
   }
 
+  _createImage(width, height){
+    this.renderer.setSize(width, height);
+    try {
+      this.scene.background = backgroundTexture;
+      this.renderer.render(this.scene, this.camera);
+      const strMime = "image/png";
+      let imgData = this.renderer.domElement.toDataURL(strMime);
+      this.scene.background = null;
+      return  imgData
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+  saveScreenshot(imageName,width, height){
+    const imgData =  this._createImage(width, height)
+    const strDownloadMime = "image/octet-stream";
+    const strMime = "image/png";
+    this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+  }
+
+  getScreenshotImage(width, height){
+    const imgData = this._createImage(width, height);
+    const img = new Image();
+    img.src = imgData;
+    return img;
+  }
+  getScreenshotTexture(width, height){
+    const img = this.getScreenshotImage(width,height)
+    const texture = new THREE.Texture(img);
+    texture.needsUpdate = true;
+    return texture;
+  }
+  getScreenshotBlob(width, height){
+    const imgData = this._createImage(width, height)
+    const base64Data = Buffer.from(
+      imgData.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+    const blob = new Blob([base64Data], { type: "image/jpeg" }); 
+    return blob; 
+  }
   saveFile (strData, filename) {
     const link = document.createElement('a');
     if (typeof link.download === 'string') {

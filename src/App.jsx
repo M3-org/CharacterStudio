@@ -20,12 +20,12 @@ import Background from "./components/Background"
 import View from "./pages/View"
 import Save from "./pages/Save"
 import Load from "./pages/Load"
+import Mint from "./pages/Mint"
 import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
 import LanguageSwitch from "./components/LanguageSwitch"
-import Mint from "./pages/Mint"
 
 
 // dynamically import the manifest
@@ -180,6 +180,7 @@ export default function App() {
     moveCamera,
     setManifest,
     manifest,
+    model,
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
@@ -271,6 +272,30 @@ export default function App() {
     })
   }
 
+  const getFaceScreenshot = (width = 256, height = 256, getBlob = false) => {
+    blinkManager.enableScreenshot();
+    model.traverse(o => {
+      if (o.isSkinnedMesh) {
+        const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+        headBone.getWorldPosition(localVector3);
+      }
+    });
+    const headPosition = localVector3;
+    const female = templateInfo.name === "Drophunter";
+    const cameraFov = female ? 0.78 : 0.85;
+    screenshotManager.setCamera(headPosition, cameraFov);
+    //let imageName = "AvatarImage_" + Date.now() + ".png";
+    
+    //const screenshot = screenshotManager.saveAsImage(imageName);
+    const screenshot = getBlob ? 
+      screenshotManager.getScreenshotBlob(width, height):
+      screenshotManager.getScreenshotTexture(width, height);
+    blinkManager.disableScreenshot();
+    animationManager.disableScreenshot();
+
+    return screenshot;
+  }
+
   // map current app mode to a page
   const pages = {
     [ViewMode.LANDING]: <Landing />,
@@ -288,8 +313,8 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
-    [ViewMode.SAVE]: <Save />,
+    [ViewMode.MINT]: <Mint getFaceScreenshot = {getFaceScreenshot}/>,
+    [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }
 

@@ -8,7 +8,8 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Save() {
+
+function Save({getFaceScreenshot}) {
 
   // Translate hook
   const { t } = useContext(LanguageContext);
@@ -29,7 +30,7 @@ function Save() {
     !isMute && playSound('backNextButton');
   }
 
-    return (
+  return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>{t("pageTitles.saveCharacter")}</div>
       <div className={styles.buttonContainer}>
@@ -40,16 +41,15 @@ function Save() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <ExportMenu />
+        <ExportMenu getFaceScreenshot = {getFaceScreenshot}/>
         
         <CustomButton
             theme="light"
-            text={t('callToAction.mint')}
+            text="mint"//{t('callToAction.mint')}
             size={14}
             className={styles.buttonRight}
             onClick={mint}
         />
-               
         <CustomButton
           theme="light"
           text={t('callToAction.chat')}
