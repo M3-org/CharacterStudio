@@ -1,13 +1,15 @@
 import React from "react"
 import styles from "./Mint.module.scss"
 import { ViewMode, ViewContext } from "../context/ViewContext"
+import { SceneContext } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { mintAsset } from "../library/mint-utils"
 
-function MintComponent({screenshotManager, blinkManager, animationManager}) {
+function MintComponent({getFaceScreenshot}) {
+  const { templateInfo, model, avatar } = React.useContext(SceneContext)
   const { setViewMode } = React.useContext(ViewContext)
-  const [screenshotPosition,  setScreenshotPosition] = React.useState({x:250,y:25,width:256,height:256});
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
 
@@ -29,11 +31,22 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
       </div>
     )
   }
+  async function Mint(){
+    const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+    const fullBio = JSON.parse(fullBioStr)
+    const screenshot = getFaceScreenshot();
+    const result = await mintAsset(avatar,screenshot,model, fullBio.name)
+    console.log(result);
+  }
 
   return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>Mint Your Character</div>
-      {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
+          
+        {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
+      
+        {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
+
       <div className={styles.mintContainer}>
         <MenuTitle />
         <div className={styles.mintButtonContainer}>
@@ -43,14 +56,18 @@ function MintComponent({screenshotManager, blinkManager, animationManager}) {
             icon="polygon"
             text="Open Edition"
             className={styles.mintButton}
+            onClick= {Mint}
           />
+
           <div className={styles.divider}></div>
+
           <CustomButton
             size={16}
             theme="light"
             icon="tokens"
             text="Genesis Edition"
             className={styles.mintButton}
+            onClick= {Mint}
           />
 
           <span className={styles.genesisText}>(<span className={styles.required}>Genesis pass holders only</span>)</span>

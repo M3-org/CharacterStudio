@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+  import React, { useContext } from "react"
 import styles from "./Save.module.css"
 import { ExportMenu } from "../components/ExportMenu"
 
@@ -10,25 +10,25 @@ import { AudioContext } from "../context/AudioContext"
 
 
 function Save({getFaceScreenshot}) {
-  const { setViewMode } = React.useContext(ViewContext);
+
+  // Translate hook
+  const { t } = useContext(LanguageContext);
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+  const { setViewMode } = React.useContext(ViewContext);
+
 
   const back = () => {
-    setViewMode(ViewMode.BIO)
-    !isMute && playSound('backNextButton');
+      setViewMode(ViewMode.BIO)
+      !isMute && playSound('backNextButton');
   }
   const mint = () => {
-    setViewMode(ViewMode.CHAT)
+      setViewMode(ViewMode.MINT)
   }
   const next = () => {
     setViewMode(ViewMode.CHAT)
     !isMute && playSound('backNextButton');
   }
-
-
-  // Translate hook
-  const { t } = useContext(LanguageContext);
 
   return (
     <div className={styles.container}>
@@ -42,15 +42,14 @@ function Save({getFaceScreenshot}) {
           onClick={back}
         />
         <ExportMenu getFaceScreenshot = {getFaceScreenshot}/>
-        {/*
-                <CustomButton
-                    theme="light"
-                    text="Chat"
-                    size={14}
-                    className={styles.buttonRight}
-                    onClick={mint}
-                />
-                */}
+        
+        <CustomButton
+            theme="light"
+            text={t('callToAction.mint')}
+            size={14}
+            className={styles.buttonRight}
+            onClick={mint}
+        />
         <CustomButton
           theme="light"
           text={t('callToAction.chat')}

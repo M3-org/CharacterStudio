@@ -27,6 +27,7 @@ import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
 import LanguageSwitch from "./components/LanguageSwitch"
 
+
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 const peresonalityImportPath =
@@ -310,7 +311,7 @@ export default function App() {
     ),
     [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager={animationManager}/>,
+    [ViewMode.MINT]: <Mint getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
   }

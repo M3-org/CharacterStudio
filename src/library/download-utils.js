@@ -69,9 +69,9 @@ function getOptimizedGLB(avatarToDownload, atlasSize, isVrm0 = false){
 }
 
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
-  const model = await optimized ? 
-    getOptimizedGLB(avatarToDownload, atlasSize) :
-    getUnopotimizedGLB(avatarToDownload)
+  const model = await (optimized ? 
+     getOptimizedGLB(avatarToDownload, atlasSize) :
+     getUnopotimizedGLB(avatarToDownload))
   const glb = await parseGLB(model);
   return new Blob([glb], { type: 'model/gltf-binary' });
 }

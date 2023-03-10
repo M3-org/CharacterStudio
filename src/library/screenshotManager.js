@@ -99,7 +99,6 @@ export class ScreenshotManager {
     const blob = new Blob([base64Data], { type: "image/jpeg" }); 
     return blob; 
   }
-
   saveFile (strData, filename) {
     const link = document.createElement('a');
     if (typeof link.download === 'string') {
