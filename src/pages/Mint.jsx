@@ -34,7 +34,7 @@ function MintComponent({getFaceScreenshot}) {
   async function Mint(){
     const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
     const fullBio = JSON.parse(fullBioStr)
-    const screenshot = getFaceScreenshot();
+    const screenshot = getFaceScreenshot(256,256,true);
     const result = await mintAsset(avatar,screenshot,model, fullBio.name)
     console.log(result);
   }

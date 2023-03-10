@@ -45,7 +45,7 @@ function Save({getFaceScreenshot}) {
         
         <CustomButton
             theme="light"
-            text={t('callToAction.mint')}
+            text="mint"//{t('callToAction.mint')}
             size={14}
             className={styles.buttonRight}
             onClick={mint}

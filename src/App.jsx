@@ -272,7 +272,7 @@ export default function App() {
     })
   }
 
-  const getFaceScreenshot = () => {
+  const getFaceScreenshot = (width = 256, height = 256, getBlob = false) => {
     blinkManager.enableScreenshot();
     model.traverse(o => {
       if (o.isSkinnedMesh) {
@@ -284,10 +284,12 @@ export default function App() {
     const female = templateInfo.name === "Drophunter";
     const cameraFov = female ? 0.78 : 0.85;
     screenshotManager.setCamera(headPosition, cameraFov);
-    let imageName = "AvatarImage_" + Date.now() + ".png";
+    //let imageName = "AvatarImage_" + Date.now() + ".png";
     
     //const screenshot = screenshotManager.saveAsImage(imageName);
-    const screenshot = screenshotManager.getScreenshotTexture(256,256);
+    const screenshot = getBlob ? 
+      screenshotManager.getScreenshotBlob(width, height):
+      screenshotManager.getScreenshotTexture(width, height);
     blinkManager.disableScreenshot();
     animationManager.disableScreenshot();
 
