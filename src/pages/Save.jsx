@@ -41,7 +41,9 @@ function Save({getFaceScreenshot}) {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <ExportMenu getFaceScreenshot = {getFaceScreenshot}/>
+        <ExportMenu 
+          getFaceScreenshot = {getFaceScreenshot}
+        />
         
         <CustomButton
             theme="light"
