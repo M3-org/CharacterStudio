@@ -158,13 +158,13 @@
     fill: #EFEFEF !important;
 }
 
-.buttonWrap:active .innerWrap {
+.buttonWrap:active:enabled .innerWrap {
     border: 1px solid #FFC000;
     font-family: "TTSC-Bold";
     background: #000000;
     color: #FFC000;
 }
 
-.buttonWrap:active .innerWrap * {
+.buttonWrap:active:enabled .innerWrap * {
     fill: #FFC000 !important;
 }
