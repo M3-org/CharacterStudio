@@ -123,12 +123,13 @@ export default function CustomButton(props) {
         className={classnames(
           className,
           styles.buttonWrap,
-          theme && theme === "dark" ? styles.dark : styles.light,
+          theme && theme === "dark" ? styles.dark : styles.light
         )}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onSubmit={onSubmit}
         type={type}
+        disabled = {disabled}
       >
         <div
           className={styles.innerWrap}
@@ -138,7 +139,7 @@ export default function CustomButton(props) {
             <span
               ref={svgRef}
               className={styles.buttonIconWrap}
-              style={{ height: size, width: size }}
+              style={{ height: size, width: size, opacity: disabled ? "0.4" : "1"}}
             ></span>
           )}
           {text && text}

@@ -67,10 +67,11 @@ function MintComponent({getFaceScreenshot}) {
             icon="tokens"
             text="Genesis Edition"
             className={styles.mintButton}
-            onClick= {Mint}
+            disabled = {true}
+            // onClick= {Mint}
           />
-
-          <span className={styles.genesisText}>(<span className={styles.required}>Genesis pass holders only</span>)</span>
+          {/* Genesis pass holders only */}
+          <span className={styles.genesisText}>(<span className={styles.required}>Coming Soon!</span>)</span>
         </div>
       </div>
 
