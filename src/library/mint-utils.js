@@ -123,7 +123,7 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
 
     const walletAddress = await connectWallet();
     if (walletAddress == "")
-      throw new Error("No adress was connected") 
+      return ("Please Connect Wallet")
 
     const pass = !needCheckOT || await checkOT(walletAddress);
     if (pass){
@@ -145,7 +145,7 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
               return err;
             }
           }
-          return 'failed to upload screenshot';
+          return 'Failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
         })()
         const glb = await getVRMBlobData(model,avatar,4096,true)
@@ -165,14 +165,14 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
                 })
                 return glb_hash
                 } catch(err) {
-                console.warn(err);
+                  console.warn(err);
+                  return "Couldn't save glb to pinata"
                 }
             }
-            return 'failed to upload glb'
+            return 'Failed to upload glb'
             //throw new Error('failed to upload glb');
             })();
         } else {
-          
           return 'Unable to get glb'
         }
         const metadata = {
@@ -208,7 +208,7 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
           }
         } catch (err) {
           //console.log("Public Mint failed! Please check your wallet.")
-          return "Public Mint failed! Please check your wallet."
+          return "Public Mint failed."
         }
 
     }

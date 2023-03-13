@@ -26,6 +26,7 @@ export default function CustomButton(props) {
     onMouseEnter,
     active,
     onSubmit,
+    minWidth,
     disabled
   } = props
   const svgRef = useRef(null)
@@ -130,6 +131,7 @@ export default function CustomButton(props) {
         onSubmit={onSubmit}
         type={type}
         disabled = {disabled}
+        style={{minWidth:minWidth? minWidth + "px":""}}
       >
         <div
           className={styles.innerWrap}

@@ -13,6 +13,9 @@ function MintComponent({getFaceScreenshot}) {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
 
+  const [status, setStatus] = React.useState("")
+  const [minting, setMinting]= React.useState(false)
+
   const back = () => {
     setViewMode(ViewMode.SAVE)
     !isMute && playSound('backNextButton');
@@ -32,10 +35,14 @@ function MintComponent({getFaceScreenshot}) {
     )
   }
   async function Mint(){
+    setMinting(true)
+    setStatus("Please check your wallet")
     const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
     const fullBio = JSON.parse(fullBioStr)
     const screenshot = getFaceScreenshot(256,256,true);
     const result = await mintAsset(avatar,screenshot,model, fullBio.name)
+    setStatus(result)
+    setMinting(false)
     console.log(result);
   }
 
@@ -54,9 +61,11 @@ function MintComponent({getFaceScreenshot}) {
             size={16}
             theme="light"
             icon="polygon"
-            text="Open Edition"
+            text={minting ? "Minting...":"Open Edition"}
             className={styles.mintButton}
+            disabled = {minting}
             onClick= {Mint}
+            minWidth = {220}
           />
 
           <div className={styles.divider}></div>
@@ -68,11 +77,15 @@ function MintComponent({getFaceScreenshot}) {
             text="Genesis Edition"
             className={styles.mintButton}
             disabled = {true}
+            minWidth = {220}
             // onClick= {Mint}
           />
           {/* Genesis pass holders only */}
           <span className={styles.genesisText}>(<span className={styles.required}>Coming Soon!</span>)</span>
+          
         </div>
+        <span className={styles.mintInfo}>{status} </span>
+        
       </div>
 
       <div className={styles.bottomContainer}>

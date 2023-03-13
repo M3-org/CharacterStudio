@@ -55,7 +55,7 @@
       width: 100%;
       display: flex;
       margin-top: auto;
-      margin-bottom: auto;
+      margin-bottom: 15px;
       align-items: center;
       flex-direction: column;
 
@@ -65,7 +65,7 @@
 
       .genesisText {
         opacity: 0.4;
-
+        margin-top: 5px;
         .required:after {
           content: "*";
           color: red;
@@ -92,6 +92,11 @@
       min-width: 120px;
     }
   }
+}
+.mintInfo {
+  height: 15px;
+  padding-bottom: 25px;
+  opacity: 0.5;
 }
 
 .topLine {
