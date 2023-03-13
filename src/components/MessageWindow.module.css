@@ -1,0 +1,36 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  margin: auto;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items:center;
+}
+
+.messageWindow{
+  width:500px;
+  height:150px;
+  margin: auto;
+  display: flex;
+  background-color: black;
+  justify-content: center;
+  align-items:center;
+  flex-direction: column;
+}
+
+.messageTitle{
+  font-family: "TTSC-Bold";
+  font-weight: 800;
+  text-transform: uppercase !important;
+  line-height: 106%;
+  color: white;
+  height: 40px;
+}
+
+.buttonContainer{
+  width: 100%;
+  display: flex;
+  height: 40px;
+  justify-content: space-around;
+}

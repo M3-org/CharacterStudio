@@ -176,6 +176,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     loadOptions([option], false, false, false).then((loadedData)=>{
       URL.revokeObjectURL(url);
       if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
+        
+        console.log(loadedData[0].models[0]?.userData?.gltfExtensions)
         let newAvatar = {};
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -189,6 +191,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         setAvatar(finalAvatar)
       }
       else{
+
         console.log("Only vrm1 file supported")
       }
     })
@@ -665,7 +668,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   return (
     !!currentTraitName && (
+      
       <div className={styles["SelectorContainerPos"]}>
+       
         <TraitTitle title={t(`editor.${currentTraitName}`)} />
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>

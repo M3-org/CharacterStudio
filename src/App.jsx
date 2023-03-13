@@ -12,6 +12,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 import { AnimationManager } from "./library/animationManager"
+import MessageWindow from "./components/MessageWindow"
 
 import Scene from "./components/Scene"
 import Background from "./components/Background"
@@ -326,15 +327,23 @@ export default function App() {
 
   return (
     <Fragment>
+      
       <div className="generalTitle">Character Studio</div>
+     
       <LanguageSwitch />
+      <MessageWindow
+        message = {"text"}
+      />
       <Background />
+      
       <Scene
         manifest={manifest}
         sceneModel={sceneModel}
         lookatManager={lookatManager}
       />
+      
       {pages[viewMode]}
+      
     </Fragment>
   )
 }
