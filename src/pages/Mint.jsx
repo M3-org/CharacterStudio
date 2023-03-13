@@ -35,6 +35,7 @@ function MintComponent({getFaceScreenshot}) {
     )
   }
   async function Mint(){
+    !isMute && playSound('backNextButton');
     setMinting(true)
     setStatus("Please check your wallet")
     const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)

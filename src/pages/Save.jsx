@@ -19,11 +19,12 @@ function Save({getFaceScreenshot}) {
 
 
   const back = () => {
-      setViewMode(ViewMode.BIO)
-      !isMute && playSound('backNextButton');
+    setViewMode(ViewMode.BIO)
+    !isMute && playSound('backNextButton');
   }
   const mint = () => {
-      setViewMode(ViewMode.MINT)
+    setViewMode(ViewMode.MINT)
+    !isMute && playSound('backNextButton');
   }
   const next = () => {
     setViewMode(ViewMode.CHAT)
