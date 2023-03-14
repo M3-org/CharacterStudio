@@ -56,6 +56,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
+  const [vrm1Warn, setVrm1Warn1] = useState(true);
 
   const updateCurrentTraitMap = (k,v) => {
     setCurrentTrait(currentTrait.set(k,v));
@@ -165,6 +166,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   const loadCustom = (file) => {
     const url = URL.createObjectURL(file);
     const option = {
+      
       item:{
         id:"custom_" + currentTraitName,
         name:"Custom " + currentTraitName,
@@ -195,22 +197,31 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     })
   }
 
-  const uploadTrait = async() =>{
-    confirmDialog("Supports only VRM1 files", (val)=>{
-      if (val === true){
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept=".vrm"
+  const promptUpload = async () => {
+    if (vrm1Warn){
+      confirmDialog("Supports only VRM1 files", (val)=>{
+        setVrm1Warn1(!val);
+        if (val)
+          uploadTrait()
+      })
+    }
+    else{
+      uploadTrait();
+    }
+  }
 
-        input.onchange = e => { 
-          var file = e.target.files[0]; 
-          if (file.name.endsWith(".vrm")){
-            loadCustom(file)
-          }
+  const uploadTrait = async() =>{
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept=".vrm"
+
+      input.onchange = e => { 
+        var file = e.target.files[0]; 
+        if (file.name.endsWith(".vrm")){
+          loadCustom(file)
         }
-        input.click();
       }
-    });
+      input.click();
   }
   // user selects an option
   const selectTraitOption = (option) => {
@@ -741,7 +752,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
           
           <div 
             className={styles["uploadButton"]}
-            onClick={() => {uploadTrait()}}>
+            onClick={() => {promptUpload()}}>
             <div> 
               Upload </div>
           </div>
