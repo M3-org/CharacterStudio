@@ -17,9 +17,6 @@ function Save() {
     setViewMode(ViewMode.BIO)
     !isMute && playSound('backNextButton');
   }
-  const mint = () => {
-    setViewMode(ViewMode.CHAT)
-  }
   const next = () => {
     setViewMode(ViewMode.CHAT)
     !isMute && playSound('backNextButton');
@@ -40,15 +37,6 @@ function Save() {
           onClick={back}
         />
         <ExportMenu />
-        {/*
-                <CustomButton
-                    theme="light"
-                    text="Chat"
-                    size={14}
-                    className={styles.buttonRight}
-                    onClick={mint}
-                />
-                */}
         <CustomButton
           theme="light"
           text={t('callToAction.chat')}
