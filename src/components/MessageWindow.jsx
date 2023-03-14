@@ -1,9 +1,6 @@
-import classnames from "classnames"
 import React from "react"
 import styles from "./MessageWindow.module.css"
 import CustomButton from "../components/custom-button"
-import { AudioContext } from "../context/AudioContext"
-import { SoundContext } from "../context/SoundContext"
 
 export default function MessageWindow(props) {
     const {
