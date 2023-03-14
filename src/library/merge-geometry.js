@@ -3,6 +3,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 // import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
 import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
+import { BufferAttribute } from "three";
 
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
@@ -104,6 +105,47 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
     }
 }
 
+// returns an ordered array with non duplicated indices
+function getCleanNonRepeatingIndexArray(mesh){
+    const sortedArr = [...mesh.geometry.index.array];
+    sortedArr.sort()
+    return sortedArr.filter((item,index) => sortedArr.indexOf(item) === index);
+}
+
+function getTypedArrayType(someTypedArray) {
+    const typedArrayTypes = [
+      Int8Array,
+      Uint8Array,
+      Uint8ClampedArray,
+      Int16Array,
+      Uint16Array,
+      Int32Array,
+      Uint32Array,
+      Float32Array,
+      Float64Array,
+      BigInt64Array,
+      BigUint64Array
+    ];
+    const checked = typedArrayTypes.filter(ta => someTypedArray.constructor === ta);
+    return checked.length && checked[0] || null;
+  }
+
+function removeUnusedAttributes(mesh, attributeName,arrayMatch){
+    const attr = mesh.geometry.getAttribute(attributeName)
+    const newArr = []
+    for (let i =0 ; i < arrayMatch.length ;i++){
+        const ind = i*attr.itemSize;
+        for (let j = 0;j < attr.itemSize;j++ ){
+            newArr[ind+j] = attr.array[arrayMatch[i]*attr.itemSize+j] // yes [i]*3 and not [ind]*3
+        }
+    }
+
+    const type = getTypedArrayType(attr.array);
+    const typedArr = new type(newArr);
+    console.log(typedArr)
+    return new BufferAttribute(typedArr,attr.itemSize,attr.normalized)
+}
+
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
@@ -114,6 +156,24 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     const newSkeleton = createMergedSkeleton(meshes);
 
     meshes.forEach((mesh) => {
+
+            const baseIndArr =mesh.geometry.index.array
+            const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
+
+            const indArrange = []
+            for (let i =0 ; i < baseIndArr.length ;i++){
+                indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
+            }
+            const indexArr = new Uint32Array(indArrange);
+            const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+            mesh.geometry.setIndex(indexAttribute)
+            for (const att in mesh.geometry.attributes){
+                mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
+            }
+        
+        
+
         const geometry = mesh.geometry;
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
@@ -157,6 +217,26 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
     mesh.morphTargetDictionary = dest.morphTargetDictionary;
+
+
+//     //cleanup non used attribute
+//     const baseIndArr =mesh.geometry.index.array
+//     const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
+
+//     const indArrange = []
+//     for (let i =0 ; i < baseIndArr.length ;i++){
+//         indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
+//     }
+//     const indexArr = new Uint32Array(indArrange);
+//     const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+//     //console.log(mesh.geometry.attributes.normal)
+//     mesh.geometry.setIndex(indexAttribute)
+//     for (const att in mesh.geometry.attributes){
+//         mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
+//     }
+//    // console.log(mesh.geometry.attributes.normal)
+
     // Add unmerged meshes
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
@@ -510,5 +590,6 @@ export function mergeGeometry({ meshes }, isVrm0 = false) {
     //   destMorphTargetDictionary,
     // });
     dest.animations = {};
+
     return { source, dest };
 }

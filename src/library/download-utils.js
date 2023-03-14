@@ -7,6 +7,7 @@ import VRMExporterv0 from "./VRMExporterv0"
 
 
 function cloneAvatarModel (avatarToClone){
+  
     const clone = avatarToClone.clone()
     /*
       NOTE: After avatar clone, the origIndexBuffer/BufferAttribute in userData will lost many infos:
@@ -110,7 +111,6 @@ export async function downloadGLB(avatarToDownload,  optimized = true, fileName 
         saveString(output, `${downloadFileName}.gltf`)
       }
     })
-
 }
 
 function parseGLB (glbModel){
@@ -166,7 +166,6 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
   })
 }
 
-
 function save(blob, filename) {
   const link = document.createElement("a")
   link.style.display = "none"
@@ -185,10 +184,6 @@ function saveArrayBuffer(buffer, filename) {
 }
 function getArrayBuffer(buffer) {
   return new Blob([buffer], { type: "application/octet-stream" })
-}
-// removes non used vertices/uvs and normals
-function optimizeData(mergedModel){
-  console.log(mergedModel)
 }
 function getVRMBaseData(avatar) {
   // to do, merge data from all vrms, not to get only the first one
