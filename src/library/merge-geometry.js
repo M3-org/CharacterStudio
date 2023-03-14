@@ -139,10 +139,8 @@ function removeUnusedAttributes(mesh, attributeName,arrayMatch){
             newArr[ind+j] = attr.array[arrayMatch[i]*attr.itemSize+j] // yes [i]*3 and not [ind]*3
         }
     }
-
     const type = getTypedArrayType(attr.array);
     const typedArr = new type(newArr);
-    console.log(typedArr)
     return new BufferAttribute(typedArr,attr.itemSize,attr.normalized)
 }
 
@@ -157,22 +155,25 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
 
     meshes.forEach((mesh) => {
 
-            const baseIndArr =mesh.geometry.index.array
-            const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
+        console.log(mesh)
 
-            const indArrange = []
-            for (let i =0 ; i < baseIndArr.length ;i++){
-                indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
-            }
-            const indexArr = new Uint32Array(indArrange);
-            const indexAttribute = new BufferAttribute(indexArr,1,false); 
+        const baseIndArr =mesh.geometry.index.array
+        const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
 
-            mesh.geometry.setIndex(indexAttribute)
-            for (const att in mesh.geometry.attributes){
-                mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
-            }
+        const indArrange = []
+        for (let i =0 ; i < baseIndArr.length ;i++){
+            indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
+        }
+        const indexArr = new Uint32Array(indArrange);
+        const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+        mesh.geometry.setIndex(indexAttribute)
+        for (const att in mesh.geometry.attributes){
+            mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
+        }
         
-        
+        console.log(mesh)
+
 
         const geometry = mesh.geometry;
         if (!geometry.attributes.uv2) {
@@ -218,25 +219,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
     mesh.morphTargetDictionary = dest.morphTargetDictionary;
 
-
-//     //cleanup non used attribute
-//     const baseIndArr =mesh.geometry.index.array
-//     const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
-
-//     const indArrange = []
-//     for (let i =0 ; i < baseIndArr.length ;i++){
-//         indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
-//     }
-//     const indexArr = new Uint32Array(indArrange);
-//     const indexAttribute = new BufferAttribute(indexArr,1,false); 
-
-//     //console.log(mesh.geometry.attributes.normal)
-//     mesh.geometry.setIndex(indexAttribute)
-//     for (const att in mesh.geometry.attributes){
-//         mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
-//     }
-//    // console.log(mesh.geometry.attributes.normal)
-
     // Add unmerged meshes
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
@@ -245,7 +227,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
-
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
