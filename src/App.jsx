@@ -249,6 +249,17 @@ export default function App() {
     }
   }
 
+  const [confirmDialogWindow, setConfirmDialogWindow] = useState(false)
+  const [confirmDialogText, setConfirmDialogText] = useState("")
+  const [confirmDialogCallback, setConfirmDialogCallback] = useState([])
+
+  const confirmDialog = (msg, callback) => {
+    setConfirmDialogText(msg)
+    setConfirmDialogWindow(true)
+    setConfirmDialogCallback([callback])
+  }
+
+
   const fetchNewModel = (index) => {
     //setManifest(manifest)
     setAwaitDisplay(true)
@@ -274,12 +285,13 @@ export default function App() {
         lookatManager={lookatManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
+        confirmDialog={confirmDialog}
       />
     ),
     [ViewMode.BIO]: (
       <BioPage templateInfo={templateInfo} personality={personality} />
     ),
-    [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
+    [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel}/>,
     [ViewMode.LOAD]: <Load />,
     // [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
@@ -329,10 +341,13 @@ export default function App() {
     <Fragment>
       
       <div className="generalTitle">Character Studio</div>
-     
+
       <LanguageSwitch />
       <MessageWindow
-        message = {"text"}
+        confirmDialogText = {confirmDialogText}
+        confirmDialogCallback = {confirmDialogCallback}
+        confirmDialogWindow = {confirmDialogWindow}
+        setConfirmDialogWindow = {setConfirmDialogWindow}
       />
       <Background />
       

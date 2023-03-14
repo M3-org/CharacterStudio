@@ -28,7 +28,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
+export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -176,8 +176,6 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     loadOptions([option], false, false, false).then((loadedData)=>{
       URL.revokeObjectURL(url);
       if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
-        
-        console.log(loadedData[0].models[0]?.userData?.gltfExtensions)
         let newAvatar = {};
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -197,18 +195,22 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     })
   }
 
-  const uploadTrait = () =>{
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept=".vrm"
+  const uploadTrait = async() =>{
+    confirmDialog("Supports only VRM1 files", (val)=>{
+      if (val === true){
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept=".vrm"
 
-    input.onchange = e => { 
-      var file = e.target.files[0]; 
-      if (file.name.endsWith(".vrm")){
-        loadCustom(file)
+        input.onchange = e => { 
+          var file = e.target.files[0]; 
+          if (file.name.endsWith(".vrm")){
+            loadCustom(file)
+          }
+        }
+        input.click();
       }
-    }
-    input.click();
+    });
   }
   // user selects an option
   const selectTraitOption = (option) => {

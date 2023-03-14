@@ -12,6 +12,7 @@ function Appearance({
   lookatManager,
   effectManager,
   fetchNewModel,
+  confirmDialog
 }) {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
@@ -74,6 +75,7 @@ function Appearance({
         lookatManager={lookatManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
+        confirmDialog={confirmDialog}
       />
       <div className={styles.buttonContainer}>
         <CustomButton

@@ -13,8 +13,11 @@
   height:150px;
   margin: auto;
   display: flex;
-  background-color: black;
-  justify-content: center;
+  padding: 0 0 10px;
+  background: rgb(4, 17, 22);
+  -webkit-clip-path: polygon(0 0, 100% 0, 95% 100%, 4% 100%);
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 4% 100%);
+  justify-content: space-around;
   align-items:center;
   flex-direction: column;
 }
@@ -24,8 +27,10 @@
   font-weight: 800;
   text-transform: uppercase !important;
   line-height: 106%;
-  color: white;
+  color: #5eb086;
   height: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .buttonContainer{
@@ -33,4 +38,5 @@
   display: flex;
   height: 40px;
   justify-content: space-around;
+  user-select: none;
 }

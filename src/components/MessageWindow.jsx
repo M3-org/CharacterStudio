@@ -7,35 +7,52 @@ import { SoundContext } from "../context/SoundContext"
 
 export default function MessageWindow(props) {
     const {
-      message
+      cancelOption = true,
+      confirmDialogText,
+      confirmDialogWindow,
+      setConfirmDialogWindow,
+      confirmDialogCallback
+
     } = props
-
-    return (
-      <div className={styles.container}>
-        <div className={styles.messageWindow}>
-              
-            {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
-          
-            {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
     
-            <div className={styles.messageTitle}>Window Title</div>
-            <div className={styles.buttonContainer}>
-              <CustomButton
-                  size={16}
-                  theme="light"
-                  text="Cancel"
-                  onClick= {()=>{console.log("cancel")}}
-                />
-
+    return (
+      confirmDialogWindow?(
+        <div className={styles.container}>
+          <div className={styles.messageWindow}>
+                
+              {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
+            
+              {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
+      
+              <div className={styles.messageTitle}>{confirmDialogText}</div>
+              <div className={styles.buttonContainer}>
+                
+              {cancelOption &&
                 <CustomButton
-                  size={16}
-                  theme="light"
-                  text="Ok"
-                  onClick= {()=>{console.log("ok")}}
-                />          
+                    size={16}
+                    theme="light"
+                    text="Cancel"
+                    onClick= {()=>{
+                      confirmDialogCallback[0](false)
+                      setConfirmDialogWindow(false)
+                    }}
+                  />
+                }  
+                    <CustomButton
+                      size={16}
+                      theme="light"
+                      text="Continue"
+                      onClick= {()=>{
+                        confirmDialogCallback[0](true)
+                        setConfirmDialogWindow(false)
+                      }}
+                    /> 
+                        
+              </div>
             </div>
-          </div>
-      </div>
+        </div>)
+        :
+        <div></div>
     )
   }
   
