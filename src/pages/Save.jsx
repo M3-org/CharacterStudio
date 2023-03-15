@@ -5,20 +5,24 @@ import { ExportMenu } from "../components/ExportMenu"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
 
 function Save() {
-  const { setViewMode } = React.useContext(ViewContext)
+  const { setViewMode } = React.useContext(ViewContext);
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
 
   const back = () => {
     setViewMode(ViewMode.BIO)
+    !isMute && playSound('backNextButton');
   }
-
   const mint = () => {
     setViewMode(ViewMode.CHAT)
   }
-
   const next = () => {
     setViewMode(ViewMode.CHAT)
+    !isMute && playSound('backNextButton');
   }
 
   // Translate hook

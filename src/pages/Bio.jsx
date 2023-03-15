@@ -6,6 +6,9 @@ import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
 import { LanguageContext } from "../context/LanguageContext"
 
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
+
 export const getBio = (templateInfo, personality) => {
   const classType = templateInfo.name.toUpperCase();
 
@@ -90,14 +93,18 @@ function loadBioFromStorage(itemName){
 }
 
 function BioPage({ templateInfo, personality }) {
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext)
 
   const back = () => {
     setViewMode(ViewMode.APPEARANCE)
+    !isMute && playSound('backNextButton');
   }
 
   const next = () => {
     setViewMode(ViewMode.SAVE)
+    !isMute && playSound('backNextButton');
   }
 
   const [fullBio, setFullBio] = React.useState(

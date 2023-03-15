@@ -5,6 +5,8 @@ import { SceneContext } from "../context/SceneContext"
 import Editor from "../components/Editor"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
 
 function Appearance({
   animationManager,
@@ -21,17 +23,22 @@ function Appearance({
     setIsChangingWholeAvatar,
   } = React.useContext(SceneContext)
 
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
   const back = () => {
+    !isMute && playSound('backNextButton');
     resetAvatar()
     setViewMode(ViewMode.CREATE)
   }
 
   const next = () => {
+    !isMute && playSound('backNextButton');
     setViewMode(ViewMode.BIO)
   }
 
   const randomize = () => {
     if (!isChangingWholeAvatar) {
+      !isMute && playSound('randomizeButton');
       getRandomCharacter()
     }
   }

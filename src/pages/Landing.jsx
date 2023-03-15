@@ -2,15 +2,22 @@ import React from "react"
 import styles from "./Landing.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 
+import { SoundContext } from "../context/SoundContext"
+import { AudioContext } from "../context/AudioContext"
+
 function Landing() {
   const { setViewMode } = React.useContext(ViewContext)
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
 
   const createCharacter = () => {
     setViewMode(ViewMode.CREATE)
+    !isMute && playSound('backNextButton');
   }
 
   const loadCharacter = () => {
     setViewMode(ViewMode.LOAD)
+    !isMute && playSound('backNextButton');
   }
 
   return (
