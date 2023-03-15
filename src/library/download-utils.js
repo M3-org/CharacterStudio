@@ -186,9 +186,9 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     const processSpringBones = () => {
       headBone.children.forEach(hairTypeGroup => {
           // if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
-          if (hairTypeGroup.name !== 'Hair5_Root') return; // test: temp: only export Hair5/hair_option_1 springBones.
+          if (hairTypeGroup.name !== 'hair_buns_root') return; // test: temp: only export Hair5/hair_option_1 springBones.
           hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
-            rootSpringBones.push(rootSpringBone);
+            rootSpringBones.push(rootSpringBone.children[0]);
           });
       });
     }
