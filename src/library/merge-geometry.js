@@ -106,7 +106,7 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
 }
 
 // returns an ordered array with non duplicated indices
-function getCleanNonRepeatingIndexArray(mesh){
+function getOffsetIndexArray(mesh){
     const sortedArr = [...mesh.geometry.index.array];
     sortedArr.sort()
     return sortedArr.filter((item,index) => sortedArr.indexOf(item) === index);
@@ -130,18 +130,18 @@ function getTypedArrayType(someTypedArray) {
     return checked.length && checked[0] || null;
   }
 
-function removeUnusedAttributes(mesh, attributeName,arrayMatch){
-    const attr = mesh.geometry.getAttribute(attributeName)
+function removeUnusedAttributes(attribute,arrayMatch){
+    //const attr = mesh.geometry.getAttribute(attributeName)
     const newArr = []
     for (let i =0 ; i < arrayMatch.length ;i++){
-        const ind = i*attr.itemSize;
-        for (let j = 0;j < attr.itemSize;j++ ){
-            newArr[ind+j] = attr.array[arrayMatch[i]*attr.itemSize+j] // yes [i]*3 and not [ind]*3
+        const ind = i*attribute.itemSize;
+        for (let j = 0;j < attribute.itemSize;j++ ){
+            newArr[ind+j] = attribute.array[arrayMatch[i]*attribute.itemSize+j] // yes [i]*3 and not [ind]*3
         }
     }
-    const type = getTypedArrayType(attr.array);
+    const type = getTypedArrayType(attribute.array);
     const typedArr = new type(newArr);
-    return new BufferAttribute(typedArr,attr.itemSize,attr.normalized)
+    return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
@@ -155,27 +155,30 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
 
     meshes.forEach((mesh) => {
 
-        console.log(mesh)
+        const geometry = mesh.geometry;
 
-        const baseIndArr =mesh.geometry.index.array
-        const nonrepeating = getCleanNonRepeatingIndexArray(mesh);
+        const baseIndArr = geometry.index.array
+        const offsetIndexArr = getOffsetIndexArray(mesh);
 
         const indArrange = []
         for (let i =0 ; i < baseIndArr.length ;i++){
-            indArrange[i] = nonrepeating.indexOf(baseIndArr[i])
+            indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
         }
         const indexArr = new Uint32Array(indArrange);
         const indexAttribute = new BufferAttribute(indexArr,1,false); 
 
-        mesh.geometry.setIndex(indexAttribute)
-        for (const att in mesh.geometry.attributes){
-            mesh.geometry.setAttribute(att, removeUnusedAttributes(mesh, att,nonrepeating))
+        geometry.setIndex(indexAttribute)
+        for (const att in geometry.attributes){
+            geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
         }
         
-        console.log(mesh)
+        for (const att in geometry.morphAttributes){
+            const attribute = geometry.morphAttributes[att];
+            for (let i =0; i < attribute.length ;i++){
+                attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+            }
+        }
 
-
-        const geometry = mesh.geometry;
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
