@@ -185,11 +185,21 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     const rootSpringBones = [];
     const processSpringBones = () => {
       headBone.children.forEach(hairTypeGroup => {
-          // if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
-          if (hairTypeGroup.name !== 'hair_buns_root') return; // test: temp: only export Hair5/hair_option_1 springBones.
-          hairTypeGroup.children.forEach(rootSpringBone => { // todo: performance: only export the hairTypeGroup of current selected hair.
-            rootSpringBones.push(rootSpringBone.children[0]);
+        // debugger
+        // if (hairTypeGroup.name === 'leftEye' || hairTypeGroup.name === 'rightEye' || hairTypeGroup.name === 'Jaw') return;
+        // if (hairTypeGroup.name !== 'hair_buns_root') return; // test: temp: only export Hair5/hair_option_1 springBones.
+        if (!hairTypeGroup.name.startsWith('hair_')) return;
+        const nameParts = hairTypeGroup.name.split('_');
+        const hairId = nameParts[1];
+        if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
+          hairTypeGroup.children.forEach(strandRoot => {
+            // rootSpringBones.push(strandRoot);
+            // rootSpringBones.push(strandRoot.children[0]);
+            strandRoot.children.forEach(rootSpringBone => {
+              rootSpringBones.push(rootSpringBone);
+            })
           });
+        }
       });
     }
     processSpringBones();
