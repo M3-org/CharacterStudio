@@ -167,11 +167,13 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
         const indexArr = new Uint32Array(indArrange);
         const indexAttribute = new BufferAttribute(indexArr,1,false); 
 
+        // update attributes indices to match new offsetIndexArr
         geometry.setIndex(indexAttribute)
         for (const att in geometry.attributes){
             geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
         }
         
+        // update morph attributes indices to match new offsetIndexArr
         for (const att in geometry.morphAttributes){
             const attribute = geometry.morphAttributes[att];
             for (let i =0; i < attribute.length ;i++){
