@@ -193,11 +193,11 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
         const hairId = nameParts[1];
         if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
           hairTypeGroup.children.forEach(strandRoot => {
-            // rootSpringBones.push(strandRoot);
+            rootSpringBones.push(strandRoot);
             // rootSpringBones.push(strandRoot.children[0]);
-            strandRoot.children.forEach(rootSpringBone => {
-              rootSpringBones.push(rootSpringBone);
-            })
+            // strandRoot.children.forEach(rootSpringBone => {
+            //   rootSpringBones.push(rootSpringBone);
+            // })
           });
         }
       });
