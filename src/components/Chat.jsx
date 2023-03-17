@@ -230,6 +230,8 @@ Response 2: "${fullBio.response2}"
 Question 3: "${fullBio.question3}"
 Response 3: "${fullBio.response3}"
 
+Favourite Color: "${fullBio.colorKey}"
+
 MOST RECENT MESSAGES:
 
 ${promptMessages.join("\n")}
