@@ -31,6 +31,31 @@ const defaultSpeaker = "Speaker"
 const SpeechRecognition =
   window.webkitSpeechRecognition || sepiaSpeechRecognitionInit(config)
 
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+]
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+]
+
 export default function ChatBox({
   templateInfo,
   micEnabled,
@@ -176,6 +201,10 @@ export default function ChatBox({
         
         try {
           // const url = encodeURI(`http://216.153.52.197:8001/spells/${spell_handler}`)
+          const date = new Date();
+
+          const currentDay = `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${1900 + date.getYear()}`
+          const currentTime = `${date.getHours()}:${date.getMinutes()} `
 
           const endpoint = "https://upstreet.webaverse.com/api/ai"
           
@@ -184,6 +213,8 @@ export default function ChatBox({
 `The following is part of a conversation between ${speaker} and ${agent}. ${agent} is descriptive and helpful, and is honest when it doesn't know an answer. Included is a context which acts a short-term memory, used to guide the conversation and track topics.
 
 CONTEXT:
+Current Day: ${currentDay}
+Current Time: ${currentTime}
 
 Info about ${agent}
 ---
@@ -258,7 +289,6 @@ ${agent}:`
             console.error(err)
           })
         } catch (error) {
-          console.log("here2")
           // maybe set a message, "unable to send message"
           //const output = errorResponses.silent[0]
           //setMessages((messages) => [...messages, agent + ": " + output])
