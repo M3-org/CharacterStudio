@@ -37,7 +37,6 @@ export async function loadModel(file, onProgress) {
     return new VRMLoaderPlugin(parser)
   })
   return gltfLoader.loadAsync(file, onProgress).then((model) => {
-    // debugger
     const vrm = model.userData.vrm
     renameVRMBones(vrm)
 

@@ -417,53 +417,7 @@ export default class VRMExporterv0 {
 
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
-        // const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
-        // const outputSecondaryAnimation = {
-        //     "boneGroups": [
-        //         {
-        //         "bones": [ 45, 49, 51, 53, 55, 57, 60, 62, 64, 67, 70, 72, 74, 76, 78, 81, 83, 85, 88, 90, 92, 94, 97, 99 ],
-        //         "center": -1,
-        //         "colliderGroups": [ 0, 1, 2 ],
-        //         "dragForce": 0.452,
-        //         "gravityDir": { "x": 0, "y": 0, "z": 0 },
-        //         "gravityPower": 0,
-        //         "hitRadius": 0.02,
-        //         "stiffiness": 1
-        //         },
-        //         {
-        //         "bones": [ 21 ],
-        //         "center": -1,
-        //         "colliderGroups": [],
-        //         "dragForce": 1,
-        //         "gravityDir": { "x": 0, "y": -1, "z": 0 },
-        //         "gravityPower": 0,
-        //         "hitRadius": 0.02,
-        //         "stiffiness": 3.32
-        //         }
-        //     ],
-        //     "colliderGroups": [
-        //         {
-        //         "colliders": [
-        //             { "offset": { "x": -0.06999998, "y": -0.0544500351, "z": 0.00253520347 }, "radius": 0.05 }
-        //         ],
-        //         "node": 24
-        //         },
-        //         {
-        //         "colliders": [
-        //             { "offset": { "x": -1.13197887e-8, "y": 0.0599999428, "z": 0.0395975038 }, "radius": 0.04 }
-        //         ],
-        //         "node": 44
-        //         },
-        //         {
-        //         "colliders": [
-        //             { "offset": { "x": 0.07000001, "y": -0.0544500351, "z": 0.002535183 }, "radius": 0.05 }
-        //         ],
-        //         "node": 101
-        //         }
-        //     ]
-        // };
 
-        // debugger
         const rootSpringBonesIndexes = [];
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
@@ -474,11 +428,6 @@ export default class VRMExporterv0 {
                 }
             }
         })
-        // nodes.forEach((node, i) => {
-        //     if(node.name === 'L_Hair5_Bang' || node.name === 'R_Hair5_Bang' || node.name === 'Hair5_Front_Bang') {
-        //         rootSpringBonesIndexes.push(i);
-        //     }
-        // });
 
         const colliderGroups = [];
         const colliderGroupsIndexes = [];
