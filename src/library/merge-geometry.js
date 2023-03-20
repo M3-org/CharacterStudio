@@ -42,17 +42,37 @@ function createMergedSkeleton(meshes){
     let index = 0;
     meshes.forEach(mesh => {
         if (mesh.skeleton){
+            const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
+            const boneArr = []
+            nonduparr.forEach(index => {
+                boneArr.push(mesh.skeleton.bones[index]);
+            });
+
+            /* boneArr includes the bones that have weights only, now we should include also 
+            the parent of this bones even if they dont include bone weights */ 
+            for (let i =0; i < boneArr.length;i++){
+                const bn = boneArr[i];
+                if (bn.parent != null){
+                    if (boneArr.indexOf(bn.parent) === -1 && mesh.skeleton.bones.indexOf(bn.parent) !== -1){
+                        boneArr.push(bn.parent)
+                    }
+                }
+            }
+
             mesh.skeleton.bones.forEach((bone, boneInd) => {
-                const clone = boneClones.get(bone.name)
-                if (clone == null){ // no clone was found with the bone
-                    const boneData = {
-                        index,
-                        boneInverses:mesh.skeleton.boneInverses[boneInd],
-                        bone:bone.clone(false),
-                        parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
-                    }   
-                    index++
-                    boneClones.set(bone.name, boneData);
+                // only bones that are included in the previous array (used bones)
+                if (boneArr.indexOf(bone)!==-1){
+                    const clone = boneClones.get(bone.name)
+                    if (clone == null){ // no clone was found with the bone
+                        const boneData = {
+                            index,
+                            boneInverses:mesh.skeleton.boneInverses[boneInd],
+                            bone:bone.clone(false),
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
+                        }   
+                        index++
+                        boneClones.set(bone.name, boneData);
+                    }
                 }        
             })
         }
@@ -61,10 +81,6 @@ function createMergedSkeleton(meshes){
     const finalBones = [];
     const finalBoneInverses = [];
     let boneClonesArr =[ ...boneClones.values() ];
-    // console.log(boneClonesArr[0])
-    // console.log(boneClonesArr[1])
-    //boneClonesArr[0].boneInverses.makeScale(-1,1,1)
-    // boneClonesArr[1].bone.rotateY ( 3.14159 )
     boneClonesArr.forEach(bnClone => {
         finalBones.push(bnClone.bone)
         finalBoneInverses.push(bnClone.boneInverses)
@@ -228,12 +244,15 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
+
+
     mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
-    // console.log(newSkeleton)
-    // console.log(mesh.geometry.attributes.skinIndex.array)
+    //console.log(newSkeleton)
+    //console.log(mesh.geometry.attributes.skinIndex.array)
+
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
