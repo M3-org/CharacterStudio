@@ -106,8 +106,8 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
 }
 
 // returns an ordered array with non duplicated indices
-function getOffsetIndexArray(mesh){
-    const sortedArr = [...mesh.geometry.index.array];
+function getOrderedNonDupArray(arr){
+    const sortedArr = [...arr];
     sortedArr.sort()
     return sortedArr.filter((item,index) => sortedArr.indexOf(item) === index);
 }
@@ -158,7 +158,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
         const geometry = mesh.geometry;
 
         const baseIndArr = geometry.index.array
-        const offsetIndexArr = getOffsetIndexArray(mesh);
+        const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
 
         const indArrange = []
         for (let i =0 ; i < baseIndArr.length ;i++){
@@ -232,6 +232,8 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
+    // console.log(newSkeleton)
+    // console.log(mesh.geometry.attributes.skinIndex.array)
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
