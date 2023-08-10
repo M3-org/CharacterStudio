@@ -178,16 +178,16 @@ export class EffectManager extends EventTarget{
       }
       //################################################## switch item ###############################################################
       else if (transitionEffectType < 1.5) { 
-        vec3 pixelColor = getPixelColor(2.0);
+        // vec3 pixelColor = getPixelColor(2.0);
 
-        float timeProgress = switchItemTime / switchItemDuration;
-        float rim = getRim(
-          vSurfaceNormal, 
-          mix(0.1, mix(0.1, 5.0, timeProgress), timeProgress), 
-          mix(50., 10., timeProgress)
-        );
+        // float timeProgress = switchItemTime / switchItemDuration;
+        // float rim = getRim(
+        //   vSurfaceNormal, 
+        //   mix(0.1, mix(0.1, 5.0, timeProgress), timeProgress), 
+        //   mix(50., 10., timeProgress)
+        // );
         
-        col = mix(pixelColor * rim, col, timeProgress);
+        // col = mix(pixelColor * rim, col, timeProgress);
       }
       //################################################## fade out avatar ###############################################################
       else if (transitionEffectType < 2.5) { 
@@ -285,9 +285,9 @@ export class EffectManager extends EventTarget{
 
   playFadeOutEffect() {
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.fadeOutAvatar;
+    this.particleEffect.emitSpotLight();
     this.particleEffect.emitPixel();
     this.particleEffect.emitTeleport();
-    this.particleEffect.emitSpotLight();
     this.transitionTime = this.frameRate * ((FADE_OUT_AVATAR_DURATION - FADE_OUT_AVATAR_INITIAL_TIME) / FADE_OUT_AVATAR_SPEED);
     this.initialFadeOutTimer();
   }
@@ -300,8 +300,8 @@ export class EffectManager extends EventTarget{
   playSwitchItemEffect() {
     globalUniforms.switchItemTime.value = SWITCH_ITEM_EFFECT_INITIAL_TIME;
     globalUniforms.transitionEffectType.value = transitionEffectTypeNumber.switchItem;
-    this.particleEffect.emitPixel();
-    this.particleEffect.emitBeam();
+    // this.particleEffect.emitPixel();
+    // this.particleEffect.emitBeam();
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
   }
 

@@ -1,53 +1,64 @@
-import classnames from 'classnames';
-import React, { useEffect, useRef } from 'react';
-import styles from './CustomButton.module.css';
-import { IconCollection } from './IconCollection';
+import classnames from "classnames"
+import React, { useEffect, useRef } from "react"
+import styles from "./CustomButton.module.css"
+import { IconCollection } from "./IconCollection"
 
 async function getSVG(iconName) {
-  const icon = IconCollection.find(item => item.name === iconName);
+  const icon = IconCollection.find((item) => item.name === iconName)
   return await fetch(icon.file)
-    .then(res => res.text())
-    .then(res => {
-      const parser = new DOMParser();
-      const svgDom = parser.parseFromString(res, 'image/svg+xml');
-      return svgDom.firstElementChild;
-    });
+    .then((res) => res.text())
+    .then((res) => {
+      const parser = new DOMParser()
+      const svgDom = parser.parseFromString(res, "image/svg+xml")
+      return svgDom.firstElementChild
+    })
 }
 
 export default function CustomButton(props) {
-  const {size, icon, className, onClick, theme, type, text, onMouseEnter, active, onSubmit} =
-    props;
-  const svgRef = useRef(null);
+  const {
+    size,
+    icon,
+    className,
+    onClick,
+    theme,
+    type,
+    text,
+    onMouseEnter,
+    active,
+    onSubmit,
+    disabled
+  } = props
+  const svgRef = useRef(null)
 
   useEffect(() => {
     if (icon) {
-      getSVG(icon).then(res => {
+      getSVG(icon).then((res) => {
         if (svgRef.current) {
-          svgRef.current.innerHTML = '';
+          svgRef.current.innerHTML = ""
           if (res) {
-            res.classList.add(styles.icon);
-            svgRef.current.append(res);
+            res.classList.add(styles.icon)
+            svgRef.current.append(res)
           }
         }
-      });
+      })
     }
-  }, [icon]);
+  }, [icon])
 
-  if (type && type === 'login') {
+  if (type && type === "login") {
     return (
       <div
         className={classnames(
           className,
           styles.iconButtonWrap,
-          theme && theme === 'dark' ? styles.dark : styles.light,
-          active && styles.active
+          theme && theme === "dark" ? styles.dark : styles.light,
+          active && styles.active,
         )}
-        style={{height: size}}
+        style={{ height: size }}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
       >
         <svg
-          width="71" 
+          width="71"
           height="67"
           viewBox="0 0 71 67"
           className={styles.buttonBackground}
@@ -68,17 +79,17 @@ export default function CustomButton(props) {
         </svg>
         <span ref={svgRef} className={styles.iconWrap}></span>
       </div>
-    );
-  } else if (type && type === 'icon') {
+    )
+  } else if (type && type === "icon") {
     return (
       <div
         className={classnames(
           className,
           styles.iconButtonWrap,
-          theme && theme === 'dark' ? styles.dark : styles.light,
-          active && styles.active
+          theme && theme === "dark" ? styles.dark : styles.light,
+          active && styles.active,
         )}
-        style={{height: size}}
+        style={{ height: size }}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
       >
@@ -105,31 +116,34 @@ export default function CustomButton(props) {
         </svg>
         <span ref={svgRef} className={styles.iconWrap}></span>
       </div>
-    );
+    )
   } else {
     return (
       <button
         className={classnames(
           className,
           styles.buttonWrap,
-          theme && theme === 'dark' ? styles.dark : styles.light,
+          theme && theme === "dark" ? styles.dark : styles.light,
         )}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onSubmit={onSubmit}
         type={type}
       >
-        <div className={styles.innerWrap} style={{fontSize: size}}>
+        <div
+          className={styles.innerWrap}
+          style={{ fontSize: size }}
+        >
           {icon && (
             <span
               ref={svgRef}
               className={styles.buttonIconWrap}
-              style={{height: size, width: size}}
+              style={{ height: size, width: size }}
             ></span>
           )}
           {text && text}
         </div>
       </button>
-    );
+    )
   }
 }

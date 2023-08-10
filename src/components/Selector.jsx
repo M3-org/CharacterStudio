@@ -21,6 +21,7 @@ import { cullHiddenMeshes } from "../library/utils"
 
 import styles from "./Selector.module.css"
 import { TokenBox } from "./token-box/TokenBox"
+import { LanguageContext } from "../context/LanguageContext"
 
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -47,6 +48,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   } = useContext(SoundContext)
   const { isMute } = useContext(AudioContext)
   const {isLoading, setIsLoading} = useContext(ViewContext)
+
+  // Translate hook
+  const { t } = useContext(LanguageContext)
 
   const [selectValue, setSelectValue] = useState("0")
   const [, setLoadPercentage] = useState(1)
@@ -137,6 +141,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         if (Object.keys(finalAvatar).length > 0) {
           cullHiddenMeshes(finalAvatar)
         }
+        !isMute && playSound('characterLoad',300);
       }, effectManager.transitionTime);
       setAvatar(finalAvatar)
     })
@@ -534,7 +539,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // play transition effect
         if (effectManager.getTransitionEffect('switch_item')) {
           effectManager.playSwitchItemEffect();
-          !isMute && playSound('switchItem');
+          // !isMute && playSound('switchItem');
         }
         else {
           effectManager.playFadeInEffect();
@@ -572,6 +577,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
 
   function ClearTraitButton() {
     // clear the current trait
+    const isSelected = currentTrait.get(currentTraitName) ? true : false;
     return removeOption ? (
       <div
         key={"no-trait"}
@@ -591,19 +597,19 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           resolution={2048}
           numFrames={128}
           id="head"
-          active={!currentTraitName ? true : false}
           icon={cancel}
-          rarity={"none"}
+          rarity={!isSelected ? "mythic" : "none"}
         />
       </div>
     ) : (
       <></>
     )
   }
+  
   return (
     !!currentTraitName && (
       <div className={styles["SelectorContainerPos"]}>
-        <TraitTitle title={currentTraitName} />
+        <TraitTitle title={t(`editor.${currentTraitName}`)} />
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
@@ -634,8 +640,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
                     resolution={2048}
                     numFrames={128}
                     icon={option.icon}
-                    rarity={"none"}
-                    active={active ? true : false}
+                    rarity={active ? "mythic" : "none"}
                     style={
                       option.iconHSL
                         ? {
