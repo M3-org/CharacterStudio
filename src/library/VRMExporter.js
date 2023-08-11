@@ -62,7 +62,7 @@ const SPRINGBONE_COLLIDER_NAME = "vrmColliderSphere";
 // const GLTF_VERSION = 2;
 // const HEADER_SIZE = 12;
 export default class VRMExporter {
-    parse(vrm, avatar, onDone) {
+    parse(vrm, avatar, screenshot, onDone) {
         const humanoid = vrm.humanoid;
         const vrmMeta = vrm.meta;
         const materials = vrm.materials;

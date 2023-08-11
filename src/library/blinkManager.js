@@ -1,6 +1,7 @@
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 import { Clock } from "three";
 
+const SCREENSHOT_EYES_OPEN_THRESHOLD = 2;
 
 export class BlinkManager {
   constructor(closeTime = 0.5, openTime = 0.5, continuity = 1, randomness = 5) {
@@ -17,6 +18,8 @@ export class BlinkManager {
     this._eyeOpen = 1
     this._blinkCounter = 0;
 
+    this.isTakingScreenShot = false;
+
     this.update()
   }
 
@@ -24,8 +27,21 @@ export class BlinkManager {
     this.vrmBlinkers.push(vrm)
   }
 
+  enableScreenshot() {
+    this.isTakingScreenShot = true;
+    this._eyeOpen = SCREENSHOT_EYES_OPEN_THRESHOLD;
+    this._updateBlinkers();
+  }
+
+  disableScreenshot() {
+    this.isTakingScreenShot = false;
+  }
+
   update(){
     setInterval(() => {
+      if (this.isTakingScreenShot) {
+        return;
+      }
       const deltaTime = this.clock.getDelta()
       switch (this.mode){
         
@@ -33,7 +49,7 @@ export class BlinkManager {
           if ( this._eyeOpen > 0)
             this._eyeOpen -= deltaTime / this.closeTime;
           else{
-            this._eyeOpen =0
+            this._eyeOpen = 0
             this.mode = 'open'
           }
           this._updateBlinkers();
@@ -42,7 +58,7 @@ export class BlinkManager {
           if ( this._eyeOpen < 1)
             this._eyeOpen += deltaTime / this.openTime;
           else{
-            this._eyeOpen =1
+            this._eyeOpen = 1
             this.mode = 'ready'
           }
           this._updateBlinkers();

@@ -10,7 +10,7 @@ import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"
 
-export const ExportMenu = () => {
+export const ExportMenu = ({getFaceScreenshot}) => {
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
@@ -45,7 +45,8 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadVRM(model, avatar, name, 4096, true)
+          const screenshot = getFaceScreenshot();
+          downloadVRM(model, avatar, name, screenshot, 4096, true)
         }}
       />
     </React.Fragment>

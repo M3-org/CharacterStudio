@@ -99,6 +99,11 @@ web_modules/
 
 # Optional eslint cache
 .eslintcache
+<<<<<<< HEAD
+lerna-debug.log
+.vscode
+=======
+<<<<<<< HEAD
 
 # Microbundle cache
 .rpt2_cache/
@@ -274,3 +279,8 @@ fabric.properties
 # Documentation here: https://yarnpkg.com/features/zero-installs
 #!/.yarn/cache
 /.pnp.*
+=======
+lerna-debug.log
+.vscode
+>>>>>>> 994de2e (adjust mint page to match figma mockups)
+>>>>>>> d966492f20f4b3cee4c2907137944cdd50c0f15e

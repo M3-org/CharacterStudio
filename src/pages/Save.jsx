@@ -8,22 +8,29 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Save() {
-  const { setViewMode } = React.useContext(ViewContext);
+
+function Save({getFaceScreenshot}) {
+
+  // Translate hook
+  const { t } = useContext(LanguageContext);
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+  const { setViewMode } = React.useContext(ViewContext);
+
 
   const back = () => {
     setViewMode(ViewMode.BIO)
     !isMute && playSound('backNextButton');
   }
+  const mint = () => {
+    setViewMode(ViewMode.MINT)
+    !isMute && playSound('backNextButton');
+  }
+
   const next = () => {
     setViewMode(ViewMode.CHAT)
     !isMute && playSound('backNextButton');
   }
-
-  // Translate hook
-  const { t } = useContext(LanguageContext);
 
   return (
     <div className={styles.container}>
@@ -36,7 +43,18 @@ function Save() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <ExportMenu />
+
+        <ExportMenu 
+          getFaceScreenshot = {getFaceScreenshot}
+        />
+        
+        <CustomButton
+            theme="light"
+            text="mint"//{t('callToAction.mint')}
+            size={14}
+            className={styles.buttonRight}
+            onClick={mint}
+        />
         <CustomButton
           theme="light"
           text={t('callToAction.chat')}
