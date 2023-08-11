@@ -70,26 +70,50 @@ function getOptimizedGLB(avatarToDownload, atlasSize, isVrm0 = false){
 }
 
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true){
-  const model = await optimized ? 
-    getOptimizedGLB(avatarToDownload, atlasSize) :
-    getUnopotimizedGLB(avatarToDownload)
+  const model = await (optimized ? 
+     getOptimizedGLB(avatarToDownload, atlasSize) :
+     getUnopotimizedGLB(avatarToDownload))
   const glb = await parseGLB(model);
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 
-export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
+export async function getVRMBlobData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, isVrm0 = false){
   const model = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0)
-  const vrm = await parseVRM(model, avatar, isVrm0);
+  const vrm = await parseVRM(model, avatar, screenshot, isVrm0);
   // save it as glb now
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
 
+<<<<<<< HEAD
 export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096, isVrm0 = false){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
   const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
   parseVRM(vrmModel,avatar, isVrm0) .then((vrm)=>{
+=======
+// returns a promise with the parsed data
+async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true){
+  if (optimized){
+    const model = await getOptimizedGLB(avatarToDownload, atlasSize)
+    return parseGLB(model); 
+  }
+  else{
+    const model = getUnopotimizedGLB(avatarToDownload)
+    return parseGLB(model);
+  }
+} 
+async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, isVrm0 = false){
+
+  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
+  return parseVRM(vrmModel,avatar,screenshot, isVrm0) 
+}
+
+export async function downloadVRM(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, isVrm0 = false){
+  const downloadFileName = `${
+    fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
+  }`
+  getVRMData(avatarToDownload, avatar, screenshot, atlasSize, isVrm0).then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
@@ -136,7 +160,7 @@ function parseGLB (glbModel){
   })
 }
 
-function parseVRM (glbModel, avatar, isVrm0 = false){
+function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
@@ -148,7 +172,6 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
     })
-
     const reverseBonesXZ = () => {
       skinnedMesh.skeleton.bones.forEach(bone => {
         if (bone.name !== 'root') {

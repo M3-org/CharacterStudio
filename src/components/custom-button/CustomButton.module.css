@@ -33,6 +33,7 @@
     z-index: 1;
     height: 100%;
     width: 100%;
+   
 }
 
 .iconButtonWrap .icon {
@@ -133,6 +134,9 @@
     text-transform: uppercase !important;
     line-height: 106%;
 }
+.buttonWrap:disabled .innerWrap{
+    color: #7e7e7e;
+}
 
 .buttonWrap.dark .innerWrap {
     border: 1px solid #FFFFFF;
@@ -143,24 +147,24 @@
     padding: 8px 14px 6px 14px !important;
 }
 
-.buttonWrap:hover .innerWrap {
+.buttonWrap:hover:enabled .innerWrap {
     border: 1px solid #FFC000;
     font-family: "TTSC-Bold";
     background: #FFC000;
     color: #EFEFEF;
 }
 
-.buttonWrap:hover .innerWrap * {
+.buttonWrap:hover:enabled .innerWrap * {
     fill: #EFEFEF !important;
 }
 
-.buttonWrap:active .innerWrap {
+.buttonWrap:active:enabled .innerWrap {
     border: 1px solid #FFC000;
     font-family: "TTSC-Bold";
     background: #000000;
     color: #FFC000;
 }
 
-.buttonWrap:active .innerWrap * {
+.buttonWrap:active:enabled .innerWrap * {
     fill: #FFC000 !important;
 }

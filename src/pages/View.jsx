@@ -24,6 +24,9 @@ function View({templateInfo}) {
       speechRecognition.stop()
     setMicEnabled(false)
   }
+  // const next = () =>{
+  //   setViewMode(ViewMode.MINT)
+  // }
 
   // Translate hook
   const { t } = useContext(LanguageContext);
