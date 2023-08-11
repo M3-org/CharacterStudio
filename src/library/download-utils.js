@@ -7,6 +7,7 @@ import VRMExporterv0 from "./VRMExporterv0"
 
 
 function cloneAvatarModel (avatarToClone){
+  
     const clone = avatarToClone.clone()
     /*
       NOTE: After avatar clone, the origIndexBuffer/BufferAttribute in userData will lost many infos:
@@ -83,28 +84,12 @@ export async function getVRMBlobData(avatarToDownload, avatar, atlasSize  = 4096
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
 
-// returns a promise with the parsed data
-async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true){
-  if (optimized){
-    const model = await getOptimizedGLB(avatarToDownload, atlasSize)
-    return parseGLB(model); 
-  }
-  else{
-    const model = getUnopotimizedGLB(avatarToDownload)
-    return parseGLB(model);
-  }
-} 
-async function getVRMData(avatarToDownload, avatar, atlasSize  = 4096, isVrm0 = false){
-
-  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
-  return parseVRM(vrmModel,avatar, isVrm0) 
-}
-
 export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096, isVrm0 = false){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
-  getVRMData(avatarToDownload, avatar, atlasSize, isVrm0).then((vrm)=>{
+  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
+  parseVRM(vrmModel,avatar, isVrm0) .then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
@@ -113,9 +98,11 @@ export async function downloadGLB(avatarToDownload,  optimized = true, fileName 
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
 
-  //const data =await getGLBData(avatarToDownload,atlasSize, optimized);
-  //console.log('data',data)
-  getGLBData(avatarToDownload,atlasSize, optimized)
+  const model = optimized ?
+    await getOptimizedGLB(avatarToDownload, atlasSize):
+    getUnopotimizedGLB(avatarToDownload)
+
+  parseGLB(model)
     .then((result) => {
       if (result instanceof ArrayBuffer) {
         saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -124,7 +111,6 @@ export async function downloadGLB(avatarToDownload,  optimized = true, fileName 
         saveString(output, `${downloadFileName}.gltf`)
       }
     })
-
 }
 
 function parseGLB (glbModel){
@@ -180,7 +166,6 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
   })
 }
 
-
 function save(blob, filename) {
   const link = document.createElement("a")
   link.style.display = "none"
@@ -200,7 +185,6 @@ function saveArrayBuffer(buffer, filename) {
 function getArrayBuffer(buffer) {
   return new Blob([buffer], { type: "application/octet-stream" })
 }
-
 function getVRMBaseData(avatar) {
   // to do, merge data from all vrms, not to get only the first one
   for (const prop in avatar) {

@@ -3,6 +3,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 // import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
 import { findChildrenByType } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
+import { BufferAttribute } from "three";
 
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
@@ -41,17 +42,37 @@ function createMergedSkeleton(meshes){
     let index = 0;
     meshes.forEach(mesh => {
         if (mesh.skeleton){
+            const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
+            const boneArr = []
+            nonduparr.forEach(index => {
+                boneArr.push(mesh.skeleton.bones[index]);
+            });
+
+            /* boneArr includes the bones that have weights only, now we should include also 
+            the parent of this bones even if they dont include bone weights */ 
+            for (let i =0; i < boneArr.length;i++){
+                const bn = boneArr[i];
+                if (bn.parent != null){
+                    if (boneArr.indexOf(bn.parent) === -1 && mesh.skeleton.bones.indexOf(bn.parent) !== -1){
+                        boneArr.push(bn.parent)
+                    }
+                }
+            }
+
             mesh.skeleton.bones.forEach((bone, boneInd) => {
-                const clone = boneClones.get(bone.name)
-                if (clone == null){ // no clone was found with the bone
-                    const boneData = {
-                        index,
-                        boneInverses:mesh.skeleton.boneInverses[boneInd],
-                        bone:bone.clone(false),
-                        parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
-                    }   
-                    index++
-                    boneClones.set(bone.name, boneData);
+                // only bones that are included in the previous array (used bones)
+                if (boneArr.indexOf(bone)!==-1){
+                    const clone = boneClones.get(bone.name)
+                    if (clone == null){ // no clone was found with the bone
+                        const boneData = {
+                            index,
+                            boneInverses:mesh.skeleton.boneInverses[boneInd],
+                            bone:bone.clone(false),
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
+                        }   
+                        index++
+                        boneClones.set(bone.name, boneData);
+                    }
                 }        
             })
         }
@@ -60,10 +81,6 @@ function createMergedSkeleton(meshes){
     const finalBones = [];
     const finalBoneInverses = [];
     let boneClonesArr =[ ...boneClones.values() ];
-    // console.log(boneClonesArr[0])
-    // console.log(boneClonesArr[1])
-    //boneClonesArr[0].boneInverses.makeScale(-1,1,1)
-    // boneClonesArr[1].bone.rotateY ( 3.14159 )
     boneClonesArr.forEach(bnClone => {
         finalBones.push(bnClone.bone)
         finalBoneInverses.push(bnClone.boneInverses)
@@ -104,6 +121,45 @@ function getUpdatedSkinIndex(newSkeleton, mesh){
     }
 }
 
+// returns an ordered array with non duplicated indices
+function getOrderedNonDupArray(arr){
+    const sortedArr = [...arr];
+    sortedArr.sort()
+    return sortedArr.filter((item,index) => sortedArr.indexOf(item) === index);
+}
+
+function getTypedArrayType(someTypedArray) {
+    const typedArrayTypes = [
+      Int8Array,
+      Uint8Array,
+      Uint8ClampedArray,
+      Int16Array,
+      Uint16Array,
+      Int32Array,
+      Uint32Array,
+      Float32Array,
+      Float64Array,
+      BigInt64Array,
+      BigUint64Array
+    ];
+    const checked = typedArrayTypes.filter(ta => someTypedArray.constructor === ta);
+    return checked.length && checked[0] || null;
+  }
+
+function removeUnusedAttributes(attribute,arrayMatch){
+    //const attr = mesh.geometry.getAttribute(attributeName)
+    const newArr = []
+    for (let i =0 ; i < arrayMatch.length ;i++){
+        const ind = i*attribute.itemSize;
+        for (let j = 0;j < attribute.itemSize;j++ ){
+            newArr[ind+j] = attribute.array[arrayMatch[i]*attribute.itemSize+j] // yes [i]*3 and not [ind]*3
+        }
+    }
+    const type = getTypedArrayType(attribute.array);
+    const typedArr = new type(newArr);
+    return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
+}
+
 export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
@@ -114,7 +170,33 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     const newSkeleton = createMergedSkeleton(meshes);
 
     meshes.forEach((mesh) => {
+
         const geometry = mesh.geometry;
+
+        const baseIndArr = geometry.index.array
+        const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
+
+        const indArrange = []
+        for (let i =0 ; i < baseIndArr.length ;i++){
+            indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
+        }
+        const indexArr = new Uint32Array(indArrange);
+        const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+        // update attributes indices to match new offsetIndexArr
+        geometry.setIndex(indexAttribute)
+        for (const att in geometry.attributes){
+            geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
+        }
+        
+        // update morph attributes indices to match new offsetIndexArr
+        for (const att in geometry.morphAttributes){
+            const attribute = geometry.morphAttributes[att];
+            for (let i =0; i < attribute.length ;i++){
+                attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+            }
+        }
+
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
@@ -157,14 +239,19 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
     mesh.morphTargetDictionary = dest.morphTargetDictionary;
+
     // Add unmerged meshes
     // const clones = meshesToExclude.map((o) => {
     //   return o.clone(false);
     // });
+
+
     mesh.bind(newSkeleton);
     // clones.forEach((clone) => {
     //   clone.bind(skeleton);
     // });
+    //console.log(newSkeleton)
+    //console.log(mesh.geometry.attributes.skinIndex.array)
 
 
     const group = new THREE.Object3D();
@@ -510,5 +597,6 @@ export function mergeGeometry({ meshes }, isVrm0 = false) {
     //   destMorphTargetDictionary,
     // });
     dest.animations = {};
+
     return { source, dest };
 }
