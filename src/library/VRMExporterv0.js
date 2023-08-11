@@ -97,7 +97,7 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, onDone) {
+    parse(vrm, avatar, rootSpringBones, colliderBones, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -417,7 +417,48 @@ export default class VRMExporterv0 {
 
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
-        //const outputSecondaryAnimation = toOutputSecondaryAnimation(springBone, nodeNames);
+
+        const rootSpringBonesIndexes = [];
+        rootSpringBones.forEach(rootSpringBone => {
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.name === rootSpringBone.name) {
+                    rootSpringBonesIndexes.push(i);
+                    break;
+                }
+            }
+        })
+
+        const colliderGroups = [];
+        const colliderGroupsIndexes = [];
+        colliderBones.forEach((colliderBone, i) => {
+            const nodeIndex = nodes.indexOf(colliderBone);
+            const colliderGroup = {
+                "colliders": [
+                    { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
+                ],
+                "node": nodeIndex
+            }
+            colliderGroups.push(colliderGroup);
+            colliderGroupsIndexes.push(i);
+        })
+
+        const outputSecondaryAnimation = {
+            "boneGroups": [
+                {
+                "bones": rootSpringBonesIndexes,
+                "center": -1,
+                "colliderGroups": colliderGroupsIndexes,
+                "dragForce": 0.452,
+                "gravityDir": { "x": 0, "y": 0, "z": 0 },
+                "gravityPower": 0,
+                "hitRadius": 0.01,
+                "stiffiness": 1
+                }
+            ],
+            "colliderGroups": colliderGroups,
+        };
+        
         const bufferViews = [];
         bufferViews.push(...images.map((image) => ({
             buffer: imageBitmap2png(image.imageBitmap),
@@ -479,7 +520,7 @@ export default class VRMExporterv0 {
                     materialProperties,
                     humanoid: vrmHumanoid,
                     meta: outputVrmMeta,
-                    //secondaryAnimation: outputSecondaryAnimation,
+                    secondaryAnimation: outputSecondaryAnimation,
                     specVersion: "0.0"
                 },
             },

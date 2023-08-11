@@ -143,24 +143,53 @@ function parseVRM (glbModel, avatar, isVrm0 = false){
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
     }
+
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
     })
-    skinnedMesh.skeleton.bones.forEach(bone => {
-      if (bone.name !== 'root') {
-        bone.position.x *= -1;
-        bone.position.z *= -1;
-      }
-    })
-    skinnedMesh.skeleton.bones.forEach(bone => {
-      bone.updateMatrix();
-      bone.updateMatrixWorld();
-    })
-    skinnedMesh.skeleton.calculateInverses();
-    skinnedMesh.skeleton.computeBoneTexture();
-    skinnedMesh.skeleton.update();
-    exporter.parse(vrmData, glbModel, (vrm) => {
+
+    const reverseBonesXZ = () => {
+      skinnedMesh.skeleton.bones.forEach(bone => {
+        if (bone.name !== 'root') {
+          bone.position.x *= -1;
+          bone.position.z *= -1;
+        }
+      })
+      skinnedMesh.skeleton.bones.forEach(bone => {
+        bone.updateMatrix();
+        bone.updateMatrixWorld();
+      })
+      skinnedMesh.skeleton.calculateInverses();
+      skinnedMesh.skeleton.computeBoneTexture();
+      skinnedMesh.skeleton.update();
+    }
+    reverseBonesXZ();
+    
+    const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
+
+    const rootSpringBones = [];
+    const processSpringBones = () => {
+      headBone.children.forEach(hairTypeGroup => {
+        if (!hairTypeGroup.name.startsWith('hair_')) return;
+        const nameParts = hairTypeGroup.name.split('_');
+        const hairId = nameParts[1];
+        if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
+          hairTypeGroup.children.forEach(strandRoot => {
+            rootSpringBones.push(strandRoot);
+          });
+        }
+      });
+    }
+    processSpringBones();
+
+    const colliderBones = [];
+    const processColliderBones = () => {
+      colliderBones.push(headBone);
+    }
+    processColliderBones();
+
+    exporter.parse(vrmData, glbModel, rootSpringBones, colliderBones, (vrm) => {
       resolve(vrm)
     })
   })
