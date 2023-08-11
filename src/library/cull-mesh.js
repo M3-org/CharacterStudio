@@ -1,22 +1,24 @@
-import { BufferAttribute, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line } from "three";
+import { BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
 
 let origin = new Vector3();
 let direction = new Vector3();
 const intersections = [];
 
 const raycaster = new Raycaster();
-raycaster.firstHitOnly = true;
 
 const distance = 0.03;
 const distanceAfter = 0.03;
+
+const frontMat = new MeshBasicMaterial({side:FrontSide})
+const backMat = new MeshBasicMaterial({side:BackSide})
 
 let mainScene;
 
 export const CullHiddenFaces = async(meshes) => {
     // make a 2 dimensional array that will hold the layers
-    const culls = [];
-
+    const meshData = [];
     mainScene = meshes[0].parent;
+    
     if (mainScene.lines != null){
         mainScene.lines.forEach(line => {
             line.visible = false;
@@ -27,24 +29,38 @@ export const CullHiddenFaces = async(meshes) => {
     // make sure to place them in the correct array group based on their culling layer
     meshes.forEach(mesh => {
         if (mesh.userData.cullLayer != null){
+            //save original data if it hasnt been previously saved
             if (mesh.userData.origIndexBuffer == null)
-                // mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
                 mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
         
-            if (culls [mesh.userData.cullLayer] == null)
-                culls [mesh.userData.cullLayer] = [];
+            // if it hasnt been previously created an array in this index value, create it
+            if (meshData[mesh.userData.cullLayer] == null){
+                meshData[mesh.userData.cullLayer] = {origMeshes:[], posMeshes:[], negMeshes:[]}
+            }
 
-            culls [mesh.userData.cullLayer].push(mesh);
+            // clone the mesh to only detect collisions in front faces
+            const cloneP = mesh.clone()
+            cloneP.material = frontMat;
+            const cloneN = mesh.clone()
+            cloneN.userData.cancelMesh = cloneP;
+            cloneN.material = backMat;
+            cloneP.userData.maxCullDistance  = cloneN.userData.maxCullDistance = mesh.userData.maxCullDistance;
+            
+            meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
+            meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)
+            meshData[mesh.userData.cullLayer].negMeshes.push(cloneN)
 
             // reset to original before doing raycasts, modified geom has issues with raycasts
             mesh.geometry.setIndex(mesh.userData.origIndexBuffer);
         }
     });
 
-    // remove empty spaces
-    for (let i = culls.length - 1; i >= 0; i--) {
-        if (culls[i] == null)
-        culls.splice(i, 1)
+    // remove empty index spaces
+    for (let i = meshData.length - 1; i >= 0; i--) {
+        if (meshData[i] == null){
+            meshData.splice(i, 1)
+            //origMesh.splice(i,1)
+        }
     }
     // this array will hold all possible mesh colliders
     let hitArr = [];
@@ -53,24 +69,22 @@ export const CullHiddenFaces = async(meshes) => {
     // go from top to bottom to increase array size of collide meshes
     // lowest layer should consider all meshes
     // top layer will always be visible (if theres only 1 lkayer (base layer), then it will be visible)
-    for (let i = culls.length - 1; i >= 0; i--) {
-        //console.log(culls[i])
-        if (hitArr.length != 0 || culls.length >= 1){
-            for (let k = 0; k < culls[i].length; k++){
+    for (let i = meshData.length - 1; i >= 0; i--) {
+        if (hitArr.length != 0 || meshData.length >= 1){
+            for (let k = 0; k < meshData[i].origMeshes.length; k++){
                 
-                const mesh = culls[i][k];
-
+                const mesh = meshData[i].origMeshes[k];
                 const index = mesh.userData.origIndexBuffer.array;
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance /*,i === 0*/)
+                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
                 })
             }
         }
-        hitArr = [...hitArr, ...culls[i]]
+        hitArr = [...hitArr, ...meshData[i].posMeshes, ...meshData[i].negMeshes]
         
     }
 
@@ -104,6 +118,7 @@ const getDistanceInOut = (distanceArr) => {
 }
 
 const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
+
     const indexCustomArr = [];
     const distArr = getDistanceInOut(distanceArr);
     
@@ -115,13 +130,12 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     for (let i =0; i < index.length/3 ;i++){
 
         //set the direction of the raycast with the normals of the faces
-        direction = faceNormals[i].clone()//.normalize();
-
         if (faceNormals)
             direction.set(faceNormals[i].x,faceNormals[i].y,faceNormals[i].z).normalize();
 
         const idxBase = i * 3;
         //if at least 1 vertex collides with nothing, it is visible
+        let intersectedDups = [];
         for (let j = 0; j < 3 ; j++){
             // reset intersections
             intersections.length = 0;
@@ -139,16 +153,85 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
 
-            // if it hits it means vertex is visible
-            if (raycaster.intersectObjects( intersectModels, false, intersections ).length === 0){
-                //if (debug)
-                    //DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,mainScene );
+            // main model is ignored, if it hits with something it means base mesh is behind a mesh
+            const hitObjs = raycaster.intersectObjects( intersectModels, false, intersections )
+            // remove if value is higher than the max hit distance
+            for (let k = hitObjs.length - 1; k >= 0;k--){
+                if ((distIn - hitObjs[k].distance) >= hitObjs[k].object.userData.maxCullDistance){
+                    hitObjs.splice(k,1)
+                }
+            }
+            // remove hit objects whose distance is further
+            
+            if (hitObjs.length === 0){
+                // no object is interfering with the view of this vertex, so its visible
+                //if (debug) DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,mainScene );
                 for (let k = 0; k < 3 ; k++){
                     indexCustomArr.push(index[idxBase+k])
                 }
                 break;
             }
             else{
+                /*
+                Double cullig section:
+                2 meshes were created for the raycast, 1 material is facing front and the other back
+                if the raycast hits the mesh with the back face, it will hits with front face
+                this way we make sure only elements that are truly behind a single face geometry are hidden
+                */
+                const invHits = hitObjs.map(v => v.object)
+                
+                // using for to update the modify and update the array
+                for (let i =0; i < invHits.length;i++){
+                    const o = invHits[i]
+                    // check if the element has not been removed yet
+                    if (o != null){
+                        if (o.userData.cancelMesh){
+                            const index = invHits.indexOf(o.userData.cancelMesh)
+                            invHits[i] = null;
+                            if (index != -1 && index < i){  //only remove previous hit elements
+                                invHits[index] = null;
+                            }
+
+                        }
+                    }
+                }
+
+                if (invHits.filter(n=>n).length === 0){
+                    for (let k = 0; k < 3 ; k++){
+                        indexCustomArr.push(index[idxBase+k])
+                    }
+                    break;
+                }
+                
+                /*
+                Ignore when different meshes are hiding the mesh below
+                this to avoids for example: when a shirt model, is close to a pants model
+                but there is a small gap between them, not doing the code below, it would
+                remove the face and make an undesired a hole in the base mesh
+                */
+                if (j === 0){ 
+                    // save the initial hits
+                    intersectedDups = hitObjs.map(v => v.object)
+                    
+                }
+                else{ 
+                    // only store repeated hits
+                    intersectedDups = hitObjs.map(v => {
+                        if (intersectedDups.indexOf(v.object) !== -1){
+                            return v.object;
+                        }
+                    })
+                    intersectedDups = intersectedDups.filter(n=>n);
+
+                    // check only hits that repeated across
+                    if (j === 2){
+                        if (intersectedDups.filter(n=>n).length === 0){
+                            for (let k = 0; k < 3 ; k++){
+                                indexCustomArr.push(index[idxBase+k])
+                            }
+                        }
+                    }
+                }
                 if (debug)
                     DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xff0000,mainScene );
             }
@@ -162,48 +245,32 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
 export const DisplayMeshIfVisible = async(mesh, traitModel) => {
 
     if (mesh.userData.origIndexBuffer == null)
-        // mesh.userData.origIndexBuffer = new BufferAttribute(mesh.geometry.index.array,1,false);
         mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
 
-    //let greedCounter =  0;
     const traitMeshes = [];
     
     traitModel?.traverse((child)=>{
         if (child.isMesh){
-            // create the bound tree whne loading model instead
-            //if (child.geometry.boundsTree == null)
-                // child.geometry.computeBoundsTree({strategy:SAH});
-            
             traitMeshes.push(child);
         }
     });
-    
-    // create the bound tree whne loading model instead
-    //if (mesh.geometry.boundsTree == null)
-        // mesh.geometry.computeBoundsTree({strategy:SAH});
 
     const raycaster = new Raycaster();
     raycaster.firstHitOnly = true;
     
     raycaster.far = 0.035;
 
-    //const index = mesh.geometry.index.array;
     const index = mesh.userData.origIndexBuffer.array;
     const vertexData = mesh.geometry.attributes.position.array;
     const normalsData = mesh.geometry.attributes.normal.array;
 
-    //let hidden = true;
     let origin = new Vector3();
     let direction = new Vector3();
     
     const intersections = [];
-    //console.log(index.length);
     
     const indexCustomArr = [];
     for (let i =0; i < index.length;i+=3){
-        
-        //const vi = index[i] * 3;
-        //indexCustomArr.push(index[i])
 
         //if at least 1 vertex collides with nothing, it is vi9sible
         for (let j = 0; j < 3 ; j++){
@@ -217,44 +284,30 @@ export const DisplayMeshIfVisible = async(mesh, traitModel) => {
             
             raycaster.set(origin,direction.multiplyScalar(-1));
 
-            //DebugRay(origin, direction,raycaster.far, 0x00ff00,mesh );
             if (raycaster.intersectObjects( traitMeshes, false, intersections ).length === 0){
                 
                 //DebugRay(origin, direction,raycaster.far, 0xff0000,mesh );
                 for (let k = 0; k < 3 ; k++){
-                    //const vi = index[k+i] * 3;
                     indexCustomArr.push(index[i+k])
                 }
                 break;
-                // greedCounter++;
-                // if (greedCounter >= greed){
-                //     hidden = false;
-                //     //save the 3 indices and break out of the triangle, as this triangle is visible
-                //     break;
-                // }
             }
         }
     }
 
-    //console.log(indexCustomArr);
     const indexArr = new Uint32Array(indexCustomArr);
     const buffer = new BufferAttribute(indexArr,1,false);
 
     mesh.geometry.setIndex(buffer);
-
-    //mesh.visible = !hidden;
 }
 
 function DebugRay(origin, direction, length, color, scene){
-    //console.log("tt")
     if (scene.lines == null)
         scene.lines = [];
 
     let endPoint = new Vector3();
     endPoint.addVectors ( origin, direction.clone().multiplyScalar( length ) );
 
-    //geometry.vertexColors.
-    
     const points = []
     points.push( origin );
     points.push( endPoint );
@@ -264,14 +317,8 @@ function DebugRay(origin, direction, length, color, scene){
     cols.push(new Color(0x000000));
     cols.push(new Color(0xffffff)); 
 
-    // geometry.setAttribute(
-    //     'color',
-    //     new BufferAttribute(new Float32Array(cols), 2));
-
     let material = new LineBasicMaterial( {color:color } );
     var line = new Line( geometry, material );
-
-    
 
     line.renderOrder = 100;
     scene.add( line );

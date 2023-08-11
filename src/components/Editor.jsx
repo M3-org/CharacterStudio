@@ -17,7 +17,7 @@ import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 
 
-export default function Editor({animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
+export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
   const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -115,7 +115,7 @@ export default function Editor({animationManager, blinkManager, lookatManager, e
           </div>
         </div>
       </div>
-      <Selector animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager} selectClass = {selectClass} isNewClass = {isNewClass}/>
+      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager} selectClass = {selectClass} isNewClass = {isNewClass}/>
     </Fragment>
   )
 }

@@ -79,7 +79,7 @@ export class EffectManager extends EventTarget{
   }
 
   setCustomShader(material) {
-    
+    if (material.vertexShader){
     material.vertexShader = material.vertexShader.replace(
       `varying vec3 vViewPosition;`,
       `
@@ -274,6 +274,7 @@ export class EffectManager extends EventTarget{
     material.uniforms.switchItemDuration = globalUniforms.switchItemDuration;
     material.uniforms.transitionEffectType = globalUniforms.transitionEffectType;
     material.uniforms.fadeInAvatarTime = globalUniforms.fadeInAvatarTime;
+    }
   }
 
   setTransitionEffect = (type) => {

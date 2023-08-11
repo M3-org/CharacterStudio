@@ -28,7 +28,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
+export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
   const {
     avatar,
     setAvatar,
@@ -56,6 +56,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
+  const [vrm1Warn, setVrm1Warn1] = useState(true);
 
   const updateCurrentTraitMap = (k,v) => {
     setCurrentTrait(currentTrait.set(k,v));
@@ -162,6 +163,67 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
     }
 
   },[selectedOptions])
+
+  const loadCustom = (file) => {
+    const url = URL.createObjectURL(file);
+    const option = {
+      
+      item:{
+        id:"custom_" + currentTraitName,
+        name:"Custom " + currentTraitName,
+        directory:url
+      },
+      trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+    }
+    effectManager.setTransitionEffect('switch_item');
+    loadOptions([option], false, false, false).then((loadedData)=>{
+      URL.revokeObjectURL(url);
+      if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
+        let newAvatar = {};
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
+        })
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        setAvatar(finalAvatar)
+      }
+      else{
+
+        console.log("Only vrm1 file supported")
+      }
+    })
+  }
+
+  const promptUpload = async () => {
+    if (vrm1Warn){
+      confirmDialog("Supports only VRM1 files", (val)=>{
+        setVrm1Warn1(!val);
+        if (val)
+          uploadTrait()
+      })
+    }
+    else{
+      uploadTrait();
+    }
+  }
+
+  const uploadTrait = async() =>{
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept=".vrm"
+
+      input.onchange = e => { 
+        var file = e.target.files[0]; 
+        if (file.name.endsWith(".vrm")){
+          loadCustom(file)
+        }
+      }
+      input.click();
+  }
   // user selects an option
   const selectTraitOption = (option) => {
     const addOption  = option != null
@@ -209,8 +271,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   }
 
   
+  
   // load options first
-  const loadOptions = (options, filterRestrictions = true) => {
+  const loadOptions = (options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true) => {
+  //const loadOptions = (options, filterRestrictions = true) => {
     for (const option of options) {
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
@@ -220,7 +284,8 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
       options = filterRestrictedOptions(options);
 
     //save selection to local storage
-    saveUserSelection(templateInfo.name, options)
+    if (saveUserSel)
+      saveUserSelection(templateInfo.name, options)
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -267,7 +332,7 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         setLoadPercentage(Math.round(loaded/total * 100 ))
       }
 
-      const baseDir = templateInfo.traitsDirectory// (maybe set in loading manager)
+      const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : ""// (maybe set in loading manager)
 
       // load necesary assets for the options
       options.map((option, index)=>{
@@ -460,8 +525,13 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
         // basic setup
         child.frustumCulled = false
         if (child.isMesh) {
-          effectManager.setCustomShader(child.material[0]);
-          effectManager.setCustomShader(child.material[1]);
+          if (child.material.length){
+            effectManager.setCustomShader(child.material[0]);
+            effectManager.setCustomShader(child.material[1]);
+          }
+          else{
+            effectManager.setCustomShader(child.material);
+          }
           // if a mesh is found in name to be ignored, dont add it to target cull meshes
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
@@ -484,6 +554,10 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
           item.cullingDistance != null ? item.cullingDistance: 
           traitData.cullingDistance != null ? traitData.cullingDistance:
           templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
+        maxCullingDistance:
+          item.maxCullingDistance != null ? item.maxCullingDistance: 
+          traitData.maxCullingDistance != null ? traitData.maxCullingDistance:
+          templateInfo.maxCullingDistance != null ? templateInfo.maxCullingDistance: Infinity,
         cullingMeshes
       })  
     })
@@ -608,7 +682,9 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
   
   return (
     !!currentTraitName && (
+      
       <div className={styles["SelectorContainerPos"]}>
+       
         <TraitTitle title={t(`editor.${currentTraitName}`)} />
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
@@ -672,6 +748,16 @@ export default function Selector({templateInfo, animationManager, blinkManager, 
               )
             })}
           </div>
+        </div>
+        <div className={styles["uploadContainer"]}>
+          
+          <div 
+            className={styles["uploadButton"]}
+            onClick={() => {promptUpload()}}>
+            <div> 
+              Upload </div>
+          </div>
+          
         </div>
       </div>
     )

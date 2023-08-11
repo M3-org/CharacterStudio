@@ -12,6 +12,7 @@ import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 import { AnimationManager } from "./library/animationManager"
+import MessageWindow from "./components/MessageWindow"
 
 import Scene from "./components/Scene"
 import Background from "./components/Background"
@@ -248,6 +249,17 @@ export default function App() {
     }
   }
 
+  const [confirmDialogWindow, setConfirmDialogWindow] = useState(false)
+  const [confirmDialogText, setConfirmDialogText] = useState("")
+  const [confirmDialogCallback, setConfirmDialogCallback] = useState([])
+
+  const confirmDialog = (msg, callback) => {
+    setConfirmDialogText(msg)
+    setConfirmDialogWindow(true)
+    setConfirmDialogCallback([callback])
+  }
+
+
   const fetchNewModel = (index) => {
     //setManifest(manifest)
     setAwaitDisplay(true)
@@ -273,12 +285,13 @@ export default function App() {
         lookatManager={lookatManager}
         effectManager={effectManager}
         fetchNewModel={fetchNewModel}
+        confirmDialog={confirmDialog}
       />
     ),
     [ViewMode.BIO]: (
       <BioPage templateInfo={templateInfo} personality={personality} />
     ),
-    [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel} />,
+    [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel}/>,
     [ViewMode.LOAD]: <Load />,
     // [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
@@ -326,15 +339,26 @@ export default function App() {
 
   return (
     <Fragment>
+      
       <div className="generalTitle">Character Studio</div>
+
       <LanguageSwitch />
+      <MessageWindow
+        confirmDialogText = {confirmDialogText}
+        confirmDialogCallback = {confirmDialogCallback}
+        confirmDialogWindow = {confirmDialogWindow}
+        setConfirmDialogWindow = {setConfirmDialogWindow}
+      />
       <Background />
+      
       <Scene
         manifest={manifest}
         sceneModel={sceneModel}
         lookatManager={lookatManager}
       />
+      
       {pages[viewMode]}
+      
     </Fragment>
   )
 }
