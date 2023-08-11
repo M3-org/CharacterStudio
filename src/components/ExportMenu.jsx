@@ -5,6 +5,7 @@ import CustomButton from "./custom-button"
 import { downloadGLB, downloadVRM } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
+import { local } from "../library/store"
 import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"

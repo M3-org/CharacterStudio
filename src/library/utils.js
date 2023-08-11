@@ -29,7 +29,13 @@ export async function prepareModel(templateInfo){
   }));
 }
 
-
+export function getRandomObjectKey (obj) {
+  const arr = Object.keys(obj);
+  return obj[arr[Math.floor(Math.random() * arr.length)]];
+}
+export function getRandomArrayValue (arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 export async function loadModel(file, onProgress) {
   const gltfLoader = new GLTFLoader()
