@@ -84,14 +84,6 @@ export async function getVRMBlobData(avatarToDownload, avatar, screenshot = null
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
 
-<<<<<<< HEAD
-export async function downloadVRM(avatarToDownload, avatar, fileName = "", atlasSize  = 4096, isVrm0 = false){
-  const downloadFileName = `${
-    fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
-  }`
-  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, isVrm0);
-  parseVRM(vrmModel,avatar, isVrm0) .then((vrm)=>{
-=======
 // returns a promise with the parsed data
 async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true){
   if (optimized){
