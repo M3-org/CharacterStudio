@@ -4,6 +4,7 @@ import { favouriteColors } from "../constants/favouriteColors"
 import CustomButton from "../components/custom-button"
 import { ViewContext, ViewMode } from "../context/ViewContext"
 import styles from "./Bio.module.css"
+import { local } from "../library/store"
 import { LanguageContext } from "../context/LanguageContext"
 
 import { SoundContext } from "../context/SoundContext"
@@ -85,13 +86,6 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 const voiceKeys = Object.keys(voices)
 const colorKeys = Object.keys(favouriteColors)
 
-function loadBioFromStorage(itemName){
-  const fullBioStr = localStorage.getItem(itemName)
-  if (fullBioStr)
-    return JSON.parse(fullBioStr)
-  return null
-}
-
 function BioPage({ templateInfo, personality }) {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -108,13 +102,13 @@ function BioPage({ templateInfo, personality }) {
   }
 
   const [fullBio, setFullBio] = React.useState(
-    loadBioFromStorage(`${templateInfo.id}_fulBio`)
+    local[`${templateInfo.id}_fulBio`]
     ||
     getBio(templateInfo, personality)
   )
 
   React.useEffect(() => {
-    localStorage.setItem(`${templateInfo.id}_fulBio`, JSON.stringify(fullBio))
+    local[`${templateInfo.id}_fulBio`]  = fullBio;
   }, [fullBio])
 
 
