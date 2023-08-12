@@ -68,13 +68,8 @@ const xAxis = new THREE.Vector3(1, 0, 0)
 const yAxis = new THREE.Vector3(0, 1, 0)
 
 async function fetchManifest() {
-  const manifest = local.manifest;
-  if (manifest) {
-    return manifest
-  }
   const response = await fetch(assetImportPath)
   const data = await response.json()
-  local.manifest = data
   return data
 }
 
