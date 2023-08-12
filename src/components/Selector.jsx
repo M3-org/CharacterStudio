@@ -28,7 +28,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, isNewClass, effectManager, selectClass}) {
+export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
     avatar,
     setAvatar,
@@ -242,9 +242,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     }
     
     if (option.avatarIndex != null){
-      if(isNewClass(option.avatarIndex)){
-        selectClass(option.avatarIndex)
-      }
+      // if(isNewClass(option.avatarIndex)){
+      //   selectClass(option.avatarIndex)
+      // }
       return
     }
 

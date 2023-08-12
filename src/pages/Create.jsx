@@ -9,7 +9,7 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Create({fetchNewModel}) {
+function Create({fetchCharacterManifest}) {
   
   // Translate hook
   const {t} = useContext(LanguageContext);
@@ -45,8 +45,8 @@ function Create({fetchNewModel}) {
     !isMute && playSound('backNextButton');
   }
 
-  const selectClass = (characterClass) => {
-    fetchNewModel(characterClass.templateIndex).then(()=>{
+  const selectClass = (manifestLocation) => {
+    fetchCharacterManifest(manifestLocation).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
     !isMute && playSound('classSelect');
@@ -125,7 +125,7 @@ function Create({fetchNewModel}) {
               onClick={
                 characterClass["disabled"]
                   ? null
-                  : () => selectClass(characterClass)
+                  : () => selectClass(classes[i].manifest)
               }
               onMouseOver={
                 characterClass["disabled"]

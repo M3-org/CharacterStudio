@@ -17,7 +17,7 @@ import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 
 
-export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
+export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
   const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -65,19 +65,6 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
   }
-  const selectClassOption = () => {
-    setRemoveOption(false)
-    setCurrentOptions(getClassOptions(manifest))
-    setCurrentTraitName("_class")
-  }
-  
-  const isNewClass = (templateIndex) => {
-    return templateInfo != manifest[templateIndex]
-  }
-
-  const selectClass = (ind) => {
-    fetchNewModel(ind)
-  }
 
   function MenuTitle(props) {
     return (
@@ -115,7 +102,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
           </div>
         </div>
       </div>
-      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager} selectClass = {selectClass} isNewClass = {isNewClass}/>
+      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
     </Fragment>
   )
 }
