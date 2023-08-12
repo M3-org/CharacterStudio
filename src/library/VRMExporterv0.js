@@ -97,7 +97,7 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, rootSpringBones, colliderBones, onDone) {
+    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         

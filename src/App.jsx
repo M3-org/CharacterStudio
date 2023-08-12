@@ -318,7 +318,7 @@ export default function App() {
       />
     ),
     [ViewMode.BIO]: (
-      <BioPage templateInfo={templateInfo} personality={personality} />
+      <BioPage personality={personality} />
     ),
     [ViewMode.CREATE]: <Create fetchCharacterManifest={fetchCharacterManifest}/>,
     [ViewMode.LOAD]: <Load />,

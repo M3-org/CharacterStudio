@@ -204,7 +204,7 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
     }
     processColliderBones();
 
-    exporter.parse(vrmData, glbModel, rootSpringBones, colliderBones, (vrm) => {
+    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, (vrm) => {
       resolve(vrm)
     })
   })

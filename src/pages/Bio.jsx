@@ -9,9 +9,11 @@ import { LanguageContext } from "../context/LanguageContext"
 
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
 
-export const getBio = (templateInfo, personality) => {
-  const classType = templateInfo.name.toUpperCase();
+export const getBio = (baseCharacterData, personality) => {
+  console.log(baseCharacterData);
+  const classType = baseCharacterData.name.toUpperCase();
 
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
   const city = personality.cities[Math.floor(Math.random() * personality.cities.length)]
@@ -86,10 +88,11 @@ export const getRelationshipQuestionsAndAnswers = (personality) => {
 const voiceKeys = Object.keys(voices)
 const colorKeys = Object.keys(favouriteColors)
 
-function BioPage({ templateInfo, personality }) {
+function BioPage({ personality }) {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext)
+  const { manifestSelectionIndex, getSelectedCharacterBaseData } = React.useContext(SceneContext)
 
   const back = () => {
     setViewMode(ViewMode.APPEARANCE)
@@ -102,13 +105,13 @@ function BioPage({ templateInfo, personality }) {
   }
 
   const [fullBio, setFullBio] = React.useState(
-    local[`${templateInfo.id}_fulBio`]
+    local[`${manifestSelectionIndex}_fulBio`]
     ||
-    getBio(templateInfo, personality)
+    getBio(getSelectedCharacterBaseData(), personality)
   )
 
   React.useEffect(() => {
-    local[`${templateInfo.id}_fulBio`]  = fullBio;
+    local[`${manifestSelectionIndex}_fulBio`]  = fullBio;
   }, [fullBio])
 
 

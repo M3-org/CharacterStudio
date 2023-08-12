@@ -77,7 +77,9 @@ export const SceneProvider = (props) => {
       console.log("no local storage for " + loadName + " was found")
     }
   }
-
+  const getSelectedCharacterBaseData = () => {
+    return manifest[manifestSelectionIndex];
+  }
   const saveAvatarToLocalStorage = (saveName) =>{
     const saveAvatar = getSaveAvatar()
     local[`${templateInfo.id}12223_${saveName}`] = saveAvatar
@@ -186,6 +188,7 @@ export const SceneProvider = (props) => {
         setManifest,
         manifestSelectionIndex,
         setManifestSelectionIndex,
+        getSelectedCharacterBaseData,
         sceneModel,
         setSceneModel,
         lipSync,

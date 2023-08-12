@@ -105,8 +105,8 @@ export default class VRMExporter {
             .map((material) => material);
 
         const uniqueMaterialNames = uniqueMaterials.map((material) => material.name);
-        const icon = vrmMeta.texture
-            ? { name: "icon", imageBitmap: vrmMeta.texture.image }
+        const icon = screenshot
+            ? { name: "icon", imageBitmap: screenshot.image }
             : null; // TODO: ない場合もある
         const mainImages = uniqueMaterials
             .filter((material) => material.map)
