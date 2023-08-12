@@ -27,10 +27,10 @@ function Save({getFaceScreenshot}) {
     !isMute && playSound('backNextButton');
   }
 
-  const next = () => {
-    setViewMode(ViewMode.CHAT)
-    !isMute && playSound('backNextButton');
-  }
+  // const next = () => {
+  //   setViewMode(ViewMode.CHAT)
+  //   !isMute && playSound('backNextButton');
+  // }
 
   return (
     <div className={styles.container}>
@@ -55,13 +55,13 @@ function Save({getFaceScreenshot}) {
             className={styles.buttonRight}
             onClick={mint}
         />
-        <CustomButton
+        {/* <CustomButton
           theme="light"
           text={t('callToAction.chat')}
           size={14}
           className={styles.buttonRight}
           onClick={next}
-        />
+        /> */}
       </div>
     </div>
   )
