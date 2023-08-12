@@ -1,29 +1,49 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import styles from "./Create.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { useContext } from "react"
 
+import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Create({fetchNewModel}) {
-
+function Create({fetchCharacterManifest}) {
+  
   // Translate hook
   const {t} = useContext(LanguageContext);
 
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+  const { manifest } = React.useContext(SceneContext)
+  const [ classes, setClasses ] = useState([]) 
+  
+  useEffect(() => {
+    if (manifest != null){
+      const manifestClasses = manifest.map((c) => {
+        return {
+          name:c.name, 
+          image:c.portrait, 
+          description: c.description,
+          manifest: c.manifest,
+          icon:c.icon,
+          format:c.format,
+          disabled:false
+        }
+      })
+      setClasses(manifestClasses);
+    }
+  }, [manifest])
 
   const back = () => {
     setViewMode(ViewMode.LANDING)
     !isMute && playSound('backNextButton');
   }
 
-  const selectClass = (characterClass) => {
-    fetchNewModel(characterClass.templateIndex).then(()=>{
+  const selectClass = (index) => {
+    fetchCharacterManifest(index).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
     !isMute && playSound('classSelect');
@@ -33,23 +53,24 @@ function Create({fetchNewModel}) {
     !isMute && playSound('classMouseOver');
   }
 
-  const classes = [
-    {
-        name: t('classes.beastPainter.name'),
-        image: "/assets/media/disabled.png",
-        description: t('classes.beastPainter.description'),
-        icon: "/assets/icons/class-beast-painter.svg",
-        disabled: true,
-        templateIndex:2
-      },
-      {
-        name: t('classes.engineer.name'),
-        image: "/assets/media/disabled.png",
-        description: t('classes.engineer.description'),
-        icon: "/assets/icons/class-engineer.svg",
-        disabled: true,
-        templateIndex:3
-      },
+
+  const classes3 = [
+    // {
+    //     name: t('classes.beastPainter.name'),
+    //     image: "/assets/media/disabled.png",
+    //     description: t('classes.beastPainter.description'),
+    //     icon: "/assets/icons/class-beast-painter.svg",
+    //     disabled: true,
+    //     templateIndex:2
+    //   },
+    //   {
+    //     name: t('classes.engineer.name'),
+    //     image: "/assets/media/disabled.png",
+    //     description: t('classes.engineer.description'),
+    //     icon: "/assets/icons/class-engineer.svg",
+    //     disabled: true,
+    //     templateIndex:3
+    //   },
       {
         name: t('classes.dropHunter.name'),
         image: "/assets/media/DropHunter.png",
@@ -59,14 +80,6 @@ function Create({fetchNewModel}) {
         templateIndex:0
       },
       {
-        name: t('classes.theDegen.name'),
-        image: "/assets/media/degens.gif",
-        description: t('classes.theDegen.description'),
-        icon: "/assets/icons/class-the-degen.svg",
-        disabled: true,
-        templateIndex:6
-      },
-      {
         name: t('classes.neuralHacker.name'),
         image: "/assets/media/NeuralHacker.png",
         description: t('classes.neuralHacker.description'),
@@ -74,22 +87,22 @@ function Create({fetchNewModel}) {
         disabled: false,
         templateIndex:1
       },
-      {
-        name: t('classes.liskWitch.name'),
-        image: "/assets/media/disabled.png",
-        description: t('classes.liskWitch.description'),
-        icon: "/assets/icons/class-lisk-witch.svg",
-        disabled: true,
-        templateIndex:4
-      },
-      {
-        name: t('classes.bruiser.name'),
-        image: "/assets/media/disabled.png",
-        description: t('classes.bruiser.description'),
-        icon: "/assets/icons/class-bruiser.svg",
-        disabled: true,
-        templateIndex:5
-      },
+      // {
+      //   name: t('classes.liskWitch.name'),
+      //   image: "/assets/media/disabled.png",
+      //   description: t('classes.liskWitch.description'),
+      //   icon: "/assets/icons/class-lisk-witch.svg",
+      //   disabled: true,
+      //   templateIndex:4
+      // },
+      // {
+      //   name: t('classes.bruiser.name'),
+      //   image: "/assets/media/disabled.png",
+      //   description: t('classes.bruiser.description'),
+      //   icon: "/assets/icons/class-bruiser.svg",
+      //   disabled: true,
+      //   templateIndex:5
+      // },
   ]
 
   return (
@@ -109,7 +122,7 @@ function Create({fetchNewModel}) {
               onClick={
                 characterClass["disabled"]
                   ? null
-                  : () => selectClass(characterClass)
+                  : () => selectClass(i)
               }
               onMouseOver={
                 characterClass["disabled"]

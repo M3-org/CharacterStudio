@@ -51,6 +51,7 @@ export const SceneProvider = (props) => {
 
   const [templateInfo, setTemplateInfo] = useState() 
   const [manifest, setManifest] = useState(null)
+  const [manifestSelectionIndex, setManifestSelectionIndex] = useState(null)
   const [sceneModel, setSceneModel] = useState(null)
 
   const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
@@ -96,8 +97,8 @@ export const SceneProvider = (props) => {
     return avatarJson;
   }
 
-  const saveUserSelection = (name, options) =>{
-    const newSelection = loadUserSelection (name) || []
+  const saveUserSelection = (options) =>{
+    const newSelection = loadUserSelection (manifestSelectionIndex) || []
     options.map((opt)=>{
       let newOpt = true;
       for (let i =0; i < newSelection.length;i++ ) {
@@ -110,11 +111,11 @@ export const SceneProvider = (props) => {
       if (newOpt === true)
         newSelection.push(opt)
     })
-    local[`class2_${name}`] = newSelection;
+    local[manifestSelectionIndex] = newSelection;
   }
 
-  const loadUserSelection = (name) => {
-    return local[`class2_${name}`]
+  const loadUserSelection = (index) => {
+    return local[index]
   }
 
   const getRandomCharacter = () => {
@@ -183,6 +184,8 @@ export const SceneProvider = (props) => {
         setBlinkManager,
         manifest,
         setManifest,
+        manifestSelectionIndex,
+        setManifestSelectionIndex,
         sceneModel,
         setSceneModel,
         lipSync,

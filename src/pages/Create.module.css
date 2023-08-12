@@ -30,7 +30,7 @@
   flex: 1;
   display: flex;
   cursor: pointer;
-  min-width: 0px;
+  width: 15em;
   flex-direction: column;
   margin: 24px 8px 8px 8px;
   align-items: center;
@@ -65,11 +65,11 @@
   background: #000;
   width: 100%;
   height: auto;
-  max-width: 3.5vw;
+  max-width: 3em;
 }
 
 .classContainer .name {
-  font-size: 1.8vw;
+  font-size: 1.5em;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -78,7 +78,7 @@
   margin-top: 1vh;
 }
 .classContainer .description {
-  font-size: 1.1vw;
+  font-size: 1em;
   flex: 1;
 }
 

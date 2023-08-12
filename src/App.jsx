@@ -67,8 +67,8 @@ const localVector4_2 = new THREE.Vector4()
 const xAxis = new THREE.Vector3(1, 0, 0)
 const yAxis = new THREE.Vector3(0, 1, 0)
 
-async function fetchManifest() {
-  const response = await fetch(assetImportPath)
+async function fetchManifest(location) {
+  const response = await fetch(location)
   const data = await response.json()
   return data
 }
@@ -102,7 +102,7 @@ async function fetchAnimation(templateInfo) {
 }
 
 async function fetchAll() {
-  const initialManifest = await fetchManifest()
+  const initialManifest = await fetchManifest(assetImportPath)
   const personality = await fetchPersonality()
   const sceneModel = await fetchScene()
 
@@ -173,6 +173,7 @@ export default function App() {
     resetAvatar,
     setAwaitDisplay,
     setTemplateInfo,
+    setManifestSelectionIndex,
     templateInfo,
     moveCamera,
     setManifest,
@@ -264,18 +265,18 @@ export default function App() {
     setConfirmDialogCallback([callback])
   }
 
-
-  const fetchNewModel = (index) => {
-    //setManifest(manifest)
+  const fetchCharacterManifest = (index) => {
     setAwaitDisplay(true)
     resetAvatar()
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
-        const animManager = await fetchAnimation(manifest[index])
+        const characterManifest = await fetchManifest(manifest[index].manifest);
+        const animManager = await fetchAnimation(characterManifest)
         setAnimationManager(animManager)
-        setTemplateInfo(manifest[index])
-        resolve(manifest[index])
+        setTemplateInfo(characterManifest)
+        setManifestSelectionIndex(index)
+        resolve(characterManifest)
       }
     })
   }
@@ -313,14 +314,13 @@ export default function App() {
         blinkManager={blinkManager}
         lookatManager={lookatManager}
         effectManager={effectManager}
-        fetchNewModel={fetchNewModel}
         confirmDialog={confirmDialog}
       />
     ),
     [ViewMode.BIO]: (
       <BioPage templateInfo={templateInfo} personality={personality} />
     ),
-    [ViewMode.CREATE]: <Create fetchNewModel={fetchNewModel}/>,
+    [ViewMode.CREATE]: <Create fetchCharacterManifest={fetchCharacterManifest}/>,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint getFaceScreenshot = {getFaceScreenshot}/>,
     [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,

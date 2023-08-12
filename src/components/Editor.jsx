@@ -17,8 +17,8 @@ import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 
 
-export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, fetchNewModel}) {
-  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
+export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
+  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, manifestSelectionIndex, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 
@@ -35,7 +35,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   useEffect(() => {
     if (awaitDisplay){
       setSelectedOptions(
-        loadUserSelection(templateInfo.name)
+        loadUserSelection(manifestSelectionIndex)
         || getRandomizedTemplateOptions(templateInfo)
       )
         setAwaitDisplay(false)
@@ -64,19 +64,6 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
-  }
-  const selectClassOption = () => {
-    setRemoveOption(false)
-    setCurrentOptions(getClassOptions(manifest))
-    setCurrentTraitName("_class")
-  }
-  
-  const isNewClass = (templateIndex) => {
-    return templateInfo != manifest[templateIndex]
-  }
-
-  const selectClass = (ind) => {
-    fetchNewModel(ind)
   }
 
   function MenuTitle(props) {
@@ -115,7 +102,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
           </div>
         </div>
       </div>
-      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager} selectClass = {selectClass} isNewClass = {isNewClass}/>
+      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
     </Fragment>
   )
 }
