@@ -18,7 +18,7 @@ import { LanguageContext } from "../context/LanguageContext"
 
 
 export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
-  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, moveCamera} = useContext(SceneContext);
+  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, manifestSelectionIndex, moveCamera} = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 
@@ -35,7 +35,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   useEffect(() => {
     if (awaitDisplay){
       setSelectedOptions(
-        loadUserSelection(templateInfo.name)
+        loadUserSelection(manifestSelectionIndex)
         || getRandomizedTemplateOptions(templateInfo)
       )
         setAwaitDisplay(false)

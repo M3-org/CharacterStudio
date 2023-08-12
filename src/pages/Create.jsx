@@ -22,9 +22,7 @@ function Create({fetchCharacterManifest}) {
   
   useEffect(() => {
     if (manifest != null){
-      console.log("manifest", manifest)
       const manifestClasses = manifest.map((c) => {
-        console.log(c);
         return {
           name:c.name, 
           image:c.portrait, 
@@ -35,7 +33,6 @@ function Create({fetchCharacterManifest}) {
           disabled:false
         }
       })
-      console.log(manifestClasses);
       setClasses(manifestClasses);
     }
   }, [manifest])
@@ -45,8 +42,8 @@ function Create({fetchCharacterManifest}) {
     !isMute && playSound('backNextButton');
   }
 
-  const selectClass = (manifestLocation) => {
-    fetchCharacterManifest(manifestLocation).then(()=>{
+  const selectClass = (index) => {
+    fetchCharacterManifest(index).then(()=>{
         setViewMode(ViewMode.APPEARANCE)
     })
     !isMute && playSound('classSelect');
@@ -125,7 +122,7 @@ function Create({fetchCharacterManifest}) {
               onClick={
                 characterClass["disabled"]
                   ? null
-                  : () => selectClass(classes[i].manifest)
+                  : () => selectClass(i)
               }
               onMouseOver={
                 characterClass["disabled"]

@@ -173,6 +173,7 @@ export default function App() {
     resetAvatar,
     setAwaitDisplay,
     setTemplateInfo,
+    setManifestSelectionIndex,
     templateInfo,
     moveCamera,
     setManifest,
@@ -264,17 +265,17 @@ export default function App() {
     setConfirmDialogCallback([callback])
   }
 
-  const fetchCharacterManifest = (location) => {
+  const fetchCharacterManifest = (index) => {
     setAwaitDisplay(true)
     resetAvatar()
     return new Promise((resolve) => {
       asyncResolve()
       async function asyncResolve() {
-        const characterManifest = await fetchManifest(location);
-        console.log(characterManifest);
+        const characterManifest = await fetchManifest(manifest[index].manifest);
         const animManager = await fetchAnimation(characterManifest)
         setAnimationManager(animManager)
         setTemplateInfo(characterManifest)
+        setManifestSelectionIndex(index)
         resolve(characterManifest)
       }
     })

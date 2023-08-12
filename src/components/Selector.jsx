@@ -157,7 +157,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         effectManager.playFadeOutEffect();
         resetCurrentTraitMap();
       }
-
       loadSelectedOptions(selectedOptions)
       setSelectedOptions([]);
     }
@@ -285,7 +284,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
     //save selection to local storage
     if (saveUserSel)
-      saveUserSelection(templateInfo.name, options)
+      saveUserSelection(options)
 
     // validate if there is at least a non null option
     let nullOptions = true;
@@ -331,9 +330,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       loadingManager.onProgress = function(url, loaded, total){
         setLoadPercentage(Math.round(loaded/total * 100 ))
       }
-
-      const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : ""// (maybe set in loading manager)
-
+      
+      const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : "";
       // load necesary assets for the options
       options.map((option, index)=>{
         if (option.selected){
