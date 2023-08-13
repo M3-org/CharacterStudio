@@ -326,13 +326,14 @@ export default class VRMExporterv0 {
 
         };
         humanoid.humanBones.forEach(bone => {
-          vrmHumanoid.humanBones.push({
+           
+            if (nodeNames.indexOf(bone.node.name) != -1) vrmHumanoid.humanBones.push({
             bone: getVRM0BoneName(bone.bone), //for thumb
             node: nodeNames.indexOf(bone.node.name),
             useDefaultValues:true
           })
         });
-
+        console.log(vrmHumanoid.humanBones);
         //rest of the data is stored in VRMHumanoidDescription
         // const vrmHumanoid = {
         //     armStretch: humanoid.humanDescription.armStretch,
