@@ -333,7 +333,6 @@ export default class VRMExporterv0 {
             useDefaultValues:true
           })
         });
-        console.log(vrmHumanoid.humanBones);
         //rest of the data is stored in VRMHumanoidDescription
         // const vrmHumanoid = {
         //     armStretch: humanoid.humanDescription.armStretch,
