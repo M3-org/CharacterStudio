@@ -51,7 +51,7 @@ const centerCameraPositionChat = new THREE.Vector3(
 const centerCameraPositionLengthChat = centerCameraPositionChat.length()
 const ndcBiasChat = 0.35
 
-const cameraDistanceOther = 3.2
+const cameraDistanceOther = 6
 const centerCameraTargetOther = new THREE.Vector3(0, 0.8, 0)
 const centerCameraPositionOther = new THREE.Vector3(
   -2.2367993753934425,
