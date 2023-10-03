@@ -20,6 +20,7 @@ import {
   transitionEffectTypeNumber,
   
 } from "./constants.js";
+import { MToonMaterial } from "@pixiv/three-vrm";
 
 
 const textureLoader = new THREE.TextureLoader()
