@@ -42,6 +42,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     removeOption,
     saveUserSelection,
     setIsChangingWholeAvatar,
+    debugMode
   } = useContext(SceneContext)
   const {
     playSound
@@ -529,12 +530,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
           // XXX Setup Wireframe material with random colors for each material the object has
           child.origMat = child.material;
 
-          const debugMat = new THREE.MeshBasicMaterial( {
-						color: getRandomColor(),
-						wireframe: true,
-            wireframeLinewidth:0.2
-					} );
-
           const getRandomColor = ()  => {
             const minRGBValue = 0.1; // Minimum RGB value to ensure colorful colors
             const r = minRGBValue + Math.random() * (1 - minRGBValue);
@@ -542,6 +537,12 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
             const b = minRGBValue + Math.random() * (1 - minRGBValue);
             return new THREE.Color(r, g, b);
           }
+
+          const debugMat = new THREE.MeshBasicMaterial( {
+						color: getRandomColor(),
+						wireframe: true,
+            wireframeLinewidth:0.2
+					} );
 
           const origMat = child.material;
           child.setDebugMode = (debug) => { 
@@ -559,6 +560,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
             }
           }
           
+          if (debugMode){
+            child.setDebugMode(true);
+          }
           if (child.material.length){
             effectManager.setCustomShader(child.material[0]);
             effectManager.setCustomShader(child.material[1]);

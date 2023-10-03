@@ -21,7 +21,7 @@ function Appearance({
     getRandomCharacter,
     isChangingWholeAvatar,
     setIsChangingWholeAvatar,
-    setDebugMode
+    toggleDebugMNode
   } = React.useContext(SceneContext)
 
   const { playSound } = React.useContext(SoundContext)
@@ -46,10 +46,7 @@ function Appearance({
   }
 
   const debugMode = () =>{
-    setDebugMode(true);
-  }
-  const notDebugMode = () =>{
-    setDebugMode(false);
+    toggleDebugMNode()
   }
 
   useEffect(() => {
@@ -119,13 +116,6 @@ function Appearance({
           size={14}
           className={styles.buttonCenter}
           onClick={debugMode}
-        />
-        <CustomButton
-          theme="light"
-          text={"not debug"}
-          size={14}
-          className={styles.buttonCenter}
-          onClick={notDebugMode}
         />
       </div>
     </div>

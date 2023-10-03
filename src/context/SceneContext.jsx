@@ -56,12 +56,17 @@ export const SceneProvider = (props) => {
 
   const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
 
+  const [debugMode, setDebugMode] = useState(false);
 
   const setAvatar = (state) => {
     _setAvatar(state)
   }
 
-  const setDebugMode = (isDebug) =>{
+  const toggleDebugMNode = (isDebug) => {
+    if (isDebug == null)
+      isDebug = !debugMode;
+
+    setDebugMode(isDebug);
     scene.traverse((child) => {
       if (child.isMesh) {
         if (child.setDebugMode){
@@ -70,7 +75,6 @@ export const SceneProvider = (props) => {
       }
     });
   }
-
   const loadAvatar = (avatarData) =>{
     const data = getOptionsFromAvatarData(avatarData,manifest)
     if (data != null){
@@ -214,7 +218,8 @@ export const SceneProvider = (props) => {
         saveAvatarToLocalStorage,
         loadAvatarFromLocalStorage,
 
-        setDebugMode,
+        debugMode,
+        toggleDebugMNode,
 
         setCurrentOptions,
         setSelectedOptions,
