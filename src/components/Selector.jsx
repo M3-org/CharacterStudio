@@ -527,7 +527,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
           // XXX Setup MToonMaterial for shader
 
-          // XXX Setup Wireframe material with random colors for each material the object has
+          // Set Wireframe material with random colors for each material the object has
           child.origMat = child.material;
 
           const getRandomColor = ()  => {
