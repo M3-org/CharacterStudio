@@ -21,6 +21,7 @@ function Appearance({
     getRandomCharacter,
     isChangingWholeAvatar,
     setIsChangingWholeAvatar,
+    toggleDebugMNode
   } = React.useContext(SceneContext)
 
   const { playSound } = React.useContext(SoundContext)
@@ -30,6 +31,7 @@ function Appearance({
     resetAvatar()
     setViewMode(ViewMode.CREATE)
   }
+  
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -41,6 +43,10 @@ function Appearance({
       !isMute && playSound('randomizeButton');
       getRandomCharacter()
     }
+  }
+
+  const debugMode = () =>{
+    toggleDebugMNode()
   }
 
   useEffect(() => {
@@ -103,6 +109,13 @@ function Appearance({
           size={14}
           className={styles.buttonCenter}
           onClick={randomize}
+        />
+        <CustomButton
+          theme="light"
+          text={"debug"}
+          size={14}
+          className={styles.buttonCenter}
+          onClick={debugMode}
         />
       </div>
     </div>
