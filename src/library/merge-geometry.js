@@ -231,8 +231,18 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
-    vrmMaterial.uniforms.map = textures["diffuse"];
-    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+
+    // for Mtoon material
+    if (vrmMaterial.unfiroms != null){
+        vrmMaterial.uniforms.map = textures["diffuse"];
+        vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    }
+    // for Standard Material
+    else{
+        vrmMaterial.map = textures["diffuse"];
+    }
+
+    
 
     material.userData.vrmMaterial = vrmMaterial;
     const mesh = new THREE.SkinnedMesh(geometry, material);
