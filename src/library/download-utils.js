@@ -159,7 +159,6 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator"),
     }
-
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
@@ -183,20 +182,43 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
     
     const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
 
-    const rootSpringBones = [];
-    const processSpringBones = () => {
-      headBone.children.forEach(hairTypeGroup => {
-        if (!hairTypeGroup.name.startsWith('hair_')) return;
-        const nameParts = hairTypeGroup.name.split('_');
-        const hairId = nameParts[1];
-        if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
-          hairTypeGroup.children.forEach(strandRoot => {
-            rootSpringBones.push(strandRoot);
-          });
-        }
-      });
+    const finalSpringBones = [];
+    //const springBonesData = [];
+    
+    for(const trait in avatar){
+      if (avatar[trait]?.vrm?.springBoneManager!= null){
+          const joints = avatar[trait].vrm.springBoneManager.joints;
+          for (const item of joints) {
+            const doesNameExist = finalSpringBones.some(boneData => boneData.name === item.bone.name);
+
+            if (!doesNameExist) {
+              // If the name doesn't exist, add a new object with the specified name
+              //finalSpringBones.push(item.bone); 
+
+              finalSpringBones.push({name:item.bone.name, settings:item.settings}); 
+
+              //springBonesData.push
+            }
+
+          }
+      }
+      
     }
-    processSpringBones();
+    console.log(finalSpringBones);
+    // const rootSpringBones = [];
+    // const processSpringBones = () => {
+    //   headBone.children.forEach(hairTypeGroup => {
+    //     if (!hairTypeGroup.name.startsWith('hair_')) return;
+    //     const nameParts = hairTypeGroup.name.split('_');
+    //     const hairId = nameParts[1];
+    //     if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
+    //       hairTypeGroup.children.forEach(strandRoot => {
+    //         rootSpringBones.push(strandRoot);
+    //       });
+    //     }
+    //   });
+    // }
+    // processSpringBones();
 
     const colliderBones = [];
     const processColliderBones = () => {
@@ -204,7 +226,7 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
     }
     processColliderBones();
 
-    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, (vrm) => {
+    exporter.parse(vrmData, glbModel, screenshot, finalSpringBones, colliderBones, (vrm) => {
       resolve(vrm)
     })
   })

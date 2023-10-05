@@ -419,6 +419,7 @@ export default class VRMExporterv0 {
         const outputVrmMeta = vrmMeta;
 
         const rootSpringBonesIndexes = [];
+        //console.log(rootSpringBones);
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
                 const node = nodes[i];

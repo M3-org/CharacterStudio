@@ -326,11 +326,16 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         setIsLoading(false)
       };
       loadingManager.onError = function (url){
+        console.log(resultData);
         console.warn("error loading " + url)
+        // setLoadPercentage(0)
+        // resolve(resultData);
+        // setIsLoading(false)
       }
       loadingManager.onProgress = function(url, loaded, total){
         setLoadPercentage(Math.round(loaded/total * 100 ))
       }
+      
       
       const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : "";
       // load necesary assets for the options
@@ -344,11 +349,22 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         }
         // load model trait
         const loadedModels = [];
-        getAsArray(option?.item?.directory).map((modelDir, i) => {
-          gltfLoader.loadAsync (baseDir + modelDir).then((mod) => {
-            loadedModels[i] = mod;
-          })
-        })
+        const models = getAsArray(option?.item?.directory);
+        try {
+          models.forEach(async (modelDir, i) => {
+            try {
+              const mod = await gltfLoader.loadAsync(baseDir + modelDir);
+              loadedModels[i] = mod;
+            } catch (error) {
+              console.error(`Error loading model ${modelDir}:`, error);
+              options.splice(index, 1);
+              resultData.splice(index, 1);
+            }
+          });
+        } catch (error) {
+          console.error('An error occurred:', error);
+          //remove option
+        }
         
         // load texture trait
         const loadedTextures = [];
@@ -462,7 +478,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     const models = itemData.models;
     const textures = itemData.textures;
     const colors = itemData.colors;
-
+    console.log("tt");
     // null section (when user selects to remove an option)
     if ( item == null) {
       // if avatar exists and trait exsits, remove it
@@ -489,6 +505,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     let vrm = null
     
     models.map((m)=>{
+      
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       
