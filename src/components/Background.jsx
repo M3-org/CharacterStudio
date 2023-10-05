@@ -1,6 +1,6 @@
 import React from "react"
 
-import logo from "../../public/ui/weba.png"
+import logo from "../../public/ui/anata.png"
 import styles from "./Background.module.css"
 
 export default function Background() {

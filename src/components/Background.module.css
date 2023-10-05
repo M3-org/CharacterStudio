@@ -36,7 +36,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 100vh;
+    width: auto;
     height: 100vh;
-    opacity: 0.05;
+    opacity: 0.3;
   }
