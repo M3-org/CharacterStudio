@@ -4,6 +4,7 @@ import { cloneSkeleton, combine } from "./merge-geometry"
 import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
+import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
 
 function cloneAvatarModel (avatarToClone){
@@ -185,48 +186,42 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false){
     const finalSpringBones = [];
     //const springBonesData = [];
     
+    // add non repeating spring bones
     for(const trait in avatar){
       if (avatar[trait]?.vrm?.springBoneManager!= null){
           const joints = avatar[trait].vrm.springBoneManager.joints;
           for (const item of joints) {
             const doesNameExist = finalSpringBones.some(boneData => boneData.name === item.bone.name);
-
             if (!doesNameExist) {
-              // If the name doesn't exist, add a new object with the specified name
-              //finalSpringBones.push(item.bone); 
-
-              finalSpringBones.push({name:item.bone.name, settings:item.settings}); 
-
-              //springBonesData.push
+              finalSpringBones.push({
+                name:item.bone.name, 
+                settings:item.settings, 
+                bone:item.bone, 
+                colliderGroups:item.colliderGroups,
+                center:item.center
+              }); 
             }
 
           }
       }
       
     }
-    console.log(finalSpringBones);
-    // const rootSpringBones = [];
-    // const processSpringBones = () => {
-    //   headBone.children.forEach(hairTypeGroup => {
-    //     if (!hairTypeGroup.name.startsWith('hair_')) return;
-    //     const nameParts = hairTypeGroup.name.split('_');
-    //     const hairId = nameParts[1];
-    //     if (hairId === avatar.head.traitInfo.id) { // note: only export the hairTypeGroup of current selected hair.
-    //       hairTypeGroup.children.forEach(strandRoot => {
-    //         rootSpringBones.push(strandRoot);
-    //       });
-    //     }
-    //   });
-    // }
-    // processSpringBones();
 
+    //get only the root bone of the last array
+    const rootSpringBones = [];
+    finalSpringBones.forEach(springBone => {
+      for (const boneName in VRMHumanBoneName) {
+        if(springBone.bone.parent.name == VRMHumanBoneName[boneName]){
+          rootSpringBones.push(springBone);
+          break;
+        }
+      }
+    });
+    
+    // XXX collider bones should be taken from springBone.colliderBones
     const colliderBones = [];
-    const processColliderBones = () => {
-      colliderBones.push(headBone);
-    }
-    processColliderBones();
 
-    exporter.parse(vrmData, glbModel, screenshot, finalSpringBones, colliderBones, (vrm) => {
+    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, (vrm) => {
       resolve(vrm)
     })
   })

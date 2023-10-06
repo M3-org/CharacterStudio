@@ -168,8 +168,6 @@ export default class VRMExporterv0 {
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
         const nodeNames = nodes.map((node) => node.name);
         const outputNodes = nodes.map((node) => {
-            //const rotation = new Euler().setFromQuaternion( node.quaternion, 'XYZ' );
-            //console.log(node.quaternion)
             return {
             children: node.children
                 .filter((childNode) => childNode.name !== SPRINGBONE_COLLIDER_NAME)
@@ -419,7 +417,6 @@ export default class VRMExporterv0 {
         const outputVrmMeta = vrmMeta;
 
         const rootSpringBonesIndexes = [];
-        //console.log(rootSpringBones);
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
                 const node = nodes[i];
@@ -430,35 +427,57 @@ export default class VRMExporterv0 {
             }
         })
 
+        // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
         const colliderGroupsIndexes = [];
-        colliderBones.forEach((colliderBone, i) => {
-            const nodeIndex = nodes.indexOf(colliderBone);
-            const colliderGroup = {
-                "colliders": [
-                    { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
-                ],
-                "node": nodeIndex
+        // old way, we were hard coding the collider bone, we should fetch it instead
+        // colliderBones.forEach((colliderBone, i) => {
+        //     const nodeIndex = nodes.indexOf(colliderBone);
+        //     const colliderGroup = {
+        //         "colliders": [
+        //             { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
+        //         ],
+        //         "node": nodeIndex
+        //     }
+        //     colliderGroups.push(colliderGroup);
+        //     colliderGroupsIndexes.push(i);
+        // })
+
+        const findBoneIndex = (boneName) =>{
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.name === boneName) {
+                    return i;
+                }
             }
-            colliderGroups.push(colliderGroup);
-            colliderGroupsIndexes.push(i);
-        })
+            return -1;
+        }
+
+        const boneGroups = [];
+        rootSpringBones.forEach(springBone => {
+            let boneIndex = findBoneIndex(springBone.name);
+            let centerIndex = findBoneIndex(springBone.center.name);
+            // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
+            const settings = springBone.settings;
+            
+            boneGroups.push(
+                {
+                    bones: [boneIndex],
+                    center:centerIndex,
+                    colliderGroups: colliderGroupsIndexes, // XXX need to add the indices
+                    dragForce: settings.dragForce,
+                    gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
+                    gravityPower: settings.gravityPower,
+                    hitRadius:settings.hitRadius,
+                    stiffiness: settings.stiffness // for some reason specs mark as stiffiness, but loads it as stiffness
+                }
+            );
+        });
 
         const outputSecondaryAnimation = {
-            "boneGroups": [
-                {
-                "bones": rootSpringBonesIndexes,
-                "center": -1,
-                "colliderGroups": colliderGroupsIndexes,
-                "dragForce": 0.452,
-                "gravityDir": { "x": 0, "y": 0, "z": 0 },
-                "gravityPower": 0,
-                "hitRadius": 0.01,
-                "stiffiness": 1
-                }
-            ],
-            "colliderGroups": colliderGroups,
-        };
+            boneGroups,
+            colliderGroups: colliderGroups,
+        }
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];
@@ -790,7 +809,6 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
     });
 };
 const toOutputMaterials = (uniqueMaterials, images) => {
-  //console.log(uniqueMaterials)
   return uniqueMaterials.map((material) => {
       let baseColor;
       let VRMC_materials_mtoon = null;
