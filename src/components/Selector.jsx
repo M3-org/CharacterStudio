@@ -478,7 +478,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     const models = itemData.models;
     const textures = itemData.textures;
     const colors = itemData.colors;
-    console.log("tt");
     // null section (when user selects to remove an option)
     if ( item == null) {
       // if avatar exists and trait exsits, remove it
