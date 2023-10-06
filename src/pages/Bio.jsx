@@ -12,7 +12,6 @@ import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
 
 export const getBio = (baseCharacterData, personality) => {
-  console.log(baseCharacterData);
   const classType = baseCharacterData.name.toUpperCase();
 
   const name = personality.names[Math.floor(Math.random() * personality.names.length)]
