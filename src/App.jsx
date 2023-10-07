@@ -74,13 +74,8 @@ async function fetchManifest(location) {
 }
 
 async function fetchPersonality() {
-  const personality = local.personality
-  if (personality) {
-    return personality
-  }
   const response = await fetch(peresonalityImportPath)
   const data = await response.json()
-  local.personality = data
   return data
 }
 
