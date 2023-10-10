@@ -1,7 +1,9 @@
-import { AnimationMixer, Vector3} from 'three'
+import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
+import { getMixamoAnimation } from './loadMixamoAnimation';
+import { loadMixamoAnimation } from './loadMixamoAnimation2';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -13,13 +15,15 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  constructor(animationManager, scene, animations, curIdx, lastIdx){
-    this.mixer = new AnimationMixer(scene);
+  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx){
+    this.mixer = new THREE.AnimationMixer(scene);
     this.actions = [];
     this.to = null;
     this.from = null;
+    this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
+    console.log(animations);
     animations[0].tracks.map((track, index) => {
       if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
         animations[0].tracks.splice(index, 1)
@@ -30,6 +34,8 @@ class AnimationControl {
     for (let i =0; i < animations.length;i++){
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
+    this.actions[0].play();
+    console.log(this.actions);
 
     this.to = this.actions[curIdx]
     
@@ -46,6 +52,19 @@ class AnimationControl {
     this.actions[curIdx].reset();
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
+  }
+  update(weightIn,weightOut){
+    if (this.from != null) {
+      this.from.weight = weightOut;
+    }
+    if (this.to != null) {
+      this.to.weight = weightIn;
+    }
+
+    this.mixer.update(1/30);
+    if (this.vrm != null){
+      this.vrm.update(1/30);
+    }
   }
 
   reset() {
@@ -66,10 +85,10 @@ class AnimationControl {
 export class AnimationManager{
   constructor (offset){
     this.lastAnimID = null;
-    this.curAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
+    this.mixamoModel = null;
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
     this.offset = null;
@@ -78,7 +97,7 @@ export class AnimationManager{
     this.animationControls = [];
     this.started = false;
     if (offset){
-      this.offset = new Vector3(
+      this.offset = new THREE.Vector3(
         offset[0],
         offset[1],
         offset[2]
@@ -88,16 +107,31 @@ export class AnimationManager{
       this.update();
     }, 1000/30);
   }
+  
   async loadAnimations(path){
+    console.log(path)
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
-    const anim = await loader.loadAsync(path);
-    // offset hips
-    this.animations = anim.animations;
-    if (this.offset)
-      this.offsetHips();
+    const animationModel = await loader.loadAsync(path);
+
+    // if we have mixamo animations store the model
+    const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
+    if (clip != null){
+      console.log("mixamo!")
+      this.mixamoModel = animationModel;
+    }
+    // if no mixamo animation is present, just save the animations
+    else{
+      this.animations = animationModel.animations;
+      // offset hips
+      if (this.offset)
+        this.offsetHips();
+    }
+    
+    
 
 
-    this.mainControl = new AnimationControl(this, anim, anim.animations, this.curAnimID, this.lastAnimID)
+
+    this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(this.mainControl)
   
   }
@@ -129,21 +163,47 @@ export class AnimationManager{
       }
     });
   }
+  // loadMixamo(vrm){
+  //   console.log("load animmm")
+
+  //   const currentMixer = new THREE.AnimationMixer( vrm.scene );
+
+  //   loadMixamoAnimation( './3d/animations/CapoeiraMixamo.fbx', vrm ).then( ( clip ) => {
+  //     console.log(clip);
+  //     // Apply the loaded animation to mixer and play
+  //     currentMixer.clipAction( clip ).play();
+  //     currentMixer.timeScale = 1;
+  
+  //   } );
+  // }
 
   startAnimation(vrm){
-    //return
-    if (!this.animations) {
+    let animations = null;
+    if (this.mixamoModel != null){
+      console.log("has mixamo model");
+      animations = [getMixamoAnimation(this.mixamoModel,vrm)]
+      if (this.animations == null)
+        this.animations = animations;
+    }
+    else{
+      animations = this.animations;
+    }
+
+    console.log(animations);
+    //const animation = 
+    if (!animations) {
       console.warn("no animations were preloaded, ignoring");
       return
     }
-    const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
+    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
     addModelData(vrm , {animationControl});
-
+    console.log("an")
     if (this.started === false){
+      console.log("start initial animation")
       this.started = true;
-      this.animRandomizer(this.animations[this.curAnimID].duration);
+      this.animRandomizer(animations[this.curAnimID].duration);
     }
   }
   
@@ -203,14 +263,7 @@ export class AnimationManager{
   update(){
     if (this.mainControl) {
       this.animationControls.forEach(animControl => {
-        if (animControl.from != null) {
-          animControl.from.weight = this.weightOut;
-        }
-        if (animControl.to != null) {
-          animControl.to.weight = this.weightIn;
-        }
-
-        animControl.mixer.update(1/30);
+        animControl.update(this.weightIn,this.weightOut);
       });
 
       if (this.weightIn < 1) {

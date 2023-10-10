@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { MToonMaterial, VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { MToonMaterial, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
@@ -42,7 +42,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     removeOption,
     saveUserSelection,
     setIsChangingWholeAvatar,
-    debugMode
+    debugMode,
+    vrmHelperRoot
   } = useContext(SceneContext)
   const {
     playSound
@@ -274,7 +275,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   
   // load options first
   const loadOptions = (options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true) => {
-  //const loadOptions = (options, filterRestrictions = true) => {
+    //const loadOptions = (options, filterRestrictions = true) => {
     for (const option of options) {
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
@@ -306,8 +307,10 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
     //create a gltf loader for the 3d models
     const gltfLoader = new GLTFLoader(loadingManager)
+    gltfLoader.crossOrigin = 'anonymous';
+    console.log(vrmHelperRoot);
     gltfLoader.register((parser) => {
-      return new VRMLoaderPlugin(parser)
+      return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
     })
 
     // and a texture loaders for all the textures
@@ -510,16 +513,18 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       
       if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
         setLipSync(new LipSync(vrm));
-      renameVRMBones(vrm)
+      //renameVRMBones(vrm)
 
       if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
         blinkManager.addBlinker(vrm)
 
       lookatManager.addVRM(vrm)
 
-      // animation setup section
-      // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
+      //animation setup section
+      //play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
+
+      //animationManager.loadMixamo(vrm)
 
       // mesh target setup section
       if (item.meshTargets){
@@ -653,6 +658,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     
     if(vrm) {
       const m = vrm.scene;
+      console.log(vrm);
       m.visible = false;
       // add the now model to the current scene
       model.add(m)
