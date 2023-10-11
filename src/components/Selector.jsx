@@ -308,8 +308,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     //create a gltf loader for the 3d models
     const gltfLoader = new GLTFLoader(loadingManager)
     gltfLoader.crossOrigin = 'anonymous';
-    console.log(vrmHelperRoot);
     gltfLoader.register((parser) => {
+      //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
       return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
     })
 
@@ -331,9 +331,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       loadingManager.onError = function (url){
         console.log(resultData);
         console.warn("error loading " + url)
-        // setLoadPercentage(0)
-        // resolve(resultData);
-        // setIsLoading(false)
       }
       loadingManager.onProgress = function(url, loaded, total){
         setLoadPercentage(Math.round(loaded/total * 100 ))
@@ -656,7 +653,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     
     if(vrm) {
       const m = vrm.scene;
-      console.log(vrm);
       m.visible = false;
       // add the now model to the current scene
       model.add(m)

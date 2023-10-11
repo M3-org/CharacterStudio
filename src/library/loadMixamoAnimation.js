@@ -87,13 +87,6 @@ export function getMixamoAnimation( animations, model, vrm ) {
 
     } );
     const animClip = new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
-    console.log("clip", animClip);
     return animClip;
-	// const loader = new FBXLoader(); // A loader which loads FBX
-	// return loader.loadAsync( url ).then( ( asset ) => {
-
-		
-
-	// } );
 
 }

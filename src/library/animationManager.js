@@ -22,7 +22,6 @@ class AnimationControl {
     this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
-    console.log("animations", animations);
     animations[0].tracks.map((track, index) => {
       if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
         animations[0].tracks.splice(index, 1)
@@ -34,7 +33,6 @@ class AnimationControl {
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
     this.actions[0].play();
-    console.log(this.actions);
 
     this.to = this.actions[curIdx]
     
@@ -166,8 +164,6 @@ export class AnimationManager{
   startAnimation(vrm){
     let animations = null;
     if (this.mixamoModel != null){
-      console.log("mixamoModel", this.mixamoModel)
-      console.log("has mixamo model");
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
       if (this.animations == null)
         this.animations = animations;
@@ -175,8 +171,6 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-
-    console.log(animations);
     //const animation = 
     if (!animations) {
       console.warn("no animations were preloaded, ignoring");
@@ -186,9 +180,7 @@ export class AnimationManager{
     this.animationControls.push(animationControl);
 
     addModelData(vrm , {animationControl});
-    console.log("an")
     if (this.started === false){
-      console.log("start initial animation")
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
