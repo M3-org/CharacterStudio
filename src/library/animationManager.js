@@ -3,7 +3,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
 import { getMixamoAnimation } from './loadMixamoAnimation';
-import { loadMixamoAnimation } from './loadMixamoAnimation2';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -62,9 +61,6 @@ class AnimationControl {
     }
 
     this.mixer.update(1/30);
-    if (this.vrm != null){
-      this.vrm.update(1/30);
-    }
   }
 
   reset() {
@@ -118,9 +114,8 @@ export class AnimationManager{
     // if we have mixamo animations store the model
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
     if (clip != null){
-      console.log("mixamo!")
       this.mixamoModel = animationModel.clone();
-      this.mixamoAnimations = animationModel.animations;
+      this.mixamoAnimations =   animationModel.animations;
     }
     // if no mixamo animation is present, just save the animations
     else{

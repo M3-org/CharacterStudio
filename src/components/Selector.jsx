@@ -513,7 +513,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       
       if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
         setLipSync(new LipSync(vrm));
-      //renameVRMBones(vrm)
+      renameVRMBones(vrm)
 
       if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
         blinkManager.addBlinker(vrm)

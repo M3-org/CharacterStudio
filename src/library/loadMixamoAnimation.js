@@ -9,9 +9,6 @@ import { VRMRigMapMixamo } from './VRMRigMapMixamo.js';
  * @returns {Promise<THREE.AnimationClip>} The converted AnimationClip
  */
 export function getMixamoAnimation( animations, model, vrm ) {
-    console.log("animations", animations);
-    console.log("model", model);
-    console.log("vrm", vrm)
     const clip = THREE.AnimationClip.findByName( animations, 'mixamo.com' ); // extract the AnimationClip
 
     const tracks = []; // KeyframeTracks compatible with VRM will be added here
@@ -34,8 +31,8 @@ export function getMixamoAnimation( animations, model, vrm ) {
         const trackSplitted = track.name.split( '.' );
         const mixamoRigName = trackSplitted[ 0 ];
         const vrmBoneName = VRMRigMapMixamo[ mixamoRigName ];
-        const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode( vrmBoneName )?.name;
-        //const vrmNodeName = vrmBoneName;
+        //const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode( vrmBoneName )?.name;
+        const vrmNodeName = vrmBoneName;
         // console.log("name", vrmNodeName, vrmBoneName);
         const mixamoRigNode = model.getObjectByName( mixamoRigName );
 
