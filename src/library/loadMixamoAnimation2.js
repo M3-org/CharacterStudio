@@ -89,7 +89,7 @@ export function loadMixamoAnimation( url, vrm ) {
 			}
 
 		} );
-
+        
 		return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
 
 	} );

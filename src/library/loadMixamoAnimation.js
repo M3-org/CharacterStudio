@@ -8,9 +8,11 @@ import { VRMRigMapMixamo } from './VRMRigMapMixamo.js';
  * @param {VRM} vrm A target VRM
  * @returns {Promise<THREE.AnimationClip>} The converted AnimationClip
  */
-export function getMixamoAnimation( asset, vrm ) {
-
-    const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
+export function getMixamoAnimation( animations, model, vrm ) {
+    console.log("animations", animations);
+    console.log("model", model);
+    console.log("vrm", vrm)
+    const clip = THREE.AnimationClip.findByName( animations, 'mixamo.com' ); // extract the AnimationClip
 
     const tracks = []; // KeyframeTracks compatible with VRM will be added here
 
@@ -20,7 +22,7 @@ export function getMixamoAnimation( asset, vrm ) {
     const _vec3 = new THREE.Vector3();
 
     // Adjust with reference to hips height.
-    const motionHipsHeight = asset.getObjectByName( 'mixamorigHips' ).position.y;
+    const motionHipsHeight = model.getObjectByName( 'mixamorigHips' ).position.y;
     const vrmHipsY = vrm.humanoid?.getNormalizedBoneNode( 'hips' ).getWorldPosition( _vec3 ).y;
     const vrmRootY = vrm.scene.getWorldPosition( _vec3 ).y;
     const vrmHipsHeight = Math.abs( vrmHipsY - vrmRootY );
@@ -35,7 +37,7 @@ export function getMixamoAnimation( asset, vrm ) {
         const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode( vrmBoneName )?.name;
         //const vrmNodeName = vrmBoneName;
         // console.log("name", vrmNodeName, vrmBoneName);
-        const mixamoRigNode = asset.getObjectByName( mixamoRigName );
+        const mixamoRigNode = model.getObjectByName( mixamoRigName );
 
         if ( vrmNodeName != null ) {
 
@@ -87,8 +89,9 @@ export function getMixamoAnimation( asset, vrm ) {
         }
 
     } );
-
-    return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
+    const animClip = new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
+    console.log("clip", animClip);
+    return animClip;
 	// const loader = new FBXLoader(); // A loader which loads FBX
 	// return loader.loadAsync( url ).then( ( asset ) => {
 

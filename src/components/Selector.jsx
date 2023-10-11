@@ -524,8 +524,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       //play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
 
-      //animationManager.loadMixamo(vrm)
-
       // mesh target setup section
       if (item.meshTargets){
         getAsArray(item.meshTargets).map((target) => {

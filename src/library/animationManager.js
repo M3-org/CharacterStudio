@@ -23,7 +23,7 @@ class AnimationControl {
     this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
-    console.log(animations);
+    console.log("animations", animations);
     animations[0].tracks.map((track, index) => {
       if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
         animations[0].tracks.splice(index, 1)
@@ -88,7 +88,7 @@ export class AnimationManager{
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
-    this.mixamoModel = null;
+    
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
     this.offset = null;
@@ -96,6 +96,10 @@ export class AnimationManager{
     this.curAnimID = 0;
     this.animationControls = [];
     this.started = false;
+
+    this.mixamoModel = null;
+    this.mixamoAnimations = null;
+
     if (offset){
       this.offset = new THREE.Vector3(
         offset[0],
@@ -109,15 +113,14 @@ export class AnimationManager{
   }
   
   async loadAnimations(path){
-    console.log(path)
     const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
-
     // if we have mixamo animations store the model
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
     if (clip != null){
       console.log("mixamo!")
-      this.mixamoModel = animationModel;
+      this.mixamoModel = animationModel.clone();
+      this.mixamoAnimations = animationModel.animations;
     }
     // if no mixamo animation is present, just save the animations
     else{
@@ -163,25 +166,14 @@ export class AnimationManager{
       }
     });
   }
-  // loadMixamo(vrm){
-  //   console.log("load animmm")
 
-  //   const currentMixer = new THREE.AnimationMixer( vrm.scene );
-
-  //   loadMixamoAnimation( './3d/animations/CapoeiraMixamo.fbx', vrm ).then( ( clip ) => {
-  //     console.log(clip);
-  //     // Apply the loaded animation to mixer and play
-  //     currentMixer.clipAction( clip ).play();
-  //     currentMixer.timeScale = 1;
-  
-  //   } );
-  // }
 
   startAnimation(vrm){
     let animations = null;
     if (this.mixamoModel != null){
+      console.log("mixamoModel", this.mixamoModel)
       console.log("has mixamo model");
-      animations = [getMixamoAnimation(this.mixamoModel,vrm)]
+      animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
       if (this.animations == null)
         this.animations = animations;
     }
