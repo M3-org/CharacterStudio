@@ -7,6 +7,7 @@ import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import FileDropComponent from "../components/FileDropComponent"
 
 function Appearance({
   animationManager,
@@ -75,12 +76,20 @@ function Appearance({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
+  const handleFileDrop = (file) => {
+    // Handle the dropped file as needed
+    console.log('Handling dropped file:', file);
+  };
+
   return (
     <div className={styles.container}>
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
         <img className={"rotate"} src="ui/loading.svg" />
       </div>
       <div className={"sectionTitle"}>{t("pageTitles.chooseAppearance")}</div>
+      <FileDropComponent 
+         onFileDrop={handleFileDrop}
+      />
       <Editor
         animationManager={animationManager}
         blinkManager={blinkManager}
