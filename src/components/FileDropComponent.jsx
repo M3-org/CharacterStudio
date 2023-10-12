@@ -9,9 +9,7 @@ export default function FileDropComponent ({onFileDrop}){
     const handleDrop = (event) => {
       event.preventDefault();
       setIsDragging(false);
-      console.log(onFileDrop);
       const file = event.dataTransfer.files[0];
-      console.log('Dropped file:', file);
       if (onFileDrop) {
         onFileDrop(file);
       }

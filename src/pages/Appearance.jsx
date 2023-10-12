@@ -77,8 +77,13 @@ function Appearance({
   const { t } = useContext(LanguageContext)
 
   const handleFileDrop = (file) => {
-    // Handle the dropped file as needed
-    console.log('Handling dropped file:', file);
+    // Check if the file has the .fbx extension
+    if (file && file.name.toLowerCase().endsWith('.fbx')) {
+      console.log('Dropped .fbx file:', file);
+      const path = URL.createObjectURL(file);
+      animationManager.loadAnimations(path, true);
+      // Handle the dropped .fbx file
+    } 
   };
 
   return (

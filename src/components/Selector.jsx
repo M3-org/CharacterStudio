@@ -329,7 +329,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         setIsLoading(false)
       };
       loadingManager.onError = function (url){
-        console.log(resultData);
+        console.log("currentTraits", resultData);
         console.warn("error loading " + url)
       }
       loadingManager.onProgress = function(url, loaded, total){

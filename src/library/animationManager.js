@@ -22,17 +22,8 @@ class AnimationControl {
     this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
-    animations[0].tracks.map((track, index) => {
-      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
-        animations[0].tracks.splice(index, 1)
-      }
-    })
-    // animations[0].tracks.splice(9, 2);
-    this.actions = [];
-    for (let i =0; i < animations.length;i++){
-      this.actions.push(this.mixer.clipAction(animations[i]));
-    }
-    this.actions[0].play();
+
+    this.setAnimations(animations);
 
     this.to = this.actions[curIdx]
     
@@ -50,6 +41,26 @@ class AnimationControl {
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
   }
+  setAnimations(animations, mixamoModel){
+    this.mixer.stopAllAction();
+    if (mixamoModel != null){
+      if (this.vrm != null)
+        animations = [getMixamoAnimation(animations, mixamoModel , this.vrm)]
+      // modify animations
+    }
+    animations[0].tracks.map((track, index) => {
+      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
+        animations[0].tracks.splice(index, 1)
+      }
+    })
+    
+    this.actions = [];
+    for (let i =0; i < animations.length;i++){
+      this.actions.push(this.mixer.clipAction(animations[i]));
+    }
+    this.actions[0].play();
+  }
+
   update(weightIn,weightOut){
     if (this.from != null) {
       this.from.weight = weightOut;
@@ -106,8 +117,8 @@ export class AnimationManager{
     }, 1000/30);
   }
   
-  async loadAnimations(path){
-    const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
+  async loadAnimations(path, isfbx = true){
+    const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
@@ -117,18 +128,22 @@ export class AnimationManager{
     }
     // if no mixamo animation is present, just save the animations
     else{
+      this.mixamoModel = null
       this.animations = animationModel.animations;
-      // offset hips
       if (this.offset)
         this.offsetHips();
     }
     
-    
-
-
-
-    this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
-    this.animationControls.push(this.mainControl)
+    if (this.mainControl == null){
+      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
+      this.animationControls.push(this.mainControl)
+    }
+    else{
+      //cons
+      this.animationControls.forEach(animationControl => {
+        animationControl.setAnimations(animationModel.animations, this.mixamoModel)
+      });
+    }
   
   }
 
