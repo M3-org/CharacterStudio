@@ -25,8 +25,8 @@ export function getMixamoAnimation( animations, model, vrm ) {
     const vrmHipsHeight = Math.abs( vrmHipsY - vrmRootY );
     const hipsPositionScale = vrmHipsHeight / motionHipsHeight;
 
-    clip.tracks.forEach( ( track ) => {
-
+    clip.tracks.forEach( ( origTrack ) => {
+        const track = origTrack.clone();
         // Convert each tracks for VRM use, and push to `tracks`
         const trackSplitted = track.name.split( '.' );
         const mixamoRigName = trackSplitted[ 0 ];
