@@ -44,6 +44,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     saveUserSelection,
     setIsChangingWholeAvatar,
     debugMode,
+    setDisplayTraitOption,
     vrmHelperRoot
   } = useContext(SceneContext)
   const {
@@ -228,6 +229,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   }
   // user selects an option
   const selectTraitOption = (option) => {
+    console.log(option);
     const addOption  = option != null
     if (isLoading) return;
 
@@ -268,6 +270,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       }, effectManager.transitionTime);
       setAvatar(finalAvatar)
     })
+
+    setDisplayTraitOption(option)
 
     return;
   }
@@ -692,20 +696,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     }
   }
 
-
-  // if head <Skin templateInfo={templateInfo} avatar={avatar} />
-
-  function TraitTitle(props) {
-    return (
-      props.title && (
-        <div className={styles["traitTitleWrap"]}>
-          <div className={styles["topLine"]} />
-          <div className={styles["traitTitle"]}>{props.title}</div>
-        </div>
-      )
-    )
-  }
-
   function ClearTraitButton() {
     // clear the current trait
     const isSelected = currentTrait.get(currentTraitName) ? true : false;
@@ -718,8 +708,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         onClick={() => {
           if (effectManager.getTransitionEffect('normal')) {
             selectTraitOption(null) 
-            setSelectValue("")
+            setSelectValue("");
             effectManager.setTransitionEffect('normal');
+            setDisplayTraitOption(null);
           }
         }}
       >
@@ -742,7 +733,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       
       <div className={styles["SelectorContainerPos"]}>
        
-        <TraitTitle title={t(`editor.${currentTraitName}`)} />
+        <MenuTitle title={currentTraitName} width={130} left={20}/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>

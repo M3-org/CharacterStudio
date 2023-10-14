@@ -20,7 +20,19 @@ import MenuTitle from "./MenuTitle"
 
 
 export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
-  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, manifestSelectionIndex, moveCamera} = useContext(SceneContext);
+  const {
+    currentTraitName, 
+    setCurrentTraitName, 
+    awaitDisplay, 
+    setCurrentOptions, 
+    setSelectedOptions, 
+    setAwaitDisplay, 
+    setRemoveOption, 
+    loadUserSelection, 
+    templateInfo, 
+    manifestSelectionIndex, 
+    moveCamera,
+  } = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 
@@ -71,7 +83,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   return (
     <Fragment>
       <div className={styles["SideMenu"]}>
-        <MenuTitle title="Appearance"/>
+        <MenuTitle title="Appearance" left={20}/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
