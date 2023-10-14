@@ -16,6 +16,7 @@ import Selector from "./Selector"
 import TraitInformation from "./TraitInformation"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
+import MenuTitle from "./MenuTitle"
 
 
 export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
@@ -67,21 +68,10 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     setCurrentTraitName(option.name)
   }
 
-  function MenuTitle(props) {
-    return (
-      props.title && (
-        <div className={styles["mainTitleWrap"]}>
-          <div className={styles["topLine"]} />
-          <div className={styles["mainTitle"]}>{props.title}</div>
-        </div>
-      )
-    )
-  }
-
   return (
     <Fragment>
       <div className={styles["SideMenu"]}>
-        <MenuTitle title={t("editor.title")} />
+        <MenuTitle title="Appearance"/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>

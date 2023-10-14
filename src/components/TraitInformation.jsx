@@ -8,7 +8,7 @@ export default function TraitInformation({selectedTrait}){
     return (
         <div>
             <div className={styles["InformationContainerPos"]}>
-                test
+            {/* <MenuTitle title="test"/> */}
             </div>
         </div>
       )

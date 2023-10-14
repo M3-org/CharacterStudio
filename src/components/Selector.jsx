@@ -22,6 +22,7 @@ import { cullHiddenMeshes } from "../library/utils"
 import styles from "./Selector.module.css"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
+import MenuTitle from "./MenuTitle"
 
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
