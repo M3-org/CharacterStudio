@@ -1,0 +1,10 @@
+.InformationContainerPos {
+    position: absolute;
+    top: 98px;
+    right: 50px;
+    height: 600px;
+    width: 400px;
+    backdrop-filter: blur(22.5px);
+    background: rgba(5, 11, 14, 0.5);
+    z-index: 1000;
+  }

@@ -13,6 +13,7 @@ import {
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
+import TraitInformation from "./TraitInformation"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 
@@ -103,6 +104,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         </div>
       </div>
       <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
+      <TraitInformation/>
     </Fragment>
   )
 }
