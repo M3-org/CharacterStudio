@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { MToonMaterial, VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { MToonMaterial, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
@@ -42,7 +42,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     removeOption,
     saveUserSelection,
     setIsChangingWholeAvatar,
-    debugMode
+    debugMode,
+    vrmHelperRoot
   } = useContext(SceneContext)
   const {
     playSound
@@ -274,7 +275,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   
   // load options first
   const loadOptions = (options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true) => {
-  //const loadOptions = (options, filterRestrictions = true) => {
+    //const loadOptions = (options, filterRestrictions = true) => {
     for (const option of options) {
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
@@ -306,8 +307,10 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
     //create a gltf loader for the 3d models
     const gltfLoader = new GLTFLoader(loadingManager)
+    gltfLoader.crossOrigin = 'anonymous';
     gltfLoader.register((parser) => {
-      return new VRMLoaderPlugin(parser)
+      //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
+      return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
     })
 
     // and a texture loaders for all the textures
@@ -326,11 +329,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
         setIsLoading(false)
       };
       loadingManager.onError = function (url){
-        console.log(resultData);
+        console.log("currentTraits", resultData);
         console.warn("error loading " + url)
-        // setLoadPercentage(0)
-        // resolve(resultData);
-        // setIsLoading(false)
       }
       loadingManager.onProgress = function(url, loaded, total){
         setLoadPercentage(Math.round(loaded/total * 100 ))
@@ -517,8 +517,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
       lookatManager.addVRM(vrm)
 
-      // animation setup section
-      // play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
+      //animation setup section
+      //play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
 
       // mesh target setup section

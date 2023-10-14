@@ -1,0 +1,13 @@
+.dropArea {
+    height: 100vh;
+    width: 100vw;
+    border: '2px dashed #aaa';
+    background-size: cover;
+    text-align: 'center';
+    display: fixed;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: absolute;
+    z-index: 10000;
+}

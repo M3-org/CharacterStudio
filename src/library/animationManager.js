@@ -1,7 +1,8 @@
-import { AnimationMixer, Vector3} from 'three'
+import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
+import { getMixamoAnimation } from './loadMixamoAnimation';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -13,23 +14,16 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  constructor(animationManager, scene, animations, curIdx, lastIdx){
-    this.mixer = new AnimationMixer(scene);
+  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx){
+    this.mixer = new THREE.AnimationMixer(scene);
     this.actions = [];
     this.to = null;
     this.from = null;
+    this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
-    animations[0].tracks.map((track, index) => {
-      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
-        animations[0].tracks.splice(index, 1)
-      }
-    })
-    // animations[0].tracks.splice(9, 2);
-    this.actions = [];
-    for (let i =0; i < animations.length;i++){
-      this.actions.push(this.mixer.clipAction(animations[i]));
-    }
+
+    this.setAnimations(animations);
 
     this.to = this.actions[curIdx]
     
@@ -46,6 +40,36 @@ class AnimationControl {
     this.actions[curIdx].reset();
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
+  }
+  setAnimations(animations, mixamoModel){
+    this.mixer.stopAllAction();
+    if (mixamoModel != null){
+      if (this.vrm != null)
+        animations = [getMixamoAnimation(animations, mixamoModel , this.vrm)]
+      // modify animations
+    }
+    animations[0].tracks.map((track, index) => {
+      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
+        animations[0].tracks.splice(index, 1)
+      }
+    })
+    
+    this.actions = [];
+    for (let i =0; i < animations.length;i++){
+      this.actions.push(this.mixer.clipAction(animations[i]));
+    }
+    this.actions[0].play();
+  }
+
+  update(weightIn,weightOut){
+    if (this.from != null) {
+      this.from.weight = weightOut;
+    }
+    if (this.to != null) {
+      this.to.weight = weightIn;
+    }
+
+    this.mixer.update(1/30);
   }
 
   reset() {
@@ -66,10 +90,10 @@ class AnimationControl {
 export class AnimationManager{
   constructor (offset){
     this.lastAnimID = null;
-    this.curAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
+    
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
     this.offset = null;
@@ -77,8 +101,12 @@ export class AnimationManager{
     this.curAnimID = 0;
     this.animationControls = [];
     this.started = false;
+
+    this.mixamoModel = null;
+    this.mixamoAnimations = null;
+
     if (offset){
-      this.offset = new Vector3(
+      this.offset = new THREE.Vector3(
         offset[0],
         offset[1],
         offset[2]
@@ -88,17 +116,34 @@ export class AnimationManager{
       this.update();
     }, 1000/30);
   }
-  async loadAnimations(path){
-    const loader = path.endsWith('.fbx') ? fbxLoader : gltfLoader;
-    const anim = await loader.loadAsync(path);
-    // offset hips
-    this.animations = anim.animations;
-    if (this.offset)
-      this.offsetHips();
-
-
-    this.mainControl = new AnimationControl(this, anim, anim.animations, this.curAnimID, this.lastAnimID)
-    this.animationControls.push(this.mainControl)
+  
+  async loadAnimations(path, isfbx = true){
+    const loader = isfbx ? fbxLoader : gltfLoader;
+    const animationModel = await loader.loadAsync(path);
+    // if we have mixamo animations store the model
+    const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
+    if (clip != null){
+      this.mixamoModel = animationModel.clone();
+      this.mixamoAnimations =   animationModel.animations;
+    }
+    // if no mixamo animation is present, just save the animations
+    else{
+      this.mixamoModel = null
+      this.animations = animationModel.animations;
+      if (this.offset)
+        this.offsetHips();
+    }
+    
+    if (this.mainControl == null){
+      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
+      this.animationControls.push(this.mainControl)
+    }
+    else{
+      //cons
+      this.animationControls.forEach(animationControl => {
+        animationControl.setAnimations(animationModel.animations, this.mixamoModel)
+      });
+    }
   
   }
 
@@ -130,20 +175,29 @@ export class AnimationManager{
     });
   }
 
+
   startAnimation(vrm){
-    //return
-    if (!this.animations) {
+    let animations = null;
+    if (this.mixamoModel != null){
+      animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
+      if (this.animations == null)
+        this.animations = animations;
+    }
+    else{
+      animations = this.animations;
+    }
+    //const animation = 
+    if (!animations) {
       console.warn("no animations were preloaded, ignoring");
       return
     }
-    const animationControl = new AnimationControl(this, vrm.scene, this.animations, this.curAnimID, this.lastAnimID)
+    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
 
     addModelData(vrm , {animationControl});
-
     if (this.started === false){
       this.started = true;
-      this.animRandomizer(this.animations[this.curAnimID].duration);
+      this.animRandomizer(animations[this.curAnimID].duration);
     }
   }
   
@@ -203,14 +257,7 @@ export class AnimationManager{
   update(){
     if (this.mainControl) {
       this.animationControls.forEach(animControl => {
-        if (animControl.from != null) {
-          animControl.from.weight = this.weightOut;
-        }
-        if (animControl.to != null) {
-          animControl.to.weight = this.weightIn;
-        }
-
-        animControl.mixer.update(1/30);
+        animControl.update(this.weightIn,this.weightOut);
       });
 
       if (this.weightIn < 1) {

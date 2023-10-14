@@ -12,6 +12,9 @@ import { local } from "../library/store"
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
+
+  const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
+
   const initializeScene = () => {
     const scene = new THREE.Scene()
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -22,10 +25,16 @@ export const SceneProvider = (props) => {
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
 
+    const helperRoot = new THREE.Group();
+    helperRoot.renderOrder = 10000;
+    scene.add( helperRoot );
+    setVrmHelperRoot(helperRoot);
+
     return scene;
   }
 
   const [scene, setScene] = useState(initializeScene)
+  
 
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
@@ -193,6 +202,8 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
+        vrmHelperRoot,
+        
         awaitDisplay, 
         setAwaitDisplay,
         templateInfo,
