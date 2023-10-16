@@ -81,7 +81,7 @@ function Appearance({
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
       console.log('Dropped .fbx file:', file);
       const path = URL.createObjectURL(file);
-      animationManager.loadAnimations(path, true);
+      animationManager.loadAnimation(path, true);
       // Handle the dropped .fbx file
     } 
   };

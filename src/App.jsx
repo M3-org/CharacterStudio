@@ -92,7 +92,10 @@ async function fetchScene() {
 async function fetchAnimation(templateInfo) {
   // create an animation manager for all the traits that will be loaded
   const newAnimationManager = new AnimationManager(templateInfo.offset)
-  await newAnimationManager.loadAnimations(templateInfo.animationPath, templateInfo.animationPath.endsWith('.fbx'))
+  const animationPaths = getAsArray(templateInfo.animationPath);
+  newAnimationManager.storeAnimationPaths(animationPaths);
+  
+  await newAnimationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'))
   return newAnimationManager
 }
 

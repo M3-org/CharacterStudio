@@ -115,7 +115,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         </div>
       </div>
       <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
-      <TraitInformation currentVRM={currentVRM}/>
+      <TraitInformation currentVRM={currentVRM} animationManager={animationManager}/>
     </Fragment>
   )
 }

@@ -5,7 +5,7 @@ import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 
-export default function TraitInformation({currentVRM}){
+export default function TraitInformation({currentVRM, animationManager}){
     const {
         displayTraitOption,
         avatar
@@ -47,6 +47,17 @@ export default function TraitInformation({currentVRM}){
             cullHiddenMeshes(avatar);
         }
     };
+
+    const nextAnimation = () => {
+        animationManager.loadNextAnimation();
+        console.log(animationManager);
+        console.log("next")
+    }
+    const prevAnimation = () => {
+        animationManager.loadPreviousAnimation();
+        console.log(animationManager);
+        console.log("prev")
+    }
 
     return (
         displayTraitOption != null ? (
@@ -105,9 +116,15 @@ export default function TraitInformation({currentVRM}){
                         </div>
                         <br/>
                         <div className={styles["animationSelect"]}>
-                            <button className={styles["traitInfoText"]}>1</button>
+                            <button 
+                                className={styles["traitInfoText"]}
+                                onClick={prevAnimation}
+                            >1</button>
                             <div className={styles["traitInfoText"]}>animation name</div>
-                            <button className={styles["traitInfoText"]}>1</button>
+                            <button 
+                                className={styles["traitInfoText"]}
+                                onClick={nextAnimation}
+                            >1</button>
                         </div>
                     </div>
 

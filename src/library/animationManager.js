@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
 import { getMixamoAnimation } from './loadMixamoAnimation';
+import { getAsArray } from './utils';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -89,10 +90,13 @@ class AnimationControl {
 
 export class AnimationManager{
   constructor (offset){
+    this.animationPaths = null;
     this.lastAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
+
+    this.curLoadAnim = 0;
     
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
@@ -116,8 +120,11 @@ export class AnimationManager{
       this.update();
     }, 1000/30);
   }
+
+   
   
-  async loadAnimations(path, isfbx = true){
+  async loadAnimation(paths, isfbx = true){
+    const path = getAsArray(paths)[0];
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
@@ -145,6 +152,26 @@ export class AnimationManager{
       });
     }
   
+  }
+
+  storeAnimationPaths(pathArray){
+    this.animationPaths = getAsArray(pathArray);   
+  }
+  
+  loadNextAnimation(){
+    if (this.curLoadAnim == this.animationPaths.length-1)
+      this.curLoadAnim = 0;
+    else
+      this.curLoadAnim++;
+    this.loadAnimation(this.animationPaths[this.curLoadAnim])
+  }
+
+  loadPreviousAnimation(){
+    if (this.curLoadAnim == 0)
+      this.curLoadAnim = this.animationPaths.length-1;
+    else
+      this.curLoadAnim--;
+    this.loadAnimation(this.animationPaths[this.curLoadAnim])
   }
 
   enableScreenshot() {
