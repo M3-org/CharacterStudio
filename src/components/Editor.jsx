@@ -13,12 +13,28 @@ import {
 
 import styles from "./Editor.module.css"
 import Selector from "./Selector"
+import TraitInformation from "./TraitInformation"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
+import MenuTitle from "./MenuTitle"
 
 
 export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager}) {
-  const {manifest, currentTraitName, setCurrentTraitName, awaitDisplay, setCurrentOptions, setSelectedOptions, setAwaitDisplay, setRemoveOption, loadUserSelection, templateInfo, manifestSelectionIndex, moveCamera} = useContext(SceneContext);
+  const {
+    currentTraitName, 
+    setCurrentTraitName, 
+    awaitDisplay, 
+    setCurrentOptions, 
+    setSelectedOptions, 
+    setAwaitDisplay, 
+    setRemoveOption, 
+    loadUserSelection, 
+    templateInfo, 
+    manifestSelectionIndex, 
+    moveCamera,
+    avatar,
+    setDisplayTraitOption
+  } = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
 
@@ -30,6 +46,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   } = useContext(SoundContext)
 
   const [cameraFocused, setCameraFocused] = React.useState(false)
+  const [currentVRM, setCurrentVRM] = React.useState(null)
 
   // options are selected by random or start
   useEffect(() => {
@@ -47,6 +64,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   const selectOption = (option) => {
     !isMute && playSound('optionClick');
     if (option.name === currentTraitName) {
+      setDisplayTraitOption(null);
       if (cameraFocused) {
         moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
         setCameraFocused(false)
@@ -55,6 +73,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         setCameraFocused(true)
       }
       setCurrentTraitName(null)
+      setCurrentVRM(null)
       return
     }
 
@@ -64,23 +83,16 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
-  }
 
-  function MenuTitle(props) {
-    return (
-      props.title && (
-        <div className={styles["mainTitleWrap"]}>
-          <div className={styles["topLine"]} />
-          <div className={styles["mainTitle"]}>{props.title}</div>
-        </div>
-      )
-    )
+    // for item display
+    setDisplayTraitOption(avatar[option.name]?.traitInfo)
+    setCurrentVRM(avatar[option.name]?.vrm);
   }
 
   return (
     <Fragment>
       <div className={styles["SideMenu"]}>
-        <MenuTitle title={t("editor.title")} />
+        <MenuTitle title="Appearance" left={20}/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
@@ -103,6 +115,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         </div>
       </div>
       <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
+      <TraitInformation currentVRM={currentVRM}/>
     </Fragment>
   )
 }
