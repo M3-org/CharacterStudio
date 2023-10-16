@@ -144,6 +144,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       const finalAvatar = {...avatar, ...newAvatar}
       setTimeout(() => {
         if (Object.keys(finalAvatar).length > 0) {
+          console.log(finalAvatar)
           cullHiddenMeshes(finalAvatar)
         }
         !isMute && playSound('characterLoad',300);
@@ -229,7 +230,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   }
   // user selects an option
   const selectTraitOption = (option) => {
-    console.log(option);
     const addOption  = option != null
     if (isLoading) return;
 
@@ -271,7 +271,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       setAvatar(finalAvatar)
     })
 
-    setDisplayTraitOption(option)
+    setDisplayTraitOption(option?.item)
 
     return;
   }

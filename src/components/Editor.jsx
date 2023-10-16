@@ -32,6 +32,8 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     templateInfo, 
     manifestSelectionIndex, 
     moveCamera,
+    avatar,
+    setDisplayTraitOption
   } = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -44,6 +46,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   } = useContext(SoundContext)
 
   const [cameraFocused, setCameraFocused] = React.useState(false)
+  const [currentVRM, setCurrentVRM] = React.useState(null)
 
   // options are selected by random or start
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   const selectOption = (option) => {
     !isMute && playSound('optionClick');
     if (option.name === currentTraitName) {
+      setDisplayTraitOption(null);
       if (cameraFocused) {
         moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
         setCameraFocused(false)
@@ -69,6 +73,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         setCameraFocused(true)
       }
       setCurrentTraitName(null)
+      setCurrentVRM(null)
       return
     }
 
@@ -78,6 +83,10 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
     setCurrentTraitName(option.name)
+
+    // for item display
+    setDisplayTraitOption(avatar[option.name]?.traitInfo)
+    setCurrentVRM(avatar[option.name]?.vrm);
   }
 
   return (
@@ -106,7 +115,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         </div>
       </div>
       <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
-      <TraitInformation/>
+      <TraitInformation currentVRM={currentVRM}/>
     </Fragment>
   )
 }

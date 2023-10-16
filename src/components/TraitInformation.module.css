@@ -2,7 +2,7 @@
     position: absolute;
     top: 98px;
     right: 50px;
-    height: 400px;
+    height: 500px;
     width: 300px;
     backdrop-filter: blur(22.5px);
     background: rgba(5, 11, 14, 0.5);
@@ -27,3 +27,21 @@
     word-spacing: 2px;
     margin-bottom: 30px;
 }
+.input-box {
+    width: 60px; /* Adjust as needed */
+    height: 20px;
+    color: #5eb086;
+    background-color:rgba(5, 11, 14, 0.5);
+    border: none;
+    font-size: large;
+    font-weight: 700;
+    margin-left: 15px;
+  }
+  .input-box:focus {
+    outline: none;
+  }
+  
+  .input-box::selection {
+    background-color: #111f17;
+    color: #5eb086;
+  }
