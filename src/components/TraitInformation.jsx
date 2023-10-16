@@ -53,52 +53,64 @@ export default function TraitInformation({currentVRM}){
         <div>
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Trait Information" width={180} right={20}/>
-                <div className={styles["traitInfoTitle"]}>
-                    Trait ID
-                </div>
-                <div className={styles["traitInfoText"]}>
-                    {displayTraitOption?.id}
-                </div>
-                <div className={styles["traitInfoTitle"]}>
-                    Trait Name
-                </div>
-                <div className={styles["traitInfoText"]}>
-                    {displayTraitOption?.name}
-                </div>
-                <div className={styles["traitInfoTitle"]}>
-                    Culling Layer
-                </div>
-                <div className={styles["traitInfoText"]}>
-                    {displayTraitOption?.cullingLayer || "-"}
-                </div>
-                <div className={styles["traitInfoTitle"]}>
-                    Description
-                </div>
-                <div className={styles["traitInfoText"]}>
-                    {displayTraitOption?.description || "A nice " + displayTraitOption?.name}
-                </div>
-                <div className={styles["traitInfoTitle"]}>
-                    Culling Options
-                </div>
-                <div className={styles["traitInfoText"]}>
-                    Culling Layer
-                        <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={cullLayer}
-                            onChange={handleCullLayerChange}
-                            className={styles["input-box"]}
-                            step ={1}
-                        />
-                    <br/>
-                    <br/>
-                    Cull Out Distance
-                    <Slider  value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
-                    <br/>
-                    Cull In Distance
-                    <Slider  value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
-                </div>
+                <div className={styles["scrollContainer"]}>
+                    <div className={styles["traitInfoTitle"]}>
+                        Trait ID
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        {displayTraitOption?.id}
+                    </div>
+                    <div className={styles["traitInfoTitle"]}>
+                        Trait Name
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        {displayTraitOption?.name}
+                    </div>
+                    <div className={styles["traitInfoTitle"]}>
+                        Culling Layer
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        {displayTraitOption?.cullingLayer || "-"}
+                    </div>
+                    <div className={styles["traitInfoTitle"]}>
+                        Description
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        {displayTraitOption?.description || "A nice " + displayTraitOption?.name}
+                    </div>
+                    <div className={styles["traitInfoTitle"]}>
+                        Culling Options
+                    </div>
+                        <div className={styles["traitInfoText"]}>
+                            Culling Layer
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={cullLayer}
+                                    onChange={handleCullLayerChange}
+                                    className={styles["input-box"]}
+                                    step ={1}
+                                />
+                            <br/>
+                            <br/>
+                            Cull Out Distance
+                            <Slider  value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
+                            <br/>
+                            Cull In Distance
+                            <Slider  value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
+                        </div>
+                        <div className={styles["traitInfoTitle"]}>
+                            Animation
+                        </div>
+                        <br/>
+                        <div className={styles["animationSelect"]}>
+                            <button className={styles["traitInfoText"]}>1</button>
+                            <div className={styles["traitInfoText"]}>animation name</div>
+                            <button className={styles["traitInfoText"]}>1</button>
+                        </div>
+                    </div>
+
             </div>
         </div>
         ):(<></>)

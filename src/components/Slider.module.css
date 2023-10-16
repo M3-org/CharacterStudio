@@ -14,8 +14,8 @@
   color: #5eb086;
   background-color:rgba(5, 11, 14, 0.5);
   border: none;
-  font-size: large;
-  font-weight: 700;
+  font-size: medium;
+  font-weight: 500;
   margin-left: 15px;
 }
 .input-box:focus {
