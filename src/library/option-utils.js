@@ -72,7 +72,7 @@ export const getClassOptions = (manifest) => {
 
 export function getTraitOptions(trait, template) {
   const traitOptions = []
-  const thumbnailBaseDir = template.thumbnailsDirectory
+  const thumbnailBaseDir = (template.assetsLocation || "") + template.thumbnailsDirectory
   trait.collection.map((item, index) => {
     const textureTraits = template.textureCollections.find(
       (texture) => texture.trait === item.textureCollection,

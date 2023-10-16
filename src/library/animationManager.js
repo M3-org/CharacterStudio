@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
 import { getMixamoAnimation } from './loadMixamoAnimation';
-import { getAsArray } from './utils';
+import { getAsArray, getFileNameWithoutExtension } from './utils';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
@@ -97,6 +97,7 @@ export class AnimationManager{
     this.animations = null;
 
     this.curLoadAnim = 0;
+    this.currentAnimationName = "";
     
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
@@ -123,8 +124,12 @@ export class AnimationManager{
 
    
   
-  async loadAnimation(paths, isfbx = true){
-    const path = getAsArray(paths)[0];
+  async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
+    console.log(paths)
+    const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
+    name = name == "" ? getFileNameWithoutExtension(path) : name;
+    this.currentAnimationName = name;
+    console.log(this.currentAnimationName);
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
@@ -154,10 +159,15 @@ export class AnimationManager{
   
   }
 
-  storeAnimationPaths(pathArray){
-    this.animationPaths = getAsArray(pathArray);   
+  getCurrentAnimationName(){
+    return this.currentAnimationName;
   }
-  
+
+  storeAnimationPaths(pathArray, pathBase){
+    const paths = getAsArray(pathArray);   
+    this.animationPaths = paths.map(path => `${pathBase}/${path}`);
+  }
+
   loadNextAnimation(){
     if (this.curLoadAnim == this.animationPaths.length-1)
       this.curLoadAnim = 0;

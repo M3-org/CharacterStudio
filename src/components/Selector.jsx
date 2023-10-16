@@ -342,7 +342,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       }
       
       
-      const baseDir = useTemplateBaseDirectory ? templateInfo.traitsDirectory : "";
+      const baseDir = useTemplateBaseDirectory ? (templateInfo.assetsLocation || "") + templateInfo.traitsDirectory : "";
       // load necesary assets for the options
       options.map((option, index)=>{
         if (option.selected){

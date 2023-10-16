@@ -8,6 +8,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
+import { getFileNameWithoutExtension } from "../library/utils"
 
 function Appearance({
   animationManager,
@@ -76,12 +77,14 @@ function Appearance({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleFileDrop = (file) => {
+  const handleFileDrop = async(file) => {
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
+      const animName = getFileNameWithoutExtension(file.name);
       console.log('Dropped .fbx file:', file);
       const path = URL.createObjectURL(file);
-      animationManager.loadAnimation(path, true);
+      console.log("path")
+      await animationManager.loadAnimation(path, true, "", animName);
       // Handle the dropped .fbx file
     } 
   };

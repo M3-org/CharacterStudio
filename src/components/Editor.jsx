@@ -103,7 +103,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
                     size={56}
                     resolution={2048}
                     numFrames={128}
-                    icon={templateInfo.traitIconsDirectorySvg + item.iconSvg}
+                    icon={ (templateInfo.assetsLocation || "") + templateInfo.traitIconsDirectorySvg + item.iconSvg}
                     rarity={currentTraitName !== item.name ? "none" : "mythic"}
                     onClick={() => {
                       selectOption(item)

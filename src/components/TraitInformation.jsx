@@ -14,6 +14,7 @@ export default function TraitInformation({currentVRM, animationManager}){
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
+    const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
 
     useEffect(() => {
         if (currentVRM != null){
@@ -22,6 +23,11 @@ export default function TraitInformation({currentVRM, animationManager}){
             setCullInDistance(currentVRM?.data?.cullingDistance[1]||0);
         }
     }, [currentVRM])
+
+    useEffect(()=>{
+        //console.log(animationManager.currentAnimationName);
+        setAnimationName(animationManager.getCurrentAnimationName());
+    },[animationManager.currentAnimationName])
     
 
     const handleCullOutChange = (event) => {
@@ -48,15 +54,13 @@ export default function TraitInformation({currentVRM, animationManager}){
         }
     };
 
-    const nextAnimation = () => {
-        animationManager.loadNextAnimation();
-        console.log(animationManager);
-        console.log("next")
+    const nextAnimation = async () => {
+        await animationManager.loadNextAnimation();
+        setAnimationName(animationManager.getCurrentAnimationName());
     }
-    const prevAnimation = () => {
-        animationManager.loadPreviousAnimation();
-        console.log(animationManager);
-        console.log("prev")
+    const prevAnimation = async () => {
+        await animationManager.loadPreviousAnimation();
+        setAnimationName(animationManager.getCurrentAnimationName());
     }
 
     return (
@@ -120,7 +124,7 @@ export default function TraitInformation({currentVRM, animationManager}){
                                 className={styles["traitInfoText"]}
                                 onClick={prevAnimation}
                             >1</button>
-                            <div className={styles["traitInfoText"]}>animation name</div>
+                            <div className={styles["traitInfoText"]}>{animationName}</div>
                             <button 
                                 className={styles["traitInfoText"]}
                                 onClick={nextAnimation}
