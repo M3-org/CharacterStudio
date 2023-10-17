@@ -35,6 +35,9 @@ jobs:
       # ESLint linter check
       run: npm run lint:js
 
+    - name: Repo Visualizer
+      uses: githubocto/repo-visualizer@0.9.1
+            
     - name: Check code meets quality standards
       id: code-inspector
       uses: codeinspectorio/github-action@master
