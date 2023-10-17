@@ -29,6 +29,13 @@ export async function prepareModel(templateInfo){
   }));
 }
 
+export function getFileNameWithoutExtension(filePath) {
+  // Get the base file name without the extension
+  const baseFileName = filePath.replace(/^.*[\\/]/, '').split('.').slice(0, -1).join('.');
+
+  return baseFileName;
+}
+
 export function getRandomObjectKey (obj) {
   const arr = Object.keys(obj);
   return obj[arr[Math.floor(Math.random() * arr.length)]];
