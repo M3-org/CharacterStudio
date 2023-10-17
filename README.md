@@ -33,6 +33,7 @@ yarn run dev
 ## Load Your Assets
 
 We separate the program from the asset packs. We have some sample assets here: https://github.com/memelotsqui/character-assets
+![Screenshot from 2023-10-17 17-10-38](https://github.com/M3-org/CharacterStudio/assets/32600939/23768dc3-b834-4f70-a986-a4a0141c4014)
 
 Instructions coming soon
 
