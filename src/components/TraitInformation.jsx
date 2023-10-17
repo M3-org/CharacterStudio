@@ -131,6 +131,18 @@ export default function TraitInformation({currentVRM, animationManager}){
                                 onClick={nextAnimation}
                             ></div>
                         </div>
+                        <div className={styles["traitInfoText"]}>
+                            <div className={styles["checkboxHolder"]}>
+                                <div>
+                                Mouse Follow
+                                </div>
+                                <label className={styles["custom-checkbox"]}>
+                                    <input type="checkbox" />
+                                    <div className={styles["checkbox-container"]}></div>
+                                </label>
+                            </div>
+                        </div>
+                       
                     </div>
 
             </div>

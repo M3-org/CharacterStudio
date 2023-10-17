@@ -99,3 +99,44 @@
 .anim-button:hover {
   opacity: 1;
 }
+
+/* Hide the default checkbox */
+.custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+/* Style the custom checkbox */
+.custom-checkbox .checkbox-container {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #284b39; /* Change border color as needed */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-checkbox .checkbox-container.checked {
+  background-color: #5eb086; /* Change background color when checked */
+}
+
+.custom-checkbox .checkbox-container .checkmark {
+  display: none;
+}
+
+/* Style the checkmark when the checkbox is checked */
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-container {
+  background-color: #5eb086; /* Change background color when checked */
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-container .checkmark {
+  display: block;
+}
+
+.checkboxHolder {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  align-content: center;
+  height: 40px;
+}
