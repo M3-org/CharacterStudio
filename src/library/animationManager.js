@@ -23,6 +23,14 @@ class AnimationControl {
     this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
+    this.mixamoModel = null;
+
+    this.fadeOutActions = null;
+    this.newAnimationWeight = 1;
+
+    this.neckBone = vrm?.humanoid?.humanBones?.neck;
+    this.spineBone = vrm?.humanoid?.humanBones?.spine;
+
 
     this.setAnimations(animations);
 
@@ -42,27 +50,72 @@ class AnimationControl {
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
   }
-  setAnimations(animations, mixamoModel){
-    this.mixer.stopAllAction();
+
+  setMouseLookEnabled(mouseLookEnabled){
+    this.setAnimations(this.animations, this.mixamoModel, mouseLookEnabled);
+  }
+
+  setAnimations(animations, mixamoModel, mouseLookEnabled = null){
+    mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
+    this.animations = animations;
+    //this.mixer.stopAllAction();
     if (mixamoModel != null){
-      if (this.vrm != null)
-        animations = [getMixamoAnimation(animations, mixamoModel , this.vrm)]
-      // modify animations
-    }
-    animations[0].tracks.map((track, index) => {
-      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
-        animations[0].tracks.splice(index, 1)
+      if (this.vrm != null){
+        const mixamoAnimation = getMixamoAnimation(animations, mixamoModel , this.vrm);
+        if (mixamoAnimation){
+          animations = [mixamoAnimation]
+          this.mixamoModel = mixamoModel;
+        }
       }
-    })
+    } else{
+      const cloneAnims = [];
+      animations.forEach(animation => {
+        cloneAnims.push(animation.clone());
+      });
+      animations = cloneAnims;
+    }
+    // modify animations
+    if (mouseLookEnabled){
+      animations[0].tracks.map((track, index) => {
+        if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
+          animations[0].tracks.splice(index, 1)
+        }
+      })
+    }
+    
+    this.fadeOutActions = this.actions;
     
     this.actions = [];
+    this.newAnimationWeight = 0;
     for (let i =0; i < animations.length;i++){
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
+    this.actions[0].weight = 0;
     this.actions[0].play();
   }
 
   update(weightIn,weightOut){
+    if (this.fadeOutActions != null){
+      this.newAnimationWeight += 1/5;
+      this.fadeOutActions.forEach(action => {
+        action.weight = 1 - this.newAnimationWeight;
+      });
+
+      if (this.newAnimationWeight >= 1){
+        this.newAnimationWeight = 1;
+        this.fadeOutActions.forEach(action => {
+          action.weight = 0;
+          action.stop();
+        });
+        this.fadeOutActions = null;
+      }
+
+      this.actions.forEach(action => {
+        action.weight = this.newAnimationWeight;
+      });
+      
+    }
+
     if (this.from != null) {
       this.from.weight = weightOut;
     }
@@ -106,6 +159,7 @@ export class AnimationManager{
     this.curAnimID = 0;
     this.animationControls = [];
     this.started = false;
+    this.mouseLookEnabled = true;
 
     this.mixamoModel = null;
     this.mixamoAnimations = null;
@@ -122,14 +176,17 @@ export class AnimationManager{
     }, 1000/30);
   }
 
-   
+  enableMouseLook(enable){
+    this.mouseLookEnabled = enable;
+    this.animationControls.forEach(animControls => {
+      animControls.setMouseLookEnabled(enable);
+    });
+  }
   
   async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
-    console.log(paths)
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
-    console.log(this.currentAnimationName);
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
@@ -153,7 +210,7 @@ export class AnimationManager{
     else{
       //cons
       this.animationControls.forEach(animationControl => {
-        animationControl.setAnimations(animationModel.animations, this.mixamoModel)
+        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled)
       });
     }
   

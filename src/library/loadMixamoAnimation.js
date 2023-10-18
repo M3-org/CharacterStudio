@@ -10,7 +10,8 @@ import { VRMRigMapMixamo } from './VRMRigMapMixamo.js';
  */
 export function getMixamoAnimation( animations, model, vrm ) {
     const clip = THREE.AnimationClip.findByName( animations, 'mixamo.com' ); // extract the AnimationClip
-
+    if (clip == null)
+        return null;
     const tracks = []; // KeyframeTracks compatible with VRM will be added here
 
     const restRotationInverse = new THREE.Quaternion();
@@ -24,7 +25,6 @@ export function getMixamoAnimation( animations, model, vrm ) {
     const vrmRootY = vrm.scene.getWorldPosition( _vec3 ).y;
     const vrmHipsHeight = Math.abs( vrmHipsY - vrmRootY );
     const hipsPositionScale = vrmHipsHeight / motionHipsHeight;
-
     clip.tracks.forEach( ( origTrack ) => {
         const track = origTrack.clone();
         // Convert each tracks for VRM use, and push to `tracks`

@@ -5,7 +5,7 @@ import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 
-export default function TraitInformation({currentVRM, animationManager}){
+export default function TraitInformation({currentVRM, animationManager, lookatManager}){
     const {
         displayTraitOption,
         avatar
@@ -15,6 +15,7 @@ export default function TraitInformation({currentVRM, animationManager}){
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
     const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
+    const [hasMouseLook, setHasMouseLook] = useState(lookatManager.enabled);
 
     useEffect(() => {
         if (currentVRM != null){
@@ -47,6 +48,7 @@ export default function TraitInformation({currentVRM, animationManager}){
     };
 
     const handleCullLayerChange = (event) => {
+        console.log(lookatManager.enabled);
         if (currentVRM?.data){
             setCullLayer(event.target.value);
             currentVRM.data.cullingLayer = event.target.value;
@@ -62,6 +64,12 @@ export default function TraitInformation({currentVRM, animationManager}){
         await animationManager.loadPreviousAnimation();
         setAnimationName(animationManager.getCurrentAnimationName());
     }
+    const handleMouseLookEnable = (event) => {
+        setHasMouseLook(event.target.checked);
+        lookatManager.setActive(event.target.checked);
+        animationManager.enableMouseLook(event.target.checked);
+        // Perform any additional actions or logic based on the checkbox state change
+    };
 
     return (
         displayTraitOption != null ? (
@@ -131,6 +139,23 @@ export default function TraitInformation({currentVRM, animationManager}){
                                 onClick={nextAnimation}
                             ></div>
                         </div>
+                        <div className={styles["traitInfoText"]}>
+                            <div className={styles["checkboxHolder"]}>
+                                <div>
+                                
+                                Mouse Follow
+                                </div>
+                                <label className={styles["custom-checkbox"]}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={hasMouseLook}
+                                        onChange={handleMouseLookEnable}
+                                    />
+                                    <div className={styles["checkbox-container"]}></div>
+                                </label>
+                            </div>
+                        </div>
+                       
                     </div>
 
             </div>
