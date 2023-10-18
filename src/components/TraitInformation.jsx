@@ -67,6 +67,7 @@ export default function TraitInformation({currentVRM, animationManager, lookatMa
     const handleMouseLookEnable = (event) => {
         setHasMouseLook(event.target.checked);
         lookatManager.setActive(event.target.checked);
+        animationManager.enableMouseLook(event.target.checked);
         // Perform any additional actions or logic based on the checkbox state change
     };
 

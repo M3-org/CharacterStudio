@@ -23,6 +23,11 @@ class AnimationControl {
     this.vrm = vrm;
     this.animationManager = null;
     this.animationManager = animationManager;
+    this.mixamoModel = null;
+
+    this.neckBone = vrm?.humanoid?.humanBones?.neck;
+    this.spineBone = vrm?.humanoid?.humanBones?.spine;
+
 
     this.setAnimations(animations);
 
@@ -42,18 +47,30 @@ class AnimationControl {
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
   }
-  setAnimations(animations, mixamoModel){
+
+  setMouseLookEnabled(mouseLookEnabled){
+    this.setAnimations(this.animations, this.mixamoModel, mouseLookEnabled);
+  }
+
+  setAnimations(animations, mixamoModel, mouseLookEnabled = null){
+    mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
+    this.animations = animations;
     this.mixer.stopAllAction();
     if (mixamoModel != null){
-      if (this.vrm != null)
+      if (this.vrm != null){
         animations = [getMixamoAnimation(animations, mixamoModel , this.vrm)]
+        this.mixamoModel = mixamoModel;
+      }
       // modify animations
     }
-    animations[0].tracks.map((track, index) => {
-      if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
-        animations[0].tracks.splice(index, 1)
-      }
-    })
+    if (mouseLookEnabled){
+      animations[0].tracks.map((track, index) => {
+        if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
+          animations[0].tracks.splice(index, 1)
+        }
+      })
+    }
+    
     
     this.actions = [];
     for (let i =0; i < animations.length;i++){
@@ -106,6 +123,7 @@ export class AnimationManager{
     this.curAnimID = 0;
     this.animationControls = [];
     this.started = false;
+    this.mouseLookEnabled = true;
 
     this.mixamoModel = null;
     this.mixamoAnimations = null;
@@ -122,14 +140,17 @@ export class AnimationManager{
     }, 1000/30);
   }
 
-   
+  enableMouseLook(enable){
+    this.mouseLookEnabled = enable;
+    this.animationControls.forEach(animControls => {
+      animControls.setMouseLookEnabled(enable);
+    });
+  }
   
   async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
-    console.log(paths)
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
-    console.log(this.currentAnimationName);
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
@@ -153,7 +174,7 @@ export class AnimationManager{
     else{
       //cons
       this.animationControls.forEach(animationControl => {
-        animationControl.setAnimations(animationModel.animations, this.mixamoModel)
+        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled)
       });
     }
   
