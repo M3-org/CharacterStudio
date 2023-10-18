@@ -25,6 +25,9 @@ class AnimationControl {
     this.animationManager = animationManager;
     this.mixamoModel = null;
 
+    this.fadeOutActions = null;
+    this.newAnimationWeight = 1;
+
     this.neckBone = vrm?.humanoid?.humanBones?.neck;
     this.spineBone = vrm?.humanoid?.humanBones?.spine;
 
@@ -55,14 +58,23 @@ class AnimationControl {
   setAnimations(animations, mixamoModel, mouseLookEnabled = null){
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
-    this.mixer.stopAllAction();
+    //this.mixer.stopAllAction();
     if (mixamoModel != null){
       if (this.vrm != null){
-        animations = [getMixamoAnimation(animations, mixamoModel , this.vrm)]
-        this.mixamoModel = mixamoModel;
+        const mixamoAnimation = getMixamoAnimation(animations, mixamoModel , this.vrm);
+        if (mixamoAnimation){
+          animations = [mixamoAnimation]
+          this.mixamoModel = mixamoModel;
+        }
       }
-      // modify animations
+    } else{
+      const cloneAnims = [];
+      animations.forEach(animation => {
+        cloneAnims.push(animation.clone());
+      });
+      animations = cloneAnims;
     }
+    // modify animations
     if (mouseLookEnabled){
       animations[0].tracks.map((track, index) => {
         if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
@@ -71,15 +83,39 @@ class AnimationControl {
       })
     }
     
+    this.fadeOutActions = this.actions;
     
     this.actions = [];
+    this.newAnimationWeight = 0;
     for (let i =0; i < animations.length;i++){
       this.actions.push(this.mixer.clipAction(animations[i]));
     }
+    this.actions[0].weight = 0;
     this.actions[0].play();
   }
 
   update(weightIn,weightOut){
+    if (this.fadeOutActions != null){
+      this.newAnimationWeight += 1/5;
+      this.fadeOutActions.forEach(action => {
+        action.weight = 1 - this.newAnimationWeight;
+      });
+
+      if (this.newAnimationWeight >= 1){
+        this.newAnimationWeight = 1;
+        this.fadeOutActions.forEach(action => {
+          action.weight = 0;
+          action.stop();
+        });
+        this.fadeOutActions = null;
+      }
+
+      this.actions.forEach(action => {
+        action.weight = this.newAnimationWeight;
+      });
+      
+    }
+
     if (this.from != null) {
       this.from.weight = weightOut;
     }

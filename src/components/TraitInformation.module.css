@@ -134,9 +134,9 @@
 
 .checkboxHolder {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   align-content: center;
   height: 40px;
 }
