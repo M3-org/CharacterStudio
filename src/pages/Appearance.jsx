@@ -9,6 +9,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
+import { getTraitOption } from "../library/option-utils"
 
 function Appearance({
   animationManager,
@@ -23,7 +24,9 @@ function Appearance({
     getRandomCharacter,
     isChangingWholeAvatar,
     setIsChangingWholeAvatar,
-    toggleDebugMNode
+    toggleDebugMNode,
+    templateInfo,
+    setSelectedOptions
   } = React.useContext(SceneContext)
 
   const { playSound } = React.useContext(SoundContext)
@@ -85,6 +88,48 @@ function Appearance({
       const path = URL.createObjectURL(file);
       console.log("path")
       await animationManager.loadAnimation(path, true, "", animName);
+      // Handle the dropped .fbx file
+    } 
+    if (file && file.name.toLowerCase().endsWith('.json')) {
+      console.log('Dropped .json file:', file);
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const jsonContent = JSON.parse(e.target.result); // Parse the JSON content
+          // Now you can work with the JSON data in the 'jsonContent' variable
+         
+          const options = [];
+          jsonContent.attributes.forEach(attribute => {
+            if (attribute.trait_type != "BRACE")
+              options.push(getTraitOption(attribute.value, attribute.trait_type , templateInfo));
+          });
+          const filteredOptions = options.filter(element => element !== null);
+
+          templateInfo.traits.map(trait => {
+            const coincidence = filteredOptions.some(option => option.trait.trait == trait.trait);
+            // find if trait.trait has coincidence in any of the filteredOptions[].trait
+            // if no coincidence was foud add to filteredOptions {item:null, trait:templateInfo.traits.find((t) => t.name === currentTraitName}
+            if (!coincidence) {
+              // If no coincidence was found, add to filteredOptions
+              filteredOptions.push({ item: null, trait: trait });
+            }
+          });
+
+          if (filteredOptions.length > 0){
+            setSelectedOptions(filteredOptions)
+          }
+
+          
+
+
+        } catch (error) {
+          console.error("Error parsing the JSON file:", error);
+        }
+      };
+  
+      reader.readAsText(file); // Read the file as text
+      
       // Handle the dropped .fbx file
     } 
   };

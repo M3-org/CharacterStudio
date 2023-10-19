@@ -144,7 +144,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       const finalAvatar = {...avatar, ...newAvatar}
       setTimeout(() => {
         if (Object.keys(finalAvatar).length > 0) {
-          console.log(finalAvatar)
           cullHiddenMeshes(finalAvatar)
         }
         !isMute && playSound('characterLoad',300);

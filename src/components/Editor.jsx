@@ -52,8 +52,8 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
   useEffect(() => {
     if (awaitDisplay){
       setSelectedOptions(
-        loadUserSelection(manifestSelectionIndex)
-        || getRandomizedTemplateOptions(templateInfo)
+        //loadUserSelection(manifestSelectionIndex)
+        getRandomizedTemplateOptions(templateInfo)
       )
         setAwaitDisplay(false)
     }
