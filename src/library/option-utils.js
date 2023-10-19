@@ -74,10 +74,10 @@ export function getTraitOptions(trait, template) {
   const traitOptions = []
   const thumbnailBaseDir = (template.assetsLocation || "") + template.thumbnailsDirectory
   trait.collection.map((item, index) => {
-    const textureTraits = template.textureCollections.find(
+    const textureTraits = template?.textureCollections?.find(
       (texture) => texture.trait === item.textureCollection,
     )
-    const colorTraits = template.colorCollections.find(
+    const colorTraits = template?.colorCollections?.find(
       (color) => color.trait === item.colorCollection,
     )
 
