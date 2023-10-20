@@ -70,6 +70,33 @@ export const getClassOptions = (manifest) => {
   return options
 }
 
+export function getTraitOption(traitId, traitName, template){
+  
+
+  const trait = template.traits.find(trait => trait.trait === traitName)
+
+  if (trait == null){
+    console.warn("No trait with id: " + traitName + " was found.");
+    return null;
+  }
+  let index = trait.collection?.findIndex(item => item.id === traitId);
+  index = index != null ? index : -1;
+  
+  
+  if (index != -1){
+    const item = trait.collection[index];
+
+    const key = trait.name + "_" + index;
+    const thumbnailBaseDir = (template.assetsLocation || "") + template.thumbnailsDirectory
+    return  getOption(key, trait, item, thumbnailBaseDir + item.thumbnail);
+  }
+  else{
+    console.warn("No object with id: " + traitId + " was found in trait category " + traitName);
+    return null;
+  }
+    
+}
+
 export function getTraitOptions(trait, template) {
   const traitOptions = []
   const thumbnailBaseDir = (template.assetsLocation || "") + template.thumbnailsDirectory
