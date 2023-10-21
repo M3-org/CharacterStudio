@@ -91,14 +91,14 @@ function Appearance({
       // Handle the dropped .fbx file
     } 
     if (file && file.name.toLowerCase().endsWith('.json')) {
-      console.log('Dropped .json file:', file);
+      //console.log('Dropped .json file:', file);
       const reader = new FileReader();
-      
+      console.warn(file.name);
       reader.onload = function(e) {
         try {
           const jsonContent = JSON.parse(e.target.result); // Parse the JSON content
           // Now you can work with the JSON data in the 'jsonContent' variable
-         
+          
           const options = [];
           jsonContent.attributes.forEach(attribute => {
             if (attribute.trait_type != "BRACE")
