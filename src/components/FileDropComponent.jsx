@@ -2,16 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import styles from './FileDropComponent.module.css';
 
-export default function FileDropComponent ({onFileDrop}){
+export default function FileDropComponent ({onFilesDrop}){
   const [isDragging, setIsDragging] = useState(false);
   
   useEffect(() => {
     const handleDrop = (event) => {
       event.preventDefault();
       setIsDragging(false);
-      const file = event.dataTransfer.files[0];
-      if (onFileDrop) {
-        onFileDrop(file);
+      const files = event.dataTransfer.files;
+      if (onFilesDrop) {
+        onFilesDrop(files);
       }
     };
 

@@ -83,7 +83,8 @@ function Appearance({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleFileDrop = async(file) => {
+  const handleFilesDrop = async(files) => {
+    const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
       const animName = getFileNameWithoutExtension(file.name);
@@ -111,7 +112,6 @@ function Appearance({
           
           
           const jsonSelection = {name: jsonName, thumb:thumbLocation,attributes:jsonAttributes}
-          console.log(jsonSelection);
           setJsonSelection(jsonSelection);
 
           jsonContent.attributes.forEach(attribute => {
@@ -155,7 +155,7 @@ function Appearance({
       </div>
       <div className={"sectionTitle"}>{t("pageTitles.chooseAppearance")}</div>
       <FileDropComponent 
-         onFileDrop={handleFileDrop}
+         onFilesDrop={handleFilesDrop}
       />
       <Editor
         animationManager={animationManager}
