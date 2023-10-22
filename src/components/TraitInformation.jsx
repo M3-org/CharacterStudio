@@ -90,12 +90,6 @@ export default function TraitInformation({currentVRM, animationManager, lookatMa
                         {displayTraitOption?.name}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
-                        Culling Layer
-                    </div>
-                    <div className={styles["traitInfoText"]}>
-                        {displayTraitOption?.cullingLayer || "-"}
-                    </div>
-                    <div className={styles["traitInfoTitle"]}>
                         Description
                     </div>
                     <div className={styles["traitInfoText"]}>
