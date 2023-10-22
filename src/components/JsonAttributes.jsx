@@ -29,7 +29,7 @@ export default function JsonAttributes({jsonSelectionArray}){
   const prevJson = async () => {
     console.log("prev")
     if (index <= 0){
-      setSelectedOptions(jsonSelectionArray[jsonSelectionArray.length].options)
+      setSelectedOptions(jsonSelectionArray[jsonSelectionArray.length-1].options)
       setIndex(jsonSelectionArray.length -1);
     }
     else{
