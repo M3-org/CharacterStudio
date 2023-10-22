@@ -96,9 +96,9 @@ function Appearance({
     if (file && file.name.toLowerCase().endsWith('.json')) {
       //console.log('Dropped .json file:', file);
       const reader = new FileReader();
-      console.warn(file.name);
       const thumbLocation = `${templateInfo.assetsLocation}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`
-      console.log(thumbLocation);
+      const jsonName = file.name.split('.')[0];
+
       //const thumbnailName = 
       reader.onload = function(e) {
         try {
@@ -108,8 +108,10 @@ function Appearance({
           const options = [];
 
           const jsonAttributes = jsonContent.attributes.map((attribute) => {return { trait:attribute.trait_type, id:attribute.value }});
-          console.log(jsonAttributes);
-          const jsonSelection = {thumb:thumbLocation,attributes:jsonAttributes}
+          
+          
+          const jsonSelection = {name: jsonName, thumb:thumbLocation,attributes:jsonAttributes}
+          console.log(jsonSelection);
           setJsonSelection(jsonSelection);
 
           jsonContent.attributes.forEach(attribute => {
