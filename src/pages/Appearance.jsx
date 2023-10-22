@@ -28,6 +28,7 @@ function Appearance({
     templateInfo,
     setSelectedOptions
   } = React.useContext(SceneContext)
+  
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -36,6 +37,8 @@ function Appearance({
     resetAvatar()
     setViewMode(ViewMode.CREATE)
   }
+
+  const [jsonSelection, setJsonSelection] = React.useState(null)
   
 
   const next = () => {
@@ -94,18 +97,27 @@ function Appearance({
       //console.log('Dropped .json file:', file);
       const reader = new FileReader();
       console.warn(file.name);
+      const thumbLocation = `${templateInfo.assetsLocation}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`
+      console.log(thumbLocation);
+      //const thumbnailName = 
       reader.onload = function(e) {
         try {
           const jsonContent = JSON.parse(e.target.result); // Parse the JSON content
           // Now you can work with the JSON data in the 'jsonContent' variable
           
           const options = [];
+
+          const jsonAttributes = jsonContent.attributes.map((attribute) => {return { trait:attribute.trait_type, id:attribute.value }});
+          console.log(jsonAttributes);
+          const jsonSelection = {thumb:thumbLocation,attributes:jsonAttributes}
+          setJsonSelection(jsonSelection);
+
           jsonContent.attributes.forEach(attribute => {
             if (attribute.trait_type != "BRACE")
               options.push(getTraitOption(attribute.value, attribute.trait_type , templateInfo));
           });
           const filteredOptions = options.filter(element => element !== null);
-
+          
           templateInfo.traits.map(trait => {
             const coincidence = filteredOptions.some(option => option.trait.trait == trait.trait);
             // find if trait.trait has coincidence in any of the filteredOptions[].trait
@@ -149,6 +161,7 @@ function Appearance({
         lookatManager={lookatManager}
         effectManager={effectManager}
         confirmDialog={confirmDialog}
+        jsonSelection={jsonSelection}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
