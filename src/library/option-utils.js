@@ -76,7 +76,7 @@ export function getTraitOption(traitId, traitName, template){
   const trait = template.traits.find(trait => trait.trait === traitName)
 
   if (trait == null){
-    console.warn("No trait with id: " + traitName + " was found.");
+    //console.warn("No trait with id: " + traitName + " was found.");
     return null;
   }
   let index = trait.collection?.findIndex(item => item.id === traitId);
@@ -91,7 +91,8 @@ export function getTraitOption(traitId, traitName, template){
     return  getOption(key, trait, item, thumbnailBaseDir + item.thumbnail);
   }
   else{
-    console.warn("No object with id: " + traitId + " was found in trait category " + traitName);
+    //console.warn(traitName + " : " + traitId);
+    console.log(traitName + " : " + traitId);
     return null;
   }
     

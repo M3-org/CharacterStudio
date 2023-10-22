@@ -28,6 +28,7 @@ function Appearance({
     templateInfo,
     setSelectedOptions
   } = React.useContext(SceneContext)
+  
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -36,6 +37,8 @@ function Appearance({
     resetAvatar()
     setViewMode(ViewMode.CREATE)
   }
+
+  const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   
 
   const next = () => {
@@ -80,7 +83,8 @@ function Appearance({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleFileDrop = async(file) => {
+  const handleFilesDrop = async(files) => {
+    const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
       const animName = getFileNameWithoutExtension(file.name);
@@ -90,48 +94,65 @@ function Appearance({
       await animationManager.loadAnimation(path, true, "", animName);
       // Handle the dropped .fbx file
     } 
-    if (file && file.name.toLowerCase().endsWith('.json')) {
-      console.log('Dropped .json file:', file);
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        try {
-          const jsonContent = JSON.parse(e.target.result); // Parse the JSON content
-          // Now you can work with the JSON data in the 'jsonContent' variable
-         
-          const options = [];
-          jsonContent.attributes.forEach(attribute => {
-            if (attribute.trait_type != "BRACE")
-              options.push(getTraitOption(attribute.value, attribute.trait_type , templateInfo));
-          });
-          const filteredOptions = options.filter(element => element !== null);
 
-          templateInfo.traits.map(trait => {
-            const coincidence = filteredOptions.some(option => option.trait.trait == trait.trait);
-            // find if trait.trait has coincidence in any of the filteredOptions[].trait
-            // if no coincidence was foud add to filteredOptions {item:null, trait:templateInfo.traits.find((t) => t.name === currentTraitName}
-            if (!coincidence) {
-              // If no coincidence was found, add to filteredOptions
-              filteredOptions.push({ item: null, trait: trait });
+    const filesArray = Array.from(files);
+    const jsonDataArray = [];
+    const processFile = (file) => {
+      return new Promise((resolve, reject) => {
+        if (file && file.name.toLowerCase().endsWith('.json')) {
+          const reader = new FileReader();
+          const thumbLocation = `${templateInfo.assetsLocation}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+          const jsonName = file.name.split('.')[0];
+
+          reader.onload = function (e) {
+            try {
+              const jsonContent = JSON.parse(e.target.result);
+              const options = [];
+              const jsonAttributes = jsonContent.attributes.map((attribute) => ({ trait: attribute.trait_type, id: attribute.value }));
+
+              jsonContent.attributes.forEach((attribute) => {
+                if (attribute.trait_type !== "BRACE") {
+                  options.push(getTraitOption(attribute.value, attribute.trait_type, templateInfo));
+                }
+              });
+
+              const filteredOptions = options.filter((element) => element !== null);
+
+              templateInfo.traits.forEach((trait) => {
+                const coincidence = filteredOptions.some((option) => option.trait.trait === trait.trait);
+                if (!coincidence) {
+                  filteredOptions.push({ item: null, trait: trait });
+                }
+              });
+
+              const jsonSelection = { name: jsonName, thumb: thumbLocation, attributes: jsonAttributes, options: filteredOptions };
+              jsonDataArray.push(jsonSelection);
+
+              resolve(); // Resolve the promise when processing is complete
+            } catch (error) {
+              console.error("Error parsing the JSON file:", error);
+              reject(error);
             }
-          });
+          };
 
-          if (filteredOptions.length > 0){
-            setSelectedOptions(filteredOptions)
-          }
-
-          
-
-
-        } catch (error) {
-          console.error("Error parsing the JSON file:", error);
+          reader.readAsText(file);
         }
-      };
-  
-      reader.readAsText(file); // Read the file as text
-      
-      // Handle the dropped .fbx file
-    } 
+      });
+    };
+
+  // Use Promise.all to wait for all promises to resolve
+  Promise.all(filesArray.map(processFile))
+  .then(() => {
+    if (jsonDataArray.length > 0){
+      // This code will run after all files are processed
+      setJsonSelectionArray(jsonDataArray);
+      setSelectedOptions(jsonDataArray[0].options);
+    }
+  })
+  .catch((error) => {
+    console.error("Error processing files:", error);
+  });
+
   };
 
   return (
@@ -141,7 +162,7 @@ function Appearance({
       </div>
       <div className={"sectionTitle"}>{t("pageTitles.chooseAppearance")}</div>
       <FileDropComponent 
-         onFileDrop={handleFileDrop}
+         onFilesDrop={handleFilesDrop}
       />
       <Editor
         animationManager={animationManager}
@@ -149,6 +170,7 @@ function Appearance({
         lookatManager={lookatManager}
         effectManager={effectManager}
         confirmDialog={confirmDialog}
+        jsonSelectionArray={jsonSelectionArray}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
