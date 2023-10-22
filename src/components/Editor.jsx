@@ -20,7 +20,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import MenuTitle from "./MenuTitle"
 
 
-export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelection}) {
+export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
   const {
     currentTraitName, 
     setCurrentTraitName, 
@@ -116,7 +116,7 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
         </div>
       </div>
       <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
-      <JsonAttributes jsonSelection={jsonSelection}/>
+      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}/>
     </Fragment>
   )

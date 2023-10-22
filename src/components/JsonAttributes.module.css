@@ -21,6 +21,7 @@
   margin: 30px;
   height: -webkit-calc(100% - 40px);
   height: calc(100% - 40px);
+  padding-top: 5px;
 }
 
 .traitInfoTitle {
@@ -58,7 +59,7 @@
   color: #5eb086;
 }
 
-.animationSelect{
+.flexSelect{
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -66,7 +67,7 @@
   align-items: center;
 }
 
-.anim-button {
+.arrow-button {
 
   cursor: pointer;
   overflow: hidden;
@@ -79,7 +80,7 @@
   outline-width: 2px;
   outline-style: solid;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   background-color: #1e2530;
 }
 .left-button{

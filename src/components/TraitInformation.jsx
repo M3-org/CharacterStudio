@@ -127,15 +127,15 @@ export default function TraitInformation({currentVRM, animationManager, lookatMa
                             Animation
                         </div>
                         <br/>
-                        <div className={styles["animationSelect"]}>
+                        <div className={styles["flexSelect"]}>
                             <div 
-                                className={`${styles["anim-button"]} ${styles["left-button"]}`}
+                                className={`${styles["arrow-button"]} ${styles["left-button"]}`}
                                 onClick={prevAnimation}
                             ></div>
                             <div className={styles["traitInfoText"]}>{animationName}</div>
                             <div 
                             //`${styles.class1} ${styles.class2}`
-                                className={`${styles["anim-button"]} ${styles["right-button"]}`}
+                                className={`${styles["arrow-button"]} ${styles["right-button"]}`}
                                 onClick={nextAnimation}
                             ></div>
                         </div>
