@@ -31,7 +31,7 @@ export function cloneSkeleton(skinnedMesh) {
     return newSkeleton;
 }
 
-function createMergedSkeleton(meshes){
+function createMergedSkeleton(meshes, scale){
     /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
     for example ones that come from head (to add hair movement), should start with vrm's connected bone 
     followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
@@ -67,7 +67,7 @@ function createMergedSkeleton(meshes){
                         const boneData = {
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
-                            bone:bone.clone(false),
+                            bone: bone.clone(false),
                             parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                         }   
                         index++
@@ -91,7 +91,11 @@ function createMergedSkeleton(meshes){
         }
     }); 
     const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
-    newSkeleton.pose()
+    newSkeleton.pose();
+    
+    newSkeleton.bones.forEach(bn => {
+        bn.position.set(bn.position.x *scale, bn.position.y*scale,bn.position.z*scale);
+    });
     return newSkeleton
 }
 function getUpdatedSkinIndex(newSkeleton, mesh){
@@ -160,17 +164,16 @@ function removeUnusedAttributes(attribute,arrayMatch){
     return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
 }
 
-export async function combine({ transparentColor, avatar, atlasSize = 4096 }, isVrm0 = false) {
+export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
     const { bakeObjects, textures, vrmMaterial } = 
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
     // if (vrmMaterial != null)
     //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
 
-    const newSkeleton = createMergedSkeleton(meshes);
+    const newSkeleton = createMergedSkeleton(meshes, scale);
 
     meshes.forEach((mesh) => {
-
         const geometry = mesh.geometry;
 
         const baseIndArr = geometry.index.array
@@ -214,7 +217,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
         }
     });
     
-    const { dest } = mergeGeometry({ meshes },isVrm0);
+    const { dest } = mergeGeometry({ meshes, scale },isVrm0);
     const geometry = new THREE.BufferGeometry();
 
     if (isVrm0){
@@ -228,6 +231,14 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     geometry.morphAttributes = dest.morphAttributes;
     geometry.morphTargetsRelative = true;
     geometry.setIndex(dest.index);
+
+    const vertices = geometry.attributes.position.array;
+    for (let i = 0; i < vertices.length; i += 3) {
+        vertices[i] *= scale;
+        vertices[i + 1] *= scale;
+        vertices[i + 2] *= scale;
+    }
+
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
@@ -257,12 +268,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
 
 
     mesh.bind(newSkeleton);
-    // clones.forEach((clone) => {
-    //   clone.bind(skeleton);
-    // });
-    //console.log(newSkeleton)
-    //console.log(mesh.geometry.attributes.skinIndex.array)
-
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
@@ -328,7 +333,7 @@ function mergeSourceMorphTargetDictionaries({ sourceMorphTargetDictionaries }) {
     });
     return destMorphTargetDictionary;
 }
-function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, }, isVrm0 = false) {
+function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}, isVrm0 = false) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
     allSourceMorphAttributes.forEach((sourceMorphAttributes) => {
@@ -363,12 +368,17 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         merged[propName] = [];
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
             merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
+            const buffArr = merged[propName][i].array;
             if (isVrm0){
-                const buffArr = merged[propName][i].array;
                 for (let j = 0; j < buffArr.length; j+=3){
                     buffArr[j] *= -1;
                     buffArr[j+2] *= -1;
                 }
+            }
+            for (let j = 0; j < buffArr.length; j+=3){
+                buffArr[j] *= scale;
+                buffArr[j+1] *= scale;
+                buffArr[j+2] *= scale;
             }
         }
     });
@@ -559,7 +569,7 @@ function mergeSourceIndices({ meshes }) {
 // function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
 //     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 // }
-export function mergeGeometry({ meshes }, isVrm0 = false) {
+export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
@@ -591,6 +601,7 @@ export function mergeGeometry({ meshes }, isVrm0 = false) {
         sourceMorphAttributes: source.morphAttributes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
+        scale,
     },isVrm0);
     dest.morphTargetInfluences = mergeMorphTargetInfluences({
         meshes,
