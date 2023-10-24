@@ -251,13 +251,20 @@ export default class VRMExporterv0 {
             for (const prop in mesh.morphTargetDictionary){
 
                 mesh.geometry.userData.targetNames.push(prop);
-
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
-
                 meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
-                meshDatas.push(new MeshData(morphAttribute.normal[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_NORMAL, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
-            }
+                
+                if (morphAttribute.normal){
+                    meshDatas.push(new MeshData(
+                        morphAttribute.normal[morphIndex], 
+                        WEBGL_CONST.FLOAT, 
+                        MeshDataType.BLEND_NORMAL, 
+                        AccessorsType.VEC3, 
+                        mesh.name, 
+                        BLENDSHAPE_PREFIX + prop));
+                    }
+                }
         });
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
