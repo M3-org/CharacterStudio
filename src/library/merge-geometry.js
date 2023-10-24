@@ -64,14 +64,10 @@ function createMergedSkeleton(meshes, scale){
                 if (boneArr.indexOf(bone)!==-1){
                     const clone = boneClones.get(bone.name)
                     if (clone == null){ // no clone was found with the bone
-                        const newBone= bone.clone(false);
-                        if (bone.name == 'hips')
-                            newBone.scale.set(0.7,0.7,0.7);
-                        newBone.position.set(newBone.x*0.7,newBone.y*0.7,newBone.z*0.7)
                         const boneData = {
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
-                            bone:newBone,
+                            bone: bone.clone(false),
                             parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                         }   
                         index++
