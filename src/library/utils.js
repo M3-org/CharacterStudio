@@ -79,7 +79,7 @@ export const cullHiddenMeshes = (avatar) => {
   CullHiddenFaces(models)
 }
 
-export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1)) {
+export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter();
     const options = {
@@ -91,7 +91,7 @@ export async function getModelFromScene(avatarScene, format = 'glb', skinColor =
       maxTextureSize: 1024 || Infinity
     };
 
-    const avatar = await combine({ transparentColor: skinColor, avatar: avatarScene });
+    const avatar = await combine({ transparentColor: skinColor, avatar: avatarScene, scale:scale });
 
     const glb = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options));
     return new Blob([glb], { type: 'model/gltf-binary' });

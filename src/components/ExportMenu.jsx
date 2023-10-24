@@ -14,7 +14,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
-  const { model, avatar } = useContext(SceneContext)
+  const { model, avatar,templateInfo } = useContext(SceneContext)
 
   return (
     <React.Fragment>
@@ -46,7 +46,8 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          downloadVRM(model, avatar, name, screenshot, 4096, true)
+          console.log(templateInfo.exportScale)
+          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true)
         }}
       />
     </React.Fragment>
