@@ -477,19 +477,21 @@ export function findChildrenByType(root, type) {
         predicate: (o) => o.type === type,
     });
 }
-export function getAvatarData (avatarModel, modelName){
+export function getAvatarData (avatarModel, modelName, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
     materials : [avatarModel.userData.atlasMaterial],
-    meta : getVRMMeta(modelName)
+    meta : getVRMMeta(modelName, vrmMeta)
   }
 
 }
 
 
-function getVRMMeta(name){
-  return {
+function getVRMMeta(name, vrmMeta){
+  vrmMeta = vrmMeta||{}
+
+  const defaults = {
     authors:["Webaverse"],
     metaVersion:"1",
     version:"v1",
@@ -505,6 +507,8 @@ function getVRMMeta(name){
     allowRedistribution:false,
     modification:"prohibited"
   }
+
+  return { ...defaults, ...vrmMeta };
 }
 
 // function getVRMDefaultLookAt(){
