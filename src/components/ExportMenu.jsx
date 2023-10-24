@@ -46,7 +46,6 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          console.log(templateInfo.exportScale)
           downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true)
         }}
       />
