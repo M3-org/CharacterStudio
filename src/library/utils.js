@@ -492,7 +492,7 @@ function getVRMMeta(name, vrmMeta){
   vrmMeta = vrmMeta||{}
 
   const defaults = {
-    authors:["Webaverse"],
+    authors:["CharacterCreator"],
     metaVersion:"1",
     version:"v1",
     name:name,
