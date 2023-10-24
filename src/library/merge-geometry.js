@@ -64,10 +64,14 @@ function createMergedSkeleton(meshes){
                 if (boneArr.indexOf(bone)!==-1){
                     const clone = boneClones.get(bone.name)
                     if (clone == null){ // no clone was found with the bone
+                        const newBone= bone.clone(false);
+                        if (bone.name == 'hips')
+                            newBone.scale.set(0.7,0.7,0.7);
+                        newBone.position.set(newBone.x*0.7,newBone.y*0.7,newBone.z*0.7)
                         const boneData = {
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
-                            bone:bone.clone(false),
+                            bone:newBone,
                             parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                         }   
                         index++
@@ -91,7 +95,11 @@ function createMergedSkeleton(meshes){
         }
     }); 
     const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
-    newSkeleton.pose()
+    newSkeleton.pose();
+    
+    newSkeleton.bones.forEach(bn => {
+        bn.position.set(bn.position.x *0.7, bn.position.y*0.7,bn.position.z*0.7);
+    });
     return newSkeleton
 }
 function getUpdatedSkinIndex(newSkeleton, mesh){
@@ -170,7 +178,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     const newSkeleton = createMergedSkeleton(meshes);
 
     meshes.forEach((mesh) => {
-
         const geometry = mesh.geometry;
 
         const baseIndArr = geometry.index.array
@@ -228,6 +235,14 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
     geometry.morphAttributes = dest.morphAttributes;
     geometry.morphTargetsRelative = true;
     geometry.setIndex(dest.index);
+
+    const vertices = geometry.attributes.position.array;
+    for (let i = 0; i < vertices.length; i += 3) {
+        vertices[i] *= 0.7;
+        vertices[i + 1] *= 0.7;
+        vertices[i + 2] *= 0.7;
+    }
+
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
@@ -257,12 +272,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096 }, is
 
 
     mesh.bind(newSkeleton);
-    // clones.forEach((clone) => {
-    //   clone.bind(skeleton);
-    // });
-    //console.log(newSkeleton)
-    //console.log(mesh.geometry.attributes.skinIndex.array)
-
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
@@ -363,12 +372,17 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         merged[propName] = [];
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
             merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
+            const buffArr = merged[propName][i].array;
             if (isVrm0){
-                const buffArr = merged[propName][i].array;
                 for (let j = 0; j < buffArr.length; j+=3){
                     buffArr[j] *= -1;
                     buffArr[j+2] *= -1;
                 }
+            }
+            for (let j = 0; j < buffArr.length; j+=3){
+                buffArr[j] *= 0.7;
+                buffArr[j+1] *= 0.7;
+                buffArr[j+2] *= 0.7;
             }
         }
     });
