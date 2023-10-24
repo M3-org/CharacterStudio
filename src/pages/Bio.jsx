@@ -19,7 +19,7 @@ export const getBio = (baseCharacterData, personality) => {
   const weapon = personality.weapons[Math.floor(Math.random() * personality.weapons.length)]
   const hobby = personality.hobbies[Math.floor(Math.random() * personality.hobbies.length)]
   const profession = personality.professions[Math.floor(Math.random() * personality.professions.length)]
-  const heshe = personality.heShe[classType]
+  const heshe = personality.heShe[classType] || "HE";
 
   const voiceKey = Object.keys(voices).find((v) => {
     if (heshe.toUpperCase() === "SHE"){
