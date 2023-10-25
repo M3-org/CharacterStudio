@@ -419,8 +419,19 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
+
+  // if user didnt define upprChest bone just make sure its not included
+  if (bones['upperChest'] == null){
+    // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
+    // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
+    if (bones['neck'].node.parent != bones['chest']){
+      bones['upperChest'] = {node:bones['neck'].node.parent}
+    }
+  }
+  
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
+    
     if (bones[boneName]?.node){
       bones[boneName].node.name = boneName;
     }
