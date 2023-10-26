@@ -138,21 +138,68 @@ export default function Scene({sceneModel, lookatManager}) {
     
     fetchAssets()
 
-    const handleMouseClick = (event) => {
-
+    const setOriginalInidicesAndColliders = () => {
       avatarModel.traverse((child)=>{
         if (child.isMesh) {
           child.userData.lastBoundsTree = child.geometry.boundsTree;
-          //child.geometry.boundsTree = 
           child.geometry.disposeBoundsTree();
-          //console.log(child.geometry);
           if (child.userData.origIndexBuffer){
             child.userData.clippedIndexGeometry = child.geometry.index.clone();
-            
             child.geometry.setIndex(child.userData.origIndexBuffer);
           }
         }
       })
+    }
+
+    const restoreCUllIndicesAndColliders = () => {
+      avatarModel.traverse((child)=>{
+        if (child.isMesh) {
+          if (child.userData.origIndexBuffer){
+            child.geometry.setIndex(child.userData.clippedIndexGeometry);
+            child.geometry.boundsTree = child.userData.lastBoundsTree;
+          }
+        }
+      })
+    }
+
+    const checkIndicesExist = (array, indices) =>{
+      for (let i =0; i < array.length; i+=3){
+        if (indices[0] != array[i]){
+          continue
+        }
+        if (indices[1] != array[i+1]){
+          continue
+        }
+        if (indices[2] != array[i+2]){
+          continue
+        }
+        return true;
+      }
+      return false;
+    }
+
+    const updateCullIndices = (intersection) => {
+      const intersectedObject = intersection.object;
+      const face = intersection.face;
+      const newIndices = [face.a,face.b,face.c];
+      const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
+
+      if (clipIndices != null){
+        if (!checkIndicesExist(clipIndices,newIndices)){
+          const uint32ArrayAsArray = Array.from(clipIndices);
+          console.log(clipIndices);
+          const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
+          intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(new Uint32Array(mergedIndices),1,false);
+        }
+        else{
+          console.log("already exist")
+        } 
+      }
+    }
+
+    const handleMouseClick = (event) => {
+
+      setOriginalInidicesAndColliders();
 
       // Calculate mouse position in normalized device coordinates
       const rect = renderer.domElement.getBoundingClientRect();
@@ -167,49 +214,12 @@ export default function Scene({sceneModel, lookatManager}) {
 
       if (intersects.length > 0) {
         const intersection = intersects[0];
-        const intersectedObject = intersection.object;
-        //const faceIndex = intersection.faceIndex;
-        const face = intersection.face;
-        const hitPoint = intersection.point;
-      
-        // Move the yellow sphere to the hit point
-        // hitSphere.position.copy(hitPoint);
-        // hitSphere.visible = true; // Show the sphere at the hit point
-
-        const newIndices = [face.a,face.b,face.c];
-        const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
-
-        if (clipIndices != null){
-          console.warn("XXX just add indices that are hidden")
-          const uint32ArrayAsArray = Array.from(clipIndices);
-          console.log(uint32ArrayAsArray)
-          const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
-
-          const newClippedIndexGeometry = new Uint32Array(mergedIndices);
-          intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(newClippedIndexGeometry,1,false);
-        }
-
-
-        //const mergedIndices = [...positions, ...newIndices];
-
-
-
-      
-        console.log(intersection);
-        // Optionally, you can also log the hit point or perform other actions
-        console.log("Hit Point:", hitPoint);
+    
+        updateCullIndices(intersection)
       }
 
-      avatarModel.traverse((child)=>{
-        if (child.isMesh) {
-          if (child.userData.origIndexBuffer){
-            child.geometry.setIndex(child.userData.clippedIndexGeometry);
-            child.geometry.boundsTree = child.userData.lastBoundsTree;
-            //console.log(child.geometry);
-            //child.geometry.boundsTree = new MeshBVH( child.geometry );
-          }
-        }
-      })
+      restoreCUllIndicesAndColliders();
+     
     };
 
     canvasRef.addEventListener("click", handleMouseClick)
