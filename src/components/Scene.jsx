@@ -141,8 +141,10 @@ export default function Scene({sceneModel, lookatManager}) {
     const setOriginalInidicesAndColliders = () => {
       avatarModel.traverse((child)=>{
         if (child.isMesh) {
-          child.userData.lastBoundsTree = child.geometry.boundsTree;
-          child.geometry.disposeBoundsTree();
+          if (child.userData.lastBoundsTree){
+            child.userData.lastBoundsTree = child.geometry.boundsTree;
+            child.geometry.disposeBoundsTree();
+          }
           if (child.userData.origIndexBuffer){
             child.userData.clippedIndexGeometry = child.geometry.index.clone();
             child.geometry.setIndex(child.userData.origIndexBuffer);
@@ -187,13 +189,9 @@ export default function Scene({sceneModel, lookatManager}) {
       if (clipIndices != null){
         if (!checkIndicesExist(clipIndices,newIndices)){
           const uint32ArrayAsArray = Array.from(clipIndices);
-          console.log(clipIndices);
           const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
           intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(new Uint32Array(mergedIndices),1,false);
         }
-        else{
-          console.log("already exist")
-        } 
       }
     }
 
