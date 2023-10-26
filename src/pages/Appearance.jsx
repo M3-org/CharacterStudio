@@ -108,12 +108,15 @@ function Appearance({
             try {
               const jsonContent = JSON.parse(e.target.result);
               const options = [];
-              const jsonAttributes = jsonContent.attributes.map((attribute) => ({ trait: attribute.trait_type, id: attribute.value }));
+              const jsonAttributes = jsonContent.attributes.map((attribute) => (
+                { trait: attribute.trait_type, id: attribute.value }
+                )).filter((item) => item.trait !== "TYPE" && 
+                                    item.trait !== "BRACE" &&
+                                    item.trait !== "SET" &&
+                                    item.trait !== "SPECIAL_OTHER" );
 
               jsonContent.attributes.forEach((attribute) => {
-                if (attribute.trait_type !== "BRACE") {
                   options.push(getTraitOption(attribute.value, attribute.trait_type, templateInfo));
-                }
               });
 
               const filteredOptions = options.filter((element) => element !== null);
