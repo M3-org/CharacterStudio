@@ -153,7 +153,7 @@ export default function Scene({sceneModel, lookatManager}) {
       })
     }
 
-    const restoreCUllIndicesAndColliders = () => {
+    const restoreCullIndicesAndColliders = () => {
       avatarModel.traverse((child)=>{
         if (child.isMesh) {
           if (child.userData.origIndexBuffer){
@@ -164,7 +164,7 @@ export default function Scene({sceneModel, lookatManager}) {
       })
     }
 
-    const checkIndicesExist = (array, indices) =>{
+    const checkIndicesIndex = (array, indices) =>{
       for (let i =0; i < array.length; i+=3){
         if (indices[0] != array[i]){
           continue
@@ -175,27 +175,36 @@ export default function Scene({sceneModel, lookatManager}) {
         if (indices[2] != array[i+2]){
           continue
         }
-        return true;
+        return i;
       }
-      return false;
+      return -1;
     }
 
-    const updateCullIndices = (intersection) => {
+    const updateCullIndices = (intersection, removeFace) => {
       const intersectedObject = intersection.object;
       const face = intersection.face;
       const newIndices = [face.a,face.b,face.c];
       const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
 
+      
+
       if (clipIndices != null){
-        if (!checkIndicesExist(clipIndices,newIndices)){
-          const uint32ArrayAsArray = Array.from(clipIndices);
+        const hitIndex = checkIndicesIndex(clipIndices,newIndices)
+        const uint32ArrayAsArray = Array.from(clipIndices);
+        if (hitIndex == -1 && !removeFace){
           const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
           intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(new Uint32Array(mergedIndices),1,false);
+        }
+        if (hitIndex != 1 && removeFace){
+          uint32ArrayAsArray.splice(hitIndex, 3);
+          intersectedObject.userData.clippedIndexGeometry = new THREE.BufferAttribute(new Uint32Array(uint32ArrayAsArray), 1, false);
         }
       }
     }
 
     const handleMouseClick = (event) => {
+
+      const isCtrlPressed = event.ctrlKey;
 
       setOriginalInidicesAndColliders();
 
@@ -213,10 +222,10 @@ export default function Scene({sceneModel, lookatManager}) {
       if (intersects.length > 0) {
         const intersection = intersects[0];
     
-        updateCullIndices(intersection)
+        updateCullIndices(intersection, isCtrlPressed)
       }
 
-      restoreCUllIndicesAndColliders();
+      restoreCullIndicesAndColliders();
      
     };
 
