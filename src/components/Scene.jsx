@@ -3,6 +3,7 @@ import * as THREE from "three"
 import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { SAH, MeshBVH } from 'three-mesh-bvh';
 
 export default function Scene({sceneModel, lookatManager}) {
   const {
@@ -26,6 +27,9 @@ export default function Scene({sceneModel, lookatManager}) {
   let loaded = false
   let [isLoaded, setIsLoaded] = useState(false)
 
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
   useEffect(() => {
     // hacky prevention of double render
     if (loaded || isLoaded) return
@@ -42,6 +46,15 @@ export default function Scene({sceneModel, lookatManager}) {
       1000,
     )
 
+
+    // const sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    // const hitSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    // scene.add(hitSphere);
+    // hitSphere.visible = false; // Initially hide the sphere
+
+
+    
     setCamera(camera)
     lookatManager.setCamera(camera)
     // set the camera position
@@ -66,8 +79,13 @@ export default function Scene({sceneModel, lookatManager}) {
       camera.updateProjectionMatrix()
     }
 
+
+   
+
     // add an eventlistener to resize the canvas when window changes
     window.addEventListener("resize", handleResize)
+
+    
 
     // set the renderer size
     renderer.setSize(window.innerWidth, window.innerHeight)
@@ -105,22 +123,100 @@ export default function Scene({sceneModel, lookatManager}) {
 
     // start the animation loop
     animate()
-
+    const avatarModel = new THREE.Object3D()
     // // create animation manager
     async function fetchAssets() {
       if (model != null && scene != null) {
         scene.remove(model)
       }
       // model holds only the elements that will be exported
-      const avatarModel = new THREE.Object3D()
+      
       setModel(avatarModel)
 
       scene.add(avatarModel)
     }
+    
     fetchAssets()
+
+    const handleMouseClick = (event) => {
+
+      avatarModel.traverse((child)=>{
+        if (child.isMesh) {
+          child.userData.lastBoundsTree = child.geometry.boundsTree;
+          //child.geometry.boundsTree = 
+          child.geometry.disposeBoundsTree();
+          //console.log(child.geometry);
+          if (child.userData.origIndexBuffer){
+            child.userData.clippedIndexGeometry = child.geometry.index.clone();
+            
+            child.geometry.setIndex(child.userData.origIndexBuffer);
+          }
+        }
+      })
+
+      // Calculate mouse position in normalized device coordinates
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Update the raycaster
+      raycaster.setFromCamera(mouse, camera);
+
+      // Perform the raycasting
+      const intersects = raycaster.intersectObjects(avatarModel.children);
+
+      if (intersects.length > 0) {
+        const intersection = intersects[0];
+        const intersectedObject = intersection.object;
+        //const faceIndex = intersection.faceIndex;
+        const face = intersection.face;
+        const hitPoint = intersection.point;
+      
+        // Move the yellow sphere to the hit point
+        // hitSphere.position.copy(hitPoint);
+        // hitSphere.visible = true; // Show the sphere at the hit point
+
+        const newIndices = [face.a,face.b,face.c];
+        const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
+
+        if (clipIndices != null){
+          console.warn("XXX just add indices that are hidden")
+          const uint32ArrayAsArray = Array.from(clipIndices);
+          console.log(uint32ArrayAsArray)
+          const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
+
+          const newClippedIndexGeometry = new Uint32Array(mergedIndices);
+          intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(newClippedIndexGeometry,1,false);
+        }
+
+
+        //const mergedIndices = [...positions, ...newIndices];
+
+
+
+      
+        console.log(intersection);
+        // Optionally, you can also log the hit point or perform other actions
+        console.log("Hit Point:", hitPoint);
+      }
+
+      avatarModel.traverse((child)=>{
+        if (child.isMesh) {
+          if (child.userData.origIndexBuffer){
+            child.geometry.setIndex(child.userData.clippedIndexGeometry);
+            child.geometry.boundsTree = child.userData.lastBoundsTree;
+            //console.log(child.geometry);
+            //child.geometry.boundsTree = new MeshBVH( child.geometry );
+          }
+        }
+      })
+    };
+
+    canvasRef.addEventListener("click", handleMouseClick)
     return () => {
       removeEventListener("mousemove", handleMouseMove)
       removeEventListener("resize", handleMouseMove)
+      window.removeEventListener('click', handleMouseClick);
       // scene.remove(sceneModel)
       scene.remove(model)
     }
