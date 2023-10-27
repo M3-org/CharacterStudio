@@ -45,15 +45,6 @@ export default function Scene({sceneModel, lookatManager}) {
       0.1,
       1000,
     )
-
-
-    // const sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
-    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    // const hitSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    // scene.add(hitSphere);
-    // hitSphere.visible = false; // Initially hide the sphere
-
-
     
     setCamera(camera)
     lookatManager.setCamera(camera)
@@ -79,13 +70,8 @@ export default function Scene({sceneModel, lookatManager}) {
       camera.updateProjectionMatrix()
     }
 
-
-   
-
     // add an eventlistener to resize the canvas when window changes
     window.addEventListener("resize", handleResize)
-
-    
 
     // set the renderer size
     renderer.setSize(window.innerWidth, window.innerHeight)
