@@ -5,7 +5,7 @@ import html2canvas from "html2canvas";
 import VRMExporter from "./VRMExporter";
 import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
-import { VRMLoaderPlugin } from "@pixiv/three-vrm"
+import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMHumanBoneName, VRMHumanBoneParentMap } from "@pixiv/three-vrm";
 
@@ -267,7 +267,14 @@ export function disposeVRM(vrm) {
     animationControl.dispose();
 
   model.traverse((o) => {
+    
     if (o.geometry) {
+      if (o.userData?.clippedIndexGeometry != null){
+        o.userData.clippedIndexGeometry = null;
+      }
+      if (o.userData?.origIndexBuffer != null){
+        o.userData.origIndexBuffer = null;
+      }
       o.geometry.dispose();
     }
 
@@ -282,10 +289,13 @@ export function disposeVRM(vrm) {
       }
     }
   });
+  
 
   if (model.parent) {
     model.parent.remove(model);
   }
+
+  VRMUtils.deepDispose( model );
 }
 export const createFaceNormals = (geometry) => {
   const pos = geometry.attributes.position;
@@ -311,7 +321,6 @@ export const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
   const pos = geometry.attributes.position.array;
-  //console.log(geometry)
   const normals = geometry.attributes.normal.array;
 
   // set by jumps of 4
