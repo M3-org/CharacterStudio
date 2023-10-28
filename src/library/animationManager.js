@@ -21,7 +21,6 @@ class AnimationControl {
     this.to = null;
     this.from = null;
     this.vrm = vrm;
-    this.animationManager = null;
     this.animationManager = animationManager;
     this.mixamoModel = null;
 
@@ -159,7 +158,7 @@ export class AnimationManager{
     this.curAnimID = 0;
     this.animationControls = [];
     this.started = false;
-    this.mouseLookEnabled = true;
+    this.mouseLookEnabled = false;
 
     this.mixamoModel = null;
     this.mixamoAnimations = null;
