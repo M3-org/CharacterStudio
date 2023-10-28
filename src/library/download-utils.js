@@ -1,6 +1,6 @@
 import { Group, MeshStandardMaterial, Color } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
-import { cloneSkeleton, combine } from "./merge-geometry"
+import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
 import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
@@ -61,14 +61,24 @@ function getUnopotimizedGLB (avatarToDownload){
 
     return unoptimizedGLB;
 }
-function getOptimizedGLB(avatarToDownload, atlasSize, scale = 1, isVrm0 = false){
+function getOptimizedGLB(avatarToDownload, atlasSize, scale = 1, isVrm0 = false, createTextureAtlas = true){
     const avatarToDownloadClone = cloneAvatarModel(avatarToDownload)
-    return combine({
-      transparentColor: new Color(1,1,1),
-      avatar: avatarToDownloadClone,
-      atlasSize,
-      scale
-    }, isVrm0)
+    
+    if (createTextureAtlas){
+      return combine({
+        transparentColor: new Color(1,1,1),
+        avatar: avatarToDownloadClone,
+        atlasSize,
+        scale
+      }, isVrm0)
+    }
+    else{
+      console.log("no atlas");
+      return combineNoAtlas({
+        avatar: avatarToDownloadClone,
+        scale
+      }, isVrm0)
+    }
 }
 
 export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true, scale = 1){
@@ -97,17 +107,17 @@ async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true,
     return parseGLB(model);
   }
 } 
-async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null){
+async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas= true){
 
-  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, scale, isVrm0);
-  return parseVRM(vrmModel,avatar,screenshot, isVrm0, vrmMeta) 
+  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, scale, isVrm0,createTextureAtlas);
+  return parseVRM(vrmModel,avatar,screenshot, isVrm0, vrmMeta, createTextureAtlas) 
 }
 
-export async function downloadVRM(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null){
+export async function downloadVRM(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
-  getVRMData(avatarToDownload, avatar, screenshot, atlasSize,scale, isVrm0, vrmMeta).then((vrm)=>{
+  getVRMData(avatarToDownload, avatar, screenshot, atlasSize,scale, isVrm0, vrmMeta, createTextureAtlas).then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
@@ -154,12 +164,12 @@ function parseGLB (glbModel){
   })
 }
 
-function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta = null){
+function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta = null, atlasMaterial = false){
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
-      ...getAvatarData(glbModel, "CharacterCreator", false, vrmMeta),
+      ...getAvatarData(glbModel, "CharacterCreator", atlasMaterial, vrmMeta),
     }
     let skinnedMesh;
     glbModel.traverse(child => {

@@ -164,55 +164,151 @@ function removeUnusedAttributes(attribute,arrayMatch){
     return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
 }
 
-export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
-    let material = null;
-    let meshes = null;
+export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
+    
+    const clonedMeshes = [];
 
-    const mergeAtlas = false;
-    if (mergeAtlas){
-        const { bakeObjects, textures, vrmMaterial } = 
-            await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+    const meshes = findChildrenByType(avatar, "SkinnedMesh");
 
-        meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
-        console.log(meshes);
+    const material = [];
 
-        material = new THREE.MeshStandardMaterial({
-            map: textures["diffuse"],
-        });
 
-        // for Mtoon material
-        if (vrmMaterial.unfiroms != null){
-            vrmMaterial.uniforms.map = textures["diffuse"];
-            vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    meshes.forEach(originalMesh => {
+        const clonedMesh = originalMesh.clone(); // Clone the original mesh
+        clonedMeshes.push(clonedMesh); // Add the cloned mesh to the array
+        console.log("cloned mesh", clonedMesh);
+        if (Array.isArray(originalMesh.material)) {
+            // If the material property is an array (e.g., for MultiMaterial), concatenate it to the materialsArray
+            material.push(...originalMesh.material);
+        } else {
+            // If the material property is a single material, push it to the materialsArray
+            material.push(originalMesh.material);
         }
-        // for Standard Material
-        else{
-            vrmMaterial.map = textures["diffuse"];
-        }
+    });
 
-        material.userData.vrmMaterial = vrmMaterial;
-        material.userData.shadeTexture = textures["uniformColor"];
-    }
-    else{
-        meshes = findChildrenByType(avatar, "SkinnedMesh");
+    const newSkeleton = createMergedSkeleton(meshes, scale);
 
-        material = [];
+    const group = new THREE.Object3D();
+    group.name = "AvatarRoot";
+   // group.animations = [];
+    clonedMeshes.forEach(mesh => {
+        const geometry = new THREE.BufferGeometry();
+        
+        const source = {
+            attributes: mesh.geometry.attributes,
+            morphTargetDictionary: mesh.morphTargetDictionary || {},
+            morphTargetInfluences: mesh.morphTargetInfluences || [],
+            //animationClips: mesh.animations, //disable for now cuz no animations.
+            index: null,
+            animations: {}
+        };
 
-        // Iterate through the meshArray
-        meshes.forEach(mesh => {
-        if (mesh.material) {
-            // Check if the mesh has a material
-            if (Array.isArray(mesh.material)) {
-                // If the material property is an array (e.g., for MultiMaterial), concatenate it to the materialsArray
-                material.push(...mesh.material);
-            } else {
-                // If the material property is a single material, push it to the materialsArray
-                material.push(mesh.material);
+        //console.log(mesh.geometry.morphAttributes);
+        const meshMorphAttributes = new Map([mesh].map((m) => [m, m.geometry.morphAttributes]));
+        
+        
+        const morphTargetDictionaries = new Map([mesh].map((m) => [m, m.morphTargetDictionary || {}]));
+        //const meshMorphAttributes = new Map(meshes.map((m) => [m, m.geometry.morphAttributes])),
+        // use the modifications from merge source from attributes
+        source.morphAttributes = mergeSourceMorphAttributes({
+            meshes:[mesh],
+            sourceMorphAttributes: meshMorphAttributes,
+            sourceMorphTargetDictionaries: morphTargetDictionaries,
+            destMorphTargetDictionary: source.morphTargetDictionary,
+            scale,
+        },isVrm0);
+
+
+        // change vertex positions if is vrm0
+        if (isVrm0){
+            for (let i = 0; i < source.attributes.position.array.length; i+=3){
+                source.attributes.position.array[i] *= -1
+                source.attributes.position.array[i+2] *= -1
             }
         }
-        });
+    
+        geometry.attributes = source.attributes;
+        geometry.morphAttributes = source.morphAttributes;
+        geometry.morphTargetsRelative = true;
+
+
+
+        const baseIndArr = mesh.geometry.index.array;
+        const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
+
+        const indArrange = []
+        for (let i =0 ; i < baseIndArr.length ;i++){
+            indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
+        }
+        const indexArr = new Uint32Array(indArrange);
+        const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+
+        // update attributes indices to match new offsetIndexArr
+        geometry.setIndex(indexAttribute)
+        for (const att in geometry.attributes){
+            geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
+        }
+        
+        // update morph attributes indices to match new offsetIndexArr
+        for (const att in geometry.morphAttributes){
+            const attribute = geometry.morphAttributes[att];
+            for (let i =0; i < attribute.length ;i++){
+                attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+            }
+        }
+    
+        const vertices = geometry.attributes.position.array;
+        for (let i = 0; i < vertices.length; i += 3) {
+            vertices[i] *= scale;
+            vertices[i + 1] *= scale;
+            vertices[i + 2] *= scale;
+        }
+    
+    
+        const newMesh = new THREE.SkinnedMesh(geometry, mesh.material);
+        console.log(mesh);
+        newMesh.name = mesh.name;
+        newMesh.morphTargetInfluences = source.morphTargetInfluences;
+        newMesh.morphTargetDictionary = source.morphTargetDictionary;
+    
+        newMesh.bind(newSkeleton);
+
+        // group.animations = ( ... source.animations);
+        group.add(newMesh);
+        group.add(newSkeleton.bones[0]);
+    });
+    console.log(group);
+
+    group.userData.atlasMaterial = material;
+
+    return group;
+}
+
+export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
+
+    const { bakeObjects, textures, vrmMaterial } = 
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+
+    const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+    console.log(meshes);
+
+    const material = new THREE.MeshStandardMaterial({
+        map: textures["diffuse"],
+    });
+
+    // for Mtoon material
+    if (vrmMaterial.unfiroms != null){
+        vrmMaterial.uniforms.map = textures["diffuse"];
+        vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    }
+    // for Standard Material
+    else{
+        vrmMaterial.map = textures["diffuse"];
     }
 
+    material.userData.vrmMaterial = vrmMaterial;
+    material.userData.shadeTexture = textures["uniformColor"];
 
     
     const newSkeleton = createMergedSkeleton(meshes, scale);
