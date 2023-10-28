@@ -31,6 +31,28 @@ export function cloneSkeleton(skinnedMesh) {
     return newSkeleton;
 }
 
+function changeBoneHandedness(bone) {
+    console.log("isvrm0")
+    // Clone the bone and apply handedness change
+    const clone = bone.clone(false);
+
+    // Reverse the X-axis scale to change handedness
+    const scale = clone.scale;
+    scale.x = -scale.x;
+
+    // Reverse the rotation around the Y-axis to change handedness
+    const rotation = clone.rotation;
+    rotation.y = -rotation.y;
+
+    // You might need to adjust the position as well depending on your specific use case.
+    // If the mesh is centered at the origin, this may not be necessary.
+    // If your mesh has been moved from the origin, you may need to adjust the position as well.
+    // clone.position.x = -clone.position.x;
+
+    clone.position.set(0,0,0);
+
+    return clone;
+}
 function createMergedSkeleton(meshes, scale){
     /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
     for example ones that come from head (to add hair movement), should start with vrm's connected bone 
@@ -42,6 +64,7 @@ function createMergedSkeleton(meshes, scale){
     let index = 0;
     meshes.forEach(mesh => {
         if (mesh.skeleton){
+            
             const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
             const boneArr = []
             nonduparr.forEach(index => {
@@ -62,13 +85,14 @@ function createMergedSkeleton(meshes, scale){
             mesh.skeleton.bones.forEach((bone, boneInd) => {
                 // only bones that are included in the previous array (used bones)
                 if (boneArr.indexOf(bone)!==-1){
-                    const clone = boneClones.get(bone.name)
+                    const clone = boneClones.get(bone.name);      
                     if (clone == null){ // no clone was found with the bone
                         const boneData = {
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
-                            bone: bone.clone(false),
-                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
+                            bone:  bone.clone(false),
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,
+                            
                         }   
                         index++
                         boneClones.set(bone.name, boneData);
@@ -94,6 +118,10 @@ function createMergedSkeleton(meshes, scale){
     newSkeleton.pose();
     
     newSkeleton.bones.forEach(bn => {
+        const restPosition = bn.userData?.vrm0RestPosition;
+        if (restPosition){
+            bn.position.set(-restPosition.x, restPosition.y, -restPosition.z);
+        }
         bn.position.set(bn.position.x *scale, bn.position.y*scale,bn.position.z*scale);
     });
     return newSkeleton
@@ -569,11 +597,20 @@ function mergeSourceIndices({ meshes }) {
 // function remapAnimationClips({ animationClips, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary }) {
 //     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 // }
+
+
 export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
         uvcount += mesh.geometry.attributes.uv.count;
+        
+        if (mesh.userData?.isVRM0){
+            for (let i = 0; i < mesh.geometry.attributes.position.array.length; i+=3){
+                mesh.geometry.attributes.position.array[i] *= -1
+                mesh.geometry.attributes.position.array[i+2] *= -1
+            }
+        }
     });
     const source = {
         meshes,

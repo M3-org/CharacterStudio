@@ -473,6 +473,24 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     return typeTraits;
   }
 
+  const rotateMeshVerticesY = (mesh, angle) => {
+    const vertices = mesh.geometry.attributes.position.array;
+  
+    for (let i = 0; i < vertices.length; i += 3) {
+      const x = vertices[i];
+      const z = vertices[i + 2];
+  
+      // Apply rotation around the Y-axis
+      const rotatedX = x * Math.cos(angle) - z * Math.sin(angle);
+      const rotatedZ = x * Math.sin(angle) + z * Math.cos(angle);
+  
+      vertices[i] = rotatedX;
+      vertices[i + 2] = rotatedZ;
+    }
+  
+    mesh.geometry.attributes.position.needsUpdate = true;
+  }
+
   // once loaded, assign
   const itemAssign = (itemData) => {
     const item = itemData.item;
@@ -508,7 +526,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     let vrm = null
     
     models.map((m)=>{
-      
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
       
@@ -600,7 +617,17 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
             child.geometry.computeBoundsTree({strategy:SAH});
 
           createFaceNormals(child.geometry)
-          if (child.isSkinnedMesh) createBoneDirection(child)
+          if (child.isSkinnedMesh) {
+            createBoneDirection(child)
+            if (vrm.meta?.metaVersion === '0'){
+              VRMUtils.rotateVRM0( vrm );
+              console.log("Loaded VRM0 file ", vrm);
+              for (let i =0; i < child.skeleton.bones.length;i++){
+                child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+              }
+              child.userData.isVRM0 = true;
+            }
+          }
         }
       })
 

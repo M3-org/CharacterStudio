@@ -15,7 +15,7 @@ export default function TraitInformation({currentVRM, animationManager, lookatMa
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
     const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
-    const [hasMouseLook, setHasMouseLook] = useState(lookatManager.enabled);
+    const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
 
     useEffect(() => {
         if (currentVRM != null){

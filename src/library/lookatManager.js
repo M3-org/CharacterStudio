@@ -9,10 +9,10 @@ export class LookAtManager {
     this.leftEyeBones = []
     this.rightEyesBones = []
     this.curMousePos = new THREE.Vector2()
-    this.enabled = true;
 
     this.hotzoneSection  = getHotzoneSection()
-    this.enabled = true
+    this.enabled = false;
+    this.userActivated = false;
     this.lookInterest = 1
     this.hasInterest = true
     this.interestSpeed = 0.3
@@ -58,7 +58,8 @@ export class LookAtManager {
     // }, 1000/60);
   }
   setActive(active){
-    this.enabled = active;
+    console.log("is activating")
+    this.userActivated = active;
   }
   setCamera(camera){
     this.camera = camera
@@ -131,7 +132,7 @@ export class LookAtManager {
     const cameraRotationThreshold = localVector.z > 0.; // if camera rotation is not larger than 90
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
       this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
-      cameraRotationThreshold && this.enabled) {
+      cameraRotationThreshold && this.enabled && this.userActivated) {
       this.neckBones.forEach(neck => {
         this._moveJoint(neck, this.maxLookPercent.neck)
       })
