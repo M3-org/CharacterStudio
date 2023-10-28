@@ -92,6 +92,7 @@ function createMergedSkeleton(meshes, scale){
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
                             bone:  bone.clone(false),
                             parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,
+                            
                         }   
                         index++
                         boneClones.set(bone.name, boneData);
@@ -117,15 +118,9 @@ function createMergedSkeleton(meshes, scale){
     newSkeleton.pose();
     
     newSkeleton.bones.forEach(bn => {
-        const vrm0RestPosition = bn.userData?.restPosition;
-        if (vrm0RestPosition){
-            // Adjust position
-            if (restPosition){
-                bn.position.set(-vrm0RestPosition.x, vrm0RestPosition.y, -vrm0RestPosition.z);
-            }
-
-            // Adjust rotation to change handedness
-            //bn.rotation.set(bn.rotation.x, -bn.rotation.y, -bn.rotation.z);
+        const restPosition = bn.userData?.vrm0RestPosition;
+        if (restPosition){
+            bn.position.set(-restPosition.x, restPosition.y, -restPosition.z);
         }
         bn.position.set(bn.position.x *scale, bn.position.y*scale,bn.position.z*scale);
     });

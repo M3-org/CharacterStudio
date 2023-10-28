@@ -526,8 +526,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     let vrm = null
     
     models.map((m)=>{
+      // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
-
+      
       if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
         setLipSync(new LipSync(vrm));
       renameVRMBones(vrm)
@@ -621,11 +622,10 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
             if (vrm.meta?.metaVersion === '0'){
               VRMUtils.rotateVRM0( vrm );
               for (let i =0; i < child.skeleton.bones.length;i++){
-                const pos = child.skeleton.bones[i].position;
-                child.skeleton.bones[i].userData.vrm0RestPosition = { x:pos.x, y:pos.y, z:pos.z}
-              }   
+                child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+              }
+              child.userData.isVRM0 = true;
             }
-            //if (vrm.meta?.metaVersion === '0') child.userData.isVRM0 = true;
           }
         }
       })
