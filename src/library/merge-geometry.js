@@ -186,17 +186,22 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
         }
     });
 
-    const newSkeleton = createMergedSkeleton(meshes, scale);
+    const newSkeleton = createMergedSkeleton(clonedMeshes, scale);
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
    // group.animations = [];
     clonedMeshes.forEach(mesh => {
         const geometry = new THREE.BufferGeometry();
+        const attributes = {}
+        for (const attributeName in mesh.geometry.attributes) {
+            const attribute = mesh.geometry.attributes[attributeName];
+            attributes[attributeName] = attribute.clone();
+        }
         
         const source = {
-            attributes: mesh.geometry.attributes,
-            morphTargetDictionary: mesh.morphTargetDictionary || {},
+            attributes,
+            morphTargetDictionary: { ...mesh.morphTargetDictionary },
             morphTargetInfluences: mesh.morphTargetInfluences || [],
             //animationClips: mesh.animations, //disable for now cuz no animations.
             index: null,
@@ -267,7 +272,7 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
     
     
         const newMesh = new THREE.SkinnedMesh(geometry, mesh.material);
-        console.log(mesh);
+
         newMesh.name = mesh.name;
         newMesh.morphTargetInfluences = source.morphTargetInfluences;
         newMesh.morphTargetDictionary = source.morphTargetDictionary;
