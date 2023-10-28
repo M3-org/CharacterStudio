@@ -497,11 +497,11 @@ export function findChildrenByType(root, type) {
         predicate: (o) => o.type === type,
     });
 }
-export function getAvatarData (avatarModel, modelName, vrmMeta){
+export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
-    materials : [avatarModel.userData.atlasMaterial],
+    materials : atlasMaterial ? [avatarModel.userData.atlasMaterial] : avatarModel.userData.atlasMaterial,
     meta : getVRMMeta(modelName, vrmMeta)
   }
 

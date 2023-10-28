@@ -132,6 +132,8 @@ export default class VRMExporterv0 {
         //     throw new Error("springBone is undefined or null");
         // }
         // TODO: name基準で重複除外 これでいいのか？
+        
+
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
             .map((material) => material);

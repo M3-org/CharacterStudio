@@ -159,7 +159,7 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta 
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
-      ...getAvatarData(glbModel, "CharacterCreator", vrmMeta),
+      ...getAvatarData(glbModel, "CharacterCreator", false, vrmMeta),
     }
     let skinnedMesh;
     glbModel.traverse(child => {

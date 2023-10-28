@@ -165,12 +165,56 @@ function removeUnusedAttributes(attribute,arrayMatch){
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
-    const { bakeObjects, textures, vrmMaterial } = 
-        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
-    // if (vrmMaterial != null)
-    //     vrmMaterial.userData.textureProperties = {_MainTex:0, _ShadeTexture:0
-    const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+    let material = null;
+    let meshes = null;
 
+    const mergeAtlas = false;
+    if (mergeAtlas){
+        const { bakeObjects, textures, vrmMaterial } = 
+            await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
+
+        meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+        console.log(meshes);
+
+        material = new THREE.MeshStandardMaterial({
+            map: textures["diffuse"],
+        });
+
+        // for Mtoon material
+        if (vrmMaterial.unfiroms != null){
+            vrmMaterial.uniforms.map = textures["diffuse"];
+            vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+        }
+        // for Standard Material
+        else{
+            vrmMaterial.map = textures["diffuse"];
+        }
+
+        material.userData.vrmMaterial = vrmMaterial;
+        material.userData.shadeTexture = textures["uniformColor"];
+    }
+    else{
+        meshes = findChildrenByType(avatar, "SkinnedMesh");
+
+        material = [];
+
+        // Iterate through the meshArray
+        meshes.forEach(mesh => {
+        if (mesh.material) {
+            // Check if the mesh has a material
+            if (Array.isArray(mesh.material)) {
+                // If the material property is an array (e.g., for MultiMaterial), concatenate it to the materialsArray
+                material.push(...mesh.material);
+            } else {
+                // If the material property is a single material, push it to the materialsArray
+                material.push(mesh.material);
+            }
+        }
+        });
+    }
+
+
+    
     const newSkeleton = createMergedSkeleton(meshes, scale);
 
     meshes.forEach((mesh) => {
@@ -239,33 +283,12 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
         vertices[i + 2] *= scale;
     }
 
-    const material = new THREE.MeshStandardMaterial({
-        map: textures["diffuse"],
-    });
 
-    // for Mtoon material
-    if (vrmMaterial.unfiroms != null){
-        vrmMaterial.uniforms.map = textures["diffuse"];
-        vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
-    }
-    // for Standard Material
-    else{
-        vrmMaterial.map = textures["diffuse"];
-    }
-
-    
-
-    material.userData.vrmMaterial = vrmMaterial;
     const mesh = new THREE.SkinnedMesh(geometry, material);
+    console.log(mesh);
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
     mesh.morphTargetDictionary = dest.morphTargetDictionary;
-
-    // Add unmerged meshes
-    // const clones = meshesToExclude.map((o) => {
-    //   return o.clone(false);
-    // });
-
 
     mesh.bind(newSkeleton);
 
@@ -274,12 +297,8 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
     group.animations = dest.animations;
     group.add(mesh);
     group.add(newSkeleton.bones[0]);
-    // clones.forEach((clone) => {
-    //   group.add(clone);
-    // });
 
-    // save material as property to get it later
-    material.userData.shadeTexture = textures["uniformColor"];
+    
     group.userData.atlasMaterial = material;
     return group;
 }
