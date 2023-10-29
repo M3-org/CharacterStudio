@@ -5,10 +5,11 @@ import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 
-export default function TraitInformation({currentVRM, animationManager, lookatManager}){
+export default function TraitInformation({animationManager, lookatManager}){
     const {
         displayTraitOption,
-        avatar
+        avatar,
+        currentVRM
     } = useContext(SceneContext);
 
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
