@@ -18,9 +18,10 @@ import JsonAttributes from "./JsonAttributes"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 import MenuTitle from "./MenuTitle"
+import { setTextureToChildMeshes } from "../library/utils"
 
 
-export default function Editor({uploadTexture,confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
+export default function Editor({uploadTextureURL,confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
   const {
     currentTraitName, 
     setCurrentTraitName, 
@@ -34,7 +35,9 @@ export default function Editor({uploadTexture,confirmDialog,animationManager, bl
     manifestSelectionIndex, 
     moveCamera,
     avatar,
-    setDisplayTraitOption
+    setDisplayTraitOption,
+    currentVRM,
+    setCurrentVRM
   } = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -47,7 +50,6 @@ export default function Editor({uploadTexture,confirmDialog,animationManager, bl
   } = useContext(SoundContext)
 
   const [cameraFocused, setCameraFocused] = React.useState(false)
-  const [currentVRM, setCurrentVRM] = React.useState(null)
 
   // options are selected by random or start
   useEffect(() => {
@@ -62,10 +64,10 @@ export default function Editor({uploadTexture,confirmDialog,animationManager, bl
   }, [templateInfo])
 
   useEffect(()=>{
-    if (uploadTexture != null){
-      console.log(uploadTexture);
+    if (uploadTextureURL != null && currentVRM != null){
+      setTextureToChildMeshes(currentVRM.scene,uploadTextureURL)
     }
-  },[uploadTexture])
+  },[uploadTextureURL])
 
 
   const selectOption = (option) => {

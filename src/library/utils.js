@@ -28,6 +28,41 @@ export async function prepareModel(templateInfo){
     return loadModel(trait)
   }));
 }
+export async function setTextureToChildMeshes(scene, textureFile){
+  console.log(scene);
+  console.log(textureFile);
+
+  const textureLoader = new THREE.TextureLoader();
+
+  // Load the image as a texture
+  const texture = await textureLoader.load(textureFile);
+  console.log(texture)
+  texture.flipY = false;
+  texture.needsUpdate = true;
+
+  // Traverse through the child meshes in the scene
+  scene.traverse((object) => {
+    if (object instanceof THREE.Mesh) {
+      const materials = !Array.isArray(object.material) ? [object.material] : object.material
+      // Assign the texture to the material
+      for (let i = 0; i < materials.length; i++) {
+        if (materials[i] instanceof THREE.ShaderMaterial) {
+          materials[i].uniforms.map = texture
+          materials[i].uniforms.shadeMultiplyTexture = texture;
+        }
+        else{
+          materials[i].map = texture
+        }
+        console.log(materials[i]);
+        materials[i].needsUpdate = true
+
+      }
+    }
+  });
+
+  // get all mesh children from scene and apply texture to standard material
+
+}
 
 export function getFileNameWithoutExtension(filePath) {
   // Get the base file name without the extension

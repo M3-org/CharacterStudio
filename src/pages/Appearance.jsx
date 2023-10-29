@@ -43,7 +43,7 @@ function Appearance({
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
-  const [uploadTexture, setUploadTexture] = React.useState(null)
+  const [uploadTextureURL, setUploadTextureURL] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -96,7 +96,8 @@ function Appearance({
   }
 
   const handleImageDrop = (file) => {
-    setUploadTexture(file);
+    const path = URL.createObjectURL(file);
+    setUploadTextureURL(path);
   }
 
   const handleFilesDrop = async(files) => {
@@ -188,7 +189,7 @@ function Appearance({
         effectManager={effectManager}
         confirmDialog={confirmDialog}
         jsonSelectionArray={jsonSelectionArray}
-        uploadTexture = {uploadTexture}
+        uploadTextureURL = {uploadTextureURL}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
