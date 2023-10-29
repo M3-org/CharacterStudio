@@ -20,7 +20,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import MenuTitle from "./MenuTitle"
 
 
-export default function Editor({confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
+export default function Editor({uploadTexture,confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
   const {
     currentTraitName, 
     setCurrentTraitName, 
@@ -60,6 +60,12 @@ export default function Editor({confirmDialog,animationManager, blinkManager, lo
     }
     setCurrentTraitName(null)
   }, [templateInfo])
+
+  useEffect(()=>{
+    if (uploadTexture != null){
+      console.log(uploadTexture);
+    }
+  },[uploadTexture])
 
 
   const selectOption = (option) => {
