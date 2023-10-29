@@ -38,7 +38,6 @@ function Appearance({
     !isMute && playSound('backNextButton');
     resetAvatar()
     setViewMode(ViewMode.CREATE)
-    setCurrentVRM(null); 
     setDisplayTraitOption(null);
   }
 
@@ -48,7 +47,6 @@ function Appearance({
   const next = () => {
     !isMute && playSound('backNextButton');
     setViewMode(ViewMode.BIO);
-    setCurrentVRM(null); 
     setDisplayTraitOption(null);
   }
 
