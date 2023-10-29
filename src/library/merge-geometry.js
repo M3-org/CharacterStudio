@@ -172,11 +172,9 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
 
     const material = [];
 
-
     meshes.forEach(originalMesh => {
         const clonedMesh = originalMesh.clone(); // Clone the original mesh
         clonedMeshes.push(clonedMesh); // Add the cloned mesh to the array
-        console.log("cloned mesh", clonedMesh);
         if (Array.isArray(originalMesh.material)) {
             // If the material property is an array (e.g., for MultiMaterial), concatenate it to the materialsArray
             material.push(...originalMesh.material);
@@ -223,6 +221,8 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
             scale,
         },isVrm0);
 
+        console.log(mesh.geometry.attributes.skinWeight)
+        console.log(mesh.geometry.attributes);
 
         // change vertex positions if is vrm0
         if (isVrm0){
@@ -239,15 +239,39 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
 
 
         const baseIndArr = mesh.geometry.index.array;
+        const baseSkinIndArr = mesh.geometry.attributes.skinIndex.array;
         const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
 
+
+        console.log(mesh.geometry.attributes.skinIndex);
+        // console.log(offsetIndexArr);
+        // console.log(baseSkinIndArr);
+
         const indArrange = []
+        const skinIndex = [];
+
         for (let i =0 ; i < baseIndArr.length ;i++){
             indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
         }
+
+        for (let i =0 ; i < baseSkinIndArr.length ;i++){
+            skinIndex[i] = offsetIndexArr.indexOf(baseSkinIndArr[i])
+        }
+
+
+        
+
         const indexArr = new Uint32Array(indArrange);
         const indexAttribute = new BufferAttribute(indexArr,1,false); 
 
+        const skinIndexArr = new Uint16Array(skinIndex); 
+        const skinAttribute = new BufferAttribute(skinIndexArr,4,false);
+
+
+        //console.log(baseSkinIndArr);
+        console.log(baseSkinIndArr);
+        console.log(skinIndexArr);
+        geometry.setAttribute( 'skinWeight', skinAttribute );
 
         // update attributes indices to match new offsetIndexArr
         geometry.setIndex(indexAttribute)
