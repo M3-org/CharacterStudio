@@ -40,7 +40,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
       />
       <CustomButton
         theme="light"
-        text="VRM"
+        text="VRM (No Atlas)"
         icon="download"
         size={14}
         className={styles.button}
@@ -51,7 +51,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
       />
       <CustomButton
         theme="light"
-        text="VRM merged"
+        text="VRM (Atlas)"
         icon="download"
         size={14}
         className={styles.button}
