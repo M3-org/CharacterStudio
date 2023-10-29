@@ -36,9 +36,7 @@ export async function setTextureToChildMeshes(scene, textureFile){
 
   // Load the image as a texture
   const texture = await textureLoader.load(textureFile);
-  console.log(texture)
   texture.flipY = false;
-  texture.needsUpdate = true;
 
   // Traverse through the child meshes in the scene
   scene.traverse((object) => {
@@ -47,8 +45,11 @@ export async function setTextureToChildMeshes(scene, textureFile){
       // Assign the texture to the material
       for (let i = 0; i < materials.length; i++) {
         if (materials[i] instanceof THREE.ShaderMaterial) {
-          materials[i].uniforms.map = texture
-          materials[i].uniforms.shadeMultiplyTexture = texture;
+          if(!materials[i].name.includes("(Outline)")){
+            console.log(materials[i].name);
+            materials[i].uniforms.map.value = texture
+            materials[i].uniforms.shadeMultiplyTexture.value = texture;
+          }
         }
         else{
           materials[i].map = texture
