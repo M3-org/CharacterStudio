@@ -40,6 +40,8 @@ export const SceneProvider = (props) => {
   const [currentOptions, setCurrentOptions] = useState([])
   const [displayTraitOption, setDisplayTraitOption] = useState(null)
 
+  const [currentVRM, setCurrentVRM] = React.useState(null)
+
   const [model, setModel] = useState(new THREE.Object3D())
   const [animationManager, setAnimationManager] = useState(null)
   const [camera, setCamera] = useState(null)
@@ -205,6 +207,8 @@ export const SceneProvider = (props) => {
     <SceneContext.Provider
       value={{
         vrmHelperRoot,
+        currentVRM,
+        setCurrentVRM,
         
         awaitDisplay, 
         setAwaitDisplay,
