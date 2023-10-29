@@ -164,13 +164,60 @@ function removeUnusedAttributes(attribute,arrayMatch){
     return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
 }
 
+function remapBoneIndices(geometry, oldSkeleton, newSkeleton){
+
+    // Iterate through the vertices of the geometry
+    for (let i = 0; i < geometry.attributes.skinIndex.array.length; i += 4) {
+    // For each vertex, get the current skinIndices
+        const skinIndices = [
+        geometry.attributes.skinIndex.array[i],
+        geometry.attributes.skinIndex.array[i + 1],
+        geometry.attributes.skinIndex.array[i + 2],
+        geometry.attributes.skinIndex.array[i + 3]
+        ];
+
+        // Iterate through skinIndices and remap them to match the new skeleton
+        for (let j = 0; j < 4; j++) {
+            const oldBoneIndex = skinIndices[j];
+            // Map the old bone index to the new skeleton's bone index
+            const newBoneIndex = mapOldBoneIndexToNew(oldBoneIndex, oldSkeleton, newSkeleton);
+            skinIndices[j] = newBoneIndex;
+        }
+
+        // Update the geometry's skinIndices
+        geometry.attributes.skinIndex.array[i] = skinIndices[0];
+        geometry.attributes.skinIndex.array[i + 1] = skinIndices[1];
+        geometry.attributes.skinIndex.array[i + 2] = skinIndices[2];
+        geometry.attributes.skinIndex.array[i + 3] = skinIndices[3];
+    }
+
+    // Ensure the geometry's skinIndices are updated
+    geometry.attributes.skinIndex.needsUpdate = true;
+}
+
+function mapOldBoneIndexToNew(oldBoneIndex, oldSkeleton, newSkeleton) {
+    // Find the old bone using the oldBoneIndex
+    const oldBone = oldSkeleton.bones[oldBoneIndex];
+  
+    // Find the corresponding bone in the new skeleton using the bone's name
+    const newBone = newSkeleton.bones.find((bone) => bone.name === oldBone.name);
+  
+    if (newBone) {
+      // Return the index of the new bone in the new skeleton
+      return newSkeleton.bones.indexOf(newBone);
+    } else {
+      // Handle the case where no corresponding bone is found
+      // You might return a default value or handle the situation as needed
+      return -1; // or any other value indicating no match
+    }
+  }
+
 export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
     
     const clonedMeshes = [];
+    const material = [];
 
     const meshes = findChildrenByType(avatar, "SkinnedMesh");
-
-    const material = [];
 
     meshes.forEach(originalMesh => {
         const clonedMesh = originalMesh.clone(); // Clone the original mesh
@@ -221,8 +268,7 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
             scale,
         },isVrm0);
 
-        console.log(mesh.geometry.attributes.skinWeight)
-        console.log(mesh.geometry.attributes);
+
 
         // change vertex positions if is vrm0
         if (isVrm0){
@@ -236,44 +282,20 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
         geometry.morphAttributes = source.morphAttributes;
         geometry.morphTargetsRelative = true;
 
-
-
         const baseIndArr = mesh.geometry.index.array;
-        const baseSkinIndArr = mesh.geometry.attributes.skinIndex.array;
         const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
 
-
-        console.log(mesh.geometry.attributes.skinIndex);
-        // console.log(offsetIndexArr);
-        // console.log(baseSkinIndArr);
-
         const indArrange = []
-        const skinIndex = [];
 
         for (let i =0 ; i < baseIndArr.length ;i++){
             indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
         }
 
-        for (let i =0 ; i < baseSkinIndArr.length ;i++){
-            skinIndex[i] = offsetIndexArr.indexOf(baseSkinIndArr[i])
-        }
-
-
+        remapBoneIndices(geometry,mesh.skeleton,newSkeleton);
         
-
         const indexArr = new Uint32Array(indArrange);
         const indexAttribute = new BufferAttribute(indexArr,1,false); 
 
-        const skinIndexArr = new Uint16Array(skinIndex); 
-        const skinAttribute = new BufferAttribute(skinIndexArr,4,false);
-
-
-        //console.log(baseSkinIndArr);
-        console.log(baseSkinIndArr);
-        console.log(skinIndexArr);
-        geometry.setAttribute( 'skinWeight', skinAttribute );
-
-        // update attributes indices to match new offsetIndexArr
         geometry.setIndex(indexAttribute)
         for (const att in geometry.attributes){
             geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
