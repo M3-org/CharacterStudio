@@ -26,7 +26,9 @@ function Appearance({
     setIsChangingWholeAvatar,
     toggleDebugMNode,
     templateInfo,
-    setSelectedOptions
+    setSelectedOptions,
+    setCurrentVRM,
+    setDisplayTraitOption,
   } = React.useContext(SceneContext)
   
 
@@ -36,14 +38,18 @@ function Appearance({
     !isMute && playSound('backNextButton');
     resetAvatar()
     setViewMode(ViewMode.CREATE)
+    setCurrentVRM(null); 
+    setDisplayTraitOption(null);
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
-  
+  const [uploadTexture, setUploadTexture] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
-    setViewMode(ViewMode.BIO)
+    setViewMode(ViewMode.BIO);
+    setCurrentVRM(null); 
+    setDisplayTraitOption(null);
   }
 
   const randomize = () => {
@@ -83,16 +89,24 @@ function Appearance({
   // Translate hook
   const { t } = useContext(LanguageContext)
 
+  const handleAnimationDrop = async (file) => {
+    const animName = getFileNameWithoutExtension(file.name);
+    const path = URL.createObjectURL(file);
+    await animationManager.loadAnimation(path, true, "", animName);
+  }
+
+  const handleImageDrop = (file) => {
+    setUploadTexture(file);
+  }
+
   const handleFilesDrop = async(files) => {
     const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
-      const animName = getFileNameWithoutExtension(file.name);
-      console.log('Dropped .fbx file:', file);
-      const path = URL.createObjectURL(file);
-      console.log("path")
-      await animationManager.loadAnimation(path, true, "", animName);
-      // Handle the dropped .fbx file
+      handleAnimationDrop(file);
+    } 
+    if (file && (file.name.toLowerCase().endsWith('.png') || file.name.toLowerCase().endsWith('.jpg'))) {
+      handleImageDrop(file);
     } 
 
     const filesArray = Array.from(files);
@@ -174,6 +188,7 @@ function Appearance({
         effectManager={effectManager}
         confirmDialog={confirmDialog}
         jsonSelectionArray={jsonSelectionArray}
+        uploadTexture = {uploadTexture}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
