@@ -145,6 +145,7 @@ export default function Scene({sceneModel, lookatManager}) {
           if (child.userData.origIndexBuffer){
             child.geometry.setIndex(child.userData.clippedIndexGeometry);
             child.geometry.boundsTree = child.userData.lastBoundsTree;
+            child.userData.clippedIndexGeometry.dispose();
           }
         }
       })
