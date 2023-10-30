@@ -40,13 +40,24 @@ export const ExportMenu = ({getFaceScreenshot}) => {
       />
       <CustomButton
         theme="light"
-        text="VRM"
+        text="VRM (No Atlas)"
         icon="download"
         size={14}
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta)
+          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,false)
+        }}
+      />
+      <CustomButton
+        theme="light"
+        text="VRM (Atlas)"
+        icon="download"
+        size={14}
+        className={styles.button}
+        onClick={() => {
+          const screenshot = getFaceScreenshot();
+          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,true)
         }}
       />
     </React.Fragment>
