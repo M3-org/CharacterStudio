@@ -9,12 +9,6 @@ export default function JsonAttributes({jsonSelectionArray}){
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    if (jsonSelectionArray?.length >0)
-      setSelectedOptions(jsonSelectionArray[0].options)
-    setIndex(0);
-  }, [jsonSelectionArray])
-
   const nextJson = async () => {
     if (index >= jsonSelectionArray.length -1){
       setSelectedOptions(jsonSelectionArray[0].options)
