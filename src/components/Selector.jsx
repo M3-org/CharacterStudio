@@ -175,30 +175,34 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   },[selectedOptions])
 
   const loadCustom = (url) => {
-    
-    const option = {
-      item:{
-        id:"custom_" + currentTraitName,
-        name:"Custom " + currentTraitName,
-        directory:url
-      },
-      trait:templateInfo.traits.find((t) => t.name === currentTraitName)
-    }
-    effectManager.setTransitionEffect('switch_item');
-    loadOptions([option], false, false, false).then((loadedData)=>{
-      URL.revokeObjectURL(url);
-      let newAvatar = {};
-      loadedData.map((data)=>{
-        newAvatar = {...newAvatar, ...itemAssign(data)}
+    if (currentTraitName){
+      const option = {
+        item:{
+          id:"custom_" + currentTraitName,
+          name:"Custom " + currentTraitName,
+          directory:url
+        },
+        trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+      }
+      effectManager.setTransitionEffect('switch_item');
+      loadOptions([option], false, false, false).then((loadedData)=>{
+        URL.revokeObjectURL(url);
+        let newAvatar = {};
+        loadedData.map((data)=>{
+          newAvatar = {...newAvatar, ...itemAssign(data)}
+        })
+        const finalAvatar = {...avatar, ...newAvatar}
+        setTimeout(() => {
+          if (Object.keys(finalAvatar).length > 0) {
+            cullHiddenMeshes(finalAvatar)
+          }
+        }, effectManager.transitionTime);
+        setAvatar(finalAvatar)
       })
-      const finalAvatar = {...avatar, ...newAvatar}
-      setTimeout(() => {
-        if (Object.keys(finalAvatar).length > 0) {
-          cullHiddenMeshes(finalAvatar)
-        }
-      }, effectManager.transitionTime);
-      setAvatar(finalAvatar)
-    })
+    }
+    else{
+      console.log("Please select a trait first");
+    }
   }
 
   const uploadTrait = async() =>{
