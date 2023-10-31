@@ -73,7 +73,12 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   },[templateInfo])
 
   useEffect(()=>{
-    console.log(uploadVRMURL);
+    if (uploadVRMURL != null){
+      if (uploadVRMURL != ""){
+        console.log(uploadVRMURL);
+        loadCustom(uploadVRMURL);
+      }
+    }
   },[uploadVRMURL])
 
   const getRestrictions = () => {
