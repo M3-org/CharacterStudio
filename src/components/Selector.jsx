@@ -29,7 +29,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
+export default function Selector({confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
     avatar,
     setAvatar,
@@ -70,8 +70,11 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   
   useEffect(() => {
     setRestrictions(getRestrictions());
-
   },[templateInfo])
+
+  useEffect(()=>{
+    console.log(uploadVRMURL);
+  },[uploadVRMURL])
 
   const getRestrictions = () => {
 
@@ -166,10 +169,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
   },[selectedOptions])
 
-  const loadCustom = (file) => {
-    const url = URL.createObjectURL(file);
+  const loadCustom = (url) => {
+    
     const option = {
-      
       item:{
         id:"custom_" + currentTraitName,
         name:"Custom " + currentTraitName,
@@ -202,7 +204,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       input.onchange = e => { 
         var file = e.target.files[0]; 
         if (file.name.endsWith(".vrm")){
-          loadCustom(file)
+          const url = URL.createObjectURL(file);
+          loadCustom(url)
         }
       }
       input.click();
