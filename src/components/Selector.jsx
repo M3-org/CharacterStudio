@@ -194,10 +194,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     })
   }
 
-  const promptUpload = async () => {
-    uploadTrait();
-  }
-
   const uploadTrait = async() =>{
       var input = document.createElement('input');
       input.type = 'file';
@@ -811,7 +807,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
           
           <div 
             className={styles["uploadButton"]}
-            onClick={() => {promptUpload()}}>
+            onClick={uploadTrait}>
             <div> 
               Upload </div>
           </div>
