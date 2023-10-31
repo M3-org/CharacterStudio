@@ -541,6 +541,11 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
       const scale = templateInfo.exportScale || 1;
       vrm.scene.scale.set(scale,scale,scale);
+
+      const offset = templateInfo.offset;
+      if (offset != null){
+        vrm.scene.position.set(offset[0],offset[1],offset[2]);
+      }
         
       //animation setup section
       //play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
