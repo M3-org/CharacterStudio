@@ -136,6 +136,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   }
 
   const loadSelectedOptions = (opts) => {
+    
     loadOptions(opts).then((loadedData)=>{
       let newAvatar = {};
       loadedData.map((data)=>{
@@ -538,6 +539,9 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
       lookatManager.addVRM(vrm)
 
+      const scale = templateInfo.exportScale || 1;
+      vrm.scene.scale.set(scale,scale,scale);
+        
       //animation setup section
       //play animations on this vrm  TODO, letscreate a single animation manager per traitInfo, as model may change since it is now a trait option
       animationManager.startAnimation(vrm)
@@ -628,6 +632,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
               child.userData.isVRM0 = true;
             }
           }
+          
         }
       })
 
