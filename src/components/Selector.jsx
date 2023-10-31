@@ -60,7 +60,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
-  const [vrm1Warn, setVrm1Warn1] = useState(true);
 
   const updateCurrentTraitMap = (k,v) => {
     setCurrentTrait(currentTrait.set(k,v));
@@ -181,37 +180,22 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
     effectManager.setTransitionEffect('switch_item');
     loadOptions([option], false, false, false).then((loadedData)=>{
       URL.revokeObjectURL(url);
-      if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
-        let newAvatar = {};
-        loadedData.map((data)=>{
-          newAvatar = {...newAvatar, ...itemAssign(data)}
-        })
-        const finalAvatar = {...avatar, ...newAvatar}
-        setTimeout(() => {
-          if (Object.keys(finalAvatar).length > 0) {
-            cullHiddenMeshes(finalAvatar)
-          }
-        }, effectManager.transitionTime);
-        setAvatar(finalAvatar)
-      }
-      else{
-
-        console.log("Only vrm1 file supported")
-      }
+      let newAvatar = {};
+      loadedData.map((data)=>{
+        newAvatar = {...newAvatar, ...itemAssign(data)}
+      })
+      const finalAvatar = {...avatar, ...newAvatar}
+      setTimeout(() => {
+        if (Object.keys(finalAvatar).length > 0) {
+          cullHiddenMeshes(finalAvatar)
+        }
+      }, effectManager.transitionTime);
+      setAvatar(finalAvatar)
     })
   }
 
   const promptUpload = async () => {
-    if (vrm1Warn){
-      confirmDialog("Supports only VRM1 files", (val)=>{
-        setVrm1Warn1(!val);
-        if (val)
-          uploadTrait()
-      })
-    }
-    else{
-      uploadTrait();
-    }
+    uploadTrait();
   }
 
   const uploadTrait = async() =>{
