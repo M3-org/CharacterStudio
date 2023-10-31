@@ -21,7 +21,7 @@ import MenuTitle from "./MenuTitle"
 import { setTextureToChildMeshes } from "../library/utils"
 
 
-export default function Editor({uploadTextureURL,confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
+export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,animationManager, blinkManager, lookatManager, effectManager, jsonSelectionArray}) {
   const {
     currentTraitName, 
     setCurrentTraitName, 
@@ -123,7 +123,14 @@ export default function Editor({uploadTextureURL,confirmDialog,animationManager,
           </div>
         </div>
       </div>
-      <Selector confirmDialog = {confirmDialog} animationManager={animationManager} templateInfo={templateInfo} blinkManager = {blinkManager} lookatManager = {lookatManager} effectManager = {effectManager}/>
+      <Selector 
+        confirmDialog = {confirmDialog} 
+        animationManager={animationManager} 
+        templateInfo={templateInfo} 
+        blinkManager = {blinkManager} 
+        lookatManager = {lookatManager} 
+        effectManager = {effectManager}
+        uploadVRMURL = {uploadVRMURL}/>
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}/>
     </Fragment>

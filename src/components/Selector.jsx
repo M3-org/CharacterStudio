@@ -29,7 +29,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-export default function Selector({confirmDialog, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
+export default function Selector({confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
     avatar,
     setAvatar,
@@ -60,7 +60,6 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
-  const [vrm1Warn, setVrm1Warn1] = useState(true);
 
   const updateCurrentTraitMap = (k,v) => {
     setCurrentTrait(currentTrait.set(k,v));
@@ -71,8 +70,16 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
   
   useEffect(() => {
     setRestrictions(getRestrictions());
-
   },[templateInfo])
+
+  useEffect(()=>{
+    if (uploadVRMURL != null){
+      if (uploadVRMURL != ""){
+        console.log(uploadVRMURL);
+        loadCustom(uploadVRMURL);
+      }
+    }
+  },[uploadVRMURL])
 
   const getRestrictions = () => {
 
@@ -167,21 +174,19 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
 
   },[selectedOptions])
 
-  const loadCustom = (file) => {
-    const url = URL.createObjectURL(file);
-    const option = {
-      
-      item:{
-        id:"custom_" + currentTraitName,
-        name:"Custom " + currentTraitName,
-        directory:url
-      },
-      trait:templateInfo.traits.find((t) => t.name === currentTraitName)
-    }
-    effectManager.setTransitionEffect('switch_item');
-    loadOptions([option], false, false, false).then((loadedData)=>{
-      URL.revokeObjectURL(url);
-      if (loadedData[0].models[0]?.userData?.gltfExtensions?.VRMC_vrm){
+  const loadCustom = (url) => {
+    if (currentTraitName){
+      const option = {
+        item:{
+          id:"custom_" + currentTraitName,
+          name:"Custom " + currentTraitName,
+          directory:url
+        },
+        trait:templateInfo.traits.find((t) => t.name === currentTraitName)
+      }
+      effectManager.setTransitionEffect('switch_item');
+      loadOptions([option], false, false, false).then((loadedData)=>{
+        URL.revokeObjectURL(url);
         let newAvatar = {};
         loadedData.map((data)=>{
           newAvatar = {...newAvatar, ...itemAssign(data)}
@@ -193,24 +198,10 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
           }
         }, effectManager.transitionTime);
         setAvatar(finalAvatar)
-      }
-      else{
-
-        console.log("Only vrm1 file supported")
-      }
-    })
-  }
-
-  const promptUpload = async () => {
-    if (vrm1Warn){
-      confirmDialog("Supports only VRM1 files", (val)=>{
-        setVrm1Warn1(!val);
-        if (val)
-          uploadTrait()
       })
     }
     else{
-      uploadTrait();
+      console.log("Please select a trait first");
     }
   }
 
@@ -222,7 +213,8 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
       input.onchange = e => { 
         var file = e.target.files[0]; 
         if (file.name.endsWith(".vrm")){
-          loadCustom(file)
+          const url = URL.createObjectURL(file);
+          loadCustom(url)
         }
       }
       input.click();
@@ -827,7 +819,7 @@ export default function Selector({confirmDialog, templateInfo, animationManager,
           
           <div 
             className={styles["uploadButton"]}
-            onClick={() => {promptUpload()}}>
+            onClick={uploadTrait}>
             <div> 
               Upload </div>
           </div>
