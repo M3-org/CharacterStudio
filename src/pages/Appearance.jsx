@@ -43,6 +43,7 @@ function Appearance({
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [uploadTextureURL, setUploadTextureURL] = React.useState(null)
+  const [uploadVRMURL, setUploadVRMURL] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -97,6 +98,10 @@ function Appearance({
     const path = URL.createObjectURL(file);
     setUploadTextureURL(path);
   }
+  const handleVRMDrop = (file) =>{
+    const path = URL.createObjectURL(file);
+    setUploadVRMURL(path);
+  }
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
@@ -106,6 +111,9 @@ function Appearance({
     } 
     if (file && (file.name.toLowerCase().endsWith('.png') || file.name.toLowerCase().endsWith('.jpg'))) {
       handleImageDrop(file);
+    } 
+    if (file && file.name.toLowerCase().endsWith('.vrm')) {
+      handleVRMDrop(file);
     } 
 
     const filesArray = Array.from(files);
@@ -188,6 +196,7 @@ function Appearance({
         confirmDialog={confirmDialog}
         jsonSelectionArray={jsonSelectionArray}
         uploadTextureURL = {uploadTextureURL}
+        uploadVRMURL = {uploadVRMURL}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
