@@ -9,6 +9,7 @@ import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
+import { downloadVRM } from "../library/download-utils"
 
 function Optimizer({
   animationManager,
@@ -31,6 +32,8 @@ function Optimizer({
   const download = () => {
     console.log("merge and download logic");
     console.log(currentVRM);
+    const vrmData = currentVRM.userData.vrm
+    downloadVRM(model, vrmData,"test",null,4096,1,true, null, true)
   }
 
   // const debugMode = () =>{
