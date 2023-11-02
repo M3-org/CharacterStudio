@@ -15,6 +15,12 @@ function Landing() {
     !isMute && playSound('backNextButton');
   }
 
+  const optimizeCharacter = () => {
+    setViewMode(ViewMode.OPTIMIZER)
+    !isMute && playSound('backNextButton');
+  }
+
+
   const loadCharacter = () => {
     setViewMode(ViewMode.LOAD)
     !isMute && playSound('backNextButton');
@@ -25,6 +31,9 @@ function Landing() {
       <div className={styles.buttonContainer}>
         <button className={styles.button} onClick={createCharacter}>
           <img src="/assets/media/btn_create_character.png" />
+        </button>
+        <button className={styles.button} onClick={optimizeCharacter}>
+          <img src="/assets/media/btn_optimize_character.png" />
         </button>
         {/*
         <button className={styles.button}
