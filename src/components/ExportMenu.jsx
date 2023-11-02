@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "./custom-button"
 
-import { downloadGLB, downloadVRM } from "../library/download-utils"
+import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 
 import styles from "./ExportMenu.module.css"
 import { local } from "../library/store"
@@ -46,7 +46,8 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,false)
+
+          downloadVRMWithAvatar(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,false)
         }}
       />
       <CustomButton
@@ -57,7 +58,9 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          downloadVRM(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,true)
+          console.log(model);
+          console.log(avatar)
+          downloadVRMWithAvatar(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,true)
         }}
       />
     </React.Fragment>

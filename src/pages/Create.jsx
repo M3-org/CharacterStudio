@@ -108,7 +108,11 @@ function Create({fetchCharacterManifest}) {
   return (
     <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
+      <div className={styles.vrmOptimizerButton}>
+        tet
+      </div>
       <div className={styles.topLine} />
+      
       <div className={styles.classContainer}>
         {classes.map((characterClass, i) => {
           return (
@@ -170,13 +174,13 @@ function Create({fetchCharacterManifest}) {
 
       <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
-        { /* <CustomButton
+        { <CustomButton
           theme="light"
           text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
-      /> */}
+      />}
       </div>
     </div>
   )

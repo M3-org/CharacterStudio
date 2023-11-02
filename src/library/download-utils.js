@@ -113,7 +113,7 @@ async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize
   return parseVRM(vrmModel,avatar,screenshot, isVrm0, vrmMeta, createTextureAtlas) 
 }
 
-export async function downloadVRM(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
+export async function downloadVRMWithAvatar(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
@@ -121,6 +121,12 @@ export async function downloadVRM(avatarToDownload, avatar, fileName = "", scree
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
+
+export async function downloadVRM(avatarToDownload,vrmData,fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
+  const avatar = {_optimized:{vrm:vrmData}}
+  downloadVRMWithAvatar(avatarToDownload, avatar, fileName, screenshot, atlasSize, scale,isVrm0,vrmMeta,createTextureAtlas)
+}
+
 export async function downloadGLB(avatarToDownload,  optimized = true, fileName = "", atlasSize  = 4096){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
@@ -167,6 +173,7 @@ function parseGLB (glbModel){
 function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta = null, atlasMaterial = false){
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
+
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator", atlasMaterial, vrmMeta),

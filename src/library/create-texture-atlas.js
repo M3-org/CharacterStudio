@@ -219,7 +219,6 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
 };
 
 export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize = 4096 }) => {
-  console.log("is br");
   const ATLAS_SIZE_PX = atlasSize;
   const IMAGE_NAMES = ["diffuse"];
   const bakeObjects = [];

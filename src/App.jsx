@@ -27,6 +27,7 @@ import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
+import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 
 
@@ -243,7 +244,7 @@ export default function App() {
 
     if (controls) {
       if (
-        [ViewMode.APPEARANCE, ViewMode.SAVE].includes(viewMode)
+        [ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.OPTIMIZER].includes(viewMode)
       ) {
         controls.enabled = true
       } else {
@@ -312,6 +313,11 @@ export default function App() {
         lookatManager={lookatManager}
         effectManager={effectManager}
         confirmDialog={confirmDialog}
+      />
+    ),
+    [ViewMode.OPTIMIZER]: (
+      <Optimizer
+        animationManager={animationManager}
       />
     ),
     [ViewMode.BIO]: (
