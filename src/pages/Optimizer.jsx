@@ -10,6 +10,7 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
+import { getFileNameWithoutExtension } from "../library/utils"
 
 function Optimizer({
   animationManager,
@@ -20,6 +21,7 @@ function Optimizer({
   } = React.useContext(SceneContext)
   
   const [currentVRM, setCurrentVRM] = useState(null);
+  const [nameVRM, setNameVRM] = useState("");
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -33,7 +35,7 @@ function Optimizer({
     console.log("merge and download logic");
     console.log(currentVRM);
     const vrmData = currentVRM.userData.vrm
-    downloadVRM(model, vrmData,"test",null,4096,1,true, null, true)
+    downloadVRM(model, vrmData,nameVRM,null,4096,1,true, null, true)
   }
 
   // const debugMode = () =>{
@@ -46,14 +48,18 @@ function Optimizer({
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
+
     await animationManager.loadAnimation(path, true, "", animName);
   }
 
   const handleVRMDrop = async (file) =>{
     const path = URL.createObjectURL(file);
     const vrm = await loadVRM(path);
+    const name = getFileNameWithoutExtension(file.name);
+
+    setNameVRM(name);
     setCurrentVRM(vrm);
-    console.log(vrm);
+    
 
     addVRMToScene(vrm, model)
     //setUploadVRMURL(path);
