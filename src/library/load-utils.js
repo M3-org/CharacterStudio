@@ -6,13 +6,10 @@ export const loadVRM = async(url) => {
     const gltfLoader = new GLTFLoader()
     gltfLoader.crossOrigin = 'anonymous';
     gltfLoader.register((parser) => {
-      //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
       return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
     })
-    // rotate?
     
     const vrm = await gltfLoader.loadAsync(url);
-    console.log(vrm);
     if (vrm.userData?.vrmMeta?.metaVersion === '0'){
       vrm.scene.rotation.y = Math.PI;
       vrm.scene.traverse((child)=>{
@@ -31,13 +28,9 @@ export const loadVRM = async(url) => {
 export const addVRMToScene = (vrm, scene) => {
   const vrmData = vrm.userData.vrm;
   renameVRMBones(vrmData);
-  console.log(vrmData);
 
   if (vrm && scene){
-    console.log("add to scene")
     scene.attach(vrm.scene)
-
-    
   }
 }
    
