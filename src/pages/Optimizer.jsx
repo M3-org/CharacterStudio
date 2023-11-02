@@ -31,8 +31,6 @@ function Optimizer({
   }
 
   const download = () => {
-    console.log("merge and download logic");
-    console.log(currentVRM);
     const vrmData = currentVRM.userData.vrm
     downloadVRM(model, vrmData,nameVRM + "_merged",null,4096,1,true, null, true)
   }

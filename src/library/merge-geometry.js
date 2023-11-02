@@ -357,7 +357,6 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
         group.add(newMesh);
         group.add(newSkeleton.bones[0]);
     });
-    console.log(group);
 
     group.userData.atlasMaterial = material;
 
@@ -370,7 +369,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
         await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
 
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
-    console.log(meshes);
 
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
@@ -460,7 +458,6 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
 
 
     const mesh = new THREE.SkinnedMesh(geometry, material);
-    console.log(mesh);
     mesh.name = "CombinedMesh";
     mesh.morphTargetInfluences = dest.morphTargetInfluences;
     mesh.morphTargetDictionary = dest.morphTargetDictionary;
