@@ -2,6 +2,8 @@ import { BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, Buffer
 
 let origin = new Vector3();
 let direction = new Vector3();
+let worldScale = new Vector3();
+let worldPosition = new Vector3();
 const intersections = [];
 
 const raycaster = new Raycaster();
@@ -35,8 +37,14 @@ export const CullHiddenFaces = async(meshes) => {
         
             // if it hasnt been previously created an array in this index value, create it
             if (meshData[mesh.userData.cullLayer] == null){
-                meshData[mesh.userData.cullLayer] = {origMeshes:[], posMeshes:[], negMeshes:[]}
-            }
+                meshData[mesh.userData.cullLayer] = {origMeshes:[], posMeshes:[], negMeshes:[], scaleMeshes:[], positionMeshes:[]}
+            }        
+            
+            mesh.getWorldScale(worldScale);
+            mesh.getWorldPosition(worldPosition);
+            meshData[mesh.userData.cullLayer].scaleMeshes.push(worldScale);
+            meshData[mesh.userData.cullLayer].positionMeshes.push(worldPosition);
+
 
             // clone the mesh to only detect collisions in front faces
             const cloneP = mesh.clone()
@@ -49,12 +57,11 @@ export const CullHiddenFaces = async(meshes) => {
             meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
             meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)
             meshData[mesh.userData.cullLayer].negMeshes.push(cloneN)
-
+            
             // reset to original before doing raycasts, modified geom has issues with raycasts
             mesh.geometry.setIndex(mesh.userData.origIndexBuffer);
         }
     });
-
     // remove empty index spaces
     for (let i = meshData.length - 1; i >= 0; i--) {
         if (meshData[i] == null){
@@ -74,13 +81,15 @@ export const CullHiddenFaces = async(meshes) => {
             for (let k = 0; k < meshData[i].origMeshes.length; k++){
                 
                 const mesh = meshData[i].origMeshes[k];
+                const meshScale =  meshData[i].scaleMeshes[k];
+                const meshPosition =  meshData[i].positionMeshes[k];
                 const index = mesh.userData.origIndexBuffer.array;
                 const vertexData = mesh.geometry.attributes.position.array;
                 const normalsData = mesh.geometry.attributes.normal.array;
                 const faceNormals = mesh.geometry.userData.faceNormals;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
+                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
                 })
             }
         }
@@ -117,7 +126,7 @@ const getDistanceInOut = (distanceArr) => {
     return [distIn, distOut]
 }
 
-const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
+const getIndexBuffer = (meshPosition, meshScale, index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
 
     const indexCustomArr = [];
     const distArr = getDistanceInOut(distanceArr);
@@ -148,7 +157,11 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
 
             // move the origin away to have the raycast being casted from outside
-            origin.set(vertexData[vi],vertexData[vi+1],vertexData[vi+2]).add(direction.clone().multiplyScalar(distIn))
+            origin.set( 
+                (vertexData[vi] * meshScale.x ) + meshPosition.x, 
+                (vertexData[vi+1] * meshScale.y )  + meshPosition.y,
+                (vertexData[vi+2] * meshScale.z) +  meshPosition.z)
+                .add(direction.clone().multiplyScalar(distIn))
             
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
