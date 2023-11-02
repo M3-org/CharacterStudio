@@ -10,7 +10,6 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
-import { getFileNameWithoutExtension } from "../library/utils"
 
 function Optimizer({
   animationManager,
