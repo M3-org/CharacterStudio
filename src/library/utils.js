@@ -480,6 +480,29 @@ export const renameVRMBones = (vrm) => {
       }
     }
   }
+
+  // same ase before, left and right shoulder are optional vrm bones, make sure that if they are missing they are not included
+  if (bones ['leftShoulder'] == null){
+    if (bones['leftUpperArm'].node.parent != bones['chest']?.node && 
+      bones['leftUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['leftUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['leftShoulder'] = {node:bones['leftUpperArm'].node.parent}
+    }
+  }
+
+  if (bones ['rightShoulder'] == null){
+    if (bones['rightUpperArm'].node.parent != bones['chest']?.node && 
+      bones['rightUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['rightUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
+    }
+  }
   
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
