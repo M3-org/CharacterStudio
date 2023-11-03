@@ -7,7 +7,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
-import { getFileNameWithoutExtension } from "../library/utils"
+import { getFileNameWithoutExtension, disposeVRM } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
 
@@ -20,6 +20,7 @@ function Optimizer({
   } = React.useContext(SceneContext)
   
   const [currentVRM, setCurrentVRM] = useState(null);
+  const [lastVRM, setLastVRM] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
   const { playSound } = React.useContext(SoundContext)
@@ -35,9 +36,11 @@ function Optimizer({
     downloadVRM(model, vrmData,nameVRM + "_merged",null,4096,1,true, null, true)
   }
 
-  // const debugMode = () =>{
-  //   console.log("debug")
-  // }
+  useEffect(() => {
+    if (lastVRM != null)
+      disposeVRM(lastVRM);
+    setLastVRM(currentVRM);
+  }, [currentVRM])
 
   // Translate hook
   const { t } = useContext(LanguageContext)
@@ -53,6 +56,10 @@ function Optimizer({
     const path = URL.createObjectURL(file);
     const vrm = await loadVRM(path);
     const name = getFileNameWithoutExtension(file.name);
+
+    if (currentVRM != null){
+      disposeVRM(currentVRM);
+    }
 
     setNameVRM(name);
     setCurrentVRM(vrm);
