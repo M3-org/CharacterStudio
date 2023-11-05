@@ -401,6 +401,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             
             // stored original world position as this is a new cloned mesh
             const globalPosition = mesh.userData.globalPosition;
+            const globalScale = mesh.userData.globalScale || new THREE.Vector3(1,1,1);
 
             // Add the bone to the skinned mesh
             skinnedMesh.add(skeleton.bones[0]);
@@ -415,9 +416,9 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             // in vrm0 case, multiply x and z times -1
             const vrm0Mult = mesh.userData.isVRM0 ? -1 : 1;
             for (let i = 0; i < vertices.length; i+=3 ) {
-                vertices[i] = (vrm0Mult *vertices[i]) + globalPosition.x;
-                vertices[i+1] =  vertices[i+1] + globalPosition.y;
-                vertices[i+2] = (vrm0Mult * vertices[i+2]) + globalPosition.z;
+                vertices[i] = (vrm0Mult * globalScale.x *vertices[i]) + globalPosition.x;
+                vertices[i+1] =  (globalScale.y * vertices[i+1]) + globalPosition.y;    // no negative vrm0 multiply here
+                vertices[i+2] = (vrm0Mult * globalScale.z * vertices[i+2]) + globalPosition.z;
                 boneIndices.push(boneIndex, 0, 0, 0);
                 weights.push(1.0, 0, 0, 0);
             }
