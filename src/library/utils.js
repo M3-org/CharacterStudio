@@ -557,11 +557,12 @@ function findChildren({ candidates, predicate, results = [] }) {
     candidates = candidates.concat(candidate.children);
     return findChildren({ candidates, predicate, results });
 }
-export function findChildrenByType(root, type) {
-    return findChildren({
-        candidates: [root],
-        predicate: (o) => o.type === type,
-    });
+export function findChildrenByType(root, types) {
+  
+  return findChildren({
+    candidates: [root],
+    predicate: (o) => getAsArray(types).includes(o.type),
+  });
 }
 export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
