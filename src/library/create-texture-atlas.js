@@ -238,14 +238,16 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     
     const boneName = mesh.type == "Mesh" ? mesh.parent.name:null;
     const originalGlobalPosition = new THREE.Vector3();
+    const originalGlobalScale = new THREE.Vector3();
     mesh.getWorldPosition(originalGlobalPosition);
-
+    mesh.getWorldScale(originalGlobalScale)
     mesh = mesh.clone();
 
     if (mesh.type == "Mesh"){
-      console.warn("XXX todo, consider rotation and scale into mesh binding")
+      console.warn("XXX todo, consider rotation into mesh vertices too")
       mesh.userData.boneName = boneName;
       mesh.userData.globalPosition = originalGlobalPosition;
+      mesh.userData.globalScale = originalGlobalScale;
     }
     
     const material = mesh.material.length == null ? mesh.material : mesh.material[0];
