@@ -100,8 +100,6 @@ function lerp(t, min, max, newMin, newMax) {
 }
 
 export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096 }) => {
-  console.log("ents");
-  console.log(meshes);
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
