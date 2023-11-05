@@ -100,6 +100,8 @@ function lerp(t, min, max, newMin, newMax) {
 }
 
 export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096 }) => {
+  console.log("ents");
+  console.log(meshes);
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
@@ -232,9 +234,22 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   // save if there is vrm data
   let vrmMaterial = null;
   // save material color from here
+
   meshes.forEach((mesh) => {
     //console.log(mesh.geometry.attributes.uv)
+    
+    const boneName = mesh.type == "Mesh" ? mesh.parent.name:null;
+    const originalGlobalPosition = new THREE.Vector3();
+    mesh.getWorldPosition(originalGlobalPosition);
+
     mesh = mesh.clone();
+
+    if (mesh.type == "Mesh"){
+      console.warn("XXX todo, consider rotation and scale into mesh binding")
+      mesh.userData.boneName = boneName;
+      mesh.userData.globalPosition = originalGlobalPosition;
+    }
+    
     const material = mesh.material.length == null ? mesh.material : mesh.material[0];
     // use the vrmData of the first material, and call it atlas if it exists
     if (vrmMaterial == null) {
