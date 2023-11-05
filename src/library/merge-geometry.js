@@ -258,9 +258,7 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
             material.push(originalMesh.material);
         }
     });
-
     const newSkeleton = createMergedSkeleton(clonedMeshes, scale);
-
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
    // group.animations = [];
@@ -364,12 +362,10 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
-
     const { bakeObjects, textures, vrmMaterial } = 
-        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
-
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, ["SkinnedMesh","Mesh"])});
+    
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
-
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
@@ -390,7 +386,58 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
     
     const newSkeleton = createMergedSkeleton(meshes, scale);
 
+    const skinnedMeshes = [];
+
     meshes.forEach((mesh) => {
+
+        if (mesh.type == "Mesh"){
+            mesh.parent = null;
+            mesh.position.set(0,0,0);
+            const skinnedMesh = new THREE.SkinnedMesh(mesh.geometry, mesh.material);
+
+            // Clone the existing skeleton and find the bone by name
+            const skeleton = newSkeleton.clone();
+            const boneIndex = skeleton.bones.findIndex(bone => bone.name === mesh.userData.boneName);
+            
+            // stored original world position as this is a new cloned mesh
+            const globalPosition = mesh.userData.globalPosition;
+
+            // Add the bone to the skinned mesh
+            skinnedMesh.add(skeleton.bones[0]);
+
+            // Create the skin data (with a single bone)
+            const boneIndices = [];
+            const weights = [];
+
+            // Assign the bone index (0) and weight (1.0) to each vertex
+            const vertices = skinnedMesh.geometry.attributes.position.array;
+
+            // in vrm0 case, multiply x and z times -1
+            const vrm0Mult = mesh.userData.isVRM0 ? -1 : 1;
+            for (let i = 0; i < vertices.length; i+=3 ) {
+                vertices[i] = (vrm0Mult *vertices[i]) + globalPosition.x;
+                vertices[i+1] =  vertices[i+1] + globalPosition.y;
+                vertices[i+2] = (vrm0Mult * vertices[i+2]) + globalPosition.z;
+                boneIndices.push(boneIndex, 0, 0, 0);
+                weights.push(1.0, 0, 0, 0);
+            }
+
+            // Set the skin data directly on the SkinnedMesh's geometry
+            skinnedMesh.geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(boneIndices, 4));
+            skinnedMesh.geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(weights, 4));
+
+            // Bind the skinned mesh to the skeleton
+            skeleton.pose();
+            //skeleton.bones[0].rotation.y = Math.PI;
+            skinnedMesh.bind(skeleton);
+            //skeleton.pose();
+
+            mesh = skinnedMesh;
+        }
+            
+        //if (mesh.type == "SkinnedMesh")
+        skinnedMeshes.push(mesh)
+        // remove vertices from culled faces from the mesh
         const geometry = mesh.geometry;
 
         const baseIndArr = geometry.index.array
@@ -417,6 +464,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             }
         }
 
+        // assign secondary uvs in case they ar not present
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
@@ -433,8 +481,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             delete geometry.attributes[`morphNormal${i}`];
         }
     });
-    
-    const { dest } = mergeGeometry({ meshes, scale },isVrm0);
+    const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
     const geometry = new THREE.BufferGeometry();
 
     if (isVrm0){
