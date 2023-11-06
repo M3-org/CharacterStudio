@@ -10,6 +10,7 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
+import ModelInformation from "../components/ModelInformation"
 
 function Optimizer({
   animationManager,
@@ -88,6 +89,9 @@ function Optimizer({
       <div className={"sectionTitle"}>Optimize your character</div>
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
+      />
+      <ModelInformation
+        currentVRM={ currentVRM}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
