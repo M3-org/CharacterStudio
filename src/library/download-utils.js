@@ -183,12 +183,12 @@ function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta 
       if (child.isSkinnedMesh) skinnedMesh = child;
     })
     const reverseBonesXZ = () => {
-      skinnedMesh.skeleton.bones.forEach(bone => {
-        if (bone.name !== 'root') {
-          bone.position.x *= -1;
-          bone.position.z *= -1;
-        }
-      })
+      for (let i = 0; i < skinnedMesh.skeleton.bones.length;i++){
+        const bone = skinnedMesh.skeleton.bones[i];
+        bone.position.x *= -1;
+        bone.position.z *= -1;
+      }
+
       skinnedMesh.skeleton.bones.forEach(bone => {
         bone.updateMatrix();
         bone.updateMatrixWorld();
