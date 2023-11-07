@@ -34,7 +34,6 @@ export default function ModelInformation({currentVRM}){
             let shaderMaterialCount = 0;
             let shaderTranspMaterialCount = 0;
             let shaderTCutoutMaterialCount = 0;
-            console.log(allMeshes);
             allMeshes.forEach(mesh => {
                 const mats = getAsArray(mesh.material);
                 mats.forEach(mat => {
