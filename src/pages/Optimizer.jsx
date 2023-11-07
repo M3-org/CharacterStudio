@@ -13,7 +13,6 @@ import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
 import MenuTitle from "../components/MenuTitle"
 import Slider from "../components/Slider"
-import { css } from "styled-components"
 
 function Optimizer({
   animationManager,
@@ -28,6 +27,7 @@ function Optimizer({
   const [nameVRM, setNameVRM] = useState("");
   const [atlasSize, setAtlasSize] = useState(4096);
   const [atlasValue, setAtlasValue] = useState(6);
+  const [downloadOnDrop, setDownloadOnDrop] = useState(false)
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -43,9 +43,26 @@ function Optimizer({
   }
 
   useEffect(() => {
-    if (lastVRM != null)
-      disposeVRM(lastVRM);
-    setLastVRM(currentVRM);
+    const fetchData = async () => {
+      if (lastVRM != null){
+        disposeVRM(lastVRM);
+      }
+      if (currentVRM != null){
+        addVRMToScene(currentVRM, model)
+        
+        if (downloadOnDrop){
+          const vrmData = currentVRM.userData.vrm
+          await downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
+          disposeVRM(currentVRM);
+          setCurrentVRM(null);
+        }
+        else{
+          setLastVRM(currentVRM);
+        }
+      }
+    }
+
+    fetchData();
   }, [currentVRM])
 
   // Translate hook
@@ -56,6 +73,10 @@ function Optimizer({
     const path = URL.createObjectURL(file);
 
     await animationManager.loadAnimation(path, true, "", animName);
+  }
+
+  const handleDropDownloadEnable = (event) => {
+    setDownloadOnDrop(event.target.checked);
   }
 
   const handleChangeAtlasSize = async (event) => {
@@ -103,13 +124,15 @@ function Optimizer({
     const vrm = await loadVRM(path);
     const name = getFileNameWithoutExtension(file.name);
 
-    if (currentVRM != null){
-      disposeVRM(currentVRM);
-    }
+    // if (currentVRM != null){
+    //   disposeVRM(currentVRM);
+    // }
     setNameVRM(name);
     setCurrentVRM(vrm);
 
-    addVRMToScene(vrm, model)
+    
+
+    //downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
     //setUploadVRMURL(path);
   }
 
@@ -145,15 +168,31 @@ function Optimizer({
           <div className={styles["traitInfoTitle"]}>
               Drag Drop - Download
           </div>
+
           <div className={styles["traitInfoText"]}>
-              false
+            <div className={styles["checkboxHolder"]}>
+              <div>
+                </div>
+                
+                <label className={styles["custom-checkbox"]}>
+                    <input 
+                        type="checkbox" 
+                        checked={downloadOnDrop}
+                        onChange={handleDropDownloadEnable}
+                    />
+                    <div className={styles["checkbox-container"]}></div>
+                </label>
+                <div/><div/>
+                {downloadOnDrop ? "True": "False"}
+              
+            </div>
           </div>
 
         </div>
         
       </div>
       <ModelInformation
-        currentVRM={ currentVRM}
+        currentVRM={currentVRM}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
