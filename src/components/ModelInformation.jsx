@@ -1,7 +1,6 @@
-import React, { useContext, useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import styles from "./ModelInformation.module.css"
 import MenuTitle from "./MenuTitle"
-import { SceneContext } from "../context/SceneContext";
 import { findChildrenByType } from "../library/utils";
 import { getAsArray } from "../library/utils";
 
