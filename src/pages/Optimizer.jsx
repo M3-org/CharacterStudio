@@ -11,6 +11,9 @@ import { getFileNameWithoutExtension, disposeVRM } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
+import MenuTitle from "../components/MenuTitle"
+import Slider from "../components/Slider"
+import { css } from "styled-components"
 
 function Optimizer({
   animationManager,
@@ -23,6 +26,8 @@ function Optimizer({
   const [currentVRM, setCurrentVRM] = useState(null);
   const [lastVRM, setLastVRM] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
+  const [atlasSize, setAtlasSize] = useState(4096);
+  const [atlasValue, setAtlasValue] = useState(6);
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -34,7 +39,7 @@ function Optimizer({
 
   const download = () => {
     const vrmData = currentVRM.userData.vrm
-    downloadVRM(model, vrmData,nameVRM + "_merged",null,4096,1,true, null, true)
+    downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
   }
 
   useEffect(() => {
@@ -53,6 +58,46 @@ function Optimizer({
     await animationManager.loadAnimation(path, true, "", animName);
   }
 
+  const handleChangeAtlasSize = async (event) => {
+    const val = parseInt(event.target.value);
+    if (val > 8)
+      setAtlasValue(8)
+    else if (val < 0)
+      setAtlasValue(0)
+    else 
+      setAtlasValue(val)
+
+    switch (val){
+      case 1:
+        setAtlasSize(128);
+        break;
+      case 2:
+        setAtlasSize(256);
+        break;
+      case 3:
+        setAtlasSize(512);
+        break;
+      case 4:
+        setAtlasSize(1024);
+        break;
+      case 5:
+        setAtlasSize(2048);
+        break;
+      case 6:
+        setAtlasSize(4096);
+        break;
+      case 7:
+        setAtlasSize(8192);
+        break;
+      case 8:
+        setAtlasSize(16384);
+        break;
+      default:
+        break;
+    }
+    
+  }
+
   const handleVRMDrop = async (file) =>{
     const path = URL.createObjectURL(file);
     const vrm = await loadVRM(path);
@@ -61,10 +106,8 @@ function Optimizer({
     if (currentVRM != null){
       disposeVRM(currentVRM);
     }
-
     setNameVRM(name);
     setCurrentVRM(vrm);
-    
 
     addVRMToScene(vrm, model)
     //setUploadVRMURL(path);
@@ -90,6 +133,25 @@ function Optimizer({
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
+      <div className={styles["InformationContainerPos"]}>
+        <MenuTitle title="Optimizer Options" width={180} left={20}/>
+        <div className={styles["scrollContainer"]}>
+          <div className={styles["traitInfoTitle"]}>
+              Atlas size: {atlasSize}
+          </div>
+
+            <Slider  value={atlasValue} onChange={handleChangeAtlasSize} min={1} max={8} step={1}stepBox={1}/>
+            <br/>
+          <div className={styles["traitInfoTitle"]}>
+              Drag Drop - Download
+          </div>
+          <div className={styles["traitInfoText"]}>
+              false
+          </div>
+
+        </div>
+        
+      </div>
       <ModelInformation
         currentVRM={ currentVRM}
       />
