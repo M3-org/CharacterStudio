@@ -4,6 +4,14 @@ import { mergeGeometry } from "./merge-geometry.js";
 let container, cameraRTT, sceneRTT, material, quad, renderer, rtTexture;
 
 function RenderTextureImageData(texture, multiplyColor, clearColor, width, height) {
+  if (texture == null) {
+    const data = new Uint8Array([clearColor.r * 255, clearColor.g * 255, clearColor.b * 255]); // Convert color to Uint8Array
+
+    texture = new THREE.DataTexture(data, width, height, THREE.RGBFormat); // Create a new texture
+    texture.needsUpdate = true; // Make sure to update the texture
+  }
+  
+  // if texture is nuill, create a texture only with clearColor (that is color type)
   if (container == null) {
     container = document.createElement("div");
     sceneRTT = new THREE.Scene();
@@ -48,7 +56,6 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
 
     renderer.setSize(width, height);
   }
-
   material.map = texture;
   material.color = multiplyColor.clone();
   renderer.setClearColor(clearColor.clone(), 1);
@@ -225,11 +232,30 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   // save if there is vrm data
   let vrmMaterial = null;
   // save material color from here
+
   meshes.forEach((mesh) => {
     //console.log(mesh.geometry.attributes.uv)
+    
+    const boneName = mesh.type == "Mesh" ? mesh.parent.name:null;
+    const originalGlobalPosition = new THREE.Vector3();
+    const originalGlobalScale = new THREE.Vector3();
+    mesh.getWorldPosition(originalGlobalPosition);
+    mesh.getWorldScale(originalGlobalScale)
     mesh = mesh.clone();
-    const material = mesh.material.length == null ? mesh.material : mesh.material[0];
 
+    if (mesh.type == "Mesh"){
+      const rotationMatrix = new THREE.Matrix4();
+      const rotation = new THREE.Quaternion()
+      mesh.getWorldQuaternion(rotation);
+      rotationMatrix.makeRotationFromQuaternion(rotation);
+
+      mesh.userData.boneName = boneName;
+      mesh.userData.globalPosition = originalGlobalPosition;
+      mesh.userData.globalScale = originalGlobalScale;
+      mesh.userData.globalRotationMatrix = rotationMatrix;
+    }
+    
+    const material = mesh.material.length == null ? mesh.material : mesh.material[0];
     // use the vrmData of the first material, and call it atlas if it exists
     if (vrmMaterial == null) {
       vrmMaterial = material.clone();
@@ -323,10 +349,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       // set white color base
       let clearColor;
       let multiplyColor = new THREE.Color(1, 1, 1);
-
       switch (name) {
         case 'diffuse':
-          clearColor = backColor
+          clearColor = material.color || backColor;
           if (material.uniforms?.litFactor)
             multiplyColor = material.uniforms.litFactor.value;
           break;
@@ -340,11 +365,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
           clearColor = new THREE.Color(1, 1, 1);
           break;
       }
-
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
       const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX);
-
       createImageBitmap(imgData)
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
     }
@@ -390,6 +413,5 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       })
     )
   );
-
   return { bakeObjects, textures, uvs, vrmMaterial };
 };

@@ -464,13 +464,43 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-
   // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
     // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
     if (bones['neck'].node.parent != bones['chest']){
-      bones['upperChest'] = {node:bones['neck'].node.parent}
+      // sometimes the user defines the upperchest bone as the chest bone, make sure this is not the case
+      if (bones['neck'].node.parent != bones['chest'].node) {
+        bones['upperChest'] = {node:bones['neck'].node.parent}
+      }
+      // if its the case, reassign bones
+      else{
+        bones['upperChest'] = {node:bones['neck'].node.parent}
+        bones['chest'] = {node:bones['neck'].node.parent.parent}
+      }
+    }
+  }
+
+  // same ase before, left and right shoulder are optional vrm bones, make sure that if they are missing they are not included
+  if (bones ['leftShoulder'] == null){
+    if (bones['leftUpperArm'].node.parent != bones['chest']?.node && 
+      bones['leftUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['leftUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['leftShoulder'] = {node:bones['leftUpperArm'].node.parent}
+    }
+  }
+
+  if (bones ['rightShoulder'] == null){
+    if (bones['rightUpperArm'].node.parent != bones['chest']?.node && 
+      bones['rightUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['rightUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
     }
   }
   
@@ -527,11 +557,12 @@ function findChildren({ candidates, predicate, results = [] }) {
     candidates = candidates.concat(candidate.children);
     return findChildren({ candidates, predicate, results });
 }
-export function findChildrenByType(root, type) {
-    return findChildren({
-        candidates: [root],
-        predicate: (o) => o.type === type,
-    });
+export function findChildrenByType(root, types) {
+  
+  return findChildren({
+    candidates: [root],
+    predicate: (o) => getAsArray(types).includes(o.type),
+  });
 }
 export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")

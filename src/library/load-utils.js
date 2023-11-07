@@ -13,10 +13,12 @@ export const loadVRM = async(url) => {
     if (vrm.userData?.vrmMeta?.metaVersion === '0'){
       vrm.scene.rotation.y = Math.PI;
       vrm.scene.traverse((child)=>{
-        if (child.isSkinnedMesh) {
+        if (child.isMesh) {
           child.userData.isVRM0 = true;
-          for (let i =0; i < child.skeleton.bones.length;i++){
-            child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+          if (child.isSkinnedMesh){
+            for (let i =0; i < child.skeleton.bones.length;i++){
+              child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+            }
           }
         }
       })

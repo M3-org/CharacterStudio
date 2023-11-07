@@ -91,8 +91,7 @@ function createMergedSkeleton(meshes, scale){
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
                             bone:  bone.clone(false),
-                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,
-                            
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,  
                         }   
                         index++
                         boneClones.set(bone.name, boneData);
@@ -122,7 +121,7 @@ function createMergedSkeleton(meshes, scale){
         if (restPosition){
             bn.position.set(-restPosition.x, restPosition.y, -restPosition.z);
         }
-        bn.position.set(bn.position.x *scale, bn.position.y*scale,bn.position.z*scale);
+        bn.position.set(bn.position.x * scale, bn.position.y * scale,bn.position.z * scale);
     });
     return newSkeleton
 }
@@ -258,9 +257,7 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
             material.push(originalMesh.material);
         }
     });
-
     const newSkeleton = createMergedSkeleton(clonedMeshes, scale);
-
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
    // group.animations = [];
@@ -364,18 +361,16 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
 }
 
 export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
-
     const { bakeObjects, textures, vrmMaterial } = 
-        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, "SkinnedMesh")});
-
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, ["SkinnedMesh","Mesh"])});
+    
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
-
     const material = new THREE.MeshStandardMaterial({
         map: textures["diffuse"],
     });
 
     // for Mtoon material
-    if (vrmMaterial.unfiroms != null){
+    if (vrmMaterial.uniforms != null){
         vrmMaterial.uniforms.map = textures["diffuse"];
         vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
     }
@@ -389,8 +384,62 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
 
     
     const newSkeleton = createMergedSkeleton(meshes, scale);
+    // do not pose!
+    const skinnedMeshes = [];
 
     meshes.forEach((mesh) => {
+
+        if (mesh.type == "Mesh"){
+            const skinnedMesh = new THREE.SkinnedMesh(mesh.geometry, mesh.material);
+
+            // Clone the existing skeleton and find the bone by name
+            const skeleton = newSkeleton.clone();
+            const boneIndex = skeleton.bones.findIndex(bone => bone.name === mesh.userData.boneName);
+            
+            // stored original world position as this is a new cloned mesh
+            const globalPosition = mesh.userData.globalPosition;
+            const globalScale = mesh.userData.globalScale || new THREE.Vector3(1,1,1);
+            const globalRotationMatrix = mesh.userData.globalRotationMatrix;
+
+            // Add the bone to the skinned mesh
+            skinnedMesh.add(skeleton.bones[0]);
+
+            // Create the skin data (with a single bone)
+            const boneIndices = [];
+            const weights = [];
+
+            // Assign the bone index (0) and weight (1.0) to each vertex
+            const vertices = skinnedMesh.geometry.attributes.position.array;
+            // used to apply rotations
+            const vertex = new THREE.Vector3();
+
+            // in vrm0 case, multiply x and z times -1
+            const vrm0Mult = mesh.userData.isVRM0 ? -1 : 1;
+            for (let i = 0; i < vertices.length; i+=3 ) {
+                // first set rotation
+                vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
+                vertex.applyMatrix4(globalRotationMatrix);
+
+                vertices[i] = (vrm0Mult * globalScale.x *vertex.x) + globalPosition.x;
+                vertices[i+1] =  (globalScale.y * vertex.y) + globalPosition.y;    // no negative vrm0 multiply here
+                vertices[i+2] = (vrm0Mult * globalScale.z * vertex.z) + globalPosition.z;
+                boneIndices.push(boneIndex, 0, 0, 0);
+                weights.push(1.0, 0, 0, 0);
+            }
+
+            // Set the skin data directly on the SkinnedMesh's geometry
+            skinnedMesh.geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(boneIndices, 4));
+            skinnedMesh.geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(weights, 4));
+
+            // Bind the skinned mesh to the skeletond
+            // do not pose!
+            skinnedMesh.bind(skeleton);
+
+            mesh = skinnedMesh;
+        }
+    
+        skinnedMeshes.push(mesh)
+        // remove vertices from culled faces from the mesh
         const geometry = mesh.geometry;
 
         const baseIndArr = geometry.index.array
@@ -417,6 +466,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             }
         }
 
+        // assign secondary uvs in case they ar not present
         if (!geometry.attributes.uv2) {
             geometry.attributes.uv2 = geometry.attributes.uv;
         }
@@ -432,11 +482,12 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             delete geometry.attributes[`morphTarget${i}`];
             delete geometry.attributes[`morphNormal${i}`];
         }
+
     });
-    
-    const { dest } = mergeGeometry({ meshes, scale },isVrm0);
+    const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
     const geometry = new THREE.BufferGeometry();
 
+    // modify all merged vertices to reflect vrm0 format
     if (isVrm0){
         for (let i = 0; i < dest.attributes.position.array.length; i+=3){
             dest.attributes.position.array[i] *= -1
@@ -768,6 +819,7 @@ export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
     meshes.forEach(mesh => {
         uvcount += mesh.geometry.attributes.uv.count;
         
+        // validation for each mesh! if the mesh itself is VRM0 move the vertices
         if (mesh.userData?.isVRM0){
             for (let i = 0; i < mesh.geometry.attributes.position.array.length; i+=3){
                 mesh.geometry.attributes.position.array[i] *= -1

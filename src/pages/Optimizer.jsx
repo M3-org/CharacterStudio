@@ -7,9 +7,12 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
-import { getFileNameWithoutExtension } from "../library/utils"
+import { getFileNameWithoutExtension, disposeVRM } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
+import ModelInformation from "../components/ModelInformation"
+import MenuTitle from "../components/MenuTitle"
+import Slider from "../components/Slider"
 
 function Optimizer({
   animationManager,
@@ -20,7 +23,11 @@ function Optimizer({
   } = React.useContext(SceneContext)
   
   const [currentVRM, setCurrentVRM] = useState(null);
+  const [lastVRM, setLastVRM] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
+  const [atlasSize, setAtlasSize] = useState(4096);
+  const [atlasValue, setAtlasValue] = useState(6);
+  const [downloadOnDrop, setDownloadOnDrop] = useState(false)
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -32,12 +39,31 @@ function Optimizer({
 
   const download = () => {
     const vrmData = currentVRM.userData.vrm
-    downloadVRM(model, vrmData,nameVRM + "_merged",null,4096,1,true, null, true)
+    downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
   }
 
-  // const debugMode = () =>{
-  //   console.log("debug")
-  // }
+  useEffect(() => {
+    const fetchData = async () => {
+      if (lastVRM != null){
+        disposeVRM(lastVRM);
+      }
+      if (currentVRM != null){
+        addVRMToScene(currentVRM, model)
+        
+        if (downloadOnDrop){
+          const vrmData = currentVRM.userData.vrm
+          await downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
+          disposeVRM(currentVRM);
+          setCurrentVRM(null);
+        }
+        else{
+          setLastVRM(currentVRM);
+        }
+      }
+    }
+
+    fetchData();
+  }, [currentVRM])
 
   // Translate hook
   const { t } = useContext(LanguageContext)
@@ -49,16 +75,64 @@ function Optimizer({
     await animationManager.loadAnimation(path, true, "", animName);
   }
 
+  const handleDropDownloadEnable = (event) => {
+    setDownloadOnDrop(event.target.checked);
+  }
+
+  const handleChangeAtlasSize = async (event) => {
+    const val = parseInt(event.target.value);
+    if (val > 8)
+      setAtlasValue(8)
+    else if (val < 0)
+      setAtlasValue(0)
+    else 
+      setAtlasValue(val)
+
+    switch (val){
+      case 1:
+        setAtlasSize(128);
+        break;
+      case 2:
+        setAtlasSize(256);
+        break;
+      case 3:
+        setAtlasSize(512);
+        break;
+      case 4:
+        setAtlasSize(1024);
+        break;
+      case 5:
+        setAtlasSize(2048);
+        break;
+      case 6:
+        setAtlasSize(4096);
+        break;
+      case 7:
+        setAtlasSize(8192);
+        break;
+      case 8:
+        setAtlasSize(16384);
+        break;
+      default:
+        break;
+    }
+    
+  }
+
   const handleVRMDrop = async (file) =>{
     const path = URL.createObjectURL(file);
     const vrm = await loadVRM(path);
     const name = getFileNameWithoutExtension(file.name);
 
+    // if (currentVRM != null){
+    //   disposeVRM(currentVRM);
+    // }
     setNameVRM(name);
     setCurrentVRM(vrm);
+
     
 
-    addVRMToScene(vrm, model)
+    //downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
     //setUploadVRMURL(path);
   }
 
@@ -81,6 +155,44 @@ function Optimizer({
       <div className={"sectionTitle"}>Optimize your character</div>
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
+      />
+      <div className={styles["InformationContainerPos"]}>
+        <MenuTitle title="Optimizer Options" width={180} left={20}/>
+        <div className={styles["scrollContainer"]}>
+          <div className={styles["traitInfoTitle"]}>
+              Atlas size: {atlasSize}
+          </div>
+
+            <Slider  value={atlasValue} onChange={handleChangeAtlasSize} min={1} max={8} step={1}stepBox={1}/>
+            <br/>
+          <div className={styles["traitInfoTitle"]}>
+              Drag Drop - Download
+          </div>
+
+          <div className={styles["traitInfoText"]}>
+            <div className={styles["checkboxHolder"]}>
+              <div>
+                </div>
+                
+                <label className={styles["custom-checkbox"]}>
+                    <input 
+                        type="checkbox" 
+                        checked={downloadOnDrop}
+                        onChange={handleDropDownloadEnable}
+                    />
+                    <div className={styles["checkbox-container"]}></div>
+                </label>
+                <div/><div/>
+                {downloadOnDrop ? "True": "False"}
+              
+            </div>
+          </div>
+
+        </div>
+        
+      </div>
+      <ModelInformation
+        currentVRM={currentVRM}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
