@@ -370,7 +370,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
     });
 
     // for Mtoon material
-    if (vrmMaterial.unfiroms != null){
+    if (vrmMaterial.uniforms != null){
         vrmMaterial.uniforms.map = textures["diffuse"];
         vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
     }
