@@ -91,8 +91,7 @@ function createMergedSkeleton(meshes, scale){
                             index,
                             boneInverses:mesh.skeleton.boneInverses[boneInd],
                             bone:  bone.clone(false),
-                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,
-                            
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,  
                         }   
                         index++
                         boneClones.set(bone.name, boneData);
@@ -122,7 +121,7 @@ function createMergedSkeleton(meshes, scale){
         if (restPosition){
             bn.position.set(-restPosition.x, restPosition.y, -restPosition.z);
         }
-        bn.position.set(bn.position.x *scale, bn.position.y*scale,bn.position.z*scale);
+        bn.position.set(bn.position.x * scale, bn.position.y * scale,bn.position.z * scale);
     });
     return newSkeleton
 }
@@ -385,7 +384,7 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
 
     
     const newSkeleton = createMergedSkeleton(meshes, scale);
-
+    // do not pose!
     const skinnedMeshes = [];
 
     meshes.forEach((mesh) => {
@@ -432,15 +431,13 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             skinnedMesh.geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(boneIndices, 4));
             skinnedMesh.geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(weights, 4));
 
-            // Bind the skinned mesh to the skeleton
-            skeleton.pose();
-            //skeleton.bones[0].rotation.y = Math.PI;
+            // Bind the skinned mesh to the skeletond
+            // do not pose!
             skinnedMesh.bind(skeleton);
-            //skeleton.pose();
 
             mesh = skinnedMesh;
         }
-            
+    
         skinnedMeshes.push(mesh)
         // remove vertices from culled faces from the mesh
         const geometry = mesh.geometry;
@@ -485,10 +482,12 @@ export async function combine({ transparentColor, avatar, atlasSize = 4096, scal
             delete geometry.attributes[`morphTarget${i}`];
             delete geometry.attributes[`morphNormal${i}`];
         }
+
     });
     const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
     const geometry = new THREE.BufferGeometry();
 
+    // modify all merged vertices to reflect vrm0 format
     if (isVrm0){
         for (let i = 0; i < dest.attributes.position.array.length; i+=3){
             dest.attributes.position.array[i] *= -1
@@ -820,6 +819,7 @@ export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
     meshes.forEach(mesh => {
         uvcount += mesh.geometry.attributes.uv.count;
         
+        // validation for each mesh! if the mesh itself is VRM0 move the vertices
         if (mesh.userData?.isVRM0){
             for (let i = 0; i < mesh.geometry.attributes.position.array.length; i+=3){
                 mesh.geometry.attributes.position.array[i] *= -1
