@@ -1,3 +1,42 @@
+.InformationContainerPos {
+    position: fixed;
+    left: 32px;
+    top: 98px;
+    width:350px;
+    height: -webkit-calc(100vh - 176px);
+    height: calc(100vh - 176px);
+    backdrop-filter: blur(22.5px);
+    background: rgba(5, 11, 14, 0.8);
+    z-index: 1000;
+    user-select: none;
+  }
+  .traitInfoTitle {
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px black;
+    font-size: 16px;
+    word-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .traitInfoText {
+    color: rgb(179, 179, 179);
+    /* text-transform: uppercase; */
+    text-shadow: 1px 1px 2px black;
+    font-size: 16px;
+    word-spacing: 2px;
+    margin-bottom: 30px;
+  }
+  .scrollContainer {
+    height: 100%;
+    width: 80%;
+    overflow-y: scroll;
+    position: relative;
+    overflow-x: hidden !important;
+    margin: 30px;
+    height: -webkit-calc(100% - 40px);
+    height: calc(100% - 40px);
+  }
+
 .buttonContainer {
     position: absolute;
     bottom: 20px;
