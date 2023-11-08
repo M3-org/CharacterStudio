@@ -160,10 +160,10 @@ function Optimizer({
         <MenuTitle title="Optimizer Options" width={180} left={20}/>
         <div className={styles["scrollContainer"]}>
           <div className={styles["traitInfoTitle"]}>
-              Atlas size: {atlasSize}
+              Atlas size: {atlasSize + " x " + atlasSize}
           </div>
 
-            <Slider  value={atlasValue} onChange={handleChangeAtlasSize} min={1} max={8} step={1}stepBox={1}/>
+            <Slider  value={atlasValue} onChange={handleChangeAtlasSize} min={1} max={8} step={1}/>
             <br/>
           <div className={styles["traitInfoTitle"]}>
               Drag Drop - Download
