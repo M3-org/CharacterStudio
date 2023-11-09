@@ -314,7 +314,7 @@ export default class VRMExporterv0 {
             meshDatas.push(new MeshData(new BufferAttribute(inverseBindMatrices, 16), WEBGL_CONST.FLOAT, MeshDataType.BIND_MATRIX, AccessorsType.MAT4, mesh.name, mesh.name));
         });
         outputAccessors.push(...meshDatas.map((meshData) => ({
-            bufferView: -1,
+           // bufferView: -1,
             byteOffset: 0,
             componentType: meshData.valueType,
             count: meshData.attribute.count,
