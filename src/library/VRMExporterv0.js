@@ -255,10 +255,10 @@ export default class VRMExporterv0 {
                 // to do, material target binds, and texture transform binds
             }
 
-            const getMorphData = ( attributeData , prop , sparseAttribute , meshDataType) => {
+            const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
                 const nonZeroIndices = [];
                 const nonZeroValues = [];
-
+                
                 // Step 1: Get Zero Elements
                 for (let i = 0; i < attributeData.length; i += 3) {
                     const x = attributeData[i];
@@ -271,24 +271,24 @@ export default class VRMExporterv0 {
                         nonZeroValues.push(x, y, z);
                     }
                 }
+                if (nonZeroIndices.length > 0){
+                    // Step 2: Create sparse data
+                    const sparseData = {
+                        count: nonZeroIndices.length,  // Total number of position elements
+                        indices: new Uint32Array(nonZeroIndices),
+                        values: new Float32Array(nonZeroValues),
+                    };
 
-                // Step 2: Create sparse data
-                const sparseData = {
-                    sparseAttribute,
-                    count: nonZeroIndices.length,  // Total number of position elements
-                    indices: new Uint32Array(nonZeroIndices),
-                    values: new Float32Array(nonZeroValues),
-                };
-
-                // Step 3: Create MeshData
-                meshDatas.push(new MeshData(
-                    attributes.position, 
-                    WEBGL_CONST.FLOAT, 
-                    meshDataType, 
-                    AccessorsType.VEC3, 
-                    mesh.name, 
-                    BLENDSHAPE_PREFIX + prop,
-                    sparseData));
+                    // Step 3: Create MeshData
+                    meshDatas.push(new MeshData(
+                        baseAttribute, 
+                        WEBGL_CONST.FLOAT, 
+                        meshDataType, 
+                        AccessorsType.VEC3, 
+                        mesh.name, 
+                        BLENDSHAPE_PREFIX + prop,
+                        sparseData));
+                }
             }
 
             for (const prop in mesh.morphTargetDictionary){
@@ -296,55 +296,12 @@ export default class VRMExporterv0 {
                 mesh.geometry.userData.targetNames.push(prop);
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
-                //console.log("morph postion", morphAttribute.position[morphIndex]);
 
-                getMorphData(morphAttribute.position[morphIndex].array, prop , positionAttribute , MeshDataType.BLEND_POSITION )
-                getMorphData(morphAttribute.normal[morphIndex].array, prop , normalAttribute , MeshDataType.BLEND_NORMAL)
-
-                // const attributeData = morphAttribute.position[morphIndex].array;
-                // const nonZeroIndices = [];
-                // const nonZeroValues = [];
-
-                // for (let i = 0; i < attributeData.length; i += 3) {
-                //     const x = attributeData[i];
-                //     const y = attributeData[i + 1];
-                //     const z = attributeData[i + 2];
-
-                //     // Check if any of the x, y, or z values is non-zero
-                //     if (x !== 0 || y !== 0 || z !== 0) {
-                //         nonZeroIndices.push(i / 3); // Push the index of the position, not the index in the array
-                //         nonZeroValues.push(x, y, z);
-                //     }
-                // }
-
-                // // Step 2: Create sparse data
-                // const sparseData = {
-                //     sparseAttribute: positionAttribute,
-                //     count: nonZeroIndices.length,  // Total number of position elements
-                //     indices: new Uint32Array(nonZeroIndices),
-                //     values: new Float32Array(nonZeroValues),
-                // };
-
-
-                // meshDatas.push(new MeshData(
-                //     morphAttribute.position[morphIndex], 
-                //     WEBGL_CONST.FLOAT, 
-                //     MeshDataType.BLEND_POSITION, 
-                //     AccessorsType.VEC3, 
-                //     mesh.name, 
-                //     BLENDSHAPE_PREFIX + prop,
-                //     sparseData));
+                getMorphData(morphAttribute.position[morphIndex].array, prop , MeshDataType.BLEND_POSITION , attributes.position)
                 
-                if (morphAttribute.normal){
-                    console.warn("XXX to do", morphAttribute.normal);
-                    // meshDatas.push(new MeshData(
-                    //     morphAttribute.normal[morphIndex], 
-                    //     WEBGL_CONST.FLOAT, 
-                    //     MeshDataType.BLEND_NORMAL, 
-                    //     AccessorsType.VEC3, 
-                    //     mesh.name, 
-                    //     BLENDSHAPE_PREFIX + prop));
-                }
+                if (morphAttribute.normal)
+                    getMorphData(morphAttribute.normal[morphIndex].array, prop , MeshDataType.BLEND_NORMAL , attributes.normal)
+
             }
         });
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
@@ -576,7 +533,7 @@ export default class VRMExporterv0 {
         })));
         
         // bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
-        meshDatas.forEach((data) => {
+        meshDatas.forEach((data, i) => {
             if (data.buffer) {
                 bufferViews.push({ buffer: data.buffer, typeString:"", type: data.type });
             } else if (data.sparse) {
@@ -584,8 +541,6 @@ export default class VRMExporterv0 {
                 bufferViews.push({ buffer: data.sparse.values, typeString:"values",type: data.type });
             }
         });
-        console.log(bufferViews);
-        console.log(meshDatas);
 
 
         if (icon)
@@ -613,7 +568,6 @@ export default class VRMExporterv0 {
             bufferOffset += bufferView.buffer.byteLength;
             if (bufferView.type === MeshDataType.IMAGE) {
                 outputImages[imageIndex++].bufferView = index;
-                console.log("image index", index);
                 index++;
             }
             else {
@@ -627,10 +581,10 @@ export default class VRMExporterv0 {
                     index++;
                 }
                 else{
-                    const bufferIndex = meshDatas[accessorIndex]?.sparse?.sparseAttribute?.bufferIndex;
+                    //const bufferIndex = meshDatas[accessorIndex]?.sparse?.sparseAttribute?.bufferIndex;
 
                     // apply index from sparseAttribute
-                    outputAccessors[accessorIndex].bufferView = bufferIndex; // 
+                    //outputAccessors[accessorIndex].bufferView = bufferIndex; // 
                     
                     // create the sparse object if it has not been created yet
                     if (outputAccessors[accessorIndex].sparse == null)
@@ -658,7 +612,6 @@ export default class VRMExporterv0 {
 
                     // add accessor index only if this is the last sparse type value
                     if (bufferView.typeString === "values"){
-                        console.log(outputAccessors[accessorIndex]);
                         accessorIndex++;
                     }
 
@@ -669,7 +622,6 @@ export default class VRMExporterv0 {
             return value;
         });
 
-        console.log(outputBufferViews);
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
         const outputData = {
@@ -845,7 +797,7 @@ export class MeshData {
         // Check if sparse data is provided
         
         if (sparseData) {
-            const { indices, values, count, sparseAttribute } =sparseData;
+            const { indices, values, count } =sparseData;
 
             // Convert indices and values to BufferAttributes
             const indicesBufferAttribute = new BufferAttribute(
@@ -856,19 +808,34 @@ export class MeshData {
                 values,
                 attribute.itemSize // Use the same item size as the original attribute
             );
-            console.log(indices);
             // pass as attribute
             this.sparse  = {
-                sparseAttribute,
                 count,
                 indices:parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
                 values:parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
             }
+
+            this.max =
+            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                ? [
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                ]
+                : undefined;
+            this.min =
+            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                ? [
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                ]
+                : undefined;
         }
         else{
-            this.buffer = parseBinary(this.attribute, this.valueType);
-        }
-        this.max =
+            this.buffer = parseBinary(this.attribute, this.valueType)
+
+            this.max =
             type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
                 ? [
                     Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
@@ -876,7 +843,7 @@ export class MeshData {
                     Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
                 ]
                 : undefined;
-        this.min =
+            this.min =
             type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
                 ? [
                     Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
@@ -884,6 +851,8 @@ export class MeshData {
                     Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
                 ]
                 : undefined;
+        }
+
     }
 }
 var MaterialType;
@@ -957,20 +926,30 @@ const toOutputMeshes = (meshes, meshDatas, uniqueMaterialNames) => {
                     material: uniqueMaterialNames.indexOf(materialName),
                     mode: 4,
                     targets: mesh.geometry.userData.targetNames
-                        ? mesh.geometry.userData.targetNames.map((targetName) => ({
-                            NORMAL: meshDatas
+                        ? mesh.geometry.userData.targetNames.map((targetName) => {
+                            const normalIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_NORMAL &&
-                                data.meshName === mesh.name
-                                ? data.name
-                                : null)
-                                .indexOf(BLENDSHAPE_PREFIX + targetName),
-                            POSITION: meshDatas
+                                    data.meshName === mesh.name
+                                    ? data.name
+                                    : null)
+                                .indexOf(BLENDSHAPE_PREFIX + targetName);
+                    
+                            const positionIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_POSITION &&
-                                data.meshName === mesh.name
-                                ? data.name
-                                : null)
-                                .indexOf(BLENDSHAPE_PREFIX + targetName),
-                        }))
+                                    data.meshName === mesh.name
+                                    ? data.name
+                                    : null)
+                                .indexOf(BLENDSHAPE_PREFIX + targetName);
+                    
+                    
+                            const result = {}
+                            if (positionIndex !== -1)
+                                result.POSITION = positionIndex;
+                            if (normalIndex !== -1)
+                                result.NORMAL = normalIndex;
+                            // Use the indices or handle the case when they are -1
+                            return result;
+                        })
                         : undefined,
                 };
             }),
