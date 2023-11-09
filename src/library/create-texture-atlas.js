@@ -20,9 +20,6 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
 
     sceneRTT.add(cameraRTT);
 
-    rtTexture = new THREE.WebGLRenderTarget(width, height);
-    rtTexture.texture.encoding = THREE.sRGBEncoding;
-
     material = new THREE.MeshBasicMaterial({
       side: THREE.DoubleSide,
       transparent: true,
@@ -30,8 +27,9 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
       color: new THREE.Color(1, 1, 1),
     });
 
-    const plane = new THREE.PlaneGeometry(width, height);
+    const plane = new THREE.PlaneGeometry(1, 1);
     quad = new THREE.Mesh(plane, material);
+    quad.scale.set(width,height,1);
     sceneRTT.add(quad);
 
     renderer = new THREE.WebGLRenderer();
@@ -48,14 +46,15 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
     cameraRTT.top = height / 2;
     cameraRTT.bottom = - height / 2;
 
-    const plane = new THREE.PlaneGeometry(width, height);
-    quad = new THREE.Mesh(plane, material);
-
-    rtTexture.width = width;
-    rtTexture.height = height;
+    cameraRTT.updateProjectionMatrix();
+    quad.scale.set(width,height,1)
 
     renderer.setSize(width, height);
   }
+
+  rtTexture = new THREE.WebGLRenderTarget(width, height);
+  rtTexture.texture.encoding = THREE.sRGBEncoding;
+
   material.map = texture;
   material.color = multiplyColor.clone();
   renderer.setClearColor(clearColor.clone(), 1);

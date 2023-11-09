@@ -14,15 +14,17 @@ export default function Slider ({ value, min, max, onChange, step, stepBox }) {
         className={styles["slider"]}
         step ={step}
       />
-      <input
-        type="number"
-        min="0"
-        max="100"
-        value={value}
-        onChange={onChange}
-        className={styles["input-box"]}
-        step ={stepBox}
-      />
+      {stepBox &&
+        <input
+          type="number"
+          min="0"
+          max="100"
+          value={value}
+          onChange={onChange}
+          className={styles["input-box"]}
+          step ={stepBox}
+        />
+      }
     </div>
   );
 };
