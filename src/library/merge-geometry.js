@@ -360,9 +360,40 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
     return group;
 }
 
+function cloneAndStoreParentInfo(mesh){
+    const boneName = mesh.parent.name;
+    const originalGlobalPosition = new THREE.Vector3();
+    const originalGlobalScale = new THREE.Vector3();
+    mesh.getWorldPosition(originalGlobalPosition);
+    mesh.getWorldScale(originalGlobalScale)
+    mesh = mesh.clone();
+
+    const rotationMatrix = new THREE.Matrix4();
+    const rotation = new THREE.Quaternion()
+    mesh.getWorldQuaternion(rotation);
+    rotationMatrix.makeRotationFromQuaternion(rotation);
+
+    mesh.userData.boneName = boneName;
+    mesh.userData.globalPosition = originalGlobalPosition;
+    mesh.userData.globalScale = originalGlobalScale;
+    mesh.userData.globalRotationMatrix = rotationMatrix;
+
+    return mesh;
+}
+
 export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
+    // convert meshes to skinned meshes first
+    const cloneNonSkinnedMeshes = findChildrenByType(avatar, ["Mesh"]);
+    for (let i =0; i < cloneNonSkinnedMeshes.length;i++){
+        cloneNonSkinnedMeshes[i] = cloneAndStoreParentInfo(cloneNonSkinnedMeshes[i]);
+    }
+
+    const cloneSkinnedMeshes = findChildrenByType(avatar, ["SkinnedMesh"]);
+
+    const allMeshes = [...cloneNonSkinnedMeshes, ...cloneSkinnedMeshes];
+
     const { bakeObjects, textures, vrmMaterial } = 
-        await createTextureAtlas({ transparentColor, atlasSize, meshes: findChildrenByType(avatar, ["SkinnedMesh","Mesh"])});
+        await createTextureAtlas({ transparentColor, atlasSize, meshes: allMeshes});
     
     const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
     const material = new THREE.MeshStandardMaterial({

@@ -233,26 +233,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   // save material color from here
 
   meshes.forEach((mesh) => {
-    //console.log(mesh.geometry.attributes.uv)
-    
-    const boneName = mesh.type == "Mesh" ? mesh.parent.name:null;
-    const originalGlobalPosition = new THREE.Vector3();
-    const originalGlobalScale = new THREE.Vector3();
-    mesh.getWorldPosition(originalGlobalPosition);
-    mesh.getWorldScale(originalGlobalScale)
+
     mesh = mesh.clone();
-
-    if (mesh.type == "Mesh"){
-      const rotationMatrix = new THREE.Matrix4();
-      const rotation = new THREE.Quaternion()
-      mesh.getWorldQuaternion(rotation);
-      rotationMatrix.makeRotationFromQuaternion(rotation);
-
-      mesh.userData.boneName = boneName;
-      mesh.userData.globalPosition = originalGlobalPosition;
-      mesh.userData.globalScale = originalGlobalScale;
-      mesh.userData.globalRotationMatrix = rotationMatrix;
-    }
     
     const material = mesh.material.length == null ? mesh.material : mesh.material[0];
     // use the vrmData of the first material, and call it atlas if it exists
