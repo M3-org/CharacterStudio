@@ -10,6 +10,7 @@
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;
   user-select: none;
+  text-align: right;
 }
 
 .scrollContainer {
@@ -21,6 +22,7 @@
   margin: 30px;
   height: -webkit-calc(100% - 40px);
   height: calc(100% - 40px);
+  
 }
 
 .traitInfoTitle {
@@ -30,6 +32,8 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 10px;
+  text-align: right;
+  
 }
 .traitInfoText {
   color: rgb(179, 179, 179);
@@ -38,6 +42,7 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 30px;
+  text-align: right;
 }
 .input-box {
   width: 60px; /* Adjust as needed */
