@@ -30,6 +30,8 @@ function Optimizer({
   const [atlasMtoon, setAtlasMtoon] = useState(6);
   const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(6);
   const [downloadOnDrop, setDownloadOnDrop] = useState(false)
+  const [currentOption, setCurrentOption] = useState(0);
+  const [options] = useState(["Merge to Standard", "Merge to MToon", "Keep Both"])
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -43,9 +45,6 @@ function Optimizer({
     const vrmData = currentVRM.userData.vrm
     downloadVRM(model, vrmData,nameVRM + "_merged",null,getAtlasSize(atlasMtoon),1,true, null, true)
   }
-  useEffect(()=>{
-    console.log("onlaod");
-  },[])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,6 +83,25 @@ function Optimizer({
     setDownloadOnDrop(event.target.checked);
   }
 
+  const prevOption = () => {
+    console.log(currentOption);
+    console.log(options.length);
+    console.log(options)
+    if (currentOption <= 0)
+      setCurrentOption(options.length-1);
+    else
+      setCurrentOption(currentOption - 1)
+  }
+
+  const nextOption = () => {
+
+    if (currentOption >= options.length-1)
+      setCurrentOption(0);
+    else
+      setCurrentOption(currentOption + 1);
+    
+  }
+
   const getAtlasSize = (value) =>{
     switch (value){
       case 1:
@@ -108,8 +126,6 @@ function Optimizer({
   }
 
   const handleChangeAtlasSize = async (event, type) => {
-    console.log(event.target);
-    console.log(type);
     let val = parseInt(event.target.value);
     if (val > 8)
       val = 8;
@@ -133,9 +149,7 @@ function Optimizer({
           break;
       }
     }
-    setAtlasSize(val)
-    
-    
+    setAtlasSize(val) 
   }
 
   const handleVRMDrop = async (file) =>{
@@ -171,26 +185,51 @@ function Optimizer({
       <div className={styles["InformationContainerPos"]}>
         <MenuTitle title="Optimizer Options" width={180} left={20}/>
         <div className={styles["scrollContainer"]}>
-          <div className={styles["traitInfoTitle"]}>
-              Standard Atlas Size
+
+        <div className={styles["traitInfoTitle"]}>
+              Merge Atlas Type
           </div>
           <br />
-          <div className={styles["traitInfoText"]}>
-              Opaque: {getAtlasSize(atlasStd) + " x " + getAtlasSize(atlasStd)}
+          <div className={styles["flexSelect"]}>
+              <div 
+                  className={`${styles["arrow-button"]} ${styles["left-button"]}`}
+                  onClick={prevOption}
+              ></div>
+              <div className={styles["traitInfoText"]} style={{ marginBottom: '0' }}>{options[currentOption]}</div>
+              <div 
+              //`${styles.class1} ${styles.class2}`
+                  className={`${styles["arrow-button"]} ${styles["right-button"]}`}
+                  onClick={nextOption}
+              ></div>
           </div>
+          <br /><br /><br />
 
-            <Slider value = {atlasStd} onChange={(value) => handleChangeAtlasSize(value, 'standard opaque')} min={1} max={8} step={1}/>
-            <br/>
-            <div className={styles["traitInfoText"]}>
-              Transparent: {getAtlasSize(atlasStdTransp) + " x " + getAtlasSize(atlasStdTransp)}
-          </div>
-            <Slider value = {atlasStdTransp} onChange={(value) => handleChangeAtlasSize(value, 'standard transparent')} min={1} max={8} step={1}/>
-            <br/> <br/> <br/>
-
+          {(currentOption === 0 || currentOption == 2)&&(
+            <>
             <div className={styles["traitInfoTitle"]}>
-              MToon Atlas Size
-          </div>
-          <br />
+                Standard Atlas Size
+            </div>
+            <br />
+            <div className={styles["traitInfoText"]}>
+                Opaque: {getAtlasSize(atlasStd) + " x " + getAtlasSize(atlasStd)}
+            </div>
+
+              <Slider value = {atlasStd} onChange={(value) => handleChangeAtlasSize(value, 'standard opaque')} min={1} max={8} step={1}/>
+              <br/>
+              <div className={styles["traitInfoText"]}>
+                Transparent: {getAtlasSize(atlasStdTransp) + " x " + getAtlasSize(atlasStdTransp)}
+            </div>
+              <Slider value = {atlasStdTransp} onChange={(value) => handleChangeAtlasSize(value, 'standard transparent')} min={1} max={8} step={1}/>
+              <br/> <br/> <br/>
+            </>
+          )}
+
+          {(currentOption === 1 || currentOption == 2)&&(
+            <>
+            <div className={styles["traitInfoTitle"]}>
+                MToon Atlas Size
+            </div>
+            <br />
           <div className={styles["traitInfoText"]}>
               Opaque: {getAtlasSize(atlasMtoon) + " x " + getAtlasSize(atlasMtoon)}
           </div>
@@ -202,10 +241,12 @@ function Optimizer({
           </div>
             <Slider value = {atlasMtoonTransp} onChange={(value) => handleChangeAtlasSize(value, 'mtoon transparent')} min={1} max={8} step={1}/>
             <br/> <br/> <br/>
-
+            </>
+          )}
           <div className={styles["traitInfoTitle"]}>
               Drag Drop - Download
           </div>
+          
 
           <div className={styles["traitInfoText"]}>
             <div className={styles["checkboxHolder"]}>
