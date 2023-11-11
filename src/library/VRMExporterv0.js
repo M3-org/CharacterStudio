@@ -165,6 +165,7 @@ export default class VRMExporterv0 {
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
         const outputMaterials = toOutputMaterials(uniqueMaterials, images);
+        console.log("outputmat", outputMaterials);
         const rootNode = avatar.children.filter((child) => child.children.length > 0 &&
             child.children[0].type === VRMObjectType.Bone)[0];
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
@@ -395,7 +396,7 @@ export default class VRMExporterv0 {
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
         
-        const materialProperties = [{
+        const vrmMaterialProperties = {
             floatProperties : {
                 // _BlendMode : 0, 
                 // _BumpScale : 1, 
@@ -430,7 +431,7 @@ export default class VRMExporterv0 {
                 MTOON_OUTLINE_COLOR_FIXED : true, 
                 MTOON_OUTLINE_WIDTH_WORLD : true
             }, 
-            name : "CombinedMat", 
+            name : "VRMCombinedMat", 
             renderQueue : 2000, 
             shader : "VRM/MToon", 
             tagMap : {
@@ -456,8 +457,26 @@ export default class VRMExporterv0 {
                 // _SphereAdd : [0, 0, 1, 1], 
                 // _UvAnimMaskTexture : [0, 0, 1, 1]
             }
-        }]
+        }
 
+        const stdMaterialProperties ={
+            name : "STDCombinedMat", 
+            shader : "VRM_USE_GLTFSHADER", 
+        }
+
+        const materialProperties = []
+        uniqueMaterials.forEach(mat => {
+            if (mat.type == "ShaderMaterial"){
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, vrmMaterialProperties))
+                )
+            }
+            else{
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, stdMaterialProperties))
+                )
+            }
+        });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
 
@@ -624,6 +643,8 @@ export default class VRMExporterv0 {
 
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
+
+
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,
@@ -668,7 +689,6 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -976,6 +996,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       let VRMC_materials_mtoon = null;
       
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
+      console.log(material);
       if (material.type === "ShaderMaterial") {
           VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
           VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
