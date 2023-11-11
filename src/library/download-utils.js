@@ -68,7 +68,7 @@ function getOptimizedGLB(avatarToDownload, atlasSize, scale = 1, isVrm0 = false,
       return combine({
         transparentColor: new Color(1,1,1),
         avatar: avatarToDownloadClone,
-        atlasSize,
+        mToonAtlasSize: atlasSize,
         scale
       }, isVrm0)
     }
