@@ -115,6 +115,41 @@ export const cullHiddenMeshes = (avatar) => {
   CullHiddenFaces(models)
 }
 
+export function getMaterialsSortedByArray (meshes){
+  const stdMats = [];
+  const stdCutoutpMats = [];
+  const stdTranspMats = [];
+  const mToonMats = [];
+  const mToonCutoutMats = [];
+  const mToonTranspMats = [];
+
+  meshes.forEach(mesh => {
+  const mats = getAsArray(mesh.material);
+  mats.forEach(mat => {
+      if (mat.type == "ShaderMaterial"){
+          if (mat.transparent == true)
+            mToonTranspMats.push(mat);
+          else if (mat.uniforms.alphaTest.value != 0)
+            mToonCutoutMats.push(mat);
+          else
+            mToonMats.push(mat);
+      }
+      else{
+          if (mat.transparent == true)
+            stdTranspMats.push(mat);
+          else if (mat.alphaTest != 0)
+            stdCutoutpMats.push(mat);
+          else
+            stdMats.push(mat);
+              
+      }
+    });
+  });
+
+
+  return { stdMats, stdCutoutpMats, stdTranspMats , mToonMats, mToonCutoutMats , mToonTranspMats }
+}
+
 export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter();
