@@ -46,8 +46,8 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-
-          downloadVRMWithAvatar(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,false)
+          const options = {screenshot:screenshot, atlasSize: 4096, scale:templateInfo.exportScale||1, isVrm0:true, vrmMeta:templateInfo.vrmMeta,createTextureAtlas:false}
+          downloadVRMWithAvatar(model, avatar, name, options)
         }}
       />
       <CustomButton
@@ -58,9 +58,8 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         className={styles.button}
         onClick={() => {
           const screenshot = getFaceScreenshot();
-          console.log(model);
-          console.log(avatar)
-          downloadVRMWithAvatar(model, avatar, name, screenshot, 4096,templateInfo.exportScale||1, true, templateInfo.vrmMeta,true)
+          const options = {screenshot:screenshot, atlasSize: 4096, scale:templateInfo.exportScale||1, isVrm0:true, vrmMeta:templateInfo.vrmMeta,createTextureAtlas:true}
+          downloadVRMWithAvatar(model, avatar, name, options)
         }}
       />
     </React.Fragment>
