@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import styles from "./ModelInformation.module.css"
 import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
-import { getAsArray } from "../library/utils";
+import { getAsArray, getMaterialsSortedByArray } from "../library/utils";
 
 export default function ModelInformation({currentVRM}){
     const [meshQty, setMeshQty] = useState(0);
@@ -24,46 +24,17 @@ export default function ModelInformation({currentVRM}){
             setMeshQty(meshes.length)
             setSkinnedMeshQty(skinnedMesh.length)
 
-
             const allMeshes =  meshes.concat(skinnedMesh);
-            let stdMaterialCount = 0;
-            let stdTranspMaterialCount = 0;
-            let stdCutoutMaterialCount = 0;
 
-            let shaderMaterialCount = 0;
-            let shaderTranspMaterialCount = 0;
-            let shaderTCutoutMaterialCount = 0;
-            allMeshes.forEach(mesh => {
-                const mats = getAsArray(mesh.material);
-                mats.forEach(mat => {
-                    if (mat.type == "ShaderMaterial"){
-                        if (mat.transparent == true)
-                            shaderTranspMaterialCount++
-                        else if (mat.uniforms.alphaTest.value != 0)
-                            shaderTCutoutMaterialCount++
-                        else
-                            shaderMaterialCount++;
-                    }
-                    else{
-                        if (mat.transparent == true)
-                            stdTranspMaterialCount++
-                        else if (mat.alphaTest != 0)
-                            stdCutoutMaterialCount++
-                        else
-                            stdMaterialCount++;
-                            
-                    }
-                    // if (mat.type == "MeshStandardMaterial")
-                    //     stdMaterialCount++;
-                });
-            });
-            setStandardMaterialQty(stdMaterialCount);
-            setStandardTranspMaterialQty(stdTranspMaterialCount);
-            setStandardCutoutMaterialQty(stdCutoutMaterialCount);
+            const {stdMats,stdCutoutpMats,stdTranspMats,mToonMats,mToonCutoutMats,mToonTranspMats} = getMaterialsSortedByArray(allMeshes);
 
-            setVrmMaterialQty(shaderMaterialCount);
-            setVrmTranspMaterialQty(shaderTranspMaterialCount);
-            setVrmCutoutMaterialQty(shaderTCutoutMaterialCount);
+            setStandardMaterialQty(stdMats.length);
+            setStandardTranspMaterialQty(stdTranspMats.length);
+            setStandardCutoutMaterialQty(stdCutoutpMats.length);
+
+            setVrmMaterialQty(mToonMats.length);
+            setVrmTranspMaterialQty(mToonTranspMats.length);
+            setVrmCutoutMaterialQty(mToonCutoutMats.length);
         }
     }, [currentVRM])
 

@@ -9,33 +9,69 @@
     background: rgba(5, 11, 14, 0.8);
     z-index: 1000;
     user-select: none;
-  }
-  .traitInfoTitle {
-    color: white;
-    text-transform: uppercase;
-    text-shadow: 1px 1px 2px black;
-    font-size: 16px;
-    word-spacing: 2px;
-    margin-bottom: 10px;
-  }
-  .traitInfoText {
-    color: rgb(179, 179, 179);
-    /* text-transform: uppercase; */
-    text-shadow: 1px 1px 2px black;
-    font-size: 16px;
-    word-spacing: 2px;
-    margin-bottom: 30px;
-  }
-  .scrollContainer {
-    height: 100%;
-    width: 80%;
-    overflow-y: scroll;
-    position: relative;
-    overflow-x: hidden !important;
-    margin: 30px;
-    height: -webkit-calc(100% - 40px);
-    height: calc(100% - 40px);
-  }
+}
+.traitInfoTitle {
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+  word-spacing: 2px;
+  margin-bottom: 10px;
+}
+.traitInfoText {
+  color: rgb(179, 179, 179);
+  /* text-transform: uppercase; */
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+  word-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.flexSelect{
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  height:40px;
+  align-items: center;
+}
+.arrow-button {
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.8;
+  width: 32px;
+  height: 32px;
+  margin: 2px;
+  text-align: center;
+  outline-color: #3b434f;
+  outline-width: 2px;
+  outline-style: solid;
+  align-items: center;
+  background-color: #1e2530;
+}
+.left-button{
+  background: url('/ui/backButton_small.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.right-button{
+  background: url('/ui/nextButton_small.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.scrollContainer {
+  height: 100%;
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin: 30px;
+  height: -webkit-calc(100% - 40px);
+  height: calc(100% - 40px);
+}
 /* Hide the default checkbox */
 .custom-checkbox input[type="checkbox"] {
     display: none;

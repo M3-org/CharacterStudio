@@ -150,17 +150,30 @@ export default class VRMExporterv0 {
             if (!material.map)
                 throw new Error(material.name + " map is null");
             return { name: material.name, imageBitmap: material.map.image };
-        }); // TODO: 画像がないMaterialもある
+        }); 
         const shadeImages = uniqueMaterials
             .filter((material) => material.userData.shadeTexture)
             .map((material) => {
             if (!material.userData.shadeTexture)
                 throw new Error(material.userData.shadeTexture + " map is null");
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
-        }); // TODO: 画像がないMaterialもある\
-        
-        const images = mainImages.concat(shadeImages);
+        }); 
+        const ormImages = uniqueMaterials
+            .filter((material) => material.roughnessMap)
+            .map((material) => {
+            if (!material.roughnessMap)
+                return null;
+            return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
+        }); 
 
+        const normalImages = uniqueMaterials
+        .filter((material) => material.roughnessMap)
+        .map((material) => {
+            if (!material.normalMap)
+                return null
+            return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
+        }); 
+        const images =  [...mainImages, ...shadeImages, ...ormImages,...normalImages].filter(element => element !== null);
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -395,7 +408,7 @@ export default class VRMExporterv0 {
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
         
-        const materialProperties = [{
+        const vrmMaterialProperties = {
             floatProperties : {
                 // _BlendMode : 0, 
                 // _BumpScale : 1, 
@@ -430,7 +443,7 @@ export default class VRMExporterv0 {
                 MTOON_OUTLINE_COLOR_FIXED : true, 
                 MTOON_OUTLINE_WIDTH_WORLD : true
             }, 
-            name : "CombinedMat", 
+            name : "VRMCombinedMat", 
             renderQueue : 2000, 
             shader : "VRM/MToon", 
             tagMap : {
@@ -456,8 +469,26 @@ export default class VRMExporterv0 {
                 // _SphereAdd : [0, 0, 1, 1], 
                 // _UvAnimMaskTexture : [0, 0, 1, 1]
             }
-        }]
+        }
 
+        const stdMaterialProperties ={
+            name : "STDCombinedMat", 
+            shader : "VRM_USE_GLTFSHADER", 
+        }
+
+        const materialProperties = []
+        uniqueMaterials.forEach(mat => {
+            if (mat.type == "ShaderMaterial"){
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, vrmMaterialProperties))
+                )
+            }
+            else{
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, stdMaterialProperties))
+                )
+            }
+        });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
 
@@ -624,6 +655,8 @@ export default class VRMExporterv0 {
 
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
+
+
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,
@@ -668,7 +701,6 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData)
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -977,9 +1009,9 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
       if (material.type === "ShaderMaterial") {
-          VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          //VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          VRMC_materials_mtoon = {};
           VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
-
           const mtoonMaterial = material;
           baseColor = mtoonMaterial.color ? [
                   1,
@@ -1007,6 +1039,14 @@ const toOutputMaterials = (uniqueMaterials, images) => {
           }
       }
 
+      let metalicRoughnessIndex = -1;
+      if (material.roughnessMap)
+        metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
+
+      let normalTextureIndex = -1;
+      if (material.normalMap)
+        normalTextureIndex = images.map((image) => image.name).indexOf(material.name + "_normal");
+
       const baseTexture = baseTxrIndex >= 0 ? {
               extensions: {
                   KHR_texture_transform: {
@@ -1018,44 +1058,68 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               texCoord: 0, // TODO:
           } :
           undefined;
-      const metallicFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.metalness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0;
-              default:
-                  return 0;
+
+          const pbrMetallicRoughness = {
+            baseColorFactor: baseColor,
+            baseColorTexture: baseTexture,
           }
-      })();
-      const roughnessFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.roughness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0.9;
-              default:
-                  return 0.9;
-          }
-      })();
-      return {
-          alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
-          alphaMode: material.transparent ?
-              "BLEND" : material.alphaTest > 0 ?
-              "MASK" : "OPAQUE",
-          doubleSided: material.side === 2,
-          extensions: material.type === "ShaderMaterial" ? {
-              KHR_materials_unlit: {}, // TODO:
-              VRMC_materials_mtoon
-          } : undefined,
-          name: material.name,
-          pbrMetallicRoughness: {
-              baseColorFactor: baseColor,
-              baseColorTexture: baseTexture,
-              metallicFactor: metallicFactor,
-              roughnessFactor: roughnessFactor,
-          },
-      };
+
+      const metalRoughTexture = metalicRoughnessIndex >= 0 ?{
+            index: metalicRoughnessIndex,
+            texCoord: 0, // TODO:
+        }:undefined
+
+        const normalMapTexture = normalTextureIndex >= 0 ? {
+            index: normalTextureIndex,
+            texCoord: 0,
+        }:undefined;
+
+        if (metalRoughTexture){
+            pbrMetallicRoughness.metallicRoughnessTexture = metalRoughTexture;
+        }
+        else{
+            const metallicFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.metalness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0;
+                    default:
+                        return 0;
+                }
+            })();
+            const roughnessFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.roughness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0.9;
+                    default:
+                        return 0.9;
+                }
+            })();
+
+            pbrMetallicRoughness.metallicFactor = metallicFactor;
+            pbrMetallicRoughness.roughnessFactor = roughnessFactor;
+        }
+
+        const parseMaterial = {
+            alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
+            alphaMode: material.transparent ?
+                "BLEND" : material.alphaTest > 0 ?
+                "MASK" : "OPAQUE",
+            doubleSided: material.side === 2,
+            extensions: material.type === "ShaderMaterial" ? {
+                KHR_materials_unlit: {}, // TODO:
+                VRMC_materials_mtoon
+            } : undefined,
+            name: material.name,
+            pbrMetallicRoughness
+        }
+        if (normalMapTexture){
+            parseMaterial.normalTexture = normalMapTexture;
+        }
+      return parseMaterial;
   });
 };
 const toOutputImages = (images, icon) => {

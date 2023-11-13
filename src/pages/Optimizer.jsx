@@ -13,6 +13,7 @@ import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
 import MenuTitle from "../components/MenuTitle"
 import Slider from "../components/Slider"
+import { local } from "../library/store"
 
 function Optimizer({
   animationManager,
@@ -25,9 +26,13 @@ function Optimizer({
   const [currentVRM, setCurrentVRM] = useState(null);
   const [lastVRM, setLastVRM] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
-  const [atlasSize, setAtlasSize] = useState(4096);
-  const [atlasValue, setAtlasValue] = useState(6);
+  const [atlasStd, setAtlasStd] = useState(local["optimizer_atlas_std_size"] || 6);
+  const [atlasStdTransp, setAtlasStdTransp] = useState(local["optimizer_atlas_std_transp_size"] || 6);
+  const [atlasMtoon, setAtlasMtoon] = useState(local["optimizer_atlas_mtoon_size"] || 6);
+  const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(local["optimizer_atlas_mtoon_transp_size"] || 6);
   const [downloadOnDrop, setDownloadOnDrop] = useState(false)
+  const [currentOption, setCurrentOption] = useState(local["optimizer_sel_option"] || 0);
+  const [options] = useState(["Merge to Standard", "Merge to MToon", "Keep Both"])
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -39,7 +44,18 @@ function Optimizer({
 
   const download = () => {
     const vrmData = currentVRM.userData.vrm
-    downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
+    const options = {
+      atlasSize : 4096,
+      isVrm0 : true,
+      createTextureAtlas : true,
+      mToonAtlasSize:getAtlasSize(atlasMtoon),
+      mToonAtlasSizeTransp:getAtlasSize(atlasMtoonTransp),
+      stdAtlasSize:getAtlasSize(atlasStd),
+      stdAtlasSizeTransp:getAtlasSize(atlasStdTransp),
+      exportStdAtlas:(currentOption === 0 || currentOption == 2),
+      exportMtoonAtlas:(currentOption === 1 || currentOption == 2)
+    }
+    downloadVRM(model, vrmData,nameVRM + "_merged", options)
   }
 
   useEffect(() => {
@@ -79,44 +95,80 @@ function Optimizer({
     setDownloadOnDrop(event.target.checked);
   }
 
-  const handleChangeAtlasSize = async (event) => {
-    const val = parseInt(event.target.value);
-    if (val > 8)
-      setAtlasValue(8)
-    else if (val < 0)
-      setAtlasValue(0)
-    else 
-      setAtlasValue(val)
+  const prevOption = () => {
+    let cur = currentOption;
+    if (currentOption <= 0)
+      cur = options.length-1
+    else
+      cur -= 1
 
-    switch (val){
+    setCurrentOption(cur);
+    local["optimizer_sel_option"] = cur;
+  }
+
+  const nextOption = () => {
+    let cur = currentOption;
+    if (currentOption >= options.length - 1)
+      cur = 0;
+    else
+      cur +=1;
+
+    setCurrentOption(cur);
+    local["optimizer_sel_option"] = cur;
+  }
+
+  const getAtlasSize = (value) =>{
+    switch (value){
       case 1:
-        setAtlasSize(128);
-        break;
+        return 128;
       case 2:
-        setAtlasSize(256);
-        break;
+        return 256;
       case 3:
-        setAtlasSize(512);
-        break;
+        return 512;
       case 4:
-        setAtlasSize(1024);
-        break;
+        return 1024;
       case 5:
-        setAtlasSize(2048);
-        break;
+        return 2048;
       case 6:
-        setAtlasSize(4096);
-        break;
+        return 4096;
       case 7:
-        setAtlasSize(8192);
-        break;
+        return 8192;
       case 8:
-        setAtlasSize(16384);
-        break;
+        return 16384;
       default:
-        break;
+        return 4096;
     }
-    
+  }
+
+  const handleChangeAtlasSize = async (event, type) => {
+    let val = parseInt(event.target.value);
+    if (val > 8)
+      val = 8;
+    else if (val < 0)
+      val = 0;
+
+    const setAtlasSize = (size) => {
+      switch (type){
+        case 'standard opaque':
+          // save to user prefs
+          setAtlasStd(size);
+          local["optimizer_atlas_std_size"]  = size;
+          break;
+        case 'standard transparent':
+          setAtlasStdTransp(size);
+          local["optimizer_atlas_std_transp_size"] = size;
+          break;
+        case 'mtoon opaque':
+          setAtlasMtoon(size);
+          local["optimizer_atlas_mtoon_size"] = size;
+          break;
+        case 'mtoon transparent':
+          setAtlasMtoonTransp(size);
+          local["optimizer_atlas_mtoon_transp_size"] = size;
+          break;
+      }
+    }
+    setAtlasSize(val) 
   }
 
   const handleVRMDrop = async (file) =>{
@@ -124,16 +176,9 @@ function Optimizer({
     const vrm = await loadVRM(path);
     const name = getFileNameWithoutExtension(file.name);
 
-    // if (currentVRM != null){
-    //   disposeVRM(currentVRM);
-    // }
     setNameVRM(name);
     setCurrentVRM(vrm);
-
-    
-
-    //downloadVRM(model, vrmData,nameVRM + "_merged",null,atlasSize,1,true, null, true)
-    //setUploadVRMURL(path);
+    console.log(vrm)
   }
 
   const handleFilesDrop = async(files) => {
@@ -159,15 +204,68 @@ function Optimizer({
       <div className={styles["InformationContainerPos"]}>
         <MenuTitle title="Optimizer Options" width={180} left={20}/>
         <div className={styles["scrollContainer"]}>
-          <div className={styles["traitInfoTitle"]}>
-              Atlas size: {atlasSize + " x " + atlasSize}
+
+        <div className={styles["traitInfoTitle"]}>
+              Merge Atlas Type
+          </div>
+          <br />
+          <div className={styles["flexSelect"]}>
+              <div 
+                  className={`${styles["arrow-button"]} ${styles["left-button"]}`}
+                  onClick={prevOption}
+              ></div>
+              <div className={styles["traitInfoText"]} style={{ marginBottom: '0' }}>{options[currentOption]}</div>
+              <div 
+              //`${styles.class1} ${styles.class2}`
+                  className={`${styles["arrow-button"]} ${styles["right-button"]}`}
+                  onClick={nextOption}
+              ></div>
+          </div>
+          <br /><br /><br />
+
+          {(currentOption === 0 || currentOption == 2)&&(
+            <>
+            <div className={styles["traitInfoTitle"]}>
+                Standard Atlas Size
+            </div>
+            <br />
+            <div className={styles["traitInfoText"]}>
+                Opaque: {getAtlasSize(atlasStd) + " x " + getAtlasSize(atlasStd)}
+            </div>
+
+              <Slider value = {atlasStd} onChange={(value) => handleChangeAtlasSize(value, 'standard opaque')} min={1} max={8} step={1}/>
+              <br/>
+              <div className={styles["traitInfoText"]}>
+                Transparent: {getAtlasSize(atlasStdTransp) + " x " + getAtlasSize(atlasStdTransp)}
+            </div>
+              <Slider value = {atlasStdTransp} onChange={(value) => handleChangeAtlasSize(value, 'standard transparent')} min={1} max={8} step={1}/>
+              <br/> <br/> <br/>
+            </>
+          )}
+
+          {(currentOption === 1 || currentOption == 2)&&(
+            <>
+            <div className={styles["traitInfoTitle"]}>
+                MToon Atlas Size
+            </div>
+            <br />
+          <div className={styles["traitInfoText"]}>
+              Opaque: {getAtlasSize(atlasMtoon) + " x " + getAtlasSize(atlasMtoon)}
           </div>
 
-            <Slider  value={atlasValue} onChange={handleChangeAtlasSize} min={1} max={8} step={1}/>
+            <Slider value = {atlasMtoon} onChange={(value) => handleChangeAtlasSize(value, 'mtoon opaque')} min={1} max={8} step={1}/>
             <br/>
+            <div className={styles["traitInfoText"]}>
+              Transparent: {getAtlasSize(atlasMtoonTransp) + " x " + getAtlasSize(atlasMtoonTransp)}
+          </div>
+            <Slider value = {atlasMtoonTransp} onChange={(value) => handleChangeAtlasSize(value, 'mtoon transparent')} min={1} max={8} step={1}/>
+            <br/> <br/> <br/>
+            </>
+          )}
           <div className={styles["traitInfoTitle"]}>
               Drag Drop - Download
           </div>
+          
 
           <div className={styles["traitInfoText"]}>
             <div className={styles["checkboxHolder"]}>
@@ -209,13 +307,14 @@ function Optimizer({
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
+        {(currentVRM)&&(
           <CustomButton
           theme="light"
           text="Download"
           size={14}
           className={styles.buttonRight}
           onClick={download}
-        />
+        />)}
       </div>
     </div>
   )

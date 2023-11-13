@@ -7,9 +7,9 @@ import VRMExporterv0 from "./VRMExporterv0"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
 
-function cloneAvatarModel (avatarToClone){
+function cloneAvatarModel (model){
   
-    const clone = avatarToClone.clone()
+    const clone = model.clone()
     /*
       NOTE: After avatar clone, the origIndexBuffer/BufferAttribute in userData will lost many infos:
       From: BufferAttribute {isBufferAttribute: true, name: '', array: Uint32Array(21438), itemSize: 1, count: 21438, …}
@@ -18,7 +18,7 @@ function cloneAvatarModel (avatarToClone){
       So have to reassign `userData.origIndexBuffer` after avatar clone.
     */
     const origIndexBuffers = []
-    avatarToClone.traverse((child) => {
+    model.traverse((child) => {
       if (child.userData.origIndexBuffer)
         origIndexBuffers.push(child.userData.origIndexBuffer)
     })
@@ -28,13 +28,13 @@ function cloneAvatarModel (avatarToClone){
     })
     return clone;
 }
-function getUnopotimizedGLB (avatarToDownload){
+function getUnopotimizedGLB (model){
 
-    const avatarToDownloadClone = cloneAvatarModel(avatarToDownload)
+    const modelClone = cloneAvatarModel(model)
     let skeleton
     const skinnedMeshes = []
 
-    avatarToDownloadClone.traverse((child) => {
+    modelClone.traverse((child) => {
       if (!skeleton && child.isSkinnedMesh) {
         skeleton = cloneSkeleton(child)
       }
@@ -61,82 +61,107 @@ function getUnopotimizedGLB (avatarToDownload){
 
     return unoptimizedGLB;
 }
-function getOptimizedGLB(avatarToDownload, atlasSize, scale = 1, isVrm0 = false, createTextureAtlas = true){
-    const avatarToDownloadClone = cloneAvatarModel(avatarToDownload)
-    
-    if (createTextureAtlas){
-      return combine({
-        transparentColor: new Color(1,1,1),
-        avatar: avatarToDownloadClone,
-        atlasSize,
-        scale
-      }, isVrm0)
-    }
-    else{
-      console.log("no atlas");
-      return combineNoAtlas({
-        avatar: avatarToDownloadClone,
-        scale
-      }, isVrm0)
-    }
-}
 
-export async function getGLBBlobData(avatarToDownload, atlasSize  = 4096, optimized = true, scale = 1){
-  const model = await (optimized ? 
-     getOptimizedGLB(avatarToDownload, atlasSize,scale) :
-     getUnopotimizedGLB(avatarToDownload))
-  const glb = await parseGLB(model);
+
+export async function getGLBBlobData(model, options){
+  const {optimized = true} = options;
+  const finalModel = await (optimized ? 
+     getOptimizedGLB(model, options) :
+     getUnopotimizedGLB(model))
+  const glb = await parseGLB(finalModel);
   return new Blob([glb], { type: 'model/gltf-binary' });
 }
 
-export async function getVRMBlobData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta= null){
-  const model = await getOptimizedGLB(avatarToDownload, atlasSize,scale, isVrm0)
-  const vrm = await parseVRM(model, avatar, screenshot, isVrm0, vrmMeta);
+export async function getVRMBlobData(model, avatar, options){
+  const finalModel = await getOptimizedGLB(model, options)
+  const vrm = await parseVRM(finalModel, avatar, options);
   // save it as glb now
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
 
 // returns a promise with the parsed data
-async function getGLBData(avatarToDownload, atlasSize  = 4096, optimized = true, scale = 1){
+async function getGLBData(model, options){
   if (optimized){
-    const model = await getOptimizedGLB(avatarToDownload, atlasSize,scale)
-    return parseGLB(model); 
+    const finalModel = await getOptimizedGLB(model, options)
+    return parseGLB(finalModel); 
   }
   else{
-    const model = getUnopotimizedGLB(avatarToDownload)
-    return parseGLB(model);
+    const finalModel = getUnopotimizedGLB(model)
+    return parseGLB(finalModel);
   }
 } 
-async function getVRMData(avatarToDownload, avatar, screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas= true){
 
-  const vrmModel = await getOptimizedGLB(avatarToDownload, atlasSize, scale, isVrm0,createTextureAtlas);
-  return parseVRM(vrmModel,avatar,screenshot, isVrm0, vrmMeta, createTextureAtlas) 
+
+
+
+/**
+ * Downloads a VRM model with specified options.
+ *
+ * @param {Object} model - The 3D model object.
+ * @param {Object} vrmData - The VRM data for the model.
+ * @param {string} fileName - The name of the file to be downloaded.
+ * @param {Object} options - Additional options for the download.
+ * @param {Object} options.screenshot - An optional screenshot for the model.
+ * @param {number} options.mToonAtlasSize - Atlas size for opaque parts when using MToon material.
+ * @param {number} options.mToonAtlasSizeTransp - Atlas size for transparent parts when using MToon material.
+ * @param {number} options.stdAtlasSize - Atlas size for opaque parts when using standard materials.
+ * @param {number} options.stdAtlasSizeTransp - Atlas size for transparent parts when using standard materials.
+ * @param {boolean} options.exportMtoonAtlas - Whether to export the MToon material atlas.
+ * @param {boolean} options.exportStdAtlas - Whether to export the standard material atlas.
+ * @param {number} options.scale - Scaling factor for the model.
+ * @param {boolean} options.isVrm0 - Whether the VRM version is 0 (true) or 1 (false).
+ * @param {Object} options.vrmMeta - Additional metadata for the VRM model.
+ * @param {boolean} options.createTextureAtlas - Whether to create a texture atlas.
+ * @param {boolean} options.optimized - Whether to optimize the VRM model.
+ */
+export async function downloadVRM(model,vrmData,fileName, options){
+
+
+    const avatar = {_optimized:{vrm:vrmData}}
+    downloadVRMWithAvatar(model, avatar, fileName, options)
 }
 
-export async function downloadVRMWithAvatar(avatarToDownload, avatar, fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
+export async function downloadVRMWithAvatar(model, avatar, fileName, options){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
-  getVRMData(avatarToDownload, avatar, screenshot, atlasSize,scale, isVrm0, vrmMeta, createTextureAtlas).then((vrm)=>{
+  getVRMData(model, avatar, options).then((vrm)=>{
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
 
-export async function downloadVRM(avatarToDownload,vrmData,fileName = "", screenshot = null, atlasSize  = 4096, scale = 1, isVrm0 = false, vrmMeta = null, createTextureAtlas = true){
-  const avatar = {_optimized:{vrm:vrmData}}
-  downloadVRMWithAvatar(avatarToDownload, avatar, fileName, screenshot, atlasSize, scale,isVrm0,vrmMeta,createTextureAtlas)
+async function getVRMData(model, avatar, options){
+  const vrmModel = await getOptimizedGLB(model, options);
+  return parseVRM(vrmModel,avatar,options) 
 }
 
-export async function downloadGLB(avatarToDownload,  optimized = true, fileName = "", atlasSize  = 4096){
+
+
+function getOptimizedGLB(model, options){
+  const modelClone = cloneAvatarModel(model)
+  const { createTextureAtlas } = options;
+  if (createTextureAtlas){
+    return combine(modelClone, options);
+  }
+  else{
+    console.log("no atlas");
+    return combineNoAtlas(modelClone,options)
+  }
+}
+
+
+export async function downloadGLB(model, fileName = "", options){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
 
-  const model = optimized ?
-    await getOptimizedGLB(avatarToDownload, atlasSize, scale):
-    getUnopotimizedGLB(avatarToDownload)
+  const {optimized = true} = options;
 
-  parseGLB(model)
+  const finalModel = optimized ?
+    await getOptimizedGLB(model, options):
+    getUnopotimizedGLB(model)
+
+  parseGLB(finalModel)
     .then((result) => {
       if (result instanceof ArrayBuffer) {
         saveArrayBuffer(result, `${downloadFileName}.glb`)
@@ -170,13 +195,21 @@ function parseGLB (glbModel){
   })
 }
 
-function parseVRM (glbModel, avatar, screenshot = null, isVrm0 = false, vrmMeta = null, atlasMaterial = false){
+function parseVRM (glbModel, avatar, options){
+  const {
+    screenshot = null, 
+    isVrm0 = false, 
+    vrmMeta = null
+  } = options
+
   return new Promise((resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
 
+
+
     const vrmData = {
       ...getVRMBaseData(avatar),
-      ...getAvatarData(glbModel, "CharacterCreator", atlasMaterial, vrmMeta),
+      ...getAvatarData(glbModel, "CharacterCreator", vrmMeta),
     }
     let skinnedMesh;
     glbModel.traverse(child => {

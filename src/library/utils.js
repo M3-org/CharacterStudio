@@ -115,6 +115,78 @@ export const cullHiddenMeshes = (avatar) => {
   CullHiddenFaces(models)
 }
 
+export function getMeshesSortedByMaterialArray(meshes){
+  const stdMesh = [];
+  const stdTranspMesh = [];
+  const mToonMesh = [];
+  const mToonTranspMesh = [];
+  let requiresTransparency = false;
+
+  meshes.forEach(mesh => {
+    const mats = getAsArray(mesh.material);
+    const mat = mats[0];
+    
+    if (mat.type == "ShaderMaterial"){
+        if (mat.transparent == true){
+          mToonTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          mToonMesh.push(mesh);
+          if (mat.uniforms.alphaTest.value != 0)
+            requiresTransparency = true
+        }
+    }
+    else{
+        if (mat.transparent == true){
+          stdTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          stdMesh.push(mesh); 
+          if (mat.alphaTest != 0)
+            requiresTransparency = true;
+        }
+    }
+  });
+  return {stdMesh, stdTranspMesh, mToonMesh, mToonTranspMesh, requiresTransparency}
+}
+
+export function getMaterialsSortedByArray (meshes){
+  const stdMats = [];
+  const stdCutoutpMats = [];
+  const stdTranspMats = [];
+  const mToonMats = [];
+  const mToonCutoutMats = [];
+  const mToonTranspMats = [];
+
+  meshes.forEach(mesh => {
+    const mats = getAsArray(mesh.material);
+    mats.forEach(mat => {
+      if (mat.type == "ShaderMaterial"){
+          if (mat.transparent == true)
+            mToonTranspMats.push(mat);
+          else if (mat.uniforms.alphaTest.value != 0)
+            mToonCutoutMats.push(mat);
+          else
+            mToonMats.push(mat);
+      }
+      else{
+          if (mat.transparent == true)
+            stdTranspMats.push(mat);
+          else if (mat.alphaTest != 0)
+            stdCutoutpMats.push(mat);
+          else
+            stdMats.push(mat);
+              
+      }
+    });
+  });
+
+
+  return { stdMats, stdCutoutpMats, stdTranspMats , mToonMats, mToonCutoutMats , mToonTranspMats }
+}
+
 export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter();
@@ -564,11 +636,11 @@ export function findChildrenByType(root, types) {
     predicate: (o) => getAsArray(types).includes(o.type),
   });
 }
-export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
+export function getAvatarData (avatarModel, modelName, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
-    materials : atlasMaterial ? [avatarModel.userData.atlasMaterial] : avatarModel.userData.atlasMaterial,
+    materials : avatarModel.userData.atlasMaterial,
     meta : getVRMMeta(modelName, vrmMeta)
   }
 

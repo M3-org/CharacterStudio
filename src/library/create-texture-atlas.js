@@ -1,16 +1,23 @@
 import * as THREE from "three";
 import { mergeGeometry } from "./merge-geometry.js";
+import { MToonMaterial } from "@pixiv/three-vrm";
 
 let container, cameraRTT, sceneRTT, material, quad, renderer, rtTexture;
+function ResetRenderTextureContainer(){
+  if (renderer != null)
+    renderer.clear(true, true);
+}
 
-function RenderTextureImageData(texture, multiplyColor, clearColor, width, height) {
+function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent) {
   if (texture == null) {
     const data = new Uint8Array([clearColor.r * 255, clearColor.g * 255, clearColor.b * 255]); // Convert color to Uint8Array
 
     texture = new THREE.DataTexture(data, width, height, THREE.RGBFormat); // Create a new texture
     texture.needsUpdate = true; // Make sure to update the texture
   }
-  
+
+
+
   // if texture is nuill, create a texture only with clearColor (that is color type)
   if (container == null) {
     container = document.createElement("div");
@@ -35,7 +42,7 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(1);
     renderer.setSize(width, height);
-    renderer.setClearColor(new THREE.Color(1, 1, 1), 1);
+    //renderer.setClearColor(new THREE.Color(1, 1, 1), 1);
     renderer.autoClear = false;
 
     container.appendChild(renderer.domElement);
@@ -57,7 +64,8 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
 
   material.map = texture;
   material.color = multiplyColor.clone();
-  renderer.setClearColor(clearColor.clone(), 1);
+  // set opacoty to 0 if texture is transparent
+  renderer.setClearColor(clearColor.clone(), isTransparent ? 0 : 1);
 
   renderer.setRenderTarget(rtTexture);
   renderer.clear();
@@ -70,16 +78,20 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
   return imgData;
 }
 
-function createContext({ width, height }) {
+function createContext({ width, height, transparent }) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
   context.fillStyle = "white";
+  if (transparent) 
+    context.globalAlpha = 0;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  context.globalAlpha = 1;
   return context;
 }
 function getTextureImage(material, textureName) {
+
   // material can come in arrays or single values, in case of ccoming in array take the first one
   material = material.length == null ? material : material[0];
   return material[textureName] && material[textureName].image;
@@ -98,19 +110,19 @@ function lerp(t, min, max, newMin, newMax) {
   return newMin + progress * (newMax - newMin);
 }
 
-export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096 }) => {
+export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false }) => {
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
   if (isNode) {
-    return await createTextureAtlasNode({ meshes, atlasSize });
+    return await createTextureAtlasNode({ meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
   } else {
-    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize });
+    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
     //return await createTextureAtlasBrowser({ meshes, atlasSize });
   }
 };
 
-export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
+export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transparentMaterial, transparentTexture }) => {
   const ATLAS_SIZE_PX = atlasSize;
   const IMAGE_NAMES = ["diffuse"];
   const bakeObjects = [];
@@ -126,7 +138,8 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
       bakeObject.mesh.geometry = dest;
     }
   });
-  const contexts = Object.fromEntries(IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX })]));
+  
+  const contexts = Object.fromEntries(IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX , transparent: transparentTexture})]));
   const numTiles = Math.floor(Math.sqrt(meshes.length) + 1);
   const tileSize = ATLAS_SIZE_PX / numTiles;
   const originalUVs = new Map(bakeObjects.map((bakeObject, i) => {
@@ -224,39 +237,25 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize = 4096 }) => {
   return { bakeObjects, textures, uvs };
 };
 
-export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize = 4096 }) => {
+export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture }) => {
+  // make sure to reset texture renderer container
+  ResetRenderTextureContainer();
+
   const ATLAS_SIZE_PX = atlasSize;
-  const IMAGE_NAMES = ["diffuse"];
+  const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm"];// not using normal texture for now
   const bakeObjects = [];
   // save if there is vrm data
   let vrmMaterial = null;
+
   // save material color from here
 
   meshes.forEach((mesh) => {
-    //console.log(mesh.geometry.attributes.uv)
-    
-    const boneName = mesh.type == "Mesh" ? mesh.parent.name:null;
-    const originalGlobalPosition = new THREE.Vector3();
-    const originalGlobalScale = new THREE.Vector3();
-    mesh.getWorldPosition(originalGlobalPosition);
-    mesh.getWorldScale(originalGlobalScale)
+
     mesh = mesh.clone();
 
-    if (mesh.type == "Mesh"){
-      const rotationMatrix = new THREE.Matrix4();
-      const rotation = new THREE.Quaternion()
-      mesh.getWorldQuaternion(rotation);
-      rotationMatrix.makeRotationFromQuaternion(rotation);
-
-      mesh.userData.boneName = boneName;
-      mesh.userData.globalPosition = originalGlobalPosition;
-      mesh.userData.globalScale = originalGlobalScale;
-      mesh.userData.globalRotationMatrix = rotationMatrix;
-    }
-    
     const material = mesh.material.length == null ? mesh.material : mesh.material[0];
     // use the vrmData of the first material, and call it atlas if it exists
-    if (vrmMaterial == null) {
+    if (mtoon && vrmMaterial == null && material.type == "ShaderMaterial") {
       vrmMaterial = material.clone();
     }
 
@@ -274,8 +273,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
   });
 
   // create the canvas to draw textures
+  //transparent: (name == "diffuse" && drawTransparent)
   const contexts = Object.fromEntries(
-    IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX })])
+    IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX, transparent:transparentTexture })])
   );
 
   const numTiles = Math.floor(Math.sqrt(meshes.length) + 1);
@@ -343,6 +343,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
     const { min, max } = uvs.get(mesh);
     IMAGE_NAMES.forEach((name) => {
       const context = contexts[name];
+      //context.globalAlpha = transparent ? 0.2 : 1;
       context.globalCompositeOperation = "source-over";
 
       // set white color base
@@ -366,8 +367,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       }
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX);
-      createImageBitmap(imgData)
+      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX,transparentTexture);
+      createImageBitmap(imgData)// bmp is trasnaprent
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
     }
     );
@@ -385,7 +386,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       }
     }
     //geometry.setAttribute( 'uv', uv.array);
-    //geometry.attributes.uv = 
+    //geometry.attributes.uv =
     //mesh.geom
     const uv2 = geometry.attributes.uv2;
     if (uv2) {
@@ -408,9 +409,63 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize =
       IMAGE_NAMES.map(async (name) => {
         const texture = new THREE.Texture(contexts[name].canvas)
         texture.flipY = false;
+        //const matName = (mtoon ? "mtoon_" : "standard") + (transparentMaterial ? "transp_":"opaque_");
+        //texture.name = matName + name;
         return [name, texture];
       })
     )
   );
-  return { bakeObjects, textures, uvs, vrmMaterial };
+
+  let material;
+  const materialPostName = transparentMaterial ? "transparent":"opaque"
+  if (mtoon){
+    // xxx set textures and colors
+    // save material as standard material
+    material = new THREE.MeshStandardMaterial({
+      map: textures["diffuse"],
+      transparent: transparentMaterial
+    });
+    if (transparentTexture){
+      material.alphaTest = 0.5;
+    }
+
+    // but also store a vrm material that will hold the extension information
+    if (vrmMaterial == null){
+      vrmMaterial = new MToonMaterial();
+    }
+
+    vrmMaterial.uniforms.map = textures["diffuse"];
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    vrmMaterial.alphaTest = 0.5;
+
+    
+    material.userData.vrmMaterial = vrmMaterial;
+
+    // uniform color is not defined, remove or check why
+    material.userData.shadeTexture = textures["uniformColor"];
+    material.name = "mToon_" + materialPostName;
+    material.map.name = material.name;
+  }
+  else{
+    // xxx set textures and colors
+    material = new THREE.MeshStandardMaterial({
+      map: textures["diffuse"],
+      roughnessMap: textures["orm"],
+      metalnessMap:  textures["orm"],
+      normalMap: textures["normal"],
+      transparent: transparentMaterial
+    });
+
+    if (transparentTexture){
+      material.alphaTest = 0.5;
+    }
+    material.name = "standard_" + materialPostName;
+
+    if (material.roughnessMap != null)
+      material.roughnessMap.name = material.name + "_orm";
+    if (material.normalMap != null)
+      material.normalMap.name = material.name + "_normal";
+  }
+  // xxxreturn material with textures, dont return uvs nor textures
+  return { bakeObjects, material };
 };
