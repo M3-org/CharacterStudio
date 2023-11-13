@@ -115,6 +115,43 @@ export const cullHiddenMeshes = (avatar) => {
   CullHiddenFaces(models)
 }
 
+export function getMeshesSortedByMaterialArray(meshes){
+  const stdMesh = [];
+  const stdTranspMesh = [];
+  const mToonMesh = [];
+  const mToonTranspMesh = [];
+  let requiresTransparency = false;
+
+  meshes.forEach(mesh => {
+    const mats = getAsArray(mesh.material);
+    const mat = mats[0];
+    
+    if (mat.type == "ShaderMaterial"){
+        if (mat.transparent == true){
+          mToonTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          mToonMesh.push(mesh);
+          if (mat.uniforms.alphaTest.value != 0)
+            requiresTransparency = true
+        }
+    }
+    else{
+        if (mat.transparent == true){
+          stdTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          stdMesh.push(mesh); 
+          if (mat.alphaTest != 0)
+            requiresTransparency = true;
+        }
+    }
+  });
+  return {stdMesh, stdTranspMesh, mToonMesh, mToonTranspMesh, requiresTransparency}
+}
+
 export function getMaterialsSortedByArray (meshes){
   const stdMats = [];
   const stdCutoutpMats = [];
@@ -124,8 +161,8 @@ export function getMaterialsSortedByArray (meshes){
   const mToonTranspMats = [];
 
   meshes.forEach(mesh => {
-  const mats = getAsArray(mesh.material);
-  mats.forEach(mat => {
+    const mats = getAsArray(mesh.material);
+    mats.forEach(mat => {
       if (mat.type == "ShaderMaterial"){
           if (mat.transparent == true)
             mToonTranspMats.push(mat);
@@ -599,11 +636,11 @@ export function findChildrenByType(root, types) {
     predicate: (o) => getAsArray(types).includes(o.type),
   });
 }
-export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
+export function getAvatarData (avatarModel, modelName, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
-    materials : atlasMaterial ? [avatarModel.userData.atlasMaterial] : avatarModel.userData.atlasMaterial,
+    materials : avatarModel.userData.atlasMaterial,
     meta : getVRMMeta(modelName, vrmMeta)
   }
 
