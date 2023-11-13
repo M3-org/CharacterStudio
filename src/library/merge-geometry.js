@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 // import { GLTFCubicSplineInterpolant } from "./gltf-cubic-spline-interpolant.js";
-import { findChildrenByType } from "./utils.js";
+import { findChildrenByType, getMeshesSortedByMaterialArray } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
 import { BufferAttribute } from "three";
 
@@ -360,7 +360,7 @@ export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
     return group;
 }
 
-function cloneAndStoreParentInfo(mesh){
+function cloneMeshAndSaveSkinInfo(mesh){
     const boneName = mesh.parent.name;
     const originalGlobalPosition = new THREE.Vector3();
     const originalGlobalScale = new THREE.Vector3();
@@ -381,179 +381,213 @@ function cloneAndStoreParentInfo(mesh){
     return mesh;
 }
 
-export async function combine({ transparentColor, avatar, atlasSize = 4096, scale = 1 }, isVrm0 = false) {
+function createSkinnedMeshFromMesh(baseSkeleton, mesh){
+    const skinnedMesh = new THREE.SkinnedMesh(mesh.geometry, mesh.material);
+
+    // Clone the existing skeleton and find the bone by name
+    const skeleton = baseSkeleton.clone();
+    const boneIndex = skeleton.bones.findIndex(bone => bone.name === mesh.userData.boneName);
+    
+    // stored original world position as this is a new cloned mesh
+    const globalPosition = mesh.userData.globalPosition;
+    const globalScale = mesh.userData.globalScale || new THREE.Vector3(1,1,1);
+    const globalRotationMatrix = mesh.userData.globalRotationMatrix;
+
+    // Add the bone to the skinned mesh
+    skinnedMesh.add(skeleton.bones[0]);
+
+    // Create the skin data (with a single bone)
+    const boneIndices = [];
+    const weights = [];
+
+    // Assign the bone index (0) and weight (1.0) to each vertex
+    const vertices = skinnedMesh.geometry.attributes.position.array;
+    // used to apply rotations
+    const vertex = new THREE.Vector3();
+
+    // in vrm0 case, multiply x and z times -1
+    const vrm0Mult = mesh.userData.isVRM0 ? -1 : 1;
+    for (let i = 0; i < vertices.length; i+=3 ) {
+        // first set rotation
+        vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
+        vertex.applyMatrix4(globalRotationMatrix);
+
+        vertices[i] = (vrm0Mult * globalScale.x *vertex.x) + globalPosition.x;
+        vertices[i+1] =  (globalScale.y * vertex.y) + globalPosition.y;    // no negative vrm0 multiply here
+        vertices[i+2] = (vrm0Mult * globalScale.z * vertex.z) + globalPosition.z;
+        boneIndices.push(boneIndex, 0, 0, 0);
+        weights.push(1.0, 0, 0, 0);
+    }
+
+    // Set the skin data directly on the SkinnedMesh's geometry
+    skinnedMesh.geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(boneIndices, 4));
+    skinnedMesh.geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(weights, 4));
+
+    // Bind the skinned mesh to the skeletond
+    // do not pose!
+    skinnedMesh.bind(skeleton);
+
+    return skinnedMesh;
+}
+
+export async function combine({ 
+    transparentColor, 
+    avatar, 
+    scale = 1, 
+    mToonAtlasSize = 4096, 
+    mToonAtlasSizeTransp = 4096, 
+    stdAtlasSize = 4096, 
+    stdAtlasSizeTransp = 4096,
+    exportMtoonAtlas = false, 
+    exportStdAtlas = true }, isVrm0 = false) {
+
     // convert meshes to skinned meshes first
     const cloneNonSkinnedMeshes = findChildrenByType(avatar, ["Mesh"]);
     for (let i =0; i < cloneNonSkinnedMeshes.length;i++){
-        cloneNonSkinnedMeshes[i] = cloneAndStoreParentInfo(cloneNonSkinnedMeshes[i]);
+        cloneNonSkinnedMeshes[i] = cloneMeshAndSaveSkinInfo(cloneNonSkinnedMeshes[i]);
     }
 
     const cloneSkinnedMeshes = findChildrenByType(avatar, ["SkinnedMesh"]);
 
     const allMeshes = [...cloneNonSkinnedMeshes, ...cloneSkinnedMeshes];
 
-    const { bakeObjects, textures, vrmMaterial } = 
-        await createTextureAtlas({ transparentColor, atlasSize, meshes: allMeshes});
-    
-    const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
-    const material = new THREE.MeshStandardMaterial({
-        map: textures["diffuse"],
-    });
-
-    // for Mtoon material
-    if (vrmMaterial.uniforms != null){
-        vrmMaterial.uniforms.map = textures["diffuse"];
-        vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
-    }
-    // for Standard Material
-    else{
-        vrmMaterial.map = textures["diffuse"];
-    }
-
-    material.userData.vrmMaterial = vrmMaterial;
-    material.userData.shadeTexture = textures["uniformColor"];
+    // make sure to have at least 1 atlas set
+    if (exportMtoonAtlas == false && exportStdAtlas == false) exportMtoonAtlas = true;
 
     
-    const newSkeleton = createMergedSkeleton(meshes, scale);
-    // do not pose!
-    const skinnedMeshes = [];
+    // to implement
+    let {stdMesh, stdTranspMesh, mToonMesh, mToonTranspMesh, requiresTransparency} = getMeshesSortedByMaterialArray(allMeshes);
 
-    meshes.forEach((mesh) => {
-
-        if (mesh.type == "Mesh"){
-            const skinnedMesh = new THREE.SkinnedMesh(mesh.geometry, mesh.material);
-
-            // Clone the existing skeleton and find the bone by name
-            const skeleton = newSkeleton.clone();
-            const boneIndex = skeleton.bones.findIndex(bone => bone.name === mesh.userData.boneName);
-            
-            // stored original world position as this is a new cloned mesh
-            const globalPosition = mesh.userData.globalPosition;
-            const globalScale = mesh.userData.globalScale || new THREE.Vector3(1,1,1);
-            const globalRotationMatrix = mesh.userData.globalRotationMatrix;
-
-            // Add the bone to the skinned mesh
-            skinnedMesh.add(skeleton.bones[0]);
-
-            // Create the skin data (with a single bone)
-            const boneIndices = [];
-            const weights = [];
-
-            // Assign the bone index (0) and weight (1.0) to each vertex
-            const vertices = skinnedMesh.geometry.attributes.position.array;
-            // used to apply rotations
-            const vertex = new THREE.Vector3();
-
-            // in vrm0 case, multiply x and z times -1
-            const vrm0Mult = mesh.userData.isVRM0 ? -1 : 1;
-            for (let i = 0; i < vertices.length; i+=3 ) {
-                // first set rotation
-                vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
-                vertex.applyMatrix4(globalRotationMatrix);
-
-                vertices[i] = (vrm0Mult * globalScale.x *vertex.x) + globalPosition.x;
-                vertices[i+1] =  (globalScale.y * vertex.y) + globalPosition.y;    // no negative vrm0 multiply here
-                vertices[i+2] = (vrm0Mult * globalScale.z * vertex.z) + globalPosition.z;
-                boneIndices.push(boneIndex, 0, 0, 0);
-                weights.push(1.0, 0, 0, 0);
-            }
-
-            // Set the skin data directly on the SkinnedMesh's geometry
-            skinnedMesh.geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(boneIndices, 4));
-            skinnedMesh.geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(weights, 4));
-
-            // Bind the skinned mesh to the skeletond
-            // do not pose!
-            skinnedMesh.bind(skeleton);
-
-            mesh = skinnedMesh;
-        }
-    
-        skinnedMeshes.push(mesh)
-        // remove vertices from culled faces from the mesh
-        const geometry = mesh.geometry;
-
-        const baseIndArr = geometry.index.array
-        const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
-
-        const indArrange = []
-        for (let i =0 ; i < baseIndArr.length ;i++){
-            indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
-        }
-        const indexArr = new Uint32Array(indArrange);
-        const indexAttribute = new BufferAttribute(indexArr,1,false); 
-
-        // update attributes indices to match new offsetIndexArr
-        geometry.setIndex(indexAttribute)
-        for (const att in geometry.attributes){
-            geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
-        }
-        
-        // update morph attributes indices to match new offsetIndexArr
-        for (const att in geometry.morphAttributes){
-            const attribute = geometry.morphAttributes[att];
-            for (let i =0; i < attribute.length ;i++){
-                attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
-            }
-        }
-
-        // assign secondary uvs in case they ar not present
-        if (!geometry.attributes.uv2) {
-            geometry.attributes.uv2 = geometry.attributes.uv;
-        }
-
-        // update mesh skeleton indices
-        if (mesh.skeleton != null)
-            mesh.geometry.setAttribute("skinIndex", getUpdatedSkinIndex(newSkeleton, mesh))
-            
-        // Exlude the currently "activated" morph attributes before merging.
-        // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
-        // and the influences remain in `mesh.morphTargetInfluences`.
-        for (let i = 0; i < 8; i++) {
-            delete geometry.attributes[`morphTarget${i}`];
-            delete geometry.attributes[`morphNormal${i}`];
-        }
-
-    });
-    const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
-    const geometry = new THREE.BufferGeometry();
-
-    // modify all merged vertices to reflect vrm0 format
-    if (isVrm0){
-        for (let i = 0; i < dest.attributes.position.array.length; i+=3){
-            dest.attributes.position.array[i] *= -1
-            dest.attributes.position.array[i+2] *= -1
-        }
+    if (exportMtoonAtlas == false){
+        stdMesh = [...stdMesh, ...mToonMesh]
+        stdTranspMesh = [...stdTranspMesh, ...mToonTranspMesh]
+        mToonTranspMesh = [];
+        mToonMesh = [];
     }
-
-    geometry.attributes = dest.attributes;
-    geometry.morphAttributes = dest.morphAttributes;
-    geometry.morphTargetsRelative = true;
-    geometry.setIndex(dest.index);
-
-    const vertices = geometry.attributes.position.array;
-    for (let i = 0; i < vertices.length; i += 3) {
-        vertices[i] *= scale;
-        vertices[i + 1] *= scale;
-        vertices[i + 2] *= scale;
+    if (exportStdAtlas == false){
+        mToonMesh = [...mToonMesh, ...stdMesh]
+        mToonTranspMesh = [...mToonTranspMesh, ...stdTranspMesh]
+        stdMesh =[];
+        stdTranspMesh = [];
     }
-
-
-    const mesh = new THREE.SkinnedMesh(geometry, material);
-    mesh.name = "CombinedMesh";
-    mesh.morphTargetInfluences = dest.morphTargetInfluences;
-    mesh.morphTargetDictionary = dest.morphTargetDictionary;
-
-    mesh.bind(newSkeleton);
 
     const group = new THREE.Object3D();
     group.name = "AvatarRoot";
-    group.animations = dest.animations;
-    group.add(mesh);
-    group.add(newSkeleton.bones[0]);
+    group.userData.atlasMaterial = [];
 
+    const newSkeleton = createMergedSkeleton(allMeshes, scale);
+
+    // arrange each mesh by material type
+    const meshArrayData = {
+        standard:{meshArray:stdMesh,size:stdAtlasSize, isMtoon:false, transparentMaterial:false }, 
+        standardTransparent:{meshArray:stdTranspMesh,size:stdAtlasSizeTransp, isMtoon:false, transparentMaterial:true }, 
+        mToon:{meshArray: mToonMesh, size: mToonAtlasSize, isMtoon:true, transparentMaterial:false}, 
+        mToonTransparent:{meshArray: mToonTranspMesh, size: mToonAtlasSizeTransp, isMtoon:true, transparentMaterial:true}};
     
-    group.userData.atlasMaterial = material;
+    for (const prop in meshArrayData){
+        const meshData = meshArrayData[prop];
+        const arr = meshData.meshArray;
+        if (arr.length > 0)
+        {        
+            console.log(arr);
+            const { bakeObjects, material } = 
+                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency});
+                const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
+
+            const skinnedMeshes = [];
+
+            meshes.forEach((mesh) => {
+
+                if (mesh.type == "Mesh"){
+                    mesh = createSkinnedMeshFromMesh(newSkeleton, mesh)
+                }
+            
+                skinnedMeshes.push(mesh)
+                // remove vertices from culled faces from the mesh
+                const geometry = mesh.geometry;
+
+                const baseIndArr = geometry.index.array
+                const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
+
+                const indArrange = []
+                for (let i =0 ; i < baseIndArr.length ;i++){
+                    indArrange[i] = offsetIndexArr.indexOf(baseIndArr[i])
+                }
+                const indexArr = new Uint32Array(indArrange);
+                const indexAttribute = new BufferAttribute(indexArr,1,false); 
+
+                // update attributes indices to match new offsetIndexArr
+                geometry.setIndex(indexAttribute)
+                for (const att in geometry.attributes){
+                    geometry.setAttribute(att, removeUnusedAttributes(geometry.getAttribute(att),offsetIndexArr))
+                }
+                
+                // update morph attributes indices to match new offsetIndexArr
+                for (const att in geometry.morphAttributes){
+                    const attribute = geometry.morphAttributes[att];
+                    for (let i =0; i < attribute.length ;i++){
+                        attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+                    }
+                }
+
+                // assign secondary uvs in case they ar not present
+                if (!geometry.attributes.uv2) {
+                    geometry.attributes.uv2 = geometry.attributes.uv;
+                }
+
+                // update mesh skeleton indices
+                if (mesh.skeleton != null)
+                    mesh.geometry.setAttribute("skinIndex", getUpdatedSkinIndex(newSkeleton, mesh))
+                    
+                // Exlude the currently "activated" morph attributes before merging.
+                // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
+                // and the influences remain in `mesh.morphTargetInfluences`.
+                for (let i = 0; i < 8; i++) {
+                    delete geometry.attributes[`morphTarget${i}`];
+                    delete geometry.attributes[`morphNormal${i}`];
+                }
+
+            });
+            const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
+            const geometry = new THREE.BufferGeometry();
+
+            // modify all merged vertices to reflect vrm0 format
+            if (isVrm0){
+                for (let i = 0; i < dest.attributes.position.array.length; i+=3){
+                    dest.attributes.position.array[i] *= -1
+                    dest.attributes.position.array[i+2] *= -1
+                }
+            }
+
+            geometry.attributes = dest.attributes;
+            geometry.morphAttributes = dest.morphAttributes;
+            geometry.morphTargetsRelative = true;
+            geometry.setIndex(dest.index);
+
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                vertices[i] *= scale;
+                vertices[i + 1] *= scale;
+                vertices[i + 2] *= scale;
+            }
+
+
+            const mesh = new THREE.SkinnedMesh(geometry, material);
+            mesh.name = "CombinedMesh_" + prop;
+            mesh.morphTargetInfluences = dest.morphTargetInfluences;
+            mesh.morphTargetDictionary = dest.morphTargetDictionary;
+
+            mesh.bind(newSkeleton);
+          
+            //group.animations = dest.animations;
+            group.add(mesh);
+           
+
+            group.userData.atlasMaterial.push(material);      
+        }
+    }
+    group.add(newSkeleton.bones[0]);
+    console.log(group);
     return group;
 }
 
