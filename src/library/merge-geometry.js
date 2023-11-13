@@ -239,8 +239,10 @@ function mapOldBoneIndexToNew(oldBoneIndex, oldSkeleton, newSkeleton) {
     }
   }
 
-export async function combineNoAtlas({ avatar, scale = 1 }, isVrm0 = false) {
+export async function combineNoAtlas(avatar, options) {
     
+    const { scale, isVrm0 } = options
+
     const clonedMeshes = [];
     const material = [];
 
@@ -430,16 +432,19 @@ function createSkinnedMeshFromMesh(baseSkeleton, mesh){
     return skinnedMesh;
 }
 
-export async function combine({ 
-    transparentColor, 
-    avatar, 
-    scale = 1, 
-    mToonAtlasSize = 4096, 
-    mToonAtlasSizeTransp = 4096, 
-    stdAtlasSize = 4096, 
-    stdAtlasSizeTransp = 4096,
-    exportMtoonAtlas = false, 
-    exportStdAtlas = true }, isVrm0 = false) {
+export async function combine(avatar, options) {
+
+    const {
+        transparentColor = new THREE.Color(1,1,1),
+        mToonAtlasSize = 4096, 
+        mToonAtlasSizeTransp = 4096, 
+        stdAtlasSize = 4096, 
+        stdAtlasSizeTransp = 4096,
+        exportMtoonAtlas = false, 
+        exportStdAtlas = true,
+        isVrm0 = false,
+        scale = 1,
+    } = options;
 
     // convert meshes to skinned meshes first
     const cloneNonSkinnedMeshes = findChildrenByType(avatar, ["Mesh"]);
