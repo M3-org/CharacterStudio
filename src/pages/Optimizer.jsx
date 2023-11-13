@@ -47,6 +47,12 @@ function Optimizer({
       atlasSize : 4096,
       isVrm0 : true,
       createTextureAtlas : true,
+      mToonAtlasSize:getAtlasSize(atlasMtoon),
+      mToonAtlasSizeTransp:getAtlasSize(atlasMtoonTransp),
+      stdAtlasSize:getAtlasSize(atlasStd),
+      stdAtlasSizeTransp:getAtlasSize(atlasStdTransp),
+      exportStdAtlas:(currentOption === 0 || currentOption == 2),
+      exportMtoonAtlas:(currentOption === 1 || currentOption == 2)
     }
     downloadVRM(model, vrmData,nameVRM + "_merged", options)
   }
