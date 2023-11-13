@@ -13,6 +13,7 @@ import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
 import MenuTitle from "../components/MenuTitle"
 import Slider from "../components/Slider"
+import { local } from "../library/store"
 
 function Optimizer({
   animationManager,
@@ -25,12 +26,12 @@ function Optimizer({
   const [currentVRM, setCurrentVRM] = useState(null);
   const [lastVRM, setLastVRM] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
-  const [atlasStd, setAtlasStd] = useState(6);
-  const [atlasStdTransp, setAtlasStdTransp] = useState(6);
-  const [atlasMtoon, setAtlasMtoon] = useState(6);
-  const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(6);
+  const [atlasStd, setAtlasStd] = useState(local["optimizer_atlas_std_size"] || 6);
+  const [atlasStdTransp, setAtlasStdTransp] = useState(local["optimizer_atlas_std_transp_size"] || 6);
+  const [atlasMtoon, setAtlasMtoon] = useState(local["optimizer_atlas_mtoon_size"] || 6);
+  const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(local["optimizer_atlas_mtoon_transp_size"] || 6);
   const [downloadOnDrop, setDownloadOnDrop] = useState(false)
-  const [currentOption, setCurrentOption] = useState(0);
+  const [currentOption, setCurrentOption] = useState(local["optimizer_sel_option"] || 0);
   const [options] = useState(["Merge to Standard", "Merge to MToon", "Keep Both"])
 
   const { playSound } = React.useContext(SoundContext)
@@ -95,19 +96,25 @@ function Optimizer({
   }
 
   const prevOption = () => {
+    let cur = currentOption;
     if (currentOption <= 0)
-      setCurrentOption(options.length-1);
+      cur = options.length-1
     else
-      setCurrentOption(currentOption - 1)
+      cur -= 1
+
+    setCurrentOption(cur);
+    local["optimizer_sel_option"] = cur;
   }
 
   const nextOption = () => {
-
-    if (currentOption >= options.length-1)
-      setCurrentOption(0);
+    let cur = currentOption;
+    if (currentOption >= options.length - 1)
+      cur = 0;
     else
-      setCurrentOption(currentOption + 1);
-    
+      cur +=1;
+
+    setCurrentOption(cur);
+    local["optimizer_sel_option"] = cur;
   }
 
   const getAtlasSize = (value) =>{
@@ -145,15 +152,19 @@ function Optimizer({
         case 'standard opaque':
           // save to user prefs
           setAtlasStd(size);
+          local["optimizer_atlas_std_size"]  = size;
           break;
         case 'standard transparent':
           setAtlasStdTransp(size);
+          local["optimizer_atlas_std_transp_size"] = size;
           break;
         case 'mtoon opaque':
           setAtlasMtoon(size);
+          local["optimizer_atlas_mtoon_size"] = size;
           break;
         case 'mtoon transparent':
           setAtlasMtoonTransp(size);
+          local["optimizer_atlas_mtoon_transp_size"] = size;
           break;
       }
     }
