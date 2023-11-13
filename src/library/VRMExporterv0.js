@@ -162,10 +162,18 @@ export default class VRMExporterv0 {
             .filter((material) => material.roughnessMap)
             .map((material) => {
             if (!material.roughnessMap)
-                throw new Error(material.roughnessMap + " roughnessMap is null");
+                return null;
             return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
         }); 
-        const images =  [...mainImages, ...shadeImages, ...ormImages];
+
+        const normalImages = uniqueMaterials
+        .filter((material) => material.roughnessMap)
+        .map((material) => {
+            if (!material.normalMap)
+                return null
+            return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
+        }); 
+        const images =  [...mainImages, ...shadeImages, ...ormImages,...normalImages].filter(element => element !== null);
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -1035,6 +1043,9 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       if (material.roughnessMap)
         metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
 
+      let normalTextureIndex = -1;
+      if (material.normalMap)
+        normalTextureIndex = images.map((image) => image.name).indexOf(material.name + "_normal");
 
       const baseTexture = baseTxrIndex >= 0 ? {
               extensions: {
@@ -1057,6 +1068,11 @@ const toOutputMaterials = (uniqueMaterials, images) => {
             index: metalicRoughnessIndex,
             texCoord: 0, // TODO:
         }:undefined
+
+        const normalMapTexture = normalTextureIndex >= 0 ? {
+            index: normalTextureIndex,
+            texCoord: 0,
+        }:undefined;
 
         if (metalRoughTexture){
             pbrMetallicRoughness.metallicRoughnessTexture = metalRoughTexture;
@@ -1086,20 +1102,24 @@ const toOutputMaterials = (uniqueMaterials, images) => {
             pbrMetallicRoughness.metallicFactor = metallicFactor;
             pbrMetallicRoughness.roughnessFactor = roughnessFactor;
         }
-      
-      return {
-          alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
-          alphaMode: material.transparent ?
-              "BLEND" : material.alphaTest > 0 ?
-              "MASK" : "OPAQUE",
-          doubleSided: material.side === 2,
-          extensions: material.type === "ShaderMaterial" ? {
-              KHR_materials_unlit: {}, // TODO:
-              VRMC_materials_mtoon
-          } : undefined,
-          name: material.name,
-          pbrMetallicRoughness
-      };
+
+        const parseMaterial = {
+            alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
+            alphaMode: material.transparent ?
+                "BLEND" : material.alphaTest > 0 ?
+                "MASK" : "OPAQUE",
+            doubleSided: material.side === 2,
+            extensions: material.type === "ShaderMaterial" ? {
+                KHR_materials_unlit: {}, // TODO:
+                VRMC_materials_mtoon
+            } : undefined,
+            name: material.name,
+            pbrMetallicRoughness
+        }
+        if (normalMapTexture){
+            parseMaterial.normalTexture = normalMapTexture;
+        }
+      return parseMaterial;
   });
 };
 const toOutputImages = (images, icon) => {
