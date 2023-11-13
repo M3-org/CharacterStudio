@@ -165,7 +165,6 @@ export default class VRMExporterv0 {
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
         const outputMaterials = toOutputMaterials(uniqueMaterials, images);
-        console.log("outputmat", outputMaterials);
         const rootNode = avatar.children.filter((child) => child.children.length > 0 &&
             child.children[0].type === VRMObjectType.Bone)[0];
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
@@ -996,11 +995,10 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       let VRMC_materials_mtoon = null;
       
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
-      console.log(material);
       if (material.type === "ShaderMaterial") {
-          VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          //VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          VRMC_materials_mtoon = {};
           VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
-
           const mtoonMaterial = material;
           baseColor = mtoonMaterial.color ? [
                   1,
