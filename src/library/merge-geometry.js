@@ -494,7 +494,6 @@ export async function combine(avatar, options) {
         const arr = meshData.meshArray;
         if (arr.length > 0)
         {        
-            console.log(arr);
             const { bakeObjects, material } = 
                 await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency});
                 const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
@@ -592,7 +591,6 @@ export async function combine(avatar, options) {
         }
     }
     group.add(newSkeleton.bones[0]);
-    console.log(group);
     return group;
 }
 
