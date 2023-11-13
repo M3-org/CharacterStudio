@@ -94,24 +94,28 @@ async function getGLBData(model, options){
 
 
 
-//required: model, name, vrmData
-//parameters {screenshot, scale, isVrm0, vrmMeta, createTextureAtlas}
+/**
+ * Downloads a VRM model with specified options.
+ *
+ * @param {Object} model - The 3D model object.
+ * @param {Object} vrmData - The VRM data for the model.
+ * @param {string} fileName - The name of the file to be downloaded.
+ * @param {Object} options - Additional options for the download.
+ * @param {Object} options.screenshot - An optional screenshot for the model.
+ * @param {number} options.mToonAtlasSize - Atlas size for opaque parts when using MToon material.
+ * @param {number} options.mToonAtlasSizeTransp - Atlas size for transparent parts when using MToon material.
+ * @param {number} options.stdAtlasSize - Atlas size for opaque parts when using standard materials.
+ * @param {number} options.stdAtlasSizeTransp - Atlas size for transparent parts when using standard materials.
+ * @param {boolean} options.exportMtoonAtlas - Whether to export the MToon material atlas.
+ * @param {boolean} options.exportStdAtlas - Whether to export the standard material atlas.
+ * @param {number} options.scale - Scaling factor for the model.
+ * @param {boolean} options.isVrm0 - Whether the VRM version is 0 (true) or 1 (false).
+ * @param {Object} options.vrmMeta - Additional metadata for the VRM model.
+ * @param {boolean} options.createTextureAtlas - Whether to create a texture atlas.
+ * @param {boolean} options.optimized - Whether to optimize the VRM model.
+ */
 export async function downloadVRM(model,vrmData,fileName, options){
-    const {
-      screenshot = null,
-      //transparentColor = new THREE.Color(1,1,1) ,
-      mToonAtlasSize = 4096, 
-      mToonAtlasSizeTransp = 4096, 
-      stdAtlasSize = 4096, 
-      stdAtlasSizeTransp = 4096,
-      exportMtoonAtlas = false, 
-      exportStdAtlas = true,
-      scale = 1,
-      isVrm0 = false,
-      vrmMeta = null,
-      createTextureAtlas = true,
-      optimized=true
-    } = options;
+
 
     const avatar = {_optimized:{vrm:vrmData}}
     downloadVRMWithAvatar(model, avatar, fileName, options)
