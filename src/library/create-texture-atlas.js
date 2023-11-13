@@ -410,28 +410,43 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       IMAGE_NAMES.map(async (name) => {
         const texture = new THREE.Texture(contexts[name].canvas)
         texture.flipY = false;
-
+        //const matName = (mtoon ? "mtoon_" : "standard") + (transparentMaterial ? "transp_":"opaque_");
+        //texture.name = matName + name;
         return [name, texture];
       })
     )
   );
 
   let material;
-  console.log("CONTRINUE HERE");
   const materialPostName = transparentMaterial ? "transparent":"opaque"
   if (mtoon){
     // xxx set textures and colors
-    material = new MToonMaterial();
-    material.uniforms.map = textures["diffuse"];
-    material.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    // save material as standard material
+    material = new THREE.MeshStandardMaterial({
+      map: textures["diffuse"],
+      transparent: transparentMaterial
+    });
+    if (transparentTexture){
+      material.alphaTest = 0.5;
+    }
 
-    // is this necessary?, or what should i include from this section?
-    material.userData.vrmMaterial = material;
+    // but also store a vrm material that will hold the extension information
+    if (vrmMaterial == null){
+      vrmMaterial = new MToonMaterial();
+    }
+
+    vrmMaterial.uniforms.map = textures["diffuse"];
+    vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
+    vrmMaterial.alphaTest = 0.5;
+
+    
+    material.userData.vrmMaterial = vrmMaterial;
 
     // uniform color is not defined, remove or check why
     material.userData.shadeTexture = textures["uniformColor"];
-
     material.name = "mToon_" + materialPostName;
+    console.log("Temporal hack, we need to assign with texture name, not material name")
+    material.map.name = material.name;
   }
   else{
     // xxx set textures and colors
