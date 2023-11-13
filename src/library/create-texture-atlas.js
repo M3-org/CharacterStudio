@@ -91,6 +91,7 @@ function createContext({ width, height, transparent }) {
   return context;
 }
 function getTextureImage(material, textureName) {
+
   // material can come in arrays or single values, in case of ccoming in array take the first one
   material = material.length == null ? material : material[0];
   return material[textureName] && material[textureName].image;
@@ -241,7 +242,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   ResetRenderTextureContainer();
 
   const ATLAS_SIZE_PX = atlasSize;
-  const IMAGE_NAMES = ["diffuse"];
+  const IMAGE_NAMES = ["diffuse", "orm"];
   const bakeObjects = [];
   // save if there is vrm data
   let vrmMaterial = null;
@@ -256,7 +257,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     // use the vrmData of the first material, and call it atlas if it exists
     if (mtoon && vrmMaterial == null && material.type == "ShaderMaterial") {
       vrmMaterial = material.clone();
-      console.log("vrmmat", vrmMaterial)
     }
 
     // check if bakeObjects objects that contain the material property with value of mesh.material
@@ -340,7 +340,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
   bakeObjects.forEach((bakeObject) => {
     const { material, mesh } = bakeObject;
-    console.log(material);
     const { min, max } = uvs.get(mesh);
     IMAGE_NAMES.forEach((name) => {
       const context = contexts[name];
@@ -445,21 +444,22 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     // uniform color is not defined, remove or check why
     material.userData.shadeTexture = textures["uniformColor"];
     material.name = "mToon_" + materialPostName;
-    console.log("Temporal hack, we need to assign with texture name, not material name")
     material.map.name = material.name;
   }
   else{
     // xxx set textures and colors
     material = new THREE.MeshStandardMaterial({
       map: textures["diffuse"],
+      roughnessMap: textures["orm"],
+      metalnessMap:  textures["orm"],
       transparent: transparentMaterial
     });
     if (transparentTexture){
       material.alphaTest = 0.5;
     }
-
     material.name = "standard_" + materialPostName;
-    console.log(material.name);
+
+    material.roughnessMap.name = material.name + "_orm";
   }
   // xxxreturn material with textures, dont return uvs nor textures
   return { bakeObjects, material };
