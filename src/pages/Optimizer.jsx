@@ -296,13 +296,14 @@ function Optimizer({
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
+        {(currentVRM)&&(
           <CustomButton
           theme="light"
           text="Download"
           size={14}
           className={styles.buttonRight}
           onClick={download}
-        />
+        />)}
       </div>
     </div>
   )
