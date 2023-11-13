@@ -84,9 +84,6 @@ function Optimizer({
   }
 
   const prevOption = () => {
-    console.log(currentOption);
-    console.log(options.length);
-    console.log(options)
     if (currentOption <= 0)
       setCurrentOption(options.length-1);
     else
