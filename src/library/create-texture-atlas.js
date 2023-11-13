@@ -242,7 +242,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   ResetRenderTextureContainer();
 
   const ATLAS_SIZE_PX = atlasSize;
-  const IMAGE_NAMES = ["diffuse", "orm"];
+  const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm"];// not using normal texture for now
   const bakeObjects = [];
   // save if there is vrm data
   let vrmMaterial = null;
@@ -452,14 +452,19 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       map: textures["diffuse"],
       roughnessMap: textures["orm"],
       metalnessMap:  textures["orm"],
+      normalMap: textures["normal"],
       transparent: transparentMaterial
     });
+
     if (transparentTexture){
       material.alphaTest = 0.5;
     }
     material.name = "standard_" + materialPostName;
 
-    material.roughnessMap.name = material.name + "_orm";
+    if (material.roughnessMap != null)
+      material.roughnessMap.name = material.name + "_orm";
+    if (material.normalMap != null)
+      material.normalMap.name = material.name + "_normal";
   }
   // xxxreturn material with textures, dont return uvs nor textures
   return { bakeObjects, material };
