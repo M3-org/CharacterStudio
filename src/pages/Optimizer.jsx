@@ -43,7 +43,12 @@ function Optimizer({
 
   const download = () => {
     const vrmData = currentVRM.userData.vrm
-    downloadVRM(model, vrmData,nameVRM + "_merged",null,getAtlasSize(atlasMtoon),1,true, null, true)
+    const options = {
+      atlasSize : 4096,
+      isVrm0 : true,
+      createTextureAtlas : true,
+    }
+    downloadVRM(model, vrmData,nameVRM + "_merged", options)
   }
 
   useEffect(() => {
