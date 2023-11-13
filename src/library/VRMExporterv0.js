@@ -150,17 +150,22 @@ export default class VRMExporterv0 {
             if (!material.map)
                 throw new Error(material.name + " map is null");
             return { name: material.name, imageBitmap: material.map.image };
-        }); // TODO: 画像がないMaterialもある
+        }); 
         const shadeImages = uniqueMaterials
             .filter((material) => material.userData.shadeTexture)
             .map((material) => {
             if (!material.userData.shadeTexture)
                 throw new Error(material.userData.shadeTexture + " map is null");
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
-        }); // TODO: 画像がないMaterialもある\
-        
-        const images = mainImages.concat(shadeImages);
-
+        }); 
+        const ormImages = uniqueMaterials
+            .filter((material) => material.roughnessMap)
+            .map((material) => {
+            if (!material.roughnessMap)
+                throw new Error(material.roughnessMap + " roughnessMap is null");
+            return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
+        }); 
+        const images =  [...mainImages, ...shadeImages, ...ormImages];
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -1026,6 +1031,11 @@ const toOutputMaterials = (uniqueMaterials, images) => {
           }
       }
 
+      let metalicRoughnessIndex = -1;
+      if (material.roughnessMap)
+        metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
+
+
       const baseTexture = baseTxrIndex >= 0 ? {
               extensions: {
                   KHR_texture_transform: {
@@ -1037,26 +1047,46 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               texCoord: 0, // TODO:
           } :
           undefined;
-      const metallicFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.metalness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0;
-              default:
-                  return 0;
+
+          const pbrMetallicRoughness = {
+            baseColorFactor: baseColor,
+            baseColorTexture: baseTexture,
           }
-      })();
-      const roughnessFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.roughness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0.9;
-              default:
-                  return 0.9;
-          }
-      })();
+
+      const metalRoughTexture = metalicRoughnessIndex >= 0 ?{
+            index: metalicRoughnessIndex,
+            texCoord: 0, // TODO:
+        }:undefined
+
+        if (metalRoughTexture){
+            pbrMetallicRoughness.metallicRoughnessTexture = metalRoughTexture;
+        }
+        else{
+            const metallicFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.metalness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0;
+                    default:
+                        return 0;
+                }
+            })();
+            const roughnessFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.roughness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0.9;
+                    default:
+                        return 0.9;
+                }
+            })();
+
+            pbrMetallicRoughness.metallicFactor = metallicFactor;
+            pbrMetallicRoughness.roughnessFactor = roughnessFactor;
+        }
+      
       return {
           alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
           alphaMode: material.transparent ?
@@ -1068,12 +1098,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               VRMC_materials_mtoon
           } : undefined,
           name: material.name,
-          pbrMetallicRoughness: {
-              baseColorFactor: baseColor,
-              baseColorTexture: baseTexture,
-              metallicFactor: metallicFactor,
-              roughnessFactor: roughnessFactor,
-          },
+          pbrMetallicRoughness
       };
   });
 };
