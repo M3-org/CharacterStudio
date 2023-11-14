@@ -715,6 +715,7 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -1011,7 +1012,7 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
             inverseBindMatrices: meshDatas
                 .map((data) => data.type === MeshDataType.BIND_MATRIX ? data.meshName : null)
                 .indexOf(mesh.name),
-            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)),
+            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)).filter((index) => index !== -1),
             skeleton: nodeNames.indexOf(mesh.skeleton.bones[0].name),
         };
     });
