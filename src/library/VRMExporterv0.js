@@ -269,6 +269,8 @@ export default class VRMExporterv0 {
             }
 
             const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
+
+
                 const nonZeroIndices = [];
                 const nonZeroValues = [];
                 
@@ -285,14 +287,26 @@ export default class VRMExporterv0 {
                     }
                 }
                 if (nonZeroIndices.length > 0){
-                    // Step 2: Create sparse data
+                    // Step 2: Calculate padding
+                    const originalLength = nonZeroIndices.length;
+                    const remainder = originalLength % 4;
+                    const padding = (remainder === 0) ? 0 : 4 - remainder;
+
+                    // Step 3: Add padding if needed
+                    if (padding > 0) {
+                        for (let i = 0; i < padding; i++) {
+                            nonZeroIndices.push(0); // Add dummy indices for padding
+                            nonZeroValues.push(0, 0, 0);
+                        }
+                    }
+
+                    // Step 3: Create sparse data
                     const sparseData = {
                         count: nonZeroIndices.length,  // Total number of position elements
                         indices: new Uint32Array(nonZeroIndices),
                         values: new Float32Array(nonZeroValues),
                     };
-
-                    // Step 3: Create MeshData
+                    // Step 4: Create MeshData
                     meshDatas.push(new MeshData(
                         baseAttribute, 
                         WEBGL_CONST.FLOAT, 
