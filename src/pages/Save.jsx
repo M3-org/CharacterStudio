@@ -45,7 +45,7 @@ function Save({getFaceScreenshot}) {
           onClick={back}
         />
         <MergeOptions
-          showDropToDownload = {false}
+          showCreateAtlas = {true}
         />
         <ExportMenu 
           getFaceScreenshot = {getFaceScreenshot}
