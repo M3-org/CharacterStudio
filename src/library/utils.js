@@ -368,6 +368,29 @@ function getModelProperty(model, property) {
   return model.data[property];
 }
 
+export function getAtlasSize(value){
+  switch (value){
+    case 1:
+      return 128;
+    case 2:
+      return 256;
+    case 3:
+      return 512;
+    case 4:
+      return 1024;
+    case 5:
+      return 2048;
+    case 6:
+      return 4096;
+    case 7:
+      return 8192;
+    case 8:
+      return 16384;
+    default:
+      return 4096;
+  }
+}
+
 export function disposeVRM(vrm) {
   const model = vrm.scene;
   const animationControl = (getModelProperty(vrm, "animationControl"));
