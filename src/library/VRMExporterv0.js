@@ -546,7 +546,12 @@ export default class VRMExporterv0 {
         const boneGroups = [];
         rootSpringBones.forEach(springBone => {
             let boneIndex = findBoneIndex(springBone.name);
-            let centerIndex = findBoneIndex(springBone.center?.name);
+
+            if (boneIndex === -1) {
+                console.warn("No bone found for spring bone " + springBone.name);
+                return; // Skip to the next iteration
+            }
+            let centerIndex = findBoneIndex(springBone.center?.name);   
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
             const settings = springBone.settings;
