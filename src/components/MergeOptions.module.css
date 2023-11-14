@@ -17,6 +17,7 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 10px;
+  text-align: center;
 }
 .traitInfoText {
   color: rgb(179, 179, 179);
@@ -25,6 +26,8 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .flexSelect{

@@ -5,21 +5,32 @@ import Slider from "../components/Slider"
 import { local } from "../library/store"
 import { getAtlasSize } from "../library/utils"
 
-function MergeOptions({showDropToDownload}) {
+function MergeOptions({showDropToDownload, showCreateAtlas}) {
 
   
   const [atlasStd, setAtlasStd] = useState(local["mergeOptions_atlas_std_size"] || 6);
   const [atlasStdTransp, setAtlasStdTransp] = useState(local["mergeOptions_atlas_std_transp_size"] || 6);
   const [atlasMtoon, setAtlasMtoon] = useState(local["mergeOptions_atlas_mtoon_size"] || 6);
   const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(local["mergeOptions_atlas_mtoon_transp_size"] || 6);
-  const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
   const [currentOption, setCurrentOption] = useState(local["mergeOptions_sel_option"] || 0);
   const [options] = useState(["Merge to Standard", "Merge to MToon", "Keep Both"])
+
+  // optimizer
+  const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
+
+  // creator
+  const [createAtlas, setCreateAtlas] = useState(local["mergeOptions_create_atlas"] || true)
 
   const handleDropDownloadEnable = (event) => {
     setDownloadOnDrop(event.target.checked);
     local["mergeOptions_drop_download"] = event.target.checked;
   }
+
+  const handleCreateAtlas = (event) => {
+    setCreateAtlas(event.target.checked)
+    local["mergeOptions_create_atlas"] = event.target.checked;
+  }
+  
 
   const prevOption = () => {
     let cur = currentOption;
@@ -75,10 +86,39 @@ function MergeOptions({showDropToDownload}) {
   }
 
   return (
+    
     <div className={styles["InformationContainerPos"]}>
+
       <MenuTitle title="Optimizer Options" width={180} left={20}/>
       <div className={styles["scrollContainer"]}>
 
+      {showCreateAtlas && (
+          <>
+          <div className={styles["traitInfoTitle"]}>
+              Create Atlas
+          </div>
+          <div className={styles["traitInfoText"]}>
+            <div className={styles["checkboxHolder"]}>
+              <div>
+                </div>
+                
+                <label className={styles["custom-checkbox"]}>
+                    <input 
+                        type="checkbox" 
+                        checked={createAtlas}
+                        onChange={handleCreateAtlas}
+                    />
+                    <div className={styles["checkbox-container"]}></div>
+                </label>
+                <div/><div/>
+                {createAtlas ? "True": "False"}
+              
+            </div>
+          </div>
+          <br /><br />
+          </>
+        )}
+      {(showCreateAtlas == false || createAtlas)&&(<>
       <div className={styles["traitInfoTitle"]}>
             Merge Atlas Type
         </div>
@@ -161,6 +201,7 @@ function MergeOptions({showDropToDownload}) {
           </div>
           </>
         )}
+        </>)}
       </div>
     </div>
   )
