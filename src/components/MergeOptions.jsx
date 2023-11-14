@@ -19,7 +19,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
   const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
 
   // creator
-  const [createAtlas, setCreateAtlas] = useState(local["mergeOptions_create_atlas"] || true)
+  const [createAtlas, setCreateAtlas] = useState(local["mergeOptions_create_atlas"] == null ?  true : local["mergeOptions_create_atlas"])
 
   const handleDropDownloadEnable = (event) => {
     setDownloadOnDrop(event.target.checked);
