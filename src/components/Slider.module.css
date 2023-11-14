@@ -1,11 +1,13 @@
 .slider-container {
   display: flex;
   align-items: center;
+  text-align: center;
 }
 
 .slider {
-  width: 80%; /* Adjust as needed */
+  width: 100%; /* Adjust as needed */
   margin-right: 10px;
+  
 }
 
 .input-box {

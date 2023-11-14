@@ -7,6 +7,7 @@ import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import MergeOptions from "../components/MergeOptions"
 
 
 function Save({getFaceScreenshot}) {
@@ -43,7 +44,9 @@ function Save({getFaceScreenshot}) {
           className={styles.buttonLeft}
           onClick={back}
         />
-
+        <MergeOptions
+          showCreateAtlas = {true}
+        />
         <ExportMenu 
           getFaceScreenshot = {getFaceScreenshot}
         />
