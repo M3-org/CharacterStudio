@@ -39,7 +39,6 @@ export const ExportMenu = ({getFaceScreenshot}) => {
 
   const downloadModel = () =>{
     const options = getOptions();
-    console.log(options)
     downloadVRMWithAvatar(model, avatar, name, options)
   }
 
