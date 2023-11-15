@@ -74,7 +74,6 @@ function createMergedSkeleton(meshes, scale){
 
             // take all bones as they come
             const boneArr = mesh.skeleton.bones;
-            console.log(boneArr);
             /* boneArr includes the bones that have weights only, now we should include also 
             the parent of this bones even if they dont include bone weights */ 
             for (let i =0; i < boneArr.length;i++){
