@@ -117,6 +117,7 @@ function Optimizer({
       />
       <MergeOptions
         showDropToDownload={true}
+        showCreateAtlas = {false}
       />
       <ModelInformation
         currentVRM={currentVRM}

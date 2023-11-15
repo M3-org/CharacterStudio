@@ -425,9 +425,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       map: textures["diffuse"],
       transparent: transparentMaterial
     });
-    if (transparentTexture){
-      material.alphaTest = 0.5;
-    }
+
+    // make sure to avoid in transparent material alphatest
+
 
     // but also store a vrm material that will hold the extension information
     if (vrmMaterial == null){
@@ -436,8 +436,11 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     vrmMaterial.uniforms.map = textures["diffuse"];
     vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
-    vrmMaterial.alphaTest = 0.5;
-
+    vrmMaterial.transparent = transparentMaterial;
+    if (transparentTexture && !transparentMaterial){
+      material.alphaTest = 0.5;
+      vrmMaterial.alphaTest = 0.5;
+    }
     
     material.userData.vrmMaterial = vrmMaterial;
 
@@ -447,7 +450,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     material.map.name = material.name;
   }
   else{
-    // xxx set textures and colors
     material = new THREE.MeshStandardMaterial({
       map: textures["diffuse"],
       roughnessMap: textures["orm"],
@@ -456,7 +458,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       transparent: transparentMaterial
     });
 
-    if (transparentTexture){
+    // make sure to avoid in transparent material alphatest
+    if (transparentTexture && !transparentMaterial){  
       material.alphaTest = 0.5;
     }
     material.name = "standard_" + materialPostName;

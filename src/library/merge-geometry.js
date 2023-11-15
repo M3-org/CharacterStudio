@@ -268,18 +268,19 @@ export async function combineNoAtlas(avatar, options) {
    // group.animations = [];
     clonedMeshes.forEach(mesh => {
         const geometry = new THREE.BufferGeometry();
-        if (mesh.userData?.isVRM0){
-            for (let i = 0; i < mesh.geometry.attributes.position.array.length; i+=3){
-                mesh.geometry.attributes.position.array[i] *= -1
-                mesh.geometry.attributes.position.array[i+2] *= -1
-            }
-        }
+        
         const attributes = {}
         for (const attributeName in mesh.geometry.attributes) {
             const attribute = mesh.geometry.attributes[attributeName];
             attributes[attributeName] = attribute.clone();
         }
 
+        if (mesh.userData?.isVRM0){
+            for (let i = 0; i < attributes["position"].array.length; i+=3){
+                attributes["position"].array[i] *= -1
+                attributes["position"].array[i+2] *= -1
+            }
+        }
 
         
         const source = {
