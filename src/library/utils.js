@@ -36,6 +36,7 @@ export async function setTextureToChildMeshes(scene, textureFile){
 
   // Load the image as a texture
   const texture = await textureLoader.load(textureFile);
+  texture.encoding = THREE.sRGBEncoding;
   texture.flipY = false;
 
   // Traverse through the child meshes in the scene
@@ -53,8 +54,8 @@ export async function setTextureToChildMeshes(scene, textureFile){
         }
         else{
           materials[i].map = texture
+          materials[i].emissiveMap = texture
         }
-        console.log(materials[i]);
         materials[i].needsUpdate = true
 
       }
