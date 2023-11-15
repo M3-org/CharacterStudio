@@ -65,12 +65,15 @@ function createMergedSkeleton(meshes, scale){
     meshes.forEach(mesh => {
         if (mesh.skeleton){
             
-            const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
-            const boneArr = []
-            nonduparr.forEach(index => {
-                boneArr.push(mesh.skeleton.bones[index]);
-            });
+            // removes bones
+            // const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
+            // const boneArr = []
+            // nonduparr.forEach(index => {
+            //     boneArr.push(mesh.skeleton.bones[index]);
+            // });
 
+            // take all bones as they come
+            const boneArr = mesh.skeleton.bones;
             /* boneArr includes the bones that have weights only, now we should include also 
             the parent of this bones even if they dont include bone weights */ 
             for (let i =0; i < boneArr.length;i++){
