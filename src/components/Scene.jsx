@@ -194,7 +194,6 @@ export default function Scene({sceneModel, lookatManager}) {
       const isCtrlPressed = event.ctrlKey;
 
       const displayCullFaces = local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"];
-      console.log(displayCullFaces)
       if (displayCullFaces){
         setOriginalInidicesAndColliders();
 
