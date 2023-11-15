@@ -4,6 +4,7 @@ import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
+import { local } from "../library/store";
 
 export default function TraitInformation({animationManager, lookatManager}){
     const {
@@ -16,6 +17,7 @@ export default function TraitInformation({animationManager, lookatManager}){
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
     const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
+    const [displayCullFaces, setDisplayCullFaces] = useState(local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"]);
     const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
 
     useEffect(() => {
@@ -71,6 +73,12 @@ export default function TraitInformation({animationManager, lookatManager}){
         animationManager.enableMouseLook(event.target.checked);
         // Perform any additional actions or logic based on the checkbox state change
     };
+
+    const handleDisplayCullFaces = (event) =>{
+        setDisplayCullFaces(event.target.checked);
+        local["traitInformation_display_cull"] = event.target.checked;
+    }
+    
 
     return (
         displayTraitOption != null ? (
@@ -145,6 +153,22 @@ export default function TraitInformation({animationManager, lookatManager}){
                                         type="checkbox" 
                                         checked={hasMouseLook}
                                         onChange={handleMouseLookEnable}
+                                    />
+                                    <div className={styles["checkbox-container"]}></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div className={styles["traitInfoText"]}>
+                            <div className={styles["checkboxHolder"]}>
+                                <div>
+                                
+                                Display Hidden Faces on click
+                                </div>
+                                <label className={styles["custom-checkbox"]}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={displayCullFaces}
+                                        onChange={handleDisplayCullFaces}
                                     />
                                     <div className={styles["checkbox-container"]}></div>
                                 </label>
