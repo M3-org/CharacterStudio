@@ -560,7 +560,7 @@ export default class VRMExporterv0 {
                 {
                     bones: [boneIndex],
                     center:centerIndex,
-                    colliderGroups: colliderGroupsIndexes, // XXX need to add the indices
+                    colliderGroups: [],//colliderGroupsIndexes, // XXX need to add the indices
                     dragForce: settings.dragForce,
                     gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
                     gravityPower: settings.gravityPower,
@@ -572,7 +572,7 @@ export default class VRMExporterv0 {
 
         const outputSecondaryAnimation = {
             boneGroups,
-            colliderGroups: colliderGroups,
+            colliderGroups,
         }
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
