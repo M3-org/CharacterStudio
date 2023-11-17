@@ -23,6 +23,7 @@ import styles from "./Selector.module.css"
 import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 import MenuTitle from "./MenuTitle"
+import { saveVRMCollidersToUserData } from "../library/load-utils"
 
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -305,8 +306,13 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
     //create a gltf loader for the 3d models
     const gltfLoader = new GLTFLoader(loadingManager)
     gltfLoader.crossOrigin = 'anonymous';
+
     gltfLoader.register((parser) => {
       //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
+
+      // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
+      // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
+
       return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
     })
 
@@ -513,7 +519,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
     // save an array of mesh targets
     const meshTargets = [];
     
-   
+    console.log(templateInfo);
     // add culling data to each model TODO,  if user defines target culling meshes set them before here
     // models are vrm in some cases!, beware
     let vrm = null
@@ -521,6 +527,10 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
     models.map((m)=>{
       // basic vrm setup (only if model is vrm)
       vrm = m.userData.vrm;
+      
+      if (getAsArray(templateInfo.colliderTraits).indexOf(traitData.trait) !== -1){
+        saveVRMCollidersToUserData(m);
+      }
       
       if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
         setLipSync(new LipSync(vrm));

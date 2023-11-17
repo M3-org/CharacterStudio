@@ -1,6 +1,8 @@
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { renameVRMBones } from "../library/utils"
+import { getAsArray, renameVRMBones } from "../library/utils"
+import { findChildByName } from '../library/utils';
+import { PropertyBinding } from 'three';
 
 export const loadVRM = async(url) => {
     const gltfLoader = new GLTFLoader()
@@ -35,4 +37,91 @@ export const addVRMToScene = (vrm, scene) => {
     scene.attach(vrm.scene)
   }
 }
-   
+
+export const saveVRMCollidersToUserData = (gltf) => {
+  if (gltf.parser.json.extensions?.VRM){
+    saveVRM0Colliders(gltf);
+  }
+  else if (gltf.parser.json.extensions?.VRMC_vrm){
+    saveVRM1Colliders(gltf)
+  }
+  else{
+    console.warn("No valid vrm file was provided")
+  }
+
+}
+
+const saveVRM0Colliders = (gltf) => {
+  gltf.parser.json.extensions?.VRM?.secondaryAnimation?.colliderGroups
+  const json = gltf.parser.json
+  const scene = gltf.scene
+  const nodes = json.nodes;
+  const colliderGroups = json.extensions?.VRM?.secondaryAnimation?.colliderGroups;
+
+  const namesUsed = [];
+  const objectSceneNames = nodes.map((node) => uniqueNames(node.name, namesUsed));
+
+  if (colliderGroups != null){
+    colliderGroups.forEach(colliderGroup => {
+      const nodeName = objectSceneNames[colliderGroup.node]
+      const nodeObject = findChildByName(scene, nodeName);
+      if (nodeObject != null){
+        const colliders = colliderGroup.colliders;
+        
+        // match to be like vrm 1
+        nodeObject.userData.colliders = colliders.map((collider) => (
+          {sphere:{
+            radius:collider.radius,
+            offset:[collider.offset.x,collider.offset.y, collider.offset.z]
+          }}));
+      }
+    });
+  }
+}
+
+const saveVRM1Colliders = (gltf) => {
+  const json = gltf.parser.json
+  const scene = gltf.scene
+  const nodes = json.nodes;
+  const colliderGroups = json.extensions?.VRMC_springBone?.colliderGroups;
+  const colliders = json.extensions?.VRMC_springBone?.colliders;
+  // save to vrm data
+
+  const namesUsed = [];
+  const objectSceneNames = nodes.map((node) => uniqueNames(node.name, namesUsed));
+
+  if (colliderGroups != null){
+
+    colliderGroups.forEach(colliderGroup => {
+      const collidersIndices = getAsArray(colliderGroup.colliders);
+      let currentNodeIndex = -1;
+      let currentNode = null;
+      collidersIndices.forEach(index => {
+        if (currentNodeIndex != colliders[index].node){
+          currentNodeIndex = colliders[index].node;
+          const nodeName = objectSceneNames[currentNodeIndex]
+          currentNode = findChildByName(scene, nodeName);
+          currentNode.userData.VRMcolliders = [];
+        }
+        if (currentNode != null){
+          currentNode.userData.VRMcolliders.push(colliders[index].shape)
+        }
+        else {
+          console.error("no node with name " + objectSceneNames[currentNodeIndex] + " was found")
+        }
+        
+      });
+    });
+  }
+}
+
+// code from gltf loader, follows the same process of renaming
+const uniqueNames = (originalName, namesUsed) => {
+  const sanitizedName = PropertyBinding.sanitizeNodeName(originalName || '');
+  if (sanitizedName in namesUsed) {
+      return sanitizedName + '_' + (++namesUsed[sanitizedName]);
+  } else {
+    namesUsed[sanitizedName] = 0;
+      return sanitizedName;
+  }
+}
