@@ -52,9 +52,11 @@ export const saveVRMCollidersToUserData = (gltf) => {
 }
 
 const saveVRM0Colliders = (gltf) => {
-  gltf.parser.json.extensions?.VRM?.secondaryAnimation?.colliderGroups
+  console.log("XXX to do: check if we also need to set 180 rotation in vrm 0 colliders")
+  
   const json = gltf.parser.json
-  const scene = gltf.scene
+  const scene = gltf.scene;
+  console.log(json);
   const nodes = json.nodes;
   const colliderGroups = json.extensions?.VRM?.secondaryAnimation?.colliderGroups;
 
@@ -69,7 +71,7 @@ const saveVRM0Colliders = (gltf) => {
         const colliders = colliderGroup.colliders;
         
         // match to be like vrm 1
-        nodeObject.userData.colliders = colliders.map((collider) => (
+        nodeObject.userData.VRMcolliders = colliders.map((collider) => (
           {sphere:{
             radius:collider.radius,
             offset:[collider.offset.x,collider.offset.y, collider.offset.z]
