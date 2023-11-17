@@ -76,14 +76,18 @@ function createMergedSkeleton(meshes, scale){
             const boneArr = mesh.skeleton.bones;
             /* boneArr includes the bones that have weights only, now we should include also 
             the parent of this bones even if they dont include bone weights */ 
-            for (let i =0; i < boneArr.length;i++){
-                const bn = boneArr[i];
-                if (bn.parent != null){
-                    if (boneArr.indexOf(bn.parent) === -1 && mesh.skeleton.bones.indexOf(bn.parent) !== -1){
-                        boneArr.push(bn.parent)
-                    }
-                }
-            }
+            // for (let i =0; i < boneArr.length;i++){
+            //     const bn = boneArr[i];
+            //     if (bn.parent != null){
+                   
+            //         if (boneArr.indexOf(bn.parent) === -1 && mesh.skeleton.bones.indexOf(bn.parent) !== -1){
+            //             boneArr.push(bn.parent)
+            //         }
+            //         else{
+                        
+            //         }
+            //     }
+            // }
 
             mesh.skeleton.bones.forEach((bone, boneInd) => {
                 // only bones that are included in the previous array (used bones)
@@ -99,7 +103,22 @@ function createMergedSkeleton(meshes, scale){
                         index++
                         boneClones.set(bone.name, boneData);
                     }
-                }        
+                    else{
+                        // make sure to store vrm colliders when found on other skeletons
+                        if (bone.userData.VRMcolliders != null){
+                            if (clone.bone.userData.VRMcolliders == null){
+                                clone.bone.userData.VRMcolliders = bone.userData.VRMcolliders;
+                            }
+                            else{
+                                clone.bone.userData.VRMcolliders = [
+                                    ...clone.bone.userData.VRMcolliders,
+                                    ...bone.userData.VRMcolliders
+                                ];
+                            }
+                        }
+                    }    
+                }    
+                
             })
         }
     });
