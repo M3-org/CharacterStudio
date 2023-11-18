@@ -520,6 +520,35 @@ export default class VRMExporterv0 {
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
         const colliderGroupsIndexes = [];
+
+
+        const skeleton = meshes.find(mesh => mesh.isSkinnedMesh)?.skeleton || null;
+        console.log(skeleton.bones);
+
+        let count = 0;
+        for (let i =0; i < skeleton.bones.length;i++){
+            const bn = skeleton.bones[i];
+            if (bn.userData.VRMcolliders){
+                colliderGroupsIndexes.push(count);
+                count++;
+                console.log(bn.userData.VRMcolliders);
+                // get the node value here
+                const colliderGroup = {
+                    node:nodeNames.indexOf(bn.name),
+                    colliders:[]
+                }
+                bn.userData.VRMcolliders.forEach(collider => {
+                    const sphere = collider.sphere
+                    colliderGroup.colliders.push({
+                        radius:sphere.radius,
+                        offset:{x:sphere.offset[0],y:sphere.offset[1],z:sphere.offset[2]}
+                    })
+                });
+                colliderGroups.push(colliderGroup)
+            }
+        }
+        console.log(colliderGroups);
+        console.log(colliderGroupsIndexes);
         // old way, we were hard coding the collider bone, we should fetch it instead
         // colliderBones.forEach((colliderBone, i) => {
         //     const nodeIndex = nodes.indexOf(colliderBone);
@@ -560,7 +589,7 @@ export default class VRMExporterv0 {
                 {
                     bones: [boneIndex],
                     center:centerIndex,
-                    colliderGroups: [],//colliderGroupsIndexes, // XXX need to add the indices
+                    colliderGroups: colliderGroupsIndexes, // XXX validate, currently placing all indices
                     dragForce: settings.dragForce,
                     gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
                     gravityPower: settings.gravityPower,
@@ -574,6 +603,7 @@ export default class VRMExporterv0 {
             boneGroups,
             colliderGroups,
         }
+        console.log(outputSecondaryAnimation);
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];
