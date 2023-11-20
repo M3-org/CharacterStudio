@@ -476,6 +476,7 @@ export async function combine(avatar, options) {
         isVrm0 = false,
         scale = 1,
     } = options;
+    console.log(avatar);
 
     // convert meshes to skinned meshes first
     const cloneNonSkinnedMeshes = findChildrenByType(avatar, ["Mesh"]);
