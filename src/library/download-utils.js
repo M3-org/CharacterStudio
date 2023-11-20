@@ -98,7 +98,7 @@ async function getGLBData(model, options){
  * Downloads a VRM model with specified options.
  *
  * @param {Object} model - The 3D model object.
- * @param {Object} vrmData - The VRM data for the model.
+ * @param {Object} vrmData - The VRM initial loaded data for the model.
  * @param {string} fileName - The name of the file to be downloaded.
  * @param {Object} options - Additional options for the download.
  * @param {Object} options.screenshot - An optional screenshot for the model.
@@ -195,11 +195,50 @@ function parseGLB (glbModel){
   })
 }
 
+function getRootBones (avatar) {
+  const finalSpringBones = [];
+  //const springBonesData = [];
+  
+  // add non repeating spring bones
+  for(const trait in avatar){
+    if (avatar[trait]?.vrm?.springBoneManager!= null){
+        const joints = avatar[trait].vrm.springBoneManager.joints;
+        for (const item of joints) {
+          const doesNameExist = finalSpringBones.some(boneData => boneData.name === item.bone.name);
+          if (!doesNameExist) {
+            finalSpringBones.push({
+              name:item.bone.name, 
+              settings:item.settings, 
+              bone:item.bone, 
+              colliderGroups:item.colliderGroups,
+              center:item.center
+            }); 
+          }
+
+        }
+    }
+    
+  }
+
+  //get only the root bone of the last array
+  const rootSpringBones = [];
+  finalSpringBones.forEach(springBone => {
+    for (const boneName in VRMHumanBoneName) {
+      if(springBone.bone.parent.name == VRMHumanBoneName[boneName]){
+        rootSpringBones.push(springBone);
+        break;
+      }
+    }
+  });
+  return rootSpringBones;
+}
+
 function parseVRM (glbModel, avatar, options){
   const {
     screenshot = null, 
     isVrm0 = false, 
-    vrmMeta = null
+    vrmMeta = null,
+    scale = 1
   } = options
 
   return new Promise((resolve) => {
@@ -234,45 +273,14 @@ function parseVRM (glbModel, avatar, options){
     
     const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
 
-    const finalSpringBones = [];
-    //const springBonesData = [];
     
-    // add non repeating spring bones
-    for(const trait in avatar){
-      if (avatar[trait]?.vrm?.springBoneManager!= null){
-          const joints = avatar[trait].vrm.springBoneManager.joints;
-          for (const item of joints) {
-            const doesNameExist = finalSpringBones.some(boneData => boneData.name === item.bone.name);
-            if (!doesNameExist) {
-              finalSpringBones.push({
-                name:item.bone.name, 
-                settings:item.settings, 
-                bone:item.bone, 
-                colliderGroups:item.colliderGroups,
-                center:item.center
-              }); 
-            }
-
-          }
-      }
-      
-    }
-
-    //get only the root bone of the last array
-    const rootSpringBones = [];
-    finalSpringBones.forEach(springBone => {
-      for (const boneName in VRMHumanBoneName) {
-        if(springBone.bone.parent.name == VRMHumanBoneName[boneName]){
-          rootSpringBones.push(springBone);
-          break;
-        }
-      }
-    });
-    
+    const rootSpringBones = getRootBones(avatar);
     // XXX collider bones should be taken from springBone.colliderBones
     const colliderBones = [];
+    console.log("rootSpringBones = ", rootSpringBones);
+    console.log("scale", options.scale)
 
-    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, (vrm) => {
+    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, scale, (vrm) => {
       resolve(vrm)
     })
   })
