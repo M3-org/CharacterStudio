@@ -97,7 +97,9 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, onDone) {
+    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
+        console.log(vrm);
+        console.log(avatar);
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -524,6 +526,7 @@ export default class VRMExporterv0 {
 
         const skeleton = meshes.find(mesh => mesh.isSkinnedMesh)?.skeleton || null;
 
+        //current method: were saving in userData the values that we want to store, 
         for (let i =0; i < skeleton.bones.length;i++){
             const bn = skeleton.bones[i];
             if (bn.userData.VRMcolliders){
@@ -536,8 +539,8 @@ export default class VRMExporterv0 {
                 bn.userData.VRMcolliders.forEach(collider => {
                     const sphere = collider.sphere
                     colliderGroup.colliders.push({
-                        radius:sphere.radius,
-                        offset:{x:sphere.offset[0],y:sphere.offset[1],z:sphere.offset[2]}
+                        radius:sphere.radius * scale,
+                        offset:{x:sphere.offset[0] * scale,y:sphere.offset[1] * scale,z:sphere.offset[2] * scale}
                     })
                 });
                 colliderGroups.push(colliderGroup)
