@@ -61,44 +61,28 @@ function createMergedSkeleton(meshes, scale){
     todo: add to a user guide how to name bones to avoid this error */
     const boneClones = new Map();
     const zxNeg = new THREE.Vector3(-1,1,-1)
+    const bnWorldMatrix = new THREE.Matrix4();
+    const bnPosition = new THREE.Vector3();
+
     let index = 0;
     meshes.forEach(mesh => {
         if (mesh.skeleton){
-            
-            // removes bones
-            // const nonduparr = getOrderedNonDupArray(mesh.geometry.attributes.skinIndex.array);
-            // const boneArr = []
-            // nonduparr.forEach(index => {
-            //     boneArr.push(mesh.skeleton.bones[index]);
-            // });
+            // Create a new skeleton by cloning the source skeleton
+            var clonedSkeleton = cloneSkeleton(mesh);
 
             // take all bones as they come
-            const boneArr = mesh.skeleton.bones;
-            /* boneArr includes the bones that have weights only, now we should include also 
-            the parent of this bones even if they dont include bone weights */ 
-            // for (let i =0; i < boneArr.length;i++){
-            //     const bn = boneArr[i];
-            //     if (bn.parent != null){
-                   
-            //         if (boneArr.indexOf(bn.parent) === -1 && mesh.skeleton.bones.indexOf(bn.parent) !== -1){
-            //             boneArr.push(bn.parent)
-            //         }
-            //         else{
-                        
-            //         }
-            //     }
-            // }
-
-            mesh.skeleton.bones.forEach((bone, boneInd) => {
+            const boneArr = clonedSkeleton.bones;
+            
+            clonedSkeleton.bones.forEach((bone, boneInd) => {
                 // only bones that are included in the previous array (used bones)
                 if (boneArr.indexOf(bone)!==-1){
                     const clone = boneClones.get(bone.name);      
                     if (clone == null){ // no clone was found with the bone
                         const boneData = {
                             index,
-                            boneInverses:mesh.skeleton.boneInverses[boneInd],
-                            bone:  bone.clone(false),
-                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null,  
+                            boneInverses:clonedSkeleton.boneInverses[boneInd],
+                            bone: bone.clone(false),
+                            parentName: bone.parent?.type == "Bone" ? bone.parent.name:null
                         }   
                         index++
                         boneClones.set(bone.name, boneData);
@@ -136,12 +120,12 @@ function createMergedSkeleton(meshes, scale){
         }
     }); 
     const newSkeleton = new THREE.Skeleton(finalBones,finalBoneInverses);
-    newSkeleton.pose();
+    //newSkeleton.pose(); bones are posed when cloning the skeleton, dont pose here
     
     newSkeleton.bones.forEach(bn => {
         const restPosition = bn.userData?.vrm0RestPosition;
         if (restPosition){
-            bn.position.set(-restPosition.x, restPosition.y, -restPosition.z);
+            bn.position.set(-restPosition.x , restPosition.y, -restPosition.z);
         }
         bn.position.set(bn.position.x * scale, bn.position.y * scale,bn.position.z * scale);
     });
@@ -476,7 +460,6 @@ export async function combine(avatar, options) {
         isVrm0 = false,
         scale = 1,
     } = options;
-    console.log(avatar);
 
     // convert meshes to skinned meshes first
     const cloneNonSkinnedMeshes = findChildrenByType(avatar, ["Mesh"]);
