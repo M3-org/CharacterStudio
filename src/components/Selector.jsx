@@ -519,7 +519,6 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
     // save an array of mesh targets
     const meshTargets = [];
     
-    console.log(templateInfo);
     // add culling data to each model TODO,  if user defines target culling meshes set them before here
     // models are vrm in some cases!, beware
     let vrm = null
