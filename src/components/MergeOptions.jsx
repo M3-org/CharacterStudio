@@ -119,7 +119,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
           </>
         )}
       {(showCreateAtlas == false || createAtlas)&&(<>
-      <div className={styles["traitInfoTitle"]}>
+        <div className={styles["traitInfoTitle"]}>
             Merge Atlas Type
         </div>
         <br />

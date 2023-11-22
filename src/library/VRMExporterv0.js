@@ -97,7 +97,9 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, onDone) {
+    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
+        console.log(vrm);
+        console.log(avatar);
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -269,6 +271,8 @@ export default class VRMExporterv0 {
             }
 
             const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
+
+
                 const nonZeroIndices = [];
                 const nonZeroValues = [];
                 
@@ -285,14 +289,26 @@ export default class VRMExporterv0 {
                     }
                 }
                 if (nonZeroIndices.length > 0){
-                    // Step 2: Create sparse data
+                    // Step 2: Calculate padding
+                    const originalLength = nonZeroIndices.length;
+                    const remainder = originalLength % 4;
+                    const padding = (remainder === 0) ? 0 : 4 - remainder;
+
+                    // Step 3: Add padding if needed
+                    if (padding > 0) {
+                        for (let i = 0; i < padding; i++) {
+                            nonZeroIndices.push(0); // Add dummy indices for padding
+                            nonZeroValues.push(0, 0, 0);
+                        }
+                    }
+
+                    // Step 3: Create sparse data
                     const sparseData = {
                         count: nonZeroIndices.length,  // Total number of position elements
                         indices: new Uint32Array(nonZeroIndices),
                         values: new Float32Array(nonZeroValues),
                     };
-
-                    // Step 3: Create MeshData
+                    // Step 4: Create MeshData
                     meshDatas.push(new MeshData(
                         baseAttribute, 
                         WEBGL_CONST.FLOAT, 
@@ -502,22 +518,35 @@ export default class VRMExporterv0 {
                 }
             }
         })
+        console.log(rootSpringBones);
 
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
-        const colliderGroupsIndexes = [];
-        // old way, we were hard coding the collider bone, we should fetch it instead
-        // colliderBones.forEach((colliderBone, i) => {
-        //     const nodeIndex = nodes.indexOf(colliderBone);
-        //     const colliderGroup = {
-        //         "colliders": [
-        //             { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
-        //         ],
-        //         "node": nodeIndex
-        //     }
-        //     colliderGroups.push(colliderGroup);
-        //     colliderGroupsIndexes.push(i);
-        // })
+
+
+        const skeleton = meshes.find(mesh => mesh.isSkinnedMesh)?.skeleton || null;
+
+        //current method: were saving in userData the values that we want to store, 
+        for (let i =0; i < skeleton.bones.length;i++){
+            const bn = skeleton.bones[i];
+            if (bn.userData.VRMcolliders){
+                // get the node value here
+                const colliderGroup = {
+                    node:nodeNames.indexOf(bn.name),
+                    colliders:[],
+                    name:bn.name
+                }
+                bn.userData.VRMcolliders.forEach(collider => {
+                    const sphere = collider.sphere
+                    colliderGroup.colliders.push({
+                        radius:sphere.radius * scale,
+                        offset:{x:sphere.offset[0] * scale,y:sphere.offset[1] * scale,z:sphere.offset[2] * scale}
+                    })
+                });
+                colliderGroups.push(colliderGroup)
+            }
+        }
+        console.log("COLLIDER GROUPS", colliderGroups);
 
         const findBoneIndex = (boneName) =>{
             for (let i = 0; i < nodes.length; i++) {
@@ -529,19 +558,57 @@ export default class VRMExporterv0 {
             return -1;
         }
 
+        // returns the bone index of the bones name and its childrens
+        const findBoneIndices = (boneName) =>{
+            const bnIndex = findBoneIndex(boneName);
+            if (bnIndex == -1){
+                return [-1]
+            }
+            else{
+                const result = [];
+                const rootBone = nodes[bnIndex]
+                rootBone.traverse((child)=>{
+                    if (child.isBone){
+                        result.push(findBoneIndex(child.name));
+                    }
+                })
+                return result;
+            }
+        }
+
         const boneGroups = [];
         rootSpringBones.forEach(springBone => {
-            let boneIndex = findBoneIndex(springBone.name);
-            let centerIndex = findBoneIndex(springBone.center?.name);
+            const boneIndices = findBoneIndices(springBone.name);
+
+            // get the collider group indices
+            const colliderIndices = [];
+            springBone.colliderGroups.forEach(colliderGroup => {
+                const springCollider = colliderGroup.colliders[0];
+                const springParent = springCollider.parent;
+
+                const ind = colliderGroups.findIndex(group => group.name === springParent.name);
+                if (ind != -1){
+                    colliderIndices.push(ind);
+                }
+                else{
+                    console.warn("no collider group for bone name: ", springParent.name + " was found");
+                }
+            });
+
+            if (boneIndices === [-1]) {
+                console.warn("No bone found for spring bone " + springBone.name);
+                return; // Skip to the next iteration
+            }
+            let centerIndex = findBoneIndex(springBone.center?.name);   
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
             const settings = springBone.settings;
             
             boneGroups.push(
                 {
-                    bones: [boneIndex],
+                    bones: boneIndices,
                     center:centerIndex,
-                    colliderGroups: colliderGroupsIndexes, // XXX need to add the indices
+                    colliderGroups: colliderIndices,
                     dragForce: settings.dragForce,
                     gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
                     gravityPower: settings.gravityPower,
@@ -553,8 +620,9 @@ export default class VRMExporterv0 {
 
         const outputSecondaryAnimation = {
             boneGroups,
-            colliderGroups: colliderGroups,
+            colliderGroups,
         }
+        console.log(outputSecondaryAnimation);
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];
@@ -701,6 +769,7 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -997,7 +1066,7 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
             inverseBindMatrices: meshDatas
                 .map((data) => data.type === MeshDataType.BIND_MATRIX ? data.meshName : null)
                 .indexOf(mesh.name),
-            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)),
+            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)).filter((index) => index !== -1),
             skeleton: nodeNames.indexOf(mesh.skeleton.bones[0].name),
         };
     });
