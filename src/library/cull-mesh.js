@@ -1,10 +1,8 @@
-import { Mesh, BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
+import { Mesh, Triangle, BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 
 let origin = new Vector3();
 let direction = new Vector3();
-let worldScale = new Vector3();
-let worldPosition = new Vector3();
 const intersections = [];
 
 const raycaster = new Raycaster();
@@ -17,11 +15,37 @@ const backMat = new MeshBasicMaterial({side:BackSide})
 
 let mainScene;
 
+BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+Mesh.prototype.raycast = acceleratedRaycast;
+
+const createFaceNormals = (geometry) => {
+    const pos = geometry.attributes.position;
+    const idx = geometry.index;
+  
+    const tri = new Triangle(); // for re-use
+    const a = new Vector3(), b = new Vector3(), c = new Vector3(); // for re-use
+  
+    const faceNormals = [];
+  
+    //set foreach vertex
+    for (let f = 0; f < (idx.array.length / 3); f++) {
+      const idxBase = f * 3;
+      a.fromBufferAttribute(pos, idx.getX(idxBase + 0));
+      b.fromBufferAttribute(pos, idx.getX(idxBase + 1));
+      c.fromBufferAttribute(pos, idx.getX(idxBase + 2));
+      tri.set(a, b, c);
+      faceNormals.push(tri.getNormal(new Vector3()));
+    }
+    geometry.userData.faceNormals = faceNormals;
+}
+
 const createCloneCullMesh = (mesh) => {
     // clone mesh
     const clonedGeometry = mesh.geometry.clone();
     const clonedMaterial = mesh.material.clone();
 
+    
     // vrm0 mesh rotation
     if (!mesh.userData.isVRM0){
         const positions = clonedGeometry.attributes.position;  
@@ -35,6 +59,7 @@ const createCloneCullMesh = (mesh) => {
     const clonedMesh = new Mesh(clonedGeometry, clonedMaterial);
     
      // bvh calculation
+    createFaceNormals(clonedMesh.geometry)
     clonedMesh.geometry.computeBoundsTree({strategy:SAH});
     return clonedMesh;
 }
@@ -62,16 +87,6 @@ export const CullHiddenFaces = async(meshes) => {
             if (meshData[mesh.userData.cullLayer] == null){
             meshData[mesh.userData.cullLayer] = {origMeshes:[], cloneMeshes:[], posMeshes:[], negMeshes:[], scaleMeshes:[], positionMeshes:[]}
             }        
-            
-
-            // mesh.getWorldScale(worldScale);
-            // mesh.getWorldPosition(worldPosition);
-            worldScale.set(1,1,1)
-            worldPosition.set(0,0,0)
-            meshData[mesh.userData.cullLayer].scaleMeshes.push(worldScale);
-            meshData[mesh.userData.cullLayer].positionMeshes.push(worldPosition);
-
-
             
             if (mesh.userData.cullingClone == null){
                 mesh.userData.cullingClone = createCloneCullMesh(mesh);
@@ -118,15 +133,13 @@ export const CullHiddenFaces = async(meshes) => {
                 
                 const mesh = meshData[i].origMeshes[k];
                 const cloneMesh = meshData[i].cloneMeshes[k];
-                const meshScale =  meshData[i].scaleMeshes[k];
-                const meshPosition =  meshData[i].positionMeshes[k];
                 const index = mesh.userData.origIndexBuffer.array;
                 const vertexData = cloneMesh.geometry.attributes.position.array;
                 const normalsData = cloneMesh.geometry.attributes.normal.array;
                 const faceNormals = cloneMesh.geometry.userData.faceNormals;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
+                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
                 })
             }
         }
@@ -163,7 +176,7 @@ const getDistanceInOut = (distanceArr) => {
     return [distIn, distOut]
 }
 
-const getIndexBuffer = (meshPosition, meshScale, index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
+const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
 
     const indexCustomArr = [];
     const distArr = getDistanceInOut(distanceArr);
@@ -195,9 +208,9 @@ const getIndexBuffer = (meshPosition, meshScale, index, vertexData, normalsData,
 
             // move the origin away to have the raycast being casted from outside
             origin.set( 
-                (vertexData[vi] * meshScale.x ) + meshPosition.x, 
-                (vertexData[vi+1] * meshScale.y )  + meshPosition.y,
-                (vertexData[vi+2] * meshScale.z) +  meshPosition.z)
+                vertexData[vi], 
+                vertexData[vi+1],
+                vertexData[vi+2])
                 .add(direction.clone().multiplyScalar(distIn))
             
             //invert the direction of the raycaster as we moved it away from its origin

@@ -4,7 +4,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { MToonMaterial, VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm"
 import cancel from "../../public/ui/selector/cancel.png"
 import { addModelData, disposeVRM } from "../library/utils"
-import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 import {ViewContext} from "../context/ViewContext"
 import tick from "../../public/ui/selector/tick.svg"
 import { AudioContext } from "../context/AudioContext"
@@ -12,7 +11,6 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import {
   renameVRMBones,
-  createFaceNormals,
   createBoneDirection,
 } from "../library/utils"
 import { LipSync } from '../library/lipsync'
@@ -26,9 +24,7 @@ import MenuTitle from "./MenuTitle"
 import { saveVRMCollidersToUserData } from "../library/load-utils"
 
 
-THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
 
 export default function Selector({confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
@@ -623,10 +619,6 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
 
-          // if (child.geometry.boundsTree == null)
-          //   child.geometry.computeBoundsTree({strategy:SAH});
-
-          createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) {
             createBoneDirection(child)
             if (vrm.meta?.metaVersion === '0'){
