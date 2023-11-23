@@ -449,7 +449,7 @@ function createSkinnedMeshFromMesh(baseSkeleton, mesh){
 
 export async function combine(avatar, options) {
 
-    const {
+    let {
         transparentColor = new THREE.Color(1,1,1),
         mToonAtlasSize = 4096, 
         mToonAtlasSizeTransp = 4096, 
