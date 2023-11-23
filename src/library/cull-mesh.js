@@ -23,23 +23,19 @@ const createCloneCullMesh = (mesh) => {
     const clonedMaterial = mesh.material.clone();
 
     // vrm0 mesh rotation
-    // if (mesh.userData.isVRM0){
-    //     const positions = clonedGeometry.attributes.position;  
-    //     for (let i = 0; i < positions.array.length; i += 3) {
-    //         positions.array[i] = -positions.array[i]; // Flip x-coordinate
-    //         positions.array[i + 2] = -positions.array[i + 2]; // Flip z-coordinate
-    //     }
-
-    // }
-
-    // bvh calculation
+    if (!mesh.userData.isVRM0){
+        const positions = clonedGeometry.attributes.position;  
+        for (let i = 0; i < positions.array.length; i += 3) {
+            positions.array[i] = -positions.array[i]; // Flip x-coordinate
+            positions.array[i + 2] = -positions.array[i + 2]; // Flip z-coordinate
+        }
+        positions.needsUpdate = true;
+    }
     
     const clonedMesh = new Mesh(clonedGeometry, clonedMaterial);
     
-    // mainScene.add(clonedMesh);
+     // bvh calculation
     clonedMesh.geometry.computeBoundsTree({strategy:SAH});
-    //mainScene.add(clonedMesh);
-    console.log("created")
     return clonedMesh;
 }
 
@@ -64,7 +60,7 @@ export const CullHiddenFaces = async(meshes) => {
         
             // if it hasnt been previously created an array in this index value, create it
             if (meshData[mesh.userData.cullLayer] == null){
-                meshData[mesh.userData.cullLayer] = {origMeshes:[], posMeshes:[], negMeshes:[], scaleMeshes:[], positionMeshes:[]}
+            meshData[mesh.userData.cullLayer] = {origMeshes:[], cloneMeshes:[], posMeshes:[], negMeshes:[], scaleMeshes:[], positionMeshes:[]}
             }        
             
 
@@ -77,13 +73,14 @@ export const CullHiddenFaces = async(meshes) => {
 
 
             
-            if (mesh.userData.cullingCloneP == null){
-                const cullClone = createCloneCullMesh(mesh);
-                mesh.userData.cullingCloneP = cullClone.clone();
-                mesh.userData.cullingCloneN = cullClone.clone();
+            if (mesh.userData.cullingClone == null){
+                mesh.userData.cullingClone = createCloneCullMesh(mesh);
+                mesh.userData.cullingCloneP = mesh.userData.cullingClone.clone();
+                mesh.userData.cullingCloneN = mesh.userData.cullingClone.clone();
             }
-            
+
             // clone the mesh to only detect collisions in front faces
+            const clone = mesh.userData.cullingClone;
             const cloneP = mesh.userData.cullingCloneP;
             const cloneN = mesh.userData.cullingCloneN
 
@@ -93,6 +90,7 @@ export const CullHiddenFaces = async(meshes) => {
             cloneP.userData.maxCullDistance  = cloneN.userData.maxCullDistance = mesh.userData.maxCullDistance;
             
             meshData[mesh.userData.cullLayer].origMeshes.push(mesh)
+            meshData[mesh.userData.cullLayer].cloneMeshes.push(clone)
             meshData[mesh.userData.cullLayer].posMeshes.push(cloneP)
             meshData[mesh.userData.cullLayer].negMeshes.push(cloneN)
             
@@ -119,15 +117,16 @@ export const CullHiddenFaces = async(meshes) => {
             for (let k = 0; k < meshData[i].origMeshes.length; k++){
                 
                 const mesh = meshData[i].origMeshes[k];
+                const cloneMesh = meshData[i].cloneMeshes[k];
                 const meshScale =  meshData[i].scaleMeshes[k];
                 const meshPosition =  meshData[i].positionMeshes[k];
                 const index = mesh.userData.origIndexBuffer.array;
-                const vertexData = mesh.geometry.attributes.position.array;
-                const normalsData = mesh.geometry.attributes.normal.array;
-                const faceNormals = mesh.geometry.userData.faceNormals;
+                const vertexData = cloneMesh.geometry.attributes.position.array;
+                const normalsData = cloneMesh.geometry.attributes.normal.array;
+                const faceNormals = cloneMesh.geometry.userData.faceNormals;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance,/*i === 0*/)
+                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
                 })
             }
         }
