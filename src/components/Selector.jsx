@@ -623,8 +623,8 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
           if (cullingIgnore.indexOf(child.name) === -1)
             cullingMeshes.push(child)
 
-          if (child.geometry.boundsTree == null)
-            child.geometry.computeBoundsTree({strategy:SAH});
+          // if (child.geometry.boundsTree == null)
+          //   child.geometry.computeBoundsTree({strategy:SAH});
 
           createFaceNormals(child.geometry)
           if (child.isSkinnedMesh) {
