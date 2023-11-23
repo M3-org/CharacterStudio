@@ -1,4 +1,5 @@
-import { BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
+import { Mesh, BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 
 let origin = new Vector3();
 let direction = new Vector3();
@@ -15,6 +16,32 @@ const frontMat = new MeshBasicMaterial({side:FrontSide})
 const backMat = new MeshBasicMaterial({side:BackSide})
 
 let mainScene;
+
+const createCloneCullMesh = (mesh) => {
+    // clone mesh
+    const clonedGeometry = mesh.geometry.clone();
+    const clonedMaterial = mesh.material.clone();
+
+    // vrm0 mesh rotation
+    // if (mesh.userData.isVRM0){
+    //     const positions = clonedGeometry.attributes.position;  
+    //     for (let i = 0; i < positions.array.length; i += 3) {
+    //         positions.array[i] = -positions.array[i]; // Flip x-coordinate
+    //         positions.array[i + 2] = -positions.array[i + 2]; // Flip z-coordinate
+    //     }
+
+    // }
+
+    // bvh calculation
+    
+    const clonedMesh = new Mesh(clonedGeometry, clonedMaterial);
+    
+    // mainScene.add(clonedMesh);
+    clonedMesh.geometry.computeBoundsTree({strategy:SAH});
+    //mainScene.add(clonedMesh);
+    console.log("created")
+    return clonedMesh;
+}
 
 export const CullHiddenFaces = async(meshes) => {
     // make a 2 dimensional array that will hold the layers
@@ -40,16 +67,27 @@ export const CullHiddenFaces = async(meshes) => {
                 meshData[mesh.userData.cullLayer] = {origMeshes:[], posMeshes:[], negMeshes:[], scaleMeshes:[], positionMeshes:[]}
             }        
             
-            mesh.getWorldScale(worldScale);
-            mesh.getWorldPosition(worldPosition);
+
+            // mesh.getWorldScale(worldScale);
+            // mesh.getWorldPosition(worldPosition);
+            worldScale.set(1,1,1)
+            worldPosition.set(0,0,0)
             meshData[mesh.userData.cullLayer].scaleMeshes.push(worldScale);
             meshData[mesh.userData.cullLayer].positionMeshes.push(worldPosition);
 
 
+            
+            if (mesh.userData.cullingCloneP == null){
+                const cullClone = createCloneCullMesh(mesh);
+                mesh.userData.cullingCloneP = cullClone.clone();
+                mesh.userData.cullingCloneN = cullClone.clone();
+            }
+            
             // clone the mesh to only detect collisions in front faces
-            const cloneP = mesh.clone()
+            const cloneP = mesh.userData.cullingCloneP;
+            const cloneN = mesh.userData.cullingCloneN
+
             cloneP.material = frontMat;
-            const cloneN = mesh.clone()
             cloneN.userData.cancelMesh = cloneP;
             cloneN.material = backMat;
             cloneP.userData.maxCullDistance  = cloneN.userData.maxCullDistance = mesh.userData.maxCullDistance;
@@ -89,7 +127,7 @@ export const CullHiddenFaces = async(meshes) => {
                 const faceNormals = mesh.geometry.userData.faceNormals;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
+                    index: getIndexBuffer(meshPosition,meshScale, index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance,/*i === 0*/)
                 })
             }
         }
