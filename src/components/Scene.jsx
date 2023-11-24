@@ -128,10 +128,6 @@ export default function Scene({sceneModel, lookatManager}) {
     const setOriginalInidicesAndColliders = () => {
       avatarModel.traverse((child)=>{
         if (child.isMesh) {
-          if (child.userData.lastBoundsTree){
-            child.userData.lastBoundsTree = child.geometry.boundsTree;
-            child.geometry.disposeBoundsTree();
-          }
           if (child.userData.origIndexBuffer){
             child.userData.clippedIndexGeometry = child.geometry.index.clone();
             child.geometry.setIndex(child.userData.origIndexBuffer);
@@ -145,7 +141,6 @@ export default function Scene({sceneModel, lookatManager}) {
         if (child.isMesh) {
           if (child.userData.origIndexBuffer){
             child.geometry.setIndex(child.userData.clippedIndexGeometry);
-            child.geometry.boundsTree = child.userData.lastBoundsTree;
           }
         }
       })
@@ -193,7 +188,7 @@ export default function Scene({sceneModel, lookatManager}) {
 
       const isCtrlPressed = event.ctrlKey;
 
-      const displayCullFaces = local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"];
+      const displayCullFaces = true;//local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"];
       if (displayCullFaces){
         setOriginalInidicesAndColliders();
 

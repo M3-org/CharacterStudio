@@ -429,26 +429,7 @@ export function disposeVRM(vrm) {
 
   VRMUtils.deepDispose( model );
 }
-export const createFaceNormals = (geometry) => {
-  const pos = geometry.attributes.position;
-  const idx = geometry.index;
 
-  const tri = new THREE.Triangle(); // for re-use
-  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(); // for re-use
-
-  const faceNormals = [];
-
-  //set foreach vertex
-  for (let f = 0; f < (idx.array.length / 3); f++) {
-    const idxBase = f * 3;
-    a.fromBufferAttribute(pos, idx.getX(idxBase + 0));
-    b.fromBufferAttribute(pos, idx.getX(idxBase + 1));
-    c.fromBufferAttribute(pos, idx.getX(idxBase + 2));
-    tri.set(a, b, c);
-    faceNormals.push(tri.getNormal(new THREE.Vector3()));
-  }
-  geometry.userData.faceNormals = faceNormals;
-};
 export const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
