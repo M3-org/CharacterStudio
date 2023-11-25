@@ -109,7 +109,6 @@ function Create({fetchCharacterManifest}) {
     <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
       <div className={styles.vrmOptimizerButton}>
-        tet
       </div>
       <div className={styles.topLine} />
       

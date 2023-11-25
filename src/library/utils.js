@@ -36,6 +36,7 @@ export async function setTextureToChildMeshes(scene, textureFile){
 
   // Load the image as a texture
   const texture = await textureLoader.load(textureFile);
+  texture.encoding = THREE.sRGBEncoding;
   texture.flipY = false;
 
   // Traverse through the child meshes in the scene
@@ -53,8 +54,8 @@ export async function setTextureToChildMeshes(scene, textureFile){
         }
         else{
           materials[i].map = texture
+          materials[i].emissiveMap = texture
         }
-        console.log(materials[i]);
         materials[i].needsUpdate = true
 
       }
@@ -113,6 +114,78 @@ export const cullHiddenMeshes = (avatar) => {
     }
   }
   CullHiddenFaces(models)
+}
+
+export function getMeshesSortedByMaterialArray(meshes){
+  const stdMesh = [];
+  const stdTranspMesh = [];
+  const mToonMesh = [];
+  const mToonTranspMesh = [];
+  let requiresTransparency = false;
+
+  meshes.forEach(mesh => {
+    const mats = getAsArray(mesh.material);
+    const mat = mats[0];
+    
+    if (mat.type == "ShaderMaterial"){
+        if (mat.transparent == true){
+          mToonTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          mToonMesh.push(mesh);
+          if (mat.uniforms.alphaTest.value != 0)
+            requiresTransparency = true
+        }
+    }
+    else{
+        if (mat.transparent == true){
+          stdTranspMesh.push(mesh);
+          requiresTransparency = true;
+        }
+        else{
+          stdMesh.push(mesh); 
+          if (mat.alphaTest != 0)
+            requiresTransparency = true;
+        }
+    }
+  });
+  return {stdMesh, stdTranspMesh, mToonMesh, mToonTranspMesh, requiresTransparency}
+}
+
+export function getMaterialsSortedByArray (meshes){
+  const stdMats = [];
+  const stdCutoutpMats = [];
+  const stdTranspMats = [];
+  const mToonMats = [];
+  const mToonCutoutMats = [];
+  const mToonTranspMats = [];
+
+  meshes.forEach(mesh => {
+    const mats = getAsArray(mesh.material);
+    mats.forEach(mat => {
+      if (mat.type == "ShaderMaterial"){
+          if (mat.transparent == true)
+            mToonTranspMats.push(mat);
+          else if (mat.uniforms.alphaTest.value != 0)
+            mToonCutoutMats.push(mat);
+          else
+            mToonMats.push(mat);
+      }
+      else{
+          if (mat.transparent == true)
+            stdTranspMats.push(mat);
+          else if (mat.alphaTest != 0)
+            stdCutoutpMats.push(mat);
+          else
+            stdMats.push(mat);
+              
+      }
+    });
+  });
+
+
+  return { stdMats, stdCutoutpMats, stdTranspMats , mToonMats, mToonCutoutMats , mToonTranspMats }
 }
 
 export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
@@ -296,6 +369,29 @@ function getModelProperty(model, property) {
   return model.data[property];
 }
 
+export function getAtlasSize(value){
+  switch (value){
+    case 1:
+      return 128;
+    case 2:
+      return 256;
+    case 3:
+      return 512;
+    case 4:
+      return 1024;
+    case 5:
+      return 2048;
+    case 6:
+      return 4096;
+    case 7:
+      return 8192;
+    case 8:
+      return 16384;
+    default:
+      return 4096;
+  }
+}
+
 export function disposeVRM(vrm) {
   const model = vrm.scene;
   const animationControl = (getModelProperty(vrm, "animationControl"));
@@ -333,26 +429,7 @@ export function disposeVRM(vrm) {
 
   VRMUtils.deepDispose( model );
 }
-export const createFaceNormals = (geometry) => {
-  const pos = geometry.attributes.position;
-  const idx = geometry.index;
 
-  const tri = new THREE.Triangle(); // for re-use
-  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(); // for re-use
-
-  const faceNormals = [];
-
-  //set foreach vertex
-  for (let f = 0; f < (idx.array.length / 3); f++) {
-    const idxBase = f * 3;
-    a.fromBufferAttribute(pos, idx.getX(idxBase + 0));
-    b.fromBufferAttribute(pos, idx.getX(idxBase + 1));
-    c.fromBufferAttribute(pos, idx.getX(idxBase + 2));
-    tri.set(a, b, c);
-    faceNormals.push(tri.getNormal(new THREE.Vector3()));
-  }
-  geometry.userData.faceNormals = faceNormals;
-};
 export const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
@@ -464,13 +541,43 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-
   // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
     // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
     if (bones['neck'].node.parent != bones['chest']){
-      bones['upperChest'] = {node:bones['neck'].node.parent}
+      // sometimes the user defines the upperchest bone as the chest bone, make sure this is not the case
+      if (bones['neck'].node.parent != bones['chest'].node) {
+        bones['upperChest'] = {node:bones['neck'].node.parent}
+      }
+      // if its the case, reassign bones
+      else{
+        bones['upperChest'] = {node:bones['neck'].node.parent}
+        bones['chest'] = {node:bones['neck'].node.parent.parent}
+      }
+    }
+  }
+
+  // same ase before, left and right shoulder are optional vrm bones, make sure that if they are missing they are not included
+  if (bones ['leftShoulder'] == null){
+    if (bones['leftUpperArm'].node.parent != bones['chest']?.node && 
+      bones['leftUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['leftUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['leftUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['leftShoulder'] = {node:bones['leftUpperArm'].node.parent}
+    }
+  }
+
+  if (bones ['rightShoulder'] == null){
+    if (bones['rightUpperArm'].node.parent != bones['chest']?.node && 
+      bones['rightUpperArm'].node.parent != bones['upperChest']?.node  && 
+      bones['rightUpperArm'].node.parent != bones['spine']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['neck']?.node  &&
+      bones['rightUpperArm'].node.parent != bones['head']?.node ){
+    }{
+      bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
     }
   }
   
@@ -527,17 +634,18 @@ function findChildren({ candidates, predicate, results = [] }) {
     candidates = candidates.concat(candidate.children);
     return findChildren({ candidates, predicate, results });
 }
-export function findChildrenByType(root, type) {
-    return findChildren({
-        candidates: [root],
-        predicate: (o) => o.type === type,
-    });
+export function findChildrenByType(root, types) {
+  
+  return findChildren({
+    candidates: [root],
+    predicate: (o) => getAsArray(types).includes(o.type),
+  });
 }
-export function getAvatarData (avatarModel, modelName, atlasMaterial, vrmMeta){
+export function getAvatarData (avatarModel, modelName, vrmMeta){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
-    materials : atlasMaterial ? [avatarModel.userData.atlasMaterial] : avatarModel.userData.atlasMaterial,
+    materials : avatarModel.userData.atlasMaterial,
     meta : getVRMMeta(modelName, vrmMeta)
   }
 

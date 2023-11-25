@@ -2,7 +2,7 @@
     position: fixed;
     left: 32px;
     top: 98px;
-    width:350px;
+    width:300px;
     height: -webkit-calc(100vh - 176px);
     height: calc(100vh - 176px);
     backdrop-filter: blur(22.5px);
@@ -17,6 +17,7 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 10px;
+  text-align: center;
 }
 .traitInfoText {
   color: rgb(179, 179, 179);
@@ -25,12 +26,14 @@
   font-size: 16px;
   word-spacing: 2px;
   margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .flexSelect{
   display: flex;
   justify-content: space-between;
-  width: 90%;
+  width: 100%;
   height:40px;
   align-items: center;
 }
@@ -111,33 +114,3 @@
     justify-content: left;
     height: 40px;
   }
-.buttonContainer {
-    position: absolute;
-    bottom: 20px;
-    left: 32px;
-    width: calc(100% - 64px);
-    width: -webkit-calc(100% - 64px);
-    text-align: center;
-}
-
-.buttonContainer .buttonLeft {
-    float: left;
-}
-
-.buttonContainer .buttonRight {
-    float: Right;
-}
-
-.buttonContainer .buttonCenter {
-    margin: 0 8px;
-}
-
-.buttonContainer::after {
-    content: ' ';
-    display: block;
-    clear: both;
-}
-
-.buttonContainer button {
-    min-width: 120px;
-}

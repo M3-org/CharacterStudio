@@ -1,0 +1,147 @@
+
+.InformationContainerPos {
+  position: fixed;
+  right: 32px;
+  top: 98px;
+  width:350px;
+  height: -webkit-calc(100vh - 176px);
+  height: calc(100vh - 176px);
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  z-index: 1000;
+  user-select: none;
+  text-align: right;
+}
+
+.scrollContainer {
+  height: 100%;
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin: 30px;
+  height: -webkit-calc(100% - 40px);
+  height: calc(100% - 40px);
+  
+}
+
+.traitInfoTitle {
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+  word-spacing: 2px;
+  margin-bottom: 10px;
+  text-align: right;
+  
+}
+.traitInfoText {
+  color: rgb(179, 179, 179);
+  /* text-transform: uppercase; */
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+  word-spacing: 2px;
+  margin-bottom: 30px;
+  text-align: right;
+}
+.input-box {
+  width: 60px; /* Adjust as needed */
+  height: 20px;
+  color: #5eb086;
+  background-color:rgba(5, 11, 14, 0.5);
+  border: none;
+  font-size: medium;
+  font-weight: 500;
+  margin-left: 15px;
+}
+.input-box:focus {
+  outline: none;
+}
+  
+.input-box::selection {
+  background-color: #111f17;
+  color: #5eb086;
+}
+
+.flexSelect{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height:40px;
+  align-items: center;
+}
+
+.arrow-button {
+
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.8;
+  width: 32px;
+  height: 32px;
+  margin: 2px;
+  text-align: center;
+  outline-color: #3b434f;
+  outline-width: 2px;
+  outline-style: solid;
+  align-items: center;
+  margin-bottom: 30px;
+  background-color: #1e2530;
+}
+.left-button{
+  background: url('/ui/backButton_small.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.right-button{
+  background: url('/ui/nextButton_small.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.anim-button:hover {
+  opacity: 1;
+}
+
+/* Hide the default checkbox */
+.custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+/* Style the custom checkbox */
+.custom-checkbox .checkbox-container {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #284b39; /* Change border color as needed */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-checkbox .checkbox-container.checked {
+  background-color: #5eb086; /* Change background color when checked */
+}
+
+.custom-checkbox .checkbox-container .checkmark {
+  display: none;
+}
+
+/* Style the checkmark when the checkbox is checked */
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-container {
+  background-color: #5eb086; /* Change background color when checked */
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-container .checkmark {
+  display: block;
+}
+
+.checkboxHolder {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  height: 40px;
+}

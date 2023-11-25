@@ -4,6 +4,7 @@ import { SceneContext } from "../context/SceneContext"
 import { CameraMode } from "../context/ViewContext"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { SAH, MeshBVH } from 'three-mesh-bvh';
+import { local } from "../library/store"
 
 export default function Scene({sceneModel, lookatManager}) {
   const {
@@ -127,10 +128,6 @@ export default function Scene({sceneModel, lookatManager}) {
     const setOriginalInidicesAndColliders = () => {
       avatarModel.traverse((child)=>{
         if (child.isMesh) {
-          if (child.userData.lastBoundsTree){
-            child.userData.lastBoundsTree = child.geometry.boundsTree;
-            child.geometry.disposeBoundsTree();
-          }
           if (child.userData.origIndexBuffer){
             child.userData.clippedIndexGeometry = child.geometry.index.clone();
             child.geometry.setIndex(child.userData.origIndexBuffer);
@@ -144,7 +141,6 @@ export default function Scene({sceneModel, lookatManager}) {
         if (child.isMesh) {
           if (child.userData.origIndexBuffer){
             child.geometry.setIndex(child.userData.clippedIndexGeometry);
-            child.geometry.boundsTree = child.userData.lastBoundsTree;
           }
         }
       })
@@ -192,26 +188,29 @@ export default function Scene({sceneModel, lookatManager}) {
 
       const isCtrlPressed = event.ctrlKey;
 
-      setOriginalInidicesAndColliders();
+      const displayCullFaces = true;//local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"];
+      if (displayCullFaces){
+        setOriginalInidicesAndColliders();
 
-      // Calculate mouse position in normalized device coordinates
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        // Calculate mouse position in normalized device coordinates
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-      // Update the raycaster
-      raycaster.setFromCamera(mouse, camera);
+        // Update the raycaster
+        raycaster.setFromCamera(mouse, camera);
 
-      // Perform the raycasting
-      const intersects = raycaster.intersectObjects(avatarModel.children);
+        // Perform the raycasting
+        const intersects = raycaster.intersectObjects(avatarModel.children);
 
-      if (intersects.length > 0) {
-        const intersection = intersects[0];
-    
-        updateCullIndices(intersection, isCtrlPressed)
+        if (intersects.length > 0) {
+          const intersection = intersects[0];
+      
+          updateCullIndices(intersection, isCtrlPressed)
+        }
+
+        restoreCullIndicesAndColliders();
       }
-
-      restoreCullIndicesAndColliders();
      
     };
 

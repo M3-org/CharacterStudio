@@ -97,7 +97,9 @@ function getVRM0BoneName(name){
   return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, onDone) {
+    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
+        console.log(vrm);
+        console.log(avatar);
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -150,17 +152,30 @@ export default class VRMExporterv0 {
             if (!material.map)
                 throw new Error(material.name + " map is null");
             return { name: material.name, imageBitmap: material.map.image };
-        }); // TODO: 画像がないMaterialもある
+        }); 
         const shadeImages = uniqueMaterials
             .filter((material) => material.userData.shadeTexture)
             .map((material) => {
             if (!material.userData.shadeTexture)
                 throw new Error(material.userData.shadeTexture + " map is null");
             return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
-        }); // TODO: 画像がないMaterialもある\
-        
-        const images = mainImages.concat(shadeImages);
+        }); 
+        const ormImages = uniqueMaterials
+            .filter((material) => material.roughnessMap)
+            .map((material) => {
+            if (!material.roughnessMap)
+                return null;
+            return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
+        }); 
 
+        const normalImages = uniqueMaterials
+        .filter((material) => material.roughnessMap)
+        .map((material) => {
+            if (!material.normalMap)
+                return null
+            return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
+        }); 
+        const images =  [...mainImages, ...shadeImages, ...ormImages,...normalImages].filter(element => element !== null);
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -195,8 +210,12 @@ export default class VRMExporterv0 {
                 ? object.children[0]
                 : object);
             const attributes = mesh.geometry.attributes;
-            meshDatas.push(new MeshData(attributes.position, WEBGL_CONST.FLOAT, MeshDataType.POSITION, AccessorsType.VEC3, mesh.name, undefined));
-            meshDatas.push(new MeshData(attributes.normal, WEBGL_CONST.FLOAT, MeshDataType.NORMAL, AccessorsType.VEC3, mesh.name, undefined));
+            const positionAttribute = new MeshData(attributes.position, WEBGL_CONST.FLOAT, MeshDataType.POSITION, AccessorsType.VEC3, mesh.name, undefined);
+            meshDatas.push(positionAttribute);
+
+            const normalAttribute = new MeshData(attributes.normal, WEBGL_CONST.FLOAT, MeshDataType.NORMAL, AccessorsType.VEC3, mesh.name, undefined);
+            meshDatas.push(normalAttribute);
+
             meshDatas.push(new MeshData(attributes.uv, WEBGL_CONST.FLOAT, MeshDataType.UV, AccessorsType.VEC2, mesh.name, undefined));
             meshDatas.push(new MeshData(attributes.skinWeight, WEBGL_CONST.FLOAT, MeshDataType.SKIN_WEIGHT, AccessorsType.VEC4, mesh.name, undefined));
             meshDatas.push(new MeshData(attributes.skinIndex, WEBGL_CONST.UNSIGNED_SHORT, MeshDataType.SKIN_INDEX, AccessorsType.VEC4, mesh.name, undefined));
@@ -219,6 +238,7 @@ export default class VRMExporterv0 {
             }
 
             mesh.geometry.userData.targetNames = [];
+            console.warn("taking only mesh 0 for morph targets now, take the correct mesh");
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
                 const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
@@ -250,23 +270,68 @@ export default class VRMExporterv0 {
                 // to do, material target binds, and texture transform binds
             }
 
+            const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
+
+
+                const nonZeroIndices = [];
+                const nonZeroValues = [];
+                
+                // Step 1: Get Zero Elements
+                for (let i = 0; i < attributeData.length; i += 3) {
+                    const x = attributeData[i];
+                    const y = attributeData[i + 1];
+                    const z = attributeData[i + 2];
+
+                    // Check if any of the x, y, or z values is non-zero
+                    if (x !== 0 || y !== 0 || z !== 0) {
+                        nonZeroIndices.push(i / 3); // Push the index of the position, not the index in the array
+                        nonZeroValues.push(x, y, z);
+                    }
+                }
+                if (nonZeroIndices.length > 0){
+                    // Step 2: Calculate padding
+                    const originalLength = nonZeroIndices.length;
+                    const remainder = originalLength % 4;
+                    const padding = (remainder === 0) ? 0 : 4 - remainder;
+
+                    // Step 3: Add padding if needed
+                    if (padding > 0) {
+                        for (let i = 0; i < padding; i++) {
+                            nonZeroIndices.push(0); // Add dummy indices for padding
+                            nonZeroValues.push(0, 0, 0);
+                        }
+                    }
+
+                    // Step 3: Create sparse data
+                    const sparseData = {
+                        count: nonZeroIndices.length,  // Total number of position elements
+                        indices: new Uint32Array(nonZeroIndices),
+                        values: new Float32Array(nonZeroValues),
+                    };
+                    // Step 4: Create MeshData
+                    meshDatas.push(new MeshData(
+                        baseAttribute, 
+                        WEBGL_CONST.FLOAT, 
+                        meshDataType, 
+                        AccessorsType.VEC3, 
+                        mesh.name, 
+                        BLENDSHAPE_PREFIX + prop,
+                        sparseData));
+                }
+            }
+
             for (const prop in mesh.morphTargetDictionary){
 
                 mesh.geometry.userData.targetNames.push(prop);
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
-                meshDatas.push(new MeshData(morphAttribute.position[morphIndex], WEBGL_CONST.FLOAT, MeshDataType.BLEND_POSITION, AccessorsType.VEC3, mesh.name, BLENDSHAPE_PREFIX + prop));
+
+                getMorphData(morphAttribute.position[morphIndex].array, prop , MeshDataType.BLEND_POSITION , attributes.position)
                 
-                if (morphAttribute.normal){
-                    meshDatas.push(new MeshData(
-                        morphAttribute.normal[morphIndex], 
-                        WEBGL_CONST.FLOAT, 
-                        MeshDataType.BLEND_NORMAL, 
-                        AccessorsType.VEC3, 
-                        mesh.name, 
-                        BLENDSHAPE_PREFIX + prop));
-                    }
-                }
+                if (morphAttribute.normal)
+                    getMorphData(morphAttribute.normal[morphIndex].array, prop , MeshDataType.BLEND_NORMAL , attributes.normal)
+
+            }
         });
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
@@ -278,7 +343,7 @@ export default class VRMExporterv0 {
             meshDatas.push(new MeshData(new BufferAttribute(inverseBindMatrices, 16), WEBGL_CONST.FLOAT, MeshDataType.BIND_MATRIX, AccessorsType.MAT4, mesh.name, mesh.name));
         });
         outputAccessors.push(...meshDatas.map((meshData) => ({
-            bufferView: -1,
+           // bufferView: -1,
             byteOffset: 0,
             componentType: meshData.valueType,
             count: meshData.attribute.count,
@@ -359,7 +424,7 @@ export default class VRMExporterv0 {
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
         
-        const materialProperties = [{
+        const vrmMaterialProperties = {
             floatProperties : {
                 // _BlendMode : 0, 
                 // _BumpScale : 1, 
@@ -394,7 +459,7 @@ export default class VRMExporterv0 {
                 MTOON_OUTLINE_COLOR_FIXED : true, 
                 MTOON_OUTLINE_WIDTH_WORLD : true
             }, 
-            name : "CombinedMat", 
+            name : "VRMCombinedMat", 
             renderQueue : 2000, 
             shader : "VRM/MToon", 
             tagMap : {
@@ -420,8 +485,26 @@ export default class VRMExporterv0 {
                 // _SphereAdd : [0, 0, 1, 1], 
                 // _UvAnimMaskTexture : [0, 0, 1, 1]
             }
-        }]
+        }
 
+        const stdMaterialProperties ={
+            name : "STDCombinedMat", 
+            shader : "VRM_USE_GLTFSHADER", 
+        }
+
+        const materialProperties = []
+        uniqueMaterials.forEach(mat => {
+            if (mat.type == "ShaderMaterial"){
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, vrmMaterialProperties))
+                )
+            }
+            else{
+                materialProperties.push(
+                    materialProperties.push(Object.assign({}, stdMaterialProperties))
+                )
+            }
+        });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
 
@@ -435,22 +518,35 @@ export default class VRMExporterv0 {
                 }
             }
         })
+        console.log(rootSpringBones);
 
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
-        const colliderGroupsIndexes = [];
-        // old way, we were hard coding the collider bone, we should fetch it instead
-        // colliderBones.forEach((colliderBone, i) => {
-        //     const nodeIndex = nodes.indexOf(colliderBone);
-        //     const colliderGroup = {
-        //         "colliders": [
-        //             { "offset": { "x": 0, "y": 0.05, "z": 0 }, "radius": 0.075 }
-        //         ],
-        //         "node": nodeIndex
-        //     }
-        //     colliderGroups.push(colliderGroup);
-        //     colliderGroupsIndexes.push(i);
-        // })
+
+
+        const skeleton = meshes.find(mesh => mesh.isSkinnedMesh)?.skeleton || null;
+
+        //current method: were saving in userData the values that we want to store, 
+        for (let i =0; i < skeleton.bones.length;i++){
+            const bn = skeleton.bones[i];
+            if (bn.userData.VRMcolliders){
+                // get the node value here
+                const colliderGroup = {
+                    node:nodeNames.indexOf(bn.name),
+                    colliders:[],
+                    name:bn.name
+                }
+                bn.userData.VRMcolliders.forEach(collider => {
+                    const sphere = collider.sphere
+                    colliderGroup.colliders.push({
+                        radius:sphere.radius * scale,
+                        offset:{x:sphere.offset[0] * scale,y:sphere.offset[1] * scale,z:sphere.offset[2] * scale}
+                    })
+                });
+                colliderGroups.push(colliderGroup)
+            }
+        }
+        console.log("COLLIDER GROUPS", colliderGroups);
 
         const findBoneIndex = (boneName) =>{
             for (let i = 0; i < nodes.length; i++) {
@@ -462,19 +558,57 @@ export default class VRMExporterv0 {
             return -1;
         }
 
+        // returns the bone index of the bones name and its childrens
+        const findBoneIndices = (boneName) =>{
+            const bnIndex = findBoneIndex(boneName);
+            if (bnIndex == -1){
+                return [-1]
+            }
+            else{
+                const result = [];
+                const rootBone = nodes[bnIndex]
+                rootBone.traverse((child)=>{
+                    if (child.isBone){
+                        result.push(findBoneIndex(child.name));
+                    }
+                })
+                return result;
+            }
+        }
+
         const boneGroups = [];
         rootSpringBones.forEach(springBone => {
-            let boneIndex = findBoneIndex(springBone.name);
-            let centerIndex = findBoneIndex(springBone.center?.name);
+            const boneIndices = findBoneIndices(springBone.name);
+
+            // get the collider group indices
+            const colliderIndices = [];
+            springBone.colliderGroups.forEach(colliderGroup => {
+                const springCollider = colliderGroup.colliders[0];
+                const springParent = springCollider.parent;
+
+                const ind = colliderGroups.findIndex(group => group.name === springParent.name);
+                if (ind != -1){
+                    colliderIndices.push(ind);
+                }
+                else{
+                    console.warn("no collider group for bone name: ", springParent.name + " was found");
+                }
+            });
+
+            if (boneIndices === [-1]) {
+                console.warn("No bone found for spring bone " + springBone.name);
+                return; // Skip to the next iteration
+            }
+            let centerIndex = findBoneIndex(springBone.center?.name);   
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
             const settings = springBone.settings;
             
             boneGroups.push(
                 {
-                    bones: [boneIndex],
+                    bones: boneIndices,
                     center:centerIndex,
-                    colliderGroups: colliderGroupsIndexes, // XXX need to add the indices
+                    colliderGroups: colliderIndices,
                     dragForce: settings.dragForce,
                     gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
                     gravityPower: settings.gravityPower,
@@ -486,8 +620,9 @@ export default class VRMExporterv0 {
 
         const outputSecondaryAnimation = {
             boneGroups,
-            colliderGroups: colliderGroups,
+            colliderGroups,
         }
+        console.log(outputSecondaryAnimation);
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];
@@ -495,7 +630,18 @@ export default class VRMExporterv0 {
             buffer: imageBitmap2png(image.imageBitmap),
             type: MeshDataType.IMAGE,
         })));
-        bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
+        
+        // bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
+        meshDatas.forEach((data, i) => {
+            if (data.buffer) {
+                bufferViews.push({ buffer: data.buffer, typeString:"", type: data.type });
+            } else if (data.sparse) {
+                bufferViews.push({ buffer: data.sparse.indices, typeString:"indices", type: data.type, count:data.sparse.count });
+                bufferViews.push({ buffer: data.sparse.values, typeString:"values",type: data.type });
+            }
+        });
+
+
         if (icon)
             bufferViews.push({
                 buffer: imageBitmap2png(icon.imageBitmap),
@@ -504,7 +650,9 @@ export default class VRMExporterv0 {
         let bufferOffset = 0;
         let imageIndex = 0;
         let accessorIndex = 0;
-        const outputBufferViews = bufferViews.map((bufferView, index) => {
+
+        let index = 0;
+        const outputBufferViews = bufferViews.map((bufferView) => {
             const value = {
                 buffer: 0,
                 byteLength: bufferView.buffer.byteLength,
@@ -519,13 +667,64 @@ export default class VRMExporterv0 {
             bufferOffset += bufferView.buffer.byteLength;
             if (bufferView.type === MeshDataType.IMAGE) {
                 outputImages[imageIndex++].bufferView = index;
+                index++;
             }
             else {
-                outputAccessors[accessorIndex++].bufferView = index;
+                if (!meshDatas[accessorIndex].sparse){
+                    meshDatas[accessorIndex].bufferIndex = index;
+
+                    // save the bufferview in case we need it for sparse accessors
+                    outputAccessors[accessorIndex].bufferView = index;
+
+                    accessorIndex++
+                    index++;
+                }
+                else{
+                    //const bufferIndex = meshDatas[accessorIndex]?.sparse?.sparseAttribute?.bufferIndex;
+
+                    // apply index from sparseAttribute
+                    //outputAccessors[accessorIndex].bufferView = bufferIndex; // 
+                    
+                    // create the sparse object if it has not been created yet
+                    if (outputAccessors[accessorIndex].sparse == null)
+                        outputAccessors[accessorIndex].sparse = {}
+                    
+                    // if the buffer view is representing indices of the sparse, save them into an indices object
+                    // also save count, we can take the length of the indicesw view for this
+                    if (bufferView.typeString === "indices"){
+                        outputAccessors[accessorIndex].sparse.count = bufferView.count;
+                        outputAccessors[accessorIndex].sparse[bufferView.typeString] = {
+                            bufferView : index,
+                            byteOffset : 0,
+                            componentType : WEBGL_CONST.UNSIGNED_INT
+                        }
+                    }
+                    if (bufferView.typeString === "values"){
+                        outputAccessors[accessorIndex].sparse[bufferView.typeString] = {
+                            bufferView : index,
+                            byteOffset : 0,
+                            componentType : WEBGL_CONST.FLOAT
+                        }
+                    }
+                    
+                    //outputAccessors[accessorIndex].sparse
+
+                    // add accessor index only if this is the last sparse type value
+                    if (bufferView.typeString === "values"){
+                        accessorIndex++;
+                    }
+
+                    // always add to index
+                    index++;
+                }
             }
             return value;
         });
+
         const outputScenes = toOutputScenes(avatar, outputNodes);
+
+
+
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,
@@ -570,6 +769,7 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
+        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -687,15 +887,56 @@ class GlbChunk {
     }
 }
 export class MeshData {
-    constructor(attribute, valueType, type, accessorsType, meshName, name) {
+    constructor(attribute, valueType, type, accessorsType, meshName, name, sparseData) {
         this.attribute = attribute;
         this.type = type;
         this.valueType = valueType;
         this.accessorsType = accessorsType;
         this.meshName = meshName;
         this.name = name;
-        this.buffer = parseBinary(this.attribute, this.valueType);
-        this.max =
+
+        // Check if sparse data is provided
+        
+        if (sparseData) {
+            const { indices, values, count } =sparseData;
+
+            // Convert indices and values to BufferAttributes
+            const indicesBufferAttribute = new BufferAttribute(
+                indices,
+                1 // Set the item size to 1 for indices
+            );
+            const valuesBufferAttribute = new BufferAttribute(
+                values,
+                attribute.itemSize // Use the same item size as the original attribute
+            );
+            // pass as attribute
+            this.sparse  = {
+                count,
+                indices:parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
+                values:parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
+            }
+
+            this.max =
+            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                ? [
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                ]
+                : undefined;
+            this.min =
+            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                ? [
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                ]
+                : undefined;
+        }
+        else{
+            this.buffer = parseBinary(this.attribute, this.valueType)
+
+            this.max =
             type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
                 ? [
                     Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
@@ -703,7 +944,7 @@ export class MeshData {
                     Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
                 ]
                 : undefined;
-        this.min =
+            this.min =
             type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
                 ? [
                     Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
@@ -711,6 +952,8 @@ export class MeshData {
                     Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
                 ]
                 : undefined;
+        }
+
     }
 }
 var MaterialType;
@@ -784,20 +1027,30 @@ const toOutputMeshes = (meshes, meshDatas, uniqueMaterialNames) => {
                     material: uniqueMaterialNames.indexOf(materialName),
                     mode: 4,
                     targets: mesh.geometry.userData.targetNames
-                        ? mesh.geometry.userData.targetNames.map((targetName) => ({
-                            NORMAL: meshDatas
+                        ? mesh.geometry.userData.targetNames.map((targetName) => {
+                            const normalIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_NORMAL &&
-                                data.meshName === mesh.name
-                                ? data.name
-                                : null)
-                                .indexOf(BLENDSHAPE_PREFIX + targetName),
-                            POSITION: meshDatas
+                                    data.meshName === mesh.name
+                                    ? data.name
+                                    : null)
+                                .indexOf(BLENDSHAPE_PREFIX + targetName);
+                    
+                            const positionIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_POSITION &&
-                                data.meshName === mesh.name
-                                ? data.name
-                                : null)
-                                .indexOf(BLENDSHAPE_PREFIX + targetName),
-                        }))
+                                    data.meshName === mesh.name
+                                    ? data.name
+                                    : null)
+                                .indexOf(BLENDSHAPE_PREFIX + targetName);
+                    
+                    
+                            const result = {}
+                            if (positionIndex !== -1)
+                                result.POSITION = positionIndex;
+                            if (normalIndex !== -1)
+                                result.NORMAL = normalIndex;
+                            // Use the indices or handle the case when they are -1
+                            return result;
+                        })
                         : undefined,
                 };
             }),
@@ -813,7 +1066,7 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
             inverseBindMatrices: meshDatas
                 .map((data) => data.type === MeshDataType.BIND_MATRIX ? data.meshName : null)
                 .indexOf(mesh.name),
-            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)),
+            joints: mesh.skeleton.bones.map((bone) => nodeNames.indexOf(bone.name)).filter((index) => index !== -1),
             skeleton: nodeNames.indexOf(mesh.skeleton.bones[0].name),
         };
     });
@@ -825,9 +1078,9 @@ const toOutputMaterials = (uniqueMaterials, images) => {
       
       material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
       if (material.type === "ShaderMaterial") {
-          VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          //VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+          VRMC_materials_mtoon = {};
           VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
-
           const mtoonMaterial = material;
           baseColor = mtoonMaterial.color ? [
                   1,
@@ -855,6 +1108,14 @@ const toOutputMaterials = (uniqueMaterials, images) => {
           }
       }
 
+      let metalicRoughnessIndex = -1;
+      if (material.roughnessMap)
+        metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
+
+      let normalTextureIndex = -1;
+      if (material.normalMap)
+        normalTextureIndex = images.map((image) => image.name).indexOf(material.name + "_normal");
+
       const baseTexture = baseTxrIndex >= 0 ? {
               extensions: {
                   KHR_texture_transform: {
@@ -866,44 +1127,68 @@ const toOutputMaterials = (uniqueMaterials, images) => {
               texCoord: 0, // TODO:
           } :
           undefined;
-      const metallicFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.metalness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0;
-              default:
-                  return 0;
+
+          const pbrMetallicRoughness = {
+            baseColorFactor: baseColor,
+            baseColorTexture: baseTexture,
           }
-      })();
-      const roughnessFactor = (() => {
-          switch (material.type) {
-              case MaterialType.MeshStandardMaterial:
-                  return material.roughness;
-              case MaterialType.MeshBasicMaterial:
-                  return 0.9;
-              default:
-                  return 0.9;
-          }
-      })();
-      return {
-          alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
-          alphaMode: material.transparent ?
-              "BLEND" : material.alphaTest > 0 ?
-              "MASK" : "OPAQUE",
-          doubleSided: material.side === 2,
-          extensions: material.type === "ShaderMaterial" ? {
-              KHR_materials_unlit: {}, // TODO:
-              VRMC_materials_mtoon
-          } : undefined,
-          name: material.name,
-          pbrMetallicRoughness: {
-              baseColorFactor: baseColor,
-              baseColorTexture: baseTexture,
-              metallicFactor: metallicFactor,
-              roughnessFactor: roughnessFactor,
-          },
-      };
+
+      const metalRoughTexture = metalicRoughnessIndex >= 0 ?{
+            index: metalicRoughnessIndex,
+            texCoord: 0, // TODO:
+        }:undefined
+
+        const normalMapTexture = normalTextureIndex >= 0 ? {
+            index: normalTextureIndex,
+            texCoord: 0,
+        }:undefined;
+
+        if (metalRoughTexture){
+            pbrMetallicRoughness.metallicRoughnessTexture = metalRoughTexture;
+        }
+        else{
+            const metallicFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.metalness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0;
+                    default:
+                        return 0;
+                }
+            })();
+            const roughnessFactor = (() => {
+                switch (material.type) {
+                    case MaterialType.MeshStandardMaterial:
+                        return material.roughness;
+                    case MaterialType.MeshBasicMaterial:
+                        return 0.9;
+                    default:
+                        return 0.9;
+                }
+            })();
+
+            pbrMetallicRoughness.metallicFactor = metallicFactor;
+            pbrMetallicRoughness.roughnessFactor = roughnessFactor;
+        }
+
+        const parseMaterial = {
+            alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
+            alphaMode: material.transparent ?
+                "BLEND" : material.alphaTest > 0 ?
+                "MASK" : "OPAQUE",
+            doubleSided: material.side === 2,
+            extensions: material.type === "ShaderMaterial" ? {
+                KHR_materials_unlit: {}, // TODO:
+                VRMC_materials_mtoon
+            } : undefined,
+            name: material.name,
+            pbrMetallicRoughness
+        }
+        if (normalMapTexture){
+            parseMaterial.normalTexture = normalMapTexture;
+        }
+      return parseMaterial;
   });
 };
 const toOutputImages = (images, icon) => {
