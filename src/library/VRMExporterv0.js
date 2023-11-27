@@ -584,14 +584,20 @@ export default class VRMExporterv0 {
             const colliderIndices = [];
             springBone.colliderGroups.forEach(colliderGroup => {
                 const springCollider = colliderGroup.colliders[0];
-                const springParent = springCollider.parent;
+                // sometimes there is no colliders defined
+                if (springCollider != null){
+                    const springParent = springCollider.parent;
 
-                const ind = colliderGroups.findIndex(group => group.name === springParent.name);
-                if (ind != -1){
-                    colliderIndices.push(ind);
+                    const ind = colliderGroups.findIndex(group => group.name === springParent.name);
+                    if (ind != -1){
+                        colliderIndices.push(ind);
+                    }
+                    else{
+                        console.warn("No collider group for bone name: ", springParent.name + " was found");
+                    }
                 }
                 else{
-                    console.warn("no collider group for bone name: ", springParent.name + " was found");
+                    console.log("No colliders definition were present in vrm file file for: ", springBone.name + " spring bones")
                 }
             });
 
