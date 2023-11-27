@@ -584,10 +584,9 @@ export default class VRMExporterv0 {
             const colliderIndices = [];
             springBone.colliderGroups.forEach(colliderGroup => {
                 const springCollider = colliderGroup.colliders[0];
-                // sometimes there is no colliders defined
+                // sometimes there are no colliders defined in collidersGroup
                 if (springCollider != null){
                     const springParent = springCollider.parent;
-
                     const ind = colliderGroups.findIndex(group => group.name === springParent.name);
                     if (ind != -1){
                         colliderIndices.push(ind);
