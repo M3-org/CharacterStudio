@@ -10,6 +10,7 @@ import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { getTraitOption } from "../library/option-utils"
+import { getDataArrayFromNFTMetadata } from "../library/file-utils"
 
 function Appearance({
   animationManager,
