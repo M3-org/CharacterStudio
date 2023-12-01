@@ -7,16 +7,27 @@ import { saveVRMCollidersToUserData } from "./load-utils";
 import { cullHiddenMeshes } from "./utils";
 
 export class CharacterManager {
-    constructor(){
-        this.parentModel = null;
-        this.avatar = {};   // Holds information of traits within the avatar
-        this.manifest = null;
-        this.traitLoadManager = new TraitLoadingManager();
-
-       
-
-        this.isLoading = false;
+    constructor(options){
+      this._start(options);
     }
+
+    async _start(options){
+      const{
+        parentModel = null,
+        createAnimationManager = false,
+        manifestURL = null,
+      }= options;
+
+      this.parentModel = parentModel;
+      
+      if (manifestURL)
+        this.manifest = await this.loadManifest(manifestURL, options)
+
+      this.avatar = {};   // Holds information of traits within the avatar
+      this.traitLoadManager = new TraitLoadingManager();
+    }
+
+
 
     setParentModel(model){
         this.parentModel = model;
@@ -32,7 +43,34 @@ export class CharacterManager {
             });
         })
     }
+    async loadManifest(url, options){
+      const {
+        createAnimationManager = false
+      } = options
 
+      this.manifest = await this.fetchManifest(url)
+      
+      if (this.manifest){
+          this.traitLoadManager.setBaseDirectory((this.manifest.assetsLocation || "") + (this.manifest.traitsDirectory || ""));
+          this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
+          console.log(this.animationManager)
+      }
+    }
+
+    async _createAnimationManager(){
+
+      const animationManager = new AnimationManager(this.manifest.offset)
+      const animationPaths = getAsArray(this.manifest.animationPath);
+      animationManager.storeAnimationPaths(animationPaths, this.manifest.assetsLocation || "");
+      await animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), this.manifest.assetsLocation || "")
+      return animationManager
+    }
+
+    async fetchManifest(location) {
+        const response = await fetch(location)
+        const data = await response.json()
+        return data
+    }
     _setupWireframeMaterial(mesh){
       // Set Wireframe material with random colors for each material the object has
       mesh.origMat = mesh.material;
@@ -194,8 +232,8 @@ export class CharacterManager {
         // // Add to look at manager
         // lookatManager.addVRM(vrm)
 
-        // // Animate this VRM 
-        // animationManager.startAnimation(vrm)
+        // Animate this VRM 
+        this.animationManager.startAnimation(vrm)
     }
 
     _displayModel(model){
@@ -233,12 +271,12 @@ export class CharacterManager {
     _positionModel(model){
       const templateInfo = this.manifest;
       const scale = templateInfo.exportScale || 1;
-      model.scene.scale.set(scale,scale,scale);
+        model.scene.scale.set(scale,scale,scale);
 
       // Move depending on manifest definition
-      const offset = templateInfo.offset;
-      if (offset != null)
-      model.scene.position.set(offset[0],offset[1],offset[2]);
+      // const offset = templateInfo.offset;
+      // if (offset != null)
+      //   model.scene.position.set(offset[0],offset[1],offset[2]);
     }
 
     _addLoadedData(itemData){
@@ -302,18 +340,7 @@ export class CharacterManager {
       console.log(this.avatar)
     }
 
-    async loadManifest(url){
-        this.manifest = await this.fetchManifest(url)
-        if (this.manifest);
-            this.traitLoadManager.setBaseDirectory((this.manifest.assetsLocation || "") + (this.manifest.traitsDirectory || ""));
-        console.log(this.traitLoadManager.baseDirectory);
-    }
 
-    async fetchManifest(location) {
-        const response = await fetch(location)
-        const data = await response.json()
-        return data
-    }
 
     getJsonTraits(){
 
@@ -337,189 +364,189 @@ export class CharacterManager {
 
 
 
-    _filterRestrictedOptions(options){
-        let removeTraits = [];
-        for (let i =0; i < options.length;i++){
-          const option = options[i];
+    // _filterRestrictedOptions(options){
+    //     let removeTraits = [];
+    //     for (let i =0; i < options.length;i++){
+    //       const option = options[i];
           
-         //if this option is not already in the remove traits list then:
-         if (!removeTraits.includes(option.trait.name)){
-            const typeRestrictions = restrictions?.typeRestrictions;
-            // type restrictions = what `type` cannot go wit this trait or this type
-            if (typeRestrictions){
-              getAsArray(option.item?.type).map((t)=>{
-                //combine to array
-                removeTraits = [...new Set([
-                  ...removeTraits , // get previous remove traits
-                  ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
-                  ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
+    //      //if this option is not already in the remove traits list then:
+    //      if (!removeTraits.includes(option.trait.name)){
+    //         const typeRestrictions = restrictions?.typeRestrictions;
+    //         // type restrictions = what `type` cannot go wit this trait or this type
+    //         if (typeRestrictions){
+    //           getAsArray(option.item?.type).map((t)=>{
+    //             //combine to array
+    //             removeTraits = [...new Set([
+    //               ...removeTraits , // get previous remove traits
+    //               ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
+    //               ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
     
-              })
-            }
+    //           })
+    //         }
     
-            // trait restrictions = what `trait` cannot go wit this trait or this type
-            const traitRestrictions = restrictions?.traitRestrictions;
-            if (traitRestrictions){
-              removeTraits = [...new Set([
-                ...removeTraits,
-                ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
-                ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
+    //         // trait restrictions = what `trait` cannot go wit this trait or this type
+    //         const traitRestrictions = restrictions?.traitRestrictions;
+    //         if (traitRestrictions){
+    //           removeTraits = [...new Set([
+    //             ...removeTraits,
+    //             ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
+    //             ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
     
-              ])]
-            }
-          }
-        }
+    //           ])]
+    //         }
+    //       }
+    //     }
     
-        // now update uptions
-        removeTraits.forEach(trait => {
-          let removed = false;
-          updateCurrentTraitMap(trait, null);
+    //     // now update uptions
+    //     removeTraits.forEach(trait => {
+    //       let removed = false;
+    //       updateCurrentTraitMap(trait, null);
           
-          for (let i =0; i < options.length;i++){
-            // find an option with the trait name 
-            if (options[i].trait?.name === trait){
-              options[i] = {
-                item:null,
-                trait:templateInfo.traits.find((t) => t.name === trait)
-              }
-              removed = true;
-              break;
-            }
-          }
-          // if no option setup was found, add a null option to remove in case user had it added before
-          if (!removed){
-            options.push({
-              item:null,
-              trait:templateInfo.traits.find((t) => t.name === trait)
-            })
-          }
-        });
+    //       for (let i =0; i < options.length;i++){
+    //         // find an option with the trait name 
+    //         if (options[i].trait?.name === trait){
+    //           options[i] = {
+    //             item:null,
+    //             trait:templateInfo.traits.find((t) => t.name === trait)
+    //           }
+    //           removed = true;
+    //           break;
+    //         }
+    //       }
+    //       // if no option setup was found, add a null option to remove in case user had it added before
+    //       if (!removed){
+    //         options.push({
+    //           item:null,
+    //           trait:templateInfo.traits.find((t) => t.name === trait)
+    //         })
+    //       }
+    //     });
        
-        return options;
-    }
-    _loadOptions(options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true){
+    //     return options;
+    // }
+    // _loadOptions(options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true){
 
-        // XXX I think this part was used to know which trait was selected
-        // for (const option of options) {
-        //   updateCurrentTraitMap(option.trait.trait, option.key)
-        // }
+    //     // XXX I think this part was used to know which trait was selected
+    //     // for (const option of options) {
+    //     //   updateCurrentTraitMap(option.trait.trait, option.key)
+    //     // }
     
-        if (filterRestrictions)
-          options = _filterRestrictedOptions(options);
+    //     if (filterRestrictions)
+    //       options = _filterRestrictedOptions(options);
     
-        //save selection to local storage
-        // if (saveUserSel)
-        //   saveUserSelection(options)
+    //     //save selection to local storage
+    //     // if (saveUserSel)
+    //     //   saveUserSelection(options)
     
-        // validate if there is at least a non null option
-        let nullOptions = true;
-        options.map((option)=>{
-          if(option.item != null)
-            nullOptions = false;
-        })
-        if (nullOptions === true){
-          return new Promise((resolve) => {
-            resolve(options)
-          });
-        }
+    //     // validate if there is at least a non null option
+    //     let nullOptions = true;
+    //     options.map((option)=>{
+    //       if(option.item != null)
+    //         nullOptions = false;
+    //     })
+    //     if (nullOptions === true){
+    //       return new Promise((resolve) => {
+    //         resolve(options)
+    //       });
+    //     }
     
-        setIsLoading(true);
+    //     setIsLoading(true);
     
-        //create the manager for all the options
-        const loadingManager = new THREE.LoadingManager()
+    //     //create the manager for all the options
+    //     const loadingManager = new THREE.LoadingManager()
     
-        //create a gltf loader for the 3d models
-        const gltfLoader = new GLTFLoader(loadingManager)
-        gltfLoader.crossOrigin = 'anonymous';
+    //     //create a gltf loader for the 3d models
+    //     const gltfLoader = new GLTFLoader(loadingManager)
+    //     gltfLoader.crossOrigin = 'anonymous';
     
-        gltfLoader.register((parser) => {
-          //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
+    //     gltfLoader.register((parser) => {
+    //       //return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
     
-          // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
-          // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
+    //       // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
+    //       // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
     
-          return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
-        })
+    //       return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
+    //     })
     
-        // and a texture loaders for all the textures
-        const textureLoader = new THREE.TextureLoader(loadingManager)
-        loadingManager.onProgress = function(url, loaded, total){
-          setLoadPercentage(Math.round(loaded/total * 100 ))
-        }
-        // return a promise, resolve = once everything is loaded
-        return new Promise((resolve) => {
+    //     // and a texture loaders for all the textures
+    //     const textureLoader = new THREE.TextureLoader(loadingManager)
+    //     loadingManager.onProgress = function(url, loaded, total){
+    //       setLoadPercentage(Math.round(loaded/total * 100 ))
+    //     }
+    //     // return a promise, resolve = once everything is loaded
+    //     return new Promise((resolve) => {
     
-          // resultData will hold all the results in the array that was given this function
-          const resultData = [];
-          loadingManager.onLoad = function (){
-            setLoadPercentage(0)
-            resolve(resultData);
-            setIsLoading(false)
-          };
-          loadingManager.onError = function (url){
-            console.log("currentTraits", resultData);
-            console.warn("error loading " + url)
-          }
-          loadingManager.onProgress = function(url, loaded, total){
-            setLoadPercentage(Math.round(loaded/total * 100 ))
-          }
+    //       // resultData will hold all the results in the array that was given this function
+    //       const resultData = [];
+    //       loadingManager.onLoad = function (){
+    //         setLoadPercentage(0)
+    //         resolve(resultData);
+    //         setIsLoading(false)
+    //       };
+    //       loadingManager.onError = function (url){
+    //         console.log("currentTraits", resultData);
+    //         console.warn("error loading " + url)
+    //       }
+    //       loadingManager.onProgress = function(url, loaded, total){
+    //         setLoadPercentage(Math.round(loaded/total * 100 ))
+    //       }
           
           
-          const baseDir = useTemplateBaseDirectory ? (templateInfo.assetsLocation || "") + templateInfo.traitsDirectory : "";
-          // load necesary assets for the options
-          options.map((option, index)=>{
-            if (option.selected){
-              setSelectValue(option.key)
-            }
-            if (option == null){
-              resultData[index] = null;
-              return;
-            }
-            // load model trait
-            const loadedModels = [];
-            const models = getAsArray(option?.item?.directory);
-            try {
-              models.forEach(async (modelDir, i) => {
-                try {
-                  const mod = await gltfLoader.loadAsync(baseDir + modelDir);
-                  loadedModels[i] = mod;
-                } catch (error) {
-                  console.error(`Error loading model ${modelDir}:`, error);
-                  options.splice(index, 1);
-                  resultData.splice(index, 1);
-                }
-              });
-            } catch (error) {
-              console.error('An error occurred:', error);
-              //remove option
-            }
+    //       const baseDir = useTemplateBaseDirectory ? (templateInfo.assetsLocation || "") + templateInfo.traitsDirectory : "";
+    //       // load necesary assets for the options
+    //       options.map((option, index)=>{
+    //         if (option.selected){
+    //           setSelectValue(option.key)
+    //         }
+    //         if (option == null){
+    //           resultData[index] = null;
+    //           return;
+    //         }
+    //         // load model trait
+    //         const loadedModels = [];
+    //         const models = getAsArray(option?.item?.directory);
+    //         try {
+    //           models.forEach(async (modelDir, i) => {
+    //             try {
+    //               const mod = await gltfLoader.loadAsync(baseDir + modelDir);
+    //               loadedModels[i] = mod;
+    //             } catch (error) {
+    //               console.error(`Error loading model ${modelDir}:`, error);
+    //               options.splice(index, 1);
+    //               resultData.splice(index, 1);
+    //             }
+    //           });
+    //         } catch (error) {
+    //           console.error('An error occurred:', error);
+    //           //remove option
+    //         }
             
-            // load texture trait
-            const loadedTextures = [];
-            getAsArray(option?.textureTrait?.directory).map((textureDir, i)=>{
-              textureLoader.load(baseDir + textureDir,(txt)=>{
-                txt.flipY = false;
-                loadedTextures[i] = (txt)
-              })
-            })
+    //         // load texture trait
+    //         const loadedTextures = [];
+    //         getAsArray(option?.textureTrait?.directory).map((textureDir, i)=>{
+    //           textureLoader.load(baseDir + textureDir,(txt)=>{
+    //             txt.flipY = false;
+    //             loadedTextures[i] = (txt)
+    //           })
+    //         })
     
-            // and just create colors
-            const loadedColors = [];
-            getAsArray(option?.colorTrait?.value).map((colorValue, i)=>{
-              loadedColors[i] = new THREE.Color(colorValue);
-            })
-            resultData[index] = {
-              item:option?.item,
-              trait:option?.trait,
-              textureTrait:option?.textureTrait,
-              colorTrait:option?.colorTrait,
-              models:loadedModels,          
-              textures:loadedTextures, 
-              colors:loadedColors      
-            }
-          })
-        });
-    }
+    //         // and just create colors
+    //         const loadedColors = [];
+    //         getAsArray(option?.colorTrait?.value).map((colorValue, i)=>{
+    //           loadedColors[i] = new THREE.Color(colorValue);
+    //         })
+    //         resultData[index] = {
+    //           item:option?.item,
+    //           trait:option?.trait,
+    //           textureTrait:option?.textureTrait,
+    //           colorTrait:option?.colorTrait,
+    //           models:loadedModels,          
+    //           textures:loadedTextures, 
+    //           colors:loadedColors      
+    //         }
+    //       })
+    //     });
+    // }
 }
 
 // Class to load traits
