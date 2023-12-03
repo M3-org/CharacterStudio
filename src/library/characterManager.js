@@ -23,20 +23,19 @@ export class CharacterManager {
       if (manifestURL)
         this.manifest = await this.loadManifest(manifestURL, options)
 
+      this.manifestData= null;
       this.avatar = {};   // Holds information of traits within the avatar
       this.traitLoadManager = new TraitLoadingManager();
     }
 
-
+    
 
     setParentModel(model){
         this.parentModel = model;
-        console.log(model);
     }
 
     async loadTraits(options){
         this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
-            console.log("loadedData", loadedData);
             loadedData.forEach(itemData => {
                 this._addLoadedData(itemData)
                 cullHiddenMeshes(this.avatar);
@@ -51,11 +50,13 @@ export class CharacterManager {
       this.manifest = await this.fetchManifest(url)
       
       if (this.manifest){
-          this.traitLoadManager.setBaseDirectory((this.manifest.assetsLocation || "") + (this.manifest.traitsDirectory || ""));
-          this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
-          console.log(this.animationManager)
+        this.manifestData = new ManifestData(this.manifest);
+        console.log(this.manifestData);
+        this.traitLoadManager.setBaseDirectory((this.manifest.assetsLocation || "") + (this.manifest.traitsDirectory || ""));
+        this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
       }
     }
+
 
     async _createAnimationManager(){
 
@@ -233,7 +234,8 @@ export class CharacterManager {
         // lookatManager.addVRM(vrm)
 
         // Animate this VRM 
-        this.animationManager.startAnimation(vrm)
+        if (this.animationManager)
+          this.animationManager.startAnimation(vrm)
     }
 
     _displayModel(model){
@@ -348,21 +350,10 @@ export class CharacterManager {
     loadCustom(url){
 
     }
-    setRestrictions(){
-
-    }
-    _loadVRM(){
-        
-    }
-
-    async fetchManifest(location) {
-        const response = await fetch(location)
-        const data = await response.json()
-        return data
-    }
 
 
 
+    // should be called within manifestData, as it is the one that holds this information
 
     // _filterRestrictedOptions(options){
     //     let removeTraits = [];
@@ -675,73 +666,317 @@ class LoadedData{
     }
 }
 
+// Extract to a new file
 class ManifestData{
     constructor(manifest){
+      const {
+        assetsLocation,
+        traitsDirectory,
+        thumbnailsDirectory,
+        traitIconsDirectorySvg,
+        animationPath,
+        exportScale,
+        requiredTraits,
+        randomTraits,
+        colliderTraits,
+        lipSyncTraits,
+        blinkerTraits,
+        traitRestrictions,
+        typeRestrictions,
+        defaultCullingLayer,
+        defaultCullingDistance,
+        offset,
+        vrmMeta,
 
+        traits,
+        textureCollections,
+        colorCollections
+
+      }= manifest;
+
+      this.assetsLocation = assetsLocation;
+      this.traitsDirectory = traitsDirectory;
+      this.thumbnailsDirectory = thumbnailsDirectory;
+      this.traitIconsDirectorySvg = traitIconsDirectorySvg;
+      this.exportScale = exportScale;
+      this.animationPath = getAsArray(animationPath);
+      this.requiredTraits = getAsArray(requiredTraits);
+      this.randomTraits = getAsArray(randomTraits);
+      this.colliderTraits = getAsArray(colliderTraits);
+      this.lipSyncTraits = getAsArray(lipSyncTraits);   
+      this.blinkerTraits = getAsArray(blinkerTraits);   
+      this.traitRestrictions = traitRestrictions  // get as array?
+      this.typeRestrictions = typeRestrictions    // get as array?
+      this.defaultCullingLayer = defaultCullingLayer
+      this.defaultCullingDistance = defaultCullingDistance 
+      this.offset = offset;
+      this.vrmMeta = vrmMeta;
+
+      // create texture and color traits first
+      this.textureTraits = [];
+      this.textureTraitsMap = null;
+      this.createTextureTraits(textureCollections);
+
+      this.colorTraits = [];
+      this.colorTraitsMap = null;
+      this.createColorTraits(colorCollections);
+
+      this.traits = [];
+      this.traitsMap = null;
+      this.createModelTraits(traits);
+      
+      //console.log(this.getTrait("BODY", "Feminine"))
+      console.log(this.traitsMap);''
+      console.log(this.colorTraitsMap);
+      console.log(this.textureTraitsMap);
+    }
+
+    getRandomTrait(groupTraitID){
+      
+    }
+
+    // model traits
+    getTrait(groupTraitID, traitID){
+      return this.getTraitGroup(groupTraitID)?.getTrait(traitID);
+    }
+    getTraitGroup(groupTraitID){
+      return this.traitsMap.get(groupTraitID);
+    }
+
+    // textures
+    getTextureTrait(groupTraitID, traitID){
+      return this.getTextureGroup(groupTraitID)?.getTrait(traitID);
+    }
+    getTextureGroup(groupTraitID){
+      return this.textureTraitsMap.get(groupTraitID);
+    }
+
+    // textures
+    getColorTrait(groupTraitID, traitID){
+      return this.getColorGroup(groupTraitID)?.getTrait(traitID);
+    }
+    getColorGroup(groupTraitID){
+      return this.colorTraitsMap.get(groupTraitID);
+    }
+
+
+
+    // Given an array of traits, saves an array of TraitModels
+    createModelTraits(modelTraits, replaceExisting = false){
+      if (replaceExisting) this.traits = [];
+
+      getAsArray(modelTraits).forEach(traitObject => {
+        this.traits.push(new TraitModelsGroup(this, traitObject))
+      });
+
+      this.traitsMap = new Map(this.traits.map(item => [item.trait, item]));
+    }
+
+    createTextureTraits(textureTraits, replaceExisting = false){
+      if (replaceExisting) this.textureTraits = [];
+
+      getAsArray(textureTraits).forEach(traitObject => {
+        this.textureTraits.push(new TraitTexturesGroup(this, traitObject))
+      });
+
+      this.textureTraitsMap = new Map(this.textureTraits.map(item => [item.trait, item]));
+    }
+
+    createColorTraits(colorTraits, replaceExisting = false){
+      if (replaceExisting) this.colorTraits = [];
+
+      getAsArray(colorTraits).forEach(traitObject => {
+        this.colorTraits.push(new TraitColorsGroup(this, traitObject))
+      });
+
+      this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
     }
 }
 
-class TraitModels{
-    constructor(options){
+// Must be created AFTER color collections and texture collections have been created
+class TraitModelsGroup{
+    constructor(manifestData, options){
         const {
-            cameraTarget = { distance:3 , height:1 },
-            cullingDistance = [0,0],
-            cullingLayer = -1,
+          trait,
+          name,
+          iconSVG,
+          cameraTarget = { distance:3 , height:1 },
+          cullingDistance,
+          cullingLayer,
+          collection
         } = options;
+        this.manifestData = manifestData;
+        
+        this.trait = trait;
+        this.name = name;
+        this.iconSVG = iconSVG;
+        this.cameraTarget = cameraTarget;
+        this.cullingDistance = cullingDistance;
+        this.cullingLayer = cullingLayer;
+        
+        this.collection = [];
+        this.collectionMap = null;
+        this.createCollection(collection);
+    }
+    getTrait(traitID){
+      return this.collectionMap.get(traitID);
+    }
+
+    createCollection(itemCollection, replaceExisting = false){
+      if (replaceExisting) this.collection = [];
+
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new ModelTrait(this, item))
+      });
+      this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 }
 
+
+
+
+class TraitTexturesGroup{
+  constructor(manifestData, options){
+    const {
+        trait,
+        collection
+    }= options;
+    this.manifestData = manifestData;
+    this.trait = trait;
+
+    this.collection = [];
+    this.collectionMap = null;
+    this.createCollection(collection);
+
+    
+  }
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  createCollection(itemCollection, replaceExisting = false){
+    if (replaceExisting) this.collection = [];
+
+    getAsArray(itemCollection).forEach(item => {
+      this.collection.push(new TextureTrait(this, item))
+    });
+    this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+}
+
+
+
+class TraitColorsGroup{
+  constructor(manifestData, options){
+    const {
+        trait,
+        collection
+    }= options;
+    this.manifestData = manifestData;
+    this.trait = trait;
+
+    this.collection = [];
+    this.collectionMap = null;
+    this.createCollection(collection);
+  }
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  createCollection(itemCollection, replaceExisting = false){
+    if (replaceExisting) this.collection = [];
+
+    getAsArray(itemCollection).forEach(item => {
+      this.collection.push(new ColorTrait(this, item))
+    });
+    this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+}
+
+class ModelTrait{
+  constructor(traitGroup, options){
+      const {
+          id,
+          directory,
+          name,
+          thumbnail,
+          cullingDistance,
+          cullingLayer,
+          type = [],
+          textureCollection,
+          colorCollection
+      }= options;
+      this.traitGroup = traitGroup;
+
+      this.id = id;
+      this.directory = directory;
+      this.name = name;
+      this.thumbnail = thumbnail;
+
+      this.cullHiddenMeshes = cullingDistance;
+      this.cullingLayer = cullingLayer;
+      this.type = type;
+
+      this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
+      this.targetColorCollection = colorCollection ? traitGroup.manifestData.getColorGroup(colorCollection) : null;
+
+      if (this.targetTextureCollection)
+        console.log(this.targetTextureCollection);
+  }
+}
+
+class TextureTrait{
+  constructor(traitGroup, options){
+      const {
+          id,
+          directory,
+          name,
+          thumbnail,
+      }= options;
+      this.traitGroup = traitGroup;
+
+      this.id = id;
+      this.directory = directory;
+      this.name = name;
+      this.thumbnail = thumbnail;
+  }
+}
+
+class ColorTrait{
+    constructor(traitGroup, options){
+        const {
+            id,
+            value,
+            name,
+        }= options;
+
+        this.traitGroup = traitGroup;
+
+        this.id = id;
+        this.name = name;
+        this.value = value;
+        
+    }
+}
+
+
+// ths one will be removed
 class TraitOption{
-    constructor(options){
-        const {
-            key = 'default',
-            icon = 'defaultIcon',
-            iconHSL = 'defaultIconHSL',
-            colorTrait = null,
-            textureTrait = null,
-            item = null
-        } = options;
+  constructor(options){
+      const {
+          key = 'default',
+          icon = 'defaultIcon',
+          iconHSL = 'defaultIconHSL',
+          colorTrait = null,
+          textureTrait = null,
+          item = null
+      } = options;
 
-        this.key = key;
-        this.colorTrait = colorTrait;
-        this.textureTrait = textureTrait;
-        this.icon = icon;
-        this.iconHSL = iconHSL;
-        this.item = item;
-    }
-}
-
-class TraitItem{
-    constructor(options){
-        const {
-            id,
-            directory,
-            name,
-            thumbnail,
-            cullingDistance,
-            cullingLayer
-        }= options;
-    }
-}
-
-class TraitTexture{
-    constructor(options){
-        const {
-            id,
-            directory,
-            name,
-            thumbnail,
-        }= options;
-    }
-}
-
-class TraitColor{
-    constructor(options){
-        const {
-            id,
-            directory,
-            name,
-            thumbnail,
-        }= options;
-    }
+      this.key = key;
+      this.colorTrait = colorTrait;
+      this.textureTrait = textureTrait;
+      this.icon = icon;
+      this.iconHSL = iconHSL;
+      this.item = item;
+  }
 }
