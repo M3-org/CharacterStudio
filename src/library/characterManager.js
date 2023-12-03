@@ -23,15 +23,20 @@ export class CharacterManager {
       if (manifestURL)
         this.manifest = await this.loadManifest(manifestURL, options)
 
-      this.manifestData= null;
+      this.manifestData = null;
       this.avatar = {};   // Holds information of traits within the avatar
       this.traitLoadManager = new TraitLoadingManager();
     }
 
-    
+
 
     setParentModel(model){
         this.parentModel = model;
+    }
+
+    async loadManifestRandomTraits(){
+      console.log("get random");
+      console.log(this.manifestData.getRandomTraits());
     }
 
     async loadTraits(options){
@@ -731,8 +736,26 @@ class ManifestData{
       console.log(this.textureTraitsMap);
     }
 
+    getRandomTraits(optionalGroupTraitIDs){
+      const traits = []
+      const searchArray = optionalGroupTraitIDs || this.randomTraits;
+      searchArray.forEach(groupTraitID => {
+        const trait = this.getRandomTrait(groupTraitID);
+        if (trait)
+          traits.push(trait);
+      });
+      return traits;
+    }
+
     getRandomTrait(groupTraitID){
-      
+      const traitModelsGroup = this.getTraitGroup(groupTraitID);
+      if (traitModelsGroup){
+        return traitModelsGroup.getRandomTrait();
+      }
+      else{
+        console.warn("No trait group with name " + groupTraitID + " was found.")
+        return null;
+      }
     }
 
     // model traits
@@ -820,6 +843,10 @@ class TraitModelsGroup{
     }
     getTrait(traitID){
       return this.collectionMap.get(traitID);
+    }
+
+    getRandomTrait(){
+      return this.collection[Math.floor(Math.random() * this.collection.length)];
     }
 
     createCollection(itemCollection, replaceExisting = false){
