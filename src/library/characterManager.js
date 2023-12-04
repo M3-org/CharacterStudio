@@ -36,16 +36,26 @@ export class CharacterManager {
 
     async loadRandomTraits(){
       console.log("get random");
-      console.log();
       if (this.manifestData){
-        this.loadTraits(this.manifestData.getRandomTraits());
+        this._loadTraits(this.manifestData.getRandomTraits());
       }
       else{
         console.error ("No manifest was loaded, random traits cannot be loaded.")
       }
     }
 
-    async loadTraits(options){
+    async loadTrait(groupTraitID, traitID){
+      const selectedTrait = this.manifestData.getTrait(groupTraitID, traitID);
+      if (selectedTrait)
+        this._loadTraits(getAsArray(selectedTrait));
+    }
+
+    async loadCustom(url){
+
+    }
+
+    // 
+    async _loadTraits(options){
       console.log(options)
       this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
         console.log("loaded", loadedData);
@@ -61,7 +71,7 @@ export class CharacterManager {
         createAnimationManager = false
       } = options
 
-      this.manifest = await this.fetchManifest(url)
+      this.manifest = await this._fetchManifest(url)
       
       if (this.manifest){
         this.manifestData = new ManifestData(this.manifest);
@@ -81,7 +91,7 @@ export class CharacterManager {
       return animationManager
     }
 
-    async fetchManifest(location) {
+    async _fetchManifest(location) {
         const response = await fetch(location)
         const data = await response.json()
         return data
@@ -356,17 +366,6 @@ export class CharacterManager {
       console.log(this.avatar)
     }
 
-
-
-    getJsonTraits(){
-
-    }
-    loadCustom(url){
-
-    }
-
-
-
     // should be called within manifestData, as it is the one that holds this information
 
     // _filterRestrictedOptions(options){
@@ -598,7 +597,6 @@ class TraitLoadingManager{
         return new Promise((resolve) => {
             this.isLoading = true;
             const resultData = [];
-            //const baseDir = this.manifestData.getTraitsDirectory();
     
             const promises = options.map(async (option, index) => {
                 if (option == null) {
@@ -685,7 +683,7 @@ class LoadedData{
 
 
 class SelectedOption{
-  constructor(traitModel,traitTexture, traitColor){
+  constructor(traitModel, traitTexture, traitColor){
     this.traitModel = traitModel;
     this.traitTexture = traitTexture;
     this.traitColor = traitColor;
@@ -751,7 +749,6 @@ class ManifestData{
       this.traitsMap = null;
       this.createModelTraits(traits);
       
-      //console.log(this.getTrait("BODY", "Feminine"))
       console.log(this.traitsMap);
       console.log(this.colorTraitsMap);
       console.log(this.textureTraitsMap);
@@ -762,21 +759,27 @@ class ManifestData{
       const selectedOptions = []
       const searchArray = optionalGroupTraitIDs || this.randomTraits;
       searchArray.forEach(groupTraitID => {
-        const trait = this.getRandomTrait(groupTraitID);
-        if (trait){
-          const traitTexture = trait.targetTextureCollection?.getRandomTrait();
-          const traitColor = trait.targetColorCollection?.getRandomTrait();
-          selectedOptions.push(new SelectedOption(trait,traitTexture, traitColor));
-        }
+        const traitSelectedOption = this.getRandomTrait(groupTraitID);
+        if (traitSelectedOption)
+          selectedOptions.push(traitSelectedOption)
       });
       console.log(selectedOptions);
       return selectedOptions;
     }
 
     getRandomTrait(groupTraitID){
+      // set to SelectedOption
       const traitModelsGroup = this.getTraitGroup(groupTraitID);
       if (traitModelsGroup){
-        return traitModelsGroup.getRandomTrait();
+        const trait =  traitModelsGroup.getRandomTrait();
+        if (trait){
+          const traitTexture = trait.targetTextureCollection?.getRandomTrait();
+          const traitColor = trait.targetColorCollection?.getRandomTrait();
+          return new SelectedOption(trait,traitTexture, traitColor);
+        }
+        else{
+          return null;
+        }
       }
       else{
         console.warn("No trait group with name " + groupTraitID + " was found.")
@@ -784,8 +787,20 @@ class ManifestData{
       }
     }
 
-    // model traits
+
+
     getTrait(groupTraitID, traitID){
+      const trait = this.getModelTrait(groupTraitID, traitID);
+      if (trait){
+        const traitTexture = trait.targetTextureCollection?.getRandomTrait();
+        const traitColor = trait.targetColorCollection?.getRandomTrait();
+        return new SelectedOption(trait,traitTexture, traitColor);
+      }
+      return null;
+    }
+
+    // model traits
+    getModelTrait(groupTraitID, traitID){
       return this.getTraitGroup(groupTraitID)?.getTrait(traitID);
     }
     getTraitGroup(groupTraitID){
