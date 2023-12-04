@@ -48,11 +48,13 @@ export class CharacterManager {
     async loadTraits(options){
       console.log(options)
       this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
+        console.log("loaded", loadedData);
           loadedData.forEach(itemData => {
               this._addLoadedData(itemData)
-              cullHiddenMeshes(this.avatar);
           });
+          cullHiddenMeshes(this.avatar);
       })
+     
     }
     async loadManifest(url, options){
       const {
@@ -334,7 +336,7 @@ export class CharacterManager {
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitName] && this.avatar[traitName].vrm) {
-        disposeVRM(avatar[traitName].vrm)
+        disposeVRM(this.avatar[traitName].vrm)
         // XXX restore effects
       }
     
@@ -590,6 +592,7 @@ class TraitLoadingManager{
     }
 
 
+    // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
     loadTraitOptions(baseDirectory, options) {
         return new Promise((resolve) => {
@@ -604,9 +607,9 @@ class TraitLoadingManager{
                 }
                 console.log(option)
                 //console.log(option.directory);
-    
+
                 const loadedModels = await Promise.all(
-                    getAsArray(option.directory).map(async (modelDir) => {
+                    getAsArray(option?.traitModel?.directory).map(async (modelDir) => {
                         try {
                             return await this.gltfLoader.loadAsync(baseDirectory + modelDir);
                         } catch (error) {
@@ -615,10 +618,9 @@ class TraitLoadingManager{
                         }
                     })
                 );
-                debugger;
+    
                 const loadedTextures = await Promise.all(
-                  
-                  getAsArray(option.targetTextureCollection?.directory).map(
+                  getAsArray(option?.traitTexture?.directory).map(
                       (textureDir) =>
                           new Promise((resolve) => {
                               this.textureLoader.load(baseDirectory + textureDir, (txt) => {
@@ -628,36 +630,14 @@ class TraitLoadingManager{
                           })
                   )
                 );
-                // const loadedModels = await Promise.all(
-                //     getAsArray(option?.item?.directory).map(async (modelDir) => {
-                //         try {
-                //             return await this.gltfLoader.loadAsync(baseDir + modelDir);
-                //         } catch (error) {
-                //             console.error(`Error loading model ${modelDir}:`, error);
-                //             return null;
-                //         }
-                //     })
-                // );
     
-                // const loadedTextures = await Promise.all(
-                //     getAsArray(option?.textureTrait?.directory).map(
-                //         (textureDir) =>
-                //             new Promise((resolve) => {
-                //                 this.textureLoader.load(baseDirectory + textureDir, (txt) => {
-                //                     txt.flipY = false;
-                //                     resolve(txt);
-                //                 });
-                //             })
-                //     )
-                // );
-    
-                const loadedColors = getAsArray(option?.colorTrait?.value).map((colorValue) => new THREE.Color(colorValue));
+                const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
     
                 resultData[index] = new LoadedData({
-                    item: option?.item,
-                    trait: option?.trait,
-                    textureTrait: option?.textureTrait,
-                    colorTrait: option?.colorTrait,
+                    item: option?.traitModel,
+                    trait: option?.traitModel.traitGroup,
+                    textureTrait: option?.traitTexture,
+                    colorTrait: option?.traitColor,
                     models: loadedModels,
                     textures: loadedTextures,
                     colors: loadedColors,
@@ -701,6 +681,15 @@ class LoadedData{
         this.textures = textures;
         this.colors = colors;
     }
+}
+
+
+class SelectedOption{
+  constructor(traitModel,traitTexture, traitColor){
+    this.traitModel = traitModel;
+    this.traitTexture = traitTexture;
+    this.traitColor = traitColor;
+  }
 }
 
 // Extract to a new file
@@ -763,20 +752,25 @@ class ManifestData{
       this.createModelTraits(traits);
       
       //console.log(this.getTrait("BODY", "Feminine"))
-      console.log(this.traitsMap);''
+      console.log(this.traitsMap);
       console.log(this.colorTraitsMap);
       console.log(this.textureTraitsMap);
     }
 
     getRandomTraits(optionalGroupTraitIDs){
-      const traits = []
+      console.log("get random")
+      const selectedOptions = []
       const searchArray = optionalGroupTraitIDs || this.randomTraits;
       searchArray.forEach(groupTraitID => {
         const trait = this.getRandomTrait(groupTraitID);
-        if (trait)
-          traits.push(trait);
+        if (trait){
+          const traitTexture = trait.targetTextureCollection?.getRandomTrait();
+          const traitColor = trait.targetColorCollection?.getRandomTrait();
+          selectedOptions.push(new SelectedOption(trait,traitTexture, traitColor));
+        }
       });
-      return traits;
+      console.log(selectedOptions);
+      return selectedOptions;
     }
 
     getRandomTrait(groupTraitID){
@@ -862,6 +856,7 @@ class ManifestData{
     }
 }
 
+
 // Must be created AFTER color collections and texture collections have been created
 class TraitModelsGroup{
     constructor(manifestData, options){
@@ -887,13 +882,6 @@ class TraitModelsGroup{
         this.collectionMap = null;
         this.createCollection(collection);
     }
-    getTrait(traitID){
-      return this.collectionMap.get(traitID);
-    }
-
-    getRandomTrait(){
-      return this.collection[Math.floor(Math.random() * this.collection.length)];
-    }
 
     createCollection(itemCollection, replaceExisting = false){
       if (replaceExisting) this.collection = [];
@@ -903,6 +891,27 @@ class TraitModelsGroup{
       });
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
+
+    getTrait(traitID){
+      return this.collectionMap.get(traitID);
+    }
+
+    getTraitByIndex(index){
+      return this.collection[index];
+    }
+
+    getRandomTrait(){
+      // return SelectedTrait
+      // const traitModel = this.collection[Math.floor(Math.random() * this.collection.length)];
+      return this.collection.length > 0 ? 
+        this.collection[Math.floor(Math.random() * this.collection.length)] : 
+        null;
+      //traitModel
+      // return new SelectedTrait()
+      // return 
+    }
+
+
 }
 
 
@@ -923,9 +932,7 @@ class TraitTexturesGroup{
 
     
   }
-  getTrait(traitID){
-    return this.collectionMap.get(traitID);
-  }
+
 
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
@@ -934,6 +941,20 @@ class TraitTexturesGroup{
       this.collection.push(new TextureTrait(this, item))
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  getTraitByIndex(index){
+    return this.collection[index];
+  }
+
+  getRandomTrait(){
+    return this.collection.length > 0 ? 
+      this.collection[Math.floor(Math.random() * this.collection.length)] : 
+      null;
   }
 }
 
@@ -952,9 +973,7 @@ class TraitColorsGroup{
     this.collectionMap = null;
     this.createCollection(collection);
   }
-  getTrait(traitID){
-    return this.collectionMap.get(traitID);
-  }
+
 
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
@@ -963,6 +982,20 @@ class TraitColorsGroup{
       this.collection.push(new ColorTrait(this, item))
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  getTraitByIndex(index){
+    return this.collection[index];
+  }
+
+  getRandomTrait(){
+    return this.collection.length > 0 ? 
+      this.collection[Math.floor(Math.random() * this.collection.length)] : 
+      null;
   }
 }
 
@@ -996,6 +1029,8 @@ class ModelTrait{
       if (this.targetTextureCollection)
         console.log(this.targetTextureCollection);
   }
+
+
 }
 
 class TextureTrait{
