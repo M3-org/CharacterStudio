@@ -34,18 +34,25 @@ export class CharacterManager {
         this.parentModel = model;
     }
 
-    async loadManifestRandomTraits(){
+    async loadRandomTraits(){
       console.log("get random");
-      console.log(this.manifestData.getRandomTraits());
+      console.log();
+      if (this.manifestData){
+        this.loadTraits(this.manifestData.getRandomTraits());
+      }
+      else{
+        console.error ("No manifest was loaded, random traits cannot be loaded.")
+      }
     }
 
     async loadTraits(options){
-        this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
-            loadedData.forEach(itemData => {
-                this._addLoadedData(itemData)
-                cullHiddenMeshes(this.avatar);
-            });
-        })
+      console.log(options)
+      this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
+          loadedData.forEach(itemData => {
+              this._addLoadedData(itemData)
+              cullHiddenMeshes(this.avatar);
+          });
+      })
     }
     async loadManifest(url, options){
       const {
@@ -296,7 +303,7 @@ export class CharacterManager {
           textures,
           colors
       } = itemData;
-
+      console.log(itemData);
       const traitName = trait.name;
 
       // user selected to remove trait
@@ -584,40 +591,65 @@ class TraitLoadingManager{
 
 
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
-    loadTraitOptions(options) {
+    loadTraitOptions(baseDirectory, options) {
         return new Promise((resolve) => {
             this.isLoading = true;
             const resultData = [];
-            const baseDir = this.baseDirectory;
+            //const baseDir = this.manifestData.getTraitsDirectory();
     
             const promises = options.map(async (option, index) => {
                 if (option == null) {
                     resultData[index] = null;
                     return;
                 }
+                console.log(option)
+                //console.log(option.directory);
     
                 const loadedModels = await Promise.all(
-                    getAsArray(option?.item?.directory).map(async (modelDir) => {
+                    getAsArray(option.directory).map(async (modelDir) => {
                         try {
-                            return await this.gltfLoader.loadAsync(baseDir + modelDir);
+                            return await this.gltfLoader.loadAsync(baseDirectory + modelDir);
                         } catch (error) {
                             console.error(`Error loading model ${modelDir}:`, error);
                             return null;
                         }
                     })
                 );
-    
+                debugger;
                 const loadedTextures = await Promise.all(
-                    getAsArray(option?.textureTrait?.directory).map(
-                        (textureDir) =>
-                            new Promise((resolve) => {
-                                this.textureLoader.load(baseDir + textureDir, (txt) => {
-                                    txt.flipY = false;
-                                    resolve(txt);
-                                });
-                            })
-                    )
+                  
+                  getAsArray(option.targetTextureCollection?.directory).map(
+                      (textureDir) =>
+                          new Promise((resolve) => {
+                              this.textureLoader.load(baseDirectory + textureDir, (txt) => {
+                                  txt.flipY = false;
+                                  resolve(txt);
+                              });
+                          })
+                  )
                 );
+                // const loadedModels = await Promise.all(
+                //     getAsArray(option?.item?.directory).map(async (modelDir) => {
+                //         try {
+                //             return await this.gltfLoader.loadAsync(baseDir + modelDir);
+                //         } catch (error) {
+                //             console.error(`Error loading model ${modelDir}:`, error);
+                //             return null;
+                //         }
+                //     })
+                // );
+    
+                // const loadedTextures = await Promise.all(
+                //     getAsArray(option?.textureTrait?.directory).map(
+                //         (textureDir) =>
+                //             new Promise((resolve) => {
+                //                 this.textureLoader.load(baseDirectory + textureDir, (txt) => {
+                //                     txt.flipY = false;
+                //                     resolve(txt);
+                //                 });
+                //             })
+                //     )
+                // );
     
                 const loadedColors = getAsArray(option?.colorTrait?.value).map((colorValue) => new THREE.Color(colorValue));
     
@@ -781,6 +813,20 @@ class ManifestData{
     getColorGroup(groupTraitID){
       return this.colorTraitsMap.get(groupTraitID);
     }
+
+
+
+    // get directories
+    getTraitsDirectory(){
+      return (this.assetsLocation || "") + (this.traitsDirectory || "");
+    }
+    getThumbnailsDirectory(){
+      return (this.assetsLocation || "") + (this.thumbnailsDirectory || "");
+    }
+    getTraitIconsDirectorySvg(){
+      return (this.assetsLocation || "") + (this.traitIconsDirectorySvg || "");
+    }
+
 
 
 
