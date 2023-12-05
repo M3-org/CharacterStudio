@@ -108,6 +108,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
             {templateInfo.traits &&
               templateInfo.traits.map((item, index) => (
                 <div key={index} className={styles["selectorButton"]}>
+                  
                   <TokenBox
                     size={56}
                     resolution={2048}
@@ -118,6 +119,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
                       selectOption(item)
                     }}
                   />
+                  {item.name}
                 </div>
               ))}
           </div>

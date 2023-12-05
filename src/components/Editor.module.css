@@ -24,7 +24,7 @@
 .selector-container {
   user-select: none;
   flex: 1;
-  width: 110px;
+  width: 190px;
   position: relative;
   text-align: center;
 }
@@ -33,6 +33,10 @@
   padding: 0.15em;
   display: block;
   position: relative;
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 10px;
 }
 
 .bottomLine {
