@@ -28,6 +28,14 @@ export class CharacterManager {
       this.traitLoadManager = new TraitLoadingManager();
     }
 
+    
+    getGroupTraits(){
+      if (this.manifestData){
+        return this.manifestData.getGroupModelTraits();
+      }
+    }
+
+
     // manifest data requests
     getTraits(groupTraitID){
       if (this.manifestData){
@@ -39,16 +47,28 @@ export class CharacterManager {
       }
     }
 
-    getTraitsDirectory(){
-      return this.manifestData ? this.manifestData.getTraitsDirectory() : "";
-    }
-    getThumbnailsDirectory(){
+
+
+
+    // getTraitsDirectory(){
+    //   return this.manifestData ? this.manifestData.getTraitsDirectory() : "";
+    // }
+
+    // maybe load and return an array with all the icons?
+    getTraitThumbailsURL(){
+      const newArray = originalArray.map(obj => ({
+        ...obj,
+        directory: 'prefix_' + obj.directory
+      }));
+      
+      console.log(newArray);
       return this.manifestData ? this.manifestData.getThumbnailsDirectory() : "";
     }
-    getTraitIconsDirectorySvg(){
-      return this.manifestData ? this.manifestData.getTraitIconsDirectorySvg() : "";
-    }
-    // end manifest data requests
+    // getTraitIconsDirectorySvg(){
+    //   return this.manifestData ? this.manifestData.getTraitIconsDirectorySvg() : "";
+    // }
+    // // end manifest data requests
+
     setParentModel(model){
         this.parentModel = model;
     }
@@ -72,19 +92,6 @@ export class CharacterManager {
     async loadCustom(url){
 
     }
-
-    // 
-    async _loadTraits(options){
-      console.log(options)
-      this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
-        console.log("loaded", loadedData);
-          loadedData.forEach(itemData => {
-              this._addLoadedData(itemData)
-          });
-          cullHiddenMeshes(this.avatar);
-      })
-     
-    }
     async loadManifest(url, options){
       const {
         createAnimationManager = false
@@ -99,6 +106,19 @@ export class CharacterManager {
         this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
       }
     }
+    // 
+    async _loadTraits(options){
+      console.log(options)
+      this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
+        console.log("loaded", loadedData);
+          loadedData.forEach(itemData => {
+              this._addLoadedData(itemData)
+          });
+          cullHiddenMeshes(this.avatar);
+      })
+     
+    }
+
 
 
     async _createAnimationManager(){
@@ -580,13 +600,17 @@ class ManifestData{
       this.colorTraitsMap = null;
       this.createColorTraits(colorCollections);
 
-      this.traits = [];
-      this.traitsMap = null;
+      this.modelTraits = [];
+      this.modelTraitsMap = null;
       this.createModelTraits(traits);
       
-      console.log(this.traitsMap);
+      console.log(this.modelTraitsMap);
       console.log(this.colorTraitsMap);
       console.log(this.textureTraitsMap);
+    }
+
+    getGroupModelTraits(){
+      return this.modelTraits;
     }
 
     getRandomTraits(optionalGroupTraitIDs){
@@ -622,8 +646,6 @@ class ManifestData{
       }
     }
 
-
-
     getTrait(groupTraitID, traitID){
       const trait = this.getModelTrait(groupTraitID, traitID);
       if (trait){
@@ -650,7 +672,7 @@ class ManifestData{
       }
     }
     getModelGroup(groupTraitID){
-      return this.traitsMap.get(groupTraitID);
+      return this.modelTraitsMap.get(groupTraitID);
     }
 
     // textures
@@ -673,13 +695,22 @@ class ManifestData{
 
     // get directories
     getTraitsDirectory(){
-      return (this.assetsLocation || "") + (this.traitsDirectory || "");
+      let result = (this.assetsLocation || "") + (this.traitsDirectory || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
     }
     getThumbnailsDirectory(){
-      return (this.assetsLocation || "") + (this.thumbnailsDirectory || "");
+      let result = (this.assetsLocation || "") + (this.thumbnailsDirectory || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
     }
     getTraitIconsDirectorySvg(){
-      return (this.assetsLocation || "") + (this.traitIconsDirectorySvg || "");
+      let result = (this.assetsLocation || "") + (this.traitIconsDirectorySvg || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
     }
 
 
@@ -687,13 +718,13 @@ class ManifestData{
 
     // Given an array of traits, saves an array of TraitModels
     createModelTraits(modelTraits, replaceExisting = false){
-      if (replaceExisting) this.traits = [];
+      if (replaceExisting) this.modelTraits = [];
 
       getAsArray(modelTraits).forEach(traitObject => {
-        this.traits.push(new TraitModelsGroup(this, traitObject))
+        this.modelTraits.push(new TraitModelsGroup(this, traitObject))
       });
 
-      this.traitsMap = new Map(this.traits.map(item => [item.trait, item]));
+      this.modelTraitsMap = new Map(this.modelTraits.map(item => [item.trait, item]));
     }
 
     createTextureTraits(textureTraits, replaceExisting = false){
@@ -724,17 +755,19 @@ class TraitModelsGroup{
         const {
           trait,
           name,
-          iconSVG,
+          iconSvg,
           cameraTarget = { distance:3 , height:1 },
           cullingDistance,
           cullingLayer,
           collection
         } = options;
         this.manifestData = manifestData;
-        
+        console.log(options)
         this.trait = trait;
         this.name = name;
-        this.iconSVG = iconSVG;
+        this.iconSvg = iconSvg;
+        this.fullIconSvg = manifestData.getTraitIconsDirectorySvg() + iconSvg;
+
         this.cameraTarget = cameraTarget;
         this.cullingDistance = cullingDistance;
         this.cullingLayer = cullingLayer;
@@ -881,8 +914,10 @@ class ModelTrait{
 
       this.id = id;
       this.directory = directory;
+      this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + directory
       this.name = name;
       this.thumbnail = thumbnail;
+      this.fullThumbnail = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
 
       this.cullHiddenMeshes = cullingDistance;
       this.cullingLayer = cullingLayer;
@@ -910,8 +945,11 @@ class TextureTrait{
 
       this.id = id;
       this.directory = directory;
+      this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + directory;
+
       this.name = name;
       this.thumbnail = thumbnail;
+      this.fullThumbnail = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
   }
 }
 

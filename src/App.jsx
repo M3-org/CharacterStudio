@@ -30,6 +30,8 @@ import Appearance from "./pages/Appearance"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 
+import { CharacterManager } from "./library/characterManager"
+
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -104,6 +106,9 @@ async function fetchAll() {
   const personality = await fetchPersonality()
   const sceneModel = await fetchScene()
 
+  // const characterManager = new CharacterManager({createAnimationManager : true});
+  // characterManager.loadManifest(initialManifest[0].manifest,{createAnimationManager:true});
+
   const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
   const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
@@ -117,6 +122,7 @@ async function fetchAll() {
     lookatManager,
     effectManager,
     screenshotManager,
+    //characterManager
   }
 }
 
@@ -159,6 +165,7 @@ export default function App() {
     lookatManager,
     effectManager,
     screenshotManager,
+    //characterManager
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
@@ -313,6 +320,7 @@ export default function App() {
         lookatManager={lookatManager}
         effectManager={effectManager}
         confirmDialog={confirmDialog}
+        //characterManager = {characterManager}
       />
     ),
     [ViewMode.OPTIMIZER]: (

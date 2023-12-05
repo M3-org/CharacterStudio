@@ -42,7 +42,8 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
     setIsChangingWholeAvatar,
     debugMode,
     setDisplayTraitOption,
-    vrmHelperRoot
+    vrmHelperRoot, 
+    characterManager
   } = useContext(SceneContext)
   const {
     playSound
@@ -66,6 +67,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   }
   
   useEffect(() => {
+    console.log(templateInfo)
     setRestrictions(getRestrictions());
   },[templateInfo])
 
@@ -80,7 +82,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
 
   const getRestrictions = () => {
 
-    const traitRestrictions = templateInfo.traitRestrictions
+    const traitRestrictions = templateInfo.traitRestrictions // can be null
     const typeRestrictions = {};
 
     for (const prop in traitRestrictions){
@@ -159,16 +161,22 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
 
   // options are selected by random or start
   useEffect(() => {
+    console.log("test")
     if (selectedOptions.length > 0){
-      setIsChangingWholeAvatar(true);
-      if (selectedOptions.length > 1){
-        effectManager.setTransitionEffect('fade_out_avatar');
-        effectManager.playFadeOutEffect();
-        resetCurrentTraitMap();
-      }
-      loadSelectedOptions(selectedOptions)
+      characterManager.setParentModel(model);
+      // characterManager.loadTraits(selectedOptions);
       setSelectedOptions([]);
     }
+    // if (selectedOptions.length > 0){
+    //   setIsChangingWholeAvatar(true);
+    //   if (selectedOptions.length > 1){
+    //     effectManager.setTransitionEffect('fade_out_avatar');
+    //     effectManager.playFadeOutEffect();
+    //     resetCurrentTraitMap();
+    //   }
+    //   loadSelectedOptions(selectedOptions)
+    //   setSelectedOptions([]);
+    // }
 
   },[selectedOptions])
 
@@ -219,6 +227,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   }
   // user selects an option
   const selectTraitOption = (option) => {
+    console.log(option);
     const addOption  = option != null
     if (isLoading) return;
 
@@ -274,6 +283,8 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
       updateCurrentTraitMap(option.trait.trait, option.key)
     }
     // filter options by restrictions
+
+    console.log(options);
 
     if (filterRestrictions)
       options = filterRestrictedOptions(options);
@@ -620,7 +631,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
             cullingMeshes.push(child)
 
           if (child.isSkinnedMesh) {
-            createBoneDirection(child)
+            //createBoneDirection(child)
             if (vrm.meta?.metaVersion === '0'){
               VRMUtils.rotateVRM0( vrm );
               console.log("Loaded VRM0 file ", vrm);
@@ -782,6 +793,11 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
                     styles["selector-button"]
                   } ${active ? styles["active"] : ""}`}
                   onClick={() => {
+                    console.log("clicky")
+                    console.log(characterManager)
+                    console.log(option.trait.trait);
+                    console.log(option.item.id)
+                    characterManager.loadTrait(option.trait.trait, option.item.id)
                     if (effectManager.getTransitionEffect('normal')){
                       selectTraitOption(option)
                       setLoadPercentage(1)

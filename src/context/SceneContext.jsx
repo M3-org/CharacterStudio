@@ -8,12 +8,14 @@ import {
 
 import gsap from "gsap"
 import { local } from "../library/store"
+import { CharacterManager } from "../library/characterManager"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
 
   const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
+  const [characterManager, setCharacterManager] = useState(null)
 
   const initializeScene = () => {
     const scene = new THREE.Scene()
@@ -30,10 +32,18 @@ export const SceneProvider = (props) => {
     scene.add( helperRoot );
     setVrmHelperRoot(helperRoot);
 
+    setCharacterManager(new CharacterManager({parentModel: scene, createAnimationManager : true}))
+
     return scene;
   }
 
+
+  // const initializeCharacterManifest = () => {
+  //   return new CharacterManager({createAnimationManager : true});
+  // }
+
   const [scene, setScene] = useState(initializeScene)
+  //const [characterManifest, setCharacterManifest] = useState(initializeCharacterManifest)
   
 
   const [currentTraitName, setCurrentTraitName] = useState(null)
@@ -227,6 +237,7 @@ export const SceneProvider = (props) => {
         setLipSync,
         scene,
         setScene,
+        characterManager,
         currentTraitName,
         setCurrentTraitName,
         displayTraitOption,

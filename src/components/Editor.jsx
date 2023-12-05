@@ -37,7 +37,8 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
     avatar,
     setDisplayTraitOption,
     currentVRM,
-    setCurrentVRM
+    setCurrentVRM,
+    characterManager
   } = useContext(SceneContext);
   
   const { isMute } = useContext(AudioContext)
@@ -50,6 +51,9 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
   } = useContext(SoundContext)
 
   const [cameraFocused, setCameraFocused] = React.useState(false)
+
+  //const [groupTraits, setGroupTraits] = React.useState([])
+  const [traits, setTraits] = React.useState(null)
 
   // options are selected by random or start
   useEffect(() => {
@@ -91,8 +95,25 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
     )
     moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
     setCurrentOptions(getTraitOptions(option, templateInfo))
-    setCurrentTraitName(option.name)
 
+
+
+
+
+
+
+    // XXX character manager -- setTraits
+    console.log("Selected option: ",option.name);
+    console.log(characterManager.getTraits(option.name));
+    
+
+
+
+
+
+
+
+    setCurrentTraitName(option.name)
     // for item display
     setDisplayTraitOption(avatar[option.name]?.traitInfo)
     setCurrentVRM(avatar[option.name]?.vrm);
@@ -105,7 +126,27 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
-            {templateInfo.traits &&
+            {
+              characterManager.getGroupTraits().map((item, index) => (
+                <div key={"options_" + index} className={styles["selectorButton"]}>
+                  <TokenBox
+                    size={56}
+                    resolution={2048}
+                    numFrames={128}
+                    icon={ item.fullIconSvg }
+                    rarity={currentTraitName !== item.name ? "none" : "mythic"}
+                    onClick={() => {
+                      //console.log(characterManager.getTraits(item.trait))
+                     // console.log(item.fullIconSvg);
+                      setTraits(characterManager.getTraits(item.trait));
+                      console.log(traits);
+                      //selectOption(item)
+                    }}
+                  />
+                </div>
+              ))
+            }
+            {/* {templateInfo.traits &&
               templateInfo.traits.map((item, index) => (
                 <div key={index} className={styles["selectorButton"]}>
                   <TokenBox
@@ -116,10 +157,11 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
                     rarity={currentTraitName !== item.name ? "none" : "mythic"}
                     onClick={() => {
                       selectOption(item)
+                      console.log((templateInfo.assetsLocation || "") + templateInfo.traitIconsDirectorySvg + item.iconSvg)
                     }}
                   />
                 </div>
-              ))}
+              ))} */}
           </div>
         </div>
       </div>

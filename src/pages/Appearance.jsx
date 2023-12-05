@@ -17,7 +17,8 @@ function Appearance({
   blinkManager,
   lookatManager,
   effectManager,
-  confirmDialog
+  confirmDialog,
+  // characterManager
 }) {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
@@ -30,6 +31,7 @@ function Appearance({
     setSelectedOptions,
     setCurrentVRM,
     setDisplayTraitOption,
+    characterManager
   } = React.useContext(SceneContext)
   
 
@@ -53,11 +55,13 @@ function Appearance({
   }
 
   const randomize = () => {
-    if (!isChangingWholeAvatar) {
-      !isMute && playSound('randomizeButton');
-      getRandomCharacter()
-    }
+    characterManager.loadRandomTraits();
+    // if (!isChangingWholeAvatar) {
+    //   !isMute && playSound('randomizeButton');
+    //   getRandomCharacter()
+    // }
   }
+
 
   const debugMode = () =>{
     toggleDebugMNode()
@@ -197,6 +201,7 @@ function Appearance({
         jsonSelectionArray={jsonSelectionArray}
         uploadTextureURL = {uploadTextureURL}
         uploadVRMURL = {uploadVRMURL}
+        //characterManager ={characterManager}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
