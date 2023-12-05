@@ -3,15 +3,7 @@
     "name": "Anata",
     "description": "Anata",
     "portrait": "./assets/portraitImages/anata.png",
-    "manifest":"./character-assets/anata/manifest.json",
-    "icon": "./assets/icons/class-neural-hacker.svg",
-    "format": "vrm"
-  },
-  {
-    "name": "Anata Male",
-    "description": "Anata Male",
-    "portrait": "./assets/portraitImages/anata.png",
-    "manifest":"./character-assets/anata_male/manifest.json",
+    "manifest":"./local-manifest/anata/manifest.json",
     "icon": "./assets/icons/class-neural-hacker.svg",
     "format": "vrm"
   }
