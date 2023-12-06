@@ -352,8 +352,18 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       switch (name) {
         case 'diffuse':
           clearColor = material.color || backColor;
-          if (material.uniforms?.litFactor)
-            multiplyColor = material.uniforms.litFactor.value;
+          if (mesh.material.type === "MeshStandardMaterial"){
+            if (Array.isArray(mesh.material)){
+              multiplyColor = mesh.material[0] ? mesh.material[0].color : multiplyColor;
+            }
+            else{
+              multiplyColor = mesh.material.color;
+            }
+          }
+          else{
+            if (material.uniforms?.litFactor)
+              multiplyColor = material.uniforms.litFactor.value;
+          }
           break;
         case 'normal':
           clearColor = new THREE.Color(0x8080ff);

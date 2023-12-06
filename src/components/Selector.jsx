@@ -22,6 +22,7 @@ import { TokenBox } from "./token-box/TokenBox"
 import { LanguageContext } from "../context/LanguageContext"
 import MenuTitle from "./MenuTitle"
 import { saveVRMCollidersToUserData } from "../library/load-utils"
+import { SketchPicker } from 'react-color';
 
 
 
@@ -57,6 +58,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   const [, setLoadPercentage] = useState(1)
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
+  const [colorPicked, setColorPicked] = useState(new THREE.Color( 0xffffff ))
 
   const updateCurrentTraitMap = (k,v) => {
     setCurrentTrait(currentTrait.set(k,v));
@@ -77,6 +79,34 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
       }
     }
   },[uploadVRMURL])
+
+  const handleChangeComplete = (color) => {
+    setColorPicked({ background: color.hex });
+    const col = new THREE.Color( color.hex);
+    if (avatar[currentTraitName]){
+      avatar[currentTraitName].vrm.scene.traverse((mesh)=>{
+        if (mesh.isMesh){
+          if (mesh.material.type === "MeshStandardMaterial"){
+            if (Array.isArray(mesh.material)){
+              mesh.material.forEach(mat => {
+                mat.color = col;
+                mat.emissive = col;
+              });
+
+            }
+            else{
+              mesh.material.color = col;
+              mesh.material.emissive = col;
+            }
+          }
+          else{
+            mesh.material[0].uniforms.litFactor.value = col
+            mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color( col.r*0.8, col.g*0.8, col.b*0.8 )
+          }
+        }
+      })
+    }
+  };
 
   const getRestrictions = () => {
 
@@ -759,84 +789,91 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   
   return (
     !!currentTraitName && (
-      
-      <div className={styles["SelectorContainerPos"]}>
+      <div>
        
-        <MenuTitle title={currentTraitName} width={130} left={20}/>
-        <div className={styles["bottomLine"]} />
-        <div className={styles["scrollContainer"]}>
-          <div className={styles["selector-container"]}>
-            <ClearTraitButton />
-            {currentOptions.map((option) => {
-              let active = option.key === selectValue
-              if (currentTrait.size === 0) {
-                active = false;
-              }
-              else {
-                active = currentTrait.get(option.trait.trait) === option.key;
-              }
-              return (
-                <div
-                  key={option.key}
-                  className={`${styles["selectorButton"]} ${
-                    styles["selector-button"]
-                  } ${active ? styles["active"] : ""}`}
-                  onClick={() => {
-                    if (effectManager.getTransitionEffect('normal')){
-                      selectTraitOption(option)
-                      setLoadPercentage(1)
-                    }
-                  }}
-                >
-                  <TokenBox
-                    size={56}
-                    resolution={2048}
-                    numFrames={128}
-                    icon={option.icon}
-                    rarity={active ? "mythic" : "none"}
-                    style={
-                      option.iconHSL
-                        ? {
-                            filter:
-                              "brightness(" +
-                              (option.iconHSL.l + 0.5) +
-                              ") hue-rotate(" +
-                              option.iconHSL.h * 360 +
-                              "deg) saturate(" +
-                              option.iconHSL.s * 100 +
-                              "%)",
-                          }
-                        : {}
-                    }
-                  />
-                  <img
-                    src={tick}
-                    className={
-                      avatar[currentTraitName] &&
-                      avatar[currentTraitName].id === option.item.id // todo (pending fix): this only considers the item id and not the subtraits id
-                        ? styles["tickStyle"]
-                        : styles["tickStyleInActive"]
-                    }
-                  />
-                  {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
-                    // TODO: Fill up background from bottom as loadPercentage increases
-                  )}*/}
-                </div>
-              )
-            })}
+        <div className={styles["SelectorContainerPos"]}>
+        <SketchPicker 
+          color={ colorPicked.background }
+          onChangeComplete={ handleChangeComplete }
+        />
+          <MenuTitle title={currentTraitName} width={130} left={20}/>
+          <div className={styles["bottomLine"]} />
+          <div className={styles["scrollContainer"]}>
+            <div className={styles["selector-container"]}>
+              <ClearTraitButton />
+              {currentOptions.map((option) => {
+                let active = option.key === selectValue
+                if (currentTrait.size === 0) {
+                  active = false;
+                }
+                else {
+                  active = currentTrait.get(option.trait.trait) === option.key;
+                }
+                return (
+                  <div
+                    key={option.key}
+                    className={`${styles["selectorButton"]} ${
+                      styles["selector-button"]
+                    } ${active ? styles["active"] : ""}`}
+                    onClick={() => {
+                      if (effectManager.getTransitionEffect('normal')){
+                        selectTraitOption(option)
+                        setLoadPercentage(1)
+                      }
+                    }}
+                  >
+                    <TokenBox
+                      size={56}
+                      resolution={2048}
+                      numFrames={128}
+                      icon={option.icon}
+                      rarity={active ? "mythic" : "none"}
+                      style={
+                        option.iconHSL
+                          ? {
+                              filter:
+                                "brightness(" +
+                                (option.iconHSL.l + 0.5) +
+                                ") hue-rotate(" +
+                                option.iconHSL.h * 360 +
+                                "deg) saturate(" +
+                                option.iconHSL.s * 100 +
+                                "%)",
+                            }
+                          : {}
+                      }
+                    />
+                    <img
+                      src={tick}
+                      className={
+                        avatar[currentTraitName] &&
+                        avatar[currentTraitName].id === option.item.id // todo (pending fix): this only considers the item id and not the subtraits id
+                          ? styles["tickStyle"]
+                          : styles["tickStyleInActive"]
+                      }
+                    />
+                    {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
+                      // TODO: Fill up background from bottom as loadPercentage increases
+                    )}*/}
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        </div>
-        <div className={styles["uploadContainer"]}>
-          
-          <div 
-            className={styles["uploadButton"]}
-            onClick={uploadTrait}>
-            <div> 
-              Upload </div>
+          <div className={styles["uploadContainer"]}>
+            
+            <div 
+              className={styles["uploadButton"]}
+              onClick={uploadTrait}>
+              <div> 
+                Upload </div>
+            </div>
+            
           </div>
           
         </div>
       </div>
+      
     )
   )
 }
