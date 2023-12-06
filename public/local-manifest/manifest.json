@@ -6,5 +6,13 @@
     "manifest":"./local-manifest/anata/manifest.json",
     "icon": "./assets/icons/class-neural-hacker.svg",
     "format": "vrm"
+  },
+  {
+    "name": "Anata Male",
+    "description": "Anata Male",
+    "portrait": "./assets/portraitImages/anata.png",
+    "manifest":"./local-manifest/anata_male/manifest.json",
+    "icon": "./assets/icons/class-neural-hacker.svg",
+    "format": "vrm"
   }
 ]

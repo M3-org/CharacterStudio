@@ -39,9 +39,8 @@
     "/anata/animations/Ymca_Dance.fbx"
   ],
   "traitIconsDirectorySvg": "/anata/_icons/",
-  "requiredTraits":[],
-  "randomTraits":[
-  ],
+  "requiredTraits":["BODY"],
+  "randomTraits":["BODY"],
   "defaultCullingLayer": -1,
   "defaultCullingDistance": [
     0.1,
@@ -79,7 +78,14 @@
         0.1,
         0.01
       ],
-      "collection": []
+      "collection": [
+        {
+          "id": "Feminine",
+          "name": "Feminine",
+          "directory": "BODY/New_Female_Basebody.vrm",
+          "thumbn`ail": "BODY/Feminine.png"
+        }
+      ]
     },
     {
       "trait": "CLOTHING",
