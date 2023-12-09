@@ -28,14 +28,19 @@ export class CharacterManager {
       this.traitLoadManager = new TraitLoadingManager();
     }
 
-    
+
+
     getGroupTraits(){
       if (this.manifestData){
         return this.manifestData.getGroupModelTraits();
       }
     }
 
-
+    // returns wether or not the trait group can be removed
+    isTraitGroupRemovable(groupTraitID){
+      
+    }
+    
     // manifest data requests
     getTraits(groupTraitID){
       if (this.manifestData){
@@ -87,6 +92,18 @@ export class CharacterManager {
       const selectedTrait = this.manifestData.getTrait(groupTraitID, traitID);
       if (selectedTrait)
         this._loadTraits(getAsArray(selectedTrait));
+    }
+
+    removeTrait(groupTraitID){
+      const groupTrait = this.manifestData.getModelGroup(groupTraitID);
+      if (groupTrait){
+        const itemData = new LoadedData({traitGroup:groupTrait, traitModel:null})
+        this._addLoadedData(itemData);
+        cullHiddenMeshes(this.avatar);
+      }
+      else{
+        console.warn(`No trait with name: ${ groupTraitID } was found.`)
+      }
     }
 
     async loadCustom(url){
@@ -346,8 +363,8 @@ export class CharacterManager {
 
     _addLoadedData(itemData){
       const {
-          item,
-          trait,
+          traitGroup,
+          traitModel,
           textureTrait,
           colorTrait,
           models,
@@ -355,13 +372,13 @@ export class CharacterManager {
           colors
       } = itemData;
       console.log(itemData);
-      const traitName = trait.name;
+      const traitGroupName = traitGroup.name;
 
       // user selected to remove trait
-      if (item == null){
-          if ( this.avatar[traitName] && this.avatar[traitName].vrm ){
+      if (traitModel == null){
+          if ( this.avatar[traitGroupName] && this.avatar[traitGroupName].vrm ){
               // just dispose for now
-              disposeVRM(avatar[traitData.name].vrm)
+              disposeVRM(avatar[traitGroupName].vrm)
               // XXX restore effects without setTimeout
           }
           return;
@@ -373,7 +390,7 @@ export class CharacterManager {
           
           // basic vrm setup (only if model is vrm)
           // send textures and colors
-          vrm = this._VRMBaseSetup(m, item, trait, textures, colors);
+          vrm = this._VRMBaseSetup(m, traitModel, traitGroup, textures, colors);
 
           this._applyManagers(vrm)
     
@@ -384,8 +401,8 @@ export class CharacterManager {
       })
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
-      if (this.avatar[traitName] && this.avatar[traitName].vrm) {
-        disposeVRM(this.avatar[traitName].vrm)
+      if (this.avatar[traitGroupName] && this.avatar[traitGroupName].vrm) {
+        disposeVRM(this.avatar[traitGroupName].vrm)
         // XXX restore effects
       }
     
@@ -394,11 +411,11 @@ export class CharacterManager {
 
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
-      this.avatar[traitName] = {
-        traitInfo: item,
+      this.avatar[traitGroupName] = {
+        traitInfo: traitModel,
         textureInfo: textureTrait,
         colorInfo: colorTrait,
-        name: item.name,
+        name: traitModel.name,
         model: vrm && vrm.scene,
         vrm: vrm
       }
@@ -487,8 +504,8 @@ class TraitLoadingManager{
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
     
                 resultData[index] = new LoadedData({
-                    item: option?.traitModel,
-                    trait: option?.traitModel.traitGroup,
+                    traitGroup: option?.traitModel.traitGroup,
+                    traitModel: option?.traitModel,
                     textureTrait: option?.traitTexture,
                     colorTrait: option?.traitColor,
                     models: loadedModels,
@@ -514,8 +531,8 @@ class TraitLoadingManager{
 class LoadedData{
     constructor(data){
         const {
-            item,
-            trait,
+            traitGroup,
+            traitModel,
             textureTrait,
             colorTrait,
             models,
@@ -524,8 +541,8 @@ class LoadedData{
         } = data;
 
         // Option base data
-        this.item = item;
-        this.trait = trait;
+        this.traitGroup = traitGroup;
+        this.traitModel = traitModel;
         this.textureTrait = textureTrait;
         this.colorTrait = colorTrait;
 
@@ -995,6 +1012,61 @@ class TraitOption{
 
  // should be called within manifestData, as it is the one that holds this information
 
+//  const getRestrictions = () => {
+
+//     const traitRestrictions = templateInfo.traitRestrictions // can be null
+//     const typeRestrictions = {};
+
+//     for (const prop in traitRestrictions){
+
+//       // create the counter restrcitions traits
+//       getAsArray(traitRestrictions[prop].restrictedTraits).map((traitName)=>{
+
+//         // check if the trait restrictions exists for the other trait, if not add it
+//         if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
+//         // make sure to have an array setup, if there is none, create a new empty one
+//         if (traitRestrictions[traitName].restrictedTraits == null) traitRestrictions[traitName].restrictedTraits = []
+
+//         // finally merge existing and new restrictions
+//         traitRestrictions[traitName].restrictedTraits = [...new Set([
+//           ...traitRestrictions[traitName].restrictedTraits ,
+//           ...[prop]])]  // make sure to add prop as restriction
+//       })
+
+//       // do the same for the types
+//       getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
+//         //notice were adding the new data to typeRestrictions and not trait
+//         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+//         //create the restricted trait in this type
+//         if (typeRestrictions[typeName].restrictedTraits == null) typeRestrictions[typeName].restrictedTraits = []
+
+//         typeRestrictions[typeName].restrictedTraits = [...new Set([
+//           ...typeRestrictions[typeName].restrictedTraits ,
+//           ...[prop]])]  // make sure to add prop as restriction
+//       })
+//     }
+
+//     // now merge defined type to type restrictions
+//     for (const prop in templateInfo.typeRestrictions){
+//       // check if it already exsits
+//       if (typeRestrictions[prop] == null) typeRestrictions[prop] = {}
+//       if (typeRestrictions[prop].restrictedTypes == null) typeRestrictions[prop].restrictedTypes = []
+//       typeRestrictions[prop].restrictedTypes = [...new Set([
+//         ...typeRestrictions[prop].restrictedTypes ,
+//         ...getAsArray(templateInfo.typeRestrictions[prop])])]  
+
+//       // now that we have setup the type restrictions, lets counter create for the other traits
+//       getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
+//         // prop = boots
+//         // typeName = pants
+//         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+//         if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
+//         typeRestrictions[typeName].restrictedTypes = [...new Set([
+//           ...typeRestrictions[typeName].restrictedTypes ,
+//           ...[prop]])]  // make sure to add prop as restriction
+//       })
+//     }
+
     // _filterRestrictedOptions(options){
     //     let removeTraits = [];
     //     for (let i =0; i < options.length;i++){
@@ -1055,6 +1127,21 @@ class TraitOption{
        
     //     return options;
     // }
+
+        // const findTraitsWithTypes = (types) => {
+        //   const typeTraits = [];
+        //   for (const prop in avatar){
+        //     for (let i = 0; i < types.length; i++){
+        //       const t = types[i]
+            
+        //       if (avatar[prop].traitInfo?.type?.includes(t)){
+        //         typeTraits.push(prop);
+        //         break;
+        //       }
+        //     }
+        //   }
+        //   return typeTraits;
+        // }
     // _loadOptions(options, filterRestrictions = true, useTemplateBaseDirectory = true, saveUserSel = true){
 
     //     // XXX I think this part was used to know which trait was selected
