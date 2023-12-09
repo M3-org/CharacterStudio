@@ -166,6 +166,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
         </div>
       </div>
       <Selector 
+        traits={traits}
         confirmDialog = {confirmDialog} 
         animationManager={animationManager} 
         templateInfo={templateInfo} 
