@@ -54,6 +54,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
 
   //const [groupTraits, setGroupTraits] = React.useState([])
   const [traits, setTraits] = React.useState(null)
+  const [traitGroup, setTraitGroup] = React.useState("")
 
   // options are selected by random or start
   useEffect(() => {
@@ -136,17 +137,21 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
                     icon={ item.fullIconSvg }
                     rarity={currentTraitName !== item.name ? "none" : "mythic"}
                     onClick={() => {
-                      //console.log(characterManager.getTraits(item.trait))
-                     // console.log(item.fullIconSvg);
-                      setTraits(characterManager.getTraits(item.trait));
-                      console.log(traits);
-                      //selectOption(item)
+                      if (traitGroup !== item.trait){
+                        setTraits(characterManager.getTraits(item.trait));
+                        setTraitGroup(item.trait);
+                      }
+                      else{
+                        setTraits(null);
+                        setTraitGroup("");
+                      }
                     }}
                   />
                 </div>
               ))
             }
-            {/* {templateInfo.traits &&
+            {/* // place selector here
+            {templateInfo.traits &&
               templateInfo.traits.map((item, index) => (
                 <div key={index} className={styles["selectorButton"]}>
                   <TokenBox
