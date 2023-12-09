@@ -378,9 +378,11 @@ export class CharacterManager {
       if (traitModel == null){
           if ( this.avatar[traitGroupName] && this.avatar[traitGroupName].vrm ){
               // just dispose for now
-              disposeVRM(avatar[traitGroupName].vrm)
+              disposeVRM(this.avatar[traitGroupName].vrm)
+              this.avatar[traitGroupName] = {}
               // XXX restore effects without setTimeout
           }
+          console.log(this.avatar)
           return;
       }
 

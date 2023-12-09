@@ -54,7 +54,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
 
   //const [groupTraits, setGroupTraits] = React.useState([])
   const [traits, setTraits] = React.useState(null)
-  const [traitGroup, setTraitGroup] = React.useState("")
+  const [traitGroupName, setTraitGroupName] = React.useState("")
 
   // options are selected by random or start
   useEffect(() => {
@@ -75,49 +75,19 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
   },[uploadTextureURL])
 
 
-  const selectOption = (option) => {
+  const selectTraitGroup = (traitGroup) => {
     !isMute && playSound('optionClick');
-    if (option.name === currentTraitName) {
-      setDisplayTraitOption(null);
-      if (cameraFocused) {
-        moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
-        setCameraFocused(false)
-      } else {
-        moveCamera({ targetY: 0.8, distance: 3.2 })
-        setCameraFocused(true)
-      }
-      setCurrentTraitName(null)
-      setCurrentVRM(null)
-      return
+
+    if (traitGroupName !== traitGroup.trait){
+      setTraits(characterManager.getTraits(traitGroup.trait));
+      setTraitGroupName(traitGroup.trait);
+      moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }
-
-    setRemoveOption(
-      getAsArray(templateInfo.requiredTraits).indexOf(option.name) === -1,
-    )
-    moveCamera({ targetY: option.cameraTarget.height, distance: option.cameraTarget.distance})
-    setCurrentOptions(getTraitOptions(option, templateInfo))
-
-
-
-
-
-
-
-    // XXX character manager -- setTraits
-    console.log("Selected option: ",option.name);
-    console.log(characterManager.getTraits(option.name));
-    
-
-
-
-
-
-
-
-    setCurrentTraitName(option.name)
-    // for item display
-    setDisplayTraitOption(avatar[option.name]?.traitInfo)
-    setCurrentVRM(avatar[option.name]?.vrm);
+    else{
+      setTraits(null);
+      setTraitGroupName("");
+      moveCamera({ targetY: 0.8, distance: 3.2 })
+    }
   }
 
   return (
@@ -128,23 +98,16 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
             {
-              characterManager.getGroupTraits().map((item, index) => (
+              characterManager.getGroupTraits().map((traitGroup, index) => (
                 <div key={"options_" + index} className={styles["selectorButton"]}>
                   <TokenBox
                     size={56}
                     resolution={2048}
                     numFrames={128}
-                    icon={ item.fullIconSvg }
-                    rarity={currentTraitName !== item.name ? "none" : "mythic"}
+                    icon={ traitGroup.fullIconSvg }
+                    rarity={currentTraitName !== traitGroup.name ? "none" : "mythic"}
                     onClick={() => {
-                      if (traitGroup !== item.trait){
-                        setTraits(characterManager.getTraits(item.trait));
-                        setTraitGroup(item.trait);
-                      }
-                      else{
-                        setTraits(null);
-                        setTraitGroup("");
-                      }
+                      selectTraitGroup(traitGroup)
                     }}
                   />
                 </div>
@@ -172,6 +135,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
       </div>
       <Selector 
         traits={traits}
+        traitGroupName = {traitGroupName}
         confirmDialog = {confirmDialog} 
         animationManager={animationManager} 
         templateInfo={templateInfo} 
