@@ -26,7 +26,7 @@ import { saveVRMCollidersToUserData } from "../library/load-utils"
 
 
 
-export default function Selector({confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
+export default function Selector({traits,confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
     avatar,
     setAvatar,
@@ -769,7 +769,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
   }
   
   return (
-    !!currentTraitName && (
+    !!traits && (
       
       <div className={styles["SelectorContainerPos"]}>
        
@@ -778,48 +778,48 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
             <ClearTraitButton />
-            {currentOptions.map((option) => {
-              let active = option.key === selectValue
-              if (currentTrait.size === 0) {
-                active = false;
-              }
-              else {
-                active = currentTrait.get(option.trait.trait) === option.key;
-              }
+            {traits.map((trait) => {
+              let active = true//option.key === selectValue
+              // if (currentTrait.size === 0) {
+              //   active = false;
+              // }
+              // else {
+              //   active = currentTrait.get(option.trait.trait) === trait.traitGroup.trait + trait.id;
+              // }
               return (
                 <div
-                  key={option.key}
+                  key={trait.traitGroup.trait + trait.id}
                   className={`${styles["selectorButton"]} ${
                     styles["selector-button"]
                   } ${active ? styles["active"] : ""}`}
                   onClick={() => {
                     console.log("clicky")
                     console.log(characterManager)
-                    console.log(option.trait.trait);
-                    console.log(option.item.id)
-                    characterManager.loadTrait(option.trait.trait, option.item.id)
-                    if (effectManager.getTransitionEffect('normal')){
-                      selectTraitOption(option)
-                      setLoadPercentage(1)
-                    }
+                    console.log(trait.traitGroup.trait);
+                    console.log(trait.id)
+                    characterManager.loadTrait(trait.traitGroup.trait, trait.id)
+                    // if (effectManager.getTransitionEffect('normal')){
+                    //   selectTraitOption(option)
+                    //   setLoadPercentage(1)
+                    // }
                   }}
                 >
                   <TokenBox
                     size={56}
                     resolution={2048}
                     numFrames={128}
-                    icon={option.icon}
+                    icon={trait.fullThumbnail}
                     rarity={active ? "mythic" : "none"}
                     style={
-                      option.iconHSL
+                      trait.iconHSL
                         ? {
                             filter:
                               "brightness(" +
-                              (option.iconHSL.l + 0.5) +
+                              (trait.iconHSL.l + 0.5) +
                               ") hue-rotate(" +
-                              option.iconHSL.h * 360 +
+                              trait.iconHSL.h * 360 +
                               "deg) saturate(" +
-                              option.iconHSL.s * 100 +
+                              trait.iconHSL.s * 100 +
                               "%)",
                           }
                         : {}
@@ -829,7 +829,7 @@ export default function Selector({confirmDialog, uploadVRMURL, templateInfo, ani
                     src={tick}
                     className={
                       avatar[currentTraitName] &&
-                      avatar[currentTraitName].id === option.item.id // todo (pending fix): this only considers the item id and not the subtraits id
+                      avatar[currentTraitName].id === trait.id // todo (pending fix): this only considers the item id and not the subtraits id
                         ? styles["tickStyle"]
                         : styles["tickStyleInActive"]
                     }
