@@ -26,23 +26,8 @@ import { saveVRMCollidersToUserData } from "../library/load-utils"
 
 
 
-export default function Selector({traits, traitGroupName, selectedTraitID, setSelectedTraitID,confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
+export default function Selector({traits, traitGroupName, selectedTraitID, setSelectedTraitID}) {
   const {
-    avatar,
-    setAvatar,
-    currentTraitName,
-    currentOptions,
-    selectedOptions,
-    setSelectedOptions,
-    model,
-    setLipSync,
-    mousePosition,
-    removeOption,
-    saveUserSelection,
-    setIsChangingWholeAvatar,
-    debugMode,
-    setDisplayTraitOption,
-    vrmHelperRoot, 
     characterManager
   } = useContext(SceneContext)
   const {
