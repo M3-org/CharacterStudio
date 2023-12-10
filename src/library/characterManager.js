@@ -67,9 +67,20 @@ export class CharacterManager {
     }
 
     async loadRandomTraits(){
-      console.log("get random");
       if (this.manifestData){
         this._loadTraits(this.manifestData.getRandomTraits());
+      }
+      else{
+        console.error ("No manifest was loaded, random traits cannot be loaded.")
+      }
+    }
+
+    async loadInitialTraits(){
+      console.log("test")
+      if (this.manifestData){
+        console.log(this.manifestData)
+        console.log(this.manifestData.getInitialTraits())
+        this._loadTraits(this.manifestData.getInitialTraits());
       }
       else{
         console.error ("No manifest was loaded, random traits cannot be loaded.")
@@ -594,6 +605,7 @@ class ManifestData{
       this.animationPath = getAsArray(animationPath);
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
+      this.initialTraits = [...new Set(requiredTraits.concat(randomTraits))];
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
@@ -624,6 +636,10 @@ class ManifestData{
 
     getGroupModelTraits(){
       return this.modelTraits;
+    }
+
+    getInitialTraits(){
+      return this.getRandomTraits(this.initialTraits);
     }
 
     getRandomTraits(optionalGroupTraitIDs){
