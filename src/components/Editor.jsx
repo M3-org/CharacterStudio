@@ -108,7 +108,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
                     resolution={2048}
                     numFrames={128}
                     icon={ traitGroup.fullIconSvg }
-                    rarity={currentTraitName !== traitGroup.name ? "none" : "mythic"}
+                    rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
                     onClick={() => {
                       selectTraitGroup(traitGroup)
                     }}
