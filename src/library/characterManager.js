@@ -38,7 +38,7 @@ export class CharacterManager {
 
     // returns wether or not the trait group can be removed
     isTraitGroupRequired(groupTraitID){
-      const groupTrait = this.manifestData.getModelTraits(groupTraitID)
+      const groupTrait = this.manifestData.getModelGroup(groupTraitID)
       if (groupTrait?.isRequired){
         return true;
       }
@@ -692,7 +692,7 @@ class ManifestData{
       return this.textureTraitsMap.get(groupTraitID);
     }
 
-    // textures
+    // colors
     getColorTrait(groupTraitID, traitID){
       return this.getColorGroup(groupTraitID)?.getTrait(traitID);
     }
