@@ -50,24 +50,11 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
     playSound
   } = useContext(SoundContext)
 
-  const [cameraFocused, setCameraFocused] = React.useState(false)
 
   //const [groupTraits, setGroupTraits] = React.useState([])
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTraitID, setSelectedTraitID] = React.useState(null)
-
-  // options are selected by random or start
-  useEffect(() => {
-    if (awaitDisplay){
-      setSelectedOptions(
-        //loadUserSelection(manifestSelectionIndex)
-        getRandomizedTemplateOptions(templateInfo)
-      )
-        setAwaitDisplay(false)
-    }
-    setCurrentTraitName(null)
-  }, [templateInfo])
 
   useEffect(()=>{
     if (uploadTextureURL != null && currentVRM != null){
@@ -95,62 +82,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
 
   return (
     <Fragment>
-      <div className={styles["SideMenu"]}>
-        <MenuTitle title="Appearance" left={20}/>
-        <div className={styles["bottomLine"]} />
-        <div className={styles["scrollContainer"]}>
-          <div className={styles["selector-container"]}>
-            {
-              characterManager.getGroupTraits().map((traitGroup, index) => (
-                <div key={"options_" + index} className={styles["selectorButton"]}>
-                  <TokenBox
-                    size={56}
-                    resolution={2048}
-                    numFrames={128}
-                    icon={ traitGroup.fullIconSvg }
-                    rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
-                    onClick={() => {
-                      selectTraitGroup(traitGroup)
-                    }}
-                  />
-                </div>
-              ))
-            }
-            {/* // place selector here
-            {templateInfo.traits &&
-              templateInfo.traits.map((item, index) => (
-                <div key={index} className={styles["selectorButton"]}>
-                  <TokenBox
-                    size={56}
-                    resolution={2048}
-                    numFrames={128}
-                    icon={ (templateInfo.assetsLocation || "") + templateInfo.traitIconsDirectorySvg + item.iconSvg}
-                    rarity={currentTraitName !== item.name ? "none" : "mythic"}
-                    onClick={() => {
-                      selectOption(item)
-                      console.log((templateInfo.assetsLocation || "") + templateInfo.traitIconsDirectorySvg + item.iconSvg)
-                    }}
-                  />
-                </div>
-              ))} */}
-          </div>
-        </div>
-      </div>
-      <Selector 
-        traits={traits}
-        traitGroupName = {traitGroupName}
-        selectedTraitID = {selectedTraitID}
-        setSelectedTraitID = {setSelectedTraitID}
-
-        confirmDialog = {confirmDialog} 
-        animationManager={animationManager} 
-        templateInfo={templateInfo} 
-        blinkManager = {blinkManager} 
-        lookatManager = {lookatManager} 
-        effectManager = {effectManager}
-        uploadVRMURL = {uploadVRMURL}/>
-      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}/>
+      
     </Fragment>
   )
 }
