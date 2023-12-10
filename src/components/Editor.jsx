@@ -55,6 +55,7 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
   //const [groupTraits, setGroupTraits] = React.useState([])
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
+  const [selectedTraitID, setSelectedTraitID] = React.useState(null)
 
   // options are selected by random or start
   useEffect(() => {
@@ -81,11 +82,13 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
+      setSelectedTraitID(characterManager.getCurrentTraitID(traitGroup.trait));
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }
     else{
       setTraits(null);
       setTraitGroupName("");
+      setSelectedTraitID(null);
       moveCamera({ targetY: 0.8, distance: 3.2 })
     }
   }
@@ -136,6 +139,9 @@ export default function Editor({uploadTextureURL, uploadVRMURL,confirmDialog,ani
       <Selector 
         traits={traits}
         traitGroupName = {traitGroupName}
+        selectedTraitID = {selectedTraitID}
+        setSelectedTraitID = {setSelectedTraitID}
+
         confirmDialog = {confirmDialog} 
         animationManager={animationManager} 
         templateInfo={templateInfo} 

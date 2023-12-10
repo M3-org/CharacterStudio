@@ -26,7 +26,7 @@ import { saveVRMCollidersToUserData } from "../library/load-utils"
 
 
 
-export default function Selector({traits, traitGroupName,confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
+export default function Selector({traits, traitGroupName, selectedTraitID, setSelectedTraitID,confirmDialog, uploadVRMURL, templateInfo, animationManager, blinkManager, lookatManager, effectManager}) {
   const {
     avatar,
     setAvatar,
@@ -110,16 +110,18 @@ export default function Selector({traits, traitGroupName,confirmDialog, uploadVR
 
 
   function ClearTraitButton() {
-    // clear the current trait
-    const isSelected = currentTrait.get(currentTraitName) ? true : false;
     return !characterManager.isTraitGroupRequired(traitGroupName) ? (
       <div
         key={"no-trait"}
-        className={`${styles["selectorButton"]} ${styles["selector-button"]} ${
-          !currentTraitName ? styles["active"] : ""
-        }`}
+        className={`${styles["selectorButton"]}`}
+        icon={cancel}
         onClick={() => {
+          
+          //console.log(characterManager.getCurrentTraitID(traitGroupName));
           characterManager.removeTrait(traitGroupName);
+          setSelectedTraitID(null);
+
+
           // if (effectManager.getTransitionEffect('normal')) {
           //   selectTraitOption(null) 
           //   setSelectValue("");
@@ -134,7 +136,7 @@ export default function Selector({traits, traitGroupName,confirmDialog, uploadVR
           numFrames={128}
           id="head"
           icon={cancel}
-          rarity={!isSelected ? "mythic" : "none"}
+          rarity={selectedTraitID == null ? "mythic" : "none"}
         />
       </div>
     ) : (
@@ -152,22 +154,16 @@ export default function Selector({traits, traitGroupName,confirmDialog, uploadVR
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
             <ClearTraitButton />
-            {traits.map((trait) => {
-              let active = true//option.key === selectValue
-              // if (currentTrait.size === 0) {
-              //   active = false;
-              // }
-              // else {
-              //   active = currentTrait.get(option.trait.trait) === trait.traitGroup.trait + trait.id;
-              // }
+            {
+            traits.map((trait) => {
+              let active = trait.id === selectedTraitID
               return (
                 <div
-                  key={trait.traitGroup.trait + trait.id}
-                  className={`${styles["selectorButton"]} ${
-                    styles["selector-button"]
-                  } ${active ? styles["active"] : ""}`}
+                  key={trait.id}
+                  className={`${styles["selectorButton"]}`}
                   onClick={() => {
                     characterManager.loadTrait(trait.traitGroup.trait, trait.id)
+                    setSelectedTraitID(trait.id);
                     // if (effectManager.getTransitionEffect('normal')){
                     //   selectTraitOption(option)
                     //   setLoadPercentage(1)
