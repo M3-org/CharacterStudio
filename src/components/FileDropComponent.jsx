@@ -4,6 +4,7 @@ import styles from './FileDropComponent.module.css';
 
 export default function FileDropComponent ({onFilesDrop}){
   const [isDragging, setIsDragging] = useState(false);
+  const [files, setFiles] = React.useState(null);
   
   useEffect(() => {
     const handleDrop = (event) => {
@@ -11,7 +12,7 @@ export default function FileDropComponent ({onFilesDrop}){
       setIsDragging(false);
       const files = event.dataTransfer.files;
       if (onFilesDrop) {
-        onFilesDrop(files);
+        setFiles(files)
       }
     };
 
@@ -30,6 +31,13 @@ export default function FileDropComponent ({onFilesDrop}){
       window.removeEventListener('dragover', handleDragOver);
     };
   }, []);
+
+  useEffect(()=>{
+    if (files){
+      console.log("files");
+      onFilesDrop(files);
+    }
+  },[files])
 
   const handleDragLeave = () => {
     setIsDragging(false);
