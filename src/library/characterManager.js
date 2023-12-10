@@ -56,6 +56,10 @@ export class CharacterManager {
       }
     }
 
+    getCurrentTraitID(groupTraitID){
+      return this.avatar[groupTraitID]?.traitInfo?.id;
+    }
+
     // maybe load and return an array with all the icons?
 
     setParentModel(model){
