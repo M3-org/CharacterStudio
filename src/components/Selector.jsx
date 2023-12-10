@@ -150,18 +150,6 @@ export default function Selector({traits, traitGroupName, selectedTraitID, setSe
                         : {}
                     }
                   />
-                  <img
-                    src={tick}
-                    className={
-                      avatar[currentTraitName] &&
-                      avatar[currentTraitName].id === trait.id // todo (pending fix): this only considers the item id and not the subtraits id
-                        ? styles["tickStyle"]
-                        : styles["tickStyleInActive"]
-                    }
-                  />
-                  {/*{active && loadPercentage > 0 && loadPercentage < 100 && (
-                    // TODO: Fill up background from bottom as loadPercentage increases
-                  )}*/}
                 </div>
               )
             })}
