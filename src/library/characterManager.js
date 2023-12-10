@@ -38,7 +38,7 @@ export class CharacterManager {
 
     // returns wether or not the trait group can be removed
     isTraitGroupRemovable(groupTraitID){
-      
+      return false;
     }
     
     // manifest data requests
@@ -52,27 +52,7 @@ export class CharacterManager {
       }
     }
 
-
-
-
-    // getTraitsDirectory(){
-    //   return this.manifestData ? this.manifestData.getTraitsDirectory() : "";
-    // }
-
     // maybe load and return an array with all the icons?
-    getTraitThumbailsURL(){
-      const newArray = originalArray.map(obj => ({
-        ...obj,
-        directory: 'prefix_' + obj.directory
-      }));
-      
-      console.log(newArray);
-      return this.manifestData ? this.manifestData.getThumbnailsDirectory() : "";
-    }
-    // getTraitIconsDirectorySvg(){
-    //   return this.manifestData ? this.manifestData.getTraitIconsDirectorySvg() : "";
-    // }
-    // // end manifest data requests
 
     setParentModel(model){
         this.parentModel = model;
@@ -94,8 +74,14 @@ export class CharacterManager {
         this._loadTraits(getAsArray(selectedTrait));
     }
 
-    removeTrait(groupTraitID){
+    removeTrait(groupTraitID, forceRemove = false){
+      if (!this.isTraitGroupRemovable(groupTraitID) && !forceRemove){
+        console.warn(`No trait with name: ${ groupTraitID } is not removable.`)
+        return;
+      }
+
       const groupTrait = this.manifestData.getModelGroup(groupTraitID);
+      
       if (groupTrait){
         const itemData = new LoadedData({traitGroup:groupTrait, traitModel:null})
         this._addLoadedData(itemData);
@@ -781,7 +767,8 @@ class TraitModelsGroup{
           collection
         } = options;
         this.manifestData = manifestData;
-        console.log(options)
+        // add is removable?
+        this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
         this.name = name;
         this.iconSvg = iconSvg;
