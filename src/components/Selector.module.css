@@ -95,13 +95,6 @@
   clear: both;
 }
 
-.selector-button {
-  opacity: 1;
-  float: left;
-  width: 62px;
-  text-align: center;
-}
-
 .selector-button:hover {
   opacity: 1;
 }
@@ -114,6 +107,10 @@
   padding: 0.25em;
   display: block;
   position: relative;
+  opacity: 1;
+  float: left;
+  width: 62px;
+  text-align: center;
 }
 
 .trait-icon {
