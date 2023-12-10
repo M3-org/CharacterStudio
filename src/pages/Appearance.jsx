@@ -11,6 +11,11 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { getTraitOption } from "../library/option-utils"
 import { getDataArrayFromNFTMetadata } from "../library/file-utils"
+import MenuTitle from "../components/MenuTitle"
+import Selector from "../components/Selector"
+import TraitInformation from "../components/TraitInformation"
+import { TokenBox } from "../components/token-box/TokenBox"
+import JsonAttributes from "../components/JsonAttributes"
 
 function Appearance({
   animationManager,
@@ -30,8 +35,10 @@ function Appearance({
     templateInfo,
     setSelectedOptions,
     setCurrentVRM,
+    currentVRM,
     setDisplayTraitOption,
-    characterManager
+    characterManager,
+    moveCamera
   } = React.useContext(SceneContext)
   
 
@@ -46,7 +53,16 @@ function Appearance({
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [uploadTextureURL, setUploadTextureURL] = React.useState(null)
-  const [uploadVRMURL, setUploadVRMURL] = React.useState(null)
+  const [traits, setTraits] = React.useState(null)
+  const [traitGroupName, setTraitGroupName] = React.useState("")
+  const [selectedTraitID, setSelectedTraitID] = React.useState(null)
+
+  // XXX Remove
+  useEffect(()=>{
+    if (uploadTextureURL != null && currentVRM != null){
+      setTextureToChildMeshes(currentVRM.scene,uploadTextureURL)
+    }
+  },[uploadTextureURL])
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -105,7 +121,12 @@ function Appearance({
   }
   const handleVRMDrop = (file) =>{
     const path = URL.createObjectURL(file);
-    setUploadVRMURL(path);
+    if (traitGroupName != ""){
+      characterManager.loadCustomTrait(traitGroupName, path);
+    }
+    else{
+      console.log("Please select a group trait first.")
+    }
   }
 
   const handleFilesDrop = async(files) => {
@@ -183,6 +204,24 @@ function Appearance({
 
   };
 
+  const selectTraitGroup = (traitGroup) => {
+    !isMute && playSound('optionClick');
+    console.log(traitGroup);
+    console.log(traitGroupName);
+    if (traitGroupName !== traitGroup.trait){
+      setTraits(characterManager.getTraits(traitGroup.trait));
+      setTraitGroupName(traitGroup.trait);
+      setSelectedTraitID(characterManager.getCurrentTraitID(traitGroup.trait));
+      moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
+    }
+    else{
+      setTraits(null);
+      setTraitGroupName("");
+      setSelectedTraitID(null);
+      moveCamera({ targetY: 0.8, distance: 3.2 })
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
@@ -192,16 +231,38 @@ function Appearance({
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
-      <Editor
-        animationManager={animationManager}
-        blinkManager={blinkManager}
-        lookatManager={lookatManager}
-        effectManager={effectManager}
-        confirmDialog={confirmDialog}
-        jsonSelectionArray={jsonSelectionArray}
-        uploadTextureURL = {uploadTextureURL}
-        uploadVRMURL = {uploadVRMURL}
-        //characterManager ={characterManager}
+      <div className={styles["sideMenu"]}>
+        <MenuTitle title="Appearance" left={20}/>
+        <div className={styles["bottomLine"]} />
+        <div className={styles["scrollContainer"]}>
+          <div className={styles["selector-container"]}>
+            {
+              characterManager.getGroupTraits().map((traitGroup, index) => (
+                <div key={"options_" + index} className={styles["selectorButton"]}>
+                  <TokenBox
+                    size={56}
+                    resolution={2048}
+                    numFrames={128}
+                    icon={ traitGroup.fullIconSvg }
+                    rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
+                    onClick={() => {
+                      selectTraitGroup(traitGroup)
+                    }}
+                  />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+      <Selector 
+        traits={traits}
+        traitGroupName = {traitGroupName}
+        selectedTraitID = {selectedTraitID}
+        setSelectedTraitID = {setSelectedTraitID}
+        />
+      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
