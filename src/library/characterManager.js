@@ -76,10 +76,7 @@ export class CharacterManager {
     }
 
     async loadInitialTraits(){
-      console.log("test")
       if (this.manifestData){
-        console.log(this.manifestData)
-        console.log(this.manifestData.getInitialTraits())
         this._loadTraits(this.manifestData.getInitialTraits());
       }
       else{
@@ -88,9 +85,15 @@ export class CharacterManager {
     }
 
     async loadTrait(groupTraitID, traitID){
-      const selectedTrait = this.manifestData.getTrait(groupTraitID, traitID);
+      const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
       if (selectedTrait)
         this._loadTraits(getAsArray(selectedTrait));
+    }
+
+    async loadCustomTrait(groupTraitID, url){
+      const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+      if (selectedTrait)
+        this._loadTraits(getAsArray(selectedTrait))
     }
 
     removeTrait(groupTraitID, forceRemove = false){
@@ -111,9 +114,7 @@ export class CharacterManager {
       }
     }
 
-    async loadCustom(url){
 
-    }
     async loadManifest(url, options){
       const {
         createAnimationManager = false
@@ -124,15 +125,13 @@ export class CharacterManager {
       if (this.manifest){
         this.manifestData = new ManifestData(this.manifest);
         console.log(this.manifestData);
-        this.traitLoadManager.setBaseDirectory((this.manifest.assetsLocation || "") + (this.manifest.traitsDirectory || ""));
+        // XXX remove this
         this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
       }
     }
     // 
     async _loadTraits(options){
-      console.log(options)
-      this.traitLoadManager.loadTraitOptions(this.manifestData.getTraitsDirectory(), getAsArray(options)).then(loadedData=>{
-        console.log("loaded", loadedData);
+      this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
           loadedData.forEach(itemData => {
               this._addLoadedData(itemData)
           });
@@ -454,7 +453,6 @@ class TraitLoadingManager{
         // Texture Loader
         const textureLoader = new THREE.TextureLoader(loadingManager);
 
-        this.baseDirectory = "";
         this.loadPercentager = 0;
         this.loadingManager = loadingManager;
         this.gltfLoader = gltfLoader;
@@ -465,14 +463,11 @@ class TraitLoadingManager{
     setLoadPercentage(value){
         this.loadPercentager = value;
     }
-    setBaseDirectory(directory){
-        this.baseDirectory = directory;
-    }
 
 
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
-    loadTraitOptions(baseDirectory, options) {
+    loadTraitOptions(options) {
         return new Promise((resolve) => {
             this.isLoading = true;
             const resultData = [];
@@ -486,9 +481,10 @@ class TraitLoadingManager{
                 //console.log(option.directory);
 
                 const loadedModels = await Promise.all(
-                    getAsArray(option?.traitModel?.directory).map(async (modelDir) => {
+                    getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
                         try {
-                            return await this.gltfLoader.loadAsync(baseDirectory + modelDir);
+                          console.log(modelDir);
+                            return await this.gltfLoader.loadAsync(modelDir);
                         } catch (error) {
                             console.error(`Error loading model ${modelDir}:`, error);
                             return null;
@@ -497,10 +493,10 @@ class TraitLoadingManager{
                 );
     
                 const loadedTextures = await Promise.all(
-                  getAsArray(option?.traitTexture?.directory).map(
+                  getAsArray(option?.traitTexture?.fullDirectory).map(
                       (textureDir) =>
                           new Promise((resolve) => {
-                              this.textureLoader.load(baseDirectory + textureDir, (txt) => {
+                              this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
                                   resolve(txt);
                               });
@@ -675,7 +671,7 @@ class ManifestData{
       }
     }
 
-    getTrait(groupTraitID, traitID){
+    getTraitOption(groupTraitID, traitID){
       const trait = this.getModelTrait(groupTraitID, traitID);
       if (trait){
         const traitTexture = trait.targetTextureCollection?.getRandomTrait();
@@ -683,6 +679,19 @@ class ManifestData{
         return new SelectedOption(trait,traitTexture, traitColor);
       }
       return null;
+    }
+
+    getCustomTraitOption(groupTraitID, url){
+      const trait = this.getCustomModelTrait(groupTraitID, url);
+      console.log(trait)
+      if (trait){
+        return new SelectedOption(trait,null,null);
+      }
+      return null;
+    }
+
+    getCustomModelTrait(groupTraitID, url){
+      return this.getModelGroup(groupTraitID)?.getCustomTrait(url);
     }
 
     // model traits
@@ -816,6 +825,12 @@ class TraitModelsGroup{
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
+    getCustomTrait(url){
+      console.log(url);
+      console.log("Create blob url");
+      return new ModelTrait(this, {directory:url, fullDirectory:url, id:"_custom", name:"Custom"})
+    }
+
     getTrait(traitID){
       return this.collectionMap.get(traitID);
     }
@@ -938,16 +953,36 @@ class ModelTrait{
           cullingLayer,
           type = [],
           textureCollection,
-          colorCollection
+          colorCollection,
+          fullDirectory,
+          fullThumbnail,
       }= options;
       this.traitGroup = traitGroup;
 
       this.id = id;
       this.directory = directory;
-      this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + directory
+
+      
+      if (fullDirectory){
+        this.fullDirectory = fullDirectory
+      }
+      else{
+        if (Array.isArray(directory))
+        {
+          this.fullDirectory = [];
+          for (let i =0;i< directory.length;i++){
+            this.fullDirectory[i] = traitGroup.manifestData.getTraitsDirectory() + directory[i]
+          }  
+        }
+        else
+        {
+          this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + directory;
+        }
+      }
+      
       this.name = name;
       this.thumbnail = thumbnail;
-      this.fullThumbnail = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
+      this.fullThumbnail = fullThumbnail || traitGroup.manifestData.getTraitsDirectory() + thumbnail;
 
       this.cullHiddenMeshes = cullingDistance;
       this.cullingLayer = cullingLayer;
@@ -959,8 +994,6 @@ class ModelTrait{
       if (this.targetTextureCollection)
         console.log(this.targetTextureCollection);
   }
-
-
 }
 
 class TextureTrait{
@@ -968,6 +1001,7 @@ class TextureTrait{
       const {
           id,
           directory,
+          fullDirectory,
           name,
           thumbnail,
       }= options;
@@ -975,7 +1009,22 @@ class TextureTrait{
 
       this.id = id;
       this.directory = directory;
-      this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + directory;
+      if (fullDirectory){
+        this.fullDirectory = fullDirectory
+      }
+      else{
+        if (Array.isArray(directory))
+        {
+          this.fullDirectory = [];
+          for (let i =0;i< directory.length;i++){
+            this.fullDirectory[i] = traitGroup.manifestData.getTraitsDirectory() + directory[i]
+          }  
+        }
+        else
+        {
+          this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
+        }
+      }
 
       this.name = name;
       this.thumbnail = thumbnail;
@@ -998,28 +1047,6 @@ class ColorTrait{
         this.value = value;
         
     }
-}
-
-
-// ths one will be removed
-class TraitOption{
-  constructor(options){
-      const {
-          key = 'default',
-          icon = 'defaultIcon',
-          iconHSL = 'defaultIconHSL',
-          colorTrait = null,
-          textureTrait = null,
-          item = null
-      } = options;
-
-      this.key = key;
-      this.colorTrait = colorTrait;
-      this.textureTrait = textureTrait;
-      this.icon = icon;
-      this.iconHSL = iconHSL;
-      this.item = item;
-  }
 }
 
 

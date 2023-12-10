@@ -97,10 +97,13 @@ export default function Selector({traits, traitGroupName, selectedTraitID, setSe
       input.accept=".vrm"
 
       input.onchange = e => { 
+        console.log("on")
         var file = e.target.files[0]; 
         if (file.name.endsWith(".vrm")){
+          console.log("ends")
           const url = URL.createObjectURL(file);
-          loadCustom(url)
+          //loadCustom(url)
+          characterManager.loadCustomTrait(traitGroupName,url)
         }
       }
       input.click();
@@ -116,18 +119,8 @@ export default function Selector({traits, traitGroupName, selectedTraitID, setSe
         className={`${styles["selectorButton"]}`}
         icon={cancel}
         onClick={() => {
-          
-          //console.log(characterManager.getCurrentTraitID(traitGroupName));
           characterManager.removeTrait(traitGroupName);
           setSelectedTraitID(null);
-
-
-          // if (effectManager.getTransitionEffect('normal')) {
-          //   selectTraitOption(null) 
-          //   setSelectValue("");
-          //   effectManager.setTransitionEffect('normal');
-          //   setDisplayTraitOption(null);
-          // }
         }}
       >
         <TokenBox
