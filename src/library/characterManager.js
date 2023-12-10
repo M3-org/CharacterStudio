@@ -37,7 +37,11 @@ export class CharacterManager {
     }
 
     // returns wether or not the trait group can be removed
-    isTraitGroupRemovable(groupTraitID){
+    isTraitGroupRequired(groupTraitID){
+      const groupTrait = this.manifestData.getModelTraits(groupTraitID)
+      if (groupTrait?.isRequired){
+        return true;
+      }
       return false;
     }
     
@@ -75,7 +79,7 @@ export class CharacterManager {
     }
 
     removeTrait(groupTraitID, forceRemove = false){
-      if (!this.isTraitGroupRemovable(groupTraitID) && !forceRemove){
+      if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){
         console.warn(`No trait with name: ${ groupTraitID } is not removable.`)
         return;
       }
