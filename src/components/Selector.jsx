@@ -59,51 +59,17 @@ export default function Selector({traits, traitGroupName, selectedTraitID, setSe
   const [restrictions, setRestrictions] = useState(null)
   const [currentTrait, setCurrentTrait] = useState(new Map());
 
-
-  const loadCustom = (url) => {
-    if (currentTraitName){
-      const option = {
-        item:{
-          id:"custom_" + currentTraitName,
-          name:"Custom " + currentTraitName,
-          directory:url
-        },
-        trait:templateInfo.traits.find((t) => t.name === currentTraitName)
-      }
-      effectManager.setTransitionEffect('switch_item');
-      loadOptions([option], false, false, false).then((loadedData)=>{
-        URL.revokeObjectURL(url);
-        let newAvatar = {};
-        loadedData.map((data)=>{
-          newAvatar = {...newAvatar, ...itemAssign(data)}
-        })
-        const finalAvatar = {...avatar, ...newAvatar}
-        setTimeout(() => {
-          if (Object.keys(finalAvatar).length > 0) {
-            cullHiddenMeshes(finalAvatar)
-          }
-        }, effectManager.transitionTime);
-        setAvatar(finalAvatar)
-      })
-    }
-    else{
-      console.log("Please select a trait first");
-    }
-  }
-
   const uploadTrait = async() =>{
       var input = document.createElement('input');
       input.type = 'file';
       input.accept=".vrm"
 
       input.onchange = e => { 
-        console.log("on")
         var file = e.target.files[0]; 
         if (file.name.endsWith(".vrm")){
-          console.log("ends")
           const url = URL.createObjectURL(file);
-          //loadCustom(url)
           characterManager.loadCustomTrait(traitGroupName,url)
+          // XXX change selected option
         }
       }
       input.click();
@@ -142,7 +108,7 @@ export default function Selector({traits, traitGroupName, selectedTraitID, setSe
       
       <div className={styles["SelectorContainerPos"]}>
        
-        <MenuTitle title={currentTraitName} width={130} left={20}/>
+        <MenuTitle title={traitGroupName} width={130} left={20}/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
           <div className={styles["selector-container"]}>
