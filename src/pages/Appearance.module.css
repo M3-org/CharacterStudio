@@ -78,16 +78,44 @@
   width: 100%;
   height: 1px;
 }
-.selector-container {
+.editor-container {
   user-select: none;
   flex: 1;
   width: 110px;
   position: relative;
   text-align: center;
 }
-.selectorButton {
+.editorButton {
   padding: 0.15em;
   display: block;
   position: relative;
 }
 
+/* previously in Selector.jsx */
+.selectorContainerPos {
+  position: absolute;
+  top: 98px;
+  left: 180px;
+  height: -webkit-calc(100vh - 176px);
+  height: calc(100vh - 176px);
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.selector-container {
+  user-select: none;
+  flex: 1;
+  width: 140px;
+  position: relative;
+}
+.selectorButton {
+  padding: 0.25em;
+  display: block;
+  position: relative;
+  opacity: 1;
+  float: left;
+  width: 62px;
+  text-align: center;
+}

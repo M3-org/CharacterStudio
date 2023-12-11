@@ -16,6 +16,7 @@ import Selector from "../components/Selector"
 import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
+import cancel from "../images/cancel.png"
 
 function Appearance({
   animationManager,
@@ -28,13 +29,9 @@ function Appearance({
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
     resetAvatar,
-    getRandomCharacter,
-    isChangingWholeAvatar,
-    setIsChangingWholeAvatar,
     toggleDebugMNode,
     templateInfo,
     setSelectedOptions,
-    setCurrentVRM,
     currentVRM,
     setDisplayTraitOption,
     characterManager,
@@ -44,6 +41,8 @@ function Appearance({
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+  const { t } = useContext(LanguageContext)
+
   const back = () => {
     !isMute && playSound('backNextButton');
     resetAvatar()
@@ -72,42 +71,12 @@ function Appearance({
 
   const randomize = () => {
     characterManager.loadRandomTraits();
-    // if (!isChangingWholeAvatar) {
-    //   !isMute && playSound('randomizeButton');
-    //   getRandomCharacter()
-    // }
   }
 
 
   const debugMode = () =>{
     toggleDebugMNode()
   }
-
-  useEffect(() => {
-    const setIsChangingWholeAvatarFalse = () => setIsChangingWholeAvatar(false)
-
-    effectManager.addEventListener(
-      "fadeintraitend",
-      setIsChangingWholeAvatarFalse,
-    )
-    effectManager.addEventListener(
-      "fadeinavatarend",
-      setIsChangingWholeAvatarFalse,
-    )
-    return () => {
-      effectManager.removeEventListener(
-        "fadeintraitend",
-        setIsChangingWholeAvatarFalse,
-      )
-      effectManager.removeEventListener(
-        "fadeinavatarend",
-        setIsChangingWholeAvatarFalse,
-      )
-    }
-  }, [])
-
-  // Translate hook
-  const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
@@ -125,7 +94,7 @@ function Appearance({
       characterManager.loadCustomTrait(traitGroupName, path);
     }
     else{
-      console.log("Please select a group trait first.")
+      console.warn("Please select a group trait first.")
     }
   }
 
@@ -222,6 +191,23 @@ function Appearance({
     }
   }
 
+
+  const uploadTrait = async() =>{
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept=".vrm"
+
+    input.onchange = e => { 
+      var file = e.target.files[0]; 
+      if (file.name.endsWith(".vrm")){
+        const url = URL.createObjectURL(file);
+        characterManager.loadCustomTrait(traitGroupName,url)
+        setSelectedTraitID(null);
+      }
+    }
+    input.click();
+  }
+
   return (
     <div className={styles.container}>
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
@@ -231,18 +217,17 @@ function Appearance({
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
+      {/* Main Menu section */}
       <div className={styles["sideMenu"]}>
         <MenuTitle title="Appearance" left={20}/>
         <div className={styles["bottomLine"]} />
         <div className={styles["scrollContainer"]}>
-          <div className={styles["selector-container"]}>
+          <div className={styles["editor-container"]}>
             {
               characterManager.getGroupTraits().map((traitGroup, index) => (
-                <div key={"options_" + index} className={styles["selectorButton"]}>
+                <div key={"options_" + index} className={styles["editorButton"]}>
                   <TokenBox
                     size={56}
-                    resolution={2048}
-                    numFrames={128}
                     icon={ traitGroup.fullIconSvg }
                     rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
                     onClick={() => {
@@ -255,12 +240,70 @@ function Appearance({
           </div>
         </div>
       </div>
-      <Selector 
-        traits={traits}
-        traitGroupName = {traitGroupName}
-        selectedTraitID = {selectedTraitID}
-        setSelectedTraitID = {setSelectedTraitID}
-        />
+
+      {/* Option Selection section */
+      !!traits && (
+        <div className={styles["selectorContainerPos"]}>
+        
+          <MenuTitle title={traitGroupName} width={130} left={20}/>
+          <div className={styles["bottomLine"]} />
+          <div className={styles["scrollContainer"]}>
+            <div className={styles["selector-container"]}>
+              {/* Null button section */
+                !characterManager.isTraitGroupRequired(traitGroupName) ? (
+                  <div
+                    key={"no-trait"}
+                    className={`${styles["selectorButton"]}`}
+                    icon={cancel}
+                    onClick={() => {
+                      characterManager.removeTrait(traitGroupName);
+                      setSelectedTraitID(null);
+                    }}
+                  >
+                    <TokenBox
+                      size={56}
+                      icon={cancel}
+                      rarity={selectedTraitID == null ? "mythic" : "none"}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )
+              }
+              {/* All buttons section */
+              traits.map((trait) => {
+                let active = trait.id === selectedTraitID
+                return (
+                  <div
+                    key={trait.id}
+                    className={`${styles["selectorButton"]}`}
+                    onClick={() => {
+                      characterManager.loadTrait(trait.traitGroup.trait, trait.id)
+                      setSelectedTraitID(trait.id);
+                    }}
+                  >
+                    <TokenBox
+                      size={56}
+                      icon={trait.fullThumbnail}
+                      rarity={active ? "mythic" : "none"}      
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          
+          <div className={styles["uploadContainer"]}>
+            <div 
+              className={styles["uploadButton"]}
+              onClick={uploadTrait}>
+              <div> 
+                Upload </div>
+            </div>
+            
+          </div>
+        </div>
+      )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}
       />
