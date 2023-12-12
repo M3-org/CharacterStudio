@@ -1,0 +1,436 @@
+{
+  "assetsLocation":"./local-manifest/",
+  "format": "vrm",
+  "traitsDirectory": "/anata/",
+  "thumbnailsDirectory": "/anata/",
+  "exportScale":0.7,
+  "animationPath": [
+    "/anata/animations/T-Pose.fbx",
+    "/anata/animations/Idle.fbx", 
+    "/anata/animations/Backflip.fbx", 
+    "/anata/animations/Cheering.fbx",
+    "/anata/animations/Clapping.fbx",
+    "/anata/animations/Dancing.fbx",
+    "/anata/animations/Drunk_Idle_Variation.fbx",
+    "/anata/animations/Female_Crouch_Pose.fbx",
+    "/anata/animations/Female_Locomotion_Pose.fbx",
+    "/anata/animations/Female_Locomotion_Pose_1.fbx",
+    "/anata/animations/Female_Sitting_Pose.fbx",
+    "/anata/animations/Female_Standing_Pose.fbx",
+    "/anata/animations/Female_Standing_Pose_1.fbx",
+    "/anata/animations/Female_Standing_Pose_2.fbx",
+    "/anata/animations/Female_Standing_Pose_3.fbx",
+    "/anata/animations/Floating.fbx",
+    "/anata/animations/Great_Sword_Idle.fbx",
+    "/anata/animations/Male_Crouch_Pose.fbx",
+    "/anata/animations/Male_Sitting_Pose.fbx",
+    "/anata/animations/Male_Sitting_Pose_1.fbx",
+    "/anata/animations/Male_Standing_Pose.fbx",
+    "/anata/animations/Medium_Run.fbx",
+    "/anata/animations/Pointing.fbx",
+    "/anata/animations/Sadness.fbx",
+    "/anata/animations/Sitting.fbx",
+    "/anata/animations/Sitting_Yell.fbx",
+    "/anata/animations/Skinning_Test.fbx",
+    "/anata/animations/Twist_Dance.fbx",
+    "/anata/animations/Typing.fbx",
+    "/anata/animations/Walking.fbx",
+    "/anata/animations/Waving.fbx",
+    "/anata/animations/Ymca_Dance.fbx"
+  ],
+  "traitIconsDirectorySvg": "/anata/_icons/",
+  "requiredTraits":["BODY"],
+  "randomTraits":["BODY"],
+  "defaultCullingLayer": -1,
+  "defaultCullingDistance": [
+    0.1,
+    0.01
+  ],
+  "offset": [
+    0.0,
+    0.25,
+    0.0
+  ],
+  "vrmMeta":{
+    "authors":["Anata"],
+    "version":"v1",
+    "commercialUssageName": "personalNonProfit",
+    "contactInformation": "https://example.com/", 
+    "allowExcessivelyViolentUsage":false,
+    "allowExcessivelySexualUsage":false,
+    "allowPoliticalOrReligiousUsage":false,
+    "allowAntisocialOrHateUsage":false,
+    "creditNotation":"required",
+    "allowRedistribution":false,
+    "modification":"prohibited"
+  },
+  "traits": [ 
+    {
+      "trait": "BODY",
+      "name": "BODY",
+      "iconSvg": "BODY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Feminine",
+          "name": "Feminine",
+          "directory": "BODY/New_Female_Basebody.vrm",
+          "thumbn`ail": "BODY/Feminine.png"
+        }
+      ]
+    },
+    {
+      "trait": "CLOTHING",
+      "name": "CLOTHING",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "CLOTHING.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "RIBBON_AND_BOWS",
+      "name": "RIBBON_AND_BOWS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "RIBBONS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "EARRING",
+      "name": "EARRING",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "EARRING.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "FACE_OTHER",
+      "name": "FACE_OTHER",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "FACE.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HAIR",
+      "name": "HAIR",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HAIR.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HAIR_ACCESSORIES",
+      "name": "HAIR_ACCESSORIES",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HAIRACCESSORY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HALOS",
+      "name": "HALOS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HALOS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HATS",
+      "name": "HATS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HATS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "GLASSES",
+      "name": "GLASSES",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "GLASSES.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "NECK",
+      "name": "NECK",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "NECK.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "TAIL",
+      "name": "TAIL",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TAIL.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "TATTOO",
+      "name": "TATTOO",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TATTOO.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HEAD",
+      "name": "HEAD",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HEAD.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "SIGIL",
+      "name": "SIGIL",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "SIGIL.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HEAD_ACCESSORY",
+      "name": "HEAD_ACCESSORY",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HEAD_ACCESSORY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "CLIPS_AND_KANZASHI",
+      "name": "CLIPS_AND_KANZASHI",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "CLIPS_AND_KANZASHI.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "MASKS",
+      "name": "MASKS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "MASKS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "WINGS",
+      "name": "WINGS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "WINGS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    }
+  ],
+  "textureCollections": [{
+    "trait":"test",
+    "collection":[
+      {
+        "id": "test_texture",
+        "name": "test",
+        "directory": "test.jpg",
+        "thumbnail": "test.png"
+      }
+    ]
+  }],
+  "colorCollections": [{
+    "trait":"testColor",
+    "collection":[
+      {
+        "id": "EMERALD",
+        "name": "Emerald",
+        "value":["#7BFFBA"]
+      }
+    ]
+  }]
+}
