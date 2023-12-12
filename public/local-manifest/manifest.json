@@ -10,7 +10,7 @@
   {
     "name": "Anata Male",
     "description": "Anata Male",
-    "portrait": "./assets/portraitImages/anata.png",
+    "portrait": "./assets/portraitImages/anata_male.png",
     "manifest":"./local-manifest/anata_male/manifest.json",
     "icon": "./assets/icons/class-neural-hacker.svg",
     "format": "vrm"
