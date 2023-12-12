@@ -18,11 +18,7 @@ import cancel from "../images/cancel.png"
 
 function Appearance({
   animationManager,
-  blinkManager,
   lookatManager,
-  effectManager,
-  confirmDialog,
-  // characterManager
 }) {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
@@ -173,8 +169,6 @@ function Appearance({
 
   const selectTraitGroup = (traitGroup) => {
     !isMute && playSound('optionClick');
-    console.log(traitGroup);
-    console.log(traitGroupName);
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);

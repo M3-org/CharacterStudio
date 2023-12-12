@@ -63,26 +63,7 @@ function Create({fetchCharacterManifest}) {
   const hoverClass = () => {
     !isMute && playSound('classMouseOver');
   }
-
-
-  // const fetchCharacterManifest222 = (index) => {
-  //   setAwaitDisplay(true)
-  //   resetAvatar()
-  //   return new Promise((resolve) => {
-  //     asyncResolve()
-  //     async function asyncResolve() {
-  //       const characterManifest = await fetchManifest(manifest[index].manifest);
-  //       const animManager = await fetchAnimation(characterManifest)
-  //       setAnimationManager(animManager)
-  //       setTemplateInfo(characterManifest)
-  //       setManifestSelectionIndex(index)
-  //       resolve(characterManifest)
-  //     }
-  //   })
-  // }
-
   
-
   return (
     <div className={`${styles.container} horizontalScroll`}>
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
