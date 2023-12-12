@@ -1,13 +1,13 @@
 {
-  "assetsLocation": "./local-manifest/",
+  "assetsLocation":"./local-manifest/",
   "format": "vrm",
   "traitsDirectory": "/anata/",
   "thumbnailsDirectory": "/anata/",
-  "exportScale": 0.7,
+  "exportScale":0.7,
   "animationPath": [
     "/anata/animations/T-Pose.fbx",
-    "/anata/animations/Idle.fbx",
-    "/anata/animations/Backflip.fbx",
+    "/anata/animations/Idle.fbx", 
+    "/anata/animations/Backflip.fbx", 
     "/anata/animations/Cheering.fbx",
     "/anata/animations/Clapping.fbx",
     "/anata/animations/Dancing.fbx",
@@ -39,319 +39,62 @@
     "/anata/animations/Ymca_Dance.fbx"
   ],
   "traitIconsDirectorySvg": "/anata/_icons/",
-  "requiredTraits": ["BODY"],
-  "randomTraits": ["BODY"],
+  "requiredTraits":["BODY"],
+  "randomTraits":["BODY"],
   "defaultCullingLayer": -1,
-  "defaultCullingDistance": [0.1, 0.01],
-  "offset": [0.0, 0.25, 0.0],
-  "vrmMeta": {
-    "authors": ["Anata"],
-    "version": "v1",
+  "defaultCullingDistance": [
+    0.1,
+    0.01
+  ],
+  "offset": [
+    0.0,
+    0.25,
+    0.0
+  ],
+  "vrmMeta":{
+    "authors":["Anata"],
+    "version":"v1",
     "commercialUssageName": "personalNonProfit",
-    "contactInformation": "https://example.com/",
-    "allowExcessivelyViolentUsage": false,
-    "allowExcessivelySexualUsage": false,
-    "allowPoliticalOrReligiousUsage": false,
-    "allowAntisocialOrHateUsage": false,
-    "creditNotation": "required",
-    "allowRedistribution": false,
-    "modification": "prohibited"
+    "contactInformation": "https://example.com/", 
+    "allowExcessivelyViolentUsage":false,
+    "allowExcessivelySexualUsage":false,
+    "allowPoliticalOrReligiousUsage":false,
+    "allowAntisocialOrHateUsage":false,
+    "creditNotation":"required",
+    "allowRedistribution":false,
+    "modification":"prohibited"
   },
-  "traits": [
+  "traits": [ 
     {
       "trait": "BODY",
-      "name": "Body",
+      "name": "BODY",
       "iconSvg": "BODY.svg",
       "cullingLayer": 0,
       "cameraTarget": {
         "distance": 3.0,
         "height": 0.8
       },
-      "cullingDistance": [0.1, 0.01],
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
       "collection": [
         {
           "id": "Feminine",
           "name": "Feminine",
           "directory": "BODY/New_Female_Basebody.vrm",
-          "thumbnail": "BODY/Feminine.png"
+          "thumbn`ail": "BODY/Feminine.png"
         }
       ]
     },
     {
-      "trait": "BRACE",
-      "name": "Brace",
-      "iconSvg": "BRACE.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
       "trait": "CLOTHING",
-      "name": "Clothing",
+      "name": "CLOTHING",
       "icon": "",
       "type": "mesh",
       "iconGradient": "",
       "iconSvg": "CLOTHING.svg",
       "cullingLayer": 1,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "CLIPS_AND_KANZASHI",
-      "name": "Clips and Kanzashi",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "CLIPS_AND_KANZASHI.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "EARRING",
-      "name": "Earrings",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "EARRING.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "FACE_OTHER",
-      "name": "Face Other",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "FACE.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "GLASSES",
-      "name": "Glasses",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "GLASSES.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HAIR",
-      "name": "Hair",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HAIR.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HAIR_ACCESSORY_OTHER",
-      "name": "Hair Accessory",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HAIRACCESSORY.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HALOS",
-      "name": "Halos",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HALOS.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HATS",
-      "name": "Hats",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HATS.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HEAD",
-      "name": "Head",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HEAD.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "HEAD_ACCESSORY_OTHER",
-      "name": "Head Accessory",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "HEAD_ACCESSORY.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "MASKS",
-      "name": "Masks",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "MASKS.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "NECK",
-      "name": "Neck",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "NECK.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "RIBBONS_AND_BOWS",
-      "name": "Ribbons and Bows",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "RIBBONS.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "SIGIL",
-      "name": "Sigil",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "SIGIL.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "TAIL",
-      "name": "Tail",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "TAIL.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "TATTOO",
-      "name": "Tattoo",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "TATTOO.svg",
-      "cullingLayer": 0,
-      "cameraTarget": {
-        "distance": 3.0,
-        "height": 0.8
-      },
-      "cullingDistance": [0.1, 0.01],
-      "collection": []
-    },
-    {
-      "trait": "WEAPON",
-      "name": "Weapon",
-      "icon": "",
-      "type": "mesh",
-      "iconGradient": "",
-      "iconSvg": "WEAPON.svg",
-      "cullingLayer": -1,
       "cameraTarget": {
         "distance": 3.0,
         "height": 0.8
@@ -363,12 +106,282 @@
       "collection": []
     },
     {
-      "trait": "WEAPON_BRACE",
-      "name": "Weapon Brace",
+      "trait": "RIBBON_AND_BOWS",
+      "name": "RIBBON_AND_BOWS",
       "icon": "",
       "type": "mesh",
       "iconGradient": "",
-      "iconSvg": "WEAPON.svg",
+      "iconSvg": "RIBBONS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "EARRING",
+      "name": "EARRING",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "EARRING.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "FACE_OTHER",
+      "name": "FACE_OTHER",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "FACE.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HAIR",
+      "name": "HAIR",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HAIR.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HAIR_ACCESSORIES",
+      "name": "HAIR_ACCESSORIES",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HAIRACCESSORY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HALOS",
+      "name": "HALOS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HALOS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HATS",
+      "name": "HATS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HATS.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "GLASSES",
+      "name": "GLASSES",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "GLASSES.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "NECK",
+      "name": "NECK",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "NECK.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "TAIL",
+      "name": "TAIL",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TAIL.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "TATTOO",
+      "name": "TATTOO",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TATTOO.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HEAD",
+      "name": "HEAD",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HEAD.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "SIGIL",
+      "name": "SIGIL",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "SIGIL.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "HEAD_ACCESSORY",
+      "name": "HEAD_ACCESSORY",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HEAD_ACCESSORY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "CLIPS_AND_KANZASHI",
+      "name": "CLIPS_AND_KANZASHI",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "CLIPS_AND_KANZASHI.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": []
+    },
+    {
+      "trait": "MASKS",
+      "name": "MASKS",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "MASKS.svg",
       "cullingLayer": 0,
       "cameraTarget": {
         "distance": 3.0,
@@ -382,7 +395,7 @@
     },
     {
       "trait": "WINGS",
-      "name": "Wings",
+      "name": "WINGS",
       "icon": "",
       "type": "mesh",
       "iconGradient": "",
@@ -392,34 +405,32 @@
         "distance": 3.0,
         "height": 0.8
       },
-      "cullingDistance": [0.1, 0.01],
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
       "collection": []
     }
   ],
-  "textureCollections": [
-    {
-      "trait": "test",
-      "collection": [
-        {
-          "id": "test_texture",
-          "name": "test",
-          "directory": "test.jpg",
-          "thumbnail": "test.png"
-        }
-      ]
-    }
-  ],
-  "colorCollections": [
-    {
-      "trait": "testColor",
-      "collection": [
-        {
-          "id": "EMERALD",
-          "name": "Emerald",
-          "value": ["#7BFFBA"]
-        }
-      ]
-    }
-  ]
+  "textureCollections": [{
+    "trait":"test",
+    "collection":[
+      {
+        "id": "test_texture",
+        "name": "test",
+        "directory": "test.jpg",
+        "thumbnail": "test.png"
+      }
+    ]
+  }],
+  "colorCollections": [{
+    "trait":"testColor",
+    "collection":[
+      {
+        "id": "EMERALD",
+        "name": "Emerald",
+        "value":["#7BFFBA"]
+      }
+    ]
+  }]
 }
-
