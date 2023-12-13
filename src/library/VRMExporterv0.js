@@ -705,7 +705,7 @@ export default class VRMExporterv0 {
                         outputAccessors[accessorIndex].sparse[bufferView.typeString] = {
                             bufferView : index,
                             byteOffset : 0,
-                            componentType : WEBGL_CONST.FLOAT
+                            // componentType : WEBGL_CONST.FLOAT
                         }
                     }
                     
