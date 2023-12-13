@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
+import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
 import { cullHiddenMeshes } from "./utils";
 
@@ -16,9 +17,11 @@ export class CharacterManager {
         parentModel = null,
         createAnimationManager = false,
         manifestURL = null,
+        canDownload = true
       }= options;
 
       this.parentModel = parentModel;
+      this.canDownload = canDownload;
       
       if (manifestURL)
         this.manifest = await this.loadManifest(manifestURL, options)
@@ -28,7 +31,37 @@ export class CharacterManager {
       this.traitLoadManager = new TraitLoadingManager();
     }
 
+    downloadCharacter(name, exportOptions = null){
+      if (this.canDownload){
+        if (this.parentModel == null){
+          console.warn("No parent set in character manager, unable to download.")
+          return;
+        }
+        exportOptions = exportOptions || {}
+        const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
+        // XXX screenshot manager
+        console.log(finalOptions);
+        finalOptions.isVRM0 = true; // currently vrm1 not supported
+        downloadVRMWithAvatar(this.parentModel, this.avatar, name,finalOptions);
+      }
+      else{
+        console.error("Download not supported");
+      }
+    }
 
+
+
+    getAvatarSelection(){
+      var result = {};
+      for (const prop in this.avatar) {
+        result[prop] = {
+          name:this.avatar[prop].name,
+          id:this.avatar[prop].traitInfo?.id
+        }
+      }
+      return result;
+      
+    }
 
     getGroupTraits(){
       if (this.manifestData){
@@ -428,6 +461,8 @@ export class CharacterManager {
       console.log(this.avatar)
     }
 
+
+
    
 }
 
@@ -624,10 +659,19 @@ class ManifestData{
       this.modelTraits = [];
       this.modelTraitsMap = null;
       this.createModelTraits(traits);
-      
-      console.log(this.modelTraitsMap);
-      console.log(this.colorTraitsMap);
-      console.log(this.textureTraitsMap);
+    }
+
+    getExportOptions(){
+      return {
+        // XXX Add this options to manifest data
+        // mToonAtlasSize:2048,
+        // mToonAtlasSizeTransp:2048,
+        // stdAtlasSize:2048,
+        // stdAtlasSizeTransp:2048,
+        // exportStdAtlas:false,
+        scale:this.exportScale||1,
+        vrmMeta:this.vrmMeta
+      }
     }
 
     getGroupModelTraits(){
