@@ -725,7 +725,7 @@ export default class VRMExporterv0 {
 
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
-
+        fillVRMMissingMetaData(outputVrmMeta);
 
         const outputData = {
             accessors: outputAccessors,
@@ -782,6 +782,21 @@ export default class VRMExporterv0 {
         onDone(concatBinary([header, fileData]));
     }
 }
+function fillVRMMissingMetaData(vrmMeta){
+    vrmMeta.title = vrmMeta.title || "Character";
+    vrmMeta.version = vrmMeta.version || "1";
+    vrmMeta.author = vrmMeta.author || "Anon";
+    vrmMeta.contactInformation = vrmMeta.contactInformation || "";
+    vrmMeta.reference = vrmMeta.reference || "";
+    vrmMeta.allowedUserName = vrmMeta.allowedUserName || "Everyone";
+    vrmMeta.violentUssageName = vrmMeta.violentUssageName || "Disallow";
+    vrmMeta.sexualUssageName = vrmMeta.sexualUssageName || "Disallow";
+    vrmMeta.commercialUssageName = vrmMeta.commercialUssageName || "Disallow";
+    vrmMeta.otherPermissionUrl = vrmMeta.otherPermissionUrl || "";
+    vrmMeta.licenseName = vrmMeta.licenseName || "Redistribution_Prohibited";
+    vrmMeta.otherLicenseUrl = vrmMeta.otherLicenseUrl || "";
+}
+
 function radian2Degree(radian) {
     return radian * (180 / Math.PI);
 }
