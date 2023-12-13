@@ -15,7 +15,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
-  const { model, avatar,templateInfo } = useContext(SceneContext)
+  const { model, avatar, templateInfo, characterManager } = useContext(SceneContext)
 
   const getOptions = () =>{
     const currentOption = local["mergeOptions_sel_option"] || 0;
@@ -23,8 +23,8 @@ export const ExportMenu = ({getFaceScreenshot}) => {
     console.log(local["mergeOptions_create_atlas"]);
     const createTextureAtlas = local["mergeOptions_create_atlas"] == null ? true:local["mergeOptions_create_atlas"] 
     return {
-      isVrm0 : true,
-      createTextureAtlas : createTextureAtlas,
+      // isVrm0 : true,
+      // createTextureAtlas : createTextureAtlas,
       mToonAtlasSize:getAtlasSize(local["mergeOptions_atlas_mtoon_size"] || 6),
       mToonAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_mtoon_transp_size"] || 6),
       stdAtlasSize:getAtlasSize(local["mergeOptions_atlas_std_size"] || 6),
@@ -32,14 +32,15 @@ export const ExportMenu = ({getFaceScreenshot}) => {
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
       screenshot:screenshot,
-      scale:templateInfo.exportScale||1,
-      vrmMeta:templateInfo.vrmMeta
+      // scale:templateInfo.exportScale||1,
+      // vrmMeta:templateInfo.vrmMeta
     }
   }
 
   const downloadModel = () =>{
     const options = getOptions();
-    downloadVRMWithAvatar(model, avatar, name, options)
+    characterManager.downloadCharacter(name, options);
+    // downloadVRMWithAvatar(model, avatar, name, options);
   }
 
   return (
