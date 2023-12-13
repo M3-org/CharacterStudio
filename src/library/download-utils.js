@@ -135,7 +135,7 @@ async function getVRMData(model, avatar, options){
 
 function getOptimizedGLB(model, options){
   const modelClone = cloneAvatarModel(model)
-  const { createTextureAtlas } = options;
+  const { createTextureAtlas = true } = options;
   if (createTextureAtlas){
     return combine(modelClone, options);
   }
