@@ -98,8 +98,6 @@ function getVRM0BoneName(name){
 }
 export default class VRMExporterv0 {
     parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
-        console.log(vrm);
-        console.log(avatar);
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         
@@ -212,6 +210,7 @@ export default class VRMExporterv0 {
             const attributes = mesh.geometry.attributes;
             const positionAttribute = new MeshData(attributes.position, WEBGL_CONST.FLOAT, MeshDataType.POSITION, AccessorsType.VEC3, mesh.name, undefined);
             meshDatas.push(positionAttribute);
+            const meshDataIndex = meshDatas.length-1;
 
             const normalAttribute = new MeshData(attributes.normal, WEBGL_CONST.FLOAT, MeshDataType.NORMAL, AccessorsType.VEC3, mesh.name, undefined);
             meshDatas.push(normalAttribute);
@@ -271,11 +270,8 @@ export default class VRMExporterv0 {
             }
 
             const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
-
-
                 const nonZeroIndices = [];
-                const nonZeroValues = [];
-                
+                const nonZeroValues = [];    
                 // Step 1: Get Zero Elements
                 for (let i = 0; i < attributeData.length; i += 3) {
                     const x = attributeData[i];
@@ -304,6 +300,7 @@ export default class VRMExporterv0 {
 
                     // Step 3: Create sparse data
                     const sparseData = {
+                        targetMeshDataIndex:meshDataIndex,
                         count: nonZeroIndices.length,  // Total number of position elements
                         indices: new Uint32Array(nonZeroIndices),
                         values: new Float32Array(nonZeroValues),
@@ -518,7 +515,6 @@ export default class VRMExporterv0 {
                 }
             }
         })
-        console.log(rootSpringBones);
 
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
@@ -637,6 +633,8 @@ export default class VRMExporterv0 {
         })));
         
         // bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
+
+        const meshDataBufferViewRelation = [];
         meshDatas.forEach((data, i) => {
             if (data.buffer) {
                 bufferViews.push({ buffer: data.buffer, typeString:"", type: data.type });
@@ -644,6 +642,7 @@ export default class VRMExporterv0 {
                 bufferViews.push({ buffer: data.sparse.indices, typeString:"indices", type: data.type, count:data.sparse.count });
                 bufferViews.push({ buffer: data.sparse.values, typeString:"values",type: data.type });
             }
+            meshDataBufferViewRelation[i] = bufferViews.length - 1;
         });
 
 
@@ -677,7 +676,6 @@ export default class VRMExporterv0 {
             else {
                 if (!meshDatas[accessorIndex].sparse){
                     meshDatas[accessorIndex].bufferIndex = index;
-
                     // save the bufferview in case we need it for sparse accessors
                     outputAccessors[accessorIndex].bufferView = index;
 
@@ -685,14 +683,13 @@ export default class VRMExporterv0 {
                     index++;
                 }
                 else{
-                    //const bufferIndex = meshDatas[accessorIndex]?.sparse?.sparseAttribute?.bufferIndex;
-
-                    // apply index from sparseAttribute
-                    //outputAccessors[accessorIndex].bufferView = bufferIndex; // 
-                    
                     // create the sparse object if it has not been created yet
-                    if (outputAccessors[accessorIndex].sparse == null)
+                    if (outputAccessors[accessorIndex].sparse == null){
                         outputAccessors[accessorIndex].sparse = {}
+                        const targetBufferView = meshDataBufferViewRelation[meshDatas[accessorIndex].targetMeshDataIndex];
+                        outputAccessors[accessorIndex].bufferView = targetBufferView;
+                        console.log(outputAccessors[accessorIndex].bufferView);
+                    }
                     
                     // if the buffer view is representing indices of the sparse, save them into an indices object
                     // also save count, we can take the length of the indicesw view for this
@@ -769,7 +766,6 @@ export default class VRMExporterv0 {
             meshes: outputMeshes,
             nodes: outputNodes,
             samplers: outputSamplers,
-            avatar: 0,
             scenes: outputScenes,
             skins: outputSkins,
             textures: outputTextures,
@@ -799,13 +795,30 @@ function imageBitmap2png(image) {
     canvas.width = image.width;
     canvas.height = image.height;
     canvas.getContext("2d").drawImage(image, 0, 0);
-    // rewrite the above code using node.js and buffer. you cannot use the canvas object anymore.
+    
+    // Convert canvas data to PNG format
     const pngUrl = canvas.toDataURL("image/png");
+    
+    // Extract base64-encoded data
     const data = atob(pngUrl.split(",")[1]);
-    const array = new ArrayBuffer(data.length);
+    
+    // Calculate the necessary padding to ensure the length is a multiple of 4
+    const padding = (4 - (data.length % 4)) % 4;
+    
+    // Create an array with the correct length (padded if needed)
+    const array = new ArrayBuffer(data.length + padding);
+    
+    // Use a DataView to set Uint8 values
     const view = new DataView(array);
+    
+    // Copy the original data to the array
     for (let i = 0; i < data.length; i++) {
         view.setUint8(i, data.charCodeAt(i));
+    }
+
+    // Optionally, pad with zeros
+    for (let i = data.length; i < data.length + padding; i++) {
+        view.setUint8(i, 0);
     }
     return array;
 }
@@ -903,7 +916,7 @@ export class MeshData {
         // Check if sparse data is provided
         
         if (sparseData) {
-            const { indices, values, count } =sparseData;
+            const { indices, values, count, targetMeshDataIndex } =sparseData;
 
             // Convert indices and values to BufferAttributes
             const indicesBufferAttribute = new BufferAttribute(
@@ -914,8 +927,12 @@ export class MeshData {
                 values,
                 attribute.itemSize // Use the same item size as the original attribute
             );
+
+            this.targetMeshDataIndex = targetMeshDataIndex;
+            
             // pass as attribute
             this.sparse  = {
+                targetMeshDataIndex,
                 count,
                 indices:parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
                 values:parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
