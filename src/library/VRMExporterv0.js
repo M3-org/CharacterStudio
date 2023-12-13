@@ -686,9 +686,9 @@ export default class VRMExporterv0 {
                     // create the sparse object if it has not been created yet
                     if (outputAccessors[accessorIndex].sparse == null){
                         outputAccessors[accessorIndex].sparse = {}
-                        const targetBufferView = meshDataBufferViewRelation[meshDatas[accessorIndex].targetMeshDataIndex];
-                        outputAccessors[accessorIndex].bufferView = targetBufferView;
-                        console.log(outputAccessors[accessorIndex].bufferView);
+                        // const targetBufferView = meshDataBufferViewRelation[meshDatas[accessorIndex].targetMeshDataIndex];
+                        // outputAccessors[accessorIndex].bufferView = targetBufferView;
+                        // console.log(outputAccessors[accessorIndex].bufferView);
                     }
                     
                     // if the buffer view is representing indices of the sparse, save them into an indices object
