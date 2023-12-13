@@ -5,6 +5,7 @@ import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
+import { encodeToKTX2 } from 'ktx2-encoder';
 
 
 function cloneAvatarModel (model){
@@ -91,9 +92,6 @@ async function getGLBData(model, options){
   }
 } 
 
-
-
-
 /**
  * Downloads a VRM model with specified options.
  *
@@ -126,16 +124,43 @@ export async function downloadVRMWithAvatar(model, avatar, fileName, options){
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
   getVRMData(model, avatar, options).then((vrm)=>{
+    console.log(vrm);
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
 
 async function getVRMData(model, avatar, options){
   const vrmModel = await getOptimizedGLB(model, options);
+  if (options.optimize_to_ktx2) {
+    for(let i = 0; i < avatar._optimized.vrm.materials.length;i++){
+      const material = avatar._optimized.vrm.materials[i];
+      if (material.map && material.map.isTexture) {
+        console.log(material);
+        const mapUniform = material.uniforms.map;
+        const textureData = mapUniform.value;
+
+        if (textureData.source && textureData.source.isSource) {
+          const oldMimeType = textureData.userData.mimeType;
+          if (oldMimeType === "image/png") {
+            const newMimeType = "image/ktx2";
+
+            textureData.userData.mimeType = newMimeType;
+            textureData.source.mimeType = newMimeType;
+
+            const source = textureData.source;
+            console.log(source.data);
+            const encoded = await encodeToKTX2(source);
+            const blob = new Blob(encoded, {type:"image/ktx2"});
+            const bitmap = await createImageBitmap(blob);
+            avatar.materials[i].map.value.source = bitmap;
+          }
+        }
+      }
+    }
+  }
+  console.log("dada1", vrmModel, "\ndada2", avatar);
   return parseVRM(vrmModel,avatar,options) 
 }
-
-
 
 function getOptimizedGLB(model, options){
   const modelClone = cloneAvatarModel(model)
@@ -250,6 +275,7 @@ function parseVRM (glbModel, avatar, options){
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator", vrmMeta),
     }
+    console.log("vrmData:", vrmData);
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
