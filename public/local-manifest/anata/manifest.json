@@ -41,6 +41,7 @@
   "traitIconsDirectorySvg": "/anata/_icons/",
   "requiredTraits": ["BODY"],
   "randomTraits": ["BODY"],
+  "colliderTraits":["BODY"],
   "defaultCullingLayer": -1,
   "defaultCullingDistance": [0.1, 0.01],
   "offset": [0.0, 0.25, 0.0],

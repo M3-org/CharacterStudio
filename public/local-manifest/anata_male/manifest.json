@@ -43,6 +43,7 @@
   "randomTraits":[
     "BODY"
   ],
+  "colliderTraits":["BODY"],
   "defaultCullingLayer": -1,
   "defaultCullingDistance": [
     0.1,
