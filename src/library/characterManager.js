@@ -35,7 +35,7 @@ export class CharacterManager {
       this.traitLoadManager = new TraitLoadingManager();
     }
 
-    downloadCharacter(name, exportOptions = null){
+    downloadVRM(name, exportOptions = null){
       if (this.canDownload){
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};

@@ -39,7 +39,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
 
   const downloadModel = () =>{
     const options = getOptions();
-    characterManager.downloadCharacter(name, options);
+    characterManager.downloadVRM(name, options);
     // downloadVRMWithAvatar(model, avatar, name, options);
   }
 
