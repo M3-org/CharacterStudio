@@ -134,7 +134,7 @@ export function getMeshesSortedByMaterialArray(meshes){
         }
         else{
           mToonMesh.push(mesh);
-          if (mat.uniforms.alphaTest.value != 0)
+          if (mat.uniforms.alphaTest?.value != 0)
             requiresTransparency = true
         }
     }
