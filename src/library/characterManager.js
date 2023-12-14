@@ -20,7 +20,11 @@ export class CharacterManager {
         canDownload = true
       }= options;
 
-      this.parentModel = parentModel;
+      this.characterModel = new THREE.Object3D();
+      if (parentModel){
+        parentModel.add(this.characterModel);
+      }
+
       this.canDownload = canDownload;
       
       if (manifestURL)
@@ -33,22 +37,16 @@ export class CharacterManager {
 
     downloadCharacter(name, exportOptions = null){
       if (this.canDownload){
-        if (this.parentModel == null){
-          console.warn("No parent set in character manager, unable to download.")
-          return;
-        }
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         // XXX screenshot manager
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        downloadVRMWithAvatar(this.parentModel, this.avatar, name,finalOptions);
+        downloadVRMWithAvatar(this.characterModel, this.avatar, name,finalOptions);
       }
       else{
         console.error("Download not supported");
       }
     }
-
-
 
     getAvatarSelection(){
       var result = {};
@@ -95,7 +93,7 @@ export class CharacterManager {
     // maybe load and return an array with all the icons?
 
     setParentModel(model){
-        this.parentModel = model;
+      model.add(this.characterModel);
     }
 
     async loadRandomTraits(){
@@ -361,7 +359,7 @@ export class CharacterManager {
         //m.visible = false;
         // add the now model to the current scene
         
-        this.parentModel.add(m)
+        this.characterModel.add(m)
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
 
