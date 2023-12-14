@@ -14,6 +14,7 @@ export default function Scene({sceneModel, lookatManager}) {
     setControls,
     setMousePosition,
     setCamera,
+    characterManager
   } = useContext(SceneContext)
   
   const handleMouseMove = (event) => {
@@ -51,7 +52,7 @@ export default function Scene({sceneModel, lookatManager}) {
     lookatManager.setCamera(camera)
     // set the camera position
     camera.position.set(0, 1.3, 2)
-
+    characterManager.setRenderCamera(camera);
     // TODO make sure to kill the interval
 
     // find editor-scene canvas
@@ -125,100 +126,10 @@ export default function Scene({sceneModel, lookatManager}) {
     
     fetchAssets()
 
-    const setOriginalInidicesAndColliders = () => {
-      avatarModel.traverse((child)=>{
-        if (child.isMesh) {
-          if (child.userData.origIndexBuffer){
-            child.userData.clippedIndexGeometry = child.geometry.index.clone();
-            child.geometry.setIndex(child.userData.origIndexBuffer);
-          }
-        }
-      })
-    }
 
-    const restoreCullIndicesAndColliders = () => {
-      avatarModel.traverse((child)=>{
-        if (child.isMesh) {
-          if (child.userData.origIndexBuffer){
-            child.geometry.setIndex(child.userData.clippedIndexGeometry);
-          }
-        }
-      })
-    }
-
-    const checkIndicesIndex = (array, indices) =>{
-      for (let i =0; i < array.length; i+=3){
-        if (indices[0] != array[i]){
-          continue
-        }
-        if (indices[1] != array[i+1]){
-          continue
-        }
-        if (indices[2] != array[i+2]){
-          continue
-        }
-        return i;
-      }
-      return -1;
-    }
-
-    const updateCullIndices = (intersection, removeFace) => {
-      const intersectedObject = intersection.object;
-      const face = intersection.face;
-      const newIndices = [face.a,face.b,face.c];
-      const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
-
-      
-
-      if (clipIndices != null){
-        const hitIndex = checkIndicesIndex(clipIndices,newIndices)
-        const uint32ArrayAsArray = Array.from(clipIndices);
-        if (hitIndex == -1 && !removeFace){
-          const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
-          intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(new Uint32Array(mergedIndices),1,false);
-        }
-        if (hitIndex != 1 && removeFace){
-          uint32ArrayAsArray.splice(hitIndex, 3);
-          intersectedObject.userData.clippedIndexGeometry = new THREE.BufferAttribute(new Uint32Array(uint32ArrayAsArray), 1, false);
-        }
-      }
-    }
-
-    const handleMouseClick = (event) => {
-
-      const isCtrlPressed = event.ctrlKey;
-
-      const displayCullFaces = true;//local["traitInformation_display_cull"] == null ?  false : local["traitInformation_display_cull"];
-      if (displayCullFaces){
-        setOriginalInidicesAndColliders();
-
-        // Calculate mouse position in normalized device coordinates
-        const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        // Update the raycaster
-        raycaster.setFromCamera(mouse, camera);
-
-        // Perform the raycasting
-        const intersects = raycaster.intersectObjects(avatarModel.children);
-
-        if (intersects.length > 0) {
-          const intersection = intersects[0];
-      
-          updateCullIndices(intersection, isCtrlPressed)
-        }
-
-        restoreCullIndicesAndColliders();
-      }
-     
-    };
-
-    canvasRef.addEventListener("click", handleMouseClick)
     return () => {
       removeEventListener("mousemove", handleMouseMove)
       removeEventListener("resize", handleMouseMove)
-      window.removeEventListener('click', handleMouseClick);
       // scene.remove(sceneModel)
       scene.remove(model)
     }

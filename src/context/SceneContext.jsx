@@ -18,23 +18,40 @@ export const SceneProvider = (props) => {
   const [characterManager, setCharacterManager] = useState(null)
 
   const initializeScene = () => {
-    const scene = new THREE.Scene()
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+      const scene = new THREE.Scene()
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    // rotate the directional light to be a key light
-    directionalLight.position.set(0, 1, 1);
-    scene.add(directionalLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      // rotate the directional light to be a key light
+      directionalLight.position.set(0, 1, 1);
+      scene.add(directionalLight);
 
-    const helperRoot = new THREE.Group();
-    helperRoot.renderOrder = 10000;
-    scene.add( helperRoot );
-    setVrmHelperRoot(helperRoot);
+      // helper root shou
+      const helperRoot = new THREE.Group();
+      helperRoot.renderOrder = 10000;
+      scene.add( helperRoot );
+      setVrmHelperRoot(helperRoot);
+      const canvasRef = document.getElementById("editor-scene")
+      const charManager = new CharacterManager({parentModel: scene, createAnimationManager : true});
 
-    setCharacterManager(new CharacterManager({parentModel: scene, createAnimationManager : true}))
+      const mouse = new THREE.Vector2();
+      
+      const handleMouseClick = (event) => {
 
-    return scene;
+        const isCtrlPressed = event.ctrlKey;
+        const rect = canvasRef.getBoundingClientRect();
+        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        charManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
+      }
+
+      setCharacterManager(charManager);
+      
+
+      window.addEventListener('click', handleMouseClick);
+
+      return scene;
   }
 
 

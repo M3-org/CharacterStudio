@@ -7,6 +7,9 @@ import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
 import { cullHiddenMeshes } from "./utils";
 
+const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+
 export class CharacterManager {
     constructor(options){
       this._start(options);
@@ -15,24 +18,115 @@ export class CharacterManager {
     async _start(options){
       const{
         parentModel = null,
+        renderCamera = null,
         createAnimationManager = false,
         manifestURL = null,
         canDownload = true
       }= options;
 
+      // data that is needed, but not required to be downloaded
+      this.rootModel = new THREE.Object3D();
+      // all data that will be downloaded
       this.characterModel = new THREE.Object3D();
+
+      this.rootModel.add(this.characterModel)
+      this.renderCamera = renderCamera;
       if (parentModel){
-        parentModel.add(this.characterModel);
+        parentModel.add(this.rootModel);
       }
 
       this.canDownload = canDownload;
-      
       if (manifestURL)
         this.manifest = await this.loadManifest(manifestURL, options)
 
       this.manifestData = null;
       this.avatar = {};   // Holds information of traits within the avatar
       this.traitLoadManager = new TraitLoadingManager();
+
+      // XXX actually use the vrm helper
+      const helperRoot = new THREE.Group();
+      helperRoot.renderOrder = 10000;
+      this.rootModel.add(helperRoot)
+      this.vrmHelperRoot = helperRoot;
+    }
+
+    cameraRaycastCulling(mouseX, mouseY, removeFace = true){
+      if (this.renderCamera == null){
+        console.warn("No camera was set in character manager. Please call setRenderCamera(camera) before calling this function")
+        return;
+      }
+      // #region restore/remove existing faces logic
+      const setOriginalInidicesAndColliders = () => {
+        this.characterModel.traverse((child)=>{
+          if (child.isMesh) {
+            if (child.userData.origIndexBuffer){
+              child.userData.clippedIndexGeometry = child.geometry.index.clone();
+              child.geometry.setIndex(child.userData.origIndexBuffer);
+            }
+          }
+        })
+      }
+
+      const restoreCullIndicesAndColliders = () => {
+        this.characterModel.traverse((child)=>{
+          if (child.isMesh) {
+            if (child.userData.origIndexBuffer){
+              child.geometry.setIndex(child.userData.clippedIndexGeometry);
+            }
+          }
+        })
+      }
+
+      const checkIndicesIndex = (array, indices) =>{
+        for (let i =0; i < array.length; i+=3){
+          if (indices[0] != array[i]){
+            continue
+          }
+          if (indices[1] != array[i+1]){
+            continue
+          }
+          if (indices[2] != array[i+2]){
+            continue
+          }
+          return i;
+        }
+        return -1;
+      }
+  
+      const updateCullIndices = (intersection, removeFace) => {
+        const intersectedObject = intersection.object;
+        const face = intersection.face;
+        const newIndices = [face.a,face.b,face.c];
+        const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
+  
+        
+  
+        if (clipIndices != null){
+          const hitIndex = checkIndicesIndex(clipIndices,newIndices)
+          const uint32ArrayAsArray = Array.from(clipIndices);
+          if (hitIndex == -1 && !removeFace){
+            const mergedIndices = [...uint32ArrayAsArray, ...newIndices];
+            intersectedObject.userData.clippedIndexGeometry =  new THREE.BufferAttribute(new Uint32Array(mergedIndices),1,false);
+          }
+          if (hitIndex != 1 && removeFace){
+            uint32ArrayAsArray.splice(hitIndex, 3);
+            intersectedObject.userData.clippedIndexGeometry = new THREE.BufferAttribute(new Uint32Array(uint32ArrayAsArray), 1, false);
+          }
+        }
+      }
+      // #endregion
+
+      mouse.x = mouseX;
+      mouse.y = mouseY;
+
+      setOriginalInidicesAndColliders();
+      raycaster.setFromCamera(mouse, this.renderCamera);
+      const intersects = raycaster.intersectObjects(this.characterModel.children)
+      if (intersects.length > 0) {
+        const intersection = intersects[0];
+        updateCullIndices(intersection, removeFace)
+      }
+      restoreCullIndicesAndColliders();
     }
 
     downloadVRM(name, exportOptions = null){
@@ -47,6 +141,8 @@ export class CharacterManager {
         console.error("Download not supported");
       }
     }
+
+
 
     getAvatarSelection(){
       var result = {};
@@ -93,7 +189,11 @@ export class CharacterManager {
     // maybe load and return an array with all the icons?
 
     setParentModel(model){
-      model.add(this.characterModel);
+      model.add(this.rootModel);
+    }
+    setRenderCamera(camera){
+      console.log(camera);
+      this.renderCamera = camera;
     }
 
     async loadRandomTraits(){
