@@ -40,8 +40,7 @@ export class CharacterManager {
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         // XXX screenshot manager
-        console.log(finalOptions);
-        finalOptions.isVRM0 = true; // currently vrm1 not supported
+        finalOptions.isVrm0 = true; // currently vrm1 not supported
         downloadVRMWithAvatar(this.parentModel, this.avatar, name,finalOptions);
       }
       else{
