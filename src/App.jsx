@@ -391,12 +391,6 @@ export default function App() {
       />
       <Background />
       
-      <Scene
-        manifest={manifest}
-        sceneModel={sceneModel}
-        lookatManager={lookatManager}
-      />
-      
       {pages[viewMode]}
       
     </Fragment>
