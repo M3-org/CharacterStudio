@@ -9,6 +9,7 @@ import {
 import gsap from "gsap"
 import { local } from "../library/store"
 import { CharacterManager } from "../library/characterManager"
+import { sceneInitializer } from "../library/sceneInitializer"
 
 export const SceneContext = createContext()
 
@@ -17,49 +18,50 @@ export const SceneProvider = (props) => {
   const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
   const [characterManager, setCharacterManager] = useState(null)
 
-  const initializeScene = () => {
-      const scene = new THREE.Scene()
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      scene.add(ambientLight);
+  // const initializeScene = () => {
+  //     const scene = new THREE.Scene()
+  //     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  //     scene.add(ambientLight);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      // rotate the directional light to be a key light
-      directionalLight.position.set(0, 1, 1);
-      scene.add(directionalLight);
+  //     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  //     // rotate the directional light to be a key light
+  //     directionalLight.position.set(0, 1, 1);
+  //     scene.add(directionalLight);
 
-      // helper root shou
-      const helperRoot = new THREE.Group();
-      helperRoot.renderOrder = 10000;
-      scene.add( helperRoot );
-      setVrmHelperRoot(helperRoot);
-      const canvasRef = document.getElementById("editor-scene")
-      const charManager = new CharacterManager({parentModel: scene, createAnimationManager : true});
+  //     // helper root shou
+  //     const helperRoot = new THREE.Group();
+  //     helperRoot.renderOrder = 10000;
+  //     scene.add( helperRoot );
+  //     setVrmHelperRoot(helperRoot);
+  //     const canvasRef = document.getElementById("editor-scene")
+  //     const charManager = new CharacterManager({parentModel: scene, createAnimationManager : true});
 
-      const mouse = new THREE.Vector2();
+  //     const mouse = new THREE.Vector2();
       
-      const handleMouseClick = (event) => {
+  //     const handleMouseClick = (event) => {
 
-        const isCtrlPressed = event.ctrlKey;
-        const rect = canvasRef.getBoundingClientRect();
-        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        charManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
-      }
+  //       const isCtrlPressed = event.ctrlKey;
+  //       const rect = canvasRef.getBoundingClientRect();
+  //       const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  //       const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  //       charManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
+  //     }
 
-      setCharacterManager(charManager);
+  //     setCharacterManager(charManager);
       
 
-      window.addEventListener('click', handleMouseClick);
+  //     window.addEventListener('click', handleMouseClick);
 
-      return scene;
-  }
+  //     return scene;
+  // }
 
 
   // const initializeCharacterManifest = () => {
   //   return new CharacterManager({createAnimationManager : true});
   // }
 
-  const [scene, setScene] = useState(initializeScene)
+  //const [scene, setScene] = useState(initializeScene)
+  const [scene, setScene] = useState(null)
   //const [characterManifest, setCharacterManifest] = useState(initializeCharacterManifest)
   
 
@@ -97,6 +99,29 @@ export const SceneProvider = (props) => {
   const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
 
   const [debugMode, setDebugMode] = useState(false);
+
+  let loaded = false
+  let [isLoaded, setIsLoaded] = useState(false)
+  useEffect(()=>{
+    // hacky prevention of double render
+    if (loaded || isLoaded) return
+    setIsLoaded(true)
+    loaded = true;
+
+    const {
+      scene,
+      camera,
+      controls,
+      characterManager,
+    } = sceneInitializer("editor-scene");
+
+    setCamera(camera);
+    setScene(scene);
+    setCharacterManager(characterManager);
+    setControls(controls);
+
+    console.log("t")
+  },[])
 
   const setAvatar = (state) => {
     _setAvatar(state)
@@ -292,7 +317,7 @@ export const SceneProvider = (props) => {
         moveCamera,
         controls,
         setControls,
-        initializeScene,
+        //initializeScene,
         mousePosition, 
         setMousePosition,
         isChangingWholeAvatar,
