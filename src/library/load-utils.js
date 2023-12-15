@@ -48,7 +48,6 @@ export const saveVRMCollidersToUserData = (gltf) => {
   else{
     console.warn("No valid vrm file was provided")
   }
-
 }
 
 const saveVRM0Colliders = (gltf) => {

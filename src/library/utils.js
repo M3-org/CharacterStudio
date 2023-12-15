@@ -28,14 +28,11 @@ export async function prepareModel(templateInfo){
     return loadModel(trait)
   }));
 }
-export async function setTextureToChildMeshes(scene, textureFile){
-  console.log(scene);
-  console.log(textureFile);
-
+export async function setTextureToChildMeshes(scene, url){
   const textureLoader = new THREE.TextureLoader();
 
   // Load the image as a texture
-  const texture = await textureLoader.load(textureFile);
+  const texture = await textureLoader.load(url);
   texture.encoding = THREE.sRGBEncoding;
   texture.flipY = false;
 

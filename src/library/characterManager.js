@@ -5,7 +5,7 @@ import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
-import { cullHiddenMeshes } from "./utils";
+import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -138,6 +138,7 @@ export class CharacterManager {
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         // XXX screenshot manager
         finalOptions.isVrm0 = true; // currently vrm1 not supported
+        console.log(this.avatar);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name,finalOptions);
       }
       else{
@@ -234,6 +235,15 @@ export class CharacterManager {
       const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
       if (selectedTrait)
         this._loadTraits(getAsArray(selectedTrait))
+    }
+    async loadCustomTexture(groupTraitID, url){
+      const model = this.avatar[groupTraitID]?.model;
+      if (model){
+        setTextureToChildMeshes(model,url)
+      }
+      else{
+        console.warn("No Group Trait with name " + groupTraitID + " was found.")
+      }
     }
 
     removeTrait(groupTraitID, forceRemove = false){
@@ -349,8 +359,10 @@ export class CharacterManager {
 
     _VRMBaseSetup(m, item, trait, textures, colors){
       let vrm = m.userData.vrm;
-      // XXX now we are saving for all cases
-      saveVRMCollidersToUserData(m);
+
+      if (this.manifestData.isColliderRequired(trait.trait))
+        saveVRMCollidersToUserData(m);
+      
       renameVRMBones(vrm);
 
       this._modelBaseSetup(vrm, item, trait, textures, colors);
@@ -792,6 +804,11 @@ class ManifestData{
 
     getInitialTraits(){
       return this.getRandomTraits(this.initialTraits);
+    }
+    isColliderRequired(groupTraitID){
+      if (this.colliderTraits.indexOf(groupTraitID) != -1)
+        return true;
+      return false;
     }
 
     async getNFTraitOptionsFromURL(url, ignoreGroupTraits){

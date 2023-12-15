@@ -79,13 +79,17 @@ function Appearance({
   }
 
   const handleImageDrop = (file) => {
-    console.log("TODO")
-    const path = URL.createObjectURL(file);
-    // setUploadTextureURL(path);
+    if (traitGroupName != ""){
+      const path = URL.createObjectURL(file);
+      characterManager.loadCustomTexture(traitGroupName, path);
+    }
+    else{
+      console.warn("Please select a group trait first.")
+    }
   }
   const handleVRMDrop = (file) =>{
-    const path = URL.createObjectURL(file);
     if (traitGroupName != ""){
+      const path = URL.createObjectURL(file);
       characterManager.loadCustomTrait(traitGroupName, path);
     }
     else{
