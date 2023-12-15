@@ -93,8 +93,7 @@ function Appearance({
     }
   }
   const handleJsonDrop = (file) => {
-    const path = URL.createObjectURL(file,true, ["ADD-IGNORES"]);
-    console.log("drops");
+    const path = URL.createObjectURL(file,true, ["TYPE", "BRACE", "SET", "SPECIAL_OTHER"]);
     characterManager.loadTraitsFromNFT(path);
   }
 
