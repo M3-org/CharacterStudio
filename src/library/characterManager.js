@@ -50,6 +50,9 @@ export class CharacterManager {
       this.vrmHelperRoot = helperRoot;
     }
 
+
+
+    // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX, mouseY, removeFace = true){
       if (this.renderCamera == null){
         console.warn("No camera was set in character manager. Please call setRenderCamera(camera) before calling this function")
@@ -142,8 +145,6 @@ export class CharacterManager {
       }
     }
 
-
-
     getAvatarSelection(){
       var result = {};
       for (const prop in this.avatar) {
@@ -186,13 +187,11 @@ export class CharacterManager {
       return this.avatar[groupTraitID]?.traitInfo?.id;
     }
 
-    // maybe load and return an array with all the icons?
-
     setParentModel(model){
       model.add(this.rootModel);
     }
+
     setRenderCamera(camera){
-      console.log(camera);
       this.renderCamera = camera;
     }
 
@@ -202,6 +201,17 @@ export class CharacterManager {
       }
       else{
         console.error ("No manifest was loaded, random traits cannot be loaded.")
+      }
+    }
+
+    async loadTraitsFromNFT(url, ignoreGroupTraits){
+      if (this.manifestData){
+        
+        const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+        this._loadTraits(traits);
+      }
+      else{
+        console.error ("No manifest was loaded, NFT traits cannot be loaded.")
       }
     }
 
@@ -267,10 +277,7 @@ export class CharacterManager {
           });
           cullHiddenMeshes(this.avatar);
       })
-     
     }
-
-
 
     async _createAnimationManager(){
 
@@ -281,6 +288,7 @@ export class CharacterManager {
       return animationManager
     }
 
+    // XXX check if we caqn move this code only to manifestData
     async _fetchManifest(location) {
         const response = await fetch(location)
         const data = await response.json()
@@ -779,6 +787,30 @@ class ManifestData{
       return this.getRandomTraits(this.initialTraits);
     }
 
+    async getNFTraitOptionsFromURL(url, ignoreGroupTraits){
+      const nftTraits = await this._fetchJson(url);
+      return this.getNFTraitOptionsFromObject(nftTraits, ignoreGroupTraits)
+    }
+    getNFTraitOptionsFromObject(object, ignoreGroupTraits){
+      const attributes = object.attributes;
+      if (attributes){
+        ignoreGroupTraits = getAsArray(ignoreGroupTraits);
+        const selectedOptions = []
+        attributes.forEach(attribute => {
+          if (ignoreGroupTraits.indexOf(attribute.trait_type) == -1){
+            const traitSelectedOption = this.getTraitOption(attribute.trait_type, attribute.value);
+            if (traitSelectedOption)
+              selectedOptions.push(traitSelectedOption)
+          }
+        });
+        return selectedOptions;
+      }
+      else{
+        console.warn("No attiributes parameter was found in ", object)
+        return null;
+      }
+    }
+
     getRandomTraits(optionalGroupTraitIDs){
       console.log("get random")
       const selectedOptions = []
@@ -810,6 +842,14 @@ class ManifestData{
         console.warn("No trait group with name " + groupTraitID + " was found.")
         return null;
       }
+    }
+
+
+
+    async _fetchJson(location) {
+      const response = await fetch(location)
+      const data = await response.json()
+      return data
     }
 
     getTraitOption(groupTraitID, traitID){
