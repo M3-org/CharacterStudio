@@ -40,6 +40,7 @@ function Appearance({
   const back = () => {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
+    characterManager.removeCurrentManifest()
     //resetAvatar()
     setViewMode(ViewMode.CREATE)
     setDisplayTraitOption(null);

@@ -775,7 +775,7 @@ class ManifestData{
       this.animationPath = getAsArray(animationPath);
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
-      this.initialTraits = [...new Set(requiredTraits.concat(randomTraits))];
+      this.initialTraits = [...new Set(this.requiredTraits.concat(this.randomTraits))];
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
