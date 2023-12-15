@@ -4,13 +4,13 @@
   "homepage": "https://m3-org.github.io/CharacterStudio",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint --cache --ext .js,.jsx ./src",
-    "lint:prettier": "prettier --check \"**/*\" --end-of-line auto"
+    "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.1",
