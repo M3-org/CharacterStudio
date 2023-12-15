@@ -19,13 +19,12 @@ function Optimizer({
 }) {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    model,
     scene,
     characterManager
   } = React.useContext(SceneContext)
   
   const [currentVRM, setCurrentVRM] = useState(null);
-  const [lastVRM, setLastVRM] = useState(null);
+  const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
   const { playSound } = React.useContext(SoundContext)
@@ -76,12 +75,13 @@ function Optimizer({
 
   const handleVRMDrop = async (file) =>{
     const url = URL.createObjectURL(file);
-    characterManager.loadOptimizerCharacter(url);
+    await characterManager.loadOptimizerCharacter(url);
     URL.revokeObjectURL(url);
 
     const name = getFileNameWithoutExtension(file.name);
     setNameVRM (name);
-  
+
+    setModel(characterManager.getCurrentCharacterModel());
   }
 
   const handleFilesDrop = async(files) => {
@@ -109,7 +109,7 @@ function Optimizer({
         showCreateAtlas = {false}
       />
       <ModelInformation
-        currentVRM={currentVRM}
+        model={model}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
@@ -126,7 +126,7 @@ function Optimizer({
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(nameVRM != "")&&(
+        {(model != "")&&(
           <CustomButton
           theme="light"
           text="Download"

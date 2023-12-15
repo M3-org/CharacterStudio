@@ -4,7 +4,7 @@ import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
 import { getAsArray, getMaterialsSortedByArray } from "../library/utils";
 
-export default function ModelInformation({currentVRM}){
+export default function ModelInformation({model}){
     const [meshQty, setMeshQty] = useState(0);
     const [skinnedMeshQty, setSkinnedMeshQty] = useState(0);
 
@@ -17,13 +17,16 @@ export default function ModelInformation({currentVRM}){
     const [vrmCutoutMaterialQty, setVrmCutoutMaterialQty] = useState(0);
 
     useEffect(() => {
-        if (currentVRM != null){
-            const meshes = findChildrenByType(currentVRM.scene,"Mesh");
-            const skinnedMesh = findChildrenByType(currentVRM.scene,"SkinnedMesh");
-
+        console.log(model); 
+        
+        console.log("ENTER0")
+        if (model != null){
+            console.log("ENTER")
+            console.log(model.children[0]); 
+            const meshes = findChildrenByType(model,"Mesh");
+            const skinnedMesh = findChildrenByType(model,"SkinnedMesh");
             setMeshQty(meshes.length)
             setSkinnedMeshQty(skinnedMesh.length)
-
             const allMeshes =  meshes.concat(skinnedMesh);
 
             const {stdMats,stdCutoutpMats,stdTranspMats,mToonMats,mToonCutoutMats,mToonTranspMats} = getMaterialsSortedByArray(allMeshes);
@@ -36,11 +39,11 @@ export default function ModelInformation({currentVRM}){
             setVrmTranspMaterialQty(mToonTranspMats.length);
             setVrmCutoutMaterialQty(mToonCutoutMats.length);
         }
-    }, [currentVRM])
+    }, [model])
 
 
     return (
-        currentVRM != null ? (
+        model != null ? (
         <div>
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Model Information" width={180} right={20}/>
