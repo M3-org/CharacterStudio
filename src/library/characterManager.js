@@ -204,10 +204,19 @@ export class CharacterManager {
       }
     }
 
-    async loadTraitsFromNFT(url, ignoreGroupTraits){
+    async loadTraitsFromNFT(url, fullAvatarReplace = true, ignoreGroupTraits = null){
       if (this.manifestData){
         
         const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+        if (fullAvatarReplace){
+          for (const prop in this.avatar){
+            console.log(prop);
+
+            //console.log(traits)
+          }
+          console.log(this.avatar);
+          console.log(traits);
+        }
         this._loadTraits(traits);
       }
       else{
