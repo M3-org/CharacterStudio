@@ -28,7 +28,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build
-        run: npm run build
+        run: PUBLIC_URL=/CharacterStudio npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
