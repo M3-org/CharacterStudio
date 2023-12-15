@@ -22,20 +22,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # or the version you need
+          node-version: '18' # or the version you need
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       - name: Build
-        run: PUBLIC_URL=/CharacterStudio npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload entire repository
-          path: './dist'
+        run: npm run build
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          branch: gh-pages
+          folder: dist

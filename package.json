@@ -1,8 +1,10 @@
 {
-  "name": "@webaverse-studios/charactercreator",
-  "version": "0.2.6",
+  "name": "@m3-org/CharacterStudio",
+  "version": "0.3.0",
   "homepage": "https://m3-org.github.io/CharacterStudio",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
@@ -27,6 +29,7 @@
     "eslint-plugin-import": "^2.26.0",
     "ethers": "^5.7.0",
     "events": "^3.3.0",
+    "gh-pages": "^6.1.0",
     "gsap": "^3.11.3",
     "html2canvas": "^1.4.1",
     "i18next": "^22.4.10",
