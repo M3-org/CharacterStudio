@@ -1,0 +1,62 @@
+[
+  {
+    "name": "background/cc_bgm.wav",
+    "offset": 0,
+    "duration": 123458.58333333334
+  },
+  {
+    "name": "background/cc_bgm_balanced.wav",
+    "offset": 123458.58333333334,
+    "duration": 123458.60416666666
+  },
+  {
+    "name": "effect/character-load.wav",
+    "offset": 246917.1875,
+    "duration": 3030
+  },
+  {
+    "name": "effect/class-select.wav",
+    "offset": 249947.1875,
+    "duration": 2780
+  },
+  {
+    "name": "effect/switchingItem.wav",
+    "offset": 252727.1875,
+    "duration": 623.75
+  },
+  {
+    "name": "ui/back-next-button.wav",
+    "offset": 253350.9375,
+    "duration": 155.02083333333334
+  },
+  {
+    "name": "ui/class-mouse-over.wav",
+    "offset": 253505.95833333334,
+    "duration": 217.52083333333334
+  },
+  {
+    "name": "ui/class_click.wav",
+    "offset": 253723.4791666667,
+    "duration": 3123.75
+  },
+  {
+    "name": "ui/class_pass.wav",
+    "offset": 256847.2291666667,
+    "duration": 155
+  },
+  {
+    "name": "ui/option_click.wav",
+    "offset": 257002.2291666667,
+    "duration": 155.02083333333334
+  },
+  {
+    "name": "ui/randomize-button.wav",
+    "offset": 257157.25000000003,
+    "duration": 342.5208333333333
+  },
+  {
+    "name": "ui/section_click.wav",
+    "offset": 257499.77083333337,
+    "duration": 155
+  }
+]

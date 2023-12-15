@@ -1,0 +1,157 @@
+/* New UI: TT Squares Condensed Font */
+@font-face {
+  font-family: "TTSC-Black-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Black";
+  src: url("/fonts/tt-squares/TT Squares Condensed Black.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Bold";
+  src: url("/fonts/tt-squares/TT Squares Condensed Bold.otf");
+}
+@font-face {
+  font-family: "TTSC-Light-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Light";
+  src: url("/fonts/tt-squares/TT Squares Condensed Light.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular Italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Regular";
+  src: url("/fonts/tt-squares/TT Squares Condensed Regular.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin-Italic";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin italic.otf");
+}
+@font-face {
+  font-family: "TTSC-Thin";
+  src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "TTSC-Regular";
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 0.1em;
+}
+::-webkit-scrollbar-track {
+  box-shadow: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+}
+
+.horizontalScroll ::-webkit-scrollbar {
+  height: 0.1em;
+}
+.horizontalScroll ::-webkit-scrollbar-track {
+  box-shadow: transparent;
+}
+.horizontalScroll ::-webkit-scrollbar-thumb {
+  background: rgb(0,149,100);
+background: -moz-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: -webkit-linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+background: linear-gradient(180deg, rgba(0,149,100,0) 0%, rgba(8,234,160,0.6) 50%, rgba(0,149,100,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#009564",endColorstr="#009564",GradientType=1);
+}
+
+.root {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+#editor-scene {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+}
+
+.loadingIndicator {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  border-radius: 10px;
+  filter: drop-shadow(1px 1px 2px black);
+}
+.loadingIndicator.active {
+  display: block;
+}
+.loadingIndicator > img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 65%;
+  height: 65%;
+  margin: auto;
+}
+
+.rotate{
+  animation: rotate 2.2s linear infinite;
+}
+
+.sectionTitle {
+  position: absolute;
+  top: 34px;
+  left: 32px;
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 2px black;
+  font-size: 16px;
+}
+
+.generalTitle {
+  position: absolute;
+  top: 16px;
+  left: 32px;
+  color: white;
+  opacity: 0.7;
+  font-size: 12px;
+  padding: 0;
+  text-shadow: 1px 1px 2px black;
+  text-transform: uppercase;
+}
+
+@keyframes rotate{
+  to{ transform: rotate(360deg); }
+}
