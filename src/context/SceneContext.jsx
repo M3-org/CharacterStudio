@@ -119,8 +119,6 @@ export const SceneProvider = (props) => {
     setScene(scene);
     setCharacterManager(characterManager);
     setControls(controls);
-
-    console.log("t")
   },[])
 
   const setAvatar = (state) => {
