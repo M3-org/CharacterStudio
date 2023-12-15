@@ -20,6 +20,8 @@ function Optimizer({
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
     model,
+    scene,
+    characterManager
   } = React.useContext(SceneContext)
   
   const [currentVRM, setCurrentVRM] = useState(null);

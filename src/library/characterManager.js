@@ -132,13 +132,27 @@ export class CharacterManager {
       restoreCullIndicesAndColliders();
     }
 
+    removeCurrentCharacter(){
+      const clearTraitData = []
+      for (const prop in this.avatar){
+        
+        clearTraitData.push(new LoadedData({traitGroupID:prop, traitModel:null}))
+      }
+      clearTraitData.forEach(itemData => {
+        this._addLoadedData(itemData)
+      });
+      this.avatar = {};
+    }
+    removeCurrentManifest(){
+      this.manifest = null;
+    }
+
     downloadVRM(name, exportOptions = null){
       if (this.canDownload){
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         // XXX screenshot manager
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        console.log(this.avatar);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name,finalOptions);
       }
       else{
@@ -253,9 +267,9 @@ export class CharacterManager {
       }
 
       const groupTrait = this.manifestData.getModelGroup(groupTraitID);
-      
       if (groupTrait){
-        const itemData = new LoadedData({traitGroup:groupTrait, traitModel:null})
+        const itemData = new LoadedData({traitGroupID:groupTraitID, traitModel:null})
+        console.log(itemData)
         this._addLoadedData(itemData);
         cullHiddenMeshes(this.avatar);
       }
@@ -289,7 +303,7 @@ export class CharacterManager {
             const coincidence = loadedData.some((option) => option.traitGroup.trait === trait.trait);
             if (!coincidence) {
               if (this.avatar[trait.trait] != null){
-                loadedData.push(new LoadedData({traitGroup:trait, traitModel:null}));
+                loadedData.push(new LoadedData({traitGroupID:trait.trait, traitModel:null}));
               }
             }
           });
@@ -357,15 +371,15 @@ export class CharacterManager {
       
     }
 
-    _VRMBaseSetup(m, item, trait, textures, colors){
+    _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
 
-      if (this.manifestData.isColliderRequired(trait.trait))
+      if (this.manifestData.isColliderRequired(traitID))
         saveVRMCollidersToUserData(m);
       
       renameVRMBones(vrm);
 
-      this._modelBaseSetup(vrm, item, trait, textures, colors);
+      this._modelBaseSetup(vrm, item, traitID, textures, colors);
 
       // Rotate model 180 degrees
       if (vrm.meta?.metaVersion === '0'){
@@ -385,7 +399,7 @@ export class CharacterManager {
       return vrm;
     }
 
-    _modelBaseSetup(model, item, trait, textures, colors){
+    _modelBaseSetup(model, item, traitID, textures, colors){
 
       const meshTargets = [];
       const cullingIgnore = getAsArray(item.cullingIgnore)
@@ -429,6 +443,8 @@ export class CharacterManager {
       })
 
       const templateInfo = this.manifest;
+
+      const trait = this.manifestData.getModelGroup(traitID);
       // culling layers setup section
       addModelData(model, {
         cullingLayer: 
@@ -530,7 +546,7 @@ export class CharacterManager {
 
     _addLoadedData(itemData){
       const {
-          traitGroup,
+          traitGroupID,
           traitModel,
           textureTrait,
           colorTrait,
@@ -538,14 +554,13 @@ export class CharacterManager {
           textures,
           colors
       } = itemData;
-      const traitGroupName = traitGroup.name;
 
       // user selected to remove trait
       if (traitModel == null){
-          if ( this.avatar[traitGroupName] && this.avatar[traitGroupName].vrm ){
+          if ( this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm ){
               // just dispose for now
-              disposeVRM(this.avatar[traitGroupName].vrm)
-              this.avatar[traitGroupName] = {}
+              disposeVRM(this.avatar[traitGroupID].vrm)
+              this.avatar[traitGroupID] = {}
               // XXX restore effects without setTimeout
           }
           return;
@@ -557,7 +572,7 @@ export class CharacterManager {
           
           // basic vrm setup (only if model is vrm)
           // send textures and colors
-          vrm = this._VRMBaseSetup(m, traitModel, traitGroup, textures, colors);
+          vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
           this._applyManagers(vrm)
     
@@ -568,8 +583,8 @@ export class CharacterManager {
       })
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
-      if (this.avatar[traitGroupName] && this.avatar[traitGroupName].vrm) {
-        disposeVRM(this.avatar[traitGroupName].vrm)
+      if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
+        disposeVRM(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
     
@@ -578,7 +593,7 @@ export class CharacterManager {
 
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
-      this.avatar[traitGroupName] = {
+      this.avatar[traitGroupID] = {
         traitInfo: traitModel,
         textureInfo: textureTrait,
         colorInfo: colorTrait,
@@ -666,7 +681,7 @@ class TraitLoadingManager{
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
     
                 resultData[index] = new LoadedData({
-                    traitGroup: option?.traitModel.traitGroup,
+                    traitGroupID: option?.traitModel.traitGroup.trait,
                     traitModel: option?.traitModel,
                     textureTrait: option?.traitTexture,
                     colorTrait: option?.traitColor,
@@ -693,7 +708,7 @@ class TraitLoadingManager{
 class LoadedData{
     constructor(data){
         const {
-            traitGroup,
+            traitGroupID,
             traitModel,
             textureTrait,
             colorTrait,
@@ -703,7 +718,7 @@ class LoadedData{
         } = data;
 
         // Option base data
-        this.traitGroup = traitGroup;
+        this.traitGroupID = traitGroupID;
         this.traitModel = traitModel;
         this.textureTrait = textureTrait;
         this.colorTrait = colorTrait;

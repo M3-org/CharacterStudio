@@ -39,7 +39,8 @@ function Appearance({
 
   const back = () => {
     !isMute && playSound('backNextButton');
-    resetAvatar()
+    characterManager.removeCurrentCharacter();
+    //resetAvatar()
     setViewMode(ViewMode.CREATE)
     setDisplayTraitOption(null);
   }
