@@ -28,4 +28,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: anata-merge
           publish_dir: ./dist
