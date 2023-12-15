@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # or the branch you want to trigger the deployment on
+      - anata-merge
 
 jobs:
   deploy:
