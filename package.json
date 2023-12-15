@@ -1,6 +1,7 @@
 {
   "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
+  "homepage": "/CharacterStudio",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
