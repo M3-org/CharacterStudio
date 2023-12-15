@@ -14,16 +14,12 @@ import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 
-function Optimizer({
-  animationManager,
-}) {
+function Optimizer() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    scene,
     characterManager
   } = React.useContext(SceneContext)
   
-  const [currentVRM, setCurrentVRM] = useState(null);
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
@@ -65,12 +61,12 @@ function Optimizer({
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const animName = getFileNameWithoutExtension(file.name);
-    const url = URL.createObjectURL(file);
-    
+    // XXX to do, load animations from character manager
+    // const animName = getFileNameWithoutExtension(file.name);
+    // const url = URL.createObjectURL(file);
 
-    await animationManager.loadAnimation(url, true, "", animName);
-    URL.revokeObjectURL(url);
+    // await animationManager.loadAnimation(url, true, "", animName);
+    // URL.revokeObjectURL(url);
   }
 
   const handleVRMDrop = async (file) =>{

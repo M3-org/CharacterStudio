@@ -17,12 +17,7 @@ export default function ModelInformation({model}){
     const [vrmCutoutMaterialQty, setVrmCutoutMaterialQty] = useState(0);
 
     useEffect(() => {
-        console.log(model); 
-        
-        console.log("ENTER0")
         if (model != null){
-            console.log("ENTER")
-            console.log(model.children[0]); 
             const meshes = findChildrenByType(model,"Mesh");
             const skinnedMesh = findChildrenByType(model,"SkinnedMesh");
             setMeshQty(meshes.length)

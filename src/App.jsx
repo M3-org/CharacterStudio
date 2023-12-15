@@ -323,11 +323,7 @@ export default function App() {
         //characterManager = {characterManager}
       />
     ),
-    [ViewMode.OPTIMIZER]: (
-      <Optimizer
-        animationManager={animationManager}
-      />
-    ),
+    [ViewMode.OPTIMIZER]:<Optimizer/>,
     [ViewMode.BIO]: (
       <BioPage personality={personality} />
     ),
