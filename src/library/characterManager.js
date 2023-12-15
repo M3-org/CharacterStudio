@@ -208,16 +208,7 @@ export class CharacterManager {
       if (this.manifestData){
         
         const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
-        if (fullAvatarReplace){
-          for (const prop in this.avatar){
-            console.log(prop);
-
-            //console.log(traits)
-          }
-          console.log(this.avatar);
-          console.log(traits);
-        }
-        this._loadTraits(traits);
+        this._loadTraits(traits, fullAvatarReplace);
       }
       else{
         console.error ("No manifest was loaded, NFT traits cannot be loaded.")
@@ -279,12 +270,25 @@ export class CharacterManager {
       }
     }
     // 
-    async _loadTraits(options){
+    async _loadTraits(options, fullAvatarReplace = false){
       this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
-          loadedData.forEach(itemData => {
-              this._addLoadedData(itemData)
+        if (fullAvatarReplace){
+          // add null loaded options to existingt traits to remove them;
+          const groupTraits = this.getGroupTraits();
+          groupTraits.forEach((trait) => {
+            const coincidence = loadedData.some((option) => option.traitGroup.trait === trait.trait);
+            if (!coincidence) {
+              if (this.avatar[trait.trait] != null){
+                loadedData.push(new LoadedData({traitGroup:trait, traitModel:null}));
+              }
+            }
           });
-          cullHiddenMeshes(this.avatar);
+        }
+        
+        loadedData.forEach(itemData => {
+            this._addLoadedData(itemData)
+        });
+        cullHiddenMeshes(this.avatar);
       })
     }
 
@@ -522,7 +526,6 @@ export class CharacterManager {
           textures,
           colors
       } = itemData;
-      console.log(itemData);
       const traitGroupName = traitGroup.name;
 
       // user selected to remove trait
@@ -533,7 +536,6 @@ export class CharacterManager {
               this.avatar[traitGroupName] = {}
               // XXX restore effects without setTimeout
           }
-          console.log(this.avatar)
           return;
       }
 
@@ -572,7 +574,6 @@ export class CharacterManager {
         model: vrm && vrm.scene,
         vrm: vrm
       }
-      console.log(this.avatar)
     }
 
 
@@ -626,13 +627,10 @@ class TraitLoadingManager{
                     resultData[index] = null;
                     return;
                 }
-                console.log(option)
-                //console.log(option.directory);
 
                 const loadedModels = await Promise.all(
                     getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
                         try {
-                          console.log(modelDir);
                             return await this.gltfLoader.loadAsync(modelDir);
                         } catch (error) {
                             console.error(`Error loading model ${modelDir}:`, error);
@@ -821,7 +819,6 @@ class ManifestData{
     }
 
     getRandomTraits(optionalGroupTraitIDs){
-      console.log("get random")
       const selectedOptions = []
       const searchArray = optionalGroupTraitIDs || this.randomTraits;
       searchArray.forEach(groupTraitID => {
@@ -829,7 +826,6 @@ class ManifestData{
         if (traitSelectedOption)
           selectedOptions.push(traitSelectedOption)
       });
-      console.log(selectedOptions);
       return selectedOptions;
     }
 
@@ -873,7 +869,6 @@ class ManifestData{
 
     getCustomTraitOption(groupTraitID, url){
       const trait = this.getCustomModelTrait(groupTraitID, url);
-      console.log(trait)
       if (trait){
         return new SelectedOption(trait,null,null);
       }
@@ -1016,8 +1011,6 @@ class TraitModelsGroup{
     }
 
     getCustomTrait(url){
-      console.log(url);
-      console.log("Create blob url");
       return new ModelTrait(this, {directory:url, fullDirectory:url, id:"_custom", name:"Custom"})
     }
 
