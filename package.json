@@ -1,7 +1,7 @@
 {
   "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
-  "homepage": "/CharacterStudio",
+  "homepage": "https://m3-org.github.io/CharacterStudio",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
