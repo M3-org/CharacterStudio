@@ -14,7 +14,7 @@ export class CharacterManager {
     constructor(options){
       this._start(options);
     }
-
+    
     async _start(options){
       const{
         parentModel = null,
@@ -23,6 +23,8 @@ export class CharacterManager {
         manifestURL = null,
         canDownload = true
       }= options;
+
+      this.animationManager = createAnimationManager ?  new AnimationManager() : null;
 
       // data that is needed, but not required to be downloaded
       this.rootModel = new THREE.Object3D();
@@ -37,7 +39,7 @@ export class CharacterManager {
 
       this.canDownload = canDownload;
       if (manifestURL)
-        this.manifest = await this.loadManifest(manifestURL, options)
+        this.manifest = await this.loadManifest(manifestURL)
 
       this.manifestData = null;
       this.avatar = {};   // Holds information of traits within the avatar
@@ -146,6 +148,7 @@ export class CharacterManager {
     removeCurrentManifest(){
       this.manifest = null;
       this.manifestData = null;
+      this.animationManager.clearAnimationPaths();
     }
 
     downloadVRM(name, exportOptions = null){
@@ -291,18 +294,16 @@ export class CharacterManager {
     }
 
     // XXX animation manager should not be in load manifest!
-    async loadManifest(url, options){
-      const {
-        createAnimationManager = false
-      } = options
+    async loadManifest(url){
 
       this.manifest = await this._fetchManifest(url)
       
       if (this.manifest){
         this.manifestData = new ManifestData(this.manifest);
-        // XXX remove this
-        this.animationManager = createAnimationManager ?  await this._createAnimationManager() : null;
+        this._storeAnimationPaths(this.manifest.animationPath, this.manifest.assetsLocation)
       }
+
+      
     }
     // 
     async _loadTraits(options, fullAvatarReplace = false){
@@ -327,13 +328,12 @@ export class CharacterManager {
       })
     }
 
-    async _createAnimationManager(){
-
-      const animationManager = new AnimationManager(this.manifest.offset)
-      const animationPaths = getAsArray(this.manifest.animationPath);
-      animationManager.storeAnimationPaths(animationPaths, this.manifest.assetsLocation || "");
-      await animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), this.manifest.assetsLocation || "")
-      return animationManager
+    async _storeAnimationPaths(paths, baseLocation){
+      const animationPaths = getAsArray(paths);
+      if (this.animationManager && paths.length > 0){
+        this.animationManager.storeAnimationPaths(animationPaths, baseLocation || "");
+        await this.animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), baseLocation || "")
+      }
     }
 
     // XXX check if we caqn move this code only to manifestData

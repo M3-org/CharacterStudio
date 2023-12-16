@@ -141,7 +141,7 @@ class AnimationControl {
 }
 
 export class AnimationManager{
-  constructor (offset){
+  constructor (){
     this.animationPaths = null;
     this.lastAnimID = null;
     this.mainControl = null;
@@ -153,7 +153,6 @@ export class AnimationManager{
     
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
-    this.offset = null;
     this.lastAnimID = -1;
     this.curAnimID = 0;
     this.animationControls = [];
@@ -163,13 +162,6 @@ export class AnimationManager{
     this.mixamoModel = null;
     this.mixamoAnimations = null;
 
-    if (offset){
-      this.offset = new THREE.Vector3(
-        offset[0],
-        offset[1],
-        offset[2]
-      );
-    }
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -198,8 +190,6 @@ export class AnimationManager{
     else{
       this.mixamoModel = null
       this.animations = animationModel.animations;
-      if (this.offset)
-        this.offsetHips();
     }
     
     if (this.mainControl == null){
@@ -217,6 +207,12 @@ export class AnimationManager{
 
   getCurrentAnimationName(){
     return this.currentAnimationName;
+  }
+
+  clearAnimationPaths(){
+    this.animationPaths = null;
+    this.animationControls = [];
+    this.mainControl = null;
   }
 
   storeAnimationPaths(pathArray, pathBase){
@@ -252,24 +248,11 @@ export class AnimationManager{
     }); 
   }
 
-  offsetHips(){
-    this.animations.forEach(anim => {
-      for (let i =0; i < anim.tracks.length; i++){
-        const track = anim.tracks[i];
-        if (track.name === "hips.position"){
-          for (let j = 0; j < track.values.length/3 ; j++){
-            const base = j*3;
-            track.values[base] = track.values[base] + this.offset.x;
-            track.values[base + 1] = track.values[base + 1] + this.offset.y;
-            track.values[base + 2] = track.values[base + 2] + this.offset.z;
-          }
-        }
-      }
-    });
-  }
-
-
   startAnimation(vrm){
+    if (this.mainControl == null){
+      console.log("No animations preloaded");
+      return;
+    }
     let animations = null;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
