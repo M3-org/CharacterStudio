@@ -24,7 +24,6 @@ export const SceneProvider = (props) => {
 
   const [currentTraitName, setCurrentTraitName] = useState(null)
   const [currentOptions, setCurrentOptions] = useState([])
-  const [displayTraitOption, setDisplayTraitOption] = useState(null)
 
   const [currentVRM, setCurrentVRM] = React.useState(null)
 
@@ -238,8 +237,6 @@ export const SceneProvider = (props) => {
         characterManager,
         currentTraitName,
         setCurrentTraitName,
-        displayTraitOption,
-        setDisplayTraitOption,
         currentOptions,
 
         getSaveAvatar,

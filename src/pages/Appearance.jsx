@@ -27,7 +27,6 @@ function Appearance({
     templateInfo,
     setSelectedOptions,
     currentVRM,
-    setDisplayTraitOption,
     characterManager,
     moveCamera
   } = React.useContext(SceneContext)
@@ -43,7 +42,6 @@ function Appearance({
     characterManager.removeCurrentManifest()
     //resetAvatar()
     setViewMode(ViewMode.CREATE)
-    setDisplayTraitOption(null);
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
@@ -62,7 +60,6 @@ function Appearance({
   const next = () => {
     !isMute && playSound('backNextButton');
     setViewMode(ViewMode.BIO);
-    setDisplayTraitOption(null);
   }
 
   const randomize = () => {
@@ -307,7 +304,7 @@ function Appearance({
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <TraitInformation currentVRM={currentVRM}  lookatManager={lookatManager}
+      <TraitInformation selectedTrait={selectedTrait}  lookatManager={lookatManager}
       />
       <div className={styles.buttonContainer}>
         <CustomButton

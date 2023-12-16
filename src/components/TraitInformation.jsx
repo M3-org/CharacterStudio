@@ -6,10 +6,9 @@ import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 import { local } from "../library/store";
 
-export default function TraitInformation({lookatManager}){
+export default function TraitInformation({lookatManager, selectedTrait}){
     const {
         animationManager,
-        displayTraitOption,
         avatar,
         currentVRM
     } = useContext(SceneContext);
@@ -77,7 +76,7 @@ export default function TraitInformation({lookatManager}){
     };
 
     return (
-        displayTraitOption != null ? (
+        selectedTrait != null ? (
         <div>
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Trait Information" width={180} right={20}/>
@@ -86,19 +85,19 @@ export default function TraitInformation({lookatManager}){
                         Trait ID
                     </div>
                     <div className={styles["traitInfoText"]}>
-                        {displayTraitOption?.id}
+                        {selectedTrait?.id}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
                         Trait Name
                     </div>
                     <div className={styles["traitInfoText"]}>
-                        {displayTraitOption?.name}
+                        {selectedTrait?.name}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
                         Description
                     </div>
                     <div className={styles["traitInfoText"]}>
-                        {displayTraitOption?.description || "A nice " + displayTraitOption?.name}
+                        {selectedTrait?.description || "A nice " + selectedTrait?.name}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
                         Culling Options
