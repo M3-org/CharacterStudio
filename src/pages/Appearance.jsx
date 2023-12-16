@@ -50,7 +50,7 @@ function Appearance({
   const [uploadTextureURL, setUploadTextureURL] = React.useState(null)
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
-  const [selectedTraitID, setSelectedTraitID] = React.useState(null)
+  const [selectedTrait, setSelectedTrait] = React.useState(null)
 
   // XXX Remove
   useEffect(()=>{
@@ -182,13 +182,13 @@ function Appearance({
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
-      setSelectedTraitID(characterManager.getCurrentTraitID(traitGroup.trait));
+      setSelectedTrait(characterManager.getCurrentTrait(traitGroup.trait));
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }
     else{
       setTraits(null);
       setTraitGroupName("");
-      setSelectedTraitID(null);
+      setSelectedTrait(null);
       moveCamera({ targetY: 0.8, distance: 3.2 })
     }
   }
@@ -204,7 +204,7 @@ function Appearance({
       if (file.name.endsWith(".vrm")){
         const url = URL.createObjectURL(file);
         characterManager.loadCustomTrait(traitGroupName,url)
-        setSelectedTraitID(null);
+        setSelectedTrait(null);
       }
     }
     input.click();
@@ -259,13 +259,13 @@ function Appearance({
                     icon={cancel}
                     onClick={() => {
                       characterManager.removeTrait(traitGroupName);
-                      setSelectedTraitID(null);
+                      setSelectedTrait(null);
                     }}
                   >
                     <TokenBox
                       size={56}
                       icon={cancel}
-                      rarity={selectedTraitID == null ? "mythic" : "none"}
+                      rarity={selectedTrait == null ? "mythic" : "none"}
                     />
                   </div>
                 ) : (
@@ -274,14 +274,14 @@ function Appearance({
               }
               {/* All buttons section */
               traits.map((trait) => {
-                let active = trait.id === selectedTraitID
+                let active = trait.id === selectedTrait?.id
                 return (
                   <div
                     key={trait.id}
                     className={`${styles["selectorButton"]}`}
                     onClick={() => {
                       characterManager.loadTrait(trait.traitGroup.trait, trait.id)
-                      setSelectedTraitID(trait.id);
+                      setSelectedTrait(trait);
                     }}
                   >
                     <TokenBox

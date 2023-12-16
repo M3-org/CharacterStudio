@@ -17,6 +17,7 @@ export const SceneProvider = (props) => {
 
   const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
   const [characterManager, setCharacterManager] = useState(null)
+  const [animationManager, setAnimationManager] = useState(null)
   const [scene, setScene] = useState(null)
   //const [characterManifest, setCharacterManifest] = useState(initializeCharacterManifest)
   
@@ -28,7 +29,7 @@ export const SceneProvider = (props) => {
   const [currentVRM, setCurrentVRM] = React.useState(null)
 
   const [model, setModel] = useState(new THREE.Object3D())
-  const [animationManager, setAnimationManager] = useState(null)
+
   const [camera, setCamera] = useState(null)
 
   const [selectedOptions, setSelectedOptions] = useState([])
@@ -74,6 +75,7 @@ export const SceneProvider = (props) => {
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
+    setAnimationManager(characterManager.animationManager)
     setControls(controls);
   },[])
 

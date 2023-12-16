@@ -8,6 +8,7 @@ import { local } from "../library/store";
 
 export default function TraitInformation({lookatManager}){
     const {
+        animationManager,
         displayTraitOption,
         avatar,
         currentVRM
@@ -16,8 +17,7 @@ export default function TraitInformation({lookatManager}){
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
-    //const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
-    const [animationName, setAnimationName] = useState("Animation name");
+    const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
     const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
 
     useEffect(() => {
@@ -28,10 +28,10 @@ export default function TraitInformation({lookatManager}){
         }
     }, [currentVRM])
 
-    // useEffect(()=>{
-    //     //console.log(animationManager.currentAnimationName);
-    //     setAnimationName(animationManager.getCurrentAnimationName());
-    // },[animationManager.currentAnimationName])
+    useEffect(()=>{
+        //console.log(animationManager.currentAnimationName);
+        setAnimationName(animationManager.getCurrentAnimationName());
+    },[animationManager.currentAnimationName])
     
 
     const handleCullOutChange = (event) => {
@@ -61,18 +61,18 @@ export default function TraitInformation({lookatManager}){
 
     const nextAnimation = async () => {
         console.log("play next")
-        // await animationManager.loadNextAnimation();
-        // setAnimationName(animationManager.getCurrentAnimationName());
+        await animationManager.loadNextAnimation();
+        setAnimationName(animationManager.getCurrentAnimationName());
     }
     const prevAnimation = async () => {
         console.log("play prev")
-        // await animationManager.loadPreviousAnimation();
-        // setAnimationName(animationManager.getCurrentAnimationName());
+        await animationManager.loadPreviousAnimation();
+        setAnimationName(animationManager.getCurrentAnimationName());
     }
     const handleMouseLookEnable = (event) => {
         setHasMouseLook(event.target.checked);
         lookatManager.setActive(event.target.checked);
-        // animationManager.enableMouseLook(event.target.checked);
+        animationManager.enableMouseLook(event.target.checked);
         // Perform any additional actions or logic based on the checkbox state change
     };
 

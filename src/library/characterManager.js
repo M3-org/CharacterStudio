@@ -209,6 +209,9 @@ export class CharacterManager {
     getCurrentTraitID(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo?.id;
     }
+    getCurrentTrait(groupTraitID){
+      return this.avatar[groupTraitID]?.traitInfo;
+    }
 
     setParentModel(model){
       model.add(this.rootModel);
