@@ -132,7 +132,6 @@ function Appearance({
               const jsonAttributes = jsonContent.attributes.map((attribute) => (
                 { trait: attribute.trait_type, id: attribute.value }
                 )).filter((item) => item.trait !== "TYPE" && 
-                                    item.trait !== "BRACE" &&
                                     item.trait !== "SET" &&
                                     item.trait !== "SPECIAL_OTHER" );
 
