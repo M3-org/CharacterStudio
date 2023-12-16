@@ -44,7 +44,7 @@ function Create({fetchCharacterManifest}) {
 
   const selectClass = async (index) => {
     console.log(manifest[index].manifest)
-    await characterManager.loadManifest(manifest[index].manifest, {createAnimationManager:true});
+    await characterManager.loadManifest(manifest[index].manifest);
     characterManager.loadInitialTraits();
     //console.log(characterManager.manifestData);
     

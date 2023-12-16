@@ -75,9 +75,10 @@ function Appearance({
   }
 
   const handleAnimationDrop = async (file) => {
-    const animName = getFileNameWithoutExtension(file.name);
-    const path = URL.createObjectURL(file);
-    await animationManager.loadAnimation(path, true, "", animName);
+    console.log("update animation")
+    // const animName = getFileNameWithoutExtension(file.name);
+    // const path = URL.createObjectURL(file);
+    // await animationManager.loadAnimation(path, true, "", animName);
   }
 
   const handleImageDrop = (file) => {
@@ -306,7 +307,7 @@ function Appearance({
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <TraitInformation currentVRM={currentVRM} animationManager={animationManager} lookatManager={lookatManager}
+      <TraitInformation currentVRM={currentVRM}  lookatManager={lookatManager}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
