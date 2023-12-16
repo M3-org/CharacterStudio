@@ -694,12 +694,6 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
             merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
             const buffArr = merged[propName][i].array;
-            if (isVrm0){
-                for (let j = 0; j < buffArr.length; j+=3){
-                    buffArr[j] *= -1;
-                    buffArr[j+2] *= -1;
-                }
-            }
             for (let j = 0; j < buffArr.length; j+=3){
                 buffArr[j] *= scale;
                 buffArr[j+1] *= scale;
