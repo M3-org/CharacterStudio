@@ -11,7 +11,7 @@ import { getAsArray } from "./library/utils"
 import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
-import { AnimationManager } from "./library/animationManager"
+//import { AnimationManager } from "./library/animationManager"
 import MessageWindow from "./components/MessageWindow"
 import { local } from "./library/store"
 import { ScreenshotManager } from "./library/screenshotManager"
@@ -93,12 +93,7 @@ async function fetchScene() {
 }
 
 async function fetchAnimation(templateInfo) {
-  // create an animation manager for all the traits that will be loaded
-  const newAnimationManager = new AnimationManager(templateInfo.offset)
-  const animationPaths = getAsArray(templateInfo.animationPath);
-  newAnimationManager.storeAnimationPaths(animationPaths, templateInfo.assetsLocation || "");
-  await newAnimationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), templateInfo.assetsLocation || "")
-  return newAnimationManager
+  return null;
 }
 
 async function fetchAll() {
@@ -169,7 +164,7 @@ export default function App() {
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
-  const [animationManager, setAnimationManager] = useState({})
+  //const [animationManager, setAnimationManager] = useState({})
 
   const {
     camera,
@@ -277,8 +272,6 @@ export default function App() {
       asyncResolve()
       async function asyncResolve() {
         const characterManifest = await fetchManifest(manifest[index].manifest);
-        const animManager = await fetchAnimation(characterManifest)
-        setAnimationManager(animManager)
         setTemplateInfo(characterManifest)
         setManifestSelectionIndex(index)
         resolve(characterManifest)
@@ -305,7 +298,7 @@ export default function App() {
       screenshotManager.getScreenshotBlob(width, height):
       screenshotManager.getScreenshotTexture(width, height);
     blinkManager.disableScreenshot();
-    animationManager.disableScreenshot();
+    //animationManager.disableScreenshot();
 
     return screenshot;
   }
@@ -315,7 +308,7 @@ export default function App() {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
       <Appearance
-        animationManager={animationManager}
+        //animationManager={animationManager}
         blinkManager={blinkManager}
         lookatManager={lookatManager}
         effectManager={effectManager}
