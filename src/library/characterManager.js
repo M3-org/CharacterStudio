@@ -1000,6 +1000,12 @@ class ManifestData{
         result += "/";
       return result;
     }
+    getAssetsDirectory(){
+      let result = (this.assetsLocation || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
+    }
 
 
 

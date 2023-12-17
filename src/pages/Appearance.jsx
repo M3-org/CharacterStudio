@@ -91,12 +91,16 @@ function Appearance() {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
           const reader = new FileReader();
-          // const thumbLocation = `${templateInfo.assetsLocation}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
-          const jsonName = file.name.split('.')[0];
-          console.log(jsonName)
+
+          // XXX Anata hack to display nft thumbs
+          const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+
+          console.log(thumbLocation)
           reader.onload = function (e) {
             try {
               const jsonContent = JSON.parse(e.target.result);
+              // XXX Anata hack to display nft thumbs
+              jsonContent.thumb = thumbLocation;
               jsonDataArray.push(jsonContent);
 
               resolve(); // Resolve the promise when processing is complete
