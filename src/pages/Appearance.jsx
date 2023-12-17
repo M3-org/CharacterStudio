@@ -16,9 +16,7 @@ import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 
-function Appearance({
-  lookatManager,
-}) {
+function Appearance() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
     toggleDebugMNode,

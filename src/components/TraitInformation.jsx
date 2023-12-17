@@ -3,8 +3,6 @@ import styles from "./TraitInformation.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
-import { cullHiddenMeshes } from "../library/utils";
-import { local } from "../library/store";
 
 export default function TraitInformation({selectedTrait, selectedVRM, animationName, setAnimationName}){
     const {

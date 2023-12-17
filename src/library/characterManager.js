@@ -324,7 +324,7 @@ export class CharacterManager {
           // add null loaded options to existingt traits to remove them;
           const groupTraits = this.getGroupTraits();
           groupTraits.forEach((trait) => {
-            const coincidence = loadedData.some((option) => option.traitGroup.trait === trait.trait);
+            const coincidence = loadedData.some((option) => option.traitModel?.traitGroup.trait === trait.trait);
             if (!coincidence) {
               if (this.avatar[trait.trait] != null){
                 loadedData.push(new LoadedData({traitGroupID:trait.trait, traitModel:null}));
@@ -336,6 +336,7 @@ export class CharacterManager {
         loadedData.forEach(itemData => {
             this._addLoadedData(itemData)
         });
+        console.log(this.avatar)
         cullHiddenMeshes(this.avatar);
       })
     }
