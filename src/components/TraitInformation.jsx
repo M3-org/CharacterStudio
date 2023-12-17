@@ -6,51 +6,52 @@ import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 import { local } from "../library/store";
 
-export default function TraitInformation({lookatManager, selectedTrait, animationName, setAnimationName}){
+export default function TraitInformation({selectedTrait, selectedVRM, animationName, setAnimationName}){
     const {
         animationManager,
-        avatar,
-        currentVRM
+        characterManager,
     } = useContext(SceneContext);
 
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
     
-    const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
+    //const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
 
     useEffect(() => {
-        if (currentVRM != null){
-            setCullLayer(currentVRM?.data?.cullingLayer);
-            setCullOutDistance(currentVRM?.data?.cullingDistance[0]||0);
-            setCullInDistance(currentVRM?.data?.cullingDistance[1]||0);
+        if (selectedVRM != null){
+            setCullLayer(selectedVRM.data?.cullingLayer);
+            setCullOutDistance(selectedVRM.data?.cullingDistance[0]||0);
+            setCullInDistance(selectedVRM.data?.cullingDistance[1]||0);
         }
-    }, [currentVRM])
+    }, [selectedVRM])
 
     
 
     const handleCullOutChange = (event) => {
         setCullOutDistance(event.target.value);
-        if ( currentVRM?.data){
-            currentVRM.data.cullingDistance[0] = event.target.value;
+        if ( selectedVRM?.data){
+            selectedVRM.data.cullingDistance[0] = event.target.value;
+            characterManager.updateCullHiddenMeshes();
         }
-        cullHiddenMeshes(avatar);
+        
     };
 
     const handleCullInChange = (event) => {
         setCullInDistance(event.target.value);
-        if ( currentVRM?.data){
-            currentVRM.data.cullingDistance[1] = event.target.value;
+        if ( selectedVRM?.data){
+            selectedVRM.data.cullingDistance[1] = event.target.value;
+            characterManager.updateCullHiddenMeshes();
         }
-        cullHiddenMeshes(avatar);
+       
     };
 
     const handleCullLayerChange = (event) => {
-        console.log(lookatManager.enabled);
-        if (currentVRM?.data){
+        if (selectedVRM?.data){
+            console.log("change cuill layer")
             setCullLayer(event.target.value);
-            currentVRM.data.cullingLayer = event.target.value;
-            cullHiddenMeshes(avatar);
+            selectedVRM.data.cullingLayer = event.target.value;
+            characterManager.updateCullHiddenMeshes();
         }
     };
 
@@ -66,7 +67,7 @@ export default function TraitInformation({lookatManager, selectedTrait, animatio
     }
     const handleMouseLookEnable = (event) => {
         setHasMouseLook(event.target.checked);
-        lookatManager.setActive(event.target.checked);
+        //lookatManager.setActive(event.target.checked);
         animationManager.enableMouseLook(event.target.checked);
         // Perform any additional actions or logic based on the checkbox state change
     };
@@ -139,14 +140,14 @@ export default function TraitInformation({lookatManager, selectedTrait, animatio
                                 
                                 Mouse Follow
                                 </div>
-                                <label className={styles["custom-checkbox"]}>
+                                {/* <label className={styles["custom-checkbox"]}>
                                     <input 
                                         type="checkbox" 
                                         checked={hasMouseLook}
                                         onChange={handleMouseLookEnable}
                                     />
                                     <div className={styles["checkbox-container"]}></div>
-                                </label>
+                                </label> */}
                             </div>
                         </div>
                        

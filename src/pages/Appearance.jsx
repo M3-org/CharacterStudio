@@ -44,6 +44,7 @@ function Appearance({
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
+  const [selectedVRM, setSelectedVRM] = React.useState(null)
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
   const next = () => {
@@ -169,6 +170,7 @@ function Appearance({
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
       setSelectedTrait(characterManager.getCurrentTrait(traitGroup.trait));
+      setSelectedVRM(characterManager.getCurrentTraitVRM(traitGroup.trait))
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }
     else{
@@ -293,7 +295,7 @@ function Appearance({
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <TraitInformation selectedTrait={selectedTrait}  lookatManager={lookatManager} animationName={animationName} setAnimationName={setAnimationName}
+      <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={animationName} setAnimationName={setAnimationName}
       />
       <div className={styles.buttonContainer}>
         <CustomButton

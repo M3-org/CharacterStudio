@@ -212,6 +212,9 @@ export class CharacterManager {
     getCurrentTrait(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo;
     }
+    getCurrentTraitVRM(groupTraitID){
+      return this.avatar[groupTraitID]?.vrm;
+    }
 
     setParentModel(model){
       model.add(this.rootModel);
@@ -287,7 +290,10 @@ export class CharacterManager {
         console.warn(`No trait with name: ${ groupTraitID } was found.`)
       }
     }
-
+    updateCullHiddenMeshes(){
+      console.log("culls")
+      cullHiddenMeshes(this.avatar);
+    }
     loadOptimizerManifest(){
       this.manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
       this.manifestData = new ManifestData(this.manifest);
