@@ -237,7 +237,7 @@ function Appearance({
         
           <MenuTitle title={traitGroupName} width={130} left={20}/>
           <div className={styles["bottomLine"]} />
-          <div className={styles["scrollContainer"]}>
+          <div className={styles["scrollContainerOptions"]}>
             <div className={styles["selector-container"]}>
               {/* Null button section */
                 !characterManager.isTraitGroupRequired(traitGroupName) ? (

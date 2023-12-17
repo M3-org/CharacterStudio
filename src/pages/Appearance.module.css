@@ -42,14 +42,20 @@
   user-select: none;
 }
 .scrollContainer {
-  height: 100%;
   width: 80%;
   overflow-y: scroll;
   position: relative;
   overflow-x: hidden !important;
   margin: 16px;
-  height: -webkit-calc(100% - 40px);
   height: calc(100% - 40px);
+}
+.scrollContainerOptions{
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin: 16px;
+  height: calc(100% - 100px);
 }
 .bottomLine {
   background: rgb(0, 149, 100);
@@ -118,4 +124,35 @@
   float: left;
   width: 62px;
   text-align: center;
+}
+.uploadContainer {
+  text-align: center;
+  width: 80%;
+  position: relative;
+  margin: 16px;
+  margin-right: 10px;
+  padding-right: 6px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadButton{
+  margin: auto;
+  text-align: center;
+  outline-color: #3b434f;
+  color: #d1d7df;
+  outline-width: 2px;
+  outline-style: solid;
+  background-color: #1e2530;
+  height: 30px;
+  width: 80%;
+  font-family: "TTSC-Bold";
+  text-transform: uppercase !important;
+  font-size:x-small;
+  display: flex;
+  justify-content: center;
+  align-items : center;
+  user-select: none;
 }
