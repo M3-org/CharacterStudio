@@ -38,10 +38,14 @@ export class CharacterManager {
       }
 
       this.canDownload = canDownload;
-      if (manifestURL)
-        this.manifest = await this.loadManifest(manifestURL)
 
       this.manifestData = null;
+      this.manifest = null
+      if (manifestURL){
+         await this.loadManifest(manifestURL)
+         this.animationManager.setScale(this.manifestData.exportScale)
+      }
+      
       this.avatar = {};   // Holds information of traits within the avatar
       this.traitLoadManager = new TraitLoadingManager();
 
@@ -608,16 +612,8 @@ export class CharacterManager {
 
       models.map((m)=>{
           
-          // basic vrm setup (only if model is vrm)
-          // send textures and colors
           vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
-          this._applyManagers(vrm)
-    
-          // Scale depending on manifest definition
-          this._positionModel(vrm)
-
-            
       })
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
@@ -625,10 +621,12 @@ export class CharacterManager {
         disposeVRM(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
+
+      this._positionModel(vrm)
     
       this._displayModel(vrm)
         
-
+      this._applyManagers(vrm)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
       this.avatar[traitGroupID] = {

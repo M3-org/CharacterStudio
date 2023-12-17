@@ -187,7 +187,10 @@ export class AnimationManager{
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
+    animationModel.scale.set(this.scale,this.scale,this.scale)
+    this._scaleOffsetHips(animationModel.animations);
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
+    
     if (clip != null){
       this.mixamoModel = animationModel.clone();
       this.mixamoAnimations =   animationModel.animations;
@@ -254,6 +257,22 @@ export class AnimationManager{
     this.animationControls.forEach(control => {
       control.resume()
     }); 
+  }
+
+  _scaleOffsetHips(animations){
+    animations.forEach(anim => {
+      for (let i =0; i < anim.tracks.length; i++){
+        const track = anim.tracks[i];
+        if (track.name.includes(".position")){
+          for (let j = 0; j < track.values.length/3 ; j++){
+            const base = j*3;
+            track.values[base] /= this.scale;
+            track.values[base + 1] /= this.scale;
+            track.values[base + 2] /= this.scale;
+          }
+        }
+      }
+    });
   }
 
   startAnimation(vrm){
