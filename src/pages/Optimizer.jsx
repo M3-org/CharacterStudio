@@ -17,7 +17,8 @@ import { local } from "../library/store"
 function Optimizer() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    characterManager
+    characterManager,
+    animationManager
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -61,12 +62,19 @@ function Optimizer() {
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    // XXX to do, load animations from character manager
-    // const animName = getFileNameWithoutExtension(file.name);
-    // const url = URL.createObjectURL(file);
+    const curVRM = characterManager.getCurrentOptimizerCharacter();
+    if (curVRM){
+      const animName = getFileNameWithoutExtension(file.name);
+      const url = URL.createObjectURL(file);
 
-    // await animationManager.loadAnimation(url, true, "", animName);
-    // URL.revokeObjectURL(url);
+      await animationManager.loadAnimation(url, true, "", animName);
+      animationManager.startAnimation(characterManager.getCurrentOptimizerCharacter());
+
+      URL.revokeObjectURL(url);
+    }
+    else{
+      console.warn("Please load a vrm model to test animations.")
+    }
   }
 
   const handleVRMDrop = async (file) =>{
@@ -82,8 +90,10 @@ function Optimizer() {
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
+    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
+      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {

@@ -193,6 +193,8 @@ export class AnimationManager{
     }
     
     if (this.mainControl == null){
+      this.curAnimID = 0;
+      this.lastAnimID = -1;
       this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
       this.animationControls.push(this.mainControl)
     }
@@ -209,7 +211,7 @@ export class AnimationManager{
     return this.currentAnimationName;
   }
 
-  clearAnimationPaths(){
+  clearCurrentAnimations(){
     this.animationPaths = null;
     this.animationControls = [];
     this.mainControl = null;
@@ -249,7 +251,6 @@ export class AnimationManager{
   }
 
   startAnimation(vrm){
-    console.log("call start")
     if (this.mainControl == null){
       console.log("No animations preloaded");
       return;

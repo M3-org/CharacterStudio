@@ -148,7 +148,7 @@ export class CharacterManager {
     removeCurrentManifest(){
       this.manifest = null;
       this.manifestData = null;
-      this.animationManager.clearAnimationPaths();
+      this.animationManager.clearCurrentAnimations();
     }
 
     downloadVRM(name, exportOptions = null){
@@ -291,6 +291,9 @@ export class CharacterManager {
     loadOptimizerManifest(){
       this.manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
       this.manifestData = new ManifestData(this.manifest);
+    }
+    getCurrentOptimizerCharacter(){
+      return this.avatar["CUSTOM"]?.vrm;
     }
     async loadOptimizerCharacter(url){
       await this.loadCustomTrait("CUSTOM", url);
