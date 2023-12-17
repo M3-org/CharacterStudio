@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import styles from "./ModelInformation.module.css"
 import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
-import { getAsArray, getMaterialsSortedByArray } from "../library/utils";
+import { getMaterialsSortedByArray } from "../library/utils";
 
 export default function ModelInformation({model}){
     const [meshQty, setMeshQty] = useState(0);

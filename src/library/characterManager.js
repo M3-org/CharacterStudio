@@ -322,9 +322,12 @@ export class CharacterManager {
       
       if (this.manifest){
         this.manifestData = new ManifestData(this.manifest);
-        this._storeAnimationPaths(this.manifest.animationPath, this.manifest.assetsLocation)
-      }
+        this._animationManagerSetup(this.manifest.animationPath, this.manifest.assetsLocation, this.manifestData.exportScale)
 
+        // const scale = this.manifestData.exportScale;
+        // this.characterModel.scale.set(scale,scale,scale);
+      }
+      
       
     }
     // 
@@ -350,11 +353,14 @@ export class CharacterManager {
       })
     }
 
-    async _storeAnimationPaths(paths, baseLocation){
+    async _animationManagerSetup(paths, baseLocation, scale){
       const animationPaths = getAsArray(paths);
-      if (this.animationManager && paths.length > 0){
-        this.animationManager.storeAnimationPaths(animationPaths, baseLocation || "");
-        await this.animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), baseLocation || "")
+      if (this.animationManager){
+        this.animationManager.setScale(scale);
+        if (paths.length > 0){
+          this.animationManager.storeAnimationPaths(animationPaths, baseLocation || "");
+          await this.animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), baseLocation || "")
+        }
       }
     }
 
@@ -541,7 +547,7 @@ export class CharacterManager {
         //m.visible = false;
         // add the now model to the current scene
         
-        this.characterModel.add(m)
+        this.characterModel.attach(m)
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
 
@@ -567,8 +573,7 @@ export class CharacterManager {
     }
 
     _positionModel(model){
-      const templateInfo = this.manifest;
-      const scale = templateInfo.exportScale || 1;
+      const scale = this.manifestData.exportScale;
         model.scene.scale.set(scale,scale,scale);
 
       // Move depending on manifest definition
@@ -804,7 +809,7 @@ class ManifestData{
       this.traitsDirectory = traitsDirectory;
       this.thumbnailsDirectory = thumbnailsDirectory;
       this.traitIconsDirectorySvg = traitIconsDirectorySvg;
-      this.exportScale = exportScale;
+      this.exportScale = exportScale || 1;
       this.animationPath = getAsArray(animationPath);
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);

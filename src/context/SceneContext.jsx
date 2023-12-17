@@ -68,7 +68,7 @@ export const SceneProvider = (props) => {
       scene,
       camera,
       controls,
-      characterManager,
+      characterManager
     } = sceneInitializer("editor-scene");
 
     setCamera(camera);

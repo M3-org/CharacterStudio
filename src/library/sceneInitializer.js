@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
@@ -12,7 +13,8 @@ export function sceneInitializer(canvasId) {
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
 
-    
+    const sceneElements = new THREE.Object3D();
+    scene.add(sceneElements);
 
     const camera = new THREE.PerspectiveCamera(
         30,
@@ -74,6 +76,26 @@ export function sceneInitializer(canvasId) {
         characterManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
     };
 
+
+    async function fetchScene() {
+        // load environment
+        const modelPath = "/3d/Platform.glb"
+      
+        const loader = new GLTFLoader()
+        // load the modelPath
+        const gltf = await loader.loadAsync(modelPath)
+        sceneElements.add(gltf.scene);
+    }
+    fetchScene();
+
+    const displaySceneElements = (display) => {
+        if (display){
+            scene.add(sceneElements);
+        }
+        else{
+            scene.remove(sceneElements);
+        }
+    }
     canvasRef.addEventListener("click", handleMouseClick);
 
     return {

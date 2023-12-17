@@ -148,6 +148,8 @@ export class AnimationManager{
     this.animationControl  = null;
     this.animations = null;
 
+    this.scale = 1;
+
     this.curLoadAnim = 0;
     this.currentAnimationName = "";
     
@@ -174,6 +176,10 @@ export class AnimationManager{
     });
   }
   
+  setScale (scale){
+    this.scale = scale;
+  }
+
   async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
