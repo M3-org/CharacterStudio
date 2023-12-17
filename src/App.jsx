@@ -309,9 +309,9 @@ export default function App() {
     [ViewMode.APPEARANCE]: (
       <Appearance
         //animationManager={animationManager}
-        blinkManager={blinkManager}
+        //blinkManager={blinkManager}
         lookatManager={lookatManager}
-        effectManager={effectManager}
+        //effectManager={effectManager}
         confirmDialog={confirmDialog}
         //characterManager = {characterManager}
       />

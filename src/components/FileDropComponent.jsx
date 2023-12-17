@@ -34,7 +34,6 @@ export default function FileDropComponent ({onFilesDrop}){
 
   useEffect(()=>{
     if (files){
-      console.log("files");
       onFilesDrop(files);
     }
   },[files])

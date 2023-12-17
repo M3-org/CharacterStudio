@@ -6,7 +6,7 @@ import Slider from "./Slider";
 import { cullHiddenMeshes } from "../library/utils";
 import { local } from "../library/store";
 
-export default function TraitInformation({lookatManager, selectedTrait}){
+export default function TraitInformation({lookatManager, selectedTrait, animationName, setAnimationName}){
     const {
         animationManager,
         avatar,
@@ -16,7 +16,7 @@ export default function TraitInformation({lookatManager, selectedTrait}){
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
-    const [animationName, setAnimationName] = useState(animationManager.getCurrentAnimationName());
+    
     const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
 
     useEffect(() => {
@@ -27,10 +27,6 @@ export default function TraitInformation({lookatManager, selectedTrait}){
         }
     }, [currentVRM])
 
-    useEffect(()=>{
-        //console.log(animationManager.currentAnimationName);
-        setAnimationName(animationManager.getCurrentAnimationName());
-    },[animationManager.currentAnimationName])
     
 
     const handleCullOutChange = (event) => {

@@ -249,6 +249,7 @@ export class AnimationManager{
   }
 
   startAnimation(vrm){
+    console.log("call start")
     if (this.mainControl == null){
       console.log("No animations preloaded");
       return;
@@ -305,7 +306,6 @@ export class AnimationManager{
     this.animationControls.forEach(animControl => {
       animControl.dispose()
     });
-    //console.log("todo dispose animations")
   }
 
   animRandomizer(yieldTime){

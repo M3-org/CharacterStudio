@@ -17,17 +17,13 @@ import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 
 function Appearance({
-  animationManager,
   lookatManager,
 }) {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    resetAvatar,
     toggleDebugMNode,
-    templateInfo,
-    setSelectedOptions,
-    currentVRM,
     characterManager,
+    animationManager,
     moveCamera
   } = React.useContext(SceneContext)
   
@@ -45,17 +41,10 @@ function Appearance({
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
-  const [uploadTextureURL, setUploadTextureURL] = React.useState(null)
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
-
-  // XXX Remove
-  useEffect(()=>{
-    if (uploadTextureURL != null && currentVRM != null){
-      setTextureToChildMeshes(currentVRM.scene,uploadTextureURL)
-    }
-  },[uploadTextureURL])
+  const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -72,10 +61,10 @@ function Appearance({
   }
 
   const handleAnimationDrop = async (file) => {
-    console.log("update animation")
-    // const animName = getFileNameWithoutExtension(file.name);
-    // const path = URL.createObjectURL(file);
-    // await animationManager.loadAnimation(path, true, "", animName);
+    const animName = getFileNameWithoutExtension(file.name);
+    const path = URL.createObjectURL(file);
+    await animationManager.loadAnimation(path, true, "", animName);
+    setAnimationName(animationManager.getCurrentAnimationName());
   }
 
   const handleImageDrop = (file) => {
@@ -304,7 +293,7 @@ function Appearance({
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <TraitInformation selectedTrait={selectedTrait}  lookatManager={lookatManager}
+      <TraitInformation selectedTrait={selectedTrait}  lookatManager={lookatManager} animationName={animationName} setAnimationName={setAnimationName}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
