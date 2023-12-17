@@ -32,7 +32,6 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
         setCullOutDistance(event.target.value);
         if ( selectedVRM?.data){
             selectedVRM.data.cullingDistance[0] = event.target.value;
-            characterManager.updateCullHiddenMeshes();
         }
         
     };
@@ -41,19 +40,21 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
         setCullInDistance(event.target.value);
         if ( selectedVRM?.data){
             selectedVRM.data.cullingDistance[1] = event.target.value;
-            characterManager.updateCullHiddenMeshes();
         }
        
     };
 
+
     const handleCullLayerChange = (event) => {
         if (selectedVRM?.data){
-            console.log("change cuill layer")
             setCullLayer(event.target.value);
             selectedVRM.data.cullingLayer = event.target.value;
-            characterManager.updateCullHiddenMeshes();
         }
     };
+
+    const updateCulling = () =>{
+        characterManager.updateCullHiddenMeshes();
+    }
 
     const nextAnimation = async () => {
         console.log("play next")
@@ -117,6 +118,12 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
                             <br/>
                             Cull In Distance
                             <Slider  value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
+                            <div 
+                                className={styles["actionButton"]}
+                                onClick={updateCulling}>
+                                <div> 
+                                    Update Culling </div>
+                            </div>
                         </div>
                         <div className={styles["traitInfoTitle"]}>
                             Animation
@@ -134,22 +141,22 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
                                 onClick={nextAnimation}
                             ></div>
                         </div>
-                        <div className={styles["traitInfoText"]}>
+                        {/* <div className={styles["traitInfoText"]}>
                             <div className={styles["checkboxHolder"]}>
                                 <div>
                                 
                                 Mouse Follow
                                 </div>
-                                {/* <label className={styles["custom-checkbox"]}>
+                                <label className={styles["custom-checkbox"]}>
                                     <input 
                                         type="checkbox" 
                                         checked={hasMouseLook}
                                         onChange={handleMouseLookEnable}
                                     />
                                     <div className={styles["checkbox-container"]}></div>
-                                </label> */}
+                                </label>
                             </div>
-                        </div>
+                        </div> */}
                        
                     </div>
 
