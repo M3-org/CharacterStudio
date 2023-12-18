@@ -26,22 +26,24 @@ export class CharacterManager {
         canDownload = true
       }= options;
 
+     
 
       // data that is needed, but not required to be downloaded
       this.rootModel = new THREE.Object3D();
       // all data that will be downloaded
       this.characterModel = new THREE.Object3D();
 
+      this.parentModel = parentModel;
+      if (parentModel){
+        parentModel.add(this.rootModel);
+      }
+
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
       this.screenshotManager = new ScreenshotManager();
       this._setupScreenshotManager();
 
-
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
-      if (parentModel){
-        parentModel.add(this.rootModel);
-      }
 
       this.canDownload = canDownload;
 
@@ -61,19 +63,36 @@ export class CharacterManager {
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
     }
-
+    
     savePortraitScreenshot(name, width, height){
-      
       this.characterModel.traverse(o => {
         if (o.isSkinnedMesh) {
           const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
           headBone.getWorldPosition(localVector3);
         }
       });
-      this.screenshotManager.setCamera(localVector3, 0.75);
-      this.screenshotManager.saveAsImage(name);
-      this.screenshotManager.saveScreenshot(name, width, height);
+      localVector3.z += 0.3;
+      this.screenshotManager.setCamera(localVector3, 0.83);
+      this.screenshotManager.saveScreenshot(name, width,height);
     }
+    
+    _getPortaitScreenshotTexture(getBlob, width, height){
+      this.characterModel.traverse(o => {
+        if (o.isSkinnedMesh) {
+          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+          headBone.getWorldPosition(localVector3);
+        }
+      });
+      // XXX save variables in manifest to store face distance and field of view.
+      localVector3.z += 0.3;
+      this.screenshotManager.setCamera(localVector3, 0.83);
+      const screenshot = getBlob ? 
+        this.screenshotManager.getScreenshotBlob(width, height):
+        this.screenshotManager.getScreenshotTexture(width, height);
+
+      return screenshot;
+    }
+
 
     // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX, mouseY, removeFace = true){
@@ -178,7 +197,9 @@ export class CharacterManager {
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         // XXX screenshot manager
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        downloadVRMWithAvatar(this.characterModel, this.avatar, name,finalOptions);
+        this.animationManager.setScale(this.manifestData.exportScale)
+        finalOptions.screenshot = this._getPortaitScreenshotTexture(false,512,512);
+        downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
       }
       else{
         console.error("Download not supported");
@@ -239,6 +260,9 @@ export class CharacterManager {
 
     setParentModel(model){
       model.add(this.rootModel);
+      this.parentModel = model;
+      if (this.screenshotManager)
+        this.screenshotManager.scene =  this.parentModel;
     }
 
     setRenderCamera(camera){
@@ -393,7 +417,10 @@ export class CharacterManager {
     }
 
     _setupScreenshotManager(){
-      this.screenshotManager.scene = this.characterModel;
+      if (this.parentModel)
+        this.screenshotManager.scene = this.parentModel;
+      else
+        this.screenshotManager.scene = this.rootModel;
     }
     _setupWireframeMaterial(mesh){
       // Set Wireframe material with random colors for each material the object has

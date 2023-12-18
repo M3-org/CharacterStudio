@@ -31,7 +31,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      screenshot:screenshot,
+      // screenshot:screenshot,
       // scale:templateInfo.exportScale||1,
       // vrmMeta:templateInfo.vrmMeta
     }
