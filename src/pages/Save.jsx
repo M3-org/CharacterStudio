@@ -69,9 +69,7 @@ function Save({getFaceScreenshot}) {
         <MergeOptions
           showCreateAtlas = {true}
         />
-        <ExportMenu 
-          getFaceScreenshot = {getFaceScreenshot}
-        />
+        <ExportMenu />
         
         <CustomButton
             theme="light"

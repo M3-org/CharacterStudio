@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
+import { BlinkManager } from "./blinkManager";
 import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
@@ -40,6 +41,7 @@ export class CharacterManager {
 
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
       this.screenshotManager = new ScreenshotManager();
+      this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this._setupScreenshotManager();
 
       this.rootModel.add(this.characterModel)
@@ -75,7 +77,7 @@ export class CharacterManager {
       this.screenshotManager.setCamera(localVector3, 0.83);
       this.screenshotManager.saveScreenshot(name, width,height);
     }
-    
+
     _getPortaitScreenshotTexture(getBlob, width, height){
       this.characterModel.traverse(o => {
         if (o.isSkinnedMesh) {

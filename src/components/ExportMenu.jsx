@@ -11,27 +11,24 @@ import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"
 
-export const ExportMenu = ({getFaceScreenshot}) => {
+export const ExportMenu = () => {
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
-  const { model, avatar, templateInfo, characterManager } = useContext(SceneContext)
+  const { model, characterManager } = useContext(SceneContext)
 
   const getOptions = () =>{
     const currentOption = local["mergeOptions_sel_option"] || 0;
-    const screenshot = getFaceScreenshot();
-    console.log(local["mergeOptions_create_atlas"]);
     const createTextureAtlas = local["mergeOptions_create_atlas"] == null ? true:local["mergeOptions_create_atlas"] 
     return {
       // isVrm0 : true,
-      // createTextureAtlas : createTextureAtlas,
+      createTextureAtlas : createTextureAtlas,
       mToonAtlasSize:getAtlasSize(local["mergeOptions_atlas_mtoon_size"] || 6),
       mToonAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_mtoon_transp_size"] || 6),
       stdAtlasSize:getAtlasSize(local["mergeOptions_atlas_std_size"] || 6),
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      // screenshot:screenshot,
       // scale:templateInfo.exportScale||1,
       // vrmMeta:templateInfo.vrmMeta
     }
