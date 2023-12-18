@@ -67,6 +67,8 @@ export class CharacterManager {
     }
     
     savePortraitScreenshot(name, width, height){
+      this.blinkManager.enableScreenshot();
+
       this.characterModel.traverse(o => {
         if (o.isSkinnedMesh) {
           const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
@@ -76,9 +78,13 @@ export class CharacterManager {
       localVector3.z += 0.3;
       this.screenshotManager.setCamera(localVector3, 0.83);
       this.screenshotManager.saveScreenshot(name, width,height);
+
+      this.blinkManager.disableScreenshot();
     }
 
     _getPortaitScreenshotTexture(getBlob, width, height){
+      this.blinkManager.enableScreenshot();
+
       this.characterModel.traverse(o => {
         if (o.isSkinnedMesh) {
           const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
@@ -91,7 +97,8 @@ export class CharacterManager {
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
-
+        
+      this.blinkManager.disableScreenshot();
       return screenshot;
     }
 
