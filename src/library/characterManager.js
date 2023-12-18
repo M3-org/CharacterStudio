@@ -97,7 +97,7 @@ export class CharacterManager {
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
-        
+
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
@@ -478,6 +478,14 @@ export class CharacterManager {
         saveVRMCollidersToUserData(m);
       
       renameVRMBones(vrm);
+
+      // XXX Restore lipsync
+      // if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
+      //   setLipSync(new LipSync(vrm));
+      this.blinkManager.addBlinker(vrm);
+
+      // XXX Restore lookat manager
+      //lookatManager.addVRM(vrm)
 
       this._modelBaseSetup(vrm, item, traitID, textures, colors);
 
