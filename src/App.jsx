@@ -8,7 +8,6 @@ import { LanguageContext } from "./context/LanguageContext"
 import { ViewMode, ViewContext } from "./context/ViewContext"
 
 import { getAsArray } from "./library/utils"
-import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 //import { AnimationManager } from "./library/animationManager"
@@ -129,7 +128,6 @@ export default function App() {
   const {
     initialManifest,
     personality,
-    blinkManager,
     lookatManager,
     effectManager,
     //characterManager
