@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
+import { ScreenshotManager } from "./screenshotManager";
 import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
@@ -9,6 +10,7 @@ import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
+const localVector3 = new THREE.Vector3(); 
 
 export class CharacterManager {
     constructor(options){
@@ -19,17 +21,21 @@ export class CharacterManager {
       const{
         parentModel = null,
         renderCamera = null,
-        createAnimationManager = false,
+        createAnimationManager = true,
         manifestURL = null,
         canDownload = true
       }= options;
 
-      this.animationManager = createAnimationManager ?  new AnimationManager() : null;
 
       // data that is needed, but not required to be downloaded
       this.rootModel = new THREE.Object3D();
       // all data that will be downloaded
       this.characterModel = new THREE.Object3D();
+
+      this.animationManager = createAnimationManager ?  new AnimationManager() : null;
+      this.screenshotManager = new ScreenshotManager();
+      this._setupScreenshotManager();
+
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -56,7 +62,18 @@ export class CharacterManager {
       this.vrmHelperRoot = helperRoot;
     }
 
-
+    savePortraitScreenshot(name, width, height){
+      
+      this.characterModel.traverse(o => {
+        if (o.isSkinnedMesh) {
+          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+          headBone.getWorldPosition(localVector3);
+        }
+      });
+      this.screenshotManager.setCamera(localVector3, 0.75);
+      this.screenshotManager.saveAsImage(name);
+      this.screenshotManager.saveScreenshot(name, width, height);
+    }
 
     // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX, mouseY, removeFace = true){
@@ -373,6 +390,10 @@ export class CharacterManager {
         const response = await fetch(location)
         const data = await response.json()
         return data
+    }
+
+    _setupScreenshotManager(){
+      this.screenshotManager.scene = this.characterModel;
     }
     _setupWireframeMaterial(mesh){
       // Set Wireframe material with random colors for each material the object has

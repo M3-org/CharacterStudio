@@ -325,6 +325,15 @@ function Appearance() {
           className={styles.buttonCenter}
           onClick={debugMode}
         />
+        <CustomButton
+          theme="light"
+          text={"debug"}
+          size={14}
+          className={styles.buttonCenter}
+          onClick={()=>{
+            characterManager.savePortraitScreenshot("portrait", 1024,1024);
+          }}
+        />
       </div>
     </div>
   )

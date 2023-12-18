@@ -16,7 +16,6 @@ import MessageWindow from "./components/MessageWindow"
 import { local } from "./library/store"
 import { ScreenshotManager } from "./library/screenshotManager"
 
-import Scene from "./components/Scene"
 import Background from "./components/Background"
 
 import View from "./pages/View"
