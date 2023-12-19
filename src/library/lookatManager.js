@@ -8,10 +8,6 @@ export class LookAtManager {
     this.spineBones = []
     this.leftEyeBones = []
     this.rightEyesBones = []
-    this.neckBonesInv = []
-    this.spineBonesInv = []
-    this.leftEyeBonesInv = []
-    this.rightEyesBonesInv = []
     this.curMousePos = new THREE.Vector2()
 
     this.hotzoneSection  = getHotzoneSection()
@@ -80,22 +76,14 @@ export class LookAtManager {
       if (bones.rightEye)
         bones.rightEye.node.userData.inverseLookAt = true;
     }
-    //if (!isVRM0){
-      this.neckBones.push(bones.neck.node)
-      this.spineBones.push(bones.spine.node)
-      if (bones.leftEye)
-        this.leftEyeBones.push(bones.leftEye.node)
-      if (bones.rightEye)
-        this.rightEyesBones.push(bones.rightEye.node)
-    // }
-    // else{
-    //   this.neckBonesInv.push(bones.neck.node)
-    //   this.spineBonesInv.push(bones.spine.node)
-    //   if (bones.leftEye)
-    //     this.leftEyeBonesInv.push(bones.leftEye.node)
-    //   if (bones.rightEye)
-    //     this.rightEyesBonesInv.push(bones.rightEye.node)
-    // }
+
+    this.neckBones.push(bones.neck.node)
+    this.spineBones.push(bones.spine.node)
+    if (bones.leftEye)
+      this.leftEyeBones.push(bones.leftEye.node)
+    if (bones.rightEye)
+      this.rightEyesBones.push(bones.rightEye.node)
+
   }
 
   _getMouseDegrees (x, y, degreeLimit){
