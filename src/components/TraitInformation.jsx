@@ -8,13 +8,14 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
     const {
         animationManager,
         characterManager,
+        lookAtManager
     } = useContext(SceneContext);
 
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
     
-    //const [hasMouseLook, setHasMouseLook] = useState(lookatManager.userActivated);
+    const [hasMouseLook, setHasMouseLook] = useState(lookAtManager.userActivated);
 
     useEffect(() => {
         if (selectedVRM != null){
@@ -66,7 +67,7 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
     }
     const handleMouseLookEnable = (event) => {
         setHasMouseLook(event.target.checked);
-        //lookatManager.setActive(event.target.checked);
+        lookAtManager.setActive(event.target.checked);
         animationManager.enableMouseLook(event.target.checked);
         // Perform any additional actions or logic based on the checkbox state change
     };
@@ -139,7 +140,7 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
                                 onClick={nextAnimation}
                             ></div>
                         </div>
-                        {/* <div className={styles["traitInfoText"]}>
+                        <div className={styles["traitInfoText"]}>
                             <div className={styles["checkboxHolder"]}>
                                 <div>
                                 
@@ -154,7 +155,7 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
                                     <div className={styles["checkbox-container"]}></div>
                                 </label>
                             </div>
-                        </div> */}
+                        </div>
                        
                     </div>
 
