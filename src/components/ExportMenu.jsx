@@ -37,7 +37,6 @@ export const ExportMenu = () => {
   const downloadModel = () =>{
     const options = getOptions();
     characterManager.downloadVRM(name, options);
-    // downloadVRMWithAvatar(model, avatar, name, options);
   }
 
   return (

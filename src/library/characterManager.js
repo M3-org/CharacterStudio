@@ -83,9 +83,9 @@ export class CharacterManager {
           this.lookAtManager.addVRM(this.avatar[prop].vrm)
         }
       }
-      this.toggleMouseLook(enable)
+      this.toggleCharacterLookAtMouse(enable)
     }
-    toggleMouseLook(enable){
+    toggleCharacterLookAtMouse(enable){
       if (this.lookAtManager != null){
         this.lookAtManager.setActive(enable);
         if (this.animationManager){
@@ -93,10 +93,9 @@ export class CharacterManager {
         }
       }
       else{
-        console.warn("toggleMouseLook() was called, but no lookAtManager exist. Make sure to set it up first with addLookArMous()")
+        console.warn("toggleCharacterLookAtMouse() was called, but no lookAtManager exist. Make sure to set it up first with addLookArMous()")
       }
     }
-    
     savePortraitScreenshot(name, width, height){
       this.blinkManager.enableScreenshot();
 
@@ -112,27 +111,6 @@ export class CharacterManager {
 
       this.blinkManager.disableScreenshot();
     }
-
-    _getPortaitScreenshotTexture(getBlob, width, height){
-      this.blinkManager.enableScreenshot();
-
-      this.characterModel.traverse(o => {
-        if (o.isSkinnedMesh) {
-          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
-          headBone.getWorldPosition(localVector3);
-        }
-      });
-      // XXX save variables in manifest to store face distance and field of view.
-      localVector3.z += 0.3;
-      this.screenshotManager.setCamera(localVector3, 0.83);
-      const screenshot = getBlob ? 
-        this.screenshotManager.getScreenshotBlob(width, height):
-        this.screenshotManager.getScreenshotTexture(width, height);
-
-      this.blinkManager.disableScreenshot();
-      return screenshot;
-    }
-
 
     // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX, mouseY, removeFace = true){
@@ -230,7 +208,6 @@ export class CharacterManager {
       this.manifestData = null;
       this.animationManager.clearCurrentAnimations();
     }
-
     downloadVRM(name, exportOptions = null){
       if (this.canDownload){
         exportOptions = exportOptions || {}
@@ -244,7 +221,6 @@ export class CharacterManager {
         console.error("Download not supported");
       }
     }
-
     getAvatarSelection(){
       var result = {};
       for (const prop in this.avatar) {
@@ -256,13 +232,11 @@ export class CharacterManager {
       return result;
       
     }
-
     getGroupTraits(){
       if (this.manifestData){
         return this.manifestData.getGroupModelTraits();
       }
     }
-
     getCurrentCharacterModel(){
       return this.characterModel;
     }
@@ -286,24 +260,21 @@ export class CharacterManager {
         return null;
       }
     }
-
     getCurrentTraitID(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo?.id;
     }
-    getCurrentTrait(groupTraitID){
+    getCurrentTraitData(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo;
     }
     getCurrentTraitVRM(groupTraitID){
       return this.avatar[groupTraitID]?.vrm;
     }
-
     setParentModel(model){
       model.add(this.rootModel);
       this.parentModel = model;
       if (this.screenshotManager)
         this.screenshotManager.scene =  this.parentModel;
     }
-
     setRenderCamera(camera){
       this.renderCamera = camera;
     }
@@ -316,7 +287,6 @@ export class CharacterManager {
         console.error ("No manifest was loaded, random traits cannot be loaded.")
       }
     }
-
     async loadTraitsFromNFT(url, fullAvatarReplace = true, ignoreGroupTraits = null){
       if (this.manifestData){
         
@@ -327,7 +297,6 @@ export class CharacterManager {
         console.error ("No manifest was loaded, NFT traits cannot be loaded.")
       }
     }
-
     async loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null){
       if (this.manifestData){
         
@@ -338,7 +307,6 @@ export class CharacterManager {
         console.error ("No manifest was loaded, NFT traits cannot be loaded.")
       }
     }
-
     async loadInitialTraits(){
       if (this.manifestData){
         this._loadTraits(this.manifestData.getInitialTraits());
@@ -347,13 +315,11 @@ export class CharacterManager {
         console.error ("No manifest was loaded, random traits cannot be loaded.")
       }
     }
-
     async loadTrait(groupTraitID, traitID){
       const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
       if (selectedTrait)
         await this._loadTraits(getAsArray(selectedTrait));
     }
-
     async loadCustomTrait(groupTraitID, url){
       const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
       if (selectedTrait)
@@ -399,20 +365,13 @@ export class CharacterManager {
       await this.loadCustomTrait("CUSTOM", url);
     }
 
-    // XXX animation manager should not be in load manifest!
     async loadManifest(url){
-
       this.manifest = await this._fetchManifest(url)
-      
       if (this.manifest){
         this.manifestData = new ManifestData(this.manifest);
-        this._animationManagerSetup(this.manifest.animationPath, this.manifest.assetsLocation, this.manifestData.exportScale)
-
-        // const scale = this.manifestData.exportScale;
-        // this.characterModel.scale.set(scale,scale,scale);
+        if (this.animationManager)
+          await this._animationManagerSetup(this.manifest.animationPath, this.manifest.assetsLocation, this.manifestData.exportScale)
       }
-      
-      
     }
     // 
     async _loadTraits(options, fullAvatarReplace = false){
@@ -436,7 +395,6 @@ export class CharacterManager {
         cullHiddenMeshes(this.avatar);
       })
     }
-
     async _animationManagerSetup(paths, baseLocation, scale){
       const animationPaths = getAsArray(paths);
       if (this.animationManager){
@@ -455,6 +413,25 @@ export class CharacterManager {
         return data
     }
 
+    _getPortaitScreenshotTexture(getBlob, width, height){
+      this.blinkManager.enableScreenshot();
+
+      this.characterModel.traverse(o => {
+        if (o.isSkinnedMesh) {
+          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+          headBone.getWorldPosition(localVector3);
+        }
+      });
+      // XXX save variables in manifest to store face distance and field of view.
+      localVector3.z += 0.3;
+      this.screenshotManager.setCamera(localVector3, 0.83);
+      const screenshot = getBlob ? 
+        this.screenshotManager.getScreenshotBlob(width, height):
+        this.screenshotManager.getScreenshotTexture(width, height);
+
+      this.blinkManager.disableScreenshot();
+      return screenshot;
+    }
     _setupScreenshotManager(){
       if (this.parentModel)
         this.screenshotManager.scene = this.parentModel;
@@ -500,7 +477,6 @@ export class CharacterManager {
       // }
       
     }
-
     _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
@@ -538,7 +514,6 @@ export class CharacterManager {
 
       return vrm;
     }
-
     _modelBaseSetup(model, item, traitID, textures, colors){
 
       const meshTargets = [];
@@ -622,7 +597,6 @@ export class CharacterManager {
         }
       })
     }
-
     _applyManagers(vrm){
       const templateInfo = this.manifest;
         // Assign LipsSync to manifest defined VRMs
@@ -640,7 +614,6 @@ export class CharacterManager {
         if (this.animationManager)
           this.animationManager.startAnimation(vrm)
     }
-
     _displayModel(model){
       if(model) {
         // call transition
@@ -672,7 +645,6 @@ export class CharacterManager {
         // }, effectManager.transitionTime)
       }
     }
-
     _positionModel(model){
       const scale = this.manifestData.exportScale;
         model.scene.scale.set(scale,scale,scale);
@@ -682,7 +654,6 @@ export class CharacterManager {
       // if (offset != null)
       //   model.scene.position.set(offset[0],offset[1],offset[2]);
     }
-
     _addLoadedData(itemData){
       const {
           traitGroupID,
@@ -862,8 +833,6 @@ class LoadedData{
         this.colors = colors;
     }
 }
-
-
 class SelectedOption{
   constructor(traitModel, traitTexture, traitColor){
     this.traitModel = traitModel;
@@ -1146,8 +1115,6 @@ class ManifestData{
       this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
     }
 }
-
-
 // Must be created AFTER color collections and texture collections have been created
 class TraitModelsGroup{
     constructor(manifestData, options){
@@ -1215,10 +1182,6 @@ class TraitModelsGroup{
 
 
 }
-
-
-
-
 class TraitTexturesGroup{
   constructor(manifestData, options){
     const {
@@ -1259,9 +1222,6 @@ class TraitTexturesGroup{
       null;
   }
 }
-
-
-
 class TraitColorsGroup{
   constructor(manifestData, options){
     const {
@@ -1300,7 +1260,6 @@ class TraitColorsGroup{
       null;
   }
 }
-
 class ModelTrait{
   constructor(traitGroup, options){
       const {
@@ -1354,7 +1313,6 @@ class ModelTrait{
         console.log(this.targetTextureCollection);
   }
 }
-
 class TextureTrait{
   constructor(traitGroup, options){
       const {
@@ -1390,7 +1348,6 @@ class TextureTrait{
       this.fullThumbnail = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
   }
 }
-
 class ColorTrait{
     constructor(traitGroup, options){
         const {

@@ -5,7 +5,6 @@ import MenuTitle from "./MenuTitle"
 
 export default function JsonAttributes({jsonSelectionArray}){
   const {
-    setSelectedOptions,
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);

@@ -8,29 +8,20 @@ import {
 
 import gsap from "gsap"
 import { local } from "../library/store"
-import { CharacterManager } from "../library/characterManager"
 import { sceneInitializer } from "../library/sceneInitializer"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
 
-  const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
   const [characterManager, setCharacterManager] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
   const [scene, setScene] = useState(null)
-  //const [characterManifest, setCharacterManifest] = useState(initializeCharacterManifest)
-  
-
-  const [currentTraitName, setCurrentTraitName] = useState(null)
-  const [currentOptions, setCurrentOptions] = useState([])
-
-  const [currentVRM, setCurrentVRM] = React.useState(null)
-
-  const [model, setModel] = useState(new THREE.Object3D())
-
   const [camera, setCamera] = useState(null)
+
+
+  // XXX cleanup
 
   const [selectedOptions, setSelectedOptions] = useState([])
   const [removeOption, setRemoveOption] = useState(false)
@@ -215,9 +206,6 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
-        vrmHelperRoot,
-        currentVRM,
-        setCurrentVRM,
         
         awaitDisplay, 
         setAwaitDisplay,
@@ -237,9 +225,6 @@ export const SceneProvider = (props) => {
         scene,
         setScene,
         characterManager,
-        currentTraitName,
-        setCurrentTraitName,
-        currentOptions,
 
         getSaveAvatar,
         saveAvatarToLocalStorage,
@@ -247,8 +232,6 @@ export const SceneProvider = (props) => {
 
         debugMode,
         toggleDebugMNode,
-
-        setCurrentOptions,
         setSelectedOptions,
         getRandomCharacter,
         saveUserSelection,
@@ -256,8 +239,6 @@ export const SceneProvider = (props) => {
         selectedOptions,
         setRemoveOption,
         removeOption,
-        model,
-        setModel,
         animationManager,
         lookAtManager,
         setAnimationManager,

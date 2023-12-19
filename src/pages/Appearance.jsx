@@ -9,7 +9,6 @@ import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import { getTraitOption } from "../library/option-utils"
-import { getDataArrayFromNFTMetadata } from "../library/file-utils"
 import MenuTitle from "../components/MenuTitle"
 import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
@@ -120,18 +119,12 @@ function Appearance() {
       if (jsonDataArray.length > 0){
         // This code will run after all files are processed
         setJsonSelectionArray(jsonDataArray);
-        // setSelectedOptions(jsonDataArray[0].options);
         characterManager.loadTraitsFromNFTObject(jsonDataArray[0]);
       }
     })
     .catch((error) => {
       console.error("Error processing files:", error);
     });
-
-
-
-    // const path = URL.createObjectURL(file,true, ["TYPE", "BRACE", "SET", "SPECIAL_OTHER"]);
-    // characterManager.loadTraitsFromNFT(path);
   }
 
   const handleFilesDrop = async(files) => {
@@ -148,18 +141,6 @@ function Appearance() {
     } 
     if (file && file.name.toLowerCase().endsWith('.json')) {
       handleJsonDrop(files);
-      // getDataArrayFromNFTMetadata(files, templateInfo).then((jsonDataArray)=>{
-      //   if (jsonDataArray.length > 0){
-      //     // This code will run after all files are processed
-      //     setJsonSelectionArray(jsonDataArray);
-      //     setSelectedOptions(jsonDataArray[0].options);
-      //   }
-      // })
-
-
-
-
-      
     } 
   };
 
@@ -168,7 +149,7 @@ function Appearance() {
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
-      setSelectedTrait(characterManager.getCurrentTrait(traitGroup.trait));
+      setSelectedTrait(characterManager.getCurrentTraitData(traitGroup.trait));
       setSelectedVRM(characterManager.getCurrentTraitVRM(traitGroup.trait))
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }

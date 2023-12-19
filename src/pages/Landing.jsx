@@ -23,7 +23,6 @@ function Landing() {
     !isMute && playSound('backNextButton');
   }
 
-
   const loadCharacter = () => {
     setViewMode(ViewMode.LOAD)
     !isMute && playSound('backNextButton');
