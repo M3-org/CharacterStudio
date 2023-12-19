@@ -43,7 +43,14 @@ const createFaceNormals = (geometry) => {
 const createCloneCullMesh = (mesh) => {
     // clone mesh
     const clonedGeometry = mesh.geometry.clone();
-    const clonedMaterial = mesh.material.clone();
+    let clonedMaterial = [];
+    if (Array.isArray(mesh.material)) {
+        for(let i = 0; i < mesh.material.length; i++) {
+            clonedMaterial.push(mesh.material[i].clone());
+        }
+    } else {
+        clonedMaterial = mesh.material.clone();
+    }
 
     
     // vrm0 mesh rotation

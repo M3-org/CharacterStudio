@@ -44,12 +44,14 @@ function Optimizer({
       stdAtlasSize:getAtlasSize(local["mergeOptions_atlas_std_size"] || 6),
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
-      exportMtoonAtlas:(currentOption === 1 || currentOption == 2)
+      exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
+      optimize_to_ktx2: (local["merge_options_ktx_compression"] || false)
     }
   }
 
   const download = () => {
     const vrmData = currentVRM.userData.vrm
+    console.log("VRM DATA:", vrmData);
     downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
   }
 

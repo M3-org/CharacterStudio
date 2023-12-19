@@ -17,6 +17,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
 
   // optimizer
   const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
+  const [ktxCompression, setKtxCompression] = useState(local["merge_options_ktx_compression"] || false);
 
   // creator
   const [createAtlas, setCreateAtlas] = useState(local["mergeOptions_create_atlas"] == null ?  true : local["mergeOptions_create_atlas"])
@@ -24,6 +25,11 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
   const handleDropDownloadEnable = (event) => {
     setDownloadOnDrop(event.target.checked);
     local["mergeOptions_drop_download"] = event.target.checked;
+  }
+
+  const handleKtxCompressionEnable = (event) => {
+    setKtxCompression(event.target.checked);
+    local["merge_options_ktx_compression"] = event.target.checked;
   }
 
   const handleCreateAtlas = (event) => {
@@ -201,6 +207,28 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
           </div>
           </>
         )}
+        <>
+          <div className={styles["traitInfoTitle"]}>
+                KTX Compression
+            </div>
+            <div className={styles["traitInfoText"]}>
+              <div className={styles["checkboxHolder"]}>
+                <div>
+                  </div>
+                  
+                  <label className={styles["custom-checkbox"]}>
+                      <input 
+                          type="checkbox" 
+                          checked={ktxCompression}
+                          onChange={handleKtxCompressionEnable}
+                      />
+                      <div className={styles["checkbox-container"]}></div>
+                  </label>
+                  <div/><div/>
+                  {ktxCompression ? "True": "False"}
+              </div>
+            </div>
+        </>
         </>)}
       </div>
     </div>
