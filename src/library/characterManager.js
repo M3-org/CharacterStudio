@@ -9,6 +9,7 @@ import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
 import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
 import { LipSync } from "./lipsync";
+import { LookAtManager } from "./lookatManager";
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -40,6 +41,7 @@ export class CharacterManager {
         parentModel.add(this.rootModel);
       }
 
+      this.lookAtManager = null;
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
       this.screenshotManager = new ScreenshotManager();
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
@@ -65,6 +67,16 @@ export class CharacterManager {
       helperRoot.renderOrder = 10000;
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
+    }
+
+    addLookAtMouse(screenPrecentage, canvasID){
+      this.lookAtManager = new LookAtManager(screenPrecentage, canvasID);
+      for (const prop in this.avatar){
+        if (this.avatar[prop]?.vrm != null){
+          this.lookAtManager.addVRM(this.avatar[prop].vrm)
+        }
+      }
+      this.lookAtManager.enabled = true;
     }
     
     savePortraitScreenshot(name, width, height){
@@ -480,13 +492,15 @@ export class CharacterManager {
       
       renameVRMBones(vrm);
       
-      // XXX Restore lipsync
+
       if (this.manifestData.isLipsyncTrait(traitID))
         setLipSync(new LipSync(vrm));
       this.blinkManager.addBlinker(vrm);
 
-      // XXX Restore lookat manager
-      //lookatManager.addVRM(vrm)
+      if (this.lookAtManager)
+        this.lookAtManager.addVRM(vrm);
+
+        console.log(this.lookAtManager)
 
       this._modelBaseSetup(vrm, item, traitID, textures, colors);
 
