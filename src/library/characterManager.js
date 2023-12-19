@@ -8,6 +8,7 @@ import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
 import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
+import { LipSync } from "./lipsync";
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -478,10 +479,10 @@ export class CharacterManager {
         saveVRMCollidersToUserData(m);
       
       renameVRMBones(vrm);
-
+      
       // XXX Restore lipsync
-      // if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
-      //   setLipSync(new LipSync(vrm));
+      if (this.manifestData.isLipsyncTrait(traitID))
+        setLipSync(new LipSync(vrm));
       this.blinkManager.addBlinker(vrm);
 
       // XXX Restore lookat manager
@@ -923,6 +924,11 @@ class ManifestData{
     }
     isColliderRequired(groupTraitID){
       if (this.colliderTraits.indexOf(groupTraitID) != -1)
+        return true;
+      return false;
+    }
+    isLipsyncTrait(groupTraitID){
+      if (this.lipSyncTraits.indexOf(groupTraitID) != -1)
         return true;
       return false;
     }
