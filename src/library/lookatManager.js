@@ -8,6 +8,10 @@ export class LookAtManager {
     this.spineBones = []
     this.leftEyeBones = []
     this.rightEyesBones = []
+    this.neckBonesInv = []
+    this.spineBonesInv = []
+    this.leftEyeBonesInv = []
+    this.rightEyesBonesInv = []
     this.curMousePos = new THREE.Vector2()
 
     this.hotzoneSection  = getHotzoneSection()
@@ -66,14 +70,32 @@ export class LookAtManager {
   }
 
   addVRM(vrm){
+    const isVRM0 = vrm.data.isVRM0 || false;
     const bones = vrm.humanoid.humanBones // if vrm0 location of bones is dfferent
-    this.neckBones.push(bones.neck.node)
-    console.log(this.neckBones);
-    this.spineBones.push(bones.spine.node)
-    if (bones.leftEye)
-      this.leftEyeBones.push(bones.leftEye.node)
-    if (bones.rightEye)
-      this.rightEyesBones.push(bones.rightEye.node)
+    if (!isVRM0){
+      bones.neck.node.userData.inverseLookAt = true;
+      bones.spine.node.userData.inverseLookAt = true;
+      if (bones.leftEye)
+        bones.leftEye.node.userData.inverseLookAt = true;
+      if (bones.rightEye)
+        bones.rightEye.node.userData.inverseLookAt = true;
+    }
+    //if (!isVRM0){
+      this.neckBones.push(bones.neck.node)
+      this.spineBones.push(bones.spine.node)
+      if (bones.leftEye)
+        this.leftEyeBones.push(bones.leftEye.node)
+      if (bones.rightEye)
+        this.rightEyesBones.push(bones.rightEye.node)
+    // }
+    // else{
+    //   this.neckBonesInv.push(bones.neck.node)
+    //   this.spineBonesInv.push(bones.spine.node)
+    //   if (bones.leftEye)
+    //     this.leftEyeBonesInv.push(bones.leftEye.node)
+    //   if (bones.rightEye)
+    //     this.rightEyesBonesInv.push(bones.rightEye.node)
+    // }
   }
 
   _getMouseDegrees (x, y, degreeLimit){
@@ -118,12 +140,13 @@ export class LookAtManager {
   }
 
   _moveJoint(joint, degreeLimit){
+    const yMult = joint.userData.inverseLookAt === true ? 1:-1;
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight / 2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit);
       const rotationLerp = 0.8;
       joint.rotation.y = this.lerp(THREE.MathUtils.degToRad(degrees.x), joint.rotation.y, rotationLerp); 
-      joint.rotation.x = this.lerp(THREE.MathUtils.degToRad(degrees.y), joint.rotation.x, rotationLerp);
+      joint.rotation.x = this.lerp(THREE.MathUtils.degToRad(degrees.y *  yMult), joint.rotation.x, rotationLerp);
     }
   }
 

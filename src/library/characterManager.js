@@ -235,9 +235,8 @@ export class CharacterManager {
       if (this.canDownload){
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
-        // XXX screenshot manager
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        this.animationManager.setScale(this.manifestData.exportScale)
+        // this.animationManager.setScale(this.manifestData.exportScale)
         finalOptions.screenshot = this._getPortaitScreenshotTexture(false,512,512);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
       }
@@ -504,6 +503,7 @@ export class CharacterManager {
 
     _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
+      addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
       if (this.manifestData.isColliderRequired(traitID))
         saveVRMCollidersToUserData(m);
