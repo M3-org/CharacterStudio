@@ -18,6 +18,7 @@ export const SceneProvider = (props) => {
   const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
   const [characterManager, setCharacterManager] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
+  const [lookAtManager, setLookAtManager] = useState(null)
   const [scene, setScene] = useState(null)
   //const [characterManifest, setCharacterManifest] = useState(initializeCharacterManifest)
   
@@ -75,6 +76,7 @@ export const SceneProvider = (props) => {
     setScene(scene);
     setCharacterManager(characterManager);
     setAnimationManager(characterManager.animationManager)
+    setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
   },[])
 
@@ -257,6 +259,7 @@ export const SceneProvider = (props) => {
         model,
         setModel,
         animationManager,
+        lookAtManager,
         setAnimationManager,
         camera,
         setCamera,

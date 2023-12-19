@@ -69,14 +69,32 @@ export class CharacterManager {
       this.vrmHelperRoot = helperRoot;
     }
 
-    addLookAtMouse(screenPrecentage, canvasID){
-      this.lookAtManager = new LookAtManager(screenPrecentage, canvasID);
+    update(){
+      if (this.lookAtManager != null){
+        this.lookAtManager.update();
+      }
+    }
+
+    addLookAtMouse(screenPrecentage, canvasID, camera, enable = true){
+      this.lookAtManager = new LookAtManager(screenPrecentage, canvasID, camera);
+      this.lookAtManager.enabled = true;
       for (const prop in this.avatar){
         if (this.avatar[prop]?.vrm != null){
           this.lookAtManager.addVRM(this.avatar[prop].vrm)
         }
       }
-      this.lookAtManager.enabled = true;
+      this.toggleMouseLook(enable)
+    }
+    toggleMouseLook(enable){
+      if (this.lookAtManager != null){
+        this.lookAtManager.setActive(enable);
+        if (this.animationManager){
+          this.animationManager.enableMouseLook(enable);
+        }
+      }
+      else{
+        console.warn("toggleMouseLook() was called, but no lookAtManager exist. Make sure to set it up first with addLookArMous()")
+      }
     }
     
     savePortraitScreenshot(name, width, height){
@@ -500,7 +518,6 @@ export class CharacterManager {
       if (this.lookAtManager)
         this.lookAtManager.addVRM(vrm);
 
-        console.log(this.lookAtManager)
 
       this._modelBaseSetup(vrm, item, traitID, textures, colors);
 

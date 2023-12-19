@@ -3,7 +3,7 @@ import * as THREE from 'three'
 const localVector = new THREE.Vector3();
 
 export class LookAtManager {
-  constructor (screenViewPercentage, canvasID){
+  constructor (screenViewPercentage, canvasID, camera){
     this.neckBones = []
     this.spineBones = []
     this.leftEyeBones = []
@@ -19,7 +19,7 @@ export class LookAtManager {
 
     this.onCanvas = true;
 
-    this.camera = null;
+    this.camera = camera;
     
     this.maxLookPercent = {
       neck: {maxy:15, miny:10,maxx:30, minx:10},
@@ -68,6 +68,7 @@ export class LookAtManager {
   addVRM(vrm){
     const bones = vrm.humanoid.humanBones // if vrm0 location of bones is dfferent
     this.neckBones.push(bones.neck.node)
+    console.log(this.neckBones);
     this.spineBones.push(bones.spine.node)
     if (bones.leftEye)
       this.leftEyeBones.push(bones.leftEye.node)
@@ -130,6 +131,7 @@ export class LookAtManager {
     localVector.set(0, 0, 1);
     localVector.applyQuaternion(this.camera.quaternion);
     const cameraRotationThreshold = localVector.z > 0.; // if camera rotation is not larger than 90
+    
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
       this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
       cameraRotationThreshold && this.enabled && this.userActivated) {

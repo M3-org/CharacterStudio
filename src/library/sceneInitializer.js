@@ -26,7 +26,8 @@ export function sceneInitializer(canvasId) {
 
 
     const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
-    characterManager.addLookAtMouse(80,canvasId);
+    characterManager.addLookAtMouse(80,canvasId, camera, true);
+   
     //"editor-scene"
     const canvasRef = document.getElementById(canvasId);
     const renderer = new THREE.WebGLRenderer({
@@ -63,7 +64,7 @@ export function sceneInitializer(canvasId) {
         requestAnimationFrame(animate);
         controls.target.clamp(minPan, maxPan);
         controls?.update();
-        //lookatManager.update();
+        characterManager.update();
         renderer.render(scene, camera);
     };
 
