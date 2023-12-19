@@ -124,14 +124,12 @@ export async function downloadVRMWithAvatar(model, avatar, fileName, options){
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
   getVRMData(model, avatar, options).then((vrm)=>{
-    console.log(vrm);
     saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
   })
 }
 
 async function getVRMData(model, avatar, options){
   const vrmModel = await getOptimizedGLB(model, options);
-  console.log("dada1", vrmModel, "\ndada2", avatar);
   return parseVRM(vrmModel,avatar,options) 
 }
 
@@ -253,9 +251,7 @@ function parseVRM (glbModel, avatar, options){
       for(let i = 0; i < vrmData.materials.length;i++){
         const material = vrmData.materials[i];
         if (material.map && material.map.isTexture) {
-          console.log(material);
           const textureData = material.map;
-          console.log(textureData);
 
           if (textureData.source && textureData.source.isSource) {
             const oldMimeType = textureData.userData.mimeType;
@@ -266,7 +262,6 @@ function parseVRM (glbModel, avatar, options){
               textureData.source.mimeType = newMimeType;
 
               const bmp = textureData.source;
-              console.log(bmp);
               const canvas = document.createElement('canvas');
               canvas.width = bmp.width;
               canvas.height = bmp.height;
@@ -282,7 +277,6 @@ function parseVRM (glbModel, avatar, options){
         }
       }
     }
-    console.log("vrmData:", vrmData);
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;
