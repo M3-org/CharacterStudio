@@ -82,6 +82,8 @@ export class CharacterManifestData{
       this.modelTraits = [];
       this.modelTraitsMap = null;
       this.createModelTraits(traits);
+
+      console.log(this);
     }
 
     getExportOptions(){
@@ -266,6 +268,17 @@ export class CharacterManifestData{
       });
 
       this.modelTraitsMap = new Map(this.modelTraits.map(item => [item.trait, item]));
+
+      // Updates all restricted traits for each group models
+      this.modelTraits.forEach(modelTrait => {
+        modelTrait.restrictedTraits.forEach(groupTraitID => {
+          const groupModel = this.getModelGroup(groupTraitID);
+          console.log(groupModel);
+          if (groupModel){
+            groupModel.addTraitRestriction(modelTrait.trait);
+          }
+        });
+      });
     }
 
     createTextureTraits(textureTraits, replaceExisting = false){
@@ -287,6 +300,7 @@ export class CharacterManifestData{
 
       this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
     }
+
 }
 
 
@@ -311,7 +325,8 @@ class TraitModelsGroup{
           cullingDistance,
           cullingLayer,
           collection,
-          traitRestrictions = []
+          restrictedTraits = [],
+          restrictedTypes = []
         } = options;
         this.manifestData = manifestData;
         // add is removable?
@@ -321,6 +336,9 @@ class TraitModelsGroup{
         this.iconSvg = iconSvg;
         this.fullIconSvg = manifestData.getTraitIconsDirectorySvg() + iconSvg;
 
+        this.restrictedTraits = restrictedTraits;
+        this.restrictedTypes = restrictedTypes;
+
         this.cameraTarget = cameraTarget;
         this.cullingDistance = cullingDistance;
         this.cullingLayer = cullingLayer;
@@ -328,6 +346,12 @@ class TraitModelsGroup{
         this.collection = [];
         this.collectionMap = null;
         this.createCollection(collection);
+    }
+
+    addTraitRestriction(traitID){
+      if (this.restrictedTraits.indexOf(traitID) == -1){
+        this.restrictedTraits.push(traitID)
+      }
     }
 
     createCollection(itemCollection, replaceExisting = false){

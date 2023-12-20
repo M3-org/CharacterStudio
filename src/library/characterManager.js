@@ -214,8 +214,6 @@ export class CharacterManager {
         exportOptions = exportOptions || {}
         const manifestOptions = this.manifestData.getExportOptions();
         const finalOptions = {...manifestOptions, ...exportOptions};
-        console.log(manifestOptions);
-        console.log(finalOptions);
         finalOptions.isVrm0 = true; // currently vrm1 not supported
         finalOptions.screenshot = this._getPortaitScreenshotTexture(false,finalOptions);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
