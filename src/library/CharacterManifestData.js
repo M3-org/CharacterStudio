@@ -45,7 +45,6 @@ export class CharacterManifestData{
       this.defaultCullingLayer = defaultCullingLayer
       this.defaultCullingDistance = defaultCullingDistance 
       this.offset = offset;
-      // XXX Missing to check this
       this.canDownload = canDownload;
       this.downloadOptions = downloadOptions;
 
@@ -53,6 +52,7 @@ export class CharacterManifestData{
         // Support Old configuration
         downloadOptions.vrmMeta = downloadOptions.vrmMeta || vrmMeta;
         downloadOptions.scale = downloadOptions.scale || exportScale || 1;
+        // New Configturation
         downloadOptions.mToonAtlasSize = downloadOptions.mToonAtlasSize || 2048;
         downloadOptions.mToonAtlasSizeTransp = downloadOptions.mToonAtlasSizeTransp || 1024;
         downloadOptions.stdAtlasSize = downloadOptions.stdAtlasSize || 2048;

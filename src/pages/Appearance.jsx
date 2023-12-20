@@ -309,13 +309,16 @@ function Appearance() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <CustomButton
-          theme="light"
-          text={t('callToAction.next')}
-          size={14}
-          className={styles.buttonRight}
-          onClick={next}
-        />
+        {
+        characterManager.canDownload() &&
+          <CustomButton
+            theme="light"
+            text={t('callToAction.next')}
+            size={14}
+            className={styles.buttonRight}
+            onClick={next}
+          />
+        }
         <CustomButton
           theme="light"
           text={t('callToAction.randomize')}
