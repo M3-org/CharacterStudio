@@ -2,33 +2,49 @@ import React, {useEffect,useState,useContext} from "react"
 import styles from "./JsonAttributes.module.css"
 import { SceneContext } from "../context/SceneContext"
 import MenuTitle from "./MenuTitle"
+import { ViewContext } from "../context/ViewContext"
 
 export default function JsonAttributes({jsonSelectionArray}){
+  const { isLoading, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
   const nextJson = async () => {
-    if (index >= jsonSelectionArray.length -1){
-      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]);
-      setIndex(0);
-    }
-    else{
-      const newIndex = index + 1;
-      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]);
-      setIndex(newIndex);
+    if (!isLoading){
+      setIsLoading(true);
+      if (index >= jsonSelectionArray.length -1){
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(0);
+      }
+      else{
+        const newIndex = index + 1;
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(newIndex);
+      }
     }
   }
   const prevJson = async () => {
-    if (index <= 0){
-      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]);
-      setIndex(jsonSelectionArray.length -1);
-    }
-    else{
-      const newIndex = index-1;
-      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]);
-      setIndex(newIndex);
+    if (!isLoading){
+      setIsLoading(true);
+      if (index <= 0){
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(jsonSelectionArray.length -1);
+      }
+      else{
+        const newIndex = index-1;
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(newIndex);
+      }
     }
   }
   

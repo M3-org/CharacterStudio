@@ -15,7 +15,7 @@ import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 
 function Appearance() {
-  const { isLoading, setViewMode } = React.useContext(ViewContext)
+  const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
     toggleDebugMode,
     characterManager,
@@ -27,6 +27,7 @@ function Appearance() {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { t } = useContext(LanguageContext)
+  
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -49,7 +50,15 @@ function Appearance() {
   }
 
   const randomize = () => {
-    characterManager.loadRandomTraits();
+    setIsLoading(true);
+    setJsonSelectionArray(null);
+    characterManager.loadRandomTraits().then(() => {
+      setIsLoading(false);
+    })
+    .catch((error) => {
+      setIsLoading(false);
+      console.error("Error loading random traits:", error.message);
+    });
   }
 
 
@@ -118,7 +127,10 @@ function Appearance() {
       if (jsonDataArray.length > 0){
         // This code will run after all files are processed
         setJsonSelectionArray(jsonDataArray);
-        characterManager.loadTraitsFromNFTObject(jsonDataArray[0]);
+        setIsLoading(true);
+        characterManager.loadTraitsFromNFTObject(jsonDataArray[0]).then(()=>{
+          setIsLoading(false);
+        })
       }
     })
     .catch((error) => {
@@ -247,6 +259,7 @@ function Appearance() {
                     key={trait.id}
                     className={`${styles["selectorButton"]}`}
                     onClick={() => {
+                      // setIsLoading(true);
                       characterManager.loadTrait(trait.traitGroup.trait, trait.id)
                       setSelectedTrait(trait);
                     }}
