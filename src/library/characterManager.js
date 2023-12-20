@@ -501,10 +501,10 @@ export class CharacterManager {
       this.manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
       this.manifestData = new CharacterManifestData(this.manifest);
     }
-    getCurrentOptimizerCharacter(){
+    getCurrentOptimizerCharacterModel(){
       return this.avatar["CUSTOM"]?.vrm;
     }
-    
+
     /**
      * Loads an optimized character based on a custom trait URL.
      *

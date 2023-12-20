@@ -62,13 +62,13 @@ function Optimizer() {
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const curVRM = characterManager.getCurrentOptimizerCharacter();
+    const curVRM = characterManager.getCurrentOptimizerCharacterModel();
     if (curVRM){
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, true, "", animName);
-      animationManager.startAnimation(characterManager.getCurrentOptimizerCharacter());
+      animationManager.startAnimation(characterManager.getCurrentOptimizerCharacterModel());
 
       URL.revokeObjectURL(url);
     }
