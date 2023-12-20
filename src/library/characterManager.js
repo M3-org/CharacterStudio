@@ -26,8 +26,7 @@ export class CharacterManager {
         parentModel = null,
         renderCamera = null,
         createAnimationManager = true,
-        manifestURL = null,
-        canDownload = true
+        manifestURL = null
       }= options;
 
      
@@ -52,13 +51,11 @@ export class CharacterManager {
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
 
-      this.canDownload = canDownload;
-
       this.manifestData = null;
       this.manifest = null
       if (manifestURL){
          this.loadManifest(manifestURL)
-         this.animationManager.setScale(this.manifestData.exportScale)
+         this.animationManager.setScale(this.manifestData.displayScale)
       }
       
       this.avatar = {};   // Holds information of traits within the avatar
@@ -209,12 +206,18 @@ export class CharacterManager {
       this.manifestData = null;
       this.animationManager.clearCurrentAnimations();
     }
+    canDownload(){
+      return this.manifestData?.canDownload || true;
+    }
     downloadVRM(name, exportOptions = null){
-      if (this.canDownload){
+      if (this.canDownload()){
         exportOptions = exportOptions || {}
-        const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
+        const manifestOptions = this.manifestData.getExportOptions();
+        const finalOptions = {...manifestOptions, ...exportOptions};
+        console.log(manifestOptions);
+        console.log(finalOptions);
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        finalOptions.screenshot = this._getPortaitScreenshotTexture(false,512,512);
+        finalOptions.screenshot = this._getPortaitScreenshotTexture(false,finalOptions);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
       }
       else{
@@ -223,7 +226,7 @@ export class CharacterManager {
     }
     downloadGLB(name, exportOptions = null){
       console.log("XXX fix glb downloader");
-      if (this.canDownload){
+      if (this.canDownload()){
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         downloadGLB(this.characterModel, name, finalOptions);
@@ -574,7 +577,7 @@ export class CharacterManager {
               await this._animationManagerSetup(
                 this.manifest.animationPath,
                 this.manifest.assetsLocation,
-                this.manifestData.exportScale
+                this.manifestData.displayScale
               );
             }
 
@@ -633,7 +636,7 @@ export class CharacterManager {
         return data
     }
 
-    _getPortaitScreenshotTexture(getBlob, width, height){
+    _getPortaitScreenshotTexture(getBlob, options){
       this.blinkManager.enableScreenshot();
 
       this.characterModel.traverse(o => {
@@ -643,8 +646,20 @@ export class CharacterManager {
         }
       });
       // XXX save variables in manifest to store face distance and field of view.
-      localVector3.z += 0.3;
-      this.screenshotManager.setCamera(localVector3, 0.83);
+
+      const {
+        screenshotResolution,
+        screenshotFaceDistance,
+        screenshotFOV
+      } = options
+      const width = screenshotResolution[0];
+      const height = screenshotResolution[1];
+
+      localVector3.x += screenshotFaceDistance.x;
+      localVector3.y += screenshotFaceDistance.y;
+      localVector3.z += screenshotFaceDistance.z;
+      
+      this.screenshotManager.setCamera(localVector3, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
@@ -855,7 +870,7 @@ export class CharacterManager {
       }
     }
     _positionModel(model){
-      const scale = this.manifestData.exportScale;
+      const scale = this.manifestData.displayScale;
         model.scene.scale.set(scale,scale,scale);
 
       // Move depending on manifest definition

@@ -9,6 +9,7 @@ export class CharacterManifestData{
         traitIconsDirectorySvg,
         animationPath,
         exportScale,
+        displayScale,
         requiredTraits,
         randomTraits,
         colliderTraits,
@@ -20,18 +21,18 @@ export class CharacterManifestData{
         defaultCullingDistance,
         offset,
         vrmMeta,
-
         traits,
         textureCollections,
-        colorCollections
-
+        colorCollections,
+        canDownload = true,
+        downloadOptions = {}
       }= manifest;
 
       this.assetsLocation = assetsLocation;
       this.traitsDirectory = traitsDirectory;
       this.thumbnailsDirectory = thumbnailsDirectory;
       this.traitIconsDirectorySvg = traitIconsDirectorySvg;
-      this.exportScale = exportScale || 1;
+      this.displayScale = displayScale || exportScale || 1;
       this.animationPath = getAsArray(animationPath);
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
@@ -44,7 +45,30 @@ export class CharacterManifestData{
       this.defaultCullingLayer = defaultCullingLayer
       this.defaultCullingDistance = defaultCullingDistance 
       this.offset = offset;
-      this.vrmMeta = vrmMeta;
+      // XXX Missing to check this
+      this.canDownload = canDownload;
+      this.downloadOptions = downloadOptions;
+
+      const defaultOptions = () =>{
+        // Support Old configuration
+        downloadOptions.vrmMeta = downloadOptions.vrmMeta || vrmMeta;
+        downloadOptions.scale = downloadOptions.scale || exportScale || 1;
+        downloadOptions.mToonAtlasSize = downloadOptions.mToonAtlasSize || 2048;
+        downloadOptions.mToonAtlasSizeTransp = downloadOptions.mToonAtlasSizeTransp || 1024;
+        downloadOptions.stdAtlasSize = downloadOptions.stdAtlasSize || 2048;
+        downloadOptions.stdAtlasSizeTransp = downloadOptions.stdAtlasSizeTransp || 1024;
+        downloadOptions.exportStdAtlas = downloadOptions.exportStdAtlas || false;
+        downloadOptions.exportMtoonAtlas = downloadOptions.exportMtoonAtlas || true;
+        downloadOptions.screenshotFaceDistance = downloadOptions.screenshotFaceDistance || [0,0,0.3];
+        downloadOptions.screenshotResolution = downloadOptions.screenshotResolution || [512,512];
+        downloadOptions.screenshotFOV = downloadOptions.screenshotFOV || 75;
+
+        if (!downloadOptions.exportStdAtlas && !downloadOptions.exportMtoonAtlas){
+          downloadOptions.exportMtoonAtlas = true;
+        }
+      }
+      defaultOptions();
+
 
       // create texture and color traits first
       this.textureTraits = [];
@@ -61,16 +85,7 @@ export class CharacterManifestData{
     }
 
     getExportOptions(){
-      return {
-        // XXX Add this options to manifest data
-        // mToonAtlasSize:2048,
-        // mToonAtlasSizeTransp:2048,
-        // stdAtlasSize:2048,
-        // stdAtlasSizeTransp:2048,
-        // exportStdAtlas:false,
-        scale:this.exportScale||1,
-        vrmMeta:this.vrmMeta
-      }
+      return this.downloadOptions;
     }
 
     getGroupModelTraits(){
@@ -273,6 +288,18 @@ export class CharacterManifestData{
       this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
     }
 }
+
+
+// "traitRestrictions":{
+//   "outer":{
+//     "restrictedTraits":[],
+//     "restrictedTypes":["hoodie","solo", "accessory_top"]
+//   }
+// },
+// "typeRestrictions":{
+//     "pants":["boots", "accessory_bottom"]
+// },
+
 // Must be created AFTER color collections and texture collections have been created
 class TraitModelsGroup{
     constructor(manifestData, options){
@@ -283,7 +310,8 @@ class TraitModelsGroup{
           cameraTarget = { distance:3 , height:1 },
           cullingDistance,
           cullingLayer,
-          collection
+          collection,
+          traitRestrictions = []
         } = options;
         this.manifestData = manifestData;
         // add is removable?
@@ -532,60 +560,61 @@ class SelectedOption{
 
 
 
-//  const getRestrictions = () => {
+ const getRestrictions = () => {
 
-//     const traitRestrictions = templateInfo.traitRestrictions // can be null
-//     const typeRestrictions = {};
+    const traitRestrictions = templateInfo.traitRestrictions // can be null
+    const typeRestrictions = {};
 
-//     for (const prop in traitRestrictions){
+    for (const prop in traitRestrictions){
 
-//       // create the counter restrcitions traits
-//       getAsArray(traitRestrictions[prop].restrictedTraits).map((traitName)=>{
+      // create the counter restrcitions traits
+      getAsArray(traitRestrictions[prop].restrictedTraits).map((traitName)=>{
 
-//         // check if the trait restrictions exists for the other trait, if not add it
-//         if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
-//         // make sure to have an array setup, if there is none, create a new empty one
-//         if (traitRestrictions[traitName].restrictedTraits == null) traitRestrictions[traitName].restrictedTraits = []
+        // check if the trait restrictions exists for the other trait, if not add it
+        if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
+        // make sure to have an array setup, if there is none, create a new empty one
+        if (traitRestrictions[traitName].restrictedTraits == null) traitRestrictions[traitName].restrictedTraits = []
 
-//         // finally merge existing and new restrictions
-//         traitRestrictions[traitName].restrictedTraits = [...new Set([
-//           ...traitRestrictions[traitName].restrictedTraits ,
-//           ...[prop]])]  // make sure to add prop as restriction
-//       })
+        // finally merge existing and new restrictions
+        traitRestrictions[traitName].restrictedTraits = [...new Set([
+          ...traitRestrictions[traitName].restrictedTraits ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
 
-//       // do the same for the types
-//       getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
-//         //notice were adding the new data to typeRestrictions and not trait
-//         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
-//         //create the restricted trait in this type
-//         if (typeRestrictions[typeName].restrictedTraits == null) typeRestrictions[typeName].restrictedTraits = []
+      // do the same for the types
+      getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
+        //notice were adding the new data to typeRestrictions and not trait
+        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+        //create the restricted trait in this type
+        if (typeRestrictions[typeName].restrictedTraits == null) typeRestrictions[typeName].restrictedTraits = []
 
-//         typeRestrictions[typeName].restrictedTraits = [...new Set([
-//           ...typeRestrictions[typeName].restrictedTraits ,
-//           ...[prop]])]  // make sure to add prop as restriction
-//       })
-//     }
+        typeRestrictions[typeName].restrictedTraits = [...new Set([
+          ...typeRestrictions[typeName].restrictedTraits ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
+    }
 
-//     // now merge defined type to type restrictions
-//     for (const prop in templateInfo.typeRestrictions){
-//       // check if it already exsits
-//       if (typeRestrictions[prop] == null) typeRestrictions[prop] = {}
-//       if (typeRestrictions[prop].restrictedTypes == null) typeRestrictions[prop].restrictedTypes = []
-//       typeRestrictions[prop].restrictedTypes = [...new Set([
-//         ...typeRestrictions[prop].restrictedTypes ,
-//         ...getAsArray(templateInfo.typeRestrictions[prop])])]  
+    // now merge defined type to type restrictions
+    for (const prop in templateInfo.typeRestrictions){
+      // check if it already exsits
+      if (typeRestrictions[prop] == null) typeRestrictions[prop] = {}
+      if (typeRestrictions[prop].restrictedTypes == null) typeRestrictions[prop].restrictedTypes = []
+      typeRestrictions[prop].restrictedTypes = [...new Set([
+        ...typeRestrictions[prop].restrictedTypes ,
+        ...getAsArray(templateInfo.typeRestrictions[prop])])]  
 
-//       // now that we have setup the type restrictions, lets counter create for the other traits
-//       getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
-//         // prop = boots
-//         // typeName = pants
-//         if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
-//         if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
-//         typeRestrictions[typeName].restrictedTypes = [...new Set([
-//           ...typeRestrictions[typeName].restrictedTypes ,
-//           ...[prop]])]  // make sure to add prop as restriction
-//       })
-//     }
+      // now that we have setup the type restrictions, lets counter create for the other traits
+      getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
+        // prop = boots
+        // typeName = pants
+        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
+        if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
+        typeRestrictions[typeName].restrictedTypes = [...new Set([
+          ...typeRestrictions[typeName].restrictedTypes ,
+          ...[prop]])]  // make sure to add prop as restriction
+      })
+    }
+  }
 
     // _filterRestrictedOptions(options){
     //     let removeTraits = [];
