@@ -57,7 +57,7 @@ export class CharacterManager {
       this.manifestData = null;
       this.manifest = null
       if (manifestURL){
-         await this.loadManifest(manifestURL)
+         this.loadManifest(manifestURL)
          this.animationManager.setScale(this.manifestData.exportScale)
       }
       
@@ -193,7 +193,6 @@ export class CharacterManager {
       }
       restoreCullIndicesAndColliders();
     }
-
     removeCurrentCharacter(){
       const clearTraitData = []
       for (const prop in this.avatar){
@@ -242,13 +241,22 @@ export class CharacterManager {
     getCurrentCharacterModel(){
       return this.characterModel;
     }
+    /**
+     * Checks if a trait group is marked as required in the manifest data.
+     *
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @returns {boolean} Returns true if the trait group is marked as required, otherwise false.
+     */
+    isTraitGroupRequired(groupTraitID) {
+      // Retrieve the trait group from the manifest data based on the provided ID
+      const groupTrait = this.manifestData.getModelGroup(groupTraitID);
 
-    // returns wether or not the trait group can be removed
-    isTraitGroupRequired(groupTraitID){
-      const groupTrait = this.manifestData.getModelGroup(groupTraitID)
-      if (groupTrait?.isRequired){
+      // Check if the trait group exists and is marked as required
+      if (groupTrait?.isRequired) {
         return true;
       }
+
+      // The trait group is either not found or not marked as required
       return false;
     }
     
@@ -532,15 +540,50 @@ export class CharacterManager {
     loadOptimizerCharacter(url) {
       return this.loadCustomTrait("CUSTOM", url);
     }
-    async loadManifest(url){
-      this.manifest = await this._fetchManifest(url)
-      if (this.manifest){
-        this.manifestData = new CharacterManifestData(this.manifest);
-        if (this.animationManager)
-          await this._animationManagerSetup(this.manifest.animationPath, this.manifest.assetsLocation, this.manifestData.exportScale)
-      }
+
+    /**
+     * Loads the manifest data for the character.
+     *
+     * @param {string} url - The URL of the manifest.
+     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     *                         or rejects with an error message if loading fails.
+     */
+    loadManifest(url) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch the manifest data asynchronously
+          this.manifest = await this._fetchManifest(url);
+
+          // Check if the manifest was successfully fetched
+          if (this.manifest) {
+            // Create a CharacterManifestData instance based on the fetched manifest
+            this.manifestData = new CharacterManifestData(this.manifest);
+
+            // If an animation manager is available, set it up
+            if (this.animationManager) {
+              await this._animationManagerSetup(
+                this.manifest.animationPath,
+                this.manifest.assetsLocation,
+                this.manifestData.exportScale
+              );
+            }
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } else {
+            // The manifest could not be fetched, reject the Promise with an error message
+            const errorMessage = "Failed to fetch or parse the manifest.";
+            console.error(errorMessage);
+            reject(new Error(errorMessage));
+          }
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error loading manifest:", error.message);
+          reject(new Error("Failed to load the manifest."));
+        }
+      });
     }
-    // 
+
     async _loadTraits(options, fullAvatarReplace = false){
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){

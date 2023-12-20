@@ -44,11 +44,15 @@ function Create() {
 
   const selectClass = async (index) => {
     setIsLoading(true)
-    await characterManager.loadManifest(manifest[index].manifest);
-    characterManager.loadInitialTraits().then(()=>{
-      setIsLoading(false)
+    // Load manifest first
+    characterManager.loadManifest(manifest[index].manifest).then(()=>{
+      setViewMode(ViewMode.APPEARANCE)
+      // When Manifest is Loaded, load initial traits from given manifest
+      characterManager.loadInitialTraits().then(()=>{
+        setIsLoading(false)
+        
+      })
     })
-    setViewMode(ViewMode.APPEARANCE)
     !isMute && playSound('classSelect');
 
   }
