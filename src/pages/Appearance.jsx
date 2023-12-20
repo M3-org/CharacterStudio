@@ -8,7 +8,6 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
-import { getTraitOption } from "../library/option-utils"
 import MenuTitle from "../components/MenuTitle"
 import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
@@ -18,7 +17,7 @@ import cancel from "../images/cancel.png"
 function Appearance() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    toggleDebugMNode,
+    toggleDebugMode,
     characterManager,
     animationManager,
     moveCamera
@@ -55,7 +54,7 @@ function Appearance() {
 
 
   const debugMode = () =>{
-    toggleDebugMNode()
+    toggleDebugMode()
   }
 
   const handleAnimationDrop = async (file) => {

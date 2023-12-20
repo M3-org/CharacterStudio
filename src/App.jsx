@@ -24,8 +24,7 @@ import LanguageSwitch from "./components/LanguageSwitch"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
-const peresonalityImportPath =
-  import.meta.env.VITE_ASSET_PATH + "/personality.json"
+const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
@@ -75,13 +74,11 @@ async function fetchAll() {
   const initialManifest = await fetchManifest(assetImportPath)
   const personality = await fetchPersonality()
 
-  const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
 
   return {
     initialManifest,
     personality,
-    lookatManager,
     effectManager,
   }
 }
@@ -120,20 +117,17 @@ export default function App() {
   const {
     initialManifest,
     personality,
-    lookatManager,
     effectManager,
-    //characterManager
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
-  //const [animationManager, setAnimationManager] = useState({})
-
   const {
     camera,
     controls,
     scene,
     moveCamera,
     setManifest,
+    lookAtManager
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
@@ -223,10 +217,7 @@ export default function App() {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
       <Appearance
-        lookatManager={lookatManager}
-        //effectManager={effectManager}
         confirmDialog={confirmDialog}
-        //characterManager = {characterManager}
       />
     ),
     [ViewMode.OPTIMIZER]:<Optimizer/>,
@@ -262,9 +253,9 @@ export default function App() {
   useEffect(() => {
     updateCameraPosition()
     if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-      lookatManager.enabled = false
+      lookAtManager.enabled = false
     } else {
-      lookatManager.enabled = true
+      lookAtManager.enabled = true
     }
     window.addEventListener("resize", updateCameraPosition)
     return () => {

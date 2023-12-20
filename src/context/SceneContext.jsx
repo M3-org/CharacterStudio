@@ -1,10 +1,4 @@
 import React, { createContext, useEffect, useState } from "react"
-import { disposeVRM } from "../library/utils"
-import * as THREE from "three"
-import {
-  getRandomizedTemplateOptions,
-  getOptionsFromAvatarData
-} from "../library/option-utils"
 
 import gsap from "gsap"
 import { local } from "../library/store"
@@ -21,10 +15,7 @@ export const SceneProvider = (props) => {
   const [camera, setCamera] = useState(null)
   const [controls, setControls] = useState(null)
 
-  // XXX cleanup
-
   const [manifest, setManifest] = useState(null)
-
   const [debugMode, setDebugMode] = useState(false);
 
   let loaded = false
@@ -51,7 +42,7 @@ export const SceneProvider = (props) => {
   },[])
 
 
-  const toggleDebugMNode = (isDebug) => {
+  const toggleDebugMode = (isDebug) => {
     if (isDebug == null)
       isDebug = !debugMode;
 
@@ -64,8 +55,6 @@ export const SceneProvider = (props) => {
       }
     });
   }
-
-
 
   const moveCamera = (value) => {
     if (!controls) return
@@ -101,7 +90,7 @@ export const SceneProvider = (props) => {
         controls.minPolarAngle = 0
         controls.maxPolarAngle = 3.1415
         controls.minDistance = 0.5
-        controls.maxDistance = 5
+        controls.maxDistance = 10
         controls.minAzimuthAngle = Infinity
         controls.maxAzimuthAngle = Infinity
       })
@@ -110,15 +99,12 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
-        
         manifest,
         setManifest,
         scene,
-        setScene,
         characterManager,
-
         debugMode,
-        toggleDebugMNode,
+        toggleDebugMode,
         animationManager,
         lookAtManager,
         camera,
