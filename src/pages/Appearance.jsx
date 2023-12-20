@@ -75,8 +75,11 @@ function Appearance() {
 
   const handleImageDrop = (file) => {
     if (traitGroupName != ""){
+      setIsLoading(true);
       const path = URL.createObjectURL(file);
-      characterManager.loadCustomTexture(traitGroupName, path);
+      characterManager.loadCustomTexture(traitGroupName, path).then(()=>{
+        setIsLoading(false);
+      })
     }
     else{
       console.warn("Please select a group trait first.")

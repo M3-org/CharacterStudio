@@ -467,15 +467,33 @@ export class CharacterManager {
       });
     }
 
-    async loadCustomTexture(groupTraitID, url){
-      const model = this.avatar[groupTraitID]?.model;
-      if (model){
-        setTextureToChildMeshes(model,url)
-      }
-      else{
-        console.warn("No Group Trait with name " + groupTraitID + " was found.")
-      }
+    /**
+     * Loads a custom texture to the specified group trait's model.
+     *
+     * @param {string} groupTraitID - The ID of the group trait.
+     * @param {string} url - The URL of the custom texture.
+     * @returns {Promise<void>} A Promise that resolves when the texture is successfully loaded,
+     *                         or rejects with an error message if the group trait is not found.
+     */
+    loadCustomTexture(groupTraitID, url) {
+      return new Promise(async (resolve, reject) => {
+        const model = this.avatar[groupTraitID]?.model;
+
+        if (model) {
+          // Set the texture to child meshes of the model
+          await setTextureToChildMeshes(model, url);
+
+          // Resolve the Promise (without a value, as you mentioned it's not needed)
+          resolve();
+        } else {
+          // Group trait not found, log a warning and reject the Promise
+          const errorMessage = "No Group Trait with name " + groupTraitID + " was found.";
+          console.warn(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
+
 
     removeTrait(groupTraitID, forceRemove = false){
       if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){

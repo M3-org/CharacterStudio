@@ -40,13 +40,9 @@ export async function setTextureToChildMeshes(scene, url){
           materials[i].emissiveMap = texture
         }
         materials[i].needsUpdate = true
-
       }
     }
   });
-
-  // get all mesh children from scene and apply texture to standard material
-
 }
 
 export function getFileNameWithoutExtension(filePath) {
