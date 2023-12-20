@@ -2,7 +2,6 @@ import React, { useContext } from "react"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "./custom-button"
 
-import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { getAtlasSize } from "../library/utils"
 
 import styles from "./ExportMenu.module.css"
@@ -32,9 +31,13 @@ export const ExportMenu = () => {
     }
   }
 
-  const downloadModel = () =>{
+  const downloadVRM = () =>{
     const options = getOptions();
     characterManager.downloadVRM(name, options);
+  }
+  const downloadGLB = () =>{
+    const options = getOptions();
+    characterManager.downloadGLB(name, options);
   }
 
   return (
@@ -46,17 +49,7 @@ export const ExportMenu = () => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model, true, name)
-        }}
-      />
-      <CustomButton
-        theme="light"
-        text={`GLB (${t('text.unoptimized')})`}
-        icon="download"
-        size={14}
-        className={styles.button}
-        onClick={() => {
-          downloadGLB(model, false, name)
+          downloadGLB()
         }}
       />
       <CustomButton
@@ -65,7 +58,7 @@ export const ExportMenu = () => {
         icon="download"
         size={14}
         className={styles.button}
-        onClick={downloadModel}
+        onClick={downloadVRM}
       />
     </React.Fragment>
   )

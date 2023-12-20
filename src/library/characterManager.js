@@ -214,9 +214,19 @@ export class CharacterManager {
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
         finalOptions.isVrm0 = true; // currently vrm1 not supported
-        // this.animationManager.setScale(this.manifestData.exportScale)
         finalOptions.screenshot = this._getPortaitScreenshotTexture(false,512,512);
         downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
+      }
+      else{
+        console.error("Download not supported");
+      }
+    }
+    downloadGLB(name, exportOptions = null){
+      console.log("XXX fix glb downloader");
+      if (this.canDownload){
+        exportOptions = exportOptions || {}
+        const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
+        downloadGLB(this.characterModel, name, finalOptions);
       }
       else{
         console.error("Download not supported");

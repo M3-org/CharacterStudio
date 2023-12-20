@@ -50,7 +50,6 @@ function Create() {
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{
         setIsLoading(false)
-        
       })
     })
     !isMute && playSound('classSelect');
