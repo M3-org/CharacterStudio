@@ -9,7 +9,7 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function Create({fetchCharacterManifest}) {
+function Create() {
   
   // Translate hook
   const {t} = useContext(LanguageContext);
@@ -43,20 +43,9 @@ function Create({fetchCharacterManifest}) {
   }
 
   const selectClass = async (index) => {
-    console.log(manifest[index].manifest)
     await characterManager.loadManifest(manifest[index].manifest);
     characterManager.loadInitialTraits();
-    //console.log(characterManager.manifestData);
-    
-
-
-    fetchCharacterManifest(index).then(()=>{
-      // XXX charaacterManager take it out from here when ready
-      // missing setAwaitDisplay
-      // missing reset avatar
-      // check fetchCharacterManifest222
-      setViewMode(ViewMode.APPEARANCE)
-    })
+    setViewMode(ViewMode.APPEARANCE)
     !isMute && playSound('classSelect');
 
   }

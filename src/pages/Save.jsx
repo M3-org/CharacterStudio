@@ -9,23 +9,19 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import MergeOptions from "../components/MergeOptions"
 import FileDropComponent from "../components/FileDropComponent"
-import { SceneContext } from "../context/SceneContext"
 
 
-function Save({getFaceScreenshot}) {
+function Save() {
 
   // Translate hook
   const { t } = useContext(LanguageContext);
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext);
-  const {
-    templateInfo,
-  } = React.useContext(SceneContext)
 
 
   const back = () => {
-    setViewMode(ViewMode.BIO)
+    setViewMode(ViewMode.APPEARANCE)
     !isMute && playSound('backNextButton');
   }
   const mint = () => {

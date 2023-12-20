@@ -1,18 +1,13 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-
 import { SceneContext } from "./context/SceneContext"
 import { LanguageContext } from "./context/LanguageContext"
 import { ViewMode, ViewContext } from "./context/ViewContext"
-
-import { getAsArray } from "./library/utils"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
 //import { AnimationManager } from "./library/animationManager"
 import MessageWindow from "./components/MessageWindow"
-import { local } from "./library/store"
 
 import Background from "./components/Background"
 
@@ -26,9 +21,6 @@ import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
-
-import { CharacterManager } from "./library/characterManager"
-
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -140,15 +132,9 @@ export default function App() {
     camera,
     controls,
     scene,
-    resetAvatar,
-    setAwaitDisplay,
-    setTemplateInfo,
-    setManifestSelectionIndex,
     templateInfo,
     moveCamera,
     setManifest,
-    manifest,
-    model,
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
@@ -233,20 +219,6 @@ export default function App() {
     setConfirmDialogCallback([callback])
   }
 
-  const fetchCharacterManifest = (index) => {
-    setAwaitDisplay(true)
-    resetAvatar()
-    return new Promise((resolve) => {
-      asyncResolve()
-      async function asyncResolve() {
-        const characterManifest = await fetchManifest(manifest[index].manifest);
-        setTemplateInfo(characterManifest)
-        setManifestSelectionIndex(index)
-        resolve(characterManifest)
-      }
-    })
-  }
-
   // map current app mode to a page
   const pages = {
     [ViewMode.LANDING]: <Landing />,
@@ -262,7 +234,7 @@ export default function App() {
     [ViewMode.BIO]: (
       <BioPage personality={personality} />
     ),
-    [ViewMode.CREATE]: <Create fetchCharacterManifest={fetchCharacterManifest}/>,
+    [ViewMode.CREATE]: <Create />,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,

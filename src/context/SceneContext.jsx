@@ -23,11 +23,7 @@ export const SceneProvider = (props) => {
 
   // XXX cleanup
 
-  const [selectedOptions, setSelectedOptions] = useState([])
-  const [removeOption, setRemoveOption] = useState(false)
-  const [awaitDisplay, setAwaitDisplay] = useState(false)
 
-  const [colorStatus, setColorStatus] = useState("")
   const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
   const [avatar, _setAvatar] = useState(null)
 
@@ -207,8 +203,6 @@ export const SceneProvider = (props) => {
     <SceneContext.Provider
       value={{
         
-        awaitDisplay, 
-        setAwaitDisplay,
         templateInfo,
         setTemplateInfo,
         blinkManager,
@@ -232,20 +226,14 @@ export const SceneProvider = (props) => {
 
         debugMode,
         toggleDebugMNode,
-        setSelectedOptions,
         getRandomCharacter,
         saveUserSelection,
         loadUserSelection,
-        selectedOptions,
-        setRemoveOption,
-        removeOption,
         animationManager,
         lookAtManager,
         setAnimationManager,
         camera,
         setCamera,
-        colorStatus,
-        setColorStatus,
         skinColor,
         setSkinColor,
         avatar,

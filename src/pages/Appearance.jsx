@@ -46,7 +46,7 @@ function Appearance() {
 
   const next = () => {
     !isMute && playSound('backNextButton');
-    setViewMode(ViewMode.BIO);
+    setViewMode(ViewMode.SAVE);
   }
 
   const randomize = () => {
