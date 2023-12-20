@@ -140,7 +140,7 @@ export class CharacterManifestData{
         if (traitSelectedOption)
           selectedOptions.push(traitSelectedOption)
       });
-      return selectedOptions;
+      return this.filterTraitOptions(selectedOptions);
     }
 
     getRandomTrait(groupTraitID){
@@ -179,6 +179,31 @@ export class CharacterManifestData{
         return new SelectedOption(trait,traitTexture, traitColor);
       }
       return null;
+    }
+
+    // XXX filtering will only work now when multiple options are selected
+    filterTraitOptions(selectedOptions){
+      const finalOptions = []
+      const filteredOptions = []
+      for (let i = 0 ; i < selectedOptions.length ; i++){
+        const trait = selectedOptions[i].traitModel;
+        let isRestricted = false;
+        
+        for (let j =0; j < finalOptions.length;j++){
+          const traitCompare = finalOptions[j].traitModel;
+          isRestricted = trait.isRestricted(traitCompare);
+          if (isRestricted)
+            break;
+        }
+        if (!isRestricted)
+          finalOptions.push(selectedOptions[i])
+        else
+          filteredOptions.push(selectedOptions[i])
+      }
+      if (filteredOptions.length > 0){
+        console.log("options were filtered to fullfill restrictions: ", filteredOptions);
+      }
+      return finalOptions;
     }
 
     getCustomTraitOption(groupTraitID, url){
@@ -329,7 +354,7 @@ class TraitModelsGroup{
           restrictedTypes = []
         } = options;
         this.manifestData = manifestData;
-        // add is removable?
+
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
         this.name = name;
@@ -485,6 +510,7 @@ class ModelTrait{
           fullDirectory,
           fullThumbnail,
       }= options;
+      this.manifestData = traitGroup.manifestData;
       this.traitGroup = traitGroup;
 
       this.id = id;
@@ -522,6 +548,36 @@ class ModelTrait{
       if (this.targetTextureCollection)
         console.log(this.targetTextureCollection);
   }
+  isRestricted(targetModelTrait){
+    if (targetModelTrait == null)
+      return false;
+
+    const groupTraitID = targetModelTrait.traitGroup.trait;
+    if (this.traitGroup.restrictedTraits.indexOf(groupTraitID) != -1)
+      return true;
+
+    if (this.type.length > 0 && this.manifestData.restrictedTypes > 0){
+
+      haveCommonValue = (arr1, arr2) => {
+        if (arr1 == null || arr2 == null)
+          return false;
+        for (let i = 0; i < arr1.length; i++) {
+          if (arr2.includes(arr1[i])) {
+            return true; // Found a common value
+          }
+        }
+        return false; // No common value found
+      }
+
+      const restrictedTypes = this.manifestData.restrictedTypes;
+      traitTypes = getAsArray(trait.type);
+      this.type.forEach(type => {
+        return haveCommonValue(restrictedTypes[type], traitTypes)
+      });
+    }
+    return false;
+  }
+
 }
 class TextureTrait{
   constructor(traitGroup, options){
