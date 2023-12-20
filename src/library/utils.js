@@ -14,20 +14,6 @@ export function getAsArray(target) {
   return Array.isArray(target) ? target : [target]
 }
 
-export async function prepareModel(templateInfo){
-  // check the local storage for a JSON of the model
-  // if it exists, load it
-
-  // if it doesn't exist, fetch the first trait for each category from the server
-  // grab the first trait for each category
-  const traits = templateInfo.traits.map((category) => {
-    return category.traits[0]
-  })
-
-  const returnedTraits = await Promise.all(traits.map((trait) => {
-    return loadModel(trait)
-  }));
-}
 export async function setTextureToChildMeshes(scene, url){
   const textureLoader = new THREE.TextureLoader();
 

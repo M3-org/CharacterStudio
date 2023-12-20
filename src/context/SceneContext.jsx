@@ -19,28 +19,11 @@ export const SceneProvider = (props) => {
   const [lookAtManager, setLookAtManager] = useState(null)
   const [scene, setScene] = useState(null)
   const [camera, setCamera] = useState(null)
-
+  const [controls, setControls] = useState(null)
 
   // XXX cleanup
 
-
-  const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
-  const [avatar, _setAvatar] = useState(null)
-
-  const [blinkManager, setBlinkManager] = useState(null)
-
-  const [controls, setControls] = useState(null)
-
-  const [lipSync, setLipSync] = useState(null)
-
-  const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
-
-  const [templateInfo, setTemplateInfo] = useState() 
   const [manifest, setManifest] = useState(null)
-  const [manifestSelectionIndex, setManifestSelectionIndex] = useState(null)
-  const [sceneModel, setSceneModel] = useState(null)
-
-  const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
 
   const [debugMode, setDebugMode] = useState(false);
 
@@ -67,9 +50,6 @@ export const SceneProvider = (props) => {
     setControls(controls);
   },[])
 
-  const setAvatar = (state) => {
-    _setAvatar(state)
-  }
 
   const toggleDebugMNode = (isDebug) => {
     if (isDebug == null)
@@ -84,80 +64,8 @@ export const SceneProvider = (props) => {
       }
     });
   }
-  const loadAvatar = (avatarData) =>{
-    const data = getOptionsFromAvatarData(avatarData,manifest)
-    if (data != null){
-      resetAvatar();
-      setSelectedOptions(data);
-    }
-  }
-  const loadAvatarFromLocalStorage = (loadName) =>{
-    const avatarData = local[`${templateInfo.id}12223_${loadName}`]
-    console.log(avatarData)
-    if (avatarData){
-      loadAvatar(avatarData);
-    }
-    else{
-      console.log("no local storage for " + loadName + " was found")
-    }
-  }
-  const getSelectedCharacterBaseData = () => {
-    return manifest[manifestSelectionIndex];
-  }
-  const saveAvatarToLocalStorage = (saveName) =>{
-    const saveAvatar = getSaveAvatar()
-    local[`${templateInfo.id}12223_${saveName}`] = saveAvatar
-  }
-  const getSaveAvatar = () => {
-    // saves the current avatar, it also saves the class
-    const avatarJson = {}
-    templateInfo.traits.forEach(trait => {
-      const prop = trait.trait;
-      avatarJson[prop] = {
-        traitInfo: avatar[prop]?.traitInfo,
-        textureInfo: avatar[prop]?.textureInfo,
-        colorInfo: avatar[prop]?.colorInfo,
-      }
-    });
-    avatarJson.class = templateInfo.id;
-    return avatarJson;
-  }
 
-  const saveUserSelection = (options) =>{
-    const newSelection = loadUserSelection (manifestSelectionIndex) || []
-    options.map((opt)=>{
-      let newOpt = true;
-      for (let i =0; i < newSelection.length;i++ ) {
-        if(newSelection[i].trait.trait === opt.trait.trait){
-          newSelection[i] = opt
-          newOpt = false;
-          break
-        }
-      }
-      if (newOpt === true)
-        newSelection.push(opt)
-    })
-    local[manifestSelectionIndex] = newSelection;
-  }
 
-  const loadUserSelection = (index) => {
-    return local[index]
-  }
-
-  const getRandomCharacter = () => {
-    setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
-  }
-
-  const resetAvatar = () => {
-    if (avatar){
-      for (const prop in avatar){
-        if (avatar[prop].vrm){
-          disposeVRM (avatar[prop].vrm)
-        }
-      }
-    }
-    setAvatar({})
-  }
 
   const moveCamera = (value) => {
     if (!controls) return
@@ -203,50 +111,19 @@ export const SceneProvider = (props) => {
     <SceneContext.Provider
       value={{
         
-        templateInfo,
-        setTemplateInfo,
-        blinkManager,
-        setBlinkManager,
         manifest,
         setManifest,
-        manifestSelectionIndex,
-        setManifestSelectionIndex,
-        getSelectedCharacterBaseData,
-        sceneModel,
-        setSceneModel,
-        lipSync,
-        setLipSync,
         scene,
         setScene,
         characterManager,
 
-        getSaveAvatar,
-        saveAvatarToLocalStorage,
-        loadAvatarFromLocalStorage,
-
         debugMode,
         toggleDebugMNode,
-        getRandomCharacter,
-        saveUserSelection,
-        loadUserSelection,
         animationManager,
         lookAtManager,
-        setAnimationManager,
         camera,
-        setCamera,
-        skinColor,
-        setSkinColor,
-        avatar,
-        setAvatar,
-        resetAvatar,
         moveCamera,
         controls,
-        setControls,
-        //initializeScene,
-        mousePosition, 
-        setMousePosition,
-        isChangingWholeAvatar,
-        setIsChangingWholeAvatar,
       }}
     >
       {props.children}

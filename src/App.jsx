@@ -132,7 +132,6 @@ export default function App() {
     camera,
     controls,
     scene,
-    templateInfo,
     moveCamera,
     setManifest,
   } = useContext(SceneContext)
@@ -238,7 +237,7 @@ export default function App() {
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
-    [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
+    [ViewMode.CHAT]: <View />,
   }
 
   let lastTap = 0

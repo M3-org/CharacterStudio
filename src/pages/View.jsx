@@ -8,7 +8,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-function View({templateInfo}) {
+function View() {
   const { setViewMode } = React.useContext(ViewContext)
 
   const [micEnabled, setMicEnabled] = React.useState(false)
@@ -39,7 +39,7 @@ function View({templateInfo}) {
         <div className={styles.bottomLine} />
         <div className={styles.scrollContainer}>
           <Chat
-            templateInfo = {templateInfo}
+            //templateInfo = {templateInfo}
             micEnabled = {micEnabled}
             setMicEnabled = {setMicEnabled}
             speechRecognition = {speechRecognition}

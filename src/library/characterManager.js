@@ -40,6 +40,7 @@ export class CharacterManager {
       if (parentModel){
         parentModel.add(this.rootModel);
       }
+      this.lipSync = null;
 
       this.lookAtManager = null;
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
@@ -486,13 +487,8 @@ export class CharacterManager {
       
       renameVRMBones(vrm);
       
-
       if (this.manifestData.isLipsyncTrait(traitID))
-        setLipSync(new LipSync(vrm));
-      this.blinkManager.addBlinker(vrm);
-
-      if (this.lookAtManager)
-        this.lookAtManager.addVRM(vrm);
+        this.lipSync = new LipSync(vrm);
 
 
       this._modelBaseSetup(vrm, item, traitID, textures, colors);
@@ -598,17 +594,11 @@ export class CharacterManager {
       })
     }
     _applyManagers(vrm){
-      const templateInfo = this.manifest;
-        // Assign LipsSync to manifest defined VRMs
-        // if (getAsArray(templateInfo.lipSyncTraits).indexOf(traitData.trait) !== -1)
-        //   setLipSync(new LipSync(vrm));
   
-        // // Assign Blinker traits to manifest defined VRMs
-        // if (getAsArray(templateInfo.blinkerTraits).indexOf(traitData.trait) !== -1)
-        //   blinkManager.addBlinker(vrm)
-  
-        // // Add to look at manager
-        // lookatManager.addVRM(vrm)
+        this.blinkManager.addBlinker(vrm)
+
+        if (this.lookAtManager)
+          this.lookAtManager.addVRM(vrm);
 
         // Animate this VRM 
         if (this.animationManager)
