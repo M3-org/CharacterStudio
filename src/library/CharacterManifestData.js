@@ -140,7 +140,7 @@ export class CharacterManifestData{
         if (traitSelectedOption)
           selectedOptions.push(traitSelectedOption)
       });
-      return this.filterTraitOptions(selectedOptions);
+      return this._filterTraitOptions(selectedOptions);
     }
 
     getRandomTrait(groupTraitID){
@@ -182,7 +182,7 @@ export class CharacterManifestData{
     }
 
     // XXX filtering will only work now when multiple options are selected
-    filterTraitOptions(selectedOptions){
+    _filterTraitOptions(selectedOptions){
       const finalOptions = []
       const filteredOptions = []
       for (let i = 0 ; i < selectedOptions.length ; i++){
