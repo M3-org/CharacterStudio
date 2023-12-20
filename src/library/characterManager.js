@@ -280,35 +280,103 @@ export class CharacterManager {
     setRenderCamera(camera){
       this.renderCamera = camera;
     }
+    
+    /**
+     * Loads random traits based on manifest data.
+     * If manifest data is available, retrieves random traits,
+     * If manifest data is not available, logs an error and rejects the Promise.
+     *
+     * @returns {Promise<void>} A Promise that resolves with an array of random traits
+     *                           if successful, or rejects with an error message if not.
+     */
+    loadRandomTraits() {
+      return new Promise((resolve, reject) => {
+        if (this.manifestData) {
+          const randomTraits = this.manifestData.getRandomTraits();
+          this._loadTraits(randomTraits);
+          resolve(); // Resolve the promise with the result
+        } else {
+          const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage)); // Reject the promise with an error
+        }
+      });
+    }
 
-    async loadRandomTraits(){
-      if (this.manifestData){
-        this._loadTraits(this.manifestData.getRandomTraits());
-      }
-      else{
-        console.error ("No manifest was loaded, random traits cannot be loaded.")
-      }
+    /**
+     * Loads traits from an NFT using the specified URL.
+     *
+     * @param {string} url - The URL of the NFT to retrieve traits from.
+     * @param {boolean} [fullAvatarReplace=true] - Flag indicating whether to fully replace existing traits.
+     * @param {Array<string>} [ignoreGroupTraits=null] - An optional array of trait groups to ignore.
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadTraitsFromNFT(url, fullAvatarReplace = true, ignoreGroupTraits = null) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Check if manifest data is available
+          if (this.manifestData) {
+            // Retrieve traits from the NFT using the manifest data
+            const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+
+            // Load traits using the _loadTraits method
+            this._loadTraits(traits, fullAvatarReplace);
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } else {
+            // Manifest data is not available, log an error and reject the Promise
+            const errorMessage = "No manifest was loaded, NFT traits cannot be loaded.";
+            console.error(errorMessage);
+            reject(new Error(errorMessage));
+          }
+        } catch (error) {
+          // Handle any asynchronous errors during trait retrieval or loading
+          reject(error);
+        }
+      });
     }
-    async loadTraitsFromNFT(url, fullAvatarReplace = true, ignoreGroupTraits = null){
-      if (this.manifestData){
-        
-        const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
-        this._loadTraits(traits, fullAvatarReplace);
-      }
-      else{
-        console.error ("No manifest was loaded, NFT traits cannot be loaded.")
-      }
+
+
+    /**
+     * Loads traits from an NFT object metadata into the avatar.
+     *
+     * @param {Object} NFTObject - The NFT object containing traits information.
+     * @param {boolean} fullAvatarReplace - Indicates whether to replace all avatar traits.
+     * @param {Array} ignoreGroupTraits - An optional array of trait groups to ignore.
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null) {
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve traits from the NFT object using manifest data
+            const traits = await this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
+
+            // Load traits into the avatar using the _loadTraits method
+            this._loadTraits(traits, fullAvatarReplace);
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during trait retrieval
+            console.error("Error loading traits from NFT object:", error.message);
+            reject(new Error("Failed to load traits from NFT object."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, NFT traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
-    async loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null){
-      if (this.manifestData){
-        
-        const traits = await this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
-        this._loadTraits(traits, fullAvatarReplace);
-      }
-      else{
-        console.error ("No manifest was loaded, NFT traits cannot be loaded.")
-      }
-    }
+
+
+
     async loadInitialTraits(){
       if (this.manifestData){
         this._loadTraits(this.manifestData.getInitialTraits());
