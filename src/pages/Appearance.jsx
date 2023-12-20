@@ -33,7 +33,6 @@ function Appearance() {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
-    //resetAvatar()
     setViewMode(ViewMode.CREATE)
   }
 
@@ -84,12 +83,26 @@ function Appearance() {
   }
   const handleVRMDrop = (file) =>{
     if (traitGroupName != ""){
+      setIsLoading(true);
       const path = URL.createObjectURL(file);
-      characterManager.loadCustomTrait(traitGroupName, path);
+      characterManager.loadCustomTrait(traitGroupName, path).then(()=>{
+        setIsLoading(false);
+      })
     }
     else{
       console.warn("Please select a group trait first.")
     }
+  }
+  const selectTrait = (trait) => {
+    setIsLoading(true);
+    characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
+      setIsLoading(false);
+      setSelectedTrait(trait);
+    })
+  }
+  const removeTrait = (traitGroupName) =>{
+    characterManager.removeTrait(traitGroupName);
+    setSelectedTrait(null);
   }
   const handleJsonDrop = (files) => {
     const filesArray = Array.from(files);
@@ -173,7 +186,7 @@ function Appearance() {
   }
 
 
-  const uploadTrait = async() =>{
+  const uploadTrait = () =>{
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
@@ -182,8 +195,10 @@ function Appearance() {
       var file = e.target.files[0]; 
       if (file.name.endsWith(".vrm")){
         const url = URL.createObjectURL(file);
-        characterManager.loadCustomTrait(traitGroupName,url)
-        setSelectedTrait(null);
+        setIsLoading(true);
+        characterManager.loadCustomTrait(traitGroupName,url).then(()=>{
+          setIsLoading(false);
+        })
       }
     }
     input.click();
@@ -236,10 +251,7 @@ function Appearance() {
                     key={"no-trait"}
                     className={`${styles["selectorButton"]}`}
                     icon={cancel}
-                    onClick={() => {
-                      characterManager.removeTrait(traitGroupName);
-                      setSelectedTrait(null);
-                    }}
+                    onClick={() => {removeTrait(traitGroupName)}}
                   >
                     <TokenBox
                       size={56}
@@ -258,11 +270,7 @@ function Appearance() {
                   <div
                     key={trait.id}
                     className={`${styles["selectorButton"]}`}
-                    onClick={() => {
-                      // setIsLoading(true);
-                      characterManager.loadTrait(trait.traitGroup.trait, trait.id)
-                      setSelectedTrait(trait);
-                    }}
+                    onClick={()=>{selectTrait(trait)}}
                   >
                     <TokenBox
                       size={56}

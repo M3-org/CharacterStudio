@@ -338,7 +338,6 @@ export class CharacterManager {
       });
     }
 
-
     /**
      * Loads traits from an NFT object metadata into the avatar.
      *
@@ -359,7 +358,6 @@ export class CharacterManager {
             // Load traits into the avatar using the _loadTraits method
             this._loadTraits(traits, fullAvatarReplace);
 
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
             resolve();
           } catch (error) {
             // Reject the Promise with an error message if there's an error during trait retrieval
@@ -375,26 +373,101 @@ export class CharacterManager {
       });
     }
 
+    /**
+     * Loads initial traits based on manifest data.
+     *
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadInitialTraits() {
+      return new Promise((resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          // Load initial traits using the _loadTraits method
+          this._loadTraits(this.manifestData.getInitialTraits());
 
+          resolve();
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, initial traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
 
-    async loadInitialTraits(){
-      if (this.manifestData){
-        this._loadTraits(this.manifestData.getInitialTraits());
-      }
-      else{
-        console.error ("No manifest was loaded, random traits cannot be loaded.")
-      }
+    /**
+     * Loads a specific trait based on group and trait IDs.
+     *
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @param {string} traitID - The ID of the specific trait.
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadTrait(groupTraitID, traitID) {
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve the selected trait using manifest data
+            const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
+
+            // If the trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTraits(getAsArray(selectedTrait));
+            }
+
+            resolve();
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during trait retrieval
+            console.error("Error loading specific trait:", error.message);
+            reject(new Error("Failed to load specific trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, specific trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
-    async loadTrait(groupTraitID, traitID){
-      const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
-      if (selectedTrait)
-        await this._loadTraits(getAsArray(selectedTrait));
+
+    /**
+     * Loads a custom trait based on group and URL.
+     *
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @param {string} url - The URL associated with the custom trait.
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadCustomTrait(groupTraitID, url) {
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve the selected custom trait using manifest data
+            const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+
+            // If the custom trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTraits(getAsArray(selectedTrait));
+            }
+
+            resolve();
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during custom trait retrieval
+            console.error("Error loading custom trait:", error.message);
+            reject(new Error("Failed to load custom trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, custom trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
-    async loadCustomTrait(groupTraitID, url){
-      const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
-      if (selectedTrait)
-        await this._loadTraits(getAsArray(selectedTrait))
-    }
+
     async loadCustomTexture(groupTraitID, url){
       const model = this.avatar[groupTraitID]?.model;
       if (model){
@@ -431,10 +504,17 @@ export class CharacterManager {
     getCurrentOptimizerCharacter(){
       return this.avatar["CUSTOM"]?.vrm;
     }
-    async loadOptimizerCharacter(url){
-      await this.loadCustomTrait("CUSTOM", url);
+    
+    /**
+     * Loads an optimized character based on a custom trait URL.
+     *
+     * @param {string} url - The URL associated with the custom trait.
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadOptimizerCharacter(url) {
+      return this.loadCustomTrait("CUSTOM", url);
     }
-
     async loadManifest(url){
       this.manifest = await this._fetchManifest(url)
       if (this.manifest){

@@ -14,7 +14,7 @@ function Create() {
   // Translate hook
   const {t} = useContext(LanguageContext);
 
-  const { setViewMode } = React.useContext(ViewContext)
+  const { setViewMode, setIsLoading, isLoading } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
@@ -43,8 +43,11 @@ function Create() {
   }
 
   const selectClass = async (index) => {
+    setIsLoading(true)
     await characterManager.loadManifest(manifest[index].manifest);
-    characterManager.loadInitialTraits();
+    characterManager.loadInitialTraits().then(()=>{
+      setIsLoading(false)
+    })
     setViewMode(ViewMode.APPEARANCE)
     !isMute && playSound('classSelect');
 
