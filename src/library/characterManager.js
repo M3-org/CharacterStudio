@@ -290,10 +290,10 @@ export class CharacterManager {
      *                           if successful, or rejects with an error message if not.
      */
     loadRandomTraits() {
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         if (this.manifestData) {
           const randomTraits = this.manifestData.getRandomTraits();
-          this._loadTraits(randomTraits);
+          await this._loadTraits(randomTraits);
           resolve(); // Resolve the promise with the result
         } else {
           const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
@@ -318,10 +318,10 @@ export class CharacterManager {
           // Check if manifest data is available
           if (this.manifestData) {
             // Retrieve traits from the NFT using the manifest data
-            const traits = await this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+            const traits = this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
 
             // Load traits using the _loadTraits method
-            this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits, fullAvatarReplace);
 
             // Resolve the Promise (without a value, as you mentioned it's not needed)
             resolve();
@@ -353,10 +353,10 @@ export class CharacterManager {
         if (this.manifestData) {
           try {
             // Retrieve traits from the NFT object using manifest data
-            const traits = await this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
+            const traits = this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
 
             // Load traits into the avatar using the _loadTraits method
-            this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits, fullAvatarReplace);
 
             resolve();
           } catch (error) {
@@ -380,11 +380,11 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadInitialTraits() {
-      return new Promise((resolve, reject) => {
+      return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
           // Load initial traits using the _loadTraits method
-          this._loadTraits(this.manifestData.getInitialTraits());
+          await this._loadTraits(this.manifestData.getInitialTraits());
 
           resolve();
         } else {
@@ -415,9 +415,8 @@ export class CharacterManager {
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait));
+              resolve();
             }
-
-            resolve();
           } catch (error) {
             // Reject the Promise with an error message if there's an error during trait retrieval
             console.error("Error loading specific trait:", error.message);
@@ -451,9 +450,9 @@ export class CharacterManager {
             // If the custom trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait));
+              resolve();
             }
 
-            resolve();
           } catch (error) {
             // Reject the Promise with an error message if there's an error during custom trait retrieval
             console.error("Error loading custom trait:", error.message);

@@ -52,6 +52,7 @@ function Appearance() {
     setIsLoading(true);
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
+      console.log("success")
       setIsLoading(false);
     })
     .catch((error) => {
