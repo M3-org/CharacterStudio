@@ -627,7 +627,7 @@ export class CharacterManager {
       }
     }
 
-    // XXX check if we caqn move this code only to manifestData
+    // XXX check if we can move this code only to manifestData
     async _fetchManifest(location) {
         const response = await fetch(location)
         const data = await response.json()
@@ -928,10 +928,6 @@ export class CharacterManager {
         vrm: vrm
       }
     }
-
-
-
-   
 }
 
 // Class to load traits

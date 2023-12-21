@@ -15,7 +15,6 @@ export class CharacterManifestData{
         colliderTraits,
         lipSyncTraits,
         blinkerTraits,
-        traitRestrictions,
         typeRestrictions,
         defaultCullingLayer,
         defaultCullingDistance,
@@ -40,14 +39,31 @@ export class CharacterManifestData{
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
-      this.traitRestrictions = traitRestrictions  // get as array?
-      this.typeRestrictions = typeRestrictions    // get as array?
+      this.typeRestrictions = typeRestrictions;  
       this.defaultCullingLayer = defaultCullingLayer
       this.defaultCullingDistance = defaultCullingDistance 
       this.offset = offset;
       this.canDownload = canDownload;
       this.downloadOptions = downloadOptions;
 
+      
+      const populateTypeRestrictions = () =>{
+        if (this.typeRestrictions){
+          for (const prop in this.typeRestrictions){
+            const typeRestrictionValues = getAsArray(this.typeRestrictions[prop]);
+            typeRestrictionValues.forEach(tr => {
+              if (this.typeRestrictions[tr] == null){
+                this.typeRestrictions[tr] = [];
+              }
+              if (this.typeRestrictions[tr].indexOf(prop) == -1){
+                this.typeRestrictions[tr].push(prop);
+              }
+            });
+          }
+        }
+      }
+      populateTypeRestrictions();
+      
       const defaultOptions = () =>{
         // Support Old configuration
         downloadOptions.vrmMeta = downloadOptions.vrmMeta || vrmMeta;
@@ -82,8 +98,6 @@ export class CharacterManifestData{
       this.modelTraits = [];
       this.modelTraitsMap = null;
       this.createModelTraits(traits);
-
-      console.log(this);
     }
 
     getExportOptions(){
@@ -328,16 +342,6 @@ export class CharacterManifestData{
 
 }
 
-
-// "traitRestrictions":{
-//   "outer":{
-//     "restrictedTraits":[],
-//     "restrictedTypes":["hoodie","solo", "accessory_top"]
-//   }
-// },
-// "typeRestrictions":{
-//     "pants":["boots", "accessory_bottom"]
-// },
 
 // Must be created AFTER color collections and texture collections have been created
 class TraitModelsGroup{
