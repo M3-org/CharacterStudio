@@ -4,11 +4,13 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
 
 function Landing() {
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+  const { characterManager } = React.useContext(SceneContext)
 
   const createCharacter = () => {
     setViewMode(ViewMode.CREATE)
@@ -17,6 +19,7 @@ function Landing() {
 
   const optimizeCharacter = () => {
     setViewMode(ViewMode.OPTIMIZER)
+    characterManager.loadOptimizerManifest();
     !isMute && playSound('backNextButton');
   }
 

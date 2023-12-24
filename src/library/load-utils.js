@@ -25,7 +25,6 @@ export const loadVRM = async(url) => {
         }
       })
     }
-    URL.revokeObjectURL(url);
     return vrm;
 }
 

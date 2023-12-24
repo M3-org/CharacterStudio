@@ -145,6 +145,7 @@ export class CharacterManager {
     }
     removeCurrentManifest(){
       this.manifest = null;
+      this.manifestData = null;
     }
 
     downloadVRM(name, exportOptions = null){
@@ -176,6 +177,10 @@ export class CharacterManager {
       if (this.manifestData){
         return this.manifestData.getGroupModelTraits();
       }
+    }
+
+    getCurrentCharacterModel(){
+      return this.characterModel;
     }
 
     // returns wether or not the trait group can be removed
@@ -246,7 +251,9 @@ export class CharacterManager {
     }
 
     async loadCustomTrait(groupTraitID, url){
+      console.log(groupTraitID);
       const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+      console.log(selectedTrait);
       if (selectedTrait)
         this._loadTraits(getAsArray(selectedTrait))
     }
@@ -278,7 +285,17 @@ export class CharacterManager {
       }
     }
 
+    loadOptimizerManifest(){
+      this.manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
+      this.manifestData = new ManifestData(this.manifest);
+      console.log(this.manifestData);
+    }
+    loadOptimizerCharacter(url){
+      console.log("loads")
+      this.loadCustomTrait("CUSTOM", url);
+    }
 
+    // XXX animation manager should not be in load manifest!
     async loadManifest(url, options){
       const {
         createAnimationManager = false
@@ -287,6 +304,7 @@ export class CharacterManager {
       this.manifest = await this._fetchManifest(url)
       
       if (this.manifest){
+        console.log(this.manifest)
         this.manifestData = new ManifestData(this.manifest);
         console.log(this.manifestData);
         // XXX remove this
@@ -295,6 +313,7 @@ export class CharacterManager {
     }
     // 
     async _loadTraits(options, fullAvatarReplace = false){
+      console.log("load traits");
       this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
@@ -657,6 +676,7 @@ class TraitLoadingManager{
 
                 const loadedModels = await Promise.all(
                     getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
+                      console.log(modelDir)
                         try {
                             return await this.gltfLoader.loadAsync(modelDir);
                         } catch (error) {

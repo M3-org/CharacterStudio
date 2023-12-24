@@ -33,6 +33,8 @@ function Optimizer({
 
   const back = () => {
     !isMute && playSound('backNextButton');
+    characterManager.removeCurrentCharacter();
+    characterManager.removeCurrentManifest();
     setViewMode(ViewMode.LANDING)
   }
 
@@ -52,51 +54,34 @@ function Optimizer({
   }
 
   const download = () => {
-    const vrmData = currentVRM.userData.vrm
-    console.log("VRM DATA:", vrmData);
-    downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
+
+    // const vrmData = currentVRM.userData.vrm
+    // console.log("VRM DATA:", vrmData);
+    // downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
+    characterManager.downloadVRM(nameVRM + "_merged", getOptions())
+
   }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (lastVRM != null){
-        disposeVRM(lastVRM);
-      }
-      if (currentVRM != null){
-        addVRMToScene(currentVRM, model)
-        if (local["mergeOptions_drop_download"]){
-          const vrmData = currentVRM.userData.vrm
-          await downloadVRM(model, vrmData,nameVRM + "_merged",getOptions())
-          disposeVRM(currentVRM);
-          setCurrentVRM(null);
-        }
-        else{
-          setLastVRM(currentVRM);
-        }
-      }
-    }
-
-    fetchData();
-  }, [currentVRM])
 
   // Translate hook
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
-    const path = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
+    
 
-    await animationManager.loadAnimation(path, true, "", animName);
+    await animationManager.loadAnimation(url, true, "", animName);
+    URL.revokeObjectURL(url);
   }
 
   const handleVRMDrop = async (file) =>{
-    const path = URL.createObjectURL(file);
-    const vrm = await loadVRM(path);
-    const name = getFileNameWithoutExtension(file.name);
+    const url = URL.createObjectURL(file);
+    characterManager.loadOptimizerCharacter(url);
+    URL.revokeObjectURL(url);
 
-    setNameVRM(name);
-    setCurrentVRM(vrm);
-    console.log(vrm)
+    const name = getFileNameWithoutExtension(file.name);
+    setNameVRM (name);
+  
   }
 
   const handleFilesDrop = async(files) => {
@@ -141,7 +126,7 @@ function Optimizer({
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(currentVRM)&&(
+        {(nameVRM != "")&&(
           <CustomButton
           theme="light"
           text="Download"
