@@ -79,8 +79,9 @@ function Appearance({
   }
 
   const handleImageDrop = (file) => {
+    console.log("TODO")
     const path = URL.createObjectURL(file);
-    setUploadTextureURL(path);
+    // setUploadTextureURL(path);
   }
   const handleVRMDrop = (file) =>{
     const path = URL.createObjectURL(file);
@@ -90,6 +91,11 @@ function Appearance({
     else{
       console.warn("Please select a group trait first.")
     }
+  }
+  const handleJsonDrop = (file) => {
+    const path = URL.createObjectURL(file,["ADD-IGNORES"]);
+    console.log("drops");
+    characterManager.loadTraitsFromNFT(path);
   }
 
   const handleFilesDrop = async(files) => {
@@ -104,7 +110,6 @@ function Appearance({
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
       handleVRMDrop(file);
     } 
-
     const filesArray = Array.from(files);
     const jsonDataArray = [];
     const processFile = (file) => {
@@ -164,7 +169,6 @@ function Appearance({
   .catch((error) => {
     console.error("Error processing files:", error);
   });
-
   };
 
   const selectTraitGroup = (traitGroup) => {
