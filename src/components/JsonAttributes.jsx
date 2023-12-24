@@ -5,30 +5,30 @@ import MenuTitle from "./MenuTitle"
 
 export default function JsonAttributes({jsonSelectionArray}){
   const {
-    setSelectedOptions
+    setSelectedOptions,
+    characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
   const nextJson = async () => {
     if (index >= jsonSelectionArray.length -1){
-      setSelectedOptions(jsonSelectionArray[0].options)
+      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]);
       setIndex(0);
     }
     else{
       const newIndex = index + 1;
-      setSelectedOptions(jsonSelectionArray[newIndex].options)
+      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]);
       setIndex(newIndex);
     }
   }
   const prevJson = async () => {
-    console.log("prev")
     if (index <= 0){
-      setSelectedOptions(jsonSelectionArray[jsonSelectionArray.length-1].options)
+      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]);
       setIndex(jsonSelectionArray.length -1);
     }
     else{
       const newIndex = index-1;
-      setSelectedOptions(jsonSelectionArray[newIndex].options)
+      characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]);
       setIndex(newIndex);
     }
   }
@@ -68,9 +68,9 @@ export default function JsonAttributes({jsonSelectionArray}){
               />
             )}
             {jsonSelectionArray[index].attributes.map((attribute) => (
-              <div key={`json:${attribute.trait}_${attribute.name}`}>
+              <div key={`json:${attribute.trait_type}_${attribute.value}`}>
                 <div className={styles["traitInfoText"]}>
-                  {`${attribute.trait} : ${attribute.id}`}
+                  {`${attribute.trait_type} : ${attribute.value}`}
                 </div>
               </div>
             ))}

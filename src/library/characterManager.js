@@ -244,6 +244,17 @@ export class CharacterManager {
       }
     }
 
+    async loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null){
+      if (this.manifestData){
+        
+        const traits = await this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
+        this._loadTraits(traits, fullAvatarReplace);
+      }
+      else{
+        console.error ("No manifest was loaded, NFT traits cannot be loaded.")
+      }
+    }
+
     async loadInitialTraits(){
       if (this.manifestData){
         this._loadTraits(this.manifestData.getInitialTraits());
@@ -291,7 +302,6 @@ export class CharacterManager {
       }
     }
     updateCullHiddenMeshes(){
-      console.log("culls")
       cullHiddenMeshes(this.avatar);
     }
     loadOptimizerManifest(){
@@ -336,7 +346,6 @@ export class CharacterManager {
         loadedData.forEach(itemData => {
             this._addLoadedData(itemData)
         });
-        console.log(this.avatar)
         cullHiddenMeshes(this.avatar);
       })
     }
