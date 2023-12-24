@@ -45,7 +45,7 @@ function Optimizer() {
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      optimize_to_ktx2: (local["merge_options_ktx_compression"] || false)
+      ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
 

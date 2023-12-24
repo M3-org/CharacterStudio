@@ -26,6 +26,7 @@ export const ExportMenu = () => {
       mToonAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_mtoon_transp_size"] || 6),
       stdAtlasSize:getAtlasSize(local["mergeOptions_atlas_std_size"] || 6),
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
+      ktxCompression:local["merge_options_ktx_compression"],
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
     }
