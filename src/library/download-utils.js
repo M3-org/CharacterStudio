@@ -263,7 +263,8 @@ function parseVRM (glbModel, avatar, options){
               textureData.userData.mimeType = newMimeType;
               textureData.source.mimeType = newMimeType;
 
-              const bmp = textureData.source;
+              const bmp = textureData.source; // not working, probably should be done as commented below
+              // const bmp = await createImageBitmap(textureData.image);
               const canvas = document.createElement('canvas');
               canvas.width = bmp.width;
               canvas.height = bmp.height;
