@@ -1,7 +1,7 @@
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { getAsArray, renameVRMBones } from "../library/utils"
-import { findChildByName } from '../library/utils';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { getAsArray, renameVRMBones } from "../library/utils.js"
+import { findChildByName } from '../library/utils.js';
 import { PropertyBinding } from 'three';
 
 export const loadVRM = async(url) => {

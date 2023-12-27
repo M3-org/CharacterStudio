@@ -1,16 +1,15 @@
 import * as THREE from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AnimationManager } from "./animationManager"
-import { ScreenshotManager } from "./screenshotManager";
-import { BlinkManager } from "./blinkManager";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { AnimationManager } from "./animationManager.js"
+import { ScreenshotManager } from "./screenshotManager.js";
+import { BlinkManager } from "./blinkManager.js";
 import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
-import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
-import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
-import { saveVRMCollidersToUserData } from "./load-utils";
-import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
-import { LipSync } from "./lipsync";
-import { LookAtManager } from "./lookatManager";
-import { CharacterManifestData } from "./CharacterManifestData";
+import { getAsArray, disposeVRM, renameVRMBones, addModelData, cullHiddenMeshes, setTextureToChildMeshes } from "./utils.js";
+import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils.js"
+import { saveVRMCollidersToUserData } from "./load-utils.js";
+import { LipSync } from "./lipsync.js";
+import { LookAtManager } from "./lookatManager.js";
+import { CharacterManifestData } from "./CharacterManifestData.js";
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -39,6 +38,11 @@ export class CharacterManager {
       this.parentModel = parentModel;
       if (parentModel){
         parentModel.add(this.rootModel);
+      }
+      else{
+        console.log(this.rootModel)
+        this.parentModel = this.rootModel;
+        console.log(this.parentModel)
       }
       this.lipSync = null;
 
@@ -564,24 +568,14 @@ export class CharacterManager {
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          this.manifest = await this._fetchManifest(url);
-
+          const manifestObject = await this._fetchManifest(url);
           // Check if the manifest was successfully fetched
-          if (this.manifest) {
-            // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest);
-
-            // If an animation manager is available, set it up
-            if (this.animationManager) {
-              await this._animationManagerSetup(
-                this.manifest.animationPath,
-                this.manifest.assetsLocation,
-                this.manifestData.displayScale
-              );
-            }
-
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
-            resolve();
+          if (manifestObject) {
+            this.setManifestObject(manifestObject).then(()=>{
+              resolve();
+            }).catch((err)=>{
+              console.error(err);
+            })
           } else {
             // The manifest could not be fetched, reject the Promise with an error message
             const errorMessage = "Failed to fetch or parse the manifest.";
@@ -589,6 +583,31 @@ export class CharacterManager {
             reject(new Error(errorMessage));
           }
         } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error loading manifest:", error.message);
+          reject(new Error("Failed to load the manifest."));
+        }
+      });
+    }
+
+    setManifestObject(manifestObject){
+      return new Promise(async (resolve, reject) => {
+        try {
+          this.manifest = manifestObject;
+          // Create a CharacterManifestData instance based on the fetched manifest
+          this.manifestData = new CharacterManifestData(manifestObject);
+
+          // If an animation manager is available, set it up
+          if (this.animationManager) {
+            await this._animationManagerSetup(
+              this.manifest.animationPath,
+              this.manifest.assetsLocation,
+              this.manifestData.displayScale
+            );
+          }
+          resolve();
+        }
+        catch(error){
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
           reject(new Error("Failed to load the manifest."));
@@ -630,9 +649,9 @@ export class CharacterManager {
 
     // XXX check if we can move this code only to manifestData
     async _fetchManifest(location) {
-        const response = await fetch(location)
-        const data = await response.json()
-        return data
+      const response = await fetch(location)
+      const data = await response.json()
+      return data
     }
 
     _getPortaitScreenshotTexture(getBlob, options){
@@ -1052,6 +1071,3 @@ class LoadedData{
         this.colors = colors;
     }
 }
-
-
-

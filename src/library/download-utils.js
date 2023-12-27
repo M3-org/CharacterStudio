@@ -1,11 +1,11 @@
 import { Group, MeshStandardMaterial, Color } from "three"
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
-import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
-import { getAvatarData } from "./utils"
-import VRMExporter from "./VRMExporter"
-import VRMExporterv0 from "./VRMExporterv0"
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js"
+import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry.js"
+import { getAvatarData } from "./utils.js"
+import VRMExporter from "./VRMExporter.js"
+import VRMExporterv0 from "./VRMExporterv0.js"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
-import { encodeToKTX2 } from 'ktx2-encoder';
+//import { encodeToKTX2 } from 'ktx2-encoder';
 
 
 function cloneAvatarModel (model){
@@ -271,7 +271,7 @@ function parseVRM (glbModel, avatar, options){
               const ctx = canvas.getContext('bitmaprenderer');
               ctx.transferFromImageBitmap(bmp);
               const blob2 = await new Promise((res) => canvas.toBlob(res));
-              const encoded = await encodeToKTX2(blob2);
+              const encoded = null //await encodeToKTX2(blob2);
               const blob = new Blob(encoded, {type:"image/ktx2"});
               const bitmap = await createImageBitmap(blob);
               vrmData.materials[i].map.source = bitmap;

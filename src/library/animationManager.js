@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
-import { addModelData } from "./utils";
-import { getMixamoAnimation } from './loadMixamoAnimation';
-import { getAsArray, getFileNameWithoutExtension } from './utils';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js"
+import { addModelData, getAsArray, getFileNameWithoutExtension } from "./utils.js";
+import { getMixamoAnimation } from './loadMixamoAnimation.js';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();

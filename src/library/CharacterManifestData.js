@@ -1,4 +1,4 @@
-import { getAsArray } from "./utils";
+import { getAsArray } from "./utils.js";
 
 export class CharacterManifestData{
     constructor(manifest){
