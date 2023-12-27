@@ -1,6 +1,7 @@
 {
   "name": "@webaverse-studios/charactercreator",
   "version": "0.2.6",
+  "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
@@ -21,15 +22,20 @@
     "@web3-react/network-connector": "^6.1.9",
     "axios": "^0.27.2",
     "buffer": "^6.0.3",
+    "canvas": "^2.11.2",
     "classnames": "^2.3.2",
+    "commander": "^11.1.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "ethers": "^5.7.0",
     "events": "^3.3.0",
+    "gl": "^6.0.2",
     "gsap": "^3.11.3",
     "html2canvas": "^1.4.1",
     "i18next": "^22.4.10",
     "i18next-browser-languagedetector": "^7.0.1",
+    "jsdom": "^23.0.1",
+    "jsdom-global": "^3.0.2",
     "ktx2-encoder": "^0.0.6",
     "load-script": "^1.0.0",
     "postprocessing": "^6.29.1",
@@ -47,9 +53,6 @@
     "vite-react-jsx": "1.1.2",
     "wrangler": "^2.6.2",
     "zustand": "^3.5.10"
-  },
-  "peerDependencies": {
-    "three": "^0.146.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react-swc": "^3.0.0",
