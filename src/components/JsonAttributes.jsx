@@ -2,34 +2,49 @@ import React, {useEffect,useState,useContext} from "react"
 import styles from "./JsonAttributes.module.css"
 import { SceneContext } from "../context/SceneContext"
 import MenuTitle from "./MenuTitle"
+import { ViewContext } from "../context/ViewContext"
 
 export default function JsonAttributes({jsonSelectionArray}){
+  const { isLoading, setIsLoading } = React.useContext(ViewContext)
   const {
-    setSelectedOptions
+    characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
   const nextJson = async () => {
-    if (index >= jsonSelectionArray.length -1){
-      setSelectedOptions(jsonSelectionArray[0].options)
-      setIndex(0);
-    }
-    else{
-      const newIndex = index + 1;
-      setSelectedOptions(jsonSelectionArray[newIndex].options)
-      setIndex(newIndex);
+    if (!isLoading){
+      setIsLoading(true);
+      if (index >= jsonSelectionArray.length -1){
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(0);
+      }
+      else{
+        const newIndex = index + 1;
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(newIndex);
+      }
     }
   }
   const prevJson = async () => {
-    console.log("prev")
-    if (index <= 0){
-      setSelectedOptions(jsonSelectionArray[jsonSelectionArray.length-1].options)
-      setIndex(jsonSelectionArray.length -1);
-    }
-    else{
-      const newIndex = index-1;
-      setSelectedOptions(jsonSelectionArray[newIndex].options)
-      setIndex(newIndex);
+    if (!isLoading){
+      setIsLoading(true);
+      if (index <= 0){
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(jsonSelectionArray.length -1);
+      }
+      else{
+        const newIndex = index-1;
+        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
+          setIsLoading(false);
+        })
+        setIndex(newIndex);
+      }
     }
   }
   
@@ -68,9 +83,9 @@ export default function JsonAttributes({jsonSelectionArray}){
               />
             )}
             {jsonSelectionArray[index].attributes.map((attribute) => (
-              <div key={`json:${attribute.trait}_${attribute.name}`}>
+              <div key={`json:${attribute.trait_type}_${attribute.value}`}>
                 <div className={styles["traitInfoText"]}>
-                  {`${attribute.trait} : ${attribute.id}`}
+                  {`${attribute.trait_type} : ${attribute.value}`}
                 </div>
               </div>
             ))}

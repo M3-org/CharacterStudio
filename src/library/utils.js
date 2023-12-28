@@ -14,28 +14,11 @@ export function getAsArray(target) {
   return Array.isArray(target) ? target : [target]
 }
 
-export async function prepareModel(templateInfo){
-  // check the local storage for a JSON of the model
-  // if it exists, load it
-
-  // if it doesn't exist, fetch the first trait for each category from the server
-  // grab the first trait for each category
-  const traits = templateInfo.traits.map((category) => {
-    return category.traits[0]
-  })
-
-  const returnedTraits = await Promise.all(traits.map((trait) => {
-    return loadModel(trait)
-  }));
-}
-export async function setTextureToChildMeshes(scene, textureFile){
-  console.log(scene);
-  console.log(textureFile);
-
+export async function setTextureToChildMeshes(scene, url){
   const textureLoader = new THREE.TextureLoader();
 
   // Load the image as a texture
-  const texture = await textureLoader.load(textureFile);
+  const texture = await textureLoader.load(url);
   texture.encoding = THREE.sRGBEncoding;
   texture.flipY = false;
 
@@ -57,13 +40,9 @@ export async function setTextureToChildMeshes(scene, textureFile){
           materials[i].emissiveMap = texture
         }
         materials[i].needsUpdate = true
-
       }
     }
   });
-
-  // get all mesh children from scene and apply texture to standard material
-
 }
 
 export function getFileNameWithoutExtension(filePath) {
@@ -134,7 +113,7 @@ export function getMeshesSortedByMaterialArray(meshes){
         }
         else{
           mToonMesh.push(mesh);
-          if (mat.uniforms.alphaTest.value != 0)
+          if (mat.uniforms.alphaTest?.value != 0)
             requiresTransparency = true
         }
     }

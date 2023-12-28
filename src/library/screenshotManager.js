@@ -17,7 +17,6 @@ export class ScreenshotManager {
     });
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setSize(screenshotSize, screenshotSize);
-
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
   }
 
@@ -75,7 +74,7 @@ export class ScreenshotManager {
     const imgData =  this._createImage(width, height)
     const strDownloadMime = "image/octet-stream";
     const strMime = "image/png";
-    this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+    this.saveFile(imgData.replace(strMime, strDownloadMime), imageName + ".png");
   }
 
   getScreenshotImage(width, height){

@@ -140,3 +140,23 @@
   align-content: center;
   height: 40px;
 }
+
+.actionButton{
+  margin: 30px auto;
+  text-align: center;
+  outline-color: #3b434f;
+  color: #d1d7df;
+  outline-width: 2px;
+  outline-style: solid;
+  background-color: #1e2530;
+  height: 30px;
+  width: 80%;
+  font-family: "TTSC-Bold";
+  text-transform: uppercase !important;
+  font-size:x-small;
+  display: flex;
+  justify-content: center;
+  align-items : center;
+  user-select: none;
+  cursor: pointer;
+}

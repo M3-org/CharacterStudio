@@ -2,7 +2,6 @@ import React, { useContext } from "react"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "./custom-button"
 
-import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { getAtlasSize } from "../library/utils"
 
 import styles from "./ExportMenu.module.css"
@@ -11,35 +10,35 @@ import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"
 
-export const ExportMenu = ({getFaceScreenshot}) => {
+export const ExportMenu = () => {
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
-  const { model, avatar,templateInfo } = useContext(SceneContext)
+  const { model, characterManager } = useContext(SceneContext)
 
   const getOptions = () =>{
     const currentOption = local["mergeOptions_sel_option"] || 0;
-    const screenshot = getFaceScreenshot();
-    console.log(local["mergeOptions_create_atlas"]);
     const createTextureAtlas = local["mergeOptions_create_atlas"] == null ? true:local["mergeOptions_create_atlas"] 
     return {
-      isVrm0 : true,
+      // isVrm0 : true,
       createTextureAtlas : createTextureAtlas,
       mToonAtlasSize:getAtlasSize(local["mergeOptions_atlas_mtoon_size"] || 6),
       mToonAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_mtoon_transp_size"] || 6),
       stdAtlasSize:getAtlasSize(local["mergeOptions_atlas_std_size"] || 6),
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
+      ktxCompression:local["merge_options_ktx_compression"],
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      screenshot:screenshot,
-      scale:templateInfo.exportScale||1,
-      vrmMeta:templateInfo.vrmMeta
     }
   }
 
-  const downloadModel = () =>{
+  const downloadVRM = () =>{
     const options = getOptions();
-    downloadVRMWithAvatar(model, avatar, name, options)
+    characterManager.downloadVRM(name, options);
+  }
+  const downloadGLB = () =>{
+    const options = getOptions();
+    characterManager.downloadGLB(name, options);
   }
 
   return (
@@ -51,17 +50,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         size={14}
         className={styles.button}
         onClick={() => {
-          downloadGLB(model, true, name)
-        }}
-      />
-      <CustomButton
-        theme="light"
-        text={`GLB (${t('text.unoptimized')})`}
-        icon="download"
-        size={14}
-        className={styles.button}
-        onClick={() => {
-          downloadGLB(model, false, name)
+          downloadGLB()
         }}
       />
       <CustomButton
@@ -70,7 +59,7 @@ export const ExportMenu = ({getFaceScreenshot}) => {
         icon="download"
         size={14}
         className={styles.button}
-        onClick={downloadModel}
+        onClick={downloadVRM}
       />
     </React.Fragment>
   )

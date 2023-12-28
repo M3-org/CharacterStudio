@@ -5,6 +5,7 @@ import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
+import { encodeToKTX2 } from 'ktx2-encoder';
 
 
 function cloneAvatarModel (model){
@@ -91,9 +92,6 @@ async function getGLBData(model, options){
   }
 } 
 
-
-
-
 /**
  * Downloads a VRM model with specified options.
  *
@@ -113,6 +111,7 @@ async function getGLBData(model, options){
  * @param {Object} options.vrmMeta - Additional metadata for the VRM model.
  * @param {boolean} options.createTextureAtlas - Whether to create a texture atlas.
  * @param {boolean} options.optimized - Whether to optimize the VRM model.
+ * @param {boolean} options.ktxCompression - Whether to use ktx2 type texture compression.
  */
 export async function downloadVRM(model,vrmData,fileName, options){
 
@@ -135,11 +134,9 @@ async function getVRMData(model, avatar, options){
   return parseVRM(vrmModel,avatar,options) 
 }
 
-
-
 function getOptimizedGLB(model, options){
   const modelClone = cloneAvatarModel(model)
-  const { createTextureAtlas } = options;
+  const { createTextureAtlas = true } = options;
   if (createTextureAtlas){
     return combine(modelClone, options);
   }
@@ -241,7 +238,7 @@ function parseVRM (glbModel, avatar, options){
     scale = 1
   } = options
 
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
 
 
@@ -249,6 +246,39 @@ function parseVRM (glbModel, avatar, options){
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, "CharacterCreator", vrmMeta),
+    }
+    
+    if (options.ktxCompression) {
+      console.log("ktx compression")
+      for(let i = 0; i < vrmData.materials.length;i++){
+        const material = vrmData.materials[i];
+        if (material.map && material.map.isTexture) {
+          const textureData = material.map;
+
+          if (textureData.source && textureData.source.isSource) {
+            const oldMimeType = textureData.userData.mimeType;
+            if (oldMimeType === "image/png") {
+              const newMimeType = "image/ktx2";
+
+              textureData.userData.mimeType = newMimeType;
+              textureData.source.mimeType = newMimeType;
+
+              const bmp = textureData.source; // not working, probably should be done as commented below
+              // const bmp = await createImageBitmap(textureData.image);
+              const canvas = document.createElement('canvas');
+              canvas.width = bmp.width;
+              canvas.height = bmp.height;
+              const ctx = canvas.getContext('bitmaprenderer');
+              ctx.transferFromImageBitmap(bmp);
+              const blob2 = await new Promise((res) => canvas.toBlob(res));
+              const encoded = await encodeToKTX2(blob2);
+              const blob = new Blob(encoded, {type:"image/ktx2"});
+              const bitmap = await createImageBitmap(blob);
+              vrmData.materials[i].map.source = bitmap;
+            }
+          }
+        }
+      }
     }
     let skinnedMesh;
     glbModel.traverse(child => {

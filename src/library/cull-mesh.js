@@ -43,7 +43,14 @@ const createFaceNormals = (geometry) => {
 const createCloneCullMesh = (mesh) => {
     // clone mesh
     const clonedGeometry = mesh.geometry.clone();
-    const clonedMaterial = mesh.material.clone();
+    let clonedMaterial = [];
+    if (Array.isArray(mesh.material)) {
+        for(let i = 0; i < mesh.material.length; i++) {
+            clonedMaterial.push(mesh.material[i].clone());
+        }
+    } else {
+        clonedMaterial = mesh.material.clone();
+    }
 
     
     // vrm0 mesh rotation
@@ -65,8 +72,21 @@ const createCloneCullMesh = (mesh) => {
 }
 
 export const CullHiddenFaces = async(meshes) => {
+    if (meshes == null){
+        console.warn("Null parameter for meshes was provided. Skipping mesh culling.");
+        return;
+    }
+    if(!Array.isArray(meshes)){
+        console.warn("No valid mesh array was provided. Skipping mesh culling.");
+        return;
+    }
+    if (meshes.length == 0){
+        console.warn("No mesh array with elements was provided. Skipping mesh culling.");
+        return;
+    }
     // make a 2 dimensional array that will hold the layers
     const meshData = [];
+    
     mainScene = meshes[0].parent;
     
     if (mainScene.lines != null){
