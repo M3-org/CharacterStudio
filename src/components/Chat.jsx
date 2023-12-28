@@ -87,7 +87,7 @@ export default function ChatBox({
     local.speaker = speaker
   }, [speaker])
 
-  const { lipSync } = React.useContext(SceneContext)
+  // const { lipSync } = React.useContext(SceneContext)
   const [input, setInput] = React.useState("")
 
   const [messages, setMessages] = React.useState([])

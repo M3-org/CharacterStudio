@@ -1,22 +1,14 @@
 import React, { Fragment, useContext, useEffect, useState } from "react"
 import * as THREE from "three"
 
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-
 import { SceneContext } from "./context/SceneContext"
 import { LanguageContext } from "./context/LanguageContext"
 import { ViewMode, ViewContext } from "./context/ViewContext"
-
-import { getAsArray } from "./library/utils"
-import { BlinkManager } from "./library/blinkManager"
 import { LookAtManager } from "./library/lookatManager"
 import { EffectManager } from "./library/effectManager"
-import { AnimationManager } from "./library/animationManager"
+//import { AnimationManager } from "./library/animationManager"
 import MessageWindow from "./components/MessageWindow"
-import { local } from "./library/store"
-import { ScreenshotManager } from "./library/screenshotManager"
 
-import Scene from "./components/Scene"
 import Background from "./components/Background"
 
 import View from "./pages/View"
@@ -30,11 +22,9 @@ import Appearance from "./pages/Appearance"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 
-
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
-const peresonalityImportPath =
-  import.meta.env.VITE_ASSET_PATH + "/personality.json"
+const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
@@ -80,43 +70,16 @@ async function fetchPersonality() {
   return data
 }
 
-async function fetchScene() {
-  // load environment
-  const modelPath = "/3d/Platform.glb"
-
-  const loader = new GLTFLoader()
-  // load the modelPath
-  const gltf = await loader.loadAsync(modelPath)
-  return gltf.scene
-}
-
-async function fetchAnimation(templateInfo) {
-  // create an animation manager for all the traits that will be loaded
-  const newAnimationManager = new AnimationManager(templateInfo.offset)
-  const animationPaths = getAsArray(templateInfo.animationPath);
-  newAnimationManager.storeAnimationPaths(animationPaths, templateInfo.assetsLocation || "");
-  await newAnimationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), templateInfo.assetsLocation || "")
-  return newAnimationManager
-}
-
 async function fetchAll() {
   const initialManifest = await fetchManifest(assetImportPath)
   const personality = await fetchPersonality()
-  const sceneModel = await fetchScene()
 
-  const blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-  const lookatManager = new LookAtManager(80, "editor-scene")
   const effectManager = new EffectManager()
-  const screenshotManager = new ScreenshotManager()
 
   return {
     initialManifest,
     personality,
-    sceneModel,
-    blinkManager,
-    lookatManager,
     effectManager,
-    screenshotManager,
   }
 }
 
@@ -154,36 +117,22 @@ export default function App() {
   const {
     initialManifest,
     personality,
-    sceneModel,
-    blinkManager,
-    lookatManager,
     effectManager,
-    screenshotManager,
   } = resource.read()
 
   const [hideUi, setHideUi] = useState(false)
-  const [animationManager, setAnimationManager] = useState({})
-
   const {
     camera,
     controls,
     scene,
-    resetAvatar,
-    setAwaitDisplay,
-    setTemplateInfo,
-    setManifestSelectionIndex,
-    templateInfo,
     moveCamera,
     setManifest,
-    manifest,
-    model,
+    lookAtManager
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
   effectManager.camera = camera
   effectManager.scene = scene
-
-  screenshotManager.scene = scene
 
   const updateCameraPosition = () => {
     if (!effectManager.camera) return
@@ -263,71 +212,23 @@ export default function App() {
     setConfirmDialogCallback([callback])
   }
 
-  const fetchCharacterManifest = (index) => {
-    setAwaitDisplay(true)
-    resetAvatar()
-    return new Promise((resolve) => {
-      asyncResolve()
-      async function asyncResolve() {
-        const characterManifest = await fetchManifest(manifest[index].manifest);
-        const animManager = await fetchAnimation(characterManifest)
-        setAnimationManager(animManager)
-        setTemplateInfo(characterManifest)
-        setManifestSelectionIndex(index)
-        resolve(characterManifest)
-      }
-    })
-  }
-
-  const getFaceScreenshot = (width = 256, height = 256, getBlob = false) => {
-    blinkManager.enableScreenshot();
-    model.traverse(o => {
-      if (o.isSkinnedMesh) {
-        const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
-        headBone.getWorldPosition(localVector3);
-      }
-    });
-    const headPosition = localVector3;
-    const female = templateInfo.name === "Drophunter";
-    const cameraFov = female ? 0.78 : 0.85;
-    screenshotManager.setCamera(headPosition, cameraFov);
-    //let imageName = "AvatarImage_" + Date.now() + ".png";
-    
-    //const screenshot = screenshotManager.saveAsImage(imageName);
-    const screenshot = getBlob ? 
-      screenshotManager.getScreenshotBlob(width, height):
-      screenshotManager.getScreenshotTexture(width, height);
-    blinkManager.disableScreenshot();
-    animationManager.disableScreenshot();
-
-    return screenshot;
-  }
-
   // map current app mode to a page
   const pages = {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
       <Appearance
-        animationManager={animationManager}
-        blinkManager={blinkManager}
-        lookatManager={lookatManager}
-        effectManager={effectManager}
         confirmDialog={confirmDialog}
       />
     ),
-    [ViewMode.OPTIMIZER]: (
-      <Optimizer
-        animationManager={animationManager}
-      />
-    ),
+    [ViewMode.OPTIMIZER]:<Optimizer/>,
     [ViewMode.BIO]: (
       <BioPage personality={personality} />
     ),
-    [ViewMode.CREATE]: <Create fetchCharacterManifest={fetchCharacterManifest}/>,
+    [ViewMode.CREATE]: <Create />,
     [ViewMode.LOAD]: <Load />,
-    [ViewMode.MINT]: <Mint getFaceScreenshot = {getFaceScreenshot}/>,
-    [ViewMode.SAVE]: <Save getFaceScreenshot = {getFaceScreenshot}/>,
-    [ViewMode.CHAT]: <View templateInfo={templateInfo} />,
+    [ViewMode.MINT]: <Mint />,
+    [ViewMode.SAVE]: <Save />,
+    [ViewMode.CHAT]: <View />,
   }
 
   let lastTap = 0
@@ -352,9 +253,9 @@ export default function App() {
   useEffect(() => {
     updateCameraPosition()
     if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-      lookatManager.enabled = false
+      lookAtManager.enabled = false
     } else {
-      lookatManager.enabled = true
+      lookAtManager.enabled = true
     }
     window.addEventListener("resize", updateCameraPosition)
     return () => {
@@ -382,12 +283,6 @@ export default function App() {
         setConfirmDialogWindow = {setConfirmDialogWindow}
       />
       <Background />
-      
-      <Scene
-        manifest={manifest}
-        sceneModel={sceneModel}
-        lookatManager={lookatManager}
-      />
       
       {pages[viewMode]}
       

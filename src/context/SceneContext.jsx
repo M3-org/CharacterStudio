@@ -1,81 +1,48 @@
 import React, { createContext, useEffect, useState } from "react"
-import { disposeVRM } from "../library/utils"
-import * as THREE from "three"
-import {
-  getRandomizedTemplateOptions,
-  getOptionsFromAvatarData
-} from "../library/option-utils"
 
 import gsap from "gsap"
 import { local } from "../library/store"
+import { sceneInitializer } from "../library/sceneInitializer"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
 
-  const [vrmHelperRoot, setVrmHelperRoot] = useState(null);
-
-  const initializeScene = () => {
-    const scene = new THREE.Scene()
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    // rotate the directional light to be a key light
-    directionalLight.position.set(0, 1, 1);
-    scene.add(directionalLight);
-
-    const helperRoot = new THREE.Group();
-    helperRoot.renderOrder = 10000;
-    scene.add( helperRoot );
-    setVrmHelperRoot(helperRoot);
-
-    return scene;
-  }
-
-  const [scene, setScene] = useState(initializeScene)
-  
-
-  const [currentTraitName, setCurrentTraitName] = useState(null)
-  const [currentOptions, setCurrentOptions] = useState([])
-  const [displayTraitOption, setDisplayTraitOption] = useState(null)
-
-  const [currentVRM, setCurrentVRM] = React.useState(null)
-
-  const [model, setModel] = useState(new THREE.Object3D())
+  const [characterManager, setCharacterManager] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
+  const [lookAtManager, setLookAtManager] = useState(null)
+  const [scene, setScene] = useState(null)
   const [camera, setCamera] = useState(null)
-
-  const [selectedOptions, setSelectedOptions] = useState([])
-  const [removeOption, setRemoveOption] = useState(false)
-  const [awaitDisplay, setAwaitDisplay] = useState(false)
-
-  const [colorStatus, setColorStatus] = useState("")
-  const [skinColor, setSkinColor] = useState(new THREE.Color(1, 1, 1))
-  const [avatar, _setAvatar] = useState(null)
-
-  const [blinkManager, setBlinkManager] = useState(null)
-
   const [controls, setControls] = useState(null)
 
-  const [lipSync, setLipSync] = useState(null)
-
-  const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
-
-  const [templateInfo, setTemplateInfo] = useState() 
   const [manifest, setManifest] = useState(null)
-  const [manifestSelectionIndex, setManifestSelectionIndex] = useState(null)
-  const [sceneModel, setSceneModel] = useState(null)
-
-  const [isChangingWholeAvatar, setIsChangingWholeAvatar] = useState(false)
-
   const [debugMode, setDebugMode] = useState(false);
 
-  const setAvatar = (state) => {
-    _setAvatar(state)
-  }
+  let loaded = false
+  let [isLoaded, setIsLoaded] = useState(false)
+  useEffect(()=>{
+    // hacky prevention of double render
+    if (loaded || isLoaded) return
+    setIsLoaded(true)
+    loaded = true;
 
-  const toggleDebugMNode = (isDebug) => {
+    const {
+      scene,
+      camera,
+      controls,
+      characterManager
+    } = sceneInitializer("editor-scene");
+
+    setCamera(camera);
+    setScene(scene);
+    setCharacterManager(characterManager);
+    setAnimationManager(characterManager.animationManager)
+    setLookAtManager(characterManager.lookAtManager)
+    setControls(controls);
+  },[])
+
+
+  const toggleDebugMode = (isDebug) => {
     if (isDebug == null)
       isDebug = !debugMode;
 
@@ -87,80 +54,6 @@ export const SceneProvider = (props) => {
         }
       }
     });
-  }
-  const loadAvatar = (avatarData) =>{
-    const data = getOptionsFromAvatarData(avatarData,manifest)
-    if (data != null){
-      resetAvatar();
-      setSelectedOptions(data);
-    }
-  }
-  const loadAvatarFromLocalStorage = (loadName) =>{
-    const avatarData = local[`${templateInfo.id}12223_${loadName}`]
-    console.log(avatarData)
-    if (avatarData){
-      loadAvatar(avatarData);
-    }
-    else{
-      console.log("no local storage for " + loadName + " was found")
-    }
-  }
-  const getSelectedCharacterBaseData = () => {
-    return manifest[manifestSelectionIndex];
-  }
-  const saveAvatarToLocalStorage = (saveName) =>{
-    const saveAvatar = getSaveAvatar()
-    local[`${templateInfo.id}12223_${saveName}`] = saveAvatar
-  }
-  const getSaveAvatar = () => {
-    // saves the current avatar, it also saves the class
-    const avatarJson = {}
-    templateInfo.traits.forEach(trait => {
-      const prop = trait.trait;
-      avatarJson[prop] = {
-        traitInfo: avatar[prop]?.traitInfo,
-        textureInfo: avatar[prop]?.textureInfo,
-        colorInfo: avatar[prop]?.colorInfo,
-      }
-    });
-    avatarJson.class = templateInfo.id;
-    return avatarJson;
-  }
-
-  const saveUserSelection = (options) =>{
-    const newSelection = loadUserSelection (manifestSelectionIndex) || []
-    options.map((opt)=>{
-      let newOpt = true;
-      for (let i =0; i < newSelection.length;i++ ) {
-        if(newSelection[i].trait.trait === opt.trait.trait){
-          newSelection[i] = opt
-          newOpt = false;
-          break
-        }
-      }
-      if (newOpt === true)
-        newSelection.push(opt)
-    })
-    local[manifestSelectionIndex] = newSelection;
-  }
-
-  const loadUserSelection = (index) => {
-    return local[index]
-  }
-
-  const getRandomCharacter = () => {
-    setSelectedOptions(getRandomizedTemplateOptions(templateInfo))
-  }
-
-  const resetAvatar = () => {
-    if (avatar){
-      for (const prop in avatar){
-        if (avatar[prop].vrm){
-          disposeVRM (avatar[prop].vrm)
-        }
-      }
-    }
-    setAvatar({})
   }
 
   const moveCamera = (value) => {
@@ -197,7 +90,7 @@ export const SceneProvider = (props) => {
         controls.minPolarAngle = 0
         controls.maxPolarAngle = 3.1415
         controls.minDistance = 0.5
-        controls.maxDistance = 5
+        controls.maxDistance = 10
         controls.minAzimuthAngle = Infinity
         controls.maxAzimuthAngle = Infinity
       })
@@ -206,69 +99,17 @@ export const SceneProvider = (props) => {
   return (
     <SceneContext.Provider
       value={{
-        vrmHelperRoot,
-        currentVRM,
-        setCurrentVRM,
-        
-        awaitDisplay, 
-        setAwaitDisplay,
-        templateInfo,
-        setTemplateInfo,
-        blinkManager,
-        setBlinkManager,
         manifest,
         setManifest,
-        manifestSelectionIndex,
-        setManifestSelectionIndex,
-        getSelectedCharacterBaseData,
-        sceneModel,
-        setSceneModel,
-        lipSync,
-        setLipSync,
         scene,
-        setScene,
-        currentTraitName,
-        setCurrentTraitName,
-        displayTraitOption,
-        setDisplayTraitOption,
-        currentOptions,
-
-        getSaveAvatar,
-        saveAvatarToLocalStorage,
-        loadAvatarFromLocalStorage,
-
+        characterManager,
         debugMode,
-        toggleDebugMNode,
-
-        setCurrentOptions,
-        setSelectedOptions,
-        getRandomCharacter,
-        saveUserSelection,
-        loadUserSelection,
-        selectedOptions,
-        setRemoveOption,
-        removeOption,
-        model,
-        setModel,
+        toggleDebugMode,
         animationManager,
-        setAnimationManager,
+        lookAtManager,
         camera,
-        setCamera,
-        colorStatus,
-        setColorStatus,
-        skinColor,
-        setSkinColor,
-        avatar,
-        setAvatar,
-        resetAvatar,
         moveCamera,
         controls,
-        setControls,
-        initializeScene,
-        mousePosition, 
-        setMousePosition,
-        isChangingWholeAvatar,
-        setIsChangingWholeAvatar,
       }}
     >
       {props.children}

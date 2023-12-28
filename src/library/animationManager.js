@@ -141,19 +141,20 @@ class AnimationControl {
 }
 
 export class AnimationManager{
-  constructor (offset){
+  constructor (){
     this.animationPaths = null;
     this.lastAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
 
+    this.scale = 1;
+
     this.curLoadAnim = 0;
     this.currentAnimationName = "";
     
     this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
     this.weightOut = NaN;
-    this.offset = null;
     this.lastAnimID = -1;
     this.curAnimID = 0;
     this.animationControls = [];
@@ -163,13 +164,6 @@ export class AnimationManager{
     this.mixamoModel = null;
     this.mixamoAnimations = null;
 
-    if (offset){
-      this.offset = new THREE.Vector3(
-        offset[0],
-        offset[1],
-        offset[2]
-      );
-    }
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -182,6 +176,10 @@ export class AnimationManager{
     });
   }
   
+  setScale (scale){
+    this.scale = scale;
+  }
+
   async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
@@ -189,7 +187,10 @@ export class AnimationManager{
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
+    animationModel.scale.set(this.scale,this.scale,this.scale)
+    this._scaleOffsetHips(animationModel.animations);
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
+    
     if (clip != null){
       this.mixamoModel = animationModel.clone();
       this.mixamoAnimations =   animationModel.animations;
@@ -198,11 +199,11 @@ export class AnimationManager{
     else{
       this.mixamoModel = null
       this.animations = animationModel.animations;
-      if (this.offset)
-        this.offsetHips();
     }
     
     if (this.mainControl == null){
+      this.curAnimID = 0;
+      this.lastAnimID = -1;
       this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
       this.animationControls.push(this.mainControl)
     }
@@ -217,6 +218,12 @@ export class AnimationManager{
 
   getCurrentAnimationName(){
     return this.currentAnimationName;
+  }
+
+  clearCurrentAnimations(){
+    this.animationPaths = null;
+    this.animationControls = [];
+    this.mainControl = null;
   }
 
   storeAnimationPaths(pathArray, pathBase){
@@ -252,24 +259,27 @@ export class AnimationManager{
     }); 
   }
 
-  offsetHips(){
-    this.animations.forEach(anim => {
+  _scaleOffsetHips(animations){
+    animations.forEach(anim => {
       for (let i =0; i < anim.tracks.length; i++){
         const track = anim.tracks[i];
-        if (track.name === "hips.position"){
+        if (track.name.includes(".position")){
           for (let j = 0; j < track.values.length/3 ; j++){
             const base = j*3;
-            track.values[base] = track.values[base] + this.offset.x;
-            track.values[base + 1] = track.values[base + 1] + this.offset.y;
-            track.values[base + 2] = track.values[base + 2] + this.offset.z;
+            track.values[base] /= this.scale;
+            track.values[base + 1] /= this.scale;
+            track.values[base + 2] /= this.scale;
           }
         }
       }
     });
   }
 
-
   startAnimation(vrm){
+    if (this.mainControl == null){
+      console.log("No animations preloaded");
+      return;
+    }
     let animations = null;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
@@ -322,7 +332,6 @@ export class AnimationManager{
     this.animationControls.forEach(animControl => {
       animControl.dispose()
     });
-    //console.log("todo dispose animations")
   }
 
   animRandomizer(yieldTime){

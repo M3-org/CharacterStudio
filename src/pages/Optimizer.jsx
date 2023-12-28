@@ -14,16 +14,14 @@ import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 
-function Optimizer({
-  animationManager,
-}) {
+function Optimizer() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
-    model,
+    characterManager,
+    animationManager
   } = React.useContext(SceneContext)
   
-  const [currentVRM, setCurrentVRM] = useState(null);
-  const [lastVRM, setLastVRM] = useState(null);
+  const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
   const { playSound } = React.useContext(SoundContext)
@@ -31,6 +29,8 @@ function Optimizer({
 
   const back = () => {
     !isMute && playSound('backNextButton');
+    characterManager.removeCurrentCharacter();
+    characterManager.removeCurrentManifest();
     setViewMode(ViewMode.LANDING)
   }
 
@@ -45,62 +45,55 @@ function Optimizer({
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      optimize_to_ktx2: (local["merge_options_ktx_compression"] || false)
+      ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
 
   const download = () => {
-    const vrmData = currentVRM.userData.vrm
-    console.log("VRM DATA:", vrmData);
-    downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
+
+    // const vrmData = currentVRM.userData.vrm
+    // console.log("VRM DATA:", vrmData);
+    // downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
+    characterManager.downloadVRM(nameVRM + "_merged", getOptions())
+
   }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (lastVRM != null){
-        disposeVRM(lastVRM);
-      }
-      if (currentVRM != null){
-        addVRMToScene(currentVRM, model)
-        if (local["mergeOptions_drop_download"]){
-          const vrmData = currentVRM.userData.vrm
-          await downloadVRM(model, vrmData,nameVRM + "_merged",getOptions())
-          disposeVRM(currentVRM);
-          setCurrentVRM(null);
-        }
-        else{
-          setLastVRM(currentVRM);
-        }
-      }
-    }
-
-    fetchData();
-  }, [currentVRM])
 
   // Translate hook
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const animName = getFileNameWithoutExtension(file.name);
-    const path = URL.createObjectURL(file);
+    const curVRM = characterManager.getCurrentOptimizerCharacterModel();
+    if (curVRM){
+      const animName = getFileNameWithoutExtension(file.name);
+      const url = URL.createObjectURL(file);
 
-    await animationManager.loadAnimation(path, true, "", animName);
+      await animationManager.loadAnimation(url, true, "", animName);
+      animationManager.startAnimation(characterManager.getCurrentOptimizerCharacterModel());
+
+      URL.revokeObjectURL(url);
+    }
+    else{
+      console.warn("Please load a vrm model to test animations.")
+    }
   }
 
   const handleVRMDrop = async (file) =>{
-    const path = URL.createObjectURL(file);
-    const vrm = await loadVRM(path);
-    const name = getFileNameWithoutExtension(file.name);
+    const url = URL.createObjectURL(file);
+    await characterManager.loadOptimizerCharacter(url);
+    URL.revokeObjectURL(url);
 
-    setNameVRM(name);
-    setCurrentVRM(vrm);
-    console.log(vrm)
+    const name = getFileNameWithoutExtension(file.name);
+    setNameVRM (name);
+
+    setModel(characterManager.getCurrentCharacterModel());
   }
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
+    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
+      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
@@ -122,7 +115,7 @@ function Optimizer({
         showCreateAtlas = {false}
       />
       <ModelInformation
-        currentVRM={currentVRM}
+        model={model}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
@@ -139,7 +132,7 @@ function Optimizer({
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(currentVRM)&&(
+        {(model != "")&&(
           <CustomButton
           theme="light"
           text="Download"

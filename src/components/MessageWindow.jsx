@@ -16,11 +16,6 @@ export default function MessageWindow(props) {
       confirmDialogWindow?(
         <div className={styles.container}>
           <div className={styles.messageWindow}>
-                
-              {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
-            
-              {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
-      
               <div className={styles.messageTitle}>{confirmDialogText}</div>
               <div className={styles.buttonContainer}>
                 

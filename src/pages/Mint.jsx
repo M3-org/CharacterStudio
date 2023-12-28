@@ -7,8 +7,8 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import { mintAsset } from "../library/mint-utils"
 
-function MintComponent({getFaceScreenshot}) {
-  const { templateInfo, model, avatar } = React.useContext(SceneContext)
+function MintComponent() {
+  const { model, avatar } = React.useContext(SceneContext)
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -38,9 +38,9 @@ function MintComponent({getFaceScreenshot}) {
     !isMute && playSound('backNextButton');
     setMinting(true)
     setStatus("Please check your wallet")
-    const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
-    const fullBio = JSON.parse(fullBioStr)
-    const screenshot = getFaceScreenshot(256,256,true);
+    //const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
+    const fullBio = {name:"XXXRestore"};//JSON.parse(fullBioStr)
+    const screenshot = null;// getFaceScreenshot(256,256,true);
     const result = await mintAsset(avatar,screenshot,model, fullBio.name)
     setStatus(result)
     setMinting(false)
@@ -50,11 +50,6 @@ function MintComponent({getFaceScreenshot}) {
   return (
     <div className={styles.container}>
       <div className={"sectionTitle"}>Mint Your Character</div>
-          
-        {/* <Mint screenshotManager = {screenshotManager} blinkManager = {blinkManager} animationManager = {animationManager}/> */}
-      
-        {/* <ResizableDiv setScreenshotPosition = {setScreenshotPosition} screenshotPosition = {screenshotPosition}/> */}
-
       <div className={styles.mintContainer}>
         <MenuTitle />
         <div className={styles.mintButtonContainer}>

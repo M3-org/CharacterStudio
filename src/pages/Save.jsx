@@ -8,9 +8,10 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import MergeOptions from "../components/MergeOptions"
+import FileDropComponent from "../components/FileDropComponent"
 
 
-function Save({getFaceScreenshot}) {
+function Save() {
 
   // Translate hook
   const { t } = useContext(LanguageContext);
@@ -20,13 +21,18 @@ function Save({getFaceScreenshot}) {
 
 
   const back = () => {
-    setViewMode(ViewMode.BIO)
+    setViewMode(ViewMode.APPEARANCE)
     !isMute && playSound('backNextButton');
   }
   const mint = () => {
     setViewMode(ViewMode.MINT)
     !isMute && playSound('backNextButton');
   }
+  const handleFilesDrop = async(files) => {
+    const file = files[0];
+    if (file && file.name.toLowerCase().endsWith('.json')) {
+    } 
+  };
 
   // const next = () => {
   //   setViewMode(ViewMode.CHAT)
@@ -37,6 +43,9 @@ function Save({getFaceScreenshot}) {
     <div className={styles.container}>
       <div className={"sectionTitle"}>{t("pageTitles.saveCharacter")}</div>
       <div className={styles.buttonContainer}>
+        <FileDropComponent 
+          onFilesDrop={handleFilesDrop}
+        />
         <CustomButton
           theme="light"
           text={t('callToAction.back')}
@@ -47,9 +56,7 @@ function Save({getFaceScreenshot}) {
         <MergeOptions
           showCreateAtlas = {true}
         />
-        <ExportMenu 
-          getFaceScreenshot = {getFaceScreenshot}
-        />
+        <ExportMenu />
         
         <CustomButton
             theme="light"
