@@ -82,7 +82,7 @@ export class CharacterManager {
           this.lookAtManager.addVRM(this.avatar[prop].vrm)
         }
       }
-      this.toggleCharacterLookAtMouse(enable)
+      //this.toggleCharacterLookAtMouse(enable)
     }
     toggleCharacterLookAtMouse(enable){
       if (this.lookAtManager != null){
