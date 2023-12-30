@@ -17,6 +17,11 @@ function Landing() {
     !isMute && playSound('backNextButton');
   }
 
+  const createVRMCharacter = () => {
+    setViewMode(ViewMode.CLAIM)
+    !isMute && playSound('backNextButton');
+  }
+
   const optimizeCharacter = () => {
     setViewMode(ViewMode.OPTIMIZER)
     characterManager.loadOptimizerManifest();
@@ -33,6 +38,9 @@ function Landing() {
       <div className={styles.buttonContainer}>
         <button className={styles.button} onClick={createCharacter}>
           <img src="/assets/media/btn_create_character.png" />
+        </button>
+        <button className={styles.button} onClick={createVRMCharacter}>
+          <img src="/assets/media/btn_batch_download_character.png" />
         </button>
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="/assets/media/btn_optimize_character.png" />
