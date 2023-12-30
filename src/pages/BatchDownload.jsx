@@ -169,13 +169,14 @@ function BatchDownload() {
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
         <img className={"rotate"} src="ui/loading.svg" />
       </div>
-      <div className={"sectionTitle"}>Optimize your character</div>
+      <div className={"sectionTitle"}>Batch Download</div>
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
       <MergeOptions
         showDropToDownload={true}
         showCreateAtlas = {false}
+        mergeMenuTitle = {"Download Options"}
       />
       <ModelInformation
         model={model}

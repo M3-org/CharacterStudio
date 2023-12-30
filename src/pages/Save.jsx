@@ -55,6 +55,7 @@ function Save() {
         />
         <MergeOptions
           showCreateAtlas = {true}
+          mergeMenuTitle = {"Download Options"}
         />
         <ExportMenu />
         

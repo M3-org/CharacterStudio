@@ -113,6 +113,7 @@ function Optimizer() {
       <MergeOptions
         showDropToDownload={true}
         showCreateAtlas = {false}
+        mergeMenuTitle = {"Optimizer Options"}
       />
       <ModelInformation
         model={model}
