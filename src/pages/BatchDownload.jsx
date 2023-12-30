@@ -51,14 +51,22 @@ function BatchDownload() {
       ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
+  const downloadVRMWithIndex=(index)=>{
+    
+    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
+      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions());
+      //console.log(finished);
+      if (index < jsonSelectionArray.length-1 )
+        downloadVRMWithIndex(index + 1)
+      else
+      setIsLoading(false);
+    })
+  }
 
   const download = () => {
-
-    // const vrmData = currentVRM.userData.vrm
-    // console.log("VRM DATA:", vrmData);
-    // downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
-    characterManager.downloadVRM(nameVRM + "_merged", getOptions())
-
+    //characterManager.downloadVRM(nameVRM + "_merged", getOptions())
+    setIsLoading(true);
+    downloadVRMWithIndex(0);
   }
 
   // Translate hook
