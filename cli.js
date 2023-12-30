@@ -67,15 +67,18 @@ async function setup() {
   const manifestObject = JSON.parse(manifestContent);
 
   const newPath = path.resolve(process.cwd(), "./public/" + manifestObject.assetsLocation)
-  manifestObject.assetsLocation = "file://" + newPath;
+  manifestObject.assetsLocation = newPath;
 
   console.log(manifestObject.assetsLocation);
   const nftObject = JSON.parse(nftContent);
  
+  // characterManager.loadTrait("BODY", "Masculine")
+  // characterManager.loadRandomTrait("CLOTHING")
+  // characterManager.loadRandomTraits()
     
   await characterManager.setManifestObject(manifestObject);
   //console.log(characterManager.manifest)
-  //await characterManager.loadTraitsFromNFTObject(nftObject);
+  await characterManager.loadTraitsFromNFTObject(nftObject, true, null, true);
   console.log(characterManager.avatar)
 
   program
@@ -87,6 +90,9 @@ async function setup() {
   program.parse(process.argv);
 
   const opts = program.opts()
+
+
+
 
   //console.log(program);
 

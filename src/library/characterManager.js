@@ -10,6 +10,9 @@ import { saveVRMCollidersToUserData } from "./load-utils.js";
 import { LipSync } from "./lipsync.js";
 import { LookAtManager } from "./lookatManager.js";
 import { CharacterManifestData } from "./CharacterManifestData.js";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
+import fs from 'fs/promises';
+import path from 'path';
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -371,7 +374,7 @@ export class CharacterManager {
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null, useFileSystem = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
@@ -380,7 +383,7 @@ export class CharacterManager {
             const traits = this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
 
             // Load traits into the avatar using the _loadTraits method
-            await this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits, fullAvatarReplace, useFileSystem);
 
             resolve();
           } catch (error) {
@@ -518,7 +521,6 @@ export class CharacterManager {
       });
     }
 
-
     removeTrait(groupTraitID, forceRemove = false){
       if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){
         console.warn(`No trait with name: ${ groupTraitID } is not removable.`)
@@ -615,8 +617,8 @@ export class CharacterManager {
       });
     }
 
-    async _loadTraits(options, fullAvatarReplace = false){
-      await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
+    async _loadTraits(options, fullAvatarReplace = false, useFileSystem = false){
+      await this.traitLoadManager.loadTraitOptions(getAsArray(options),useFileSystem).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
           const groupTraits = this.getGroupTraits();
@@ -629,8 +631,8 @@ export class CharacterManager {
             }
           });
         }
-        
         loadedData.forEach(itemData => {
+          console.log(itemData.models);
             this._addLoadedData(itemData)
         });
         cullHiddenMeshes(this.avatar);
@@ -731,6 +733,8 @@ export class CharacterManager {
       
     }
     _VRMBaseSetup(m, item, traitID, textures, colors){
+      console.log(m);
+      console.log(m.userData);
       let vrm = m.userData.vrm;
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
@@ -906,7 +910,6 @@ export class CharacterManager {
           textures,
           colors
       } = itemData;
-
       // user selected to remove trait
       if (traitModel == null){
           if ( this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm ){
@@ -919,23 +922,25 @@ export class CharacterManager {
       }
 
       let vrm = null;
-
+      console.log("1");
+      console.log(models);
       models.map((m)=>{
-          
+        console.log(m)
+          console.log(m.userData);
           vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
       })
-
+      console.log("2");
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
         disposeVRM(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
-
+      console.log("3");
       this._positionModel(vrm)
-    
+      console.log("4");
       this._displayModel(vrm)
-        
+      console.log("5");
       this._applyManagers(vrm)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
@@ -968,7 +973,8 @@ class TraitLoadingManager{
             // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
             return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
         })
-      
+        gltfLoader.setKTX2Loader(new KTX2Loader());
+
         // Texture Loader
         const textureLoader = new THREE.TextureLoader(loadingManager);
 
@@ -986,65 +992,94 @@ class TraitLoadingManager{
 
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
-    loadTraitOptions(options) {
-        return new Promise((resolve) => {
-            this.isLoading = true;
-            const resultData = [];
-    
-            const promises = options.map(async (option, index) => {
-                if (option == null) {
-                    resultData[index] = null;
-                    return;
-                }
+    loadTraitOptions(options, useFileSystem = false) {
+      if (useFileSystem) console.log("usefilesystem");
+      return new Promise((resolve) => {
+          this.isLoading = true;
+          const resultData = [];
+  
+          const promises = options.map(async (option, index) => {
+              if (option == null) {
+                  resultData[index] = null;
+                  return;
+              }
 
-                const loadedModels = await Promise.all(
-                    getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
-                        try {
-                            return await this.gltfLoader.loadAsync(modelDir);
-                        } catch (error) {
-                            console.error(`Error loading model ${modelDir}:`, error);
-                            return null;
-                        }
-                    })
-                );
-    
-                const loadedTextures = await Promise.all(
-                  getAsArray(option?.traitTexture?.fullDirectory).map(
-                      (textureDir) =>
-                          new Promise((resolve) => {
+
+              const loadedModels = await Promise.all(
+                getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
+                    try {
+                        return useFileSystem
+                            ? await this.loadModelFromFileSystem(modelDir)
+                            : await this.gltfLoader.loadAsync(modelDir);
+                    } catch (error) {
+                        console.error(`Error loading model ${modelDir}:`, error);
+                        return null;
+                    }
+                })
+              );
+  
+              const loadedTextures = await Promise.all(
+                getAsArray(option?.traitTexture?.fullDirectory).map(async (textureDir) => {
+                    return useFileSystem
+                        ? await this.loadTextureFromFileSystem(textureDir)
+                        : new Promise((resolve) => {
                               this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
                                   resolve(txt);
                               });
-                          })
-                  )
-                );
-    
-                const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
-    
-                resultData[index] = new LoadedData({
-                    traitGroupID: option?.traitModel.traitGroup.trait,
-                    traitModel: option?.traitModel,
-                    textureTrait: option?.traitTexture,
-                    colorTrait: option?.traitColor,
-                    models: loadedModels,
-                    textures: loadedTextures,
-                    colors: loadedColors,
-                });
-            });
-    
-            Promise.all(promises)
-                .then(() => {
-                    this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
-                    resolve(resultData);
-                    this.isLoading = false;
+                          });
                 })
-                .catch((error) => {
-                    console.error('An error occurred:', error);
-                    resolve(resultData);
-                    this.isLoading = false;
-                });
+              );
+              
+  
+              const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
+  
+              resultData[index] = new LoadedData({
+                  traitGroupID: option?.traitModel.traitGroup.trait,
+                  traitModel: option?.traitModel,
+                  textureTrait: option?.traitTexture,
+                  colorTrait: option?.traitColor,
+                  models: loadedModels,
+                  textures: loadedTextures,
+                  colors: loadedColors,
+              });
+          });
+  
+          Promise.all(promises)
+              .then(() => {
+                  this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
+                  resolve(resultData);
+                  this.isLoading = false;
+              })
+              .catch((error) => {
+                  console.error('An error occurred:', error);
+                  resolve(resultData);
+                  this.isLoading = false;
+              });
         });
+    }
+
+    async loadModelFromFileSystem(modelDir) {
+
+      try {
+        const gltfContent = fs.readFileSync(modelDir, 'utf8');
+        const gltf = JSON.parse(gltfContent);
+        console.log(gltf);
+        
+      } catch (error) {
+
+      }
+    }
+    async loadTextureFromFileSystem(textureDir) {
+      try {
+          const texturePath = textureDir;//path.resolve(__dirname, textureDir); // Adjust as needed
+          const textureData = await fs.readFile(texturePath);
+          // Process the texture data as needed
+          return textureData;
+      } catch (error) {
+          console.error(`Error loading texture from file system ${textureDir}:`, error);
+          return null;
+      }
     }
 }
 class LoadedData{

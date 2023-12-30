@@ -250,6 +250,10 @@ function parseVRM (glbModel, avatar, options){
     
     if (options.ktxCompression) {
       console.log("ktx compression")
+      // https://github.com/BinomialLLC/basis_universal
+      // https://github.com/KhronosGroup/KTX-Software
+      // https://github.com/donmccurdy/KTX-Parse
+      // https://github.com/KhronosGroup/glTF-Compressor
       for(let i = 0; i < vrmData.materials.length;i++){
         const material = vrmData.materials[i];
         if (material.map && material.map.isTexture) {
@@ -271,7 +275,7 @@ function parseVRM (glbModel, avatar, options){
               const ctx = canvas.getContext('bitmaprenderer');
               ctx.transferFromImageBitmap(bmp);
               const blob2 = await new Promise((res) => canvas.toBlob(res));
-              const encoded = null //await encodeToKTX2(blob2);
+              const encoded = null//await encodeToKTX2(blob2);
               const blob = new Blob(encoded, {type:"image/ktx2"});
               const bitmap = await createImageBitmap(blob);
               vrmData.materials[i].map.source = bitmap;
