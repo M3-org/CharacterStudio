@@ -189,10 +189,18 @@ function BatchDownload() {
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(model != "")&&(
+        {(jsonSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"
           text="Download"
+          size={14}
+          className={styles.buttonRight}
+          onClick={download}
+        />)}
+        {(jsonSelectionArray?.length > 1)&&(
+          <CustomButton
+          theme="light"
+          text="Download All"
           size={14}
           className={styles.buttonRight}
           onClick={download}
