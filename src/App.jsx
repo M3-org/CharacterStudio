@@ -17,8 +17,10 @@ import Load from "./pages/Load"
 import Mint from "./pages/Mint"
 import BioPage from "./pages/Bio"
 import Create from "./pages/Create"
+import Claim from "./pages/Claim"
 import Landing from "./pages/Landing"
 import Appearance from "./pages/Appearance"
+import BatchDownload from "./pages/BatchDownload"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 
@@ -193,7 +195,7 @@ export default function App() {
 
     if (controls) {
       if (
-        [ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.OPTIMIZER].includes(viewMode)
+        [ViewMode.APPEARANCE, ViewMode.SAVE, ViewMode.OPTIMIZER, ViewMode.BATCHDOWNLOAD].includes(viewMode)
       ) {
         controls.enabled = true
       } else {
@@ -225,6 +227,8 @@ export default function App() {
       <BioPage personality={personality} />
     ),
     [ViewMode.CREATE]: <Create />,
+    [ViewMode.CLAIM]: <Claim />,
+    [ViewMode.BATCHDOWNLOAD]: <BatchDownload />,
     [ViewMode.LOAD]: <Load />,
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,

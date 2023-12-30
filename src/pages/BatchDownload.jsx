@@ -10,12 +10,13 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
+import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 
-function Optimizer() {
-  const { isLoading, setViewMode } = React.useContext(ViewContext)
+function BatchDownload() {
+  const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager,
     animationManager
@@ -26,6 +27,8 @@ function Optimizer() {
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
+
+  const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -48,14 +51,21 @@ function Optimizer() {
       ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
+  const downloadVRMWithIndex=(index)=>{
+    
+    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
+      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then(()=>{
+        if (index < jsonSelectionArray.length-1 )
+          downloadVRMWithIndex(index + 1)
+        else
+          setIsLoading(false);
+      })
+    })
+  }
 
   const download = () => {
-
-    // const vrmData = currentVRM.userData.vrm
-    // console.log("VRM DATA:", vrmData);
-    // downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
-    characterManager.downloadVRM(nameVRM + "_merged", getOptions())
-
+    setIsLoading(true);
+    downloadVRMWithIndex(0);
   }
 
   // Translate hook
@@ -88,6 +98,54 @@ function Optimizer() {
     setModel(characterManager.getCurrentCharacterModel());
   }
 
+  const handleJsonDrop = (files) => {
+    const filesArray = Array.from(files);
+    const jsonDataArray = [];
+    const processFile = (file) => {
+      return new Promise((resolve, reject) => {
+        if (file && file.name.toLowerCase().endsWith('.json')) {
+          const reader = new FileReader();
+
+          // XXX Anata hack to display nft thumbs
+          const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+
+          //console.log(thumbLocation)
+          reader.onload = function (e) {
+            try {
+              const jsonContent = JSON.parse(e.target.result);
+              // XXX Anata hack to display nft thumbs
+              jsonContent.thumb = thumbLocation;
+              jsonDataArray.push(jsonContent);
+
+              resolve(); // Resolve the promise when processing is complete
+            } catch (error) {
+              console.error("Error parsing the JSON file:", error);
+              reject(error);
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+    };
+
+    // Use Promise.all to wait for all promises to resolve
+    Promise.all(filesArray.map(processFile))
+    .then(() => {
+      if (jsonDataArray.length > 0){
+        // This code will run after all files are processed
+        setJsonSelectionArray(jsonDataArray);
+        setIsLoading(true);
+        characterManager.loadTraitsFromNFTObject(jsonDataArray[0]).then(()=>{
+          setIsLoading(false);
+        })
+      }
+    })
+    .catch((error) => {
+      console.error("Error processing files:", error);
+    });
+  }
+
+
   const handleFilesDrop = async(files) => {
     const file = files[0];
     console.log("anim")
@@ -99,25 +157,31 @@ function Optimizer() {
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
       handleVRMDrop(file);
     } 
+    if (file && file.name.toLowerCase().endsWith('.json')) {
+      handleJsonDrop(files);
+    } 
   };
+
+  
 
   return (
     <div className={styles.container}>
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
         <img className={"rotate"} src="ui/loading.svg" />
       </div>
-      <div className={"sectionTitle"}>Optimize your character</div>
+      <div className={"sectionTitle"}>Batch Download</div>
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
       <MergeOptions
         showDropToDownload={true}
         showCreateAtlas = {false}
-        mergeMenuTitle = {"Optimizer Options"}
+        mergeMenuTitle = {"Download Options"}
       />
       <ModelInformation
         model={model}
       />
+      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
@@ -133,10 +197,18 @@ function Optimizer() {
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(model != "")&&(
+        {(jsonSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"
           text="Download"
+          size={14}
+          className={styles.buttonRight}
+          onClick={download}
+        />)}
+        {(jsonSelectionArray?.length > 1)&&(
+          <CustomButton
+          theme="light"
+          text="Download All"
           size={14}
           className={styles.buttonRight}
           onClick={download}
@@ -146,4 +218,4 @@ function Optimizer() {
   )
 }
 
-export default Optimizer
+export default BatchDownload

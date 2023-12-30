@@ -209,19 +209,45 @@ export class CharacterManager {
     canDownload(){
       return this.manifestData?.canDownload || true;
     }
-    downloadVRM(name, exportOptions = null){
-      if (this.canDownload()){
-        exportOptions = exportOptions || {}
-        const manifestOptions = this.manifestData.getExportOptions();
-        const finalOptions = {...manifestOptions, ...exportOptions};
-        finalOptions.isVrm0 = true; // currently vrm1 not supported
-        finalOptions.screenshot = this._getPortaitScreenshotTexture(false,finalOptions);
-        console.log(finalOptions);
-        downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
-      }
-      else{
-        console.error("Download not supported");
-      }
+    /**
+     * Downloads the VRM file with the given name and export options.
+     *
+     * @param {string} name - The name of the VRM file to be downloaded.
+     * @param {Object} exportOptions - Additional export options (optional).
+     * @returns {Promise<void>} A Promise that resolves when the VRM file is successfully downloaded,
+     *                         or rejects with an error message if download is not supported.
+     */
+    downloadVRM(name, exportOptions = null) {
+      return new Promise(async (resolve, reject) => {
+        if (this.canDownload()) {
+          try {
+            // Set default export options if not provided
+            exportOptions = exportOptions || {};
+            const manifestOptions = this.manifestData.getExportOptions();
+            const finalOptions = { ...manifestOptions, ...exportOptions };
+            finalOptions.isVrm0 = true; // currently vrm1 not supported
+            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
+
+            // Log the final export options
+            console.log(finalOptions);
+
+            // Call the downloadVRMWithAvatar function with the required parameters
+            await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } catch (error) {
+            // Handle any errors that occurred during the download process
+            console.error("Error downloading VRM:", error.message);
+            reject(new Error("Failed to download VRM."));
+          }
+        } else {
+          // Download not supported, log an error and reject the Promise
+          const errorMessage = "Download not supported.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
     downloadGLB(name, exportOptions = null){
       console.log("XXX fix glb downloader");
