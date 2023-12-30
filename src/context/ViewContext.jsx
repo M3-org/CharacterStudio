@@ -13,6 +13,7 @@ export const ViewMode = {
   CLAIM: "CLAIM",
   LOAD: "LOAD",
   APPEARANCE: "APPEARANCE",
+  BATCHDOWNLOAD: "BATCHDOWNLOAD",
   BIO: "BIO",
   SAVE: "SAVE",
   MINT: "MINT",
