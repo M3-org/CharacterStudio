@@ -10,6 +10,7 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
+import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
@@ -99,14 +100,14 @@ function BatchDownload() {
           const reader = new FileReader();
 
           // XXX Anata hack to display nft thumbs
-          //const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+          const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
 
           //console.log(thumbLocation)
           reader.onload = function (e) {
             try {
               const jsonContent = JSON.parse(e.target.result);
               // XXX Anata hack to display nft thumbs
-              //jsonContent.thumb = thumbLocation;
+              jsonContent.thumb = thumbLocation;
               jsonDataArray.push(jsonContent);
 
               resolve(); // Resolve the promise when processing is complete
@@ -172,6 +173,7 @@ function BatchDownload() {
       <ModelInformation
         model={model}
       />
+      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
