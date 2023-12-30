@@ -54,17 +54,16 @@ function BatchDownload() {
   const downloadVRMWithIndex=(index)=>{
     
     characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
-      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions());
-      //console.log(finished);
-      if (index < jsonSelectionArray.length-1 )
-        downloadVRMWithIndex(index + 1)
-      else
-      setIsLoading(false);
+      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then(()=>{
+        if (index < jsonSelectionArray.length-1 )
+          downloadVRMWithIndex(index + 1)
+        else
+          setIsLoading(false);
+      })
     })
   }
 
   const download = () => {
-    //characterManager.downloadVRM(nameVRM + "_merged", getOptions())
     setIsLoading(true);
     downloadVRMWithIndex(0);
   }
