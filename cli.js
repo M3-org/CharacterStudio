@@ -10,6 +10,9 @@ import * as THREE from 'three';
 import { createCanvas } from "canvas";
 import glContext from "gl";
 
+// const globalObject = typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global;
+// globalObject.Buffer = globalObject.Buffer || require('buffer').Buffer;
+
 async function setup() {
 
 

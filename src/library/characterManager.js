@@ -10,7 +10,8 @@ import { saveVRMCollidersToUserData } from "./load-utils.js";
 import { LipSync } from "./lipsync.js";
 import { LookAtManager } from "./lookatManager.js";
 import { CharacterManifestData } from "./CharacterManifestData.js";
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
+import gltfPipeline from 'gltf-pipeline';
+// import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -973,7 +974,7 @@ class TraitLoadingManager{
             // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
             return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
         })
-        gltfLoader.setKTX2Loader(new KTX2Loader());
+        // gltfLoader.setKTX2Loader(new KTX2Loader());
 
         // Texture Loader
         const textureLoader = new THREE.TextureLoader(loadingManager);
@@ -1062,12 +1063,31 @@ class TraitLoadingManager{
     async loadModelFromFileSystem(modelDir) {
 
       try {
-        const gltfContent = fs.readFileSync(modelDir, 'utf8');
-        const gltf = JSON.parse(gltfContent);
-        console.log(gltf);
+        console.log(modelDir);
+        const glbBuffer = await fs.readFile(modelDir);
+
+        // Convert the Buffer to ArrayBuffer
+        const glbArrayBuffer = glbBuffer.buffer;
+
+        this.gltfLoader.parse(
+          glbArrayBuffer,
+          '',
+          (gltf) => {
+            console.log(gltf);
+            // Do something with the loaded model, e.g., add it to the scene
+            return gltf;
+          },
+          (error) => {
+            console.log("err1");
+            console.error(error);
+          }
+        );
+        // const gltf = JSON.parse(gltfContent);
+        // console.log(gltf);
         
       } catch (error) {
-
+        console.log("err2");
+        console.error(error);
       }
     }
     async loadTextureFromFileSystem(textureDir) {
