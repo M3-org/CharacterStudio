@@ -348,7 +348,14 @@ export class CharacterManager {
         }
       });
     }
-
+    /**
+     * Loads a random trait from provided group trait ID.
+     * If manifest data is available, retrieves random traits,
+     * If manifest data is not available, logs an error and rejects the Promise.
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @returns {Promise<void>} A Promise that resolves with a random trait from chosen group trait ID
+     *                           if successful, or rejects with an error message if not.
+     */
     loadRandomTrait(groupTraitID) {
       return new Promise(async (resolve, reject) => {
         if (this.manifestData) {

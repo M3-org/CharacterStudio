@@ -54,6 +54,9 @@ function Appearance() {
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
       console.log("success")
+      if (traitGroupName != ""){
+        setSelectedTrait(characterManager.getCurrentTraitData(traitGroupName));
+      }
       setIsLoading(false);
     })
     .catch((error) => {
@@ -110,7 +113,11 @@ function Appearance() {
     setSelectedTrait(null);
   }
   const randomTrait = (traitGroupName) =>{
-    characterManager.loadRandomTrait(traitGroupName);
+    setIsLoading(true);
+    characterManager.loadRandomTrait(traitGroupName).then(()=>{
+      setIsLoading(false);
+      setSelectedTrait(characterManager.getCurrentTraitData(traitGroupName));
+    })
     // set selected trait
   }
   const handleJsonDrop = (files) => {
