@@ -233,7 +233,7 @@ function Appearance() {
                   <TokenBox
                     size={56}
                     icon={ traitGroup.fullIconSvg }
-                    rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
+                    rarity={traitGroupName !== traitGroup.trait ? "none" : "mythic"}
                     
                   />
                   <div className={styles["editorText"]}>{traitGroup.name}</div>
