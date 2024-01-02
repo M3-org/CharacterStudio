@@ -42,7 +42,7 @@
   user-select: none;
 }
 .scrollContainer {
-  width: 80%;
+  width: 90%;
   overflow-y: scroll;
   position: relative;
   overflow-x: hidden !important;
@@ -87,21 +87,32 @@
 .editor-container {
   user-select: none;
   flex: 1;
-  width: 110px;
+  width: 200px;
   position: relative;
   text-align: center;
 }
 .editorButton {
   padding: 0.15em;
-  display: block;
+  display: flex;
   position: relative;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
-
+.editorText{
+  color: rgb(255, 255, 255);
+  text-transform: capitalize;
+  max-width: 100px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: left;
+  
+}
 /* previously in Selector.jsx */
 .selectorContainerPos {
   position: absolute;
   top: 98px;
-  left: 180px;
+  left: 280px;
   height: -webkit-calc(100vh - 176px);
   height: calc(100vh - 176px);
   backdrop-filter: blur(22.5px);

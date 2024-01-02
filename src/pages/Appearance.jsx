@@ -225,15 +225,19 @@ function Appearance() {
           <div className={styles["editor-container"]}>
             {
               characterManager.getGroupTraits().map((traitGroup, index) => (
-                <div key={"options_" + index} className={styles["editorButton"]}>
+                <div key={"options_" + index} 
+                className={styles["editorButton"]}
+                onClick={() => {
+                  selectTraitGroup(traitGroup)
+                }}>
                   <TokenBox
                     size={56}
                     icon={ traitGroup.fullIconSvg }
                     rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
-                    onClick={() => {
-                      selectTraitGroup(traitGroup)
-                    }}
+                    
                   />
+                  <div className={styles["editorText"]}>{traitGroup.name}</div>
+                  
                 </div>
               ))
             }
