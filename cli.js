@@ -9,12 +9,11 @@ import { fileURLToPath } from 'url';
 import * as THREE from 'three';
 import { createCanvas } from "canvas";
 import glContext from "gl";
+import { Buffer } from "buffer";
 
-// const globalObject = typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : global;
-// globalObject.Buffer = globalObject.Buffer || require('buffer').Buffer;
+
 
 async function setup() {
-
 
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>',{
     pretendToBeVisual: true,
@@ -23,6 +22,7 @@ async function setup() {
   global.document = dom.window.document;
   global.window = dom.window;
   global.navigator = dom.window.navigator;
+  global.Buffer = Buffer;
 
   //const canvasGL = createCanvas(window.innerWidth, window.innerHeight);
   //canvasGL.addEventListener = function(event, func, bind_) {}; // mock function to avoid errors inside THREE.WebGlRenderer()
@@ -31,7 +31,10 @@ async function setup() {
   renderer.setSize(800,600)
   
   global.window.renderer = renderer;
+  dom.window.document.createElement('canvas');
   
+  console.log(this);
+  this.dom = dom;
   //const renderer = new WebGLRenderer({ canvas: dom.window.document.createElement("canvas") });
   //renderer.setSize(800, 600);
 
