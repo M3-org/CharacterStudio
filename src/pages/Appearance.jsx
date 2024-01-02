@@ -13,6 +13,7 @@ import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
+import randomizeIcon from "../images/randomize.png"
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -107,6 +108,10 @@ function Appearance() {
   const removeTrait = (traitGroupName) =>{
     characterManager.removeTrait(traitGroupName);
     setSelectedTrait(null);
+  }
+  const randomTrait = (traitGroupName) =>{
+    characterManager.loadRandomTrait(traitGroupName);
+    // set selected trait
   }
   const handleJsonDrop = (files) => {
     const filesArray = Array.from(files);
@@ -253,6 +258,20 @@ function Appearance() {
           <div className={styles["bottomLine"]} />
           <div className={styles["scrollContainerOptions"]}>
             <div className={styles["selector-container"]}>
+              {
+                <div
+                  key={"randomize-trait"}
+                  className={`${styles["selectorButton"]}`}
+                  icon={randomizeIcon}
+                  onClick={() => {randomTrait(traitGroupName)}}
+                >
+                  <TokenBox
+                    size={56}
+                    icon={randomizeIcon}
+                    rarity={"none"}
+                  />
+                </div>
+              }
               {/* Null button section */
                 !characterManager.isTraitGroupRequired(traitGroupName) ? (
                   <div

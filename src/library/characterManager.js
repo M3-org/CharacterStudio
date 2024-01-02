@@ -349,6 +349,20 @@ export class CharacterManager {
       });
     }
 
+    loadRandomTrait(groupTraitID) {
+      return new Promise(async (resolve, reject) => {
+        if (this.manifestData) {
+          const randomTrait = this.manifestData.getRandomTrait(groupTraitID);
+          await this._loadTraits(getAsArray(randomTrait));
+          resolve(); // Resolve the promise with the result
+        } else {
+          const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage)); // Reject the promise with an error
+        }
+      });
+    }
+
     /**
      * Loads traits from an NFT using the specified URL.
      *
