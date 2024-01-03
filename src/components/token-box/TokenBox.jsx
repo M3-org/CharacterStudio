@@ -1,6 +1,7 @@
 import React from "react";
 import classnames from "classnames";
 import styles from "./TokenBox.module.css";
+import defaultIcon from "../../images/magic-box.png"; 
 
 export const TokenBox = (props) => {
     const {
@@ -12,6 +13,12 @@ export const TokenBox = (props) => {
         rarity,
         style
     } = props;
+
+    const [imageError, setImageError] = React.useState(false);
+    const handleImageError = () => {
+        setImageError(true);
+    };
+
     return (
         <div
             className={styles.tokenBoxWrap}
@@ -24,7 +31,12 @@ export const TokenBox = (props) => {
             <div
                 className={classnames(styles.frame, rarity && styles[rarity])}
             />
-            <img src={icon} className={styles.emptyIcon} style={style}/>
+            <img 
+                src={imageError ? defaultIcon : icon}
+                className={styles.emptyIcon} 
+                style={style}
+                onError={handleImageError}
+            />
             {level && (
                 <div
                     className={classnames(
