@@ -635,13 +635,13 @@ function getVRMMeta(name, vrmMeta){
   vrmMeta = vrmMeta||{}
 
   const defaults = {
-    authors:["CharacterCreator"],
+    authors:["CharacterStudio"],
     metaVersion:"1",
     version:"v1",
     name:name,
     licenseUrl:"https://vrm.dev/licenses/1.0/",
     commercialUssageName: "personalNonProfit",
-    contactInformation: "https://webaverse.com/", 
+    contactInformation: "https://m3org.com/", 
     allowExcessivelyViolentUsage:false,
     allowExcessivelySexualUsage:false,
     allowPoliticalOrReligiousUsage:false,

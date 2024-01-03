@@ -39,6 +39,7 @@ function Appearance() {
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
     setViewMode(ViewMode.CREATE)
+    toggleDebugMode(false);
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
@@ -53,6 +54,7 @@ function Appearance() {
   const next = () => {
     !isMute && playSound('backNextButton');
     setViewMode(ViewMode.SAVE);
+    toggleDebugMode(false);
   }
 
   const randomize = () => {
