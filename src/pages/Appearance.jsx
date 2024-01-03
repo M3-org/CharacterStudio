@@ -24,7 +24,8 @@ function Appearance() {
     toggleDebugMode,
     characterManager,
     animationManager,
-    moveCamera
+    moveCamera,
+    debugMode
   } = React.useContext(SceneContext)
   
 
@@ -78,7 +79,7 @@ function Appearance() {
     characterManager.setTraitColor(traitGroupName, color.hex);
   } 
 
-  const debugMode = () =>{
+  const clickDebugMode = () =>{
     toggleDebugMode()
   }
 
@@ -398,10 +399,10 @@ function Appearance() {
         />
         <CustomButton
           theme="light"
-          text={"debug"}
+          text={debugMode ? "normal" : "debug"}
           size={14}
           className={styles.buttonCenter}
-          onClick={debugMode}
+          onClick={clickDebugMode}
         />
       </div>
     </div>
