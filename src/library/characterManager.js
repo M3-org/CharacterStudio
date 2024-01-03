@@ -578,7 +578,6 @@ export class CharacterManager {
           // Set the color to child meshes of the model
           model.traverse((mesh) => {
             if (mesh.isMesh) {
-              console.log("ismesh")
               if (mesh.material.type === "MeshStandardMaterial") {
                 if (Array.isArray(mesh.material)) {
                   mesh.material.forEach((mat) => {
