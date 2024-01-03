@@ -15,7 +15,7 @@ import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
-import { SketchPicker  } from 'react-color'
+import { ChromePicker   } from 'react-color'
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -274,7 +274,7 @@ function Appearance() {
           </div>
           {
           !!isPickingColor && (<div className={styles["selectorColorPickerUI"]}>
-            <SketchPicker/>
+            <ChromePicker width={'200px'}/>
           </div>)}
           
           <div className={styles["bottomLine"]} />
