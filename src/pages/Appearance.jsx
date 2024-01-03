@@ -14,6 +14,8 @@ import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 import randomizeIcon from "../images/randomize.png"
+import colorPicker from "../images/color-palette.png"
+import { SketchPicker  } from 'react-color'
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -42,6 +44,7 @@ function Appearance() {
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedVRM, setSelectedVRM] = React.useState(null)
+  const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
   const next = () => {
@@ -262,6 +265,18 @@ function Appearance() {
         <div className={styles["selectorContainerPos"]}>
         
           <MenuTitle title={traitGroupName} width={130} left={20}/>
+          {/* color section */}
+          
+          <div className={styles["selectorColorPickerButton"]}
+            onClick={()=>{setIsPickingColor(true)}}
+            >
+            <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
+          </div>
+          {
+          !!isPickingColor && (<div className={styles["selectorColorPickerUI"]}>
+            <SketchPicker/>
+          </div>)}
+          
           <div className={styles["bottomLine"]} />
           <div className={styles["scrollContainerOptions"]}>
             <div className={styles["selector-container"]}>
@@ -269,7 +284,6 @@ function Appearance() {
                 <div
                   key={"randomize-trait"}
                   className={`${styles["selectorButton"]}`}
-                  icon={randomizeIcon}
                   onClick={() => {randomTrait(traitGroupName)}}
                 >
                   <TokenBox
@@ -329,6 +343,7 @@ function Appearance() {
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      
       <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={animationName} setAnimationName={setAnimationName}
       />
       <div className={styles.buttonContainer}>

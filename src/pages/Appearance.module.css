@@ -118,7 +118,6 @@
   backdrop-filter: blur(22.5px);
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;
-  cursor: pointer;
 }
 
 .selector-container {
@@ -135,6 +134,31 @@
   float: left;
   width: 62px;
   text-align: center;
+}
+.selectorColorPickerUI{
+  position: absolute;
+  right: -30px;
+  width:30px;
+  top: 15px;
+}
+.selectorColorPickerButton{
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  width:40px;
+  height: 40px;
+  position: absolute;
+  right: -40px;
+  top: 15px;
+  display: flex;
+  align-items: center;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+}
+.selectorColorPickerImg{
+  width:20px;
+  height: 20px;
+  position: relative;
+  margin: auto;
 }
 .uploadContainer {
   text-align: center;
@@ -166,4 +190,5 @@
   justify-content: center;
   align-items : center;
   user-select: none;
+  cursor: pointer;
 }
