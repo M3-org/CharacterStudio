@@ -561,6 +561,57 @@ export class CharacterManager {
       });
     }
 
+    /**
+     * Sets the color of a specified group trait's model.
+     *
+     * @param {string} groupTraitID - The ID of the group trait.
+     * @param {string} hexColor - The hexadecimal color value to set for the group trait's model.
+     * @throws {Error} If the group trait is not found or an error occurs during color setting.
+     */
+    setTraitColor(groupTraitID, hexColor) {
+      const model = this.avatar[groupTraitID]?.model;
+      console.log("set");
+      if (model) {
+        try {
+          // Convert hexadecimal color to THREE.Color
+          const color = new THREE.Color(hexColor);
+
+          // Set the color to child meshes of the model
+          model.traverse((mesh) => {
+            if (mesh.isMesh) {
+              console.log("ismesh")
+              if (mesh.material.type === "MeshStandardMaterial") {
+                if (Array.isArray(mesh.material)) {
+                  mesh.material.forEach((mat) => {
+                    mat.color = color;
+                    mat.emissive = color;
+                  });
+                } else {
+                  mesh.material.color = color;
+                  mesh.material.emissive = color;
+                }
+              } else {
+                mesh.material[0].uniforms.litFactor.value = color;
+                mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
+                  color.r * 0.8,
+                  color.g * 0.8,
+                  color.b * 0.8
+                );
+              }
+            }
+          });
+        } catch (error) {
+          console.error("Error setting trait color:", error.message);
+          throw new Error("Failed to set trait color.");
+        }
+      } else {
+        // Group trait not found, log a warning and throw an error
+        const errorMessage = "No Group Trait with name " + groupTraitID + " was found.";
+        console.warn(errorMessage);
+        throw new Error(errorMessage);
+      }
+    }
+
 
     removeTrait(groupTraitID, forceRemove = false){
       if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){

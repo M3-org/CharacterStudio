@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react"
 import styles from "./Appearance.module.css"
+import { Color } from "three"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
@@ -44,8 +45,9 @@ function Appearance() {
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedVRM, setSelectedVRM] = React.useState(null)
-  const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
+  const [isPickingColor, setIsPickingColor] = React.useState(false)
+  const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -68,6 +70,13 @@ function Appearance() {
     });
   }
 
+  const handleColorChange = (color) => {
+    setColorPicked({ background: color.hex });
+  }
+  const handleChangeComplete = (color) =>{
+    setColorPicked({ background: color.hex });
+    characterManager.setTraitColor(traitGroupName, color.hex);
+  } 
 
   const debugMode = () =>{
     toggleDebugMode()
@@ -81,6 +90,7 @@ function Appearance() {
   }
 
   const handleImageDrop = (file) => {
+    setIsPickingColor(false);
     if (traitGroupName != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
@@ -93,6 +103,7 @@ function Appearance() {
     }
   }
   const handleVRMDrop = (file) =>{
+    setIsPickingColor(false);
     if (traitGroupName != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
@@ -105,6 +116,7 @@ function Appearance() {
     }
   }
   const selectTrait = (trait) => {
+    setIsPickingColor(false);
     setIsLoading(true);
     characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
       setIsLoading(false);
@@ -112,10 +124,12 @@ function Appearance() {
     })
   }
   const removeTrait = (traitGroupName) =>{
+    setIsPickingColor(false);
     characterManager.removeTrait(traitGroupName);
     setSelectedTrait(null);
   }
   const randomTrait = (traitGroupName) =>{
+    setIsPickingColor(false);
     setIsLoading(true);
     characterManager.loadRandomTrait(traitGroupName).then(()=>{
       setIsLoading(false);
@@ -124,6 +138,7 @@ function Appearance() {
     // set selected trait
   }
   const handleJsonDrop = (files) => {
+    setIsPickingColor(false);
     const filesArray = Array.from(files);
     const jsonDataArray = [];
     const processFile = (file) => {
@@ -189,6 +204,7 @@ function Appearance() {
 
   const selectTraitGroup = (traitGroup) => {
     !isMute && playSound('optionClick');
+    setIsPickingColor(false);
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
@@ -206,6 +222,7 @@ function Appearance() {
 
 
   const uploadTrait = () =>{
+    setIsPickingColor(false);
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
@@ -265,16 +282,24 @@ function Appearance() {
         <div className={styles["selectorContainerPos"]}>
         
           <MenuTitle title={traitGroupName} width={130} left={20}/>
+
           {/* color section */}
-          
           <div className={styles["selectorColorPickerButton"]}
-            onClick={()=>{setIsPickingColor(true)}}
+            onClick={()=>{setIsPickingColor(!isPickingColor)}}
             >
             <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
           </div>
           {
-          !!isPickingColor && (<div className={styles["selectorColorPickerUI"]}>
-            <ChromePicker width={'200px'}/>
+          !!isPickingColor && (<div 
+            draggable = {false}
+            className={styles["selectorColorPickerUI"]}>
+            <ChromePicker 
+              draggable = {false}
+              width={'200px'}
+              color={ colorPicked.background }
+              onChange={ handleColorChange }
+              onChangeComplete={ handleChangeComplete }
+              />
           </div>)}
           
           <div className={styles["bottomLine"]} />
