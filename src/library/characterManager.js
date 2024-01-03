@@ -570,7 +570,6 @@ export class CharacterManager {
      */
     setTraitColor(groupTraitID, hexColor) {
       const model = this.avatar[groupTraitID]?.model;
-      console.log("set");
       if (model) {
         try {
           // Convert hexadecimal color to THREE.Color
@@ -584,11 +583,11 @@ export class CharacterManager {
                 if (Array.isArray(mesh.material)) {
                   mesh.material.forEach((mat) => {
                     mat.color = color;
-                    mat.emissive = color;
+                    //mat.emissive = color;
                   });
                 } else {
                   mesh.material.color = color;
-                  mesh.material.emissive = color;
+                  //mesh.material.emissive = color;
                 }
               } else {
                 mesh.material[0].uniforms.litFactor.value = color;
