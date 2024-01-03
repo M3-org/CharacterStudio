@@ -286,12 +286,14 @@ function Appearance() {
         
           <MenuTitle title={traitGroupName} width={130} left={20}/>
 
-          {/* color section */}
+          {/* color section */
+          selectedTrait && (
           <div className={styles["selectorColorPickerButton"]}
             onClick={()=>{setIsPickingColor(!isPickingColor)}}
             >
             <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
           </div>
+          )}
           {
           !!isPickingColor && (<div 
             draggable = {false}
