@@ -129,7 +129,8 @@ export default function App() {
     scene,
     moveCamera,
     setManifest,
-    lookAtManager
+    lookAtManager,
+    showEnvironmentModels
   } = useContext(SceneContext)
   const { viewMode } = useContext(ViewContext)
 
@@ -261,10 +262,16 @@ export default function App() {
     } else {
       lookAtManager.enabled = true
     }
+
+    if ([ViewMode.LANDING, ViewMode.CREATE, ViewMode.CLAIM, ViewMode.LOAD, ViewMode.CLAIM, ViewMode.CLAIM].includes(viewMode))
+      showEnvironmentModels(false)
+    else
+      showEnvironmentModels(true)
     window.addEventListener("resize", updateCameraPosition)
     return () => {
       window.removeEventListener("resize", updateCameraPosition)
     }
+
   }, [viewMode])
 
   useEffect(() => {

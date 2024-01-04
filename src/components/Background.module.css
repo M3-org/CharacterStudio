@@ -13,7 +13,18 @@
     position: absolute;
     z-index: -100;
 }
-
+.darkBackground{
+  background-color: #1e2530;
+  height: 100vh;
+  width: 100vw;
+  background-size: cover;
+  display: fixed;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  position: absolute;
+  z-index: -100;
+}
 
 .Background {
     background: url('/assets/backgrounds/background4.jpg');

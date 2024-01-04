@@ -348,6 +348,27 @@ export class CharacterManager {
         }
       });
     }
+    /**
+     * Loads a random trait from provided group trait ID.
+     * If manifest data is available, retrieves random traits,
+     * If manifest data is not available, logs an error and rejects the Promise.
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @returns {Promise<void>} A Promise that resolves with a random trait from chosen group trait ID
+     *                           if successful, or rejects with an error message if not.
+     */
+    loadRandomTrait(groupTraitID) {
+      return new Promise(async (resolve, reject) => {
+        if (this.manifestData) {
+          const randomTrait = this.manifestData.getRandomTrait(groupTraitID);
+          await this._loadTraits(getAsArray(randomTrait));
+          resolve(); // Resolve the promise with the result
+        } else {
+          const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage)); // Reject the promise with an error
+        }
+      });
+    }
 
     /**
      * Loads traits from an NFT using the specified URL.
@@ -538,6 +559,55 @@ export class CharacterManager {
           reject(new Error(errorMessage));
         }
       });
+    }
+
+    /**
+     * Sets the color of a specified group trait's model.
+     *
+     * @param {string} groupTraitID - The ID of the group trait.
+     * @param {string} hexColor - The hexadecimal color value to set for the group trait's model.
+     * @throws {Error} If the group trait is not found or an error occurs during color setting.
+     */
+    setTraitColor(groupTraitID, hexColor) {
+      const model = this.avatar[groupTraitID]?.model;
+      if (model) {
+        try {
+          // Convert hexadecimal color to THREE.Color
+          const color = new THREE.Color(hexColor);
+
+          // Set the color to child meshes of the model
+          model.traverse((mesh) => {
+            if (mesh.isMesh) {
+              if (mesh.material.type === "MeshStandardMaterial") {
+                if (Array.isArray(mesh.material)) {
+                  mesh.material.forEach((mat) => {
+                    mat.color = color;
+                    //mat.emissive = color;
+                  });
+                } else {
+                  mesh.material.color = color;
+                  //mesh.material.emissive = color;
+                }
+              } else {
+                mesh.material[0].uniforms.litFactor.value = color;
+                mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
+                  color.r * 0.8,
+                  color.g * 0.8,
+                  color.b * 0.8
+                );
+              }
+            }
+          });
+        } catch (error) {
+          console.error("Error setting trait color:", error.message);
+          throw new Error("Failed to set trait color.");
+        }
+      } else {
+        // Group trait not found, log a warning and throw an error
+        const errorMessage = "No Group Trait with name " + groupTraitID + " was found.";
+        console.warn(errorMessage);
+        throw new Error(errorMessage);
+      }
     }
 
 

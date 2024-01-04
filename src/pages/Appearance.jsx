@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react"
 import styles from "./Appearance.module.css"
+import { Color } from "three"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
@@ -13,6 +14,9 @@ import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
+import randomizeIcon from "../images/randomize.png"
+import colorPicker from "../images/color-palette.png"
+import { ChromePicker   } from 'react-color'
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -20,7 +24,8 @@ function Appearance() {
     toggleDebugMode,
     characterManager,
     animationManager,
-    moveCamera
+    moveCamera,
+    debugMode
   } = React.useContext(SceneContext)
   
 
@@ -34,6 +39,7 @@ function Appearance() {
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
     setViewMode(ViewMode.CREATE)
+    toggleDebugMode(false);
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
@@ -42,10 +48,13 @@ function Appearance() {
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedVRM, setSelectedVRM] = React.useState(null)
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
+  const [isPickingColor, setIsPickingColor] = React.useState(false)
+  const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
 
   const next = () => {
     !isMute && playSound('backNextButton');
     setViewMode(ViewMode.SAVE);
+    toggleDebugMode(false);
   }
 
   const randomize = () => {
@@ -53,6 +62,9 @@ function Appearance() {
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
       console.log("success")
+      if (traitGroupName != ""){
+        setSelectedTrait(characterManager.getCurrentTraitData(traitGroupName));
+      }
       setIsLoading(false);
     })
     .catch((error) => {
@@ -61,8 +73,15 @@ function Appearance() {
     });
   }
 
+  const handleColorChange = (color) => {
+    setColorPicked({ background: color.hex });
+  }
+  const handleChangeComplete = (color) =>{
+    setColorPicked({ background: color.hex });
+    characterManager.setTraitColor(traitGroupName, color.hex);
+  } 
 
-  const debugMode = () =>{
+  const clickDebugMode = () =>{
     toggleDebugMode()
   }
 
@@ -74,6 +93,7 @@ function Appearance() {
   }
 
   const handleImageDrop = (file) => {
+    setIsPickingColor(false);
     if (traitGroupName != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
@@ -86,6 +106,7 @@ function Appearance() {
     }
   }
   const handleVRMDrop = (file) =>{
+    setIsPickingColor(false);
     if (traitGroupName != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
@@ -98,6 +119,7 @@ function Appearance() {
     }
   }
   const selectTrait = (trait) => {
+    setIsPickingColor(false);
     setIsLoading(true);
     characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
       setIsLoading(false);
@@ -105,10 +127,21 @@ function Appearance() {
     })
   }
   const removeTrait = (traitGroupName) =>{
+    setIsPickingColor(false);
     characterManager.removeTrait(traitGroupName);
     setSelectedTrait(null);
   }
+  const randomTrait = (traitGroupName) =>{
+    setIsPickingColor(false);
+    setIsLoading(true);
+    characterManager.loadRandomTrait(traitGroupName).then(()=>{
+      setIsLoading(false);
+      setSelectedTrait(characterManager.getCurrentTraitData(traitGroupName));
+    })
+    // set selected trait
+  }
   const handleJsonDrop = (files) => {
+    setIsPickingColor(false);
     const filesArray = Array.from(files);
     const jsonDataArray = [];
     const processFile = (file) => {
@@ -174,6 +207,7 @@ function Appearance() {
 
   const selectTraitGroup = (traitGroup) => {
     !isMute && playSound('optionClick');
+    setIsPickingColor(false);
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
@@ -191,6 +225,7 @@ function Appearance() {
 
 
   const uploadTrait = () =>{
+    setIsPickingColor(false);
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
@@ -225,15 +260,19 @@ function Appearance() {
           <div className={styles["editor-container"]}>
             {
               characterManager.getGroupTraits().map((traitGroup, index) => (
-                <div key={"options_" + index} className={styles["editorButton"]}>
+                <div key={"options_" + index} 
+                className={styles["editorButton"]}
+                onClick={() => {
+                  selectTraitGroup(traitGroup)
+                }}>
                   <TokenBox
                     size={56}
                     icon={ traitGroup.fullIconSvg }
-                    rarity={traitGroupName !== traitGroup.name ? "none" : "mythic"}
-                    onClick={() => {
-                      selectTraitGroup(traitGroup)
-                    }}
+                    rarity={traitGroupName !== traitGroup.trait ? "none" : "mythic"}
+                    
                   />
+                  <div className={styles["editorText"]}>{traitGroup.name}</div>
+                  
                 </div>
               ))
             }
@@ -246,9 +285,44 @@ function Appearance() {
         <div className={styles["selectorContainerPos"]}>
         
           <MenuTitle title={traitGroupName} width={130} left={20}/>
+
+          {/* color section */
+          selectedTrait && (
+          <div className={styles["selectorColorPickerButton"]}
+            onClick={()=>{setIsPickingColor(!isPickingColor)}}
+            >
+            <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
+          </div>
+          )}
+          {
+          !!isPickingColor && (<div 
+            draggable = {false}
+            className={styles["selectorColorPickerUI"]}>
+            <ChromePicker 
+              draggable = {false}
+              width={'200px'}
+              color={ colorPicked.background }
+              onChange={ handleColorChange }
+              onChangeComplete={ handleChangeComplete }
+              />
+          </div>)}
+          
           <div className={styles["bottomLine"]} />
           <div className={styles["scrollContainerOptions"]}>
             <div className={styles["selector-container"]}>
+              {
+                <div
+                  key={"randomize-trait"}
+                  className={`${styles["selectorButton"]}`}
+                  onClick={() => {randomTrait(traitGroupName)}}
+                >
+                  <TokenBox
+                    size={56}
+                    icon={randomizeIcon}
+                    rarity={"none"}
+                  />
+                </div>
+              }
               {/* Null button section */
                 !characterManager.isTraitGroupRequired(traitGroupName) ? (
                   <div
@@ -299,6 +373,7 @@ function Appearance() {
         </div>
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      
       <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={animationName} setAnimationName={setAnimationName}
       />
       <div className={styles.buttonContainer}>
@@ -328,10 +403,10 @@ function Appearance() {
         />
         <CustomButton
           theme="light"
-          text={"debug"}
+          text={debugMode ? "normal" : "debug"}
           size={14}
           className={styles.buttonCenter}
-          onClick={debugMode}
+          onClick={clickDebugMode}
         />
       </div>
     </div>
