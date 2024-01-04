@@ -90,20 +90,14 @@ export function sceneInitializer(canvasId) {
     }
     fetchScene();
 
-    const displaySceneElements = (display) => {
-        if (display){
-            scene.add(sceneElements);
-        }
-        else{
-            scene.remove(sceneElements);
-        }
-    }
+    
     canvasRef.addEventListener("click", handleMouseClick);
 
     return {
         scene,
         camera,
         controls,
-        characterManager
+        characterManager,
+        sceneElements
     };
 }
