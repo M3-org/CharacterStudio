@@ -464,6 +464,29 @@ export class CharacterManager {
     }
 
     /**
+     * Loads all traits based on manifest data.
+     *
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadAllTraits() {
+      return new Promise(async(resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          // Load initial traits using the _loadTraits method
+          await this._loadTraits(this.manifestData.getAllTraits());
+
+          resolve();
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, initial traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
+    /**
      * Loads a specific trait based on group and trait IDs.
      *
      * @param {string} groupTraitID - The ID of the trait group.
@@ -647,6 +670,46 @@ export class CharacterManager {
      */
     loadOptimizerCharacter(url) {
       return this.loadCustomTrait("CUSTOM", url);
+    }
+
+    /**
+     * Sets an existing manifest data for the character.
+     *
+     * @param {object} manifest - The loaded mmanifest object.
+     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     *                         or rejects with an error message if loading fails.
+     */
+    setManifest(manifest){
+      return new Promise(async (resolve, reject) => {
+        try{
+          this.manifest = manifest;
+          if (this.manifest) {
+            // Create a CharacterManifestData instance based on the fetched manifest
+            this.manifestData = new CharacterManifestData(this.manifest);
+
+            // If an animation manager is available, set it up
+            if (this.animationManager) {
+              await this._animationManagerSetup(
+                this.manifest.animationPath,
+                this.manifest.assetsLocation,
+                this.manifestData.displayScale
+              );
+            }
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } else {
+            // The manifest could not be fetched, reject the Promise with an error message
+            const errorMessage = "Failed to fetch or parse the manifest.";
+            console.error(errorMessage);
+            reject(new Error(errorMessage));
+          }
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error setting manifest:", error.message);
+          reject(new Error("Failed to set the manifest."));
+        }
+      })
     }
 
     /**
@@ -908,9 +971,30 @@ export class CharacterManager {
         if (textures){
           const txt = textures[index] || textures[0]
           if (txt != null){
-            //const mat = mesh.material.length ? mesh.material[0] : 
-            mesh.material[0].map = txt
-            mesh.material[0].shadeMultiplyTexture = txt
+            if (mesh.material.type === "MeshStandardMaterial") {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach((mat) => {
+                  mat.map = txt
+                });
+              } else {
+                mesh.material.map = txt
+              }
+            } else {
+              console.warn("XXX set material texture to shader material", mesh.material)
+              // mat.map = txt
+              // material[0].shadeMultiplyTexture = txt
+
+              // mesh.material[0].uniforms.litFactor.value = color;
+              // mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
+              //   color.r * 0.8,
+              //   color.g * 0.8,
+              //   color.b * 0.8
+              // );
+            }
+
+            console.log(mesh.material)
+            
+            
           }
         }
         if (colors){
@@ -1064,22 +1148,24 @@ class TraitLoadingManager{
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
     loadTraitOptions(options) {
+      console.log("een")
         return new Promise((resolve) => {
             this.isLoading = true;
             const resultData = [];
     
             const promises = options.map(async (option, index) => {
+              console.log(option)
                 if (option == null) {
                     resultData[index] = null;
                     return;
                 }
-
+                
                 const loadedModels = await Promise.all(
                     getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
                         try {
-                            return await this.gltfLoader.loadAsync(modelDir);
+                            return await this.gltfLoader.loadAsync(modelDir)
                         } catch (error) {
-                            console.error(`Error loading model ${modelDir}:`, error);
+                            console.error(`Error loading modelsss ${modelDir}:`, error);
                             return null;
                         }
                     })
@@ -1092,13 +1178,18 @@ class TraitLoadingManager{
                               this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
                                   resolve(txt);
-                              });
+                              },null,(err)=>{
+                                console.error("error loading texture: ", err)
+                                resolve(null);
+                              })
                           })
                   )
                 );
     
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
     
+                console.log(loadedModels);
+
                 resultData[index] = new LoadedData({
                     traitGroupID: option?.traitModel.traitGroup.trait,
                     traitModel: option?.traitModel,
@@ -1108,16 +1199,21 @@ class TraitLoadingManager{
                     textures: loadedTextures,
                     colors: loadedColors,
                 });
+                console.log("fini");
             });
-    
-            Promise.all(promises)
+            console.log(promises);
+            Promise.allSettled(promises)
                 .then(() => {
                     this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
+                    console.log("result data")
+                    console.log(resultData);
                     resolve(resultData);
                     this.isLoading = false;
                 })
                 .catch((error) => {
+                  this.setLoadPercentage(100);
                     console.error('An error occurred:', error);
+                    console.log("result data error")
                     resolve(resultData);
                     this.isLoading = false;
                 });
