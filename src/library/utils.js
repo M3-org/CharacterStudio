@@ -6,9 +6,8 @@ import VRMExporter from "./VRMExporter.js";
 import { CullHiddenFaces } from './cull-mesh.js';
 import { combine } from "./merge-geometry.js";
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { VRMHumanBoneName, VRMHumanBoneParentMap } from "@pixiv/three-vrm";
-
+import { getGltfLoader } from './getGltfLoader.js'
 export function getAsArray(target) {
   if (target == null) return []
   return Array.isArray(target) ? target : [target]
@@ -61,7 +60,8 @@ export function getRandomArrayValue (arr){
 }
 
 export async function loadModel(file, onProgress) {
-  const gltfLoader = new GLTFLoader()
+  const gltfLoader = await getGltfLoader();
+
   gltfLoader.register((parser) => {
     return new VRMLoaderPlugin(parser)
   })

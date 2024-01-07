@@ -1,19 +1,19 @@
 import * as THREE from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+
+import { getGltfLoader } from './getGltfLoader.js';
+
 import { AnimationManager } from "./animationManager.js"
 import { ScreenshotManager } from "./screenshotManager.js";
 import { BlinkManager } from "./blinkManager.js";
-import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+import { VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData, cullHiddenMeshes, setTextureToChildMeshes } from "./utils.js";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils.js"
 import { saveVRMCollidersToUserData } from "./load-utils.js";
 import { LipSync } from "./lipsync.js";
 import { LookAtManager } from "./lookatManager.js";
 import { CharacterManifestData } from "./CharacterManifestData.js";
-import gltfPipeline from 'gltf-pipeline';
 // import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
 import fs from 'fs/promises';
-import path from 'path';
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -52,9 +52,13 @@ export class CharacterManager {
 
       this.lookAtManager = null;
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
-      this.screenshotManager = new ScreenshotManager();
+
+      if (typeof process === "undefined"){
+        this.screenshotManager = new ScreenshotManager();
+        this._setupScreenshotManager();
+      }
+
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-      this._setupScreenshotManager();
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -964,16 +968,7 @@ class TraitLoadingManager{
         loadingManager.onProgress = (url, loaded, total) => {
             this.setLoadPercentage(Math.round(loaded / total * 100));
         };
-
-        // Models Loader
-        const gltfLoader = new GLTFLoader(loadingManager);
-        gltfLoader.crossOrigin = 'anonymous';
-        gltfLoader.register((parser) => {
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
-            // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
-            return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
-        })
+       
         // gltfLoader.setKTX2Loader(new KTX2Loader());
 
         // Texture Loader
@@ -981,7 +976,11 @@ class TraitLoadingManager{
 
         this.loadPercentager = 0;
         this.loadingManager = loadingManager;
-        this.gltfLoader = gltfLoader;
+        
+        (async () => {
+          this.gltfLoader = await getGltfLoader();
+        })()
+
         this.textureLoader = textureLoader;
 
         this.isLoading = false;

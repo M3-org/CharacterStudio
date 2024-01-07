@@ -5,50 +5,26 @@ import {program} from "commander";
 import { JSDOM } from "jsdom";
 import path from "path";
 
-import { fileURLToPath } from 'url';
 import * as THREE from 'three';
-import { createCanvas } from "canvas";
-import glContext from "gl";
 import { Buffer } from "buffer";
 
-
-
 async function setup() {
-
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>',{
     pretendToBeVisual: true,
   });
 
-  global.document = dom.window.document;
-  global.window = dom.window;
-  global.navigator = dom.window.navigator;
-  global.Buffer = Buffer;
-
-  //const canvasGL = createCanvas(window.innerWidth, window.innerHeight);
-  //canvasGL.addEventListener = function(event, func, bind_) {}; // mock function to avoid errors inside THREE.WebGlRenderer()
-  //console.log(canvasGL);
-  const renderer = new THREE.WebGLRenderer( { context: glContext(1, 1), antialias: true });
-  renderer.setSize(800,600)
-  
-  global.window.renderer = renderer;
-  dom.window.document.createElement('canvas');
-  
-  console.log(this);
-  this.dom = dom;
-  //const renderer = new WebGLRenderer({ canvas: dom.window.document.createElement("canvas") });
-  //renderer.setSize(800, 600);
+  globalThis.document = dom.window.document;
+  globalThis.window = dom.window;
+  globalThis.navigator = dom.window.navigator;
+  globalThis.Buffer = Buffer;
 
   const { CharacterManager } = await import("./src/library/characterManager.js");
 
-  //const characterManager = await new CharacterManager({manifestURL:"../public/character-assets/anata/manifest.json"});
   const scene = new THREE.Scene()
   const sceneElements = new THREE.Object3D();
   scene.add(sceneElements);
 
   const characterManager = await new CharacterManager({parentModel: scene, createAnimationManager : false});
-  //console.log(characterManager.loadManifest());
-
-  const __filename = fileURLToPath(import.meta.url);
 
   const manifestRelativePath = "./public/character-assets/anata/manifest.json";
   const testNFTRelativePath = "./134_attributes.json";
@@ -67,7 +43,6 @@ async function setup() {
   // Read the manifest file content using fs
   const manifestContent = await fs.readFile(manifestPath, 'utf-8');
   const nftContent = await fs.readFile(NFTObjectPath, 'utf-8');
-  
 
   // Parse the JSON content of the manifest file
   const manifestObject = JSON.parse(manifestContent);
@@ -78,12 +53,7 @@ async function setup() {
   console.log(manifestObject.assetsLocation);
   const nftObject = JSON.parse(nftContent);
  
-  // characterManager.loadTrait("BODY", "Masculine")
-  // characterManager.loadRandomTrait("CLOTHING")
-  // characterManager.loadRandomTraits()
-    
   await characterManager.setManifestObject(manifestObject);
-  //console.log(characterManager.manifest)
   await characterManager.loadTraitsFromNFTObject(nftObject, true, null, true);
   console.log(characterManager.avatar)
 
@@ -97,15 +67,8 @@ async function setup() {
 
   const opts = program.opts()
 
-
-
-
-  //console.log(program);
-
   console.log('Filename:', opts.filename);
   console.log('Content:', opts.content);
-
-  
 
   if (!opts.filename || !opts.content) {
     console.error('Both filename and content are required.');
