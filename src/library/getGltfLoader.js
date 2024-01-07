@@ -1,3 +1,5 @@
+import { VRMLoaderPlugin } from "@pixiv/three-vrm";
+
 let GLTFLoader;
 if (typeof window === 'undefined') {
   // This means we are in a Node.js environment
@@ -22,6 +24,13 @@ export const getGltfLoader = async () => {
         if (GLTFLoader) {
           clearInterval(interval);
           gltfLoader = new GLTFLoader();
+          gltfLoader.crossOrigin = 'anonymous';
+          gltfLoader.register((parser) => {
+            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
+            // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
+            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
+            return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
+        })
           resolve(gltfLoader);
         }
       }, 10);

@@ -103,11 +103,8 @@ web_modules/
 
 # Optional eslint cache
 .eslintcache
-<<<<<<< HEAD
 lerna-debug.log
 .vscode
-=======
-<<<<<<< HEAD
 
 # Microbundle cache
 .rpt2_cache/

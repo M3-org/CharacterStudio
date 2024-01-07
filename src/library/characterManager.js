@@ -94,7 +94,7 @@ export class CharacterManager {
           this.lookAtManager.addVRM(this.avatar[prop].vrm)
         }
       }
-      this.toggleCharacterLookAtMouse(enable)
+      //this.toggleCharacterLookAtMouse(enable)
     }
     toggleCharacterLookAtMouse(enable){
       if (this.lookAtManager != null){
@@ -221,19 +221,45 @@ export class CharacterManager {
     canDownload(){
       return this.manifestData?.canDownload || true;
     }
-    downloadVRM(name, exportOptions = null){
-      if (this.canDownload()){
-        exportOptions = exportOptions || {}
-        const manifestOptions = this.manifestData.getExportOptions();
-        const finalOptions = {...manifestOptions, ...exportOptions};
-        finalOptions.isVrm0 = true; // currently vrm1 not supported
-        finalOptions.screenshot = this._getPortaitScreenshotTexture(false,finalOptions);
-        console.log(finalOptions);
-        downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
-      }
-      else{
-        console.error("Download not supported");
-      }
+    /**
+     * Downloads the VRM file with the given name and export options.
+     *
+     * @param {string} name - The name of the VRM file to be downloaded.
+     * @param {Object} exportOptions - Additional export options (optional).
+     * @returns {Promise<void>} A Promise that resolves when the VRM file is successfully downloaded,
+     *                         or rejects with an error message if download is not supported.
+     */
+    downloadVRM(name, exportOptions = null) {
+      return new Promise(async (resolve, reject) => {
+        if (this.canDownload()) {
+          try {
+            // Set default export options if not provided
+            exportOptions = exportOptions || {};
+            const manifestOptions = this.manifestData.getExportOptions();
+            const finalOptions = { ...manifestOptions, ...exportOptions };
+            finalOptions.isVrm0 = true; // currently vrm1 not supported
+            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
+
+            // Log the final export options
+            console.log(finalOptions);
+
+            // Call the downloadVRMWithAvatar function with the required parameters
+            await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
+
+            // Resolve the Promise (without a value, as you mentioned it's not needed)
+            resolve();
+          } catch (error) {
+            // Handle any errors that occurred during the download process
+            console.error("Error downloading VRM:", error.message);
+            reject(new Error("Failed to download VRM."));
+          }
+        } else {
+          // Download not supported, log an error and reject the Promise
+          const errorMessage = "Download not supported.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
     }
     downloadGLB(name, exportOptions = null){
       console.log("XXX fix glb downloader");
@@ -326,6 +352,27 @@ export class CharacterManager {
         if (this.manifestData) {
           const randomTraits = this.manifestData.getRandomTraits();
           await this._loadTraits(randomTraits);
+          resolve(); // Resolve the promise with the result
+        } else {
+          const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage)); // Reject the promise with an error
+        }
+      });
+    }
+    /**
+     * Loads a random trait from provided group trait ID.
+     * If manifest data is available, retrieves random traits,
+     * If manifest data is not available, logs an error and rejects the Promise.
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @returns {Promise<void>} A Promise that resolves with a random trait from chosen group trait ID
+     *                           if successful, or rejects with an error message if not.
+     */
+    loadRandomTrait(groupTraitID) {
+      return new Promise(async (resolve, reject) => {
+        if (this.manifestData) {
+          const randomTrait = this.manifestData.getRandomTrait(groupTraitID);
+          await this._loadTraits(getAsArray(randomTrait));
           resolve(); // Resolve the promise with the result
         } else {
           const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
@@ -524,6 +571,55 @@ export class CharacterManager {
           reject(new Error(errorMessage));
         }
       });
+    }
+
+    /**
+     * Sets the color of a specified group trait's model.
+     *
+     * @param {string} groupTraitID - The ID of the group trait.
+     * @param {string} hexColor - The hexadecimal color value to set for the group trait's model.
+     * @throws {Error} If the group trait is not found or an error occurs during color setting.
+     */
+    setTraitColor(groupTraitID, hexColor) {
+      const model = this.avatar[groupTraitID]?.model;
+      if (model) {
+        try {
+          // Convert hexadecimal color to THREE.Color
+          const color = new THREE.Color(hexColor);
+
+          // Set the color to child meshes of the model
+          model.traverse((mesh) => {
+            if (mesh.isMesh) {
+              if (mesh.material.type === "MeshStandardMaterial") {
+                if (Array.isArray(mesh.material)) {
+                  mesh.material.forEach((mat) => {
+                    mat.color = color;
+                    //mat.emissive = color;
+                  });
+                } else {
+                  mesh.material.color = color;
+                  //mesh.material.emissive = color;
+                }
+              } else {
+                mesh.material[0].uniforms.litFactor.value = color;
+                mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
+                  color.r * 0.8,
+                  color.g * 0.8,
+                  color.b * 0.8
+                );
+              }
+            }
+          });
+        } catch (error) {
+          console.error("Error setting trait color:", error.message);
+          throw new Error("Failed to set trait color.");
+        }
+      } else {
+        // Group trait not found, log a warning and throw an error
+        const errorMessage = "No Group Trait with name " + groupTraitID + " was found.";
+        console.warn(errorMessage);
+        throw new Error(errorMessage);
+      }
     }
 
     removeTrait(groupTraitID, forceRemove = false){
@@ -976,7 +1072,7 @@ class TraitLoadingManager{
 
         this.loadPercentager = 0;
         this.loadingManager = loadingManager;
-        
+
         (async () => {
           this.gltfLoader = await getGltfLoader();
         })()

@@ -10,8 +10,10 @@ export const CameraMode = {
 export const ViewMode = {
   LANDING: "LANDING",
   CREATE: "CREATE",
+  CLAIM: "CLAIM",
   LOAD: "LOAD",
   APPEARANCE: "APPEARANCE",
+  BATCHDOWNLOAD: "BATCHDOWNLOAD",
   BIO: "BIO",
   SAVE: "SAVE",
   MINT: "MINT",

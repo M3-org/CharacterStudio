@@ -5,7 +5,7 @@ import Slider from "../components/Slider"
 import { local } from "../library/store"
 import { getAtlasSize } from "../library/utils"
 
-function MergeOptions({showDropToDownload, showCreateAtlas}) {
+function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
 
   
   const [atlasStd, setAtlasStd] = useState(local["mergeOptions_atlas_std_size"] || 6);
@@ -95,7 +95,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas}) {
     
     <div className={styles["InformationContainerPos"]}>
 
-      <MenuTitle title="Optimizer Options" width={180} left={20}/>
+      <MenuTitle title={mergeMenuTitle} width={180} left={20}/>
       <div className={styles["scrollContainer"]}>
 
       {showCreateAtlas && (

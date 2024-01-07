@@ -9,6 +9,7 @@ export const SceneContext = createContext()
 export const SceneProvider = (props) => {
 
   const [characterManager, setCharacterManager] = useState(null)
+  const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
   const [scene, setScene] = useState(null)
@@ -30,12 +31,14 @@ export const SceneProvider = (props) => {
       scene,
       camera,
       controls,
-      characterManager
+      characterManager,
+      sceneElements
     } = sceneInitializer("editor-scene");
 
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
+    setSceneElements(sceneElements);
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
@@ -54,6 +57,17 @@ export const SceneProvider = (props) => {
         }
       }
     });
+  }
+
+  const showEnvironmentModels = (display) => {
+
+    if (display){
+        scene.add(sceneElements);
+    }
+    else{
+        scene.remove(sceneElements);
+    }
+
   }
 
   const moveCamera = (value) => {
@@ -103,6 +117,7 @@ export const SceneProvider = (props) => {
         setManifest,
         scene,
         characterManager,
+        showEnvironmentModels,
         debugMode,
         toggleDebugMode,
         animationManager,
