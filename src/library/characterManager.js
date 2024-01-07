@@ -239,7 +239,7 @@ export class CharacterManager {
             const finalOptions = { ...manifestOptions, ...exportOptions };
             finalOptions.isVrm0 = true; // currently vrm1 not supported
 
-            if(!window.isNode)
+            if (typeof window !== 'undefined')
               finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
             // Log the final export options

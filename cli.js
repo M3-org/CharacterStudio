@@ -14,8 +14,8 @@ async function setup() {
   });
 
   globalThis.document = dom.window.document;
-  globalThis.window = dom.window;
-  window.isNode = true;
+  //globalThis.window = dom.window;
+  //window.isNode = true;
   globalThis.navigator = dom.window.navigator;
   globalThis.Buffer = Buffer;
 
@@ -56,7 +56,7 @@ async function setup() {
   await characterManager.loadTraitsFromNFTObject(nftObject, true, null, true);
   console.log("finished")
 
-  characterManager.downloadVRM("Test_download");
+  //characterManager.downloadVRM("Test_download");
   program
   .version('1.0.0')
   .description('Simple CLI to create a text file')
