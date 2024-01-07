@@ -13,6 +13,7 @@
   "dependencies": {
     "@ethersproject/providers": "^5.5.1",
     "@img/sharp-darwin-arm64": "^0.33.1",
+    "@img/sharp-win32-x64": "^0.33.1",
     "@pixiv/three-vrm": "^1.0.6",
     "@react-spring/three": "^9.2.4",
     "@use-gesture/react": "^10.0.0-beta.22",

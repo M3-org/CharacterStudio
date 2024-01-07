@@ -321,15 +321,11 @@ export class GLTFLoader extends Loader {
             scope.manager.itemEnd(url);
         };
         const loader = new FileLoader(this.manager);
-        console.log('load 2')
         loader.setPath(this.path);
         loader.setResponseType('arraybuffer');
         loader.setRequestHeader(this.requestHeader);
         loader.setWithCredentials(this.withCredentials);
-        console.log('load 2x')
-        console.log('url', url)
         loader.load(url, (data) => {
-            console.log('load 3')
             try {
                 console.log('parsing')
                 scope.parse(data, resourcePath, (gltf) => {
@@ -374,7 +370,8 @@ export class GLTFLoader extends Loader {
             content = data;
         }
         else {
-            if (data instanceof Buffer) {
+            if (ArrayBuffer.isView(data)) {
+                console.log("ent22")
                 data = data.buffer;
             }
             const magic = LoaderUtils.decodeText(new Uint8Array(data.slice(0, 4)));

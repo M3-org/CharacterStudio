@@ -15,6 +15,7 @@ async function setup() {
 
   globalThis.document = dom.window.document;
   globalThis.window = dom.window;
+  window.isNode = true;
   globalThis.navigator = dom.window.navigator;
   globalThis.Buffer = Buffer;
 
@@ -47,16 +48,15 @@ async function setup() {
   // Parse the JSON content of the manifest file
   const manifestObject = JSON.parse(manifestContent);
 
-  const newPath = path.resolve(process.cwd(), "./public/" + manifestObject.assetsLocation)
+  const newPath = path.resolve("./public/" + manifestObject.assetsLocation)
   manifestObject.assetsLocation = newPath;
-
-  console.log(manifestObject.assetsLocation);
   const nftObject = JSON.parse(nftContent);
  
   await characterManager.setManifestObject(manifestObject);
   await characterManager.loadTraitsFromNFTObject(nftObject, true, null, true);
-  console.log(characterManager.avatar)
+  console.log("finished")
 
+  characterManager.downloadVRM("Test_download");
   program
   .version('1.0.0')
   .description('Simple CLI to create a text file')

@@ -238,7 +238,9 @@ export class CharacterManager {
             const manifestOptions = this.manifestData.getExportOptions();
             const finalOptions = { ...manifestOptions, ...exportOptions };
             finalOptions.isVrm0 = true; // currently vrm1 not supported
-            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
+
+            if(!window.isNode)
+              finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
             // Log the final export options
             console.log(finalOptions);
@@ -733,8 +735,7 @@ export class CharacterManager {
           });
         }
         loadedData.forEach(itemData => {
-          console.log(itemData.models);
-            this._addLoadedData(itemData)
+          this._addLoadedData(itemData)
         });
         cullHiddenMeshes(this.avatar);
       })
@@ -834,8 +835,6 @@ export class CharacterManager {
       
     }
     _VRMBaseSetup(m, item, traitID, textures, colors){
-      console.log(m);
-      console.log(m.userData);
       let vrm = m.userData.vrm;
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
@@ -856,7 +855,7 @@ export class CharacterManager {
           if (child.isSkinnedMesh) {
           
               VRMUtils.rotateVRM0( vrm );
-              console.log("Loaded VRM0 file ", vrm);
+              console.log("Loaded VRM0 file");
               for (let i =0; i < child.skeleton.bones.length;i++){
                 child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
               }
@@ -1023,25 +1022,17 @@ export class CharacterManager {
       }
 
       let vrm = null;
-      console.log("1");
-      console.log(models);
       models.map((m)=>{
-        console.log(m)
-          console.log(m.userData);
-          vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
+        vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
       })
-      console.log("2");
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
         disposeVRM(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
-      console.log("3");
       this._positionModel(vrm)
-      console.log("4");
       this._displayModel(vrm)
-      console.log("5");
       this._applyManagers(vrm)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
@@ -1064,7 +1055,7 @@ class TraitLoadingManager{
         loadingManager.onProgress = (url, loaded, total) => {
             this.setLoadPercentage(Math.round(loaded / total * 100));
         };
-       
+        console.log("starts");
         // gltfLoader.setKTX2Loader(new KTX2Loader());
 
         // Texture Loader
@@ -1076,7 +1067,6 @@ class TraitLoadingManager{
         (async () => {
           this.gltfLoader = await getGltfLoader();
         })()
-
         this.textureLoader = textureLoader;
 
         this.isLoading = false;
@@ -1103,14 +1093,35 @@ class TraitLoadingManager{
 
               const loadedModels = await Promise.all(
                 getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
-                    try {
-                        return useFileSystem
-                            ? await this.loadModelFromFileSystem(modelDir)
-                            : await this.gltfLoader.loadAsync(modelDir);
-                    } catch (error) {
-                        console.error(`Error loading model ${modelDir}:`, error);
-                        return null;
+                  try {
+                    if (this.gltfLoader == null){
+                      return new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                          clearInterval(interval);
+                          reject(new Error("Timeout waiting for gltfLoader"));
+                        }, 5000); 
+                        
+                        const interval = setInterval(async () => {
+                          if (this.gltfLoader != null){
+                            clearInterval(interval);
+                            clearTimeout(timeout);
+                            resolve( //useFileSystem
+                              //? await this.loadModelFromFileSystem(modelDir):
+                              await this.gltfLoader.loadAsync(modelDir));
+                          }
+                        },10);
+                      })
                     }
+                    else{
+                      return this.gltfLoader.loadAsync(modelDir);
+                      return useFileSystem
+                          ? await this.loadModelFromFileSystem(modelDir)
+                          : await this.gltfLoader.loadAsync(modelDir);
+                    }
+                  } catch (error) {
+                      console.error(`Error loading model ${modelDir}:`, error);
+                      return null;
+                  }
                 })
               );
   
@@ -1158,7 +1169,7 @@ class TraitLoadingManager{
     async loadModelFromFileSystem(modelDir) {
 
       try {
-        console.log(modelDir);
+        console.log("modelDir");
         const glbBuffer = await fs.readFile(modelDir);
 
         // Convert the Buffer to ArrayBuffer

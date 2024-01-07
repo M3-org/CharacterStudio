@@ -1,7 +1,7 @@
 import { VRMLoaderPlugin } from "@pixiv/three-vrm";
 
 let GLTFLoader;
-if (typeof window === 'undefined') {
+if (window.isNode) {
   // This means we are in a Node.js environment
   import('./node-three-gltf.js').then(module => {
     GLTFLoader = module.GLTFLoader;
