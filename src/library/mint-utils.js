@@ -22,7 +22,7 @@ async function getTokenPrice(){
 }
 
 // ready to test
-async function connectWallet(){
+export async function connectWallet(){
   if (window.ethereum) {
     try {
       const chain = await window.ethereum.request({ method: 'eth_chainId' })
