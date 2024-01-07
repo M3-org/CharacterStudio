@@ -1,16 +1,10 @@
-import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { getAsArray, renameVRMBones } from "../library/utils"
-import { findChildByName } from '../library/utils';
+import { getAsArray, renameVRMBones } from "../library/utils.js"
+import { findChildByName } from '../library/utils.js';
 import { PropertyBinding } from 'three';
+import { getGltfLoader } from './getGltfLoader.js';
 
 export const loadVRM = async(url) => {
-    const gltfLoader = new GLTFLoader()
-    gltfLoader.crossOrigin = 'anonymous';
-    gltfLoader.register((parser) => {
-      return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
-    })
-    
+  const gltfLoader = await getGltfLoader();
     const vrm = await gltfLoader.loadAsync(url);
     if (vrm.userData?.vrmMeta?.metaVersion === '0'){
       vrm.scene.rotation.y = Math.PI;

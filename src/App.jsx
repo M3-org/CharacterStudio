@@ -26,7 +26,7 @@ import LanguageSwitch from "./components/LanguageSwitch"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
-const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
+const personalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
@@ -67,7 +67,7 @@ async function fetchManifest(location) {
 }
 
 async function fetchPersonality() {
-  const response = await fetch(peresonalityImportPath)
+  const response = await fetch(personalityImportPath)
   const data = await response.json()
   return data
 }

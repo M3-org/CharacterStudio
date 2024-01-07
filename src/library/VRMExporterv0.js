@@ -657,6 +657,14 @@ export default class VRMExporterv0 {
 
         let index = 0;
         const outputBufferViews = bufferViews.map((bufferView) => {
+            console.log(bufferOffset);
+            console.log(bufferOffset % 4 == 0)
+
+            console.log(bufferView.buffer.byteLength)
+            console.log(bufferView.buffer.byteLength % 4 == 0)
+
+            if (bufferView.buffer.byteLength % 4 !== 0)
+                console.log("HERE");
             const value = {
                 buffer: 0,
                 byteLength: bufferView.buffer.byteLength,

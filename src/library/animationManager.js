@@ -1,14 +1,15 @@
 import * as THREE from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
-import { addModelData } from "./utils";
-import { getMixamoAnimation } from './loadMixamoAnimation';
-import { getAsArray, getFileNameWithoutExtension } from './utils';
 
-// make a class that hold all the informarion
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js"
+import { addModelData, getAsArray, getFileNameWithoutExtension } from "./utils.js";
+import { getMixamoAnimation } from './loadMixamoAnimation.js';
+import { getGltfLoader } from './getGltfLoader.js';
+
 const fbxLoader = new FBXLoader();
-const gltfLoader = new GLTFLoader();
+
 const interpolationTime = 0.2;
+
+// dynamically load 
 
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * max);
@@ -184,7 +185,7 @@ export class AnimationManager{
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
-    const loader = isfbx ? fbxLoader : gltfLoader;
+    const loader = isfbx ? fbxLoader : await getGltfLoader();
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
     animationModel.scale.set(this.scale,this.scale,this.scale)

@@ -1,16 +1,19 @@
 import * as THREE from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AnimationManager } from "./animationManager"
-import { ScreenshotManager } from "./screenshotManager";
-import { BlinkManager } from "./blinkManager";
-import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
-import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
-import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
-import { saveVRMCollidersToUserData } from "./load-utils";
-import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
-import { LipSync } from "./lipsync";
-import { LookAtManager } from "./lookatManager";
-import { CharacterManifestData } from "./CharacterManifestData";
+
+import { getGltfLoader } from './getGltfLoader.js';
+
+import { AnimationManager } from "./animationManager.js"
+import { ScreenshotManager } from "./screenshotManager.js";
+import { BlinkManager } from "./blinkManager.js";
+import { VRMUtils } from "@pixiv/three-vrm";
+import { getAsArray, disposeVRM, renameVRMBones, addModelData, cullHiddenMeshes, setTextureToChildMeshes } from "./utils.js";
+import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils.js"
+import { saveVRMCollidersToUserData } from "./load-utils.js";
+import { LipSync } from "./lipsync.js";
+import { LookAtManager } from "./lookatManager.js";
+import { CharacterManifestData } from "./CharacterManifestData.js";
+// import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
+import fs from 'fs/promises';
 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -40,13 +43,22 @@ export class CharacterManager {
       if (parentModel){
         parentModel.add(this.rootModel);
       }
+      else{
+        console.log(this.rootModel)
+        this.parentModel = this.rootModel;
+        console.log(this.parentModel)
+      }
       this.lipSync = null;
 
       this.lookAtManager = null;
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
-      this.screenshotManager = new ScreenshotManager();
+
+      if (typeof process === "undefined"){
+        this.screenshotManager = new ScreenshotManager();
+        this._setupScreenshotManager();
+      }
+
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-      this._setupScreenshotManager();
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -226,7 +238,9 @@ export class CharacterManager {
             const manifestOptions = this.manifestData.getExportOptions();
             const finalOptions = { ...manifestOptions, ...exportOptions };
             finalOptions.isVrm0 = true; // currently vrm1 not supported
-            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
+
+            if (typeof window !== 'undefined')
+              finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
             // Log the final export options
             console.log(finalOptions);
@@ -414,7 +428,7 @@ export class CharacterManager {
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null, useFileSystem = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
@@ -423,7 +437,7 @@ export class CharacterManager {
             const traits = this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
 
             // Load traits into the avatar using the _loadTraits method
-            await this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits, fullAvatarReplace, useFileSystem);
 
             resolve();
           } catch (error) {
@@ -610,7 +624,6 @@ export class CharacterManager {
       }
     }
 
-
     removeTrait(groupTraitID, forceRemove = false){
       if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){
         console.warn(`No trait with name: ${ groupTraitID } is not removable.`)
@@ -660,24 +673,14 @@ export class CharacterManager {
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          this.manifest = await this._fetchManifest(url);
-
+          const manifestObject = await this._fetchManifest(url);
           // Check if the manifest was successfully fetched
-          if (this.manifest) {
-            // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest);
-
-            // If an animation manager is available, set it up
-            if (this.animationManager) {
-              await this._animationManagerSetup(
-                this.manifest.animationPath,
-                this.manifest.assetsLocation,
-                this.manifestData.displayScale
-              );
-            }
-
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
-            resolve();
+          if (manifestObject) {
+            this.setManifestObject(manifestObject).then(()=>{
+              resolve();
+            }).catch((err)=>{
+              console.error(err);
+            })
           } else {
             // The manifest could not be fetched, reject the Promise with an error message
             const errorMessage = "Failed to fetch or parse the manifest.";
@@ -692,8 +695,33 @@ export class CharacterManager {
       });
     }
 
-    async _loadTraits(options, fullAvatarReplace = false){
-      await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
+    setManifestObject(manifestObject){
+      return new Promise(async (resolve, reject) => {
+        try {
+          this.manifest = manifestObject;
+          // Create a CharacterManifestData instance based on the fetched manifest
+          this.manifestData = new CharacterManifestData(manifestObject);
+
+          // If an animation manager is available, set it up
+          if (this.animationManager) {
+            await this._animationManagerSetup(
+              this.manifest.animationPath,
+              this.manifest.assetsLocation,
+              this.manifestData.displayScale
+            );
+          }
+          resolve();
+        }
+        catch(error){
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error loading manifest:", error.message);
+          reject(new Error("Failed to load the manifest."));
+        }
+      });
+    }
+
+    async _loadTraits(options, fullAvatarReplace = false, useFileSystem = false){
+      await this.traitLoadManager.loadTraitOptions(getAsArray(options),useFileSystem).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
           const groupTraits = this.getGroupTraits();
@@ -706,9 +734,8 @@ export class CharacterManager {
             }
           });
         }
-        
         loadedData.forEach(itemData => {
-            this._addLoadedData(itemData)
+          this._addLoadedData(itemData)
         });
         cullHiddenMeshes(this.avatar);
       })
@@ -726,9 +753,9 @@ export class CharacterManager {
 
     // XXX check if we can move this code only to manifestData
     async _fetchManifest(location) {
-        const response = await fetch(location)
-        const data = await response.json()
-        return data
+      const response = await fetch(location)
+      const data = await response.json()
+      return data
     }
 
     _getPortaitScreenshotTexture(getBlob, options){
@@ -828,7 +855,7 @@ export class CharacterManager {
           if (child.isSkinnedMesh) {
           
               VRMUtils.rotateVRM0( vrm );
-              console.log("Loaded VRM0 file ", vrm);
+              console.log("Loaded VRM0 file");
               for (let i =0; i < child.skeleton.bones.length;i++){
                 child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
               }
@@ -983,7 +1010,6 @@ export class CharacterManager {
           textures,
           colors
       } = itemData;
-
       // user selected to remove trait
       if (traitModel == null){
           if ( this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm ){
@@ -996,23 +1022,17 @@ export class CharacterManager {
       }
 
       let vrm = null;
-
       models.map((m)=>{
-          
-          vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
+        vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
       })
-
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
         disposeVRM(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
-
       this._positionModel(vrm)
-    
       this._displayModel(vrm)
-        
       this._applyManagers(vrm)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
@@ -1035,23 +1055,18 @@ class TraitLoadingManager{
         loadingManager.onProgress = (url, loaded, total) => {
             this.setLoadPercentage(Math.round(loaded / total * 100));
         };
+        console.log("starts");
+        // gltfLoader.setKTX2Loader(new KTX2Loader());
 
-        // Models Loader
-        const gltfLoader = new GLTFLoader(loadingManager);
-        gltfLoader.crossOrigin = 'anonymous';
-        gltfLoader.register((parser) => {
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
-            // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
-            return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
-        })
-      
         // Texture Loader
         const textureLoader = new THREE.TextureLoader(loadingManager);
 
         this.loadPercentager = 0;
         this.loadingManager = loadingManager;
-        this.gltfLoader = gltfLoader;
+
+        (async () => {
+          this.gltfLoader = await getGltfLoader();
+        })()
         this.textureLoader = textureLoader;
 
         this.isLoading = false;
@@ -1063,65 +1078,134 @@ class TraitLoadingManager{
 
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
-    loadTraitOptions(options) {
-        return new Promise((resolve) => {
-            this.isLoading = true;
-            const resultData = [];
-    
-            const promises = options.map(async (option, index) => {
-                if (option == null) {
-                    resultData[index] = null;
-                    return;
-                }
+    loadTraitOptions(options, useFileSystem = false) {
+      if (useFileSystem) console.log("usefilesystem");
+      return new Promise((resolve) => {
+          this.isLoading = true;
+          const resultData = [];
+  
+          const promises = options.map(async (option, index) => {
+              if (option == null) {
+                  resultData[index] = null;
+                  return;
+              }
 
-                const loadedModels = await Promise.all(
-                    getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
-                        try {
-                            return await this.gltfLoader.loadAsync(modelDir);
-                        } catch (error) {
-                            console.error(`Error loading model ${modelDir}:`, error);
-                            return null;
-                        }
-                    })
-                );
-    
-                const loadedTextures = await Promise.all(
-                  getAsArray(option?.traitTexture?.fullDirectory).map(
-                      (textureDir) =>
-                          new Promise((resolve) => {
+
+              const loadedModels = await Promise.all(
+                getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
+                  try {
+                    if (this.gltfLoader == null){
+                      return new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                          clearInterval(interval);
+                          reject(new Error("Timeout waiting for gltfLoader"));
+                        }, 5000); 
+                        
+                        const interval = setInterval(async () => {
+                          if (this.gltfLoader != null){
+                            clearInterval(interval);
+                            clearTimeout(timeout);
+                            resolve( //useFileSystem
+                              //? await this.loadModelFromFileSystem(modelDir):
+                              await this.gltfLoader.loadAsync(modelDir));
+                          }
+                        },10);
+                      })
+                    }
+                    else{
+                      return this.gltfLoader.loadAsync(modelDir);
+                      return useFileSystem
+                          ? await this.loadModelFromFileSystem(modelDir)
+                          : await this.gltfLoader.loadAsync(modelDir);
+                    }
+                  } catch (error) {
+                      console.error(`Error loading model ${modelDir}:`, error);
+                      return null;
+                  }
+                })
+              );
+  
+              const loadedTextures = await Promise.all(
+                getAsArray(option?.traitTexture?.fullDirectory).map(async (textureDir) => {
+                    return useFileSystem
+                        ? await this.loadTextureFromFileSystem(textureDir)
+                        : new Promise((resolve) => {
                               this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
                                   resolve(txt);
                               });
-                          })
-                  )
-                );
-    
-                const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
-    
-                resultData[index] = new LoadedData({
-                    traitGroupID: option?.traitModel.traitGroup.trait,
-                    traitModel: option?.traitModel,
-                    textureTrait: option?.traitTexture,
-                    colorTrait: option?.traitColor,
-                    models: loadedModels,
-                    textures: loadedTextures,
-                    colors: loadedColors,
-                });
-            });
-    
-            Promise.all(promises)
-                .then(() => {
-                    this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
-                    resolve(resultData);
-                    this.isLoading = false;
+                          });
                 })
-                .catch((error) => {
-                    console.error('An error occurred:', error);
-                    resolve(resultData);
-                    this.isLoading = false;
-                });
+              );
+              
+  
+              const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
+  
+              resultData[index] = new LoadedData({
+                  traitGroupID: option?.traitModel.traitGroup.trait,
+                  traitModel: option?.traitModel,
+                  textureTrait: option?.traitTexture,
+                  colorTrait: option?.traitColor,
+                  models: loadedModels,
+                  textures: loadedTextures,
+                  colors: loadedColors,
+              });
+          });
+  
+          Promise.all(promises)
+              .then(() => {
+                  this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
+                  resolve(resultData);
+                  this.isLoading = false;
+              })
+              .catch((error) => {
+                  console.error('An error occurred:', error);
+                  resolve(resultData);
+                  this.isLoading = false;
+              });
         });
+    }
+
+    async loadModelFromFileSystem(modelDir) {
+
+      try {
+        console.log("modelDir");
+        const glbBuffer = await fs.readFile(modelDir);
+
+        // Convert the Buffer to ArrayBuffer
+        const glbArrayBuffer = glbBuffer.buffer;
+
+        this.gltfLoader.parse(
+          glbArrayBuffer,
+          '',
+          (gltf) => {
+            console.log(gltf);
+            // Do something with the loaded model, e.g., add it to the scene
+            return gltf;
+          },
+          (error) => {
+            console.log("err1");
+            console.error(error);
+          }
+        );
+        // const gltf = JSON.parse(gltfContent);
+        // console.log(gltf);
+        
+      } catch (error) {
+        console.log("err2");
+        console.error(error);
+      }
+    }
+    async loadTextureFromFileSystem(textureDir) {
+      try {
+          const texturePath = textureDir;//path.resolve(__dirname, textureDir); // Adjust as needed
+          const textureData = await fs.readFile(texturePath);
+          // Process the texture data as needed
+          return textureData;
+      } catch (error) {
+          console.error(`Error loading texture from file system ${textureDir}:`, error);
+          return null;
+      }
     }
 }
 class LoadedData{
@@ -1148,6 +1232,3 @@ class LoadedData{
         this.colors = colors;
     }
 }
-
-
-

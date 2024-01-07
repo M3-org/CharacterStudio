@@ -1,0 +1,34 @@
+{ "name": "134", "attributes": [
+  {
+    "trait_type": "BODY",
+    "value": "Feminine"
+  },
+  {
+    "trait_type": "CLOTHING",
+    "value": "Tech_Jacket_and_Gambler_Outfit"
+  },
+  {
+    "trait_type": "HAIR",
+    "value": "Long_BlondeBrown"
+  },
+  {
+    "trait_type": "TYPE",
+    "value": "Human"
+  },
+  {
+    "trait_type": "GLASSES",
+    "value": "Bleeding_Heart_Glasses"
+  },
+  {
+    "trait_type": "EARRING",
+    "value": "Earring_Cylinder"
+  },
+  {
+    "trait_type": "NECK",
+    "value": "Belt_Choker"
+  },
+  {
+    "trait_type": "WEAPON",
+    "value": "Assault_Rifle"
+  }
+] }

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { getGltfLoader } from './getGltfLoader.js';
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
@@ -83,7 +83,8 @@ export function sceneInitializer(canvasId) {
         // load environment
         const modelPath = "/3d/Platform.glb"
       
-        const loader = new GLTFLoader()
+        const loader = await getGltfLoader();
+        
         // load the modelPath
         const gltf = await loader.loadAsync(modelPath)
         sceneElements.add(gltf.scene);
