@@ -33,6 +33,7 @@ export class CharacterManifestData{
       this.traitIconsDirectorySvg = traitIconsDirectorySvg;
       this.displayScale = displayScale || exportScale || 1;
       this.animationPath = getAsArray(animationPath);
+      
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
       this.initialTraits = [...new Set(this.requiredTraits.concat(this.randomTraits))];
@@ -46,6 +47,16 @@ export class CharacterManifestData{
       this.canDownload = canDownload;
       this.downloadOptions = downloadOptions;
 
+      const getAllTraitsGroupID = () => {
+        const traitsGroupIDs = [];
+        for (const prop in traits){
+          traitsGroupIDs.push(traits[prop].trait);
+        }
+        return traitsGroupIDs;
+      }
+      this.allTraits = getAllTraitsGroupID();
+
+      getAllTraitsGroupID();
       
       const populateTypeRestrictions = () =>{
         if (this.typeRestrictions){
@@ -110,6 +121,9 @@ export class CharacterManifestData{
 
     getInitialTraits(){
       return this.getRandomTraits(this.initialTraits);
+    }
+    getAllTraits(){
+      return this.getRandomTraits(this.allTraits);
     }
     isColliderRequired(groupTraitID){
       if (this.colliderTraits.indexOf(groupTraitID) != -1)
