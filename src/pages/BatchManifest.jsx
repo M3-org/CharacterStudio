@@ -16,7 +16,7 @@ import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 import { connectWallet } from "../library/mint-utils"
 
-function Wallet() {
+function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager,
@@ -230,4 +230,4 @@ function Wallet() {
   )
 }
 
-export default Wallet
+export default BatchManifest

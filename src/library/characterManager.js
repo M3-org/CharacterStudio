@@ -204,7 +204,8 @@ export class CharacterManager {
     removeCurrentManifest(){
       this.manifest = null;
       this.manifestData = null;
-      this.animationManager.clearCurrentAnimations();
+      if (this.animationManager)
+        this.animationManager.clearCurrentAnimations();
     }
     canDownload(){
       return this.manifestData?.canDownload || true;

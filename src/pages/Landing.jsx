@@ -28,7 +28,7 @@ function Landing() {
     !isMute && playSound('backNextButton');
   }
   const connectWallet = () => {
-    setViewMode(ViewMode.WALLET)
+    setViewMode(ViewMode.BATCHMANIFEST)
     !isMute && playSound('backNextButton');
   }
 
@@ -49,9 +49,9 @@ function Landing() {
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="/assets/media/btn_optimize_character.png" />
         </button>
-        <button className={styles.button} onClick={connectWallet}>
+        {/* <button className={styles.button} onClick={connectWallet}>
           <img src="/assets/media/btn_optimize_character.png" />
-        </button>
+        </button> */}
         {/*
         <button className={styles.button}
             onClick={
