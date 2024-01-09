@@ -55,6 +55,9 @@ function Claim() {
     !isMute && playSound('classSelect');
 
   }
+  const selectByManifest = () => {
+    setViewMode(ViewMode.BATCHMANIFEST)
+  }
   const hoverClass = () => {
     !isMute && playSound('classMouseOver');
   }
@@ -123,6 +126,35 @@ function Claim() {
             </div>
           )
         })}
+        <div
+              key={"manifest-load"}
+              className={styles.class}
+              onClick={() => selectByManifest()}
+              onMouseOver={() => hoverClass()}
+            >
+            <div
+                className={styles.classFrame}
+                style={{"backgroundImage": `url(./assets/media/disabled.png)`}}
+              >
+                <div className={styles.frameContainer}>
+                  <img
+                    src={"/assets/backgrounds/class-frame.svg"}
+                    className={styles.frame}
+                  />
+                </div>
+              </div>
+              <div className={styles.icon}>
+                <img
+                  src={"./assets/icons/class-neural-hacker.svg"}
+                  alt={"manifest icons"}
+                />
+              </div>
+              
+              <div className={styles.name}>{"Manifest"}</div>
+              <div className={styles.description}>
+                {"Load by manifest"}
+              </div>
+            </div>
       </div>
 
       <div className={styles.bottomLine} />
