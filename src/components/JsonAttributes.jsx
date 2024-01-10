@@ -11,20 +11,32 @@ export default function JsonAttributes({jsonSelectionArray}){
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
+  const loadByManifest =()=>{
+    setManifestSelectionArray(manifestDataArray);
+      characterManager.setManifest(manifestDataArray[0]);
+      
+      setIsLoading(true);
+      characterManager.loadAllTraits().then(()=>{
+        setIsLoading(false);
+    })
+  }
+
+  const loadByTraitData = (nftObject) => {
+    characterManager.loadTraitsFromNFTObject(nftObject).then(()=>{
+      setIsLoading(false);
+    })
+  }
+
   const nextJson = async () => {
     if (!isLoading){
       setIsLoading(true);
       if (index >= jsonSelectionArray.length -1){
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]).then(()=>{
-          setIsLoading(false);
-        })
+        loadByTraitData(jsonSelectionArray[0]);
         setIndex(0);
       }
       else{
         const newIndex = index + 1;
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
-          setIsLoading(false);
-        })
+        loadByTraitData(jsonSelectionArray[newIndex]);
         setIndex(newIndex);
       }
     }
@@ -33,16 +45,12 @@ export default function JsonAttributes({jsonSelectionArray}){
     if (!isLoading){
       setIsLoading(true);
       if (index <= 0){
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]).then(()=>{
-          setIsLoading(false);
-        })
+        loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
         setIndex(jsonSelectionArray.length -1);
       }
       else{
         const newIndex = index-1;
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
-          setIsLoading(false);
-        })
+        loadByTraitData(jsonSelectionArray[newIndex]);
         setIndex(newIndex);
       }
     }
