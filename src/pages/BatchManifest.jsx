@@ -152,7 +152,7 @@ function BatchManifest() {
         characterManager.setManifest(manifestDataArray[0]);
         
         setIsLoading(true);
-        characterManager.loadAllTraits().then(()=>{
+        characterManager.loadInitialTraits().then(()=>{
           setIsLoading(false);
         })
       }
