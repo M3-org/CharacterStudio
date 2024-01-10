@@ -269,8 +269,7 @@ export class CharacterManager {
           id:this.avatar[prop].traitInfo?.id
         }
       }
-      return result;
-      
+      return result; 
     }
     getGroupTraits(){
       if (this.manifestData){

@@ -30,6 +30,7 @@ function BatchManifest() {
   const { isMute } = React.useContext(AudioContext)
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
+  const [manifestSelectionArray, setManifestSelectionArray] = React.useState(null)
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -53,10 +54,12 @@ function BatchManifest() {
     }
   }
   const downloadVRMWithIndex=(index)=>{
-    
-    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
-      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then(()=>{
-        if (index < jsonSelectionArray.length-1 )
+    characterManager.setManifest(manifestSelectionArray[index]);
+    setIsLoading(true);
+    characterManager.loadAllTraits().then(()=>{
+      //characterManager.downloadVRM(manifestSelectionArray[index].name, getOptions()).then(()=>{
+        characterManager.downloadVRM(index, getOptions()).then(()=>{
+        if (index < manifestSelectionArray.length-1 )
           downloadVRMWithIndex(index + 1)
         else
           setIsLoading(false);
@@ -102,6 +105,7 @@ function BatchManifest() {
   const handleJsonDrop = (files) => {
     const filesArray = Array.from(files);
     const manifestDataArray = [];
+    const jsonDataArray = [];
     const processFile = (file) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
@@ -109,11 +113,15 @@ function BatchManifest() {
 
           // XXX Anata hack to display nft thumbs
           // const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+          
 
           //console.log(thumbLocation)
           reader.onload = function (e) {
             try {
               const jsonContent = JSON.parse(e.target.result);
+
+              const thumbLocation = jsonContent.thumbnail;
+              console.log(thumbLocation);
               // XXX Anata hack to display nft thumbs
               // jsonContent.thumb = thumbLocation;
 
@@ -136,13 +144,11 @@ function BatchManifest() {
     Promise.all(filesArray.map(processFile))
     .then(() => {
       if (manifestDataArray.length > 0){
-        // This code will run after all files are processed
-        console.log(manifestDataArray[0]);
         /// XXX create new function assign manifest
-        characterManager.animationManager = null;
+        //characterManager.animationManager = null;
+        setManifestSelectionArray(manifestDataArray);
         characterManager.setManifest(manifestDataArray[0]);
-        console.log("pass")
-        //setJsonSelectionArray(jsonDataArray);
+        
         setIsLoading(true);
         characterManager.loadAllTraits().then(()=>{
           setIsLoading(false);
@@ -190,7 +196,7 @@ function BatchManifest() {
       <ModelInformation
         model={model}
       />
-      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      <JsonAttributes jsonSelectionArray={manifestSelectionArray}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
@@ -209,7 +215,7 @@ function BatchManifest() {
             console.log("clicku")
           }}
         />
-        {(jsonSelectionArray?.length == 1)&&(
+        {(manifestSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"
           text="Download"
@@ -217,7 +223,7 @@ function BatchManifest() {
           className={styles.buttonRight}
           onClick={download}
         />)}
-        {(jsonSelectionArray?.length > 1)&&(
+        {(manifestSelectionArray?.length > 1)&&(
           <CustomButton
           theme="light"
           text="Download All"

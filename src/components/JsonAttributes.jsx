@@ -70,9 +70,9 @@ export default function JsonAttributes({jsonSelectionArray}){
                 onClick={nextJson}
               />:<></>}
             </div>
-            {jsonSelectionArray[index].thumb && (
+            {(jsonSelectionArray[index].thumb || jsonSelectionArray[index].thumbnail) && (
               <img
-                src={jsonSelectionArray[index].thumb}
+                src={jsonSelectionArray[index].thumb || jsonSelectionArray[index].thumbnail}
                 alt="Selection Thumbnail"
                 style={{
                   width: '280px',
@@ -82,7 +82,7 @@ export default function JsonAttributes({jsonSelectionArray}){
                 }}
               />
             )}
-            {jsonSelectionArray[index].attributes.map((attribute) => (
+            {jsonSelectionArray[index].attributes && jsonSelectionArray[index].attributes.map((attribute) => (
               <div key={`json:${attribute.trait_type}_${attribute.value}`}>
                 <div className={styles["traitInfoText"]}>
                   {`${attribute.trait_type} : ${attribute.value}`}
