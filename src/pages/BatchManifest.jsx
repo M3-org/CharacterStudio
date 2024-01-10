@@ -57,10 +57,11 @@ function BatchManifest() {
   }
   const downloadVRMWithIndex=(index)=>{
     characterManager.setManifest(manifestSelectionArray[index]);
+    const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
     characterManager.loadInitialTraits().then(()=>{
       //characterManager.downloadVRM(manifestSelectionArray[index].name, getOptions()).then(()=>{
-        characterManager.downloadVRM(index, getOptions()).then(()=>{
+        characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
         if (index < manifestSelectionArray.length-1 )
           downloadVRMWithIndex(index + 1)
         else
@@ -112,17 +113,17 @@ function BatchManifest() {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
           const reader = new FileReader();
-
+         
           // XXX Anata hack to display nft thumbs
           // const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
           
-
-          //console.log(thumbLocation)
+          const manifestName =  file.name.replace(/\.[^/.]+$/, "")
           reader.onload = function (e) {
             try {
               const jsonContent = JSON.parse(e.target.result);
 
               const thumbLocation = jsonContent.thumbnail;
+              jsonContent.manifestName = manifestName;
               console.log(thumbLocation);
               // XXX Anata hack to display nft thumbs
               // jsonContent.thumb = thumbLocation;
