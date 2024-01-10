@@ -1082,10 +1082,14 @@ export class CharacterManager {
       let vrm = null;
 
       models.map((m)=>{
-          
-          vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
+          if (m != null)
+            vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
       })
+
+      // do nothing, an error happened
+      if (vrm == null)
+        return;
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
