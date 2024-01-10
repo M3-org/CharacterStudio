@@ -447,7 +447,6 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadInitialTraits() {
-      console.log("intiial")
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
