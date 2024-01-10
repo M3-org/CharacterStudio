@@ -58,7 +58,7 @@ function BatchManifest() {
   const downloadVRMWithIndex=(index)=>{
     characterManager.setManifest(manifestSelectionArray[index]);
     setIsLoading(true);
-    characterManager.loadAllTraits().then(()=>{
+    characterManager.loadInitialTraits().then(()=>{
       //characterManager.downloadVRM(manifestSelectionArray[index].name, getOptions()).then(()=>{
         characterManager.downloadVRM(index, getOptions()).then(()=>{
         if (index < manifestSelectionArray.length-1 )

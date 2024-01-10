@@ -13,7 +13,7 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
 
   const loadByManifest =(manifest)=>{
       characterManager.setManifest(manifest);
-      characterManager.loadAllTraits().then(()=>{
+      characterManager.loadInitialTraits().then(()=>{
         setIsLoading(false);
     })
   }
