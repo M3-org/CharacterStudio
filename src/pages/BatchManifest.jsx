@@ -20,7 +20,9 @@ function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager,
-    animationManager
+    animationManager,
+    toggleDebugMode,
+    debugMode
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -177,6 +179,9 @@ function BatchManifest() {
     } 
   };
 
+  const clickDebugMode = ()=>{
+    toggleDebugMode();
+  }
   
 
   return (
@@ -207,13 +212,10 @@ function BatchManifest() {
         />
         <CustomButton
           theme="light"
-          text={"debug"}
+          text={debugMode ? "normal" : "debug"}
           size={14}
           className={styles.buttonCenter}
-          onClick={()=>{
-            connectWallet();
-            console.log("clicku")
-          }}
+          onClick={clickDebugMode}
         />
         {(manifestSelectionArray?.length == 1)&&(
           <CustomButton
