@@ -12,9 +12,9 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
   const [index, setIndex] = useState(0);
 
   const loadByManifest =(manifest)=>{
-      characterManager.setManifest(manifest);
-      characterManager.loadInitialTraits().then(()=>{
-        setIsLoading(false);
+    characterManager.setManifest(manifest);
+    characterManager.loadInitialTraits().then(()=>{
+      setIsLoading(false);
     })
   }
 

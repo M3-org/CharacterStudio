@@ -108,7 +108,6 @@ function BatchManifest() {
   const handleJsonDrop = (files) => {
     const filesArray = Array.from(files);
     const manifestDataArray = [];
-    const jsonDataArray = [];
     const processFile = (file) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
@@ -124,7 +123,6 @@ function BatchManifest() {
 
               const thumbLocation = jsonContent.thumbnail;
               jsonContent.manifestName = manifestName;
-              console.log(thumbLocation);
               // XXX Anata hack to display nft thumbs
               // jsonContent.thumb = thumbLocation;
 
@@ -166,10 +164,8 @@ function BatchManifest() {
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
-    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
-      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
