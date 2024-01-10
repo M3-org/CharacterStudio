@@ -4,18 +4,15 @@ import { SceneContext } from "../context/SceneContext"
 import MenuTitle from "./MenuTitle"
 import { ViewContext } from "../context/ViewContext"
 
-export default function JsonAttributes({jsonSelectionArray}){
+export default function JsonAttributes({jsonSelectionArray, byManifest = false}){
   const { isLoading, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
 
-  const loadByManifest =()=>{
-    setManifestSelectionArray(manifestDataArray);
-      characterManager.setManifest(manifestDataArray[0]);
-      
-      setIsLoading(true);
+  const loadByManifest =(manifest)=>{
+      characterManager.setManifest(manifest);
       characterManager.loadAllTraits().then(()=>{
         setIsLoading(false);
     })
@@ -31,12 +28,12 @@ export default function JsonAttributes({jsonSelectionArray}){
     if (!isLoading){
       setIsLoading(true);
       if (index >= jsonSelectionArray.length -1){
-        loadByTraitData(jsonSelectionArray[0]);
+        byManifest ? loadByManifest(jsonSelectionArray[0]) : loadByTraitData(jsonSelectionArray[0]);
         setIndex(0);
       }
       else{
         const newIndex = index + 1;
-        loadByTraitData(jsonSelectionArray[newIndex]);
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex]);
         setIndex(newIndex);
       }
     }
@@ -45,12 +42,13 @@ export default function JsonAttributes({jsonSelectionArray}){
     if (!isLoading){
       setIsLoading(true);
       if (index <= 0){
-        loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
+        byManifest ? loadByManifest(sonSelectionArray[jsonSelectionArray.length-1])  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
+          
         setIndex(jsonSelectionArray.length -1);
       }
       else{
         const newIndex = index-1;
-        loadByTraitData(jsonSelectionArray[newIndex]);
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex])
         setIndex(newIndex);
       }
     }

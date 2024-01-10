@@ -196,7 +196,7 @@ function BatchManifest() {
       <ModelInformation
         model={model}
       />
-      <JsonAttributes jsonSelectionArray={manifestSelectionArray}/>
+      <JsonAttributes jsonSelectionArray={manifestSelectionArray} byManifest={true}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
