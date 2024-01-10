@@ -872,6 +872,11 @@ export class CharacterManager {
     }
     _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
+      if (m.userData.vrm == null){
+        console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
+        return null;
+      }
+
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
       if (this.manifestData.isColliderRequired(traitID))
