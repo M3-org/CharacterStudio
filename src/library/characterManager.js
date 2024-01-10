@@ -202,6 +202,7 @@ export class CharacterManager {
       this.avatar = {};
     }
     removeCurrentManifest(){
+      this.removeCurrentCharacter();
       this.manifest = null;
       this.manifestData = null;
       if (this.animationManager)
@@ -681,6 +682,8 @@ export class CharacterManager {
      *                         or rejects with an error message if loading fails.
      */
     setManifest(manifest){
+      // remove in case character was loaded
+      this.removeCurrentCharacter();
       return new Promise(async (resolve, reject) => {
         try{
           this.manifest = manifest;
@@ -721,6 +724,8 @@ export class CharacterManager {
      *                         or rejects with an error message if loading fails.
      */
     loadManifest(url) {
+      // remove in case character was loaded
+      this.removeCurrentCharacter();  
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
@@ -997,10 +1002,6 @@ export class CharacterManager {
               //   color.b * 0.8
               // );
             }
-
-            console.log(mesh.material)
-            
-            
           }
         }
         if (colors){
@@ -1158,13 +1159,11 @@ class TraitLoadingManager{
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
     loadTraitOptions(options) {
-      console.log("een")
         return new Promise((resolve) => {
             this.isLoading = true;
             const resultData = [];
     
             const promises = options.map(async (option, index) => {
-              console.log(option)
                 if (option == null) {
                     resultData[index] = null;
                     return;
@@ -1197,9 +1196,6 @@ class TraitLoadingManager{
                 );
     
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
-    
-                console.log(loadedModels);
-
                 resultData[index] = new LoadedData({
                     traitGroupID: option?.traitModel.traitGroup.trait,
                     traitModel: option?.traitModel,
@@ -1209,21 +1205,16 @@ class TraitLoadingManager{
                     textures: loadedTextures,
                     colors: loadedColors,
                 });
-                console.log("fini");
             });
-            console.log(promises);
             Promise.allSettled(promises)
                 .then(() => {
                     this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
-                    console.log("result data")
-                    console.log(resultData);
                     resolve(resultData);
                     this.isLoading = false;
                 })
                 .catch((error) => {
                   this.setLoadPercentage(100);
                     console.error('An error occurred:', error);
-                    console.log("result data error")
                     resolve(resultData);
                     this.isLoading = false;
                 });
