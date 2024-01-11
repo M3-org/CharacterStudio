@@ -236,7 +236,6 @@ export class CharacterManager {
             // Call the downloadVRMWithAvatar function with the required parameters
             await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
 
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
             resolve();
           } catch (error) {
             // Handle any errors that occurred during the download process
@@ -682,10 +681,10 @@ export class CharacterManager {
      *                         or rejects with an error message if loading fails.
      */
     setManifest(manifest){
-      // remove in case character was loaded
       this.removeCurrentCharacter();
       return new Promise(async (resolve, reject) => {
         try{
+          // remove in case character was loaded
           this.manifest = manifest;
           if (this.manifest) {
             // Create a CharacterManifestData instance based on the fetched manifest
@@ -693,11 +692,16 @@ export class CharacterManager {
 
             // If an animation manager is available, set it up
             if (this.animationManager) {
-              await this._animationManagerSetup(
-                this.manifest.animationPath,
-                this.manifest.assetsLocation,
-                this.manifestData.displayScale
-              );
+              try{
+                await this._animationManagerSetup(
+                  this.manifest.animationPath,
+                  this.manifest.assetsLocation,
+                  this.manifestData.displayScale
+                );
+              }
+              catch(err){
+                console.error("Error loading animations: " + err)
+              }
             }
 
             // Resolve the Promise (without a value, as you mentioned it's not needed)
