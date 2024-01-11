@@ -55,17 +55,19 @@ function BatchManifest() {
       ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
-  const downloadVRMWithIndex=(index)=>{
-    characterManager.setManifest(manifestSelectionArray[index]);
+  const downloadVRMWithIndex= async(index)=>{
+    await characterManager.setManifest(manifestSelectionArray[index]);
     const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
     characterManager.loadInitialTraits().then(()=>{
-      //characterManager.downloadVRM(manifestSelectionArray[index].name, getOptions()).then(()=>{
+       
         characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
-        if (index < manifestSelectionArray.length-1 )
-          downloadVRMWithIndex(index + 1)
-        else
-          setIsLoading(false);
+          if (index < manifestSelectionArray.length-1 ){
+            console.log("downloaded " + downloadName)
+            downloadVRMWithIndex(index + 1)
+          }
+          else
+            setIsLoading(false);
       })
     })
   }
