@@ -20,9 +20,9 @@ export class ScreenshotManager {
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
   }
 
-  setCamera(headPosition, playerCameraDistance) {
+  setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
     this.camera.position.copy(headPosition);
-
+    this.camera.fov = fieldOfView;
     localVector.set(0, 0, -1);
     this.cameraDir = localVector.applyQuaternion(this.camera.quaternion);
     this.cameraDir.normalize();

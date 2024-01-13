@@ -87,7 +87,8 @@ export class CharacterManifestData{
         downloadOptions.stdAtlasSizeTransp = downloadOptions.stdAtlasSizeTransp || 1024;
         downloadOptions.exportStdAtlas = downloadOptions.exportStdAtlas || false;
         downloadOptions.exportMtoonAtlas = downloadOptions.exportMtoonAtlas || true;
-        downloadOptions.screenshotFaceDistance = downloadOptions.screenshotFaceDistance || [0,0,0.3];
+        downloadOptions.screenshotFaceDistance = downloadOptions.screenshotFaceDistance || 1;
+        downloadOptions.screenshotFaceOffset = downloadOptions.screenshotFaceOffset || [0,0,0];
         downloadOptions.screenshotResolution = downloadOptions.screenshotResolution || [512,512];
         downloadOptions.screenshotFOV = downloadOptions.screenshotFOV || 75;
 
