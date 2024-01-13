@@ -10,6 +10,8 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
+  const [currentAvatar, setCurrentAvatar] = React.useState({})
+  const [currentAvatarKeys, setCurrentAvatarKeys] = React.useState([])
 
   const loadByManifest =(manifest)=>{
     characterManager.setManifest(manifest);
@@ -17,6 +19,13 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
       setIsLoading(false);
     })
   }
+
+  useEffect(() => {
+    if (isLoading == false){
+      setCurrentAvatar(characterManager.getAvatarSelection());
+      setCurrentAvatarKeys(Object.keys(characterManager.getAvatarSelection()))
+    }
+  }, [isLoading])
 
   const loadByTraitData = (nftObject) => {
     characterManager.loadTraitsFromNFTObject(nftObject).then(()=>{
@@ -42,7 +51,7 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
     if (!isLoading){
       setIsLoading(true);
       if (index <= 0){
-        byManifest ? loadByManifest(sonSelectionArray[jsonSelectionArray.length-1])  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
+        byManifest ? loadByManifest(jsonSelectionArray[jsonSelectionArray.length-1])  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
           
         setIndex(jsonSelectionArray.length -1);
       }
@@ -64,10 +73,10 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
                   className={`${styles["arrow-button"]} ${styles["left-button"]}`}
                   onClick={prevJson}
               />:<></>}
-              {jsonSelectionArray[index].name && (
+              {(jsonSelectionArray[index].name || jsonSelectionArray[index].manifestName) && (
                 <div style={{ textAlign: 'center', flex: 1}}>
                   <div className={styles["traitInfoTitle"]}>
-                    {jsonSelectionArray[index].name}
+                    {byManifest ? jsonSelectionArray[index].manifestName : jsonSelectionArray[index].name}
                   </div>
                 </div>
               )}
@@ -92,6 +101,13 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
               <div key={`json:${attribute.trait_type}_${attribute.value}`}>
                 <div className={styles["traitInfoText"]}>
                   {`${attribute.trait_type} : ${attribute.value}`}
+                </div>
+              </div>
+            ))}
+            {byManifest && currentAvatarKeys.map((key) => (
+              <div key={`val:${key}`}>
+                <div className={styles["traitInfoText"]}>
+                  {`${key} : ${currentAvatar[key].id}`}
                 </div>
               </div>
             ))}
