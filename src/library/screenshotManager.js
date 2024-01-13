@@ -5,10 +5,6 @@ const screenshotSize = 4096;
 
 const localVector = new THREE.Vector3();
 
-
-// const backgroundTexture = textureLoader.load(`/assets/backgrounds/main-background2.png`);
-// backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
-
 export class ScreenshotManager {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({
@@ -19,7 +15,7 @@ export class ScreenshotManager {
     this.renderer.setSize(screenshotSize, screenshotSize);
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
     this.textureLoader = new THREE.TextureLoader();
-    this.sceneBackground = new THREE.Color(0.2,0.2,0.2);
+    this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
   }
 
   setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
@@ -31,6 +27,21 @@ export class ScreenshotManager {
     this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
     this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
 
+  }
+
+  /**
+   * Sets the background using either color or image.
+   * 
+   * @param {Array|string} background - If an array, assumed to be RGB values [r, g, b].
+   *                                    If a string, assumed to be a URL for the background image.
+   */
+  setBackground(background){
+    if (Array.isArray(background)){
+      this.setBackgroundColor(background[0],background[1],background[2])
+    }
+    else{
+      this.setBackgroundImage(background);
+    }
   }
 
   setBackgroundColor(r,g,b){

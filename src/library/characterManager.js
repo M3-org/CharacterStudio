@@ -820,7 +820,8 @@ export class CharacterManager {
         screenshotResolution,
         screenshotFaceDistance,
         screenshotFaceOffset,
-        screenshotFOV
+        screenshotBackground,
+        screenshotFOV,
       } = options
       const width = screenshotResolution[0];
       const height = screenshotResolution[1];
@@ -829,6 +830,7 @@ export class CharacterManager {
       localVector3.y += screenshotFaceOffset[1];
       localVector3.z += screenshotFaceOffset[2];
       
+      this.screenshotManager.setBackground(screenshotBackground);
       this.screenshotManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
