@@ -815,23 +815,26 @@ export class CharacterManager {
       });
       // XXX save variables in manifest to store face distance and field of view.
 
+      // pose the character
       const {
         screenshotResolution,
         screenshotFaceDistance,
+        screenshotFaceOffset,
         screenshotFOV
       } = options
       const width = screenshotResolution[0];
       const height = screenshotResolution[1];
 
-      localVector3.x += screenshotFaceDistance.x;
-      localVector3.y += screenshotFaceDistance.y;
-      localVector3.z += screenshotFaceDistance.z;
+      localVector3.x += screenshotFaceOffset[0];
+      localVector3.y += screenshotFaceOffset[1];
+      localVector3.z += screenshotFaceOffset[2];
       
-      this.screenshotManager.setCamera(localVector3, screenshotFOV);
+      this.screenshotManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
 
+        
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
