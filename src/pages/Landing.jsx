@@ -6,6 +6,10 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
 
+import { connectWallet } from "../library/mint-utils"
+
+
+
 function Landing() {
   const { setViewMode } = React.useContext(ViewContext)
   const { playSound } = React.useContext(SoundContext)
@@ -27,8 +31,9 @@ function Landing() {
     characterManager.loadOptimizerManifest();
     !isMute && playSound('backNextButton');
   }
-  const connectWallet = () => {
-    setViewMode(ViewMode.BATCHMANIFEST)
+  const getWallet = async() => {
+    const address = await connectWallet()
+    if (address != "")setViewMode(ViewMode.WALLET)
     !isMute && playSound('backNextButton');
   }
 
@@ -49,9 +54,9 @@ function Landing() {
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="/assets/media/btn_optimize_character.png" />
         </button>
-        {/* <button className={styles.button} onClick={connectWallet}>
+        <button className={styles.button} onClick={getWallet}>
           <img src="/assets/media/btn_optimize_character.png" />
-        </button> */}
+        </button>
         {/*
         <button className={styles.button}
             onClick={
