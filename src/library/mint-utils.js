@@ -3,6 +3,8 @@ import { getVRMBlobData } from "./download-utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
 import axios from "axios"
 
+const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
+
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
@@ -21,11 +23,49 @@ async function getTokenPrice(){
   return tokenPrice
 }
 
+/**
+ * Fetches Opensea collection data for a specific Ethereum account and collection.
+ *
+ * @param {string} address - The Ethereum account address.
+ * @param {string} collection - The name or identifier of the Opensea collection.
+ * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
+ */
+export function getOpenseaCollection(address, collection) {
+  const options = {
+    method: 'GET',
+    headers: { accept: 'application/json', 'x-api-key': opensea_Key },
+  };
+  console.log(options);
+  // Returning a Promise
+  return new Promise((resolve, reject) => {
+    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?collection=' + collection, options)
+      .then(response => {
+        // Check if the response status is ok (2xx range)
+        if (response.ok) {
+          return response.json();
+        } else {
+          // If the response status is not ok, reject the Promise with an error message
+          reject('Failed to fetch data from Opensea API');
+        }
+      })
+      .then(response => {
+        // Resolve the Promise with the JSON response
+        resolve(response);
+      })
+      .catch(err => {
+        // Reject the Promise with the error encountered during the fetch
+        reject(err);
+      });
+  });
+}
+
+
 // ready to test
 export async function connectWallet(){
   if (window.ethereum) {
     try {
       const chain = await window.ethereum.request({ method: 'eth_chainId' })
+      
       if (parseInt(chain, 16) == parseInt(chainId, 16)) {
         const addressArray = await window.ethereum.request({
           method: 'eth_requestAccounts',
