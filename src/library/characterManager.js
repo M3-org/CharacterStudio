@@ -735,28 +735,10 @@ export class CharacterManager {
           // Fetch the manifest data asynchronously
           this.manifest = await this._fetchManifest(url);
 
-          // Check if the manifest was successfully fetched
-          if (this.manifest) {
-            // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest);
-
-            // If an animation manager is available, set it up
-            if (this.animationManager) {
-              await this._animationManagerSetup(
-                this.manifest.animationPath,
-                this.manifest.assetsLocation,
-                this.manifestData.displayScale
-              );
-            }
-
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
+          this.setManifest(this.manifest).then(()=>{
             resolve();
-          } else {
-            // The manifest could not be fetched, reject the Promise with an error message
-            const errorMessage = "Failed to fetch or parse the manifest.";
-            console.error(errorMessage);
-            reject(new Error(errorMessage));
-          }
+          })
+
         } catch (error) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
