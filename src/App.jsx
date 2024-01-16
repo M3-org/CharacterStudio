@@ -24,6 +24,7 @@ import BatchDownload from "./pages/BatchDownload"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 import BatchManifest from "./pages/BatchManifest"
+import Wallet from "./pages/Wallet"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -229,6 +230,7 @@ export default function App() {
       <BioPage personality={personality} />
     ),
     [ViewMode.CREATE]: <Create />,
+    [ViewMode.WALLET]: <Wallet />,
     [ViewMode.CLAIM]: <Claim />,
     [ViewMode.BATCHMANIFEST]: <BatchManifest />,
     [ViewMode.BATCHDOWNLOAD]: <BatchDownload />,
