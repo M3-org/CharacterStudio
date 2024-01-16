@@ -8,7 +8,7 @@ import { SceneContext } from "../context/SceneContext"
 
 import { connectWallet } from "../library/mint-utils"
 
-
+const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
 
 function Landing() {
   const { setViewMode } = React.useContext(ViewContext)
@@ -54,9 +54,10 @@ function Landing() {
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="/assets/media/btn_optimize_character.png" />
         </button>
-        <button className={styles.button} onClick={getWallet}>
+        {opensea_Key && opensea_Key != "" && <button className={styles.button} onClick={getWallet}>
           <img src="/assets/media/btn_optimize_character.png" />
         </button>
+        }
         {/*
         <button className={styles.button}
             onClick={
