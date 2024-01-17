@@ -95,7 +95,7 @@ export class CharacterManager {
         console.warn("toggleCharacterLookAtMouse() was called, but no lookAtManager exist. Make sure to set it up first with addLookArMous()")
       }
     }
-    savePortraitScreenshot(name, width, height){
+    savePortraitScreenshot(name, width, height, distance = 1, headHeightOffset = 0){
       this.blinkManager.enableScreenshot();
 
       this.characterModel.traverse(o => {
@@ -105,7 +105,8 @@ export class CharacterManager {
         }
       });
       localVector3.z += 0.3;
-      this.screenshotManager.setCamera(localVector3, 0.83);
+      localVector3.y += headHeightOffset;
+      this.screenshotManager.setCamera(localVector3, distance);
       this.screenshotManager.saveScreenshot(name, width,height);
 
       this.blinkManager.disableScreenshot();

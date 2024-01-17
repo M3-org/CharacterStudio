@@ -91,7 +91,10 @@ export class ScreenshotManager {
   }
 
   _createImage(width, height){
+    const aspectRatio = width / height;
     this.renderer.setSize(width, height);
+    this.camera.aspect = aspectRatio;
+    this.camera.updateProjectionMatrix();
     try {
       this.scene.background = this.sceneBackground;
       this.renderer.render(this.scene, this.camera);
