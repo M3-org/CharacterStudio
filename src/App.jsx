@@ -28,7 +28,6 @@ import Wallet from "./pages/Wallet"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
-const peresonalityImportPath = import.meta.env.VITE_ASSET_PATH + "/personality.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
@@ -68,21 +67,13 @@ async function fetchManifest(location) {
   return data
 }
 
-async function fetchPersonality() {
-  const response = await fetch(peresonalityImportPath)
-  const data = await response.json()
-  return data
-}
 
 async function fetchAll() {
   const initialManifest = await fetchManifest(assetImportPath)
-  const personality = await fetchPersonality()
-
   const effectManager = new EffectManager()
 
   return {
     initialManifest,
-    personality,
     effectManager,
   }
 }
@@ -120,7 +111,6 @@ const resource = fetchData()
 export default function App() {
   const {
     initialManifest,
-    personality,
     effectManager,
   } = resource.read()
 
@@ -226,9 +216,6 @@ export default function App() {
       />
     ),
     [ViewMode.OPTIMIZER]:<Optimizer/>,
-    [ViewMode.BIO]: (
-      <BioPage personality={personality} />
-    ),
     [ViewMode.CREATE]: <Create />,
     [ViewMode.WALLET]: <Wallet />,
     [ViewMode.CLAIM]: <Claim />,
