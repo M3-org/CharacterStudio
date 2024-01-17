@@ -721,6 +721,29 @@ export class CharacterManager {
       })
     }
 
+    appendManifest(manifest, replaceExisting){
+      return new Promise(async (resolve, reject) => {
+        try{
+          if (replaceExisting)
+            this.manifest = {...(this.manifest || {}), manifest};
+          else
+            this.manifest = {manifest, ...(this.manifest || {})};
+
+          // Create a CharacterManifestData instance based on the fetched manifest
+          const manifestData = new CharacterManifestData(manifest);
+          this.manifestData.appendManifestData(manifestData);
+
+          // Resolve the Promise (without a value, as you mentioned it's not needed)
+          resolve();
+
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error setting manifest:", error.message);
+          reject(new Error("Failed to set the manifest."));
+        }
+      })
+    }
+
     /**
      * Loads the manifest data for the character.
      *
@@ -730,13 +753,38 @@ export class CharacterManager {
      */
     loadManifest(url) {
       // remove in case character was loaded
-      this.removeCurrentCharacter();  
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          this.manifest = await this._fetchManifest(url);
+          const manifest = await this._fetchManifest(url);
 
-          this.setManifest(this.manifest).then(()=>{
+          this.setManifest(manifest).then(()=>{
+            resolve();
+          })
+
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error loading manifest:", error.message);
+          reject(new Error("Failed to load the manifest."));
+        }
+      });
+    }
+
+    /**
+     * Loads manifest data and appends it to the current manifest
+     *
+     * @param {string} url - The URL of the manifest.
+     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     *                         or rejects with an error message if loading fails.
+     */
+    loadAppendManifest(url, replaceExisting){
+      // remove in case character was loaded
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch the manifest data asynchronously
+          const manifest = await this._fetchManifest(url);
+
+          this.appendManifest(manifest, replaceExisting).then(()=>{
             resolve();
           })
 
