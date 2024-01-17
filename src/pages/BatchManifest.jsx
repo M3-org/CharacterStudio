@@ -60,7 +60,7 @@ function BatchManifest() {
     const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
     characterManager.loadInitialTraits().then(()=>{
-       
+        characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
         characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
           if (index < manifestSelectionArray.length-1 ){
             console.log("downloaded " + downloadName)
