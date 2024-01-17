@@ -1,20 +1,13 @@
 import React from 'react';
 import styles from './Slider.module.css'; // Import CSS for styling
 
-export default function Slider ({ value, min, max, onChange, step, stepBox }) {
+export default function Slider ({ title, value, min, max, onChange, step, stepBox }) {
   
   return (
-    <div className={styles["slider-container"]}>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={onChange}
-        className={styles["slider"]}
-        step ={step}
-      />
-      {stepBox &&
+    <>
+    <div className={styles["infoContainer"]}>   
+    {title}
+    {stepBox &&
         <input
           type="number"
           min="0"
@@ -25,7 +18,20 @@ export default function Slider ({ value, min, max, onChange, step, stepBox }) {
           step ={stepBox}
         />
       }
+      </div>
+    <div className={styles["slider-container"]}>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={onChange}
+        className={styles["slider"]}
+        step ={step}
+      />
+      
     </div>
+    </>
   );
 };
 
