@@ -92,11 +92,10 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
                                 />
                             <br/>
                             <br/>
-                            Cull Out Distance
-                            <Slider  value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
+                            
+                            <Slider title={"Cull Out Distance"} value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
                             <br/>
-                            Cull In Distance
-                            <Slider  value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
+                            <Slider title={"Cull In Distance"} value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
                             <div 
                                 className={styles["actionButton"]}
                                 onClick={updateCulling}>
