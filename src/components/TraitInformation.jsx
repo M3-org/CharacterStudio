@@ -4,18 +4,15 @@ import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 
-export default function TraitInformation({selectedTrait, selectedVRM, animationName, setAnimationName}){
+export default function TraitInformation({selectedTrait, selectedVRM}){
     const {
         animationManager,
         characterManager,
-        lookAtManager
     } = useContext(SceneContext);
 
     const [cullOutDistance, setCullOutDistance] = useState(0); // set from the values of the trait
     const [cullInDistance, setCullInDistance] = useState(0);
     const [cullLayer, setCullLayer] = useState(0);
-    
-    const [hasMouseLook, setHasMouseLook] = useState(lookAtManager.userActivated);
 
     useEffect(() => {
         if (selectedVRM != null){
@@ -54,23 +51,6 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
     const updateCulling = () =>{
         characterManager.updateCullHiddenMeshes();
     }
-
-    const nextAnimation = async () => {
-        console.log("play next")
-        await animationManager.loadNextAnimation();
-        setAnimationName(animationManager.getCurrentAnimationName());
-    }
-    const prevAnimation = async () => {
-        console.log("play prev")
-        await animationManager.loadPreviousAnimation();
-        setAnimationName(animationManager.getCurrentAnimationName());
-    }
-    const handleMouseLookEnable = (event) => {
-        setHasMouseLook(event.target.checked);
-        lookAtManager.setActive(event.target.checked);
-        animationManager.enableMouseLook(event.target.checked);
-        // Perform any additional actions or logic based on the checkbox state change
-    };
 
     return (
         selectedTrait != null ? (
@@ -124,38 +104,7 @@ export default function TraitInformation({selectedTrait, selectedVRM, animationN
                                     Update Culling </div>
                             </div>
                         </div>
-                        <div className={styles["traitInfoTitle"]}>
-                            Animation
-                        </div>
-                        <br/>
-                        <div className={styles["flexSelect"]}>
-                            <div 
-                                className={`${styles["arrow-button"]} ${styles["left-button"]}`}
-                                onClick={prevAnimation}
-                            ></div>
-                            <div className={styles["traitInfoText"]}>{animationName}</div>
-                            <div 
-                            //`${styles.class1} ${styles.class2}`
-                                className={`${styles["arrow-button"]} ${styles["right-button"]}`}
-                                onClick={nextAnimation}
-                            ></div>
-                        </div>
-                        <div className={styles["traitInfoText"]}>
-                            <div className={styles["checkboxHolder"]}>
-                                <div>
-                                
-                                Mouse Follow
-                                </div>
-                                <label className={styles["custom-checkbox"]}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={hasMouseLook}
-                                        onChange={handleMouseLookEnable}
-                                    />
-                                    <div className={styles["checkbox-container"]}></div>
-                                </label>
-                            </div>
-                        </div>
+                        
                        
                     </div>
 
