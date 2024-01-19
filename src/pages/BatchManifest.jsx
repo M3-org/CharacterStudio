@@ -55,26 +55,42 @@ function BatchManifest() {
       ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
   }
-  const downloadVRMWithIndex= async(index)=>{
+  const downloadVRMWithIndex= async(index, onlyImage = false)=>{
     await characterManager.setManifest(manifestSelectionArray[index]);
     const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
     characterManager.loadInitialTraits().then(()=>{
         characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
-        characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
+        if (onlyImage){
           if (index < manifestSelectionArray.length-1 ){
             console.log("downloaded " + downloadName)
-            downloadVRMWithIndex(index + 1)
+            downloadVRMWithIndex(index + 1, onlyImage)
           }
-          else
+          else{
             setIsLoading(false);
-      })
+          }
+        }
+        else{
+          characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
+            if (index < manifestSelectionArray.length-1 ){
+              console.log("downloaded " + downloadName)
+              downloadVRMWithIndex(index + 1)
+            }
+            else
+              setIsLoading(false);
+          })
+        }
     })
   }
 
   const download = () => {
     setIsLoading(true);
     downloadVRMWithIndex(0);
+  }
+
+  const downloadImage = () => {
+    setIsLoading(true);
+    downloadVRMWithIndex(0, true);
   }
 
   // Translate hook
@@ -231,6 +247,22 @@ function BatchManifest() {
           size={14}
           className={styles.buttonRight}
           onClick={download}
+        />)}
+                {(manifestSelectionArray?.length == 1)&&(
+          <CustomButton
+          theme="light"
+          text="Get Image"
+          size={14}
+          className={styles.buttonRight}
+          onClick={downloadImage}
+        />)}
+        {(manifestSelectionArray?.length > 1)&&(
+          <CustomButton
+          theme="light"
+          text="Get All Images"
+          size={14}
+          className={styles.buttonRight}
+          onClick={downloadImage}
         />)}
       </div>
     </div>
