@@ -53,6 +53,24 @@ function Wallet() {
     })
     !isMute && playSound('classSelect');
   }
+
+  const appendManifest = () =>{
+    console.log("ttt")
+    characterManager.loadManifest(manifest[0].manifest).then(()=>{
+      // setViewMode(ViewMode.APPEARANCE)
+      
+      characterManager.loadAppendManifest(manifest[1].manifest, true).then(()=>{
+        console.log(characterManager.manifestData)
+      })
+      // When Manifest is Loaded, load initial traits from given manifest
+      // characterManager.loadInitialTraits().then(()=>{
+      //   setIsLoading(false)
+      // })
+    })
+    //console.log(characterManager.appendManifest);
+
+  }
+
   const hoverClass = () => {
     !isMute && playSound('classMouseOver');
   }
@@ -97,13 +115,20 @@ function Wallet() {
 
       <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
-        { <CustomButton
+      <CustomButton
           theme="light"
           text={t('callToAction.back')}
           size={14}
           className={styles.buttonLeft}
           onClick={back}
-      />}
+      />
+      <CustomButton
+          theme="light"
+          text={"test"}
+          size={14}
+          className={styles.buttonLeft}
+          onClick={appendManifest}
+      />
       </div>
     </div>
   )
