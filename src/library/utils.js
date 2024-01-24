@@ -348,6 +348,19 @@ function getModelProperty(model, property) {
   return model.data[property];
 }
 
+function disposeData(vrm){
+  const animationControl = (getModelProperty(vrm, "animationControl"));
+  if (animationControl)
+    animationControl.dispose();
+  const cullingMeshes = (getModelProperty(vrm, "cullingMeshes"))
+  if (cullingMeshes){
+    cullingMeshes.forEach(mesh => {
+      disposeClonedMeshes(mesh);
+    });
+    vrm.data.cullingMeshes = null;
+  }
+}
+
 export function getAtlasSize(value){
   switch (value){
     case 1:
@@ -371,14 +384,41 @@ export function getAtlasSize(value){
   }
 }
 
+function disposeMesh(mesh){
+  if (mesh.isMesh){
+    mesh.geometry.userData.faceNormals = null;
+    mesh.material.dispose();
+    mesh.geometry.dispose();
+    if (mesh.parent) {
+      mesh.parent.remove(mesh);
+    }
+    if (mesh.userData.cancelMesh){
+      disposeMesh(mesh.userData.cancelMesh)
+    }
+  }
+}
+
+function disposeClonedMeshes (mesh) {
+  if (mesh.isMesh){
+    if (mesh.userData.cullingClone) {
+      disposeMesh(mesh.userData.cullingClone);
+      mesh.userData.cullingClone = null;
+
+      disposeMesh(mesh.userData.cullingCloneP);
+      mesh.userData.cullingCloneP = null;
+
+      disposeMesh(mesh.userData.cullingCloneN);
+      mesh.userData.cullingCloneN = null;
+    }
+  }
+}
+
 export function disposeVRM(vrm) {
   const model = vrm.scene;
-  const animationControl = (getModelProperty(vrm, "animationControl"));
-  if (animationControl)
-    animationControl.dispose();
+  disposeData(vrm)
 
   model.traverse((o) => {
-    
+    disposeClonedMeshes(o);
     if (o.geometry) {
       if (o.userData?.clippedIndexGeometry != null){
         o.userData.clippedIndexGeometry = null;
