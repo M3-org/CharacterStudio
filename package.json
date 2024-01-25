@@ -1,7 +1,7 @@
 {
-  "name": "@m3-org/charactercreator",
+  "name": "@m3-org/characterstudio",
   "version": "0.5.0",
-  "homepage": ".",
+  "homepage": "https://m3-org.github.io/CharacterStudio",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
