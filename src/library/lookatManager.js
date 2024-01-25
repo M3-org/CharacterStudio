@@ -4,10 +4,13 @@ const localVector = new THREE.Vector3();
 
 export class LookAtManager {
   constructor (screenViewPercentage, canvasID, camera){
-    this.neckBones = []
-    this.spineBones = []
-    this.leftEyeBones = []
-    this.rightEyesBones = []
+    // this.neckBones = []
+    // this.spineBones = []
+    // this.leftEyeBones = []
+    // this.rightEyesBones = []
+
+    this.bonesInfo = [];
+
     this.curMousePos = new THREE.Vector2()
 
     this.hotzoneSection  = getHotzoneSection()
@@ -68,6 +71,7 @@ export class LookAtManager {
   addVRM(vrm){
     const isVRM0 = vrm.data.isVRM0 || false;
     const bones = vrm.humanoid.humanBones // if vrm0 location of bones is dfferent
+
     if (!isVRM0){
       bones.neck.node.userData.inverseLookAt = true;
       bones.spine.node.userData.inverseLookAt = true;
@@ -77,13 +81,24 @@ export class LookAtManager {
         bones.rightEye.node.userData.inverseLookAt = true;
     }
 
-    this.neckBones.push(bones.neck.node)
-    this.spineBones.push(bones.spine.node)
-    if (bones.leftEye)
-      this.leftEyeBones.push(bones.leftEye.node)
-    if (bones.rightEye)
-      this.rightEyesBones.push(bones.rightEye.node)
+    const vrmInfo = {
+      vrm: vrm,
+      neckBone: bones.neck.node,
+      spineBone: bones.spine.node,
+      leftEyeBone: bones.leftEye ? bones.leftEye.node : null,
+      rightEyeBone: bones.rightEye ? bones.rightEye.node : null,
+    };
 
+    this.bonesInfo.push(vrmInfo);
+  }
+
+  removeVRM(vrm) {
+    const vrmInfoToRemove = this.bonesInfo.find((vrmInfo) => vrmInfo.vrm === vrm);
+
+    if (vrmInfoToRemove) {
+        const index = this.bonesInfo.indexOf(vrmInfoToRemove);
+        this.bonesInfo.splice(index, 1);
+    }
   }
 
   _getMouseDegrees (x, y, degreeLimit){
@@ -146,18 +161,13 @@ export class LookAtManager {
     if (this.curMousePos.x > this.hotzoneSection.xStart && this.curMousePos.x < this.hotzoneSection.xEnd &&
       this.curMousePos.y > this.hotzoneSection.yStart && this.curMousePos.y < this.hotzoneSection.yEnd &&
       cameraRotationThreshold && this.enabled && this.userActivated) {
-      this.neckBones.forEach(neck => {
-        this._moveJoint(neck, this.maxLookPercent.neck)
-      })
-      this.spineBones.forEach(spine => {
-        this._moveJoint(spine, this.maxLookPercent.spine)
-      })
-      this.leftEyeBones.forEach(leftEye => {
-        this._moveJoint(leftEye, this.maxLookPercent.left)
-      })
-      this.rightEyesBones.forEach(rightEye => {
-        this._moveJoint(rightEye, this.maxLookPercent.right)
-      })
+
+        this.bonesInfo.forEach(boneInfo => {
+          this._moveJoint(boneInfo.neckBone, this.maxLookPercent.neck)
+          this._moveJoint(boneInfo.spineBone, this.maxLookPercent.spine)
+          this._moveJoint(boneInfo.leftEyeBone, this.maxLookPercent.left)
+          this._moveJoint(boneInfo.rightEyeBone, this.maxLookPercent.right)
+        })
     }
   }
 }

@@ -68,7 +68,7 @@ function Optimizer() {
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, true, "", animName);
-      animationManager.startAnimation(characterManager.getCurrentOptimizerCharacterModel());
+      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
 
       URL.revokeObjectURL(url);
     }

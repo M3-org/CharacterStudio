@@ -3,7 +3,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
 import VRMExporter from "./VRMExporter";
-import { CullHiddenFaces } from './cull-mesh.js';
+import { CullHiddenFaces, DisposeCullMesh } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
@@ -349,13 +349,13 @@ function getModelProperty(model, property) {
 }
 
 function disposeData(vrm){
-  const animationControl = (getModelProperty(vrm, "animationControl"));
-  if (animationControl)
-    animationControl.dispose();
+  // const animationControl = (getModelProperty(vrm, "animationControl"));
+  // if (animationControl)
+  //   animationControl.dispose();
   const cullingMeshes = (getModelProperty(vrm, "cullingMeshes"))
   if (cullingMeshes){
     cullingMeshes.forEach(mesh => {
-      disposeClonedMeshes(mesh);
+      DisposeCullMesh(mesh);
     });
     vrm.data.cullingMeshes = null;
   }
@@ -387,7 +387,7 @@ export function getAtlasSize(value){
 function disposeMesh(mesh){
   if (mesh.isMesh){
     mesh.geometry.userData.faceNormals = null;
-    mesh.material.dispose();
+    
     mesh.geometry.dispose();
     if (mesh.parent) {
       mesh.parent.remove(mesh);
@@ -398,46 +398,20 @@ function disposeMesh(mesh){
   }
 }
 
-function disposeClonedMeshes (mesh) {
-  if (mesh.isMesh){
-    if (mesh.userData.cullingClone) {
-      disposeMesh(mesh.userData.cullingClone);
-      mesh.userData.cullingClone = null;
-
-      disposeMesh(mesh.userData.cullingCloneP);
-      mesh.userData.cullingCloneP = null;
-
-      disposeMesh(mesh.userData.cullingCloneN);
-      mesh.userData.cullingCloneN = null;
-    }
-  }
-}
-
 export function disposeVRM(vrm) {
   const model = vrm.scene;
   disposeData(vrm)
 
   model.traverse((o) => {
-    disposeClonedMeshes(o);
-    if (o.geometry) {
-      if (o.userData?.clippedIndexGeometry != null){
-        o.userData.clippedIndexGeometry = null;
-      }
-      if (o.userData?.origIndexBuffer != null){
-        o.userData.origIndexBuffer = null;
-      }
-      o.geometry.dispose();
+    if (o.material) {
+      disposeMaterial(o.material);
     }
 
-    if (o.material) {
-      if (o.material.length) {
-        for (let i = 0; i < o.material.length; ++i) {
-          o.material[i].dispose();
-        }
-      }
-      else {
-        o.material.dispose();
-      }
+
+    if (o.geometry) {
+      DisposeCullMesh(o);
+      o.geometry.dispose();
+      o.geometry.disposeBoundsTree();
     }
   });
   
@@ -447,6 +421,41 @@ export function disposeVRM(vrm) {
   }
 
   VRMUtils.deepDispose( model );
+
+  if (vrm.expressionManager){
+    vrm.expressionManager.expressions.forEach(expression => {
+      if (expression._binds){
+        expression._binds.forEach(bind => {
+          if (bind.primitives){
+            bind.primitives.forEach(primitive => {
+              primitive.geometry.dispose();
+              if (primitive.material)disposeMaterial(primitive.material);
+            });
+          }
+        });
+      }
+    });
+  }
+  for (const prop in vrm){
+    vrm[prop] = null;
+  }
+}
+
+export const disposeMaterial = (material) =>{
+  if (material.length){
+    for (let i = 0; i < material.length; ++i) {
+      disposeMaterial(material[i]);
+    }
+  }
+  else{
+    if (material.map?.dispose)material.map.dispose();
+    if (material.normalMap?.dispose)material.normalMap.dispose();
+    if (material.ormMap?.dispose)material.ormMap.dispose();
+    if (material.aoMap?.dispose)material.aoMap.dispose();
+    if (material.roughnessMap?.dispose)material.roughnessMap.dispose();
+    if (material.metalnessMap?.dispose)material.metalnessMap.dispose();
+    material.dispose();
+  }
 }
 
 export const createBoneDirection = (skinMesh) => {

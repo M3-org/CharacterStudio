@@ -275,7 +275,7 @@ export class AnimationManager{
     });
   }
 
-  startAnimation(vrm){
+  addVRM(vrm){
     if (this.mainControl == null){
       console.log("No animations preloaded");
       return;
@@ -296,11 +296,22 @@ export class AnimationManager{
     }
     const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
+    //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
-    addModelData(vrm , {animationControl});
+    //addModelData(vrm , {animationControl});
     if (this.started === false){
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
+    }
+  }
+
+  removeVRM(vrmToRemove) {
+    const index = this.animationControls.findIndex((control) => control.vrm === vrmToRemove);
+
+    if (index !== -1) {
+        const removedControl = this.animationControls.splice(index, 1)[0];
+        // Dispose of any resources associated with the removed AnimationControl
+        removedControl.dispose();
     }
   }
   
