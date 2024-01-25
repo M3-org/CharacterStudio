@@ -1055,14 +1055,14 @@ export class CharacterManager {
     }
     _applyManagers(vrm){
   
-        this.blinkManager.addBlinker(vrm)
+        this.blinkManager.addVRM(vrm)
 
         if (this.lookAtManager)
           this.lookAtManager.addVRM(vrm);
 
         // Animate this VRM 
         if (this.animationManager)
-          this.animationManager.startAnimation(vrm)
+          this.animationManager.addVRM(vrm)
     }
     _displayModel(model){
       if(model) {
@@ -1104,6 +1104,20 @@ export class CharacterManager {
       // if (offset != null)
       //   model.scene.position.set(offset[0],offset[1],offset[2]);
     }
+
+    _disposeTrait(vrm){
+      this.blinkManager.removeVRM(vrm)
+
+      if (this.lookAtManager)
+        this.lookAtManager.removeVRM(vrm);
+
+      // Animate this VRM 
+      if (this.animationManager)
+        this.animationManager.removeVRM(vrm)
+      disposeVRM(vrm)
+    }
+
+
     _addLoadedData(itemData){
       const {
           traitGroupID,
@@ -1119,7 +1133,8 @@ export class CharacterManager {
       if (traitModel == null){
           if ( this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm ){
               // just dispose for now
-              disposeVRM(this.avatar[traitGroupID].vrm)
+              this._disposeTrait(this.avatar[traitGroupID].vrm)
+              
               this.avatar[traitGroupID] = {}
               // XXX restore effects without setTimeout
           }
@@ -1140,7 +1155,7 @@ export class CharacterManager {
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
-        disposeVRM(this.avatar[traitGroupID].vrm)
+        this._disposeTrait(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
 
@@ -1149,6 +1164,8 @@ export class CharacterManager {
       this._displayModel(vrm)
         
       this._applyManagers(vrm)
+      
+      console.log(this.characterModel)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
       this.avatar[traitGroupID] = {

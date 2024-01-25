@@ -71,6 +71,44 @@ const createCloneCullMesh = (mesh) => {
     return clonedMesh;
 }
 
+const disposeMesh = (mesh) => {
+    if (mesh.isMesh){
+      mesh.geometry.userData.faceNormals = null;
+      mesh.geometry.dispose();
+      mesh.geometry.disposeBoundsTree();
+      if (mesh.parent) {
+        mesh.parent.remove(mesh);
+      }
+      if (mesh.userData.cancelMesh){
+        disposeMesh(mesh.userData.cancelMesh)
+      }
+    }
+  }
+
+export const DisposeCullMesh = (mesh) =>{
+    if (mesh.userData.cullingClone) {
+        disposeMesh(mesh.userData.cullingClone);
+        mesh.userData.cullingClone = null;
+  
+        disposeMesh(mesh.userData.cullingCloneP);
+        mesh.userData.cullingCloneP = null;
+  
+        disposeMesh(mesh.userData.cullingCloneN);
+        mesh.userData.cullingCloneN = null;
+  
+        if (mesh.userData?.clippedIndexGeometry != null){
+            console.log("notnull")
+            mesh.userData.clippedIndexGeometry = null;
+        }
+
+        if (mesh.userData?.origIndexBuffer != null){
+            console.log("notnull2")
+            mesh.userData.origIndexBuffer = null;
+        }
+        
+      }
+}
+
 export const CullHiddenFaces = async(meshes) => {
     if (meshes == null){
         console.warn("Null parameter for meshes was provided. Skipping mesh culling.");
