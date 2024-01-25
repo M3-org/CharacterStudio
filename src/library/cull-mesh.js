@@ -97,16 +97,13 @@ export const DisposeCullMesh = (mesh) =>{
         mesh.userData.cullingCloneN = null;
   
         if (mesh.userData?.clippedIndexGeometry != null){
-            console.log("notnull")
             mesh.userData.clippedIndexGeometry = null;
         }
 
         if (mesh.userData?.origIndexBuffer != null){
-            console.log("notnull2")
             mesh.userData.origIndexBuffer = null;
         }
-        
-      }
+    }
 }
 
 export const CullHiddenFaces = async(meshes) => {
