@@ -3,8 +3,6 @@
   "version": "0.5.0",
   "homepage": ".",
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -b gh-pages -d dist",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint --cache --ext .js,.jsx ./src",
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto"
