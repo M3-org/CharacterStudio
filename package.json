@@ -46,7 +46,7 @@
     "use-sound": "^4.0.1",
     "vite-plugin-mkcert": "^1.10.1",
     "vite-react-jsx": "1.1.2",
-    "wrangler": "^2.6.2",
+    "wrangler": "^2.20.2",
     "zustand": "^3.5.10"
   },
   "peerDependencies": {
