@@ -1,13 +1,10 @@
 {
   "name": "@m3-org/charactercreator",
   "version": "0.5.0",
-  "homepage": "https://m3-org.github.io/CharacterStudio",
+  "homepage": ".",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "dev": "vite --host",
-    "build": "vite build",
-    "serve": "vite preview",
+    "deploy": "gh-pages -b gh-pages -d dist",
     "lint": "npm run lint:js && npm run lint:prettier",
     "lint:js": "eslint --cache --ext .js,.jsx ./src",
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto"
@@ -38,11 +35,11 @@
     "load-script": "^1.0.0",
     "postprocessing": "^6.29.1",
     "react": "^18.2.0",
-    "react-scripts": "^5.0.0",
     "react-color": "^2.19.3",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.1.5",
+    "react-scripts": "^5.0.0",
     "sepia-speechrecognition-polyfill": "^1.0.0",
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.1",
