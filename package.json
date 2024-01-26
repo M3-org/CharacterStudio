@@ -4,7 +4,7 @@
   "homepage": "https://m3-org.github.io/CharacterStudio",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d build",
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
