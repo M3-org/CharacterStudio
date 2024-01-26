@@ -26,7 +26,7 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
-    debugMode
+    loraDataGenerator
   } = React.useContext(SceneContext)
   
 
@@ -82,15 +82,15 @@ function Appearance() {
     characterManager.setTraitColor(traitGroupName, color.hex);
   } 
 
-  const clickDebugMode = () =>{
-    toggleDebugMode()
-  }
-
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
     await animationManager.loadAnimation(path, true, "", animName);
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
+  }
+
+  const screenshot = () => {
+    loraDataGenerator.testScreenshot();
   }
 
   const handleImageDrop = (file) => {
@@ -386,6 +386,13 @@ function Appearance() {
           className={styles.buttonLeft}
           onClick={back}
         />
+        <CustomButton
+          theme="light"
+          text={"TAKE SCREENSHOT"}
+          size={14}
+          className={styles.buttonLeft}
+          onClick={screenshot}
+        />
         {
         characterManager.canDownload() &&
           <CustomButton
@@ -396,7 +403,7 @@ function Appearance() {
             onClick={next}
           />
         }
-        <CustomButton
+        {/* <CustomButton
           theme="light"
           text={t('callToAction.randomize')}
           size={14}
@@ -409,7 +416,7 @@ function Appearance() {
           size={14}
           className={styles.buttonCenter}
           onClick={clickDebugMode}
-        />
+        /> */}
       </div>
     </div>
   )
