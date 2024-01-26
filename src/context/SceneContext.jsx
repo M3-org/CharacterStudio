@@ -3,12 +3,14 @@ import React, { createContext, useEffect, useState } from "react"
 import gsap from "gsap"
 import { local } from "../library/store"
 import { sceneInitializer } from "../library/sceneInitializer"
+import { LoraDataGenerator } from "../library/loraDataGenerator"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
 
   const [characterManager, setCharacterManager] = useState(null)
+  const [loraDataGenerator, setLoraDataGenerator] = useState(null)
   const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
@@ -42,6 +44,7 @@ export const SceneProvider = (props) => {
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
+    setLoraDataGenerator(new LoraDataGenerator(characterManager))
   },[])
 
 
@@ -117,6 +120,7 @@ export const SceneProvider = (props) => {
         setManifest,
         scene,
         characterManager,
+        loraDataGenerator,
         showEnvironmentModels,
         debugMode,
         toggleDebugMode,

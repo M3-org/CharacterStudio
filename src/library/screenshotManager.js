@@ -18,6 +18,13 @@ export class ScreenshotManager {
     this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
   }
 
+  setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30){
+    this.camera.position.copy(cameraPosition);
+    this.camera.lookAt(lookAtPosition)
+    this.camera.fov = fieldOfView;
+    console.log("camera has been set");
+  }
+
   setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
     this.camera.position.copy(headPosition);
     this.camera.fov = fieldOfView;
