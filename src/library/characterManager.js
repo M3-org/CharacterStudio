@@ -44,7 +44,7 @@ export class CharacterManager {
 
       this.lookAtManager = null;
       this.animationManager = createAnimationManager ?  new AnimationManager() : null;
-      this.screenshotManager = new ScreenshotManager();
+      this.screenshotManager = new ScreenshotManager(this);
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this._setupScreenshotManager();
 
