@@ -6,11 +6,12 @@ const screenshotSize = 4096;
 const localVector = new THREE.Vector3();
 
 export class ScreenshotManager {
-  constructor() {
+  constructor(characterManager) {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
       antialias: true
     });
+    this.characterManager = characterManager;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setSize(screenshotSize, screenshotSize);
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
@@ -23,6 +24,36 @@ export class ScreenshotManager {
     this.camera.lookAt(lookAtPosition)
     this.camera.fov = fieldOfView;
     console.log("camera has been set");
+  }
+
+  positionCameraBetweenPoints(vector1, vector2,cameraPosition, fieldOfView = 30) {
+    const boundingBox = new THREE.Box3();
+    boundingBox.expandByPoint(vector1);
+    boundingBox.expandByPoint(vector2);
+
+    this.camera.fov = fieldOfView;
+
+    const verticalFOV = this.camera.fov * (Math.PI / 180); 
+
+    const diagonalDistance = boundingBox.getSize(new THREE.Vector3()).length();
+
+    const distance = diagonalDistance / (2 * Math.tan(verticalFOV / 2));
+
+    boundingBox.getCenter(localVector)
+    // Set the camera's position and lookAt
+    this.camera.position.copy(localVector);
+
+    cameraPosition.y *= 0.5; 
+
+    this.camera.lookAt(localVector.clone().sub(cameraPosition)); // adjust lookAt position if needed
+
+    // Adjust the camera position based on the calculated distance
+    const direction = new THREE.Vector3();
+    this.camera.getWorldDirection(direction);
+    this.camera.position.addScaledVector(direction, -distance);
+
+    // Update the camera's projection matrix to ensure proper rendering
+    this.camera.updateProjectionMatrix();
   }
 
   setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
