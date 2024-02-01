@@ -10,6 +10,7 @@ export class CharacterManifestData{
         animationPath,
         exportScale,
         displayScale,
+        initialTraits,
         requiredTraits,
         randomTraits,
         colliderTraits,
@@ -33,9 +34,10 @@ export class CharacterManifestData{
       this.traitIconsDirectorySvg = traitIconsDirectorySvg;
       this.displayScale = displayScale || exportScale || 1;
       this.animationPath = getAsArray(animationPath);
+      
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
-      this.initialTraits = [...new Set(this.requiredTraits.concat(this.randomTraits))];
+      this.initialTraits = initialTraits || [...new Set(this.requiredTraits.concat(this.randomTraits))];
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
@@ -46,6 +48,16 @@ export class CharacterManifestData{
       this.canDownload = canDownload;
       this.downloadOptions = downloadOptions;
 
+      const getAllTraitsGroupID = () => {
+        const traitsGroupIDs = [];
+        for (const prop in traits){
+          traitsGroupIDs.push(traits[prop].trait);
+        }
+        return traitsGroupIDs;
+      }
+      this.allTraits = getAllTraitsGroupID();
+
+      getAllTraitsGroupID();
       
       const populateTypeRestrictions = () =>{
         if (this.typeRestrictions){
@@ -75,8 +87,10 @@ export class CharacterManifestData{
         downloadOptions.stdAtlasSizeTransp = downloadOptions.stdAtlasSizeTransp || 1024;
         downloadOptions.exportStdAtlas = downloadOptions.exportStdAtlas || false;
         downloadOptions.exportMtoonAtlas = downloadOptions.exportMtoonAtlas || true;
-        downloadOptions.screenshotFaceDistance = downloadOptions.screenshotFaceDistance || [0,0,0.3];
+        downloadOptions.screenshotFaceDistance = downloadOptions.screenshotFaceDistance || 1;
+        downloadOptions.screenshotFaceOffset = downloadOptions.screenshotFaceOffset || [0,0,0];
         downloadOptions.screenshotResolution = downloadOptions.screenshotResolution || [512,512];
+        downloadOptions.screenshotBackground = downloadOptions.screenshotBackground || [0.1,0.1,0.1];
         downloadOptions.screenshotFOV = downloadOptions.screenshotFOV || 75;
 
         if (!downloadOptions.exportStdAtlas && !downloadOptions.exportMtoonAtlas){
@@ -99,6 +113,51 @@ export class CharacterManifestData{
       this.modelTraitsMap = null;
       this.createModelTraits(traits);
     }
+    appendManifestData(manifestData, replaceExisting){
+      manifestData.textureTraits.forEach(newTextureTraitGroup => {
+        const textureGroup = this.getTextureGroup(newTextureTraitGroup.trait)
+        if (textureGroup != null){
+          // append
+          textureGroup.appendCollection(newTextureTraitGroup,replaceExisting)
+        }
+        else{
+          // create
+          //if (this.allowAddNewTraitGroups)
+          this.textureTraits.push(newTextureTraitGroup)
+          this.textureTraitsMap.set(newTextureTraitGroup.trait, newTextureTraitGroup);
+        }
+      });
+
+      manifestData.colorTraits.forEach(newColorTraitGroup => {
+        const colorGroup = this.getColorGroup(newColorTraitGroup.trait)
+        if (colorGroup != null){
+          // append
+          colorGroup.appendCollection(newColorTraitGroup,replaceExisting)
+        }
+        else{
+          // create
+          //if (this.allowAddNewTraitGroups)
+          this.colorTraits.push(newColorTraitGroup)
+          this.colorTraitsMap.set(newColorTraitGroup.trait, newColorTraitGroup);
+        }
+      });
+
+      manifestData.modelTraits.forEach(newModelTraitGroup => {
+        const modelGroup = this.getModelGroup(newModelTraitGroup.trait)
+        if (modelGroup != null){
+          // append
+          modelGroup.appendCollection(newModelTraitGroup,replaceExisting)
+        }
+        else{
+          // create
+          //if (this.allowAddNewTraitGroups)
+          this.modelTraits.push(newModelTraitGroup)
+          this.modelTraitsMap.set(newModelTraitGroup.trait, newModelTraitGroup);
+        }
+      });
+      
+      console.log(manifestData);
+    }
 
     getExportOptions(){
       return this.downloadOptions;
@@ -110,6 +169,9 @@ export class CharacterManifestData{
 
     getInitialTraits(){
       return this.getRandomTraits(this.initialTraits);
+    }
+    getAllTraits(){
+      return this.getRandomTraits(this.allTraits);
     }
     isColliderRequired(groupTraitID){
       if (this.colliderTraits.indexOf(groupTraitID) != -1)
@@ -295,7 +357,7 @@ export class CharacterManifestData{
       return result;
     }
 
-
+    
 
 
     // Given an array of traits, saves an array of TraitModels
@@ -377,6 +439,28 @@ class TraitModelsGroup{
         this.createCollection(collection);
     }
 
+    appendCollection(modelTraitGroup, replaceExisting){
+      modelTraitGroup.collection.forEach(newModelTrait => {
+        const modelTrait = this.getTrait(newModelTrait.id)
+        if (modelTrait != null){
+          // replace only if requested ro replace
+          if (replaceExisting){
+            console.log(`Model with id ${newModelTrait.id} exists and will be replaced with new one`)
+            this.collectionMap.set(newModelTrait.id, newModelTrait)
+            const ind = this.collection.indexOf(modelTrait)
+            this.collection[ind] = newModelTrait;
+          }
+          else{
+            console.log(`Model with id ${newModelTrait.id} exists, skipping`)
+          }
+        }
+        else{
+          // create
+          this.collection.push(newModelTrait)
+          this.collectionMap.set(newModelTrait.id, newModelTrait);
+        }
+      });
+    }
     addTraitRestriction(traitID){
       if (this.restrictedTraits.indexOf(traitID) == -1){
         this.restrictedTraits.push(traitID)
@@ -437,7 +521,28 @@ class TraitTexturesGroup{
     
   }
 
-
+  appendCollection(textureTraitGroup, replaceExisting){
+    textureTraitGroup.collection.forEach(newTextureTrait => {
+      const textureTrait = this.getTrait(newTextureTrait.id)
+      if (textureTrait != null){
+        // replace only if requested ro replace
+        if (replaceExisting){
+          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
+          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
+          const ind = this.collection.indexOf(textureTrait)
+          this.collection[ind] = newTextureTrait;
+        }
+        else{
+          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
+        }
+      }
+      else{
+        // create
+        this.collection.push(newTextureTrait)
+        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
+      }
+    });
+  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
@@ -475,7 +580,28 @@ class TraitColorsGroup{
     this.createCollection(collection);
   }
 
-
+  appendCollection(colorTraitGroup, replaceExisting){
+    colorTraitGroup.collection.forEach(newColorTrait => {
+      const colorTrait = this.getTrait(newColorTrait.id)
+      if (colorTrait != null){
+        // replace only if requested ro replace
+        if (replaceExisting){
+          console.log(`Color with id ${newColorTrait.id} exists and will be replaced with new one`)
+          this.collectionMap.set(newColorTrait.id, newColorTrait)
+          const ind = this.collection.indexOf(colorTrait)
+          this.collection[ind] = newColorTrait;
+        }
+        else{
+          console.log(`Color with id ${newColorTrait.id} exists, skipping`)
+        }
+      }
+      else{
+        // create
+        this.collection.push(newColorTrait)
+        this.collectionMap.set(newColorTrait.id, newColorTrait);
+      }
+    });
+  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 

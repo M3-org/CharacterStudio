@@ -4,27 +4,45 @@ import { SceneContext } from "../context/SceneContext"
 import MenuTitle from "./MenuTitle"
 import { ViewContext } from "../context/ViewContext"
 
-export default function JsonAttributes({jsonSelectionArray}){
+export default function JsonAttributes({jsonSelectionArray, byManifest = false}){
   const { isLoading, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
+  const [currentAvatar, setCurrentAvatar] = React.useState({})
+  const [currentAvatarKeys, setCurrentAvatarKeys] = React.useState([])
+
+  const loadByManifest =(manifest)=>{
+    characterManager.setManifest(manifest);
+    characterManager.loadInitialTraits().then(()=>{
+      setIsLoading(false);
+    })
+  }
+
+  useEffect(() => {
+    if (isLoading == false){
+      setCurrentAvatar(characterManager.getAvatarSelection());
+      setCurrentAvatarKeys(Object.keys(characterManager.getAvatarSelection()))
+    }
+  }, [isLoading])
+
+  const loadByTraitData = (nftObject) => {
+    characterManager.loadTraitsFromNFTObject(nftObject).then(()=>{
+      setIsLoading(false);
+    })
+  }
 
   const nextJson = async () => {
     if (!isLoading){
       setIsLoading(true);
       if (index >= jsonSelectionArray.length -1){
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[0]).then(()=>{
-          setIsLoading(false);
-        })
+        byManifest ? loadByManifest(jsonSelectionArray[0]) : loadByTraitData(jsonSelectionArray[0]);
         setIndex(0);
       }
       else{
         const newIndex = index + 1;
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
-          setIsLoading(false);
-        })
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex]);
         setIndex(newIndex);
       }
     }
@@ -33,16 +51,13 @@ export default function JsonAttributes({jsonSelectionArray}){
     if (!isLoading){
       setIsLoading(true);
       if (index <= 0){
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[jsonSelectionArray.length-1]).then(()=>{
-          setIsLoading(false);
-        })
+        byManifest ? loadByManifest(jsonSelectionArray[jsonSelectionArray.length-1])  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
+          
         setIndex(jsonSelectionArray.length -1);
       }
       else{
         const newIndex = index-1;
-        characterManager.loadTraitsFromNFTObject(jsonSelectionArray[newIndex]).then(()=>{
-          setIsLoading(false);
-        })
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex])
         setIndex(newIndex);
       }
     }
@@ -58,10 +73,10 @@ export default function JsonAttributes({jsonSelectionArray}){
                   className={`${styles["arrow-button"]} ${styles["left-button"]}`}
                   onClick={prevJson}
               />:<></>}
-              {jsonSelectionArray[index].name && (
+              {(jsonSelectionArray[index].name || jsonSelectionArray[index].manifestName) && (
                 <div style={{ textAlign: 'center', flex: 1}}>
                   <div className={styles["traitInfoTitle"]}>
-                    {jsonSelectionArray[index].name}
+                    {byManifest ? jsonSelectionArray[index].manifestName : jsonSelectionArray[index].name}
                   </div>
                 </div>
               )}
@@ -70,9 +85,9 @@ export default function JsonAttributes({jsonSelectionArray}){
                 onClick={nextJson}
               />:<></>}
             </div>
-            {jsonSelectionArray[index].thumb && (
+            {(jsonSelectionArray[index].thumb || jsonSelectionArray[index].thumbnail) && (
               <img
-                src={jsonSelectionArray[index].thumb}
+                src={jsonSelectionArray[index].thumb || jsonSelectionArray[index].thumbnail}
                 alt="Selection Thumbnail"
                 style={{
                   width: '280px',
@@ -82,10 +97,17 @@ export default function JsonAttributes({jsonSelectionArray}){
                 }}
               />
             )}
-            {jsonSelectionArray[index].attributes.map((attribute) => (
+            {jsonSelectionArray[index].attributes && jsonSelectionArray[index].attributes.map((attribute) => (
               <div key={`json:${attribute.trait_type}_${attribute.value}`}>
                 <div className={styles["traitInfoText"]}>
                   {`${attribute.trait_type} : ${attribute.value}`}
+                </div>
+              </div>
+            ))}
+            {byManifest && currentAvatarKeys.map((key) => (
+              <div key={`val:${key}`}>
+                <div className={styles["traitInfoText"]}>
+                  {`${key} : ${currentAvatar[key].id}`}
                 </div>
               </div>
             ))}

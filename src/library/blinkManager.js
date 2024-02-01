@@ -23,9 +23,17 @@ export class BlinkManager {
     this.update()
   }
 
-  addBlinker(vrm){
+  addVRM(vrm){
     this.vrmBlinkers.push(vrm)
   }
+
+  removeVRM(vrm) {
+    const index = this.vrmBlinkers.indexOf(vrm);
+
+    if (index !== -1) {
+        this.vrmBlinkers.splice(index, 1);
+    }
+}
 
   enableScreenshot() {
     this.isTakingScreenShot = true;

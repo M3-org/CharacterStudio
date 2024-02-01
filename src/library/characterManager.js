@@ -95,7 +95,7 @@ export class CharacterManager {
         console.warn("toggleCharacterLookAtMouse() was called, but no lookAtManager exist. Make sure to set it up first with addLookArMous()")
       }
     }
-    savePortraitScreenshot(name, width, height){
+    savePortraitScreenshot(name, width, height, distance = 1, headHeightOffset = 0){
       this.blinkManager.enableScreenshot();
 
       this.characterModel.traverse(o => {
@@ -105,7 +105,8 @@ export class CharacterManager {
         }
       });
       localVector3.z += 0.3;
-      this.screenshotManager.setCamera(localVector3, 0.83);
+      localVector3.y += headHeightOffset;
+      this.screenshotManager.setCamera(localVector3, distance);
       this.screenshotManager.saveScreenshot(name, width,height);
 
       this.blinkManager.disableScreenshot();
@@ -202,9 +203,11 @@ export class CharacterManager {
       this.avatar = {};
     }
     removeCurrentManifest(){
+      this.removeCurrentCharacter();
       this.manifest = null;
       this.manifestData = null;
-      this.animationManager.clearCurrentAnimations();
+      if (this.animationManager)
+        this.animationManager.clearCurrentAnimations();
     }
     canDownload(){
       return this.manifestData?.canDownload || true;
@@ -234,7 +237,6 @@ export class CharacterManager {
             // Call the downloadVRMWithAvatar function with the required parameters
             await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
 
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
             resolve();
           } catch (error) {
             // Handle any errors that occurred during the download process
@@ -268,8 +270,7 @@ export class CharacterManager {
           id:this.avatar[prop].traitInfo?.id
         }
       }
-      return result;
-      
+      return result; 
     }
     getGroupTraits(){
       if (this.manifestData){
@@ -452,6 +453,30 @@ export class CharacterManager {
         if (this.manifestData) {
           // Load initial traits using the _loadTraits method
           await this._loadTraits(this.manifestData.getInitialTraits());
+
+          resolve();
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, initial traits cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
+    /**
+     * Loads all traits based on manifest data.
+     *
+     * @returns {Promise<void>} A Promise that resolves if successful,
+     *                         or rejects with an error message if not.
+     */
+    loadAllTraits() {
+      console.log("load all")
+      return new Promise(async(resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          // Load initial traits using the _loadTraits method
+          await this._loadTraits(this.manifestData.getAllTraits());
 
           resolve();
         } else {
@@ -650,30 +675,34 @@ export class CharacterManager {
     }
 
     /**
-     * Loads the manifest data for the character.
+     * Sets an existing manifest data for the character.
      *
-     * @param {string} url - The URL of the manifest.
+     * @param {object} manifest - The loaded mmanifest object.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    loadManifest(url) {
+    setManifest(manifest){
+      this.removeCurrentCharacter();
       return new Promise(async (resolve, reject) => {
-        try {
-          // Fetch the manifest data asynchronously
-          this.manifest = await this._fetchManifest(url);
-
-          // Check if the manifest was successfully fetched
+        try{
+          // remove in case character was loaded
+          this.manifest = manifest;
           if (this.manifest) {
             // Create a CharacterManifestData instance based on the fetched manifest
             this.manifestData = new CharacterManifestData(this.manifest);
 
             // If an animation manager is available, set it up
             if (this.animationManager) {
-              await this._animationManagerSetup(
-                this.manifest.animationPath,
-                this.manifest.assetsLocation,
-                this.manifestData.displayScale
-              );
+              try{
+                await this._animationManagerSetup(
+                  this.manifest.animationPath,
+                  this.manifest.assetsLocation,
+                  this.manifestData.displayScale
+                );
+              }
+              catch(err){
+                console.error("Error loading animations: " + err)
+              }
             }
 
             // Resolve the Promise (without a value, as you mentioned it's not needed)
@@ -684,6 +713,81 @@ export class CharacterManager {
             console.error(errorMessage);
             reject(new Error(errorMessage));
           }
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error setting manifest:", error.message);
+          reject(new Error("Failed to set the manifest."));
+        }
+      })
+    }
+
+    appendManifest(manifest, replaceExisting){
+      return new Promise(async (resolve, reject) => {
+        try{
+          if (replaceExisting)
+            this.manifest = {...(this.manifest || {}), manifest};
+          else
+            this.manifest = {manifest, ...(this.manifest || {})};
+
+          // Create a CharacterManifestData instance based on the fetched manifest
+          const manifestData = new CharacterManifestData(manifest);
+          this.manifestData.appendManifestData(manifestData);
+
+          // Resolve the Promise (without a value, as you mentioned it's not needed)
+          resolve();
+
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error setting manifest:", error.message);
+          reject(new Error("Failed to set the manifest."));
+        }
+      })
+    }
+
+    /**
+     * Loads the manifest data for the character.
+     *
+     * @param {string} url - The URL of the manifest.
+     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     *                         or rejects with an error message if loading fails.
+     */
+    loadManifest(url) {
+      // remove in case character was loaded
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch the manifest data asynchronously
+          const manifest = await this._fetchManifest(url);
+
+          this.setManifest(manifest).then(()=>{
+            resolve();
+          })
+
+        } catch (error) {
+          // Handle any errors that occurred during the asynchronous operations
+          console.error("Error loading manifest:", error.message);
+          reject(new Error("Failed to load the manifest."));
+        }
+      });
+    }
+
+    /**
+     * Loads manifest data and appends it to the current manifest
+     *
+     * @param {string} url - The URL of the manifest.
+     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     *                         or rejects with an error message if loading fails.
+     */
+    loadAppendManifest(url, replaceExisting){
+      // remove in case character was loaded
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch the manifest data asynchronously
+          const manifest = await this._fetchManifest(url);
+
+          this.appendManifest(manifest, replaceExisting).then(()=>{
+            resolve();
+          })
+
         } catch (error) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
@@ -742,23 +846,28 @@ export class CharacterManager {
       });
       // XXX save variables in manifest to store face distance and field of view.
 
+      // pose the character
       const {
         screenshotResolution,
         screenshotFaceDistance,
-        screenshotFOV
+        screenshotFaceOffset,
+        screenshotBackground,
+        screenshotFOV,
       } = options
       const width = screenshotResolution[0];
       const height = screenshotResolution[1];
 
-      localVector3.x += screenshotFaceDistance.x;
-      localVector3.y += screenshotFaceDistance.y;
-      localVector3.z += screenshotFaceDistance.z;
+      localVector3.x += screenshotFaceOffset[0];
+      localVector3.y += screenshotFaceOffset[1];
+      localVector3.z += screenshotFaceOffset[2];
       
-      this.screenshotManager.setCamera(localVector3, screenshotFOV);
+      this.screenshotManager.setBackground(screenshotBackground);
+      this.screenshotManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
 
+        
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
@@ -809,6 +918,11 @@ export class CharacterManager {
     }
     _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
+      if (m.userData.vrm == null){
+        console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
+        return null;
+      }
+
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
       if (this.manifestData.isColliderRequired(traitID))
@@ -908,9 +1022,26 @@ export class CharacterManager {
         if (textures){
           const txt = textures[index] || textures[0]
           if (txt != null){
-            //const mat = mesh.material.length ? mesh.material[0] : 
-            mesh.material[0].map = txt
-            mesh.material[0].shadeMultiplyTexture = txt
+            if (mesh.material.type === "MeshStandardMaterial") {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach((mat) => {
+                  mat.map = txt
+                });
+              } else {
+                mesh.material.map = txt
+              }
+            } else {
+              console.warn("XXX set material texture to shader material", mesh.material)
+              // mat.map = txt
+              // material[0].shadeMultiplyTexture = txt
+
+              // mesh.material[0].uniforms.litFactor.value = color;
+              // mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
+              //   color.r * 0.8,
+              //   color.g * 0.8,
+              //   color.b * 0.8
+              // );
+            }
           }
         }
         if (colors){
@@ -924,14 +1055,14 @@ export class CharacterManager {
     }
     _applyManagers(vrm){
   
-        this.blinkManager.addBlinker(vrm)
+        this.blinkManager.addVRM(vrm)
 
         if (this.lookAtManager)
           this.lookAtManager.addVRM(vrm);
 
         // Animate this VRM 
         if (this.animationManager)
-          this.animationManager.startAnimation(vrm)
+          this.animationManager.addVRM(vrm)
     }
     _displayModel(model){
       if(model) {
@@ -973,6 +1104,20 @@ export class CharacterManager {
       // if (offset != null)
       //   model.scene.position.set(offset[0],offset[1],offset[2]);
     }
+
+    _disposeTrait(vrm){
+      this.blinkManager.removeVRM(vrm)
+
+      if (this.lookAtManager)
+        this.lookAtManager.removeVRM(vrm);
+
+      // Animate this VRM 
+      if (this.animationManager)
+        this.animationManager.removeVRM(vrm)
+      disposeVRM(vrm)
+    }
+
+
     _addLoadedData(itemData){
       const {
           traitGroupID,
@@ -988,7 +1133,8 @@ export class CharacterManager {
       if (traitModel == null){
           if ( this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm ){
               // just dispose for now
-              disposeVRM(this.avatar[traitGroupID].vrm)
+              this._disposeTrait(this.avatar[traitGroupID].vrm)
+              
               this.avatar[traitGroupID] = {}
               // XXX restore effects without setTimeout
           }
@@ -998,14 +1144,18 @@ export class CharacterManager {
       let vrm = null;
 
       models.map((m)=>{
-          
-          vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
+          if (m != null)
+            vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
       })
 
+      // do nothing, an error happened
+      if (vrm == null)
+        return;
+
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
       if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
-        disposeVRM(this.avatar[traitGroupID].vrm)
+        this._disposeTrait(this.avatar[traitGroupID].vrm)
         // XXX restore effects
       }
 
@@ -1014,6 +1164,8 @@ export class CharacterManager {
       this._displayModel(vrm)
         
       this._applyManagers(vrm)
+      
+      console.log(this.characterModel)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
       this.avatar[traitGroupID] = {
@@ -1073,13 +1225,13 @@ class TraitLoadingManager{
                     resultData[index] = null;
                     return;
                 }
-
+                
                 const loadedModels = await Promise.all(
                     getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
                         try {
-                            return await this.gltfLoader.loadAsync(modelDir);
+                            return await this.gltfLoader.loadAsync(modelDir)
                         } catch (error) {
-                            console.error(`Error loading model ${modelDir}:`, error);
+                            console.error(`Error loading modelsss ${modelDir}:`, error);
                             return null;
                         }
                     })
@@ -1091,14 +1243,17 @@ class TraitLoadingManager{
                           new Promise((resolve) => {
                               this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
+                                  txt.encoding = THREE.sRGBEncoding;
                                   resolve(txt);
-                              });
+                              },null,(err)=>{
+                                console.error("error loading texture: ", err)
+                                resolve(null);
+                              })
                           })
                   )
                 );
     
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
-    
                 resultData[index] = new LoadedData({
                     traitGroupID: option?.traitModel.traitGroup.trait,
                     traitModel: option?.traitModel,
@@ -1109,14 +1264,14 @@ class TraitLoadingManager{
                     colors: loadedColors,
                 });
             });
-    
-            Promise.all(promises)
+            Promise.allSettled(promises)
                 .then(() => {
                     this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
                     resolve(resultData);
                     this.isLoading = false;
                 })
                 .catch((error) => {
+                  this.setLoadPercentage(100);
                     console.error('An error occurred:', error);
                     resolve(resultData);
                     this.isLoading = false;

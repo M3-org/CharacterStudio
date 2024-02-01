@@ -5,10 +5,6 @@ const screenshotSize = 4096;
 
 const localVector = new THREE.Vector3();
 
-const textureLoader = new THREE.TextureLoader();
-const backgroundTexture = textureLoader.load(`/assets/backgrounds/main-background2.jpg`);
-backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
-
 export class ScreenshotManager {
   constructor() {
     this.renderer = new THREE.WebGLRenderer({
@@ -18,11 +14,13 @@ export class ScreenshotManager {
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setSize(screenshotSize, screenshotSize);
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
+    this.textureLoader = new THREE.TextureLoader();
+    this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
   }
 
-  setCamera(headPosition, playerCameraDistance) {
+  setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
     this.camera.position.copy(headPosition);
-
+    this.camera.fov = fieldOfView;
     localVector.set(0, 0, -1);
     this.cameraDir = localVector.applyQuaternion(this.camera.quaternion);
     this.cameraDir.normalize();
@@ -31,10 +29,46 @@ export class ScreenshotManager {
 
   }
 
+  /**
+   * Sets the background using either color or image.
+   * 
+   * @param {Array|string} background - If an array, assumed to be RGB values [r, g, b].
+   *                                    If a string, assumed to be a URL for the background image.
+   */
+  setBackground(background){
+    if (Array.isArray(background)){
+      this.setBackgroundColor(background[0],background[1],background[2])
+    }
+    else{
+      this.setBackgroundImage(background);
+    }
+  }
+
+  setBackgroundColor(r,g,b){
+    this.sceneBackground = new THREE.Color(r,g,b);
+  }
+
+  setBackgroundImage(url){
+    return new Promise(async (resolve, reject) => {
+      try{
+        const backgroundTexture = await this.texureLoader.load(url);
+        if (backgroundTexture){
+          backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
+          this.sceneBackground = backgroundTexture;
+          resolve();
+        }
+      }
+      catch(error){
+        console.error("Error loading background image: ", error)
+        reject(error)
+      }
+    });
+  }
+
   saveAsImage(imageName) {
     let imgData;
     try {
-      this.scene.background = backgroundTexture;
+      this.scene.background = this.sceneBackground;
       this.renderer.render(this.scene, this.camera);
       const strDownloadMime = "image/octet-stream";
       const strMime = "image/png";
@@ -57,9 +91,12 @@ export class ScreenshotManager {
   }
 
   _createImage(width, height){
+    const aspectRatio = width / height;
     this.renderer.setSize(width, height);
+    this.camera.aspect = aspectRatio;
+    this.camera.updateProjectionMatrix();
     try {
-      this.scene.background = backgroundTexture;
+      this.scene.background = this.sceneBackground;
       this.renderer.render(this.scene, this.camera);
       const strMime = "image/png";
       let imgData = this.renderer.domElement.toDataURL(strMime);

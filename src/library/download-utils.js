@@ -120,13 +120,16 @@ export async function downloadVRM(model,vrmData,fileName, options){
     downloadVRMWithAvatar(model, avatar, fileName, options)
 }
 
-export async function downloadVRMWithAvatar(model, avatar, fileName, options){
-  const downloadFileName = `${
-    fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
-  }`
-  getVRMData(model, avatar, options).then((vrm)=>{
-    saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
-  })
+export function downloadVRMWithAvatar(model, avatar, fileName, options){
+  return new Promise(async (resolve, reject) => {
+    const downloadFileName = `${
+      fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
+    }`
+    getVRMData(model, avatar, options).then((vrm)=>{
+      saveArrayBuffer(vrm, `${downloadFileName}.vrm`)
+      resolve();
+    })
+  });
 }
 
 async function getVRMData(model, avatar, options){
@@ -307,8 +310,6 @@ function parseVRM (glbModel, avatar, options){
     const rootSpringBones = getRootBones(avatar);
     // XXX collider bones should be taken from springBone.colliderBones
     const colliderBones = [];
-    console.log("rootSpringBones = ", rootSpringBones);
-    console.log("scale", options.scale)
 
     exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, scale, (vrm) => {
       resolve(vrm)

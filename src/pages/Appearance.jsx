@@ -10,6 +10,7 @@ import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import MenuTitle from "../components/MenuTitle"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 import TraitInformation from "../components/TraitInformation"
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
@@ -47,7 +48,7 @@ function Appearance() {
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedVRM, setSelectedVRM] = React.useState(null)
-  const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
 
@@ -89,7 +90,7 @@ function Appearance() {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
     await animationManager.loadAnimation(path, true, "", animName);
-    setAnimationName(animationManager.getCurrentAnimationName());
+    setLoadedAnimationName(animationManager.getCurrentAnimationName());
   }
 
   const handleImageDrop = (file) => {
@@ -374,8 +375,9 @@ function Appearance() {
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
-      <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={animationName} setAnimationName={setAnimationName}
+      <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={loadedAnimationName} setAnimationName={setLoadedAnimationName}
       />
+      <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
