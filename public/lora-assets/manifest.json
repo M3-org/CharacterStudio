@@ -1,0 +1,30 @@
+{
+    "assetsLocation": "./lora-assets/",
+    "animationsDirectory": "/animations/",
+    "idleAnimation": "idle.fbx",
+    "backgroundGrayscale": 1,
+    "backgroundDescription": "plain white background",
+    "width":512,
+    "height":512,
+    "topFrameOffset":0.2,
+    "bottomFrameOffset":0.2,
+    "dataCollection":[
+        {
+            "animationPath":"Walking.fbx",
+            "animationFrame":3,
+            "lookAtCamera":true,
+            "expression":"happy",
+            "cameraPosition":"left-front-bottom",
+            "cameraFrame":"fullShot",
+            "description":"walking slowly"
+        },
+        {
+            "animationPath":"Twist_Dance.fbx",
+            "animationFrame":3,
+            "expression":"happy",
+            "cameraPosition":[1,0,1],
+            "cameraFrame":"mediumShot",
+            "description":"dancing, twist dance"
+        }
+    ]
+}
