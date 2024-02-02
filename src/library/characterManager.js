@@ -25,7 +25,6 @@ export class CharacterManager {
       const{
         parentModel = null,
         renderCamera = null,
-        createAnimationManager = true,
         manifestURL = null
       }= options;
 
@@ -43,7 +42,7 @@ export class CharacterManager {
       this.lipSync = null;
 
       this.lookAtManager = null;
-      this.animationManager = createAnimationManager ?  new AnimationManager() : null;
+      this.animationManager = new AnimationManager();
       this.screenshotManager = new ScreenshotManager(this);
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this._setupScreenshotManager();
