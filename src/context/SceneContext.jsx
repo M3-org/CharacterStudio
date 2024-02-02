@@ -44,7 +44,7 @@ export const SceneProvider = (props) => {
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
-    setLoraDataGenerator(new LoraDataGenerator(characterManager))
+    setLoraDataGenerator(new LoraDataGenerator(characterManager, './lora-assets/manifest.json'))
   },[])
 
 
