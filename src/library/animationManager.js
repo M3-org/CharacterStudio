@@ -30,6 +30,7 @@ class AnimationControl {
     this.neckBone = vrm?.humanoid?.humanBones?.neck;
     this.spineBone = vrm?.humanoid?.humanBones?.spine;
 
+    this.timeScale = 1;
 
     this.setAnimations(animations);
 
@@ -48,6 +49,13 @@ class AnimationControl {
     this.actions[curIdx].reset();
     this.actions[curIdx].time = animationManager.getToActionTime();
     this.actions[curIdx].play();
+  }
+
+  setTimeScale(timeScale){
+    this.timeScale = timeScale;
+    this.actions.forEach(action => {
+      action.timeScale = timeScale;
+    });
   }
 
   setMouseLookEnabled(mouseLookEnabled){
@@ -87,7 +95,9 @@ class AnimationControl {
     this.actions = [];
     this.newAnimationWeight = 0;
     for (let i =0; i < animations.length;i++){
-      this.actions.push(this.mixer.clipAction(animations[i]));
+      const action = this.mixer.clipAction(animations[i]);
+      action.timeScale = this.timeScale;
+      this.actions.push(action);
     }
     this.actions[0].weight = 0;
     this.actions[0].play();
@@ -134,6 +144,10 @@ class AnimationControl {
     this.to.paused = false;
   }
 
+  setTime(time){
+    this.mixer.setTime(time);
+  }
+
   dispose(){
     this.animationManager.disposeAnimation(this);
     //console.log("todo dispose animation control")
@@ -147,6 +161,7 @@ export class AnimationManager{
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
+    this.paused = false;
 
     this.scale = 1;
 
@@ -367,8 +382,33 @@ export class AnimationManager{
     }, (yieldTime * 1000));
   }
 
+  pause(){
+    this.paused = true;
+  }
+
+  play(){
+    this.paused = false;
+  }
+  isPaused(){
+    return this.paused;
+  }
+  setTime(time){
+    if (this.mainControl){
+      this.animationControls.forEach(animControl => {
+        animControl.setTime(time);
+      });
+    }
+  }
+  setSpeed(speed){
+    if (this.mainControl){
+      this.animationControls.forEach(animControl => {
+        animControl.setTimeScale(speed);
+      });
+    }
+  }
+
   update(){
-    if (this.mainControl) {
+    if (this.mainControl && !this.paused) {
       this.animationControls.forEach(animControl => {
         animControl.update(this.weightIn,this.weightOut);
       });
