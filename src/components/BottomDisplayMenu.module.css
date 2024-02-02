@@ -1,14 +1,30 @@
 
+.ContainerPositionTop {
+  padding: 0;
+  margin: 0;
+  margin-bottom: 105px;
+  width:180px;
+  height: 35px;
+  z-index: 1000;
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  user-select: none;
+  position: absolute;
+  border-radius: 20px 20px 0 0;
+  align-items: center;
+}
+
 .ContainerPosition {
   padding: 0;
   margin: 0;
   margin-bottom: 20px;
   width:300px;
-  height: 80px;
+  height: 85px;
   backdrop-filter: blur(22.5px);
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;
   user-select: none;
+  position: absolute;
 }
 
 .Container {
@@ -91,7 +107,7 @@
   justify-content: space-between;
   width: 95%;
   height:40px;
-  margin: 5px auto;
+  margin: 5px auto 0;
   align-items: center;
 }
 
@@ -99,8 +115,17 @@
   display: flex;
   justify-content: space-between;
   width: 100px;
-  height:25px;
+  height:30px;
   margin: 0px auto;
+  align-items: center;
+}
+.flexButtonsTop{
+  display: flex;
+  justify-content: space-around;
+  width: 150px;
+  height:100%;
+  margin: auto;
+  padding-top: -3 0px;
   align-items: center;
 }
 .optionButtons{
@@ -109,13 +134,31 @@
   opacity: 0.8;
   width: 25px;
   height: 25px;
-  margin: 2px;
+  margin: auto;
   text-align: center;
   align-items: center;
-  background-color: #1e2530;
+  display: flex;
+  justify-content: space-around;
+}
+.optionButtonsSmall{
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.8;
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
 }
 
 .optionButtons img{
+  width: 100%;
+  height: 100%;
+}
+
+.optionButtonsSmall img{
   width: 80%;
   height: 80%;
 }
