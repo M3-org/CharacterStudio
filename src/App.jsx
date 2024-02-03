@@ -27,7 +27,7 @@ import BatchManifest from "./pages/BatchManifest"
 import Wallet from "./pages/Wallet"
 
 // dynamically import the manifest
-const assetImportPath = import.meta.env.VITE_ASSET_PATH + "./manifest.json"
+const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
