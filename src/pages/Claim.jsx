@@ -98,7 +98,7 @@ function Claim() {
               >
                 <div className={styles.frameContainer}>
                   <img
-                    src={"/assets/backgrounds/class-frame.svg"}
+                    src={"./assets/backgrounds/class-frame.svg"}
                     className={styles.frame}
                   />
                 </div>
@@ -106,7 +106,7 @@ function Claim() {
                 <div className={styles.lockedContainer}>
                   {characterClass["disabled"] && (
                     <img
-                      src={"/assets/icons/locked.svg"}
+                      src={"./assets/icons/locked.svg"}
                       className={styles.locked}
                     />
                   )}
@@ -138,7 +138,7 @@ function Claim() {
               >
                 <div className={styles.frameContainer}>
                   <img
-                    src={"/assets/backgrounds/class-frame.svg"}
+                    src={"./assets/backgrounds/class-frame.svg"}
                     className={styles.frame}
                   />
                 </div>

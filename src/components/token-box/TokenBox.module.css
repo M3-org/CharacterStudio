@@ -8,8 +8,8 @@
     width: 91%;
     height: 80%;
     overflow: hidden;
-    -webkit-mask-image: url("/assets/backgrounds/token-frame-empty.svg");
-    mask-image: url("/assets/backgrounds/token-frame-empty.svg");
+    -webkit-mask-image: url("./assets/backgrounds/token-frame-empty.svg");
+    mask-image: url("./assets/backgrounds/token-frame-empty.svg");
     -webkit-mask-size: 100%;
     mask-size: 100%;
     -webkit-mask-repeat: no-repeat;
@@ -105,7 +105,7 @@
     transform: translateX(-50%) translateY(-50%);
     position: absolute;
     display: block;
-    background-image: url('/assets/backgrounds/token-box-none.svg');
+    background-image: url('./assets/backgrounds/token-box-none.svg');
 }
 
 .tokenBoxWrap .emptyIcon {
@@ -129,33 +129,33 @@
 }
 
 .tokenBoxWrap .frameActive {
-    background-image: url('/assets/backgrounds/token-box-uncommon.svg');
+    background-image: url('./assets/backgrounds/token-box-uncommon.svg');
     height: 116%;
     width: 116%;
     top: 50% !important;
 }
 
 .tokenBoxWrap .frame.mythic {
-    background-image: url('/assets/backgrounds/token-box-uncommon.svg');
+    background-image: url('./assets/backgrounds/token-box-uncommon.svg');
 }
 
 .tokenBoxWrap .frame.epic {
-    background-image: url('/assets/backgrounds/token-box-epic.svg');
+    background-image: url('./assets/backgrounds/token-box-epic.svg');
     z-index: 1;
 }
 
 .tokenBoxWrap .frame.rare {
-    background-image: url('/assets/backgrounds/token-box-rare.svg');
+    background-image: url('./assets/backgrounds/token-box-rare.svg');
 }
 
 .tokenBoxWrap .frame.uncommon {
-    background-image: url('/assets/backgrounds/token-box-uncommon.svg');
+    background-image: url('./assets/backgrounds/token-box-uncommon.svg');
 }
 
 .tokenBoxWrap .frame.common {
-    background-image: url('/assets/backgrounds/token-box-common.svg');
+    background-image: url('./assets/backgrounds/token-box-common.svg');
 }
 
 .tokenBoxWrap .frame.default {
-    background-image: url('/assets/backgrounds/token-box-none.svg');
+    background-image: url('./assets/backgrounds/token-box-none.svg');
 }

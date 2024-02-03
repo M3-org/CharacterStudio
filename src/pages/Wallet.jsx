@@ -99,7 +99,7 @@ function Wallet() {
               >
                 <div className={styles.frameContainer}>
                   <img
-                    src={"/assets/backgrounds/class-frame.svg"}
+                    src={"./assets/backgrounds/class-frame.svg"}
                     className={styles.frame}
                   />
                 </div>
