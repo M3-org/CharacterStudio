@@ -1,43 +1,43 @@
 /* New UI: TT Squares Condensed Font */
 @font-face {
   font-family: "TTSC-Black-Italic";
-  src: url("/fonts/tt-squares/TT Squares Condensed Black Italic.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Black Italic.otf");
 }
 @font-face {
   font-family: "TTSC-Black";
-  src: url("/fonts/tt-squares/TT Squares Condensed Black.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Black.otf");
 }
 @font-face {
   font-family: "TTSC-Bold-Italic";
-  src: url("/fonts/tt-squares/TT Squares Condensed Bold Italic.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Bold Italic.otf");
 }
 @font-face {
   font-family: "TTSC-Bold";
-  src: url("/fonts/tt-squares/TT Squares Condensed Bold.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Bold.otf");
 }
 @font-face {
   font-family: "TTSC-Light-Italic";
-  src: url("/fonts/tt-squares/TT Squares Condensed Light Italic.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Light Italic.otf");
 }
 @font-face {
   font-family: "TTSC-Light";
-  src: url("/fonts/tt-squares/TT Squares Condensed Light.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Light.otf");
 }
 @font-face {
   font-family: "TTSC-Regular-Italic";
-  src: url("/fonts/tt-squares/TT Squares Condensed Regular Italic.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Regular Italic.otf");
 }
 @font-face {
   font-family: "TTSC-Regular";
-  src: url("/fonts/tt-squares/TT Squares Condensed Regular.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Regular.otf");
 }
 @font-face {
   font-family: "TTSC-Thin-Italic";
-  src: url("/fonts/tt-squares/TT Squares Condensed Thin italic.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Thin italic.otf");
 }
 @font-face {
   font-family: "TTSC-Thin";
-  src: url("/fonts/tt-squares/TT Squares Condensed Thin.otf");
+  src: url("./fonts/tt-squares/TT Squares Condensed Thin.otf");
 }
 
 html,

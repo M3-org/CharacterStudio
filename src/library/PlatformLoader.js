@@ -20,7 +20,7 @@ export class PlatformLoader {
     }
     // async function fetchScene() {
     //     // load environment
-    //     const modelPath = "/3d/Platform.glb"
+    //     const modelPath = "./3d/Platform.glb"
       
     //     const loader = new GLTFLoader()
     //     // load the modelPath
