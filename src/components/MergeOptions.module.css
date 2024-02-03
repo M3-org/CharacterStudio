@@ -52,14 +52,14 @@
   background-color: #1e2530;
 }
 .left-button{
-  background: url('/ui/backButton_small.png');
+  background: url('./ui/backButton_small.png');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 .right-button{
-  background: url('/ui/nextButton_small.png');
+  background: url('./ui/nextButton_small.png');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

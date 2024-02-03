@@ -30,9 +30,9 @@
 }
 
 .AROn {
-  background-image: url('/ui/aron.svg');
+  background-image: url('./ui/aron.svg');
 }
 
 .AROff {
-  background-image: url('/ui/aroff.svg');
+  background-image: url('./ui/aroff.svg');
 }

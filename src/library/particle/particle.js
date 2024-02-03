@@ -11,7 +11,7 @@ import {transitionEffectTypeNumber} from '../constants.js';
 
 const textureLoader = new THREE.TextureLoader()
 
-const auraTexture = textureLoader.load(`/textures/beam2.png`);
+const auraTexture = textureLoader.load(`./textures/beam2.png`);
 auraTexture.wrapS = THREE.RepeatWrapping;
 
 

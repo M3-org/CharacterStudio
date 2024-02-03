@@ -100,8 +100,8 @@
   -webkit-mask-size: 100%;
   mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
-  mask-image: url("/assets/backgrounds/class-mask.svg");
-  -webkit-mask-image: url("/assets/backgrounds/class-mask.svg");
+  mask-image: url("./assets/backgrounds/class-mask.svg");
+  -webkit-mask-image: url("./assets/backgrounds/class-mask.svg");
 }
 
 .classContainer .classFrame .frameContainer {

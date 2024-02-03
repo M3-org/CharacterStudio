@@ -24,10 +24,10 @@ import { MToonMaterial } from "@pixiv/three-vrm";
 
 
 const textureLoader = new THREE.TextureLoader()
-const pixelTexture = textureLoader.load(`/textures/pixel9.png`);
+const pixelTexture = textureLoader.load(`./textures/pixel9.png`);
 pixelTexture.wrapS = pixelTexture.wrapT = THREE.RepeatWrapping;
 
-const noiseTexture = textureLoader.load(`/textures/noise3.jpg`);
+const noiseTexture = textureLoader.load(`./textures/noise3.jpg`);
 noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
 
 
