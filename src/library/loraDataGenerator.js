@@ -47,7 +47,8 @@ export class LoraDataGenerator {
                     for (const loraInfo of dataCollection) {
                         const {
                             animationPath,
-                            animationTime,
+                            animationTime = 0,
+                            animationFrame,
                             lookAtCamera,
                             expression,
                             cameraPosition,
@@ -56,7 +57,8 @@ export class LoraDataGenerator {
                         } = loraInfo;
                         counter++
                         const saveName = counter.toString().padStart(4, '0');
-                        await scope.animationManager.loadAnimation(animBasePath + animationPath, true, animationTime);
+                        const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
+                        await scope.animationManager.loadAnimation(animBasePath + animationPath, true, finalAnimationTime);
             
                         const vectorCameraPosition = scope._getCameraPosition(cameraPosition);
                         scope._setCameraFrame(cameraFrame,vectorCameraPosition);
