@@ -1,17 +1,26 @@
 {
     "assetsLocation": "./lora-assets/",
     "animationsDirectory": "/animations/",
-    "idleAnimation": "idle.fbx",
     "backgroundGrayscale": 1,
     "backgroundDescription": "plain white background",
     "width":512,
     "height":512,
-    "topFrameOffset":0.2,
-    "bottomFrameOffset":0.2,
+    "topFrameOffsetPixels":64,
+    "bottomFrameOffsetPixels":64,
     "dataCollection":[
         {
             "animationPath":"Walking.fbx",
+            "animationTime":0.1,
             "animationFrame":3,
+            "lookAtCamera":true,
+            "expression":"happy",
+            "cameraPosition":"right-back",
+            "cameraFrame":"fullShot",
+            "description":"walking slowly, facing away"
+        },
+        {
+            "animationPath":"Walking.fbx",
+            "animationTime":0.1,
             "lookAtCamera":true,
             "expression":"happy",
             "cameraPosition":"left-front-bottom",
@@ -19,8 +28,33 @@
             "description":"walking slowly"
         },
         {
+            "animationPath":"Walking.fbx",
+            "animationTime":0.1,
+            "lookAtCamera":true,
+            "expression":"happy",
+            "cameraFrame":"closeup",
+            "description":"walking slowly"
+        },
+        {
+            "animationPath":"Jumping Down.fbx",
+            "animationTime":1.5,
+            "lookAtCamera":true,
+            "cameraPosition":"right-front-bottom",
+            "cameraFrame":"fullShot",
+            "description":"crouching"
+        },
+        {
+            "animationPath":"Jumping Down.fbx",
+            "animationTime":1,
+            "lookAtCamera":true,
+            "cameraPosition":"right-front",
+            "cameraFrame":"fullShot",
+            "description":"falling"
+        },
+        
+        {
             "animationPath":"Twist_Dance.fbx",
-            "animationFrame":3,
+            "animationTime":0.8,
             "expression":"happy",
             "cameraPosition":[1,0,1],
             "cameraFrame":"mediumShot",
