@@ -36,7 +36,6 @@ export const SceneProvider = (props) => {
       characterManager,
       sceneElements
     } = sceneInitializer("editor-scene");
-
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
@@ -44,7 +43,7 @@ export const SceneProvider = (props) => {
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
-    setLoraDataGenerator(new LoraDataGenerator(characterManager, './lora-assets/manifest.json'))
+    setLoraDataGenerator(new LoraDataGenerator(characterManager))
   },[])
 
 
@@ -129,6 +128,7 @@ export const SceneProvider = (props) => {
         camera,
         moveCamera,
         controls,
+        sceneElements,
       }}
     >
       {props.children}
