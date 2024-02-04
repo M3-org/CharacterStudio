@@ -26,7 +26,8 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
-    loraDataGenerator
+    loraDataGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
 
@@ -85,12 +86,15 @@ function Appearance() {
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
-    await animationManager.loadAnimation(path, true, "", animName);
+    await animationManager.loadAnimation(path,false,0, true, "", animName);
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
   }
 
-  const screenshot = () => {
-    loraDataGenerator.testScreenshot();
+  const createLora = async() =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
+    parentScene.add(sceneElements);
   }
 
   const handleImageDrop = (file) => {
@@ -386,13 +390,7 @@ function Appearance() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <CustomButton
-          theme="light"
-          text={"TAKE SCREENSHOT"}
-          size={14}
-          className={styles.buttonLeft}
-          onClick={screenshot}
-        />
+
         {
         characterManager.canDownload() &&
           <CustomButton
@@ -403,6 +401,15 @@ function Appearance() {
             onClick={next}
           />
         }
+        <CustomButton
+          theme="light"
+          text={"Create Lora Data"}
+          size={14}
+          className={styles.buttonRight}
+          onClick={()=>{createLora()}}
+        />
+
+        
         {/* <CustomButton
           theme="light"
           text={t('callToAction.randomize')}
