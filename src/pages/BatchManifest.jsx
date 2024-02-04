@@ -102,7 +102,7 @@ function BatchManifest() {
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
-      await animationManager.loadAnimation(url, true, "", animName);
+      await animationManager.loadAnimation(url,false,0, true, "", animName);
       animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
 
       URL.revokeObjectURL(url);
