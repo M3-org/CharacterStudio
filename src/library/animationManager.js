@@ -15,7 +15,7 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx){
+  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx, poseStart){
     this.mixer = new THREE.AnimationMixer(scene);
     this.actions = [];
     this.to = null;
@@ -32,7 +32,7 @@ class AnimationControl {
 
     this.timeScale = 1;
 
-    this.setAnimations(animations);
+    this.setAnimations(animations, null, null, poseStart );
 
     this.to = this.actions[curIdx]
     
@@ -62,7 +62,7 @@ class AnimationControl {
     this.setAnimations(this.animations, this.mixamoModel, mouseLookEnabled);
   }
 
-  setAnimations(animations, mixamoModel, mouseLookEnabled = null){
+  setAnimations(animations, mixamoModel=null, mouseLookEnabled = null, quickChange = false){
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
     //this.mixer.stopAllAction();
@@ -90,17 +90,33 @@ class AnimationControl {
       })
     }
     
-    this.fadeOutActions = this.actions;
-    
-    this.actions = [];
-    this.newAnimationWeight = 0;
-    for (let i =0; i < animations.length;i++){
-      const action = this.mixer.clipAction(animations[i]);
-      action.timeScale = this.timeScale;
-      this.actions.push(action);
+    if (!quickChange){
+      this.fadeOutActions = this.actions;
+      this.actions = [];
+      this.newAnimationWeight = 0;
+      for (let i =0; i < animations.length;i++){
+        const action = this.mixer.clipAction(animations[i]);
+        action.timeScale = this.timeScale;
+        this.actions.push(action);
+      }
+      this.actions[0].weight = 0;
+      this.actions[0].play();
     }
-    this.actions[0].weight = 0;
-    this.actions[0].play();
+    else{
+      this.actions.forEach(action => {
+        action.weight = 0;
+        action.stop();
+      });
+      this.actions = [];
+      this.newAnimationWeight = 1;
+      for (let i =0; i < animations.length;i++){
+        const action = this.mixer.clipAction(animations[i]);
+        action.timeScale = this.timeScale;
+        this.actions.push(action);
+      }
+      this.actions[0].weight = 1;
+      this.actions[0].play();
+    }
   }
 
   update(weightIn,weightOut){
@@ -195,7 +211,7 @@ export class AnimationManager{
     this.scale = scale;
   }
 
-  async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
+  async loadAnimation(paths, isPose, poseTime = 0, isfbx = true, pathBase = "", name = ""){
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
@@ -219,16 +235,19 @@ export class AnimationManager{
     if (this.mainControl == null){
       this.curAnimID = 0;
       this.lastAnimID = -1;
-      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
+      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID,isPose)
       this.animationControls.push(this.mainControl)
     }
     else{
       //cons
       this.animationControls.forEach(animationControl => {
-        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled)
+        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
+        //animationControl.setTime(poseTime);
       });
+      this.setTime(poseTime);
+      if(isPose)this.pause();
+      else this.play();
     }
-  
   }
 
   getCurrentAnimationName(){
