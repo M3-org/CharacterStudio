@@ -822,7 +822,7 @@ export class CharacterManager {
         this.animationManager.setScale(scale);
         if (paths.length > 0){
           this.animationManager.storeAnimationPaths(animationPaths, baseLocation || "");
-          await this.animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), baseLocation || "")
+          await this.animationManager.loadAnimation(animationPaths,false, 0, animationPaths[0].endsWith('.fbx'), baseLocation || "")
         }
       }
     }
