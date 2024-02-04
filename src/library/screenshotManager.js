@@ -28,6 +28,8 @@ export class ScreenshotManager {
       hips:null,
       leftUpperLeg:null,
       leftFoot:null,
+      rightUpperLeg:null,
+      rightFoot:null,
     }
   }
 
@@ -62,31 +64,33 @@ export class ScreenshotManager {
   }
 
   frameCloseupShot(){
-    this._frameShot("head", "head")
+    this.frameShot("head", "head")
   }
   frameMediumShot(){
-    this._frameShot("chest", "head")
+    this.frameShot("chest", "head")
   }
   frameCowboyShot(){
-    this._frameShot("hips", "head")
+    this.frameShot("hips", "head")
   }
   frameFullShot(){
-    this._frameShot("leftFoot", "head")
+    this.frameShot("leftFoot", "head")
   }
 
 
-  _frameShot(minBoneName, maxBoneName, minGetsMaxVertex = false, maxGetsMaxVertex = true){
+  frameShot(minBoneName, maxBoneName, cameraPosition = null, minGetsMaxVertex = false, maxGetsMaxVertex = true){
     const min = this._getBoneWorldPositionWithOffset(minBoneName, minGetsMaxVertex);
     const max = this._getBoneWorldPositionWithOffset(maxBoneName, maxGetsMaxVertex);
     
     min.y -= this.frameOffset.max;
     max.y += this.frameOffset.min;
+
+    cameraPosition = cameraPosition || new THREE.Vector3(0,0,0)
     
-    this.positionCameraBetweenPoints(min,max,new THREE.Vector3(1,1,1))
+    this.positionCameraBetweenPoints(min,max,cameraPosition)
   }
 
 
-  _getBonesOffset(minWeight){
+  _setBonesOffset(minWeight){
     for (const boneName in this.boneOffsets) {
       console.log(boneName)
       const result = this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight);
@@ -105,10 +109,8 @@ export class ScreenshotManager {
     }
     const boneWorldPosition = new THREE.Vector3();
     bone.getWorldPosition(boneWorldPosition);
-    console.log(boneWorldPosition);
     const offset = getMax ? this.boneOffsets[boneName].max : this.boneOffsets[boneName].min;
     boneWorldPosition.y += offset.y;
-    console.log(boneWorldPosition);
     return boneWorldPosition;
   }
 
@@ -154,62 +156,92 @@ export class ScreenshotManager {
 
     // TODO: Ensure the character is in T pose;
 
+
     // Initialize min and max offset vectors
     const minOffset = new THREE.Vector3(Infinity, Infinity, Infinity);
     const maxOffset = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
 
     // Traverse all children of the parent
-    parent.traverse(child => {
+    parent.traverse(async (child) => {
         if (child instanceof THREE.SkinnedMesh) {
-            // Ensure each skinnedMesh has geometry
-            if (!child.geometry) {
-                console.error("Invalid skinned mesh found in children.");
-                return;
-            }
+          const curPos = this._saveBonesPos(child.skeleton);
+          const delay = ms => new Promise(res => setTimeout(res, ms));
 
-            // Find the index of the bone by name
-            const boneIndex = child.skeleton.bones.findIndex(bone => bone.name === boneName);
-
-            // Check if the bone with the given name exists
-            if (boneIndex === -1) {
-                console.error(`Bone with name '${boneName}' not found in one of the skinned meshes.`);
-                return;
-            }
-            
-            const positionAttribute = child.geometry.getAttribute("position");
-            const skinWeightAttribute = child.geometry.getAttribute("skinWeight");
-            const skinIndexAttribute = child.geometry.getAttribute("skinIndex");
-
-            // Iterate through each vertex
-            for (let i = 0; i < positionAttribute.count; i++) {
-              const worldVertex = new THREE.Vector3().fromBufferAttribute(positionAttribute, i).applyMatrix4(child.matrixWorld);
+          child.skeleton.pose();
+          await delay(10);
           
-              // Check the influence of the bone on the vertex
-              const skinIndex = skinIndexAttribute.getX(i);
-
-              if (skinIndex === boneIndex) {
-                // Get the weight of the bone influence
-                const influence = skinWeightAttribute.getX(i);
-        
-                // If the influence is above the minimum weight
-                if (influence >= minWeight) {
-                    // Calculate offset from the bone's position difference
-                    const bone = child.skeleton.bones[boneIndex];
-                    const bonePosition = new THREE.Vector3().setFromMatrixPosition(bone.matrixWorld);
-                    const offset = worldVertex.clone().sub(bonePosition);
-        
-                    // Update min and max offset vectors
-                    minOffset.min(offset);
-                    maxOffset.max(offset);
-                }
-              }
+          // Ensure each skinnedMesh has geometry
+          if (!child.geometry) {
+              console.error("Invalid skinned mesh found in children.");
+              return;
           }
+
+          // Find the index of the bone by name
+          const boneIndex = child.skeleton.bones.findIndex(bone => bone.name === boneName);
+
+          // Check if the bone with the given name exists
+          if (boneIndex === -1) {
+              console.error(`Bone with name '${boneName}' not found in one of the skinned meshes.`);
+              return;
+          }
+          
+          const positionAttribute = child.geometry.getAttribute("position");
+          const skinWeightAttribute = child.geometry.getAttribute("skinWeight");
+          const skinIndexAttribute = child.geometry.getAttribute("skinIndex");
+
+          // Iterate through each vertex
+          for (let i = 0; i < positionAttribute.count; i++) {
+            const worldVertex = new THREE.Vector3().fromBufferAttribute(positionAttribute, i).applyMatrix4(child.matrixWorld);
+        
+            // Check the influence of the bone on the vertex
+            const skinIndex = skinIndexAttribute.getX(i);
+
+            if (skinIndex === boneIndex) {
+              // Get the weight of the bone influence
+              const influence = skinWeightAttribute.getX(i);
+      
+              // If the influence is above the minimum weight
+              if (influence >= minWeight) {
+                  // Calculate offset from the bone's position difference
+                  const bone = child.skeleton.bones[boneIndex];
+                  const bonePosition = new THREE.Vector3().setFromMatrixPosition(bone.matrixWorld);
+                  const offset = worldVertex.clone().sub(bonePosition);
+      
+                  // Update min and max offset vectors
+                  minOffset.min(offset);
+                  maxOffset.max(offset);
+              }
+            }
+          }
+          this._restoreSavedPose(curPos, child.skeleton);
         }
     });
+    //topOffset bottomOffset
     return { min: minOffset, max: maxOffset };
   }
 
+  _saveBonesPos(skeleton){
 
+      let savedPose = [];
+      skeleton.bones.forEach(bone => {
+          savedPose.push({
+              position: bone.position.clone(),
+              rotation: bone.rotation.clone(),
+              scale: bone.scale.clone()
+          });
+      });
+      return savedPose;
+  }
+
+  _restoreSavedPose(savedPose, skeleton) {
+    if (savedPose) {
+        skeleton.bones.forEach((bone, index) => {
+            bone.position.copy(savedPose[index].position);
+            bone.rotation.copy(savedPose[index].rotation);
+            bone.scale.copy(savedPose[index].scale);
+        });
+    }
+  }
 
 
 
@@ -220,7 +252,7 @@ export class ScreenshotManager {
     this.characterManager.characterModel.traverse((o)=>{
       if (o.isMesh){
         
-        console.log(o.geometry.boundingBox);
+        //console.log(o.geometry.boundingBox);
       }
     })
     const boundingBox = new THREE.Box3();
