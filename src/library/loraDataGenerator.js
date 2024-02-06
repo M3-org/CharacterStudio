@@ -14,7 +14,7 @@ export class LoraDataGenerator {
         this.temptime = 0;
     }
 
-    async createLoraData(manifestURL){
+    async createLoraData(manifestURL, baseText){
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
