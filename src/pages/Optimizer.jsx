@@ -18,7 +18,9 @@ function Optimizer() {
   const { isLoading, setViewMode } = React.useContext(ViewContext)
   const {
     characterManager,
-    animationManager
+    animationManager,
+    sceneElements,
+    loraDataGenerator
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -47,6 +49,13 @@ function Optimizer() {
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
       ktxCompression: (local["merge_options_ktx_compression"] || false)
     }
+  }
+
+  const createLora = async() =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
+    parentScene.add(sceneElements);
   }
 
   const download = () => {
@@ -133,6 +142,14 @@ function Optimizer() {
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
+        {(model != "")&&(
+          <CustomButton
+          theme="light"
+          text="Create Lora"
+          size={14}
+          className={styles.buttonRight}
+          onClick={createLora}
+        />)}
         {(model != "")&&(
           <CustomButton
           theme="light"
