@@ -240,16 +240,14 @@ export class AnimationManager{
       this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID,isPose)
       this.animationControls.push(this.mainControl)
     }
-    else{
-      //cons
-      this.animationControls.forEach(animationControl => {
-        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
-        //animationControl.setTime(poseTime);
-      });
-      this.setTime(poseTime);
-      if(isPose)this.pause();
-      else this.play();
-    }
+
+    this.animationControls.forEach(animationControl => {
+      animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
+    });
+    this.setTime(poseTime);
+    if(isPose)this.pause();
+    else this.play();
+
   }
 
   getCurrentAnimationName(){
@@ -312,10 +310,6 @@ export class AnimationManager{
   }
 
   addVRM(vrm){
-    // if (this.mainControl == null){
-    //   console.log("No animations preloaded");
-    //   return;
-    // }
     let animations = null;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
@@ -325,11 +319,6 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-    //const animation = 
-    // if (animations) {
-    //   console.warn("no animations were preloaded, ignoring");
-    //   return
-    // }
     const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
