@@ -147,6 +147,33 @@ export class ScreenshotManager {
     return resultBone;
   }
 
+  setCameraFrameWithName(shotName, vectorCameraPosition){
+    const shotNameLower = shotName.toLowerCase();
+    switch (shotNameLower){
+        case "fullshot":
+            this.frameShot("leftFoot", "head",vectorCameraPosition)
+            break;
+        case "cowboyshot":
+            this.frameShot("hips", "head",vectorCameraPosition)
+            break;
+        case "mediumshot":
+            this.frameShot("chest", "head",vectorCameraPosition)
+            break;
+        case "mediumcloseup":
+        case "mediumcloseupshot":
+            this.frameShot("chest", "head",vectorCameraPosition,true)
+            break;
+        case "closeup":
+        case "closeupshot":
+            this.frameShot("head", "head",vectorCameraPosition)
+            break;
+        default:
+            console.warn("unkown cameraFrame: " + shotName + ". Please use fullShot, cowboyShot, mediumShot, mediumCloseup or closeup")
+            this.frameShot("leftFoot", "head",vectorCameraPosition)
+            break;
+    }
+}
+
   _getMinMaxOffsetByBone(parent, boneName, minWeight) {
     // Ensure parent is valid
     if (!parent || !parent.traverse) {
