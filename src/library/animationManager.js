@@ -37,6 +37,7 @@ class AnimationControl {
 
       this.to = this.actions[curIdx]
       
+      
       if (lastIdx != -1){
         this.from = this.actions[lastIdx];
         this.from.reset();
@@ -197,6 +198,8 @@ export class AnimationManager{
     this.mixamoModel = null;
     this.mixamoAnimations = null;
 
+    this.currentClip = null;
+
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -227,11 +230,13 @@ export class AnimationManager{
     if (clip != null){
       this.mixamoModel = animationModel.clone();
       this.mixamoAnimations =   animationModel.animations;
+      this.currentClip = clip;
     }
     // if no mixamo animation is present, just save the animations
     else{
       this.mixamoModel = null
       this.animations = animationModel.animations;
+      this.currentClip = animationModel.animations[0];
     }
     
     if (this.mainControl == null){
@@ -248,6 +253,11 @@ export class AnimationManager{
     if(isPose)this.pause();
     else this.play();
 
+  }
+
+  getCurrentClip(){
+    return this.currentClip;
+      
   }
 
   getCurrentAnimationName(){
