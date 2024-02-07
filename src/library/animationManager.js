@@ -32,23 +32,25 @@ class AnimationControl {
 
     this.timeScale = 1;
 
-    this.setAnimations(animations, null, null, poseStart );
+    if (animations){
+      this.setAnimations(animations, null, null, poseStart );
 
-    this.to = this.actions[curIdx]
-    
-    if (lastIdx != -1){
-      this.from = this.actions[lastIdx];
-      this.from.reset();
-      this.from.time = animationManager.getFromActionTime();
-      this.from.play();
+      this.to = this.actions[curIdx]
+      
+      if (lastIdx != -1){
+        this.from = this.actions[lastIdx];
+        this.from.reset();
+        this.from.time = animationManager.getFromActionTime();
+        this.from.play();
 
-      this.to.weight = animationManager.getWeightIn();
-      this.from.weight = animationManager.getWeightOut();
+        this.to.weight = animationManager.getWeightIn();
+        this.from.weight = animationManager.getWeightOut();
+      }
+
+      this.actions[curIdx].reset();
+      this.actions[curIdx].time = animationManager.getToActionTime();
+      this.actions[curIdx].play();
     }
-
-    this.actions[curIdx].reset();
-    this.actions[curIdx].time = animationManager.getToActionTime();
-    this.actions[curIdx].play();
   }
 
   setTimeScale(timeScale){
@@ -310,10 +312,10 @@ export class AnimationManager{
   }
 
   addVRM(vrm){
-    if (this.mainControl == null){
-      console.log("No animations preloaded");
-      return;
-    }
+    // if (this.mainControl == null){
+    //   console.log("No animations preloaded");
+    //   return;
+    // }
     let animations = null;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
@@ -324,16 +326,16 @@ export class AnimationManager{
       animations = this.animations;
     }
     //const animation = 
-    if (!animations) {
-      console.warn("no animations were preloaded, ignoring");
-      return
-    }
+    // if (animations) {
+    //   console.warn("no animations were preloaded, ignoring");
+    //   return
+    // }
     const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
     //addModelData(vrm , {animationControl});
-    if (this.started === false){
+    if (this.started === false && animations){
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
