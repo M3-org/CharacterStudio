@@ -59,7 +59,9 @@ function BatchManifest() {
     await characterManager.setManifest(manifestSelectionArray[index]);
     const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
-    characterManager.loadInitialTraits().then(()=>{
+    characterManager.loadInitialTraits().then(async()=>{
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      await delay(1);
         characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
         if (onlyImage){
           if (index < manifestSelectionArray.length-1 ){
