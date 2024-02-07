@@ -77,7 +77,6 @@ function Optimizer() {
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, false, 0, true, "", animName);
-      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
 
       URL.revokeObjectURL(url);
     }
@@ -99,10 +98,8 @@ function Optimizer() {
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
-    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
-      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
