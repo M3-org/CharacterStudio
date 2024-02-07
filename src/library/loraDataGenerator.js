@@ -37,8 +37,6 @@ export class LoraDataGenerator {
         this.blinkManager.enableScreenshot();
 
         this.screenshotManager._setBonesOffset(0.2);
-        // await this.animationManager.loadAnimation(animBasePath + loraInfo.animationPath,true,0);
-        // await delay(10);
 
         let counter = 0;
         const scope = this;
@@ -60,7 +58,7 @@ export class LoraDataGenerator {
                         const saveName = counter.toString().padStart(4, '0');
                         const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, finalAnimationTime);
-            
+                        
                         const vectorCameraPosition = getCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
             
