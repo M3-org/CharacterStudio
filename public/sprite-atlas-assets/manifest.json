@@ -1,0 +1,19 @@
+{
+    "assetsLocation": "./sprite-atlas-assets/",
+    "animationsDirectory": "/animations/",
+    "backgroundColor":[1,1,1,1],
+    "atlasWidth":64,
+    "atlasHeight":64,
+    "topFrameOffsetPixels":64,
+    "bottomFrameOffsetPixels":64,
+    "material":"pixel",
+    "spritesCollection":[
+        {
+            "animationPath":"Walking.fbx",
+            "framesNumber":8,
+            "expression":"happy",
+            "cameraPosition":"right",
+            "cameraFrame":"fullShot"
+        }
+    ]
+}
