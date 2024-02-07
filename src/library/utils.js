@@ -458,6 +458,62 @@ export const disposeMaterial = (material) =>{
   }
 }
 
+export const saveTextFile = (textContent, filename) => {
+  const blob = new Blob([textContent], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename + ".txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export const getCameraPosition = (cameraPosition) => {
+
+  let x,y,z = 0
+  if (Array.isArray(cameraPosition)){
+      x = cameraPosition[0]||0;
+      y = cameraPosition[1]||0;
+      z = cameraPosition[2]||0;
+      
+  }
+  else if (typeof cameraPosition === 'string' || cameraPosition instanceof String){
+      
+      const positionString = cameraPosition.split('-');
+      positionString.forEach(pos => {
+          pos = pos.toLowerCase();
+          switch (pos){
+              case "left":
+                  x = -1
+                  break;
+              case "right":
+                  x = 1
+                  break;
+              case "bottom":
+              case "down":
+                  y = -1
+                  break;
+              case "top":
+              case "up":
+                  y = 1
+                  break;
+              case "back":
+              case "backward":
+                  z = -1
+                  break;
+              case "front":
+              case "forward":
+                  z = 1
+                  break;
+              default:
+                  console.warn("unkown cameraPosition name: " + pos + " in: " + cameraPosition +". Please use left, right, bottom, top, back or front")
+                  break;
+          }
+      });
+  }
+  return new THREE.Vector3(x,y,z);
+}
+
 export const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
