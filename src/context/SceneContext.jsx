@@ -4,6 +4,7 @@ import gsap from "gsap"
 import { local } from "../library/store"
 import { sceneInitializer } from "../library/sceneInitializer"
 import { LoraDataGenerator } from "../library/loraDataGenerator"
+import { SpriteAtlasGenerator } from "../library/spriteAtlasGenerator"
 
 export const SceneContext = createContext()
 
@@ -11,6 +12,7 @@ export const SceneProvider = (props) => {
 
   const [characterManager, setCharacterManager] = useState(null)
   const [loraDataGenerator, setLoraDataGenerator] = useState(null)
+  const [spriteAtlasGenerator, setSrptieAtlasGenerator] = useState(null)
   const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
@@ -44,6 +46,7 @@ export const SceneProvider = (props) => {
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
     setLoraDataGenerator(new LoraDataGenerator(characterManager))
+    setSrptieAtlasGenerator(new SpriteAtlasGenerator(characterManager))
   },[])
 
 
@@ -120,6 +123,7 @@ export const SceneProvider = (props) => {
         scene,
         characterManager,
         loraDataGenerator,
+        spriteAtlasGenerator,
         showEnvironmentModels,
         debugMode,
         toggleDebugMode,
