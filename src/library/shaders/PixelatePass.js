@@ -5,6 +5,7 @@ export class PixelatePass extends Pass {
         super();
         this.resolution = resolution;
         this.fsQuad = new FullScreenQuad(this.material());
+        console.log( this.fsQuad)
     }
     setResolution(resolution){
         this.resolution = resolution;
@@ -53,6 +54,7 @@ export class PixelatePass extends Pass {
                 void main() {
                     vec2 iuv = (floor(resolution.xy * vUv) + .5) * resolution.zw;
                     vec4 texel = texture2D( tDiffuse, iuv );
+                    texel.rgb = pow(texel.rgb, vec3(1.0 / 2.2));
                     gl_FragColor = texel;
                 }
                 `,
