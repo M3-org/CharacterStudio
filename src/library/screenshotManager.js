@@ -1,19 +1,81 @@
 import * as THREE from "three"
 import { Buffer } from "buffer";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+import { RenderPixelatedPass } from "./shaders/RenderPixelatedPass";
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
+import { PixelatePass } from "./shaders/PixelatePass"
 
 const screenshotSize = 4096;
 
 const localVector = new THREE.Vector3();
 
+class PixelRenderer{
+  constructor(scene,camera, pixelSize ){
+    const pixelRenderer = new THREE.WebGLRenderer({
+      preserveDrawingBuffer: true,
+      antialias: false,
+      alpha: true,
+    })
+    this.pixelSize = pixelSize;
+    this.domElement = pixelRenderer.domElement;
+
+    const screenshotResolution = new THREE.Vector2(screenshotSize,screenshotSize);
+    pixelRenderer.outputEncoding = THREE.LinearEncoding;
+    pixelRenderer.setSize(screenshotResolution.x, screenshotResolution.y);
+    pixelRenderer.setPixelRatio(window.devicePixelRatio);
+    //pixelRenderer.shadowMap.enabled = true
+    
+
+    let renderResolution = screenshotResolution.clone().divideScalar( pixelSize )
+    renderResolution.x |= 0
+    renderResolution.y |= 0
+
+    const composer = new EffectComposer( pixelRenderer )
+    composer.addPass( new RenderPass( scene, camera ) )
+
+    this._renderPixelPass = new RenderPixelatedPass( renderResolution, scene, camera )
+    this._pixelPass = new PixelatePass( renderResolution )
+
+    
+    composer.addPass( this._renderPixelPass )
+    // let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
+    // composer.addPass( bloomPass )
+    composer.addPass( this._pixelPass )
+    
+    this.renderer = pixelRenderer;
+    this.composer = composer;
+  }
+  setSize(width, height){
+    const screenshotResolution = new THREE.Vector2(width,height);
+    let renderResolution = screenshotResolution.clone().divideScalar( this.pixelSize )
+    renderResolution.x |= 0
+    renderResolution.y |= 0
+
+    this.renderer.setSize(width, height);
+    this._renderPixelPass.setResolution(renderResolution);
+    this._pixelPass.setResolution(renderResolution);
+  }
+  setPixelSize(pixelSize){
+    this.pixelSize = pixelSize;
+  }
+  render(){
+    this.composer.render();
+  }
+}
+
 export class ScreenshotManager {
-  constructor(characterManager) {
+  constructor(characterManager, scene) {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
       antialias: true
     });
+    this.scene = scene;
     this.characterManager = characterManager;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
+
     this.renderer.setSize(screenshotSize, screenshotSize);
+
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
     this.textureLoader = new THREE.TextureLoader();
     this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
@@ -21,6 +83,9 @@ export class ScreenshotManager {
       min:0.2,
       max:0.2,
     }
+
+    this.pixelRenderer = new PixelRenderer(scene, this.camera, 20);
+
 
     this.boneOffsets = {
       head:null,
@@ -31,6 +96,9 @@ export class ScreenshotManager {
       rightUpperLeg:null,
       rightFoot:null,
     }
+  }
+  setScene(scene){
+    this.scene = scene;
   }
 
   setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30){
@@ -92,7 +160,6 @@ export class ScreenshotManager {
 
   _setBonesOffset(minWeight){
     for (const boneName in this.boneOffsets) {
-      console.log(boneName)
       const result = this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight);
       
       // Store the result in the boneOffsets property
@@ -181,9 +248,6 @@ export class ScreenshotManager {
         return null;
     }
 
-    // TODO: Ensure the character is in T pose;
-
-
     // Initialize min and max offset vectors
     const minOffset = new THREE.Vector3(Infinity, Infinity, Infinity);
     const maxOffset = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
@@ -248,7 +312,6 @@ export class ScreenshotManager {
   }
 
   _saveBonesPos(skeleton){
-
       let savedPose = [];
       skeleton.bones.forEach(bone => {
           savedPose.push({
@@ -270,18 +333,7 @@ export class ScreenshotManager {
     }
   }
 
-
-
   positionCameraBetweenPoints(vector1, vector2,cameraPosition, fieldOfView = 30) {
-    // const{minY,maxY} = this._getCharacterMinMax();
-    // vector1.y = minY;
-    // vector2.y = maxY;
-    this.characterManager.characterModel.traverse((o)=>{
-      if (o.isMesh){
-        
-        //console.log(o.geometry.boundingBox);
-      }
-    })
     const boundingBox = new THREE.Box3();
     boundingBox.expandByPoint(vector1);
     boundingBox.expandByPoint(vector2);
@@ -319,7 +371,6 @@ export class ScreenshotManager {
     this.cameraDir.normalize();
     this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
     this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
-
   }
 
   /**
@@ -358,47 +409,58 @@ export class ScreenshotManager {
     });
   }
 
-  saveAsImage(imageName) {
-    let imgData;
-    try {
-      this.scene.background = this.sceneBackground;
-      this.renderer.render(this.scene, this.camera);
-      const strDownloadMime = "image/octet-stream";
-      const strMime = "image/png";
-      imgData = this.renderer.domElement.toDataURL(strMime);
+  // saveAsImage(imageName) {
+  //   let imgData;
+  //   try {
+  //     this.scene.background = this.sceneBackground;
+  //     this.renderer.render(this.scene, this.camera);
+  //     const strDownloadMime = "image/octet-stream";
+  //     const strMime = "image/png";
+  //     imgData = this.renderer.domElement.toDataURL(strMime);
 
-      const base64Data = Buffer.from(
-        imgData.replace(/^data:image\/\w+;base64,/, ""),
-        "base64"
-      );
-      const blob = new Blob([base64Data], { type: "image/jpeg" });
+  //     const base64Data = Buffer.from(
+  //       imgData.replace(/^data:image\/\w+;base64,/, ""),
+  //       "base64"
+  //     );
+  //     const blob = new Blob([base64Data], { type: "image/jpeg" });
       
-      this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
-      this.scene.background = null;
-      return blob;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+  //     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
+  //     this.scene.background = null;
+  //     return blob;
+  //   } catch (e) {
+  //     console.log(e);
+  //     return false;
+  //   }
 
-  }
-
-  _createImage(width, height){
+  // }
+  _createImage(width, height, pixelStyle = false){
     const aspectRatio = width / height;
     this.renderer.setSize(width, height);
+    const strMime = "image/png";
+
     this.camera.aspect = aspectRatio;
     this.camera.updateProjectionMatrix();
+    const renderer = pixelStyle ? this.pixelRenderer : this.renderer;
     try {
+      console.log(this.scene);
       this.scene.background = this.sceneBackground;
-      this.renderer.render(this.scene, this.camera);
-      const strMime = "image/png";
-      let imgData = this.renderer.domElement.toDataURL(strMime);
+
+
+      renderer.render(this.scene, this.camera);
+      let imgData = renderer.domElement.toDataURL(strMime);
       this.scene.background = null;
       return  imgData
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return null;
     }
+  }
+  savePixelScreenshot(imageName,width, height, pixelSize){
+    this.pixelRenderer.setPixelSize(pixelSize);
+    const imgData =  this._createImage(width, height, true)
+    const strDownloadMime = "image/octet-stream";
+    const strMime = "image/png";
+    this.saveFile(imgData.replace(strMime, strDownloadMime), imageName + ".png");
   }
   saveScreenshot(imageName,width, height){
     const imgData =  this._createImage(width, height)
