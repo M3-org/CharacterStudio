@@ -20,7 +20,8 @@ function Optimizer() {
     characterManager,
     animationManager,
     sceneElements,
-    loraDataGenerator
+    loraDataGenerator,
+    spriteAtlasGenerator
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -55,6 +56,12 @@ function Optimizer() {
     const parentScene = sceneElements.parent;
     parentScene.remove(sceneElements);
     await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
+    parentScene.add(sceneElements);
+  }
+  const createSpriteAtlas = async () =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
     parentScene.add(sceneElements);
   }
 
@@ -142,6 +149,14 @@ function Optimizer() {
         {(model != "")&&(
           <CustomButton
           theme="light"
+          text="Download"
+          size={14}
+          className={styles.buttonRight}
+          onClick={download}
+        />)}
+        {(model != "")&&(
+          <CustomButton
+          theme="light"
           text="Create Lora"
           size={14}
           className={styles.buttonRight}
@@ -150,11 +165,13 @@ function Optimizer() {
         {(model != "")&&(
           <CustomButton
           theme="light"
-          text="Download"
+          text="Create Sprite Atlas"
           size={14}
           className={styles.buttonRight}
-          onClick={download}
+          onClick={createSpriteAtlas}
         />)}
+        
+        
       </div>
     </div>
   )
