@@ -6,13 +6,15 @@
     "atlasHeight":128,
     "topFrameOffsetPixels":64,
     "bottomFrameOffsetPixels":64,
+    "pixelStyleSize":4,
     "spritesCollection":[
         {
-            "animationPath":"Dancing.fbx",
+            "animationName":"Walking",
+            "animationPath":"Walking.fbx",
             "framesNumber":16,
             "expression":"happy",
-            "cameraPosition":"front",
-            "cameraFrame":"mediumShot"
+            "cameraPosition":"left",
+            "cameraFrame":"fullShot"
         }
     ]
 }
