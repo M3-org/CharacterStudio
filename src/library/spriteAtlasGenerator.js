@@ -21,6 +21,7 @@ export class SpriteAtlasGenerator {
             topFrameOffsetPixels = 64,
             bottomFrameOffsetPixels = 64,
             backgroundDescription ="",
+            pixelStyleSize, 
             atlasWidth = 512,
             atlasHeight = 512,
             spritesCollection
@@ -62,7 +63,9 @@ export class SpriteAtlasGenerator {
                             for (let i =0; i < framesNumber ; i++){
 
                                 scope.animationManager.setTime(i * timeOffsets);
-                                scope.screenshotManager.saveScreenshot(saveName, atlasWidth, atlasHeight);
+                                pixelStyleSize ?
+                                    scope.screenshotManager.savePixelScreenshot(saveName, atlasWidth, atlasHeight,pixelStyleSize):
+                                    scope.screenshotManager.saveScreenshot(saveName, atlasWidth, atlasHeight);
                             }
                         }
                     }
