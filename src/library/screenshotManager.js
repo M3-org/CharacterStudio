@@ -17,10 +17,12 @@ class PixelRenderer{
       antialias: false,
       alpha: true,
     })
+    
     this.pixelSize = pixelSize;
     this.domElement = pixelRenderer.domElement;
 
     const screenshotResolution = new THREE.Vector2(screenshotSize,screenshotSize);
+    pixelRenderer.setClearColor( 0x000000, 0);
     pixelRenderer.outputEncoding = THREE.LinearEncoding;
     pixelRenderer.setSize(screenshotResolution.x, screenshotResolution.y);
     pixelRenderer.setPixelRatio(window.devicePixelRatio);
@@ -68,8 +70,11 @@ export class ScreenshotManager {
   constructor(characterManager, scene) {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
-      antialias: true
+      antialias: true,
+      alpha:true
     });
+    this.renderer.setClearAlpha(0);
+    this.renderer.premultipliedAlpha = false;
     this.scene = scene;
     this.characterManager = characterManager;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
@@ -381,15 +386,23 @@ export class ScreenshotManager {
    */
   setBackground(background){
     if (Array.isArray(background)){
-      this.setBackgroundColor(background[0],background[1],background[2])
+      console.log(background);
+      const alpha = background[3] == null ? 1 : background[3];
+
+      this.setBackgroundColor(background[0],background[1],background[2],alpha)
     }
     else{
       this.setBackgroundImage(background);
     }
   }
 
-  setBackgroundColor(r,g,b){
-    this.sceneBackground = new THREE.Color(r,g,b);
+  setBackgroundColor(r,g,b,a){
+    console.log(r)
+    console.log(g)
+    console.log(b)
+    console.log(a)
+    this.sceneBackground = new THREE.Color(r,g,b,a);
+    console.log(this.sceneBackground);
   }
 
   setBackgroundImage(url){
@@ -420,7 +433,10 @@ export class ScreenshotManager {
     try {
       console.log(this.scene);
       this.scene.background = this.sceneBackground;
+      console.log(this.scene.background);
 
+      console.log("HARDCODED TRANSPARENT COLOR FOR NOW");
+      this.scene.background = null;
 
       renderer.render(this.scene, this.camera);
       let imgData = renderer.domElement.toDataURL(strMime);
@@ -432,6 +448,7 @@ export class ScreenshotManager {
     }
   }
   savePixelScreenshot(imageName,width, height, pixelSize){
+    this.pixelRenderer.setSize(width,height);
     this.pixelRenderer.setPixelSize(pixelSize);
     const imgData =  this._createImage(width, height, true)
     const strDownloadMime = "image/octet-stream";
