@@ -409,30 +409,6 @@ export class ScreenshotManager {
     });
   }
 
-  // saveAsImage(imageName) {
-  //   let imgData;
-  //   try {
-  //     this.scene.background = this.sceneBackground;
-  //     this.renderer.render(this.scene, this.camera);
-  //     const strDownloadMime = "image/octet-stream";
-  //     const strMime = "image/png";
-  //     imgData = this.renderer.domElement.toDataURL(strMime);
-
-  //     const base64Data = Buffer.from(
-  //       imgData.replace(/^data:image\/\w+;base64,/, ""),
-  //       "base64"
-  //     );
-  //     const blob = new Blob([base64Data], { type: "image/jpeg" });
-      
-  //     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName);
-  //     this.scene.background = null;
-  //     return blob;
-  //   } catch (e) {
-  //     console.log(e);
-  //     return false;
-  //   }
-
-  // }
   _createImage(width, height, pixelStyle = false){
     const aspectRatio = width / height;
     this.renderer.setSize(width, height);
