@@ -397,10 +397,6 @@ export class ScreenshotManager {
   }
 
   setBackgroundColor(r,g,b,a){
-    console.log(r)
-    console.log(g)
-    console.log(b)
-    console.log(a)
     this.sceneBackground = new THREE.Color(r,g,b,a);
     console.log(this.sceneBackground);
   }
@@ -448,8 +444,8 @@ export class ScreenshotManager {
     }
   }
   savePixelScreenshot(imageName,width, height, pixelSize){
-    this.pixelRenderer.setSize(width,height);
     this.pixelRenderer.setPixelSize(pixelSize);
+    this.pixelRenderer.setSize(width,height);
     const imgData =  this._createImage(width, height, true)
     const strDownloadMime = "image/octet-stream";
     const strMime = "image/png";
