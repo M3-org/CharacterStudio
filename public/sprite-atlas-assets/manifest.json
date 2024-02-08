@@ -1,26 +1,18 @@
 {
     "assetsLocation": "./sprite-atlas-assets/",
     "animationsDirectory": "/animations/",
-    "backgroundColor":[0.5,0.5,0.5,1],
-    "atlasWidth":512,
-    "atlasHeight":512,
+    "backgroundColor":[0,0,0,0],
+    "atlasWidth":128,
+    "atlasHeight":128,
     "topFrameOffsetPixels":64,
     "bottomFrameOffsetPixels":64,
-    "pixelStyleSize":10,
     "spritesCollection":[
         {
-            "animationPath":"Walking.fbx",
-            "framesNumber":8,
-            "expression":"happy",
-            "cameraPosition":"left",
-            "cameraFrame":"fullShot"
-        },
-        {
-            "animationPath":"Walking.fbx",
-            "framesNumber":8,
+            "animationPath":"Dancing.fbx",
+            "framesNumber":16,
             "expression":"happy",
             "cameraPosition":"front",
-            "cameraFrame":"fullShot"
+            "cameraFrame":"mediumShot"
         }
     ]
 }
