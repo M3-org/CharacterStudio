@@ -429,10 +429,10 @@ export class ScreenshotManager {
     try {
       console.log(this.scene);
       this.scene.background = this.sceneBackground;
-      console.log(this.scene.background);
+      // console.log(this.scene.background);
 
-      console.log("HARDCODED TRANSPARENT COLOR FOR NOW");
-      this.scene.background = null;
+      // console.log("HARDCODED TRANSPARENT COLOR FOR NOW");
+      // this.scene.background = null;
 
       renderer.render(this.scene, this.camera);
       let imgData = renderer.domElement.toDataURL(strMime);
