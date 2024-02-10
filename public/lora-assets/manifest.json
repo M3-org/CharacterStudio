@@ -1,10 +1,10 @@
 {
     "assetsLocation": "./lora-assets/",
     "animationsDirectory": "/animations/",
-    "backgroundGrayscale": 1,
-    "backgroundDescription": "plain white background",
-    "width":512,
-    "height":512,
+    "backgroundGrayscale": 0,
+    "backgroundDescription": "plain black background",
+    "width":1024,
+    "height":1024,
     "topFrameOffsetPixels":64,
     "bottomFrameOffsetPixels":64,
     "dataCollection":[
