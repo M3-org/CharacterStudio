@@ -37,13 +37,13 @@ export class LoraDataGenerator {
         this.blinkManager.enableScreenshot();
 
         this.screenshotManager._setBonesOffset(0.2);
-
+        const delay = ms => new Promise(res => setTimeout(res, ms));
         let counter = 0;
         const scope = this;
         if (Array.isArray(dataCollection)){
-            async function processAnimations() {
+            const processAnimations = async() =>{
                 if (Array.isArray(dataCollection)) {
-                    for (const loraInfo of dataCollection) {
+                    for (let i =0; i < dataCollection.length;i++){
                         const {
                             animationPath,
                             animationTime = 0,
@@ -53,7 +53,8 @@ export class LoraDataGenerator {
                             cameraPosition,
                             cameraFrame,
                             description
-                        } = loraInfo;
+                        } = dataCollection[i];
+                        console.log(i);
                         counter++
                         const saveName = counter.toString().padStart(4, '0');
                         const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
@@ -62,7 +63,8 @@ export class LoraDataGenerator {
                         const vectorCameraPosition = getCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
             
-                        // set camera position
+                        // add small delay to avoid skipping saves
+                        await delay(100);
                         scope.screenshotManager.saveScreenshot(saveName, width, height);
                         saveTextFile("anata" + " " + description + " " + backgroundDescription,saveName);
                     }
