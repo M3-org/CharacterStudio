@@ -62,9 +62,19 @@ const xAxis = new THREE.Vector3(1, 0, 0)
 const yAxis = new THREE.Vector3(0, 1, 0)
 
 async function fetchManifest(location) {
-  const response = await fetch(location)
-  const data = await response.json()
-  return data
+  try {
+    const response = await fetch(location);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch manifest. Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching manifest: ${error.message}`);
+    return [];
+  }
 }
 
 
@@ -113,7 +123,6 @@ export default function App() {
     initialManifest,
     effectManager,
   } = resource.read()
-
   const [hideUi, setHideUi] = useState(false)
   const {
     camera,
@@ -247,23 +256,25 @@ export default function App() {
   }, [hideUi])
 
   useEffect(() => {
-    updateCameraPosition()
-    if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
-      lookAtManager.enabled = false
-    } else {
-      lookAtManager.enabled = true
+    if (lookAtManager != null){
+      updateCameraPosition()
+      if ([ViewMode.BIO, ViewMode.MINT, ViewMode.CHAT].includes(viewMode)) {
+        lookAtManager.enabled = false
+      } else {
+        lookAtManager.enabled = true
+      }
+      if ([ViewMode.LANDING, ViewMode.CREATE, ViewMode.CLAIM, ViewMode.LOAD, ViewMode.CLAIM, ViewMode.CLAIM].includes(viewMode))
+        showEnvironmentModels(false)
+      else
+        showEnvironmentModels(true)
+      window.addEventListener("resize", updateCameraPosition)
+      return () => {
+        window.removeEventListener("resize", updateCameraPosition)
+      }
     }
+    
 
-    if ([ViewMode.LANDING, ViewMode.CREATE, ViewMode.CLAIM, ViewMode.LOAD, ViewMode.CLAIM, ViewMode.CLAIM].includes(viewMode))
-      showEnvironmentModels(false)
-    else
-      showEnvironmentModels(true)
-    window.addEventListener("resize", updateCameraPosition)
-    return () => {
-      window.removeEventListener("resize", updateCameraPosition)
-    }
-
-  }, [viewMode])
+  }, [viewMode, lookAtManager])
 
   useEffect(() => {
     setManifest(initialManifest)
