@@ -15,7 +15,7 @@
             "expression":"happy",
             "cameraPosition":[-0.5,-0.2,1],
             "cameraFrame":"fullShot",
-            "description":"a person slowly walking, full shot"
+            "description":"a person slowly walking full shot"
         },
         {
             "animationPath":"Salute.fbx",
@@ -24,7 +24,7 @@
             "expression":"happy",
             "cameraPosition":"front",
             "cameraFrame":"mediumShot",
-            "description":"a person saluting, medium shot"
+            "description":"a person saluting medium shot"
         },
         {
             "animationPath":"Boxing.fbx",
@@ -33,7 +33,7 @@
             "expression":"happy",
             "cameraPosition":"left",
             "cameraFrame":"fullShot",
-            "description":"a person boxing, full shot"
+            "description":"a person boxing full shot"
         },
         {
             "animationPath":"SittingIdle.fbx",
@@ -70,7 +70,7 @@
             "expression":"angry",
             "cameraPosition":"front",
             "cameraFrame":"mediumShot",
-            "description":"a person crossing arms, medium shot"
+            "description":"a person crossing arms medium shot"
         },
         {
             "animationPath":"Angry.fbx",
@@ -79,7 +79,7 @@
             "expression":"angry",
             "cameraPosition":"back-right",
             "cameraFrame":"fullShot",
-            "description":"a person crossing arms, looking away from camera, full shot"
+            "description":"a person crossing arms looking away from camera, full shot"
         },
         {
             "animationPath":"DodgingRight.fbx",
@@ -88,7 +88,7 @@
             "expression":"angry",
             "cameraPosition":"front",
             "cameraFrame":"fullShot",
-            "description":"a person dodging to the right, full shot"
+            "description":"a person dodging to the right full shot"
         },
         {
             "animationPath":"KneelingPointing.fbx",
@@ -97,7 +97,7 @@
             "expression":"happy",
             "cameraPosition":"front-left",
             "cameraFrame":"fullShot",
-            "description":"a person kneeling, full shot"
+            "description":"a person kneeling full shot"
         },
         {
             "animationPath":"KneelingPointing.fbx",
@@ -106,7 +106,7 @@
             "expression":"happy",
             "cameraPosition":"front",
             "cameraFrame":"fullShot",
-            "description":"a person kneeling, pointing away, full shot"
+            "description":"a person kneeling pointing away full shot"
         },
         {
             "animationPath":"LookOverShoulder.fbx",
@@ -115,7 +115,7 @@
             "expression":"happy",
             "cameraPosition":"left-back",
             "cameraFrame":"fullShot",
-            "description":"a person looking back over shoulder, full shot"
+            "description":"a person looking back over shoulder full shot"
         },
         {
             "animationPath":"Strafe.fbx",
@@ -133,7 +133,7 @@
             "expression":"happy",
             "cameraPosition":"front-top",
             "cameraFrame":"fullShot",
-            "description":"a person stranding, greeting"
+            "description":"a person standing and greeting"
         },
         {
             "animationPath":"Shoved.fbx",
@@ -187,7 +187,7 @@
             "expression":"angry",
             "cameraPosition":"front-left",
             "cameraFrame":"mediumShot",
-            "description":"a person in fight stance, medium shot"
+            "description":"a person in fight stance medium shot"
         },
         {
             "animationPath":"DoubleLegTakedown-Attacker.fbx",
@@ -206,7 +206,7 @@
             "cameraPosition":"right",
             "cameraFrame":"fullShot",
             "cameraLocalOffset":[0.5,0,0],
-            "description":"a person doing a high kick, side view, full shot"
+            "description":"a person doing a high kick side view, full shot"
         },
         {
             "animationPath":"PullPlant.fbx",
@@ -215,7 +215,7 @@
             "expression":"happy",
             "cameraPosition":"front",
             "cameraFrame":"fullShot",
-            "description":"a person kneeling straight, looking at camera"
+            "description":"a person kneeling straight looking at camera"
         },
         {
             "animationPath":"PullPlant.fbx",
@@ -224,7 +224,7 @@
             "expression":"happy",
             "cameraPosition":"back-right",
             "cameraFrame":"fullShot",
-            "description":"a person kneeling straight, facing away from camera"
+            "description":"a person kneeling straight facing away from camera"
         },
         {
             "animationPath":"FemaleCrouchPose.fbx",
@@ -233,7 +233,7 @@
             "expression":"happy",
             "cameraPosition":"front",
             "cameraFrame":"mediumShot",
-            "description":"a person flexing muscles facing away from camera, medium shot"
+            "description":"a person flexing muscles facing away from camera medium shot"
         },
         {
             "animationPath":"StrongGesture.fbx",
@@ -242,7 +242,7 @@
             "expression":"happy",
             "cameraPosition":"front-top",
             "cameraFrame":"fullShot",
-            "description":"a person flexing muscles, full shot"
+            "description":"a person flexing muscles full shot"
         },
         {
             "animationPath":"StrutWalking.fbx",
@@ -251,7 +251,7 @@
             "expression":"happy",
             "cameraPosition":"front-left-top",
             "cameraFrame":"fullShot",
-            "description":"a person strut walking, full frame"
+            "description":"a person strut walking full frame"
         },
         {
             "animationPath":"StrutWalking.fbx",
@@ -278,7 +278,7 @@
             "expression":"happy",
             "cameraPosition":"back",
             "cameraFrame":"fullShot",
-            "description":"a person hanging with arms, shot from behind"
+            "description":"a person hanging with arms shot from behind"
         },
         {
             "animationPath":"GolfPre-Putt.fbx",
