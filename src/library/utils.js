@@ -625,7 +625,7 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-  // if user didnt define upprChest bone just make sure its not included
+  // // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
     // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
@@ -636,12 +636,13 @@ export const renameVRMBones = (vrm) => {
       }
       // if its the case, reassign bones
       else{
-        bones['upperChest'] = {node:bones['neck'].node.parent}
-        bones['chest'] = {node:bones['neck'].node.parent.parent}
+        if (bones['upperChest'] != null ){
+          bones['upperChest'] = {node:bones['neck'].node.parent}
+          bones['chest'] = {node:bones['neck'].node.parent.parent}
+        }
       }
     }
   }
-
   // same ase before, left and right shoulder are optional vrm bones, make sure that if they are missing they are not included
   if (bones ['leftShoulder'] == null){
     if (bones['leftUpperArm'].node.parent != bones['chest']?.node && 
@@ -664,10 +665,17 @@ export const renameVRMBones = (vrm) => {
       bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
     }
   }
-  
+  // fix for when user set the root bone as hips bone instead of hips
+  if (bones["spine"].node.parent != bones["hips"].node){
+    bones["hips"] = {node:bones['spine'].node.parent}
+  }
+  if (bones["hips"].node.parent != vrm.scene){
+    vrm.scene.attach(bones["hips"].node.parent)
+    // = vrm.scene;
+  }
+
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
-    
     if (bones[boneName]?.node){
       bones[boneName].node.name = boneName;
     }
@@ -676,12 +684,19 @@ export const renameVRMBones = (vrm) => {
         node:new THREE.Bone()
       }
       bones[boneName].node.name = boneName;
+      const parentBoneName = VRMHumanBoneParentMap[boneName]
+      if (parentBoneName){
+        // add instead of attach, so new node has the same position as parent
+        bones[parentBoneName].node.add(bones[boneName].node)
+      }
     }
   }
+
   for (const boneName in bones) {
     const parentBoneName = VRMHumanBoneParentMap[boneName]
-    if (parentBoneName)
-      bones[parentBoneName].node.add(bones[boneName].node)
+    if (parentBoneName && bones[boneName].node.parent != bones[parentBoneName].node){
+      bones[parentBoneName].node.attach(bones[boneName].node)
+    }
   }
 };
 
