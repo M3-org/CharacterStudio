@@ -8,14 +8,15 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
-import { loadVRM, addVRMToScene } from "../library/load-utils"
-import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 
 function Optimizer() {
-  const { isLoading, setViewMode } = React.useContext(ViewContext)
+  const { 
+    isLoading, 
+    setViewMode 
+  } = React.useContext(ViewContext)
   const {
     characterManager,
     animationManager,
@@ -23,12 +24,13 @@ function Optimizer() {
     loraDataGenerator,
     spriteAtlasGenerator
   } = React.useContext(SceneContext)
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
   
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
-  const { playSound } = React.useContext(SoundContext)
-  const { isMute } = React.useContext(AudioContext)
+
 
   const back = () => {
     !isMute && playSound('backNextButton');
