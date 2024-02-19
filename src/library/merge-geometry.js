@@ -7,26 +7,50 @@ import { BufferAttribute } from "three";
 
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
-    for (const bone of skinnedMesh.skeleton.bones) {
-        const clone = bone.clone(false);
-        // clone.position.x *= -1;
-        // clone.position.z *= -1;
-        boneClones.set(bone, clone);
-    }
-    // Preserve original bone structure
-    // Assume bones[0] is root bone
-    skinnedMesh.skeleton.bones[0].traverse((o) => {
-        if (o.type !== "Bone")
-            return;
-            
-        const clone = boneClones.get(o);
-        for (const child of o.children) {
-            const ch = boneClones.get(child);
-            if (ch)clone.add(ch);
+    skinnedMesh.skeleton.bones[0].traverse((o) =>{
+        if (o.type === "Bone"){
+            const clone = o.clone(false);
+            // clone.position.x *= -1;
+            // clone.position.z *= -1;
+            boneClones.set(o, clone);
         }
     });
-    const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
-    newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
+
+
+    // Preserve original bone structure
+    // Assume bones[0] is root bone
+
+    const skeletonBonesUpdated = [];
+    const skeletonBonesInverses = [];
+
+    skinnedMesh.skeleton.bones[0].traverse((o) => {
+        if (o.type !== "Bone") return;
+
+        skeletonBonesUpdated.push(o); 
+
+        // Calculate inverse bind matrix and store it in the array
+        const inverseBindMatrix = new THREE.Matrix4();
+        const parentWorldInverse = new THREE.Matrix4();
+
+        if (o.parent) {
+            o.parent.updateMatrixWorld(true);
+            parentWorldInverse.copy( o.parent.matrixWorld ).invert();
+            inverseBindMatrix.multiplyMatrices(o.matrixWorld, parentWorldInverse);
+        }
+
+        skeletonBonesInverses.push(inverseBindMatrix);
+
+        const clone = boneClones.get(o);
+
+        for (const child of o.children) {
+            const ch = boneClones.get(child);
+            if (ch) {
+                clone.add(ch);
+            }
+        }
+    });
+    const newSkeleton = new THREE.Skeleton(skeletonBonesUpdated.map((b) => boneClones.get(b)));
+    newSkeleton.boneInverses = skeletonBonesInverses;
     newSkeleton.pose();
     return newSkeleton;
 }
@@ -69,7 +93,6 @@ function createMergedSkeleton(meshes, scale){
         if (mesh.skeleton){
             // Create a new skeleton by cloning the source skeleton
             var clonedSkeleton = cloneSkeleton(mesh);
-
             // take all bones as they come
             const boneArr = clonedSkeleton.bones;
             
