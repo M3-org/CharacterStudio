@@ -440,14 +440,19 @@ export class ScreenshotManager {
 
   _setBackground() {
     if (this.usesBackgroundImage == false && this.sceneBackgroundAlpha != 1){
-      this.scene.background = null;
-      this.scene.add(this.backgroundPlane);
-      this.backgroundPlane.position.copy(this.camera.position);
-      var direction = new THREE.Vector3(0, 0, -1);  // Adjust the direction if needed
-      direction.applyQuaternion(this.camera.quaternion);
-      var distance = 100;  // Adjust the distance as needed
-      this.backgroundPlane.position.addScaledVector(direction, distance);
-      this.backgroundPlane.lookAt(this.camera.position);
+      if (this.sceneBackgroundAlpha == 0){
+        this.scene.background = null;
+      }
+      else{
+        this.scene.background = null;
+        this.scene.add(this.backgroundPlane);
+        this.backgroundPlane.position.copy(this.camera.position);
+        var direction = new THREE.Vector3(0, 0, -1);  // Adjust the direction if needed
+        direction.applyQuaternion(this.camera.quaternion);
+        var distance = 100;  // Adjust the distance as needed
+        this.backgroundPlane.position.addScaledVector(direction, distance);
+        this.backgroundPlane.lookAt(this.camera.position);
+      }
     }
     else{
       this.scene.background = this.sceneBackground;
