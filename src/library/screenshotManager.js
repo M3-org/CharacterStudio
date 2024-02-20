@@ -402,11 +402,13 @@ export class ScreenshotManager {
   }
 
   setBackgroundColor(r,g,b,a){
-    this.sceneBackground = new THREE.Color(r,g,b,a);
+    const color = new THREE.Color(r,g,b,a);
+    this.sceneBackground = color
     if (a == null) a = 1;
     if (a > 1) a = 1;
     if (a < 0) a = 0;
     this.sceneBackgroundAlpha = a;
+    this.backgroundMaterial.color = color;
     this.usesBackgroundImage = false;
   }
 
