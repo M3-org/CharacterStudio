@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { getCameraPosition } from "./utils";
+import { getVectorCameraPosition } from "./utils";
 const localVector3 = new THREE.Vector3();
 
 export class SpriteAtlasGenerator {
@@ -18,9 +18,8 @@ export class SpriteAtlasGenerator {
             assetsLocation = "",
             animationsDirectory = "",
             backgroundColor = [1,1,1,1],
-            topFrameOffsetPixels = 64,
-            bottomFrameOffsetPixels = 64,
-            backgroundDescription ="",
+            topFrameOffset = 0.1,
+            bottomFrameOffset = 0.1,
             pixelStyleSize, 
             atlasWidth = 512,
             atlasHeight = 512,
@@ -35,7 +34,6 @@ export class SpriteAtlasGenerator {
         
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-
         this.screenshotManager._setBonesOffset(0.2);
 
         let counter = 0;
@@ -59,7 +57,7 @@ export class SpriteAtlasGenerator {
                         counter++
                         const saveName = animationName ? animationName : counter.toString().padStart(2, '0');
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, 0);
-                        const vectorCameraPosition = getCameraPosition(cameraPosition);
+                        const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
                         const clipDuration = scope.animationManager.getCurrentClip()?.duration;
                         if (clipDuration){

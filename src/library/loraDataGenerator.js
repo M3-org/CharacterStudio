@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { getCameraPosition, saveTextFile } from "./utils";
+import { getVectorCameraPosition, saveTextFile } from "./utils";
 const localVector3 = new THREE.Vector3();
 
 export class LoraDataGenerator {
@@ -60,7 +60,7 @@ export class LoraDataGenerator {
                         const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, finalAnimationTime);
                         
-                        const vectorCameraPosition = getCameraPosition(cameraPosition);
+                        const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
             
                         // add small delay to avoid skipping saves
