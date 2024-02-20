@@ -84,10 +84,18 @@ export class ScreenshotManager {
     this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
     this.textureLoader = new THREE.TextureLoader();
     this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
+    this.sceneBackgroundAlpha = 1;
     this.frameOffset = {
       min:0.2,
       max:0.2,
     }
+    this.usesBackgroundImage = false;
+
+    this.backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+    const geometry = new THREE.PlaneGeometry(1000, 1000); // Adjust size as needed
+    const plane = new THREE.Mesh(geometry, this.backgroundMaterial);
+    plane.renderOrder = -1
+    this.backgroundPlane = plane;
 
     this.pixelRenderer = new PixelRenderer(scene, this.camera, 20);
 
@@ -110,7 +118,6 @@ export class ScreenshotManager {
     this.camera.position.copy(cameraPosition);
     this.camera.lookAt(lookAtPosition)
     this.camera.fov = fieldOfView;
-    console.log("camera has been set");
   }
 
   _getCharacterMinMax(){
@@ -170,7 +177,6 @@ export class ScreenshotManager {
       // Store the result in the boneOffsets property
       this.boneOffsets[boneName] = result;
     }
-    console.log(this.boneOffsets);
   }
 
   _getBoneWorldPositionWithOffset(boneName, getMax) {
@@ -386,7 +392,6 @@ export class ScreenshotManager {
    */
   setBackground(background){
     if (Array.isArray(background)){
-      console.log(background);
       const alpha = background[3] == null ? 1 : background[3];
 
       this.setBackgroundColor(background[0],background[1],background[2],alpha)
@@ -398,7 +403,11 @@ export class ScreenshotManager {
 
   setBackgroundColor(r,g,b,a){
     this.sceneBackground = new THREE.Color(r,g,b,a);
-    console.log(this.sceneBackground);
+    if (a == null) a = 1;
+    if (a > 1) a = 1;
+    if (a < 0) a = 0;
+    this.sceneBackgroundAlpha = a;
+    this.usesBackgroundImage = false;
   }
 
   setBackgroundImage(url){
@@ -408,6 +417,8 @@ export class ScreenshotManager {
         if (backgroundTexture){
           backgroundTexture.wrapS = backgroundTexture.wrapT = THREE.RepeatWrapping;
           this.sceneBackground = backgroundTexture;
+          this.usesBackgroundImage = true;
+          this.sceneBackgroundAlpha = 1;
           resolve();
         }
       }
@@ -416,6 +427,28 @@ export class ScreenshotManager {
         reject(error)
       }
     });
+  }
+
+  _setBackground() {
+    if (this.usesBackgroundImage == false && this.sceneBackgroundAlpha != 1){
+      this.scene.background = null;
+      this.scene.add(this.backgroundPlane);
+      this.backgroundPlane.position.copy(this.camera.position);
+      var direction = new THREE.Vector3(0, 0, -1);  // Adjust the direction if needed
+      direction.applyQuaternion(this.camera.quaternion);
+      var distance = 100;  // Adjust the distance as needed
+      this.backgroundPlane.position.addScaledVector(direction, distance);
+      this.backgroundPlane.lookAt(this.camera.position);
+    }
+    else{
+      this.scene.background = this.sceneBackground;
+    }
+  }
+  _restoreBackground(){
+    this.scene.background = null;
+    if (this.usesBackgroundImage == false && this.sceneBackgroundAlpha != 1){
+      this.scene.remove(this.backgroundPlane);
+    }
   }
 
   _createImage(width, height, pixelStyle = false){
@@ -427,16 +460,11 @@ export class ScreenshotManager {
     this.camera.updateProjectionMatrix();
     const renderer = pixelStyle ? this.pixelRenderer : this.renderer;
     try {
-      console.log(this.scene);
-      this.scene.background = this.sceneBackground;
-      // console.log(this.scene.background);
-
-      // console.log("HARDCODED TRANSPARENT COLOR FOR NOW");
-      // this.scene.background = null;
-
+      
+      this._setBackground();
       renderer.render(this.scene, this.camera);
       let imgData = renderer.domElement.toDataURL(strMime);
-      this.scene.background = null;
+      this._restoreBackground();
       return  imgData
     } catch (e) {
       console.error(e);
