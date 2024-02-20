@@ -18,6 +18,7 @@ export class SpriteAtlasGenerator {
             assetsLocation = "",
             animationsDirectory = "",
             backgroundColor = [1,1,1,1],
+            screenshotOffset,
             topFrameOffset = 0.1,
             bottomFrameOffset = 0.1,
             pixelStyleSize, 
@@ -29,9 +30,9 @@ export class SpriteAtlasGenerator {
         // const normalizedTopOffset = topFrameOffsetPixels/height;
         // const normalizedBottomOffset = bottomFrameOffsetPixels/height;
         const delay = ms => new Promise(res => setTimeout(res, ms));
-
         
-        
+        this.screenshotManager.setBottomFrameOffset(bottomFrameOffset);
+        this.screenshotManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
         this.screenshotManager._setBonesOffset(0.2);

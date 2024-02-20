@@ -169,6 +169,13 @@ export class ScreenshotManager {
     this.positionCameraBetweenPoints(min,max,cameraPosition)
   }
 
+  setBottomFrameOffset(min){
+    this.frameOffset.min = min;
+  }
+  setTopFrameOffset(max){
+    this.frameOffset.max = max;
+  }
+
 
   _setBonesOffset(minWeight){
     for (const boneName in this.boneOffsets) {
