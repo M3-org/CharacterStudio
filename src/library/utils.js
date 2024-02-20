@@ -468,7 +468,7 @@ export const saveTextFile = (textContent, filename) => {
   document.body.removeChild(link);
 }
 
-export const getCameraPosition = (cameraPosition) => {
+export const getVectorCameraPosition = (cameraPosition) => {
 
   let x,y,z = 0
   if (Array.isArray(cameraPosition)){
