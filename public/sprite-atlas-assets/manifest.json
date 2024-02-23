@@ -4,17 +4,50 @@
     "backgroundColor":[0,0,0,0],
     "atlasWidth":128,
     "atlasHeight":128,
-    "topFrameOffsetPixels":64,
-    "bottomFrameOffsetPixels":64,
-    "pixelStyleSize":1,
+    "screenshotOffset":[-1,0.5],
+    "topFrameOffset":0,
+    "bottomFrameOffset":0,
+    "pixelStyleSize":2,
     "spritesCollection":[
         {
             "animationName":"Waving",
             "animationPath":"Waving.fbx",
-            "framesNumber":16,
+            "framesNumber":8,
             "expression":"happy",
             "cameraPosition":"front",
             "cameraFrame":"mediumShot"
+        },
+        {
+            "animationName":"Walking_left",
+            "animationPath":"Walking.fbx",
+            "framesNumber":8,
+            "expression":"happy",
+            "cameraPosition":"left",
+            "cameraFrame":"fullshot"
+        },
+        {
+            "animationName":"Walking_right",
+            "animationPath":"Walking.fbx",
+            "framesNumber":8,
+            "expression":"happy",
+            "cameraPosition":"right",
+            "cameraFrame":"fullshot"
+        },
+        {
+            "animationName":"Walking_front",
+            "animationPath":"Walking.fbx",
+            "framesNumber":8,
+            "expression":"happy",
+            "cameraPosition":"front",
+            "cameraFrame":"fullshot"
+        },
+        {
+            "animationName":"Walking_back",
+            "animationPath":"Walking.fbx",
+            "framesNumber":8,
+            "expression":"happy",
+            "cameraPosition":"back",
+            "cameraFrame":"fullshot"
         }
     ]
 }
