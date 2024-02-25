@@ -110,14 +110,14 @@ function lerp(t, min, max, newMin, newMax) {
   return newMin + progress * (newMax - newMin);
 }
 
-export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false }) => {
+export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false, twoSidedMaterial = false }) => {
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
   if (isNode) {
     return await createTextureAtlasNode({ meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
   } else {
-    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
+    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial });
     //return await createTextureAtlasBrowser({ meshes, atlasSize });
   }
 };
@@ -237,7 +237,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
   return { bakeObjects, textures, uvs };
 };
 
-export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture }) => {
+export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
   // make sure to reset texture renderer container
   ResetRenderTextureContainer();
 
@@ -415,7 +415,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       })
     )
   );
-
+  const side = twoSidedMaterial ? THREE.DoubleSide : THREE.FrontSide;
   let material;
   const materialPostName = transparentMaterial ? "transparent":"opaque"
   if (mtoon){
@@ -423,7 +423,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     // save material as standard material
     material = new THREE.MeshStandardMaterial({
       map: textures["diffuse"],
-      transparent: transparentMaterial
+      transparent: transparentMaterial,
+      side: side,
     });
 
     // make sure to avoid in transparent material alphatest
@@ -433,7 +434,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     if (vrmMaterial == null){
       vrmMaterial = new MToonMaterial();
     }
-
+    vrmMaterial.side = side;
     vrmMaterial.uniforms.map = textures["diffuse"];
     vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
     vrmMaterial.transparent = transparentMaterial;
@@ -455,7 +456,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       roughnessMap: textures["orm"],
       metalnessMap:  textures["orm"],
       normalMap: textures["normal"],
-      transparent: transparentMaterial
+      transparent: transparentMaterial,
+      side:side
     });
 
     // make sure to avoid in transparent material alphatest

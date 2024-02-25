@@ -508,6 +508,7 @@ export async function combine(avatar, options) {
         exportStdAtlas = true,
         isVrm0 = false,
         scale = 1,
+        twoSidedMaterial = false,
     } = options;
 
     // convert meshes to skinned meshes first
@@ -559,7 +560,7 @@ export async function combine(avatar, options) {
         if (arr.length > 0)
         {        
             const { bakeObjects, material } = 
-                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency});
+                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency, twoSidedMaterial:twoSidedMaterial});
                 const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
 
             const skinnedMeshes = [];

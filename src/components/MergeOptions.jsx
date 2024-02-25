@@ -13,6 +13,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
   const [atlasMtoon, setAtlasMtoon] = useState(local["mergeOptions_atlas_mtoon_size"] || 6);
   const [atlasMtoonTransp, setAtlasMtoonTransp] = useState(local["mergeOptions_atlas_mtoon_transp_size"] || 6);
   const [currentOption, setCurrentOption] = useState(local["mergeOptions_sel_option"] || 0);
+  const [twoSidedMaterial, setTwoSidedMaterial] = useState(local["mergeOptions_two_sided_mat"] || false);
   const [options] = useState(["Merge to Standard", "Merge to MToon", "Keep Both"])
 
   // optimizer
@@ -25,6 +26,11 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
   const handleDropDownloadEnable = (event) => {
     setDownloadOnDrop(event.target.checked);
     local["mergeOptions_drop_download"] = event.target.checked;
+  }
+
+  const handleTwoSidedMaterialEnable = (event) => {
+    setTwoSidedMaterial(event.target.checked);
+    local["mergeOptions_two_sided_mat"] = event.target.checked;
   }
 
   const handleKtxCompressionEnable = (event) => {
@@ -179,9 +185,29 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
             Transparent: {getAtlasSize(atlasMtoonTransp) + " x " + getAtlasSize(atlasMtoonTransp)}
         </div>
           <Slider value = {atlasMtoonTransp} onChange={(value) => handleChangeAtlasSize(value, 'mtoon transparent')} min={1} max={8} step={1}/>
-          <br/> <br/> <br/>
+          <br/> <br/>
           </>
         )}
+        <div className={styles["traitInfoTitle"]}>
+                Two Sided Material
+            </div>
+            <div className={styles["traitInfoText"]}>
+              <div className={styles["checkboxHolder"]}>
+                <div>
+                  </div>
+                  
+                  <label className={styles["custom-checkbox"]}>
+                      <input 
+                          type="checkbox" 
+                          checked={twoSidedMaterial}
+                          onChange={handleTwoSidedMaterialEnable}
+                      />
+                      <div className={styles["checkbox-container"]}></div>
+                  </label>
+                  <div/><div/>
+                  {twoSidedMaterial ? "True": "False"}
+              </div>
+            </div>
         {showDropToDownload && (
           <>
           <div className={styles["traitInfoTitle"]}>
@@ -228,6 +254,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
                   {ktxCompression ? "True": "False"}
               </div>
             </div>
+            
         </>
         </>)}
       </div>
