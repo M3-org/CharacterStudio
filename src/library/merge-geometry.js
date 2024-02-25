@@ -5,84 +5,81 @@ import { findChildrenByType, getMeshesSortedByMaterialArray } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
 import { BufferAttribute } from "three";
 
-// previous method, it doesnt consider added bones (upper chest), might come back to it when 
-// animations work with vrm animations instead of bone renaming
-// export function cloneSkeleton(skinnedMesh) {
-//     const boneClones = new Map();
-//     for (const bone of skinnedMesh.skeleton.bones) {
-//         const clone = bone.clone(false);
-//         // clone.position.x *= -1;
-//         // clone.position.z *= -1;
-//         boneClones.set(bone, clone);
-//     }
-//     // Preserve original bone structure
-//     // Assume bones[0] is root bone
-//     skinnedMesh.skeleton.bones[0].traverse((o) => {
-//         if (o.type !== "Bone")
-//             return;
-            
-//         const clone = boneClones.get(o);
-//         for (const child of o.children) {
-//             const ch = boneClones.get(child);
-//             if (ch)clone.add(ch);
-//         }
-//     });
-//     const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
-//     newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
-//     newSkeleton.pose();
-//     return newSkeleton;
-// }
-
 export function cloneSkeleton(skinnedMesh) {
     const boneClones = new Map();
-    skinnedMesh.skeleton.pose();
-    skinnedMesh.skeleton.bones[0].traverse((o) =>{
-        if (o.type === "Bone"){
-            const clone = o.clone(false);
-            // clone.position.x *= -1;
-            // clone.position.z *= -1; 
-            boneClones.set(o, clone);
-        }
-    });
-
-
+    for (const bone of skinnedMesh.skeleton.bones) {
+        const clone = bone.clone(false);
+        boneClones.set(bone, clone);
+    }
     // Preserve original bone structure
     // Assume bones[0] is root bone
-
-    const skeletonBonesUpdated = [];
-    const skeletonBonesInverses = [];
-
     skinnedMesh.skeleton.bones[0].traverse((o) => {
-        if (o.type !== "Bone") return;
-
-        skeletonBonesUpdated.push(o); 
-
-        // Calculate inverse bind matrix and store it in the array
-        const inverseBindMatrix = new THREE.Matrix4();
-        const parentWorldInverse = new THREE.Matrix4();
-
-        if (o.parent) {
-            o.parent.updateMatrixWorld(true);
-            parentWorldInverse.copy( o.parent.matrixWorld ).invert();
-            inverseBindMatrix.multiplyMatrices(o.matrixWorld, parentWorldInverse);
-        }
-
-        skeletonBonesInverses.push(inverseBindMatrix);
-
+        if (o.type !== "Bone")
+            return;
+            
         const clone = boneClones.get(o);
-
         for (const child of o.children) {
             const ch = boneClones.get(child);
-            if (ch) {
-                clone.add(ch);
-            }
+            if (ch)clone.add(ch);
         }
     });
-    const newSkeleton = new THREE.Skeleton(skeletonBonesUpdated.map((b) => boneClones.get(b)));
-    //newSkeleton.boneInverses = skeletonBonesInverses;
+    const newSkeleton = new THREE.Skeleton(skinnedMesh.skeleton.bones.map((b) => boneClones.get(b)));
+    newSkeleton.boneInverses = skinnedMesh.skeleton.boneInverses;
     newSkeleton.pose();
     return newSkeleton;
 }
+
+// previous attempt to clone skeleton
+// export function cloneSkeleton(skinnedMesh) {
+//     const boneClones = new Map();
+//     skinnedMesh.skeleton.pose();
+//     skinnedMesh.skeleton.bones[0].traverse((o) =>{
+//         if (o.type === "Bone"){
+//             const clone = o.clone(false);
+//             // clone.position.x *= -1;
+//             // clone.position.z *= -1; 
+//             boneClones.set(o, clone);
+//         }
+//     });
+
+
+//     // Preserve original bone structure
+//     // Assume bones[0] is root bone
+
+//     const skeletonBonesUpdated = [];
+//     const skeletonBonesInverses = [];
+
+//     skinnedMesh.skeleton.bones[0].traverse((o) => {
+//         if (o.type !== "Bone") return;
+
+//         skeletonBonesUpdated.push(o); 
+
+//         // Calculate inverse bind matrix and store it in the array
+//         const inverseBindMatrix = new THREE.Matrix4();
+//         const parentWorldInverse = new THREE.Matrix4();
+
+//         if (o.parent) {
+//             o.parent.updateMatrixWorld(true);
+//             parentWorldInverse.copy( o.parent.matrixWorld ).invert();
+//             inverseBindMatrix.multiplyMatrices(o.matrixWorld, parentWorldInverse);
+//         }
+
+//         skeletonBonesInverses.push(inverseBindMatrix);
+
+//         const clone = boneClones.get(o);
+
+//         for (const child of o.children) {
+//             const ch = boneClones.get(child);
+//             if (ch) {
+//                 clone.add(ch);
+//             }
+//         }
+//     });
+//     const newSkeleton = new THREE.Skeleton(skeletonBonesUpdated.map((b) => boneClones.get(b)));
+//     //newSkeleton.boneInverses = skeletonBonesInverses;
+//     newSkeleton.pose();
+//     return newSkeleton;
+// }
 
 function changeBoneHandedness(bone) {
     console.log("isvrm0")
