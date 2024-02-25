@@ -381,6 +381,10 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     if (uv) {
       for (let i = 0; i < geometry.attributes.uv.array.length; i += 2) {
+        uv.array[i] = (uv.array[i] % 1 + 1) % 1;
+        uv.array[i + 1] = (uv.array[i + 1] % 1 + 1) % 1;
+
+        // Apply lerp using the adjusted UV values
         uv.array[i] = lerp(uv.array[i], 0, 1, min.x, max.x);
         uv.array[i + 1] = lerp(uv.array[i + 1], 0, 1, min.y, max.y);
       }
@@ -391,6 +395,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     const uv2 = geometry.attributes.uv2;
     if (uv2) {
       for (let i = 0; i < uv2.array.length; i += 2) {
+        uv2.array[i] = (uv2.array[i] % 1 + 1) % 1;
+        uv2.array[i + 1] = (uv2.array[i + 1] % 1 + 1) % 1;
+
         uv2.array[i] = lerp(uv2.array[i], 0, 1, min.x, max.x);
         uv2.array[i + 1] = lerp(uv2.array[i + 1], 0, 1, min.y, max.y);
       }
