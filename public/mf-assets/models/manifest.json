@@ -1,0 +1,1024 @@
+{
+  "assetsLocation": "./mf-assets/",
+  "format": "vrm",
+  "traitsDirectory": "./models/",
+  "thumbnailsDirectory": "./models/",
+  "exportScale": 1,
+  "animationPath": [
+    "./animations/2_Idle.fbx",
+    "./animations/0_A-Pose.fbx",
+    "./animations/1_T-Pose.fbx",
+    "./animations/3_Walking.fbx",
+    "./animations/4_Waving.fbx"
+  ],
+  "traitIconsDirectorySvg": "./mf-assets/icons/",
+  "defaultCullingLayer": -1,
+  "defaultCullingDistance": [
+    0.1,
+    0.01
+  ],
+  "initialTraits": [
+    "Body",
+    "Hoodie",
+    "Pants",
+    "Sneakers"
+  ],
+  "offset": [
+    0.0,
+    0.48,
+    0.0
+  ],
+  "traits": [
+    {
+      "trait": "Body",
+      "name": "Body",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "BODY.svg",
+      "cullingLayer": 0,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "hyperbot",
+          "name": "hyperbot",
+          "directory": "Body/hyperbot.vrm",
+          "thumbnail": "Body/t_hyperbot.png",
+          "textureCollection": ""
+        }
+      ]
+    },
+    {
+      "trait": "Hoodie",
+      "name": "Hoodie",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "HOODIE.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Hoodie",
+          "name": "Hoodie",
+          "directory": "Hoodie/Hoodie.vrm",
+          "thumbnail": "Hoodie/t_Hoodie.png",
+          "textureCollection": "Texture Hoodie"
+        }
+      ]
+    },
+    {
+      "trait": "Longsleeve",
+      "name": "Longsleeve",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "LONGSLEEVE.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Longsleeve",
+          "name": "Longsleeve",
+          "directory": "Longsleeve/Longsleeve.vrm",
+          "thumbnail": "Longsleeve/t_Longsleeve.png",
+          "textureCollection": "Texture Longsleeve"
+        }
+      ]
+    },
+    {
+      "trait": "MiniT",
+      "name": "Minit",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "MINIT.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "MiniT",
+          "name": "MiniT",
+          "directory": "MiniT/MiniT.vrm",
+          "thumbnail": "MiniT/t_MiniT.png",
+          "textureCollection": "Texture MiniT"
+        }
+      ]
+    },
+    {
+      "trait": "Pants",
+      "name": "Pants",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "PANTS.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Pants",
+          "name": "Pants",
+          "directory": "Pants/Pants.vrm",
+          "thumbnail": "Pants/t_Pants.png",
+          "textureCollection": "Texture Pants"
+        }
+      ]
+    },
+    {
+      "trait": "Shorts_Long",
+      "name": "Shorts_long",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "SHORTS_LONG.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Shorts_Long",
+          "name": "Shorts Long",
+          "directory": "Shorts_Long/Shorts_Long.vrm",
+          "thumbnail": "Shorts_Long/t_Shorts_Long.png",
+          "textureCollection": "Texture Shorts_Long"
+        }
+      ]
+    },
+    {
+      "trait": "Shorts_Short",
+      "name": "Shorts_short",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "SHORTS_SHORT.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Shorts_Short",
+          "name": "Shorts Short",
+          "directory": "Shorts_Short/Shorts_Short.vrm",
+          "thumbnail": "Shorts_Short/t_Shorts_Short.png",
+          "textureCollection": "Texture Shorts_Short"
+        }
+      ]
+    },
+    {
+      "trait": "Sneakers",
+      "name": "Sneakers",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "SNEAKERS.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Sneakers",
+          "name": "Sneakers",
+          "directory": "Sneakers/Sneakers.vrm",
+          "thumbnail": "Sneakers/t_Sneakers.png",
+          "textureCollection": "Texture Sneakers"
+        }
+      ]
+    },
+    {
+      "trait": "Tanktop",
+      "name": "Tanktop",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TANKTOP.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Tanktop",
+          "name": "Tanktop",
+          "directory": "Tanktop/Tanktop.vrm",
+          "thumbnail": "Tanktop/t_Tanktop.png",
+          "textureCollection": "Texture Tanktop"
+        }
+      ]
+    },
+    {
+      "trait": "Tshirt",
+      "name": "Tshirt",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "TSHIRT.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Tshirt",
+          "name": "Tshirt",
+          "directory": "Tshirt/Tshirt.vrm",
+          "thumbnail": "Tshirt/t_Tshirt.png",
+          "textureCollection": "Texture Tshirt"
+        }
+      ]
+    },
+    {
+      "trait": "Vest",
+      "name": "Vest",
+      "icon": "",
+      "type": "mesh",
+      "iconGradient": "",
+      "iconSvg": "VEST.svg",
+      "cullingLayer": 1,
+      "cameraTarget": {
+        "distance": 3.0,
+        "height": 0.8
+      },
+      "cullingDistance": [
+        0.1,
+        0.01
+      ],
+      "collection": [
+        {
+          "id": "Vest",
+          "name": "Vest",
+          "directory": "Vest/Vest.vrm",
+          "thumbnail": "Vest/t_Vest.png",
+          "textureCollection": "Texture Vest"
+        }
+      ]
+    }
+  ],
+  "textureCollections": [
+    {
+      "trait": "Texture Body",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Body_0",
+          "name": "Body_0",
+          "directory": "Body/hyperbot.png",
+          "thumbnail": "Body/hyperbot.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Hoodie",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Hoodie_0",
+          "name": "Hoodie_0",
+          "directory": "Hoodie/Hoodie_119_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_119_Albedo.png"
+        },
+        {
+          "id": "Hoodie_1",
+          "name": "Hoodie_1",
+          "directory": "Hoodie/Hoodie_114_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_114_Albedo.png"
+        },
+        {
+          "id": "Hoodie_2",
+          "name": "Hoodie_2",
+          "directory": "Hoodie/Hoodie_108_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_108_Albedo.png"
+        },
+        {
+          "id": "Hoodie_3",
+          "name": "Hoodie_3",
+          "directory": "Hoodie/Hoodie_164_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_164_Albedo.png"
+        },
+        {
+          "id": "Hoodie_4",
+          "name": "Hoodie_4",
+          "directory": "Hoodie/Hoodie_106_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_106_Albedo.png"
+        },
+        {
+          "id": "Hoodie_5",
+          "name": "Hoodie_5",
+          "directory": "Hoodie/Hoodie_147_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_147_Albedo.png"
+        },
+        {
+          "id": "Hoodie_6",
+          "name": "Hoodie_6",
+          "directory": "Hoodie/Hoodie_99_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_99_Albedo.png"
+        },
+        {
+          "id": "Hoodie_7",
+          "name": "Hoodie_7",
+          "directory": "Hoodie/Hoodie_154_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_154_Albedo.png"
+        },
+        {
+          "id": "Hoodie_8",
+          "name": "Hoodie_8",
+          "directory": "Hoodie/Hoodie_140_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_140_Albedo.png"
+        },
+        {
+          "id": "Hoodie_9",
+          "name": "Hoodie_9",
+          "directory": "Hoodie/Hoodie_136_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_136_Albedo.png"
+        },
+        {
+          "id": "Hoodie_10",
+          "name": "Hoodie_10",
+          "directory": "Hoodie/Hoodie_97_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_97_Albedo.png"
+        },
+        {
+          "id": "Hoodie_11",
+          "name": "Hoodie_11",
+          "directory": "Hoodie/Hoodie_77_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_77_Albedo.png"
+        },
+        {
+          "id": "Hoodie_12",
+          "name": "Hoodie_12",
+          "directory": "Hoodie/Hoodie_80_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_80_Albedo.png"
+        },
+        {
+          "id": "Hoodie_13",
+          "name": "Hoodie_13",
+          "directory": "Hoodie/Hoodie_100_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_100_Albedo.png"
+        },
+        {
+          "id": "Hoodie_14",
+          "name": "Hoodie_14",
+          "directory": "Hoodie/Hoodie_90_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_90_Albedo.png"
+        },
+        {
+          "id": "Hoodie_15",
+          "name": "Hoodie_15",
+          "directory": "Hoodie/Hoodie_32_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_32_Albedo.png"
+        },
+        {
+          "id": "Hoodie_16",
+          "name": "Hoodie_16",
+          "directory": "Hoodie/Hoodie_24_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_24_Albedo.png"
+        },
+        {
+          "id": "Hoodie_17",
+          "name": "Hoodie_17",
+          "directory": "Hoodie/Hoodie_56_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_56_Albedo.png"
+        },
+        {
+          "id": "Hoodie_18",
+          "name": "Hoodie_18",
+          "directory": "Hoodie/Hoodie_59_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_59_Albedo.png"
+        },
+        {
+          "id": "Hoodie_19",
+          "name": "Hoodie_19",
+          "directory": "Hoodie/Hoodie_96_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_96_Albedo.png"
+        },
+        {
+          "id": "Hoodie_20",
+          "name": "Hoodie_20",
+          "directory": "Hoodie/Hoodie_28_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_28_Albedo.png"
+        },
+        {
+          "id": "Hoodie_21",
+          "name": "Hoodie_21",
+          "directory": "Hoodie/Hoodie_105_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_105_Albedo.png"
+        },
+        {
+          "id": "Hoodie_22",
+          "name": "Hoodie_22",
+          "directory": "Hoodie/Hoodie_64_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_64_Albedo.png"
+        },
+        {
+          "id": "Hoodie_23",
+          "name": "Hoodie_23",
+          "directory": "Hoodie/Hoodie_50_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_50_Albedo.png"
+        },
+        {
+          "id": "Hoodie_24",
+          "name": "Hoodie_24",
+          "directory": "Hoodie/Hoodie_33_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_33_Albedo.png"
+        },
+        {
+          "id": "Hoodie_25",
+          "name": "Hoodie_25",
+          "directory": "Hoodie/Hoodie_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_Albedo.png"
+        },
+        {
+          "id": "Hoodie_26",
+          "name": "Hoodie_26",
+          "directory": "Hoodie/Hoodie_91_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_91_Albedo.png"
+        },
+        {
+          "id": "Hoodie_27",
+          "name": "Hoodie_27",
+          "directory": "Hoodie/Hoodie_51_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_51_Albedo.png"
+        },
+        {
+          "id": "Hoodie_28",
+          "name": "Hoodie_28",
+          "directory": "Hoodie/Hoodie_36_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_36_Albedo.png"
+        },
+        {
+          "id": "Hoodie_29",
+          "name": "Hoodie_29",
+          "directory": "Hoodie/Hoodie_60_Albedo.png",
+          "thumbnail": "Hoodie/Hoodie_60_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Longsleeve",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Longsleeve_0",
+          "name": "Longsleeve_0",
+          "directory": "Longsleeve/Longsleeve_92_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_92_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_1",
+          "name": "Longsleeve_1",
+          "directory": "Longsleeve/Longsleeve_146_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_146_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_2",
+          "name": "Longsleeve_2",
+          "directory": "Longsleeve/Longsleeve_29_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_29_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_3",
+          "name": "Longsleeve_3",
+          "directory": "Longsleeve/Longsleeve_109_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_109_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_4",
+          "name": "Longsleeve_4",
+          "directory": "Longsleeve/Longsleeve_117_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_117_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_5",
+          "name": "Longsleeve_5",
+          "directory": "Longsleeve/Longsleeve_12_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_12_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_6",
+          "name": "Longsleeve_6",
+          "directory": "Longsleeve/Longsleeve_13_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_13_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_7",
+          "name": "Longsleeve_7",
+          "directory": "Longsleeve/Longsleeve_25_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_25_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_8",
+          "name": "Longsleeve_8",
+          "directory": "Longsleeve/Longsleeve_58_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_58_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_9",
+          "name": "Longsleeve_9",
+          "directory": "Longsleeve/Longsleeve_155_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_155_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_10",
+          "name": "Longsleeve_10",
+          "directory": "Longsleeve/Longsleeve_116_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_116_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_11",
+          "name": "Longsleeve_11",
+          "directory": "Longsleeve/Longsleeve_62_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_62_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_12",
+          "name": "Longsleeve_12",
+          "directory": "Longsleeve/Longsleeve_14_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_14_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_13",
+          "name": "Longsleeve_13",
+          "directory": "Longsleeve/Longsleeve_148_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_148_Albedo.png"
+        },
+        {
+          "id": "Longsleeve_14",
+          "name": "Longsleeve_14",
+          "directory": "Longsleeve/Longsleeve_94_Albedo.png",
+          "thumbnail": "Longsleeve/Longsleeve_94_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture MiniT",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "MiniT_0",
+          "name": "MiniT_0",
+          "directory": "MiniT/MiniTshirt_Albedo.png",
+          "thumbnail": "MiniT/MiniTshirt_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Pants",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Pants_0",
+          "name": "Pants_0",
+          "directory": "Pants/Pants_127_Albedo.png",
+          "thumbnail": "Pants/Pants_127_Albedo.png"
+        },
+        {
+          "id": "Pants_1",
+          "name": "Pants_1",
+          "directory": "Pants/Pants_14_Albedo.png",
+          "thumbnail": "Pants/Pants_14_Albedo.png"
+        },
+        {
+          "id": "Pants_2",
+          "name": "Pants_2",
+          "directory": "Pants/Pants_122_Albedo.png",
+          "thumbnail": "Pants/Pants_122_Albedo.png"
+        },
+        {
+          "id": "Pants_3",
+          "name": "Pants_3",
+          "directory": "Pants/Pants_129_Albedo.png",
+          "thumbnail": "Pants/Pants_129_Albedo.png"
+        },
+        {
+          "id": "Pants_4",
+          "name": "Pants_4",
+          "directory": "Pants/Pants_104_Albedo.png",
+          "thumbnail": "Pants/Pants_104_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Shorts_Long",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Shorts_Long_0",
+          "name": "Shorts_Long_0",
+          "directory": "Shorts_Long/Short_2_Albedo.png",
+          "thumbnail": "Shorts_Long/Short_2_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Shorts_Short",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Shorts_Short_0",
+          "name": "Shorts_Short_0",
+          "directory": "Shorts_Short/Shorts_65_Albedo.png",
+          "thumbnail": "Shorts_Short/Shorts_65_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Sneakers",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Sneakers_0",
+          "name": "Sneakers_0",
+          "directory": "Sneakers/Sneakers_47_Albedo.png",
+          "thumbnail": "Sneakers/Sneakers_47_Albedo.png"
+        },
+        {
+          "id": "Sneakers_1",
+          "name": "Sneakers_1",
+          "directory": "Sneakers/Shoes_47_Albedo.png",
+          "thumbnail": "Sneakers/Shoes_47_Albedo.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Tshirt",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Tshirt_0",
+          "name": "Tshirt_0",
+          "directory": "Tshirt/Tshirt_101.png",
+          "thumbnail": "Tshirt/Tshirt_101.png"
+        },
+        {
+          "id": "Tshirt_1",
+          "name": "Tshirt_1",
+          "directory": "Tshirt/Tshirt_38.png",
+          "thumbnail": "Tshirt/Tshirt_38.png"
+        },
+        {
+          "id": "Tshirt_2",
+          "name": "Tshirt_2",
+          "directory": "Tshirt/Tshirt_72.png",
+          "thumbnail": "Tshirt/Tshirt_72.png"
+        },
+        {
+          "id": "Tshirt_3",
+          "name": "Tshirt_3",
+          "directory": "Tshirt/Tshirt_76.png",
+          "thumbnail": "Tshirt/Tshirt_76.png"
+        },
+        {
+          "id": "Tshirt_4",
+          "name": "Tshirt_4",
+          "directory": "Tshirt/Tshirt_63.png",
+          "thumbnail": "Tshirt/Tshirt_63.png"
+        },
+        {
+          "id": "Tshirt_5",
+          "name": "Tshirt_5",
+          "directory": "Tshirt/Tshirt_132.png",
+          "thumbnail": "Tshirt/Tshirt_132.png"
+        },
+        {
+          "id": "Tshirt_6",
+          "name": "Tshirt_6",
+          "directory": "Tshirt/Tshirt_88.png",
+          "thumbnail": "Tshirt/Tshirt_88.png"
+        },
+        {
+          "id": "Tshirt_7",
+          "name": "Tshirt_7",
+          "directory": "Tshirt/Tshirt_124.png",
+          "thumbnail": "Tshirt/Tshirt_124.png"
+        },
+        {
+          "id": "Tshirt_8",
+          "name": "Tshirt_8",
+          "directory": "Tshirt/Tshirt_37.png",
+          "thumbnail": "Tshirt/Tshirt_37.png"
+        },
+        {
+          "id": "Tshirt_9",
+          "name": "Tshirt_9",
+          "directory": "Tshirt/Tshirt_26.png",
+          "thumbnail": "Tshirt/Tshirt_26.png"
+        },
+        {
+          "id": "Tshirt_10",
+          "name": "Tshirt_10",
+          "directory": "Tshirt/Tshirt_55.png",
+          "thumbnail": "Tshirt/Tshirt_55.png"
+        },
+        {
+          "id": "Tshirt_11",
+          "name": "Tshirt_11",
+          "directory": "Tshirt/Tshirt_16.png",
+          "thumbnail": "Tshirt/Tshirt_16.png"
+        },
+        {
+          "id": "Tshirt_12",
+          "name": "Tshirt_12",
+          "directory": "Tshirt/Tshirt_138.png",
+          "thumbnail": "Tshirt/Tshirt_138.png"
+        },
+        {
+          "id": "Tshirt_13",
+          "name": "Tshirt_13",
+          "directory": "Tshirt/Tshirt_49.png",
+          "thumbnail": "Tshirt/Tshirt_49.png"
+        },
+        {
+          "id": "Tshirt_14",
+          "name": "Tshirt_14",
+          "directory": "Tshirt/Tshirt_113.png",
+          "thumbnail": "Tshirt/Tshirt_113.png"
+        },
+        {
+          "id": "Tshirt_15",
+          "name": "Tshirt_15",
+          "directory": "Tshirt/Tshirt_144.png",
+          "thumbnail": "Tshirt/Tshirt_144.png"
+        },
+        {
+          "id": "Tshirt_16",
+          "name": "Tshirt_16",
+          "directory": "Tshirt/Tshirt_121.png",
+          "thumbnail": "Tshirt/Tshirt_121.png"
+        },
+        {
+          "id": "Tshirt_17",
+          "name": "Tshirt_17",
+          "directory": "Tshirt/Tshirt_131.png",
+          "thumbnail": "Tshirt/Tshirt_131.png"
+        },
+        {
+          "id": "Tshirt_18",
+          "name": "Tshirt_18",
+          "directory": "Tshirt/Tshirt_145.png",
+          "thumbnail": "Tshirt/Tshirt_145.png"
+        },
+        {
+          "id": "Tshirt_19",
+          "name": "Tshirt_19",
+          "directory": "Tshirt/Tshirt_145_b1.png",
+          "thumbnail": "Tshirt/Tshirt_145_b1.png"
+        },
+        {
+          "id": "Tshirt_20",
+          "name": "Tshirt_20",
+          "directory": "Tshirt/Tshirt_153.png",
+          "thumbnail": "Tshirt/Tshirt_153.png"
+        },
+        {
+          "id": "Tshirt_21",
+          "name": "Tshirt_21",
+          "directory": "Tshirt/Tshirt_152.png",
+          "thumbnail": "Tshirt/Tshirt_152.png"
+        },
+        {
+          "id": "Tshirt_22",
+          "name": "Tshirt_22",
+          "directory": "Tshirt/Tshirt_69.png",
+          "thumbnail": "Tshirt/Tshirt_69.png"
+        },
+        {
+          "id": "Tshirt_23",
+          "name": "Tshirt_23",
+          "directory": "Tshirt/Tshirt_34.png",
+          "thumbnail": "Tshirt/Tshirt_34.png"
+        },
+        {
+          "id": "Tshirt_24",
+          "name": "Tshirt_24",
+          "directory": "Tshirt/Tshirt_48.png",
+          "thumbnail": "Tshirt/Tshirt_48.png"
+        },
+        {
+          "id": "Tshirt_25",
+          "name": "Tshirt_25",
+          "directory": "Tshirt/Tshirt_130.png",
+          "thumbnail": "Tshirt/Tshirt_130.png"
+        },
+        {
+          "id": "Tshirt_26",
+          "name": "Tshirt_26",
+          "directory": "Tshirt/Tshirt_93.png",
+          "thumbnail": "Tshirt/Tshirt_93.png"
+        },
+        {
+          "id": "Tshirt_27",
+          "name": "Tshirt_27",
+          "directory": "Tshirt/Tshirt_112.png",
+          "thumbnail": "Tshirt/Tshirt_112.png"
+        },
+        {
+          "id": "Tshirt_28",
+          "name": "Tshirt_28",
+          "directory": "Tshirt/Tshirt_111.png",
+          "thumbnail": "Tshirt/Tshirt_111.png"
+        },
+        {
+          "id": "Tshirt_29",
+          "name": "Tshirt_29",
+          "directory": "Tshirt/Tshirt_98.png",
+          "thumbnail": "Tshirt/Tshirt_98.png"
+        },
+        {
+          "id": "Tshirt_30",
+          "name": "Tshirt_30",
+          "directory": "Tshirt/Tshirt_156.png",
+          "thumbnail": "Tshirt/Tshirt_156.png"
+        },
+        {
+          "id": "Tshirt_31",
+          "name": "Tshirt_31",
+          "directory": "Tshirt/Tshirt_141.png",
+          "thumbnail": "Tshirt/Tshirt_141.png"
+        },
+        {
+          "id": "Tshirt_32",
+          "name": "Tshirt_32",
+          "directory": "Tshirt/Tshirt_89.png",
+          "thumbnail": "Tshirt/Tshirt_89.png"
+        },
+        {
+          "id": "Tshirt_33",
+          "name": "Tshirt_33",
+          "directory": "Tshirt/Tshirt_54.png",
+          "thumbnail": "Tshirt/Tshirt_54.png"
+        },
+        {
+          "id": "Tshirt_34",
+          "name": "Tshirt_34",
+          "directory": "Tshirt/Tshirt_159.png",
+          "thumbnail": "Tshirt/Tshirt_159.png"
+        },
+        {
+          "id": "Tshirt_35",
+          "name": "Tshirt_35",
+          "directory": "Tshirt/Tshirt_148.png",
+          "thumbnail": "Tshirt/Tshirt_148.png"
+        },
+        {
+          "id": "Tshirt_36",
+          "name": "Tshirt_36",
+          "directory": "Tshirt/Tshirt_70.png",
+          "thumbnail": "Tshirt/Tshirt_70.png"
+        },
+        {
+          "id": "Tshirt_37",
+          "name": "Tshirt_37",
+          "directory": "Tshirt/Tshirt_145_2.png",
+          "thumbnail": "Tshirt/Tshirt_145_2.png"
+        },
+        {
+          "id": "Tshirt_38",
+          "name": "Tshirt_38",
+          "directory": "Tshirt/Tshirt_120.png",
+          "thumbnail": "Tshirt/Tshirt_120.png"
+        },
+        {
+          "id": "Tshirt_39",
+          "name": "Tshirt_39",
+          "directory": "Tshirt/Tshirt_67.png",
+          "thumbnail": "Tshirt/Tshirt_67.png"
+        },
+        {
+          "id": "Tshirt_40",
+          "name": "Tshirt_40",
+          "directory": "Tshirt/Tshirt_40.png",
+          "thumbnail": "Tshirt/Tshirt_40.png"
+        },
+        {
+          "id": "Tshirt_41",
+          "name": "Tshirt_41",
+          "directory": "Tshirt/Tshirt_78.png",
+          "thumbnail": "Tshirt/Tshirt_78.png"
+        },
+        {
+          "id": "Tshirt_42",
+          "name": "Tshirt_42",
+          "directory": "Tshirt/Tshirt_Hawaii_Albedo.png",
+          "thumbnail": "Tshirt/Tshirt_Hawaii_Albedo.png"
+        },
+        {
+          "id": "Tshirt_43",
+          "name": "Tshirt_43",
+          "directory": "Tshirt/Tshirt_39.png",
+          "thumbnail": "Tshirt/Tshirt_39.png"
+        },
+        {
+          "id": "Tshirt_44",
+          "name": "Tshirt_44",
+          "directory": "Tshirt/Tshirt_95.png",
+          "thumbnail": "Tshirt/Tshirt_95.png"
+        },
+        {
+          "id": "Tshirt_45",
+          "name": "Tshirt_45",
+          "directory": "Tshirt/Tshirt_102.png",
+          "thumbnail": "Tshirt/Tshirt_102.png"
+        },
+        {
+          "id": "Tshirt_46",
+          "name": "Tshirt_46",
+          "directory": "Tshirt/Tshirt_110.png",
+          "thumbnail": "Tshirt/Tshirt_110.png"
+        },
+        {
+          "id": "Tshirt_47",
+          "name": "Tshirt_47",
+          "directory": "Tshirt/Tshirt_139.png",
+          "thumbnail": "Tshirt/Tshirt_139.png"
+        },
+        {
+          "id": "Tshirt_48",
+          "name": "Tshirt_48",
+          "directory": "Tshirt/Tshirt_79.png",
+          "thumbnail": "Tshirt/Tshirt_79.png"
+        }
+      ]
+    },
+    {
+      "trait": "Texture Tanktop",
+      "type": "texture",
+      "collection": [
+        {
+          "id": "Tanktop_0",
+          "name": "Tanktop_0",
+          "directory": "Tanktop/Tanktop_2_Albedo.png",
+          "thumbnail": "Tanktop/Tanktop_2_Albedo.png"
+        },
+        {
+          "id": "Tanktop_1",
+          "name": "Tanktop_1",
+          "directory": "Tanktop/Tanktop_12_Albedo.png",
+          "thumbnail": "Tanktop/Tanktop_12_Albedo.png"
+        }
+      ]
+    }
+  ],
+  "colorCollections": []
+}

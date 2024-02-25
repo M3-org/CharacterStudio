@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Hyperbot",
+    "description": "Hyperfy x MetaFactory",
+    "portrait": "./assets/portraitImages/hyperbot.png",
+    "manifest":"./mf-assets/models/manifest.json",
+    "icon": "./assets/icons/class-neural-hacker.svg",
+    "format": "vrm"
+  }
+]
