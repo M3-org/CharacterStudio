@@ -157,22 +157,6 @@ function Optimizer() {
           className={styles.buttonRight}
           onClick={download}
         />)}
-        {(model != "")&&(
-          <CustomButton
-          theme="light"
-          text="Create Lora"
-          size={14}
-          className={styles.buttonRight}
-          onClick={createLora}
-        />)}
-        {(model != "")&&(
-          <CustomButton
-          theme="light"
-          text="Create Sprite Atlas"
-          size={14}
-          className={styles.buttonRight}
-          onClick={createSpriteAtlas}
-        />)}
         
         
       </div>

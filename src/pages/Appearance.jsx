@@ -409,20 +409,6 @@ function Appearance() {
             onClick={next}
           />
         }
-        <CustomButton
-          theme="light"
-          text={"Create Lora Data"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createLora}
-        />
-        <CustomButton
-          theme="light"
-          text={"Create Sprite Atlas"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createSpriteAtlas}
-        />
 
         
         {/* <CustomButton
