@@ -73,13 +73,12 @@ function BatchDownload() {
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const curVRM = characterManager.getCurrentOptimizerCharacterModel();
-    if (curVRM){
+    const curCharacter = characterManager.getCurrentCharacterModel();
+    if (curCharacter){
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, false, 0, true, "", animName);
-      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
 
       URL.revokeObjectURL(url);
     }
