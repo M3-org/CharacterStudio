@@ -320,6 +320,10 @@ export class AnimationManager{
   }
 
   addVRM(vrm){
+    if (vrm == null){
+      console.error("Non Existing VRM was provided.")
+      return;
+    }
     let animations = null;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
