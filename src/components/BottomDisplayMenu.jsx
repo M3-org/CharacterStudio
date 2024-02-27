@@ -25,6 +25,9 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
   useEffect(()=>{
+    if (loadedAnimationName == null){
+      loadedAnimationName = "None";
+    }
     if (loadedAnimationName != ""){
       setAnimationName(loadedAnimationName);
     }
@@ -129,14 +132,16 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
 
 
           <div className={styles["flexButtons"]}>
-            <div 
+            {randomize &&
+              <div 
                 className={`${styles["optionButtons"]}`}
                 onClick={randomize}
-            >
-              <img 
-                  src={randomizeIcon}
-              /> 
-            </div>
+              >
+                <img 
+                    src={randomizeIcon}
+                /> 
+              </div>
+            }
             <div 
                 className={`${styles["optionButtons"]}`}
                 onClick={handleMouseLookEnable}
