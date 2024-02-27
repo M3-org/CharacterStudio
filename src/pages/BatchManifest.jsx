@@ -218,7 +218,7 @@ function BatchManifest() {
         model={model}
       />
       <JsonAttributes jsonSelectionArray={manifestSelectionArray} byManifest={true}/>
-      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
+      {(manifestSelectionArray?.length > 0) && (<BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>)}
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
