@@ -26,7 +26,7 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
 
   useEffect(()=>{
     if (loadedAnimationName == null){
-      loadedAnimationName = "None";
+      loadedAnimationName = "T-Pose";
     }
     if (loadedAnimationName != ""){
       setAnimationName(loadedAnimationName);

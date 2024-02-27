@@ -7,6 +7,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
@@ -18,12 +19,14 @@ import { local } from "../library/store"
 function BatchDownload() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    toggleDebugMode,
     characterManager,
     animationManager
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -34,7 +37,8 @@ function BatchDownload() {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
-    setViewMode(ViewMode.LANDING)
+    toggleDebugMode(false);
+    setViewMode(ViewMode.LANDING);
   }
 
   const getOptions = () =>{
@@ -79,6 +83,7 @@ function BatchDownload() {
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, false, 0, true, "", animName);
+      setLoadedAnimationName(animationManager.getCurrentAnimationName());
 
       URL.revokeObjectURL(url);
     }
@@ -182,6 +187,7 @@ function BatchDownload() {
         model={model}
       />
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
