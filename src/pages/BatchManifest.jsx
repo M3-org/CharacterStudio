@@ -7,6 +7,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
@@ -22,7 +23,6 @@ function BatchManifest() {
     characterManager,
     animationManager,
     toggleDebugMode,
-    debugMode
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -33,6 +33,7 @@ function BatchManifest() {
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [manifestSelectionArray, setManifestSelectionArray] = React.useState(null)
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -107,6 +108,7 @@ function BatchManifest() {
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url,false,0, true, "", animName);
+      setLoadedAnimationName(animationManager.getCurrentAnimationName());
 
       URL.revokeObjectURL(url);
     }
@@ -196,10 +198,6 @@ function BatchManifest() {
       handleJsonDrop(files);
     } 
   };
-
-  const clickDebugMode = ()=>{
-    toggleDebugMode();
-  }
   
 
   return (
@@ -220,6 +218,7 @@ function BatchManifest() {
         model={model}
       />
       <JsonAttributes jsonSelectionArray={manifestSelectionArray} byManifest={true}/>
+      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
@@ -228,13 +227,7 @@ function BatchManifest() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <CustomButton
-          theme="light"
-          text={debugMode ? "normal" : "debug"}
-          size={14}
-          className={styles.buttonCenter}
-          onClick={clickDebugMode}
-        />
+        
         {(manifestSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"
