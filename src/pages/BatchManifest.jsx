@@ -38,6 +38,7 @@ function BatchManifest() {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
+    toggleDebugMode(false);
     setViewMode(ViewMode.LANDING)
   }
 
