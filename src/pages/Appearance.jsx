@@ -28,6 +28,7 @@ function Appearance() {
     moveCamera,
     loraDataGenerator,
     spriteAtlasGenerator,
+    thumbnailsGenerator,
     sceneElements
   } = React.useContext(SceneContext)
   
@@ -102,6 +103,13 @@ function Appearance() {
     const parentScene = sceneElements.parent;
     parentScene.remove(sceneElements);
     await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
+    parentScene.add(sceneElements);
+  }
+
+  const createThumbnails = async () =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await thumbnailsGenerator.createThumbnails('./thumbnail-assets/manifest.json');
     parentScene.add(sceneElements);
   }
 
@@ -411,17 +419,24 @@ function Appearance() {
         }
         <CustomButton
           theme="light"
-          text={"Create Lora Data"}
+          text={"Lora Data"}
           size={14}
           className={styles.buttonRight}
           onClick={createLora}
         />
         <CustomButton
           theme="light"
-          text={"Create Sprite Atlas"}
+          text={"Sprite Atlas"}
           size={14}
           className={styles.buttonRight}
           onClick={createSpriteAtlas}
+        />
+        <CustomButton
+          theme="light"
+          text={"Thumbnails"}
+          size={14}
+          className={styles.buttonRight}
+          onClick={createThumbnails}
         />
 
         

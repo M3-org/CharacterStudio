@@ -24,6 +24,8 @@ class AnimationControl {
     this.animationManager = animationManager;
     this.mixamoModel = null;
 
+    console.log("poseStart", poseStart)
+
     this.fadeOutActions = null;
     this.newAnimationWeight = 1;
 
@@ -66,6 +68,7 @@ class AnimationControl {
   }
 
   setAnimations(animations, mixamoModel=null, mouseLookEnabled = null, quickChange = false){
+    console.log("quickchange", quickChange);
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
     //this.mixer.stopAllAction();
@@ -167,6 +170,10 @@ class AnimationControl {
     this.mixer.setTime(time);
   }
 
+  getTime(){
+    return this.mixer.time;
+  }
+
   dispose(){
     this.animationManager.disposeAnimation(this);
     //console.log("todo dispose animation control")
@@ -260,6 +267,10 @@ export class AnimationManager{
       
   }
 
+  getCurrentClipDuration(){
+    return this.currentClip ? this.currentClip.duration : 0;
+  }
+
   getCurrentAnimationName(){
     return this.currentAnimationName;
   }
@@ -333,7 +344,8 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
+    console.log("is paused", this.isPaused());
+    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID, this.isPaused())
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
@@ -342,6 +354,16 @@ export class AnimationManager{
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
+
+    this.update(true);
+    //animationControl.setTime(this.mainControl.getTime());
+    //this.set
+    // this.animationControls.forEach(animationControl => {
+    //   animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
+    // });
+    // this.setTime(poseTime);
+    // if(isPose)this.pause();
+    // else this.play();
   }
 
   removeVRM(vrmToRemove) {
@@ -407,6 +429,7 @@ export class AnimationManager{
   }
 
   pause(){
+    console.log("PAUSED");
     this.paused = true;
   }
 
@@ -423,6 +446,9 @@ export class AnimationManager{
       });
     }
   }
+  setFrame(frame){
+    this.setTime(frame * 30);
+  }
   setSpeed(speed){
     if (this.mainControl){
       this.animationControls.forEach(animControl => {
@@ -431,8 +457,8 @@ export class AnimationManager{
     }
   }
 
-  update(){
-    if (this.mainControl && !this.paused) {
+  update(force=false){
+    if ((this.mainControl && !this.paused)||force) {
       this.animationControls.forEach(animControl => {
         animControl.update(this.weightIn,this.weightOut);
       });

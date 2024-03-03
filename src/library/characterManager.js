@@ -492,10 +492,11 @@ export class CharacterManager {
      *
      * @param {string} groupTraitID - The ID of the trait group.
      * @param {string} traitID - The ID of the specific trait.
+     * @param {boolean} soloView - Should character display only new loaded trait?.
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTrait(groupTraitID, traitID) {
+    loadTrait(groupTraitID, traitID, soloView = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
@@ -505,7 +506,7 @@ export class CharacterManager {
 
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
-              await this._loadTraits(getAsArray(selectedTrait));
+              await this._loadTraits(getAsArray(selectedTrait),soloView);
               resolve();
             }
           } catch (error) {
