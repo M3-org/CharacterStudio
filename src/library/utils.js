@@ -458,6 +458,62 @@ export const disposeMaterial = (material) =>{
   }
 }
 
+export const saveTextFile = (textContent, filename) => {
+  const blob = new Blob([textContent], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename + ".txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export const getVectorCameraPosition = (cameraPosition) => {
+
+  let x,y,z = 0
+  if (Array.isArray(cameraPosition)){
+      x = cameraPosition[0]||0;
+      y = cameraPosition[1]||0;
+      z = cameraPosition[2]||0;
+      
+  }
+  else if (typeof cameraPosition === 'string' || cameraPosition instanceof String){
+      
+      const positionString = cameraPosition.split('-');
+      positionString.forEach(pos => {
+          pos = pos.toLowerCase();
+          switch (pos){
+              case "left":
+                  x = -1
+                  break;
+              case "right":
+                  x = 1
+                  break;
+              case "bottom":
+              case "down":
+                  y = -1
+                  break;
+              case "top":
+              case "up":
+                  y = 1
+                  break;
+              case "back":
+              case "backward":
+                  z = -1
+                  break;
+              case "front":
+              case "forward":
+                  z = 1
+                  break;
+              default:
+                  console.warn("unkown cameraPosition name: " + pos + " in: " + cameraPosition +". Please use left, right, bottom, top, back or front")
+                  break;
+          }
+      });
+  }
+  return new THREE.Vector3(x,y,z);
+}
+
 export const createBoneDirection = (skinMesh) => {
   const geometry = skinMesh.geometry;
 
@@ -569,7 +625,8 @@ export const createBoneDirection = (skinMesh) => {
 };
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
-  // if user didnt define upprChest bone just make sure its not included
+
+  // // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
     // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
@@ -580,12 +637,13 @@ export const renameVRMBones = (vrm) => {
       }
       // if its the case, reassign bones
       else{
-        bones['upperChest'] = {node:bones['neck'].node.parent}
-        bones['chest'] = {node:bones['neck'].node.parent.parent}
+        if (bones['upperChest'] != null ){
+          bones['upperChest'] = {node:bones['neck'].node.parent}
+          bones['chest'] = {node:bones['neck'].node.parent.parent}
+        }
       }
     }
   }
-
   // same ase before, left and right shoulder are optional vrm bones, make sure that if they are missing they are not included
   if (bones ['leftShoulder'] == null){
     if (bones['leftUpperArm'].node.parent != bones['chest']?.node && 
@@ -608,25 +666,56 @@ export const renameVRMBones = (vrm) => {
       bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
     }
   }
-  
+  // fix for when user set the root bone as hips bone instead of hips
+  // if (bones["spine"].node.parent != bones["hips"].node){
+  //   bones["hips"] = {node:bones['spine'].node.parent}
+  // }
+  // if (bones["hips"].node.parent != vrm.scene){
+  //   vrm.scene.add(bones["hips"].node);
+  //   console.log(bones["hips"].node);
+  //   // = vrm.scene;
+  // }
+
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
-    
     if (bones[boneName]?.node){
       bones[boneName].node.name = boneName;
     }
     else{
-      bones[boneName] = {
-        node:new THREE.Bone()
-      }
-      bones[boneName].node.name = boneName;
+      // bones[boneName] = {
+      //   node:new THREE.Bone()
+      // }
+      // bones[boneName].node.name = boneName;
+      // const parentBoneName = VRMHumanBoneParentMap[boneName]
+      // if (parentBoneName){
+      //   console.log("adds" +  boneName);
+      //   // add instead of attach, so new node has the same position as parent
+      //   bones[parentBoneName].node.add(bones[boneName].node)
+      // }
     }
   }
-  for (const boneName in bones) {
-    const parentBoneName = VRMHumanBoneParentMap[boneName]
-    if (parentBoneName)
-      bones[parentBoneName].node.add(bones[boneName].node)
-  }
+
+  // for (const boneName in bones) {
+  //   const parentBoneName = VRMHumanBoneParentMap[boneName]
+  //   if (parentBoneName && bones[boneName].node.parent != bones[parentBoneName].node){
+  //     bones[parentBoneName].node.attach(bones[boneName].node)
+  //   }
+  // }
+  
+  // const bonesArr = [];
+  // for (const b in bones){
+  //   bonesArr.push(bones[b].node);
+  // }
+  // const newSkeleton = new THREE.Skeleton(bonesArr);
+
+  // console.log(newSkeleton);
+  // vrm.scene.traverse((c)=>{
+  //   if (c.isSkinnedMesh){
+  //     const origSkeleton = c.skeleton;
+  //     c.skeleton  = new THREE.Skeleton(origSkeleton.bones);
+  //   }
+  // })
+
 };
 
 export function findChild({ candidates, predicate }) {

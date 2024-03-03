@@ -26,7 +26,9 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
-    debugMode
+    loraDataGenerator,
+    spriteAtlasGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
 
@@ -82,15 +84,25 @@ function Appearance() {
     characterManager.setTraitColor(traitGroupName, color.hex);
   } 
 
-  const clickDebugMode = () =>{
-    toggleDebugMode()
-  }
-
   const handleAnimationDrop = async (file) => {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
-    await animationManager.loadAnimation(path, true, "", animName);
+    await animationManager.loadAnimation(path,false,0, true, "", animName);
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
+  }
+
+  const createLora = async() =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
+    parentScene.add(sceneElements);
+  }
+
+  const createSpriteAtlas = async () =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
+    parentScene.add(sceneElements);
   }
 
   const handleImageDrop = (file) => {
@@ -386,6 +398,7 @@ function Appearance() {
           className={styles.buttonLeft}
           onClick={back}
         />
+
         {
         characterManager.canDownload() &&
           <CustomButton
@@ -398,6 +411,22 @@ function Appearance() {
         }
         <CustomButton
           theme="light"
+          text={"Create Lora Data"}
+          size={14}
+          className={styles.buttonRight}
+          onClick={createLora}
+        />
+        <CustomButton
+          theme="light"
+          text={"Create Sprite Atlas"}
+          size={14}
+          className={styles.buttonRight}
+          onClick={createSpriteAtlas}
+        />
+
+        
+        {/* <CustomButton
+          theme="light"
           text={t('callToAction.randomize')}
           size={14}
           className={styles.buttonCenter}
@@ -409,7 +438,7 @@ function Appearance() {
           size={14}
           className={styles.buttonCenter}
           onClick={clickDebugMode}
-        />
+        /> */}
       </div>
     </div>
   )

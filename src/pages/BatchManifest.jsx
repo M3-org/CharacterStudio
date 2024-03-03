@@ -7,6 +7,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
@@ -22,7 +23,6 @@ function BatchManifest() {
     characterManager,
     animationManager,
     toggleDebugMode,
-    debugMode
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -33,11 +33,13 @@ function BatchManifest() {
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [manifestSelectionArray, setManifestSelectionArray] = React.useState(null)
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const back = () => {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
+    toggleDebugMode(false);
     setViewMode(ViewMode.LANDING)
   }
 
@@ -52,14 +54,17 @@ function BatchManifest() {
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      ktxCompression: (local["merge_options_ktx_compression"] || false)
+      ktxCompression: (local["merge_options_ktx_compression"] || false),
+      twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
   const downloadVRMWithIndex= async(index, onlyImage = false)=>{
     await characterManager.setManifest(manifestSelectionArray[index]);
     const downloadName = manifestSelectionArray[index].manifestName;
     setIsLoading(true);
-    characterManager.loadInitialTraits().then(()=>{
+    characterManager.loadInitialTraits().then(async()=>{
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      await delay(1);
         characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
         if (onlyImage){
           if (index < manifestSelectionArray.length-1 ){
@@ -97,13 +102,13 @@ function BatchManifest() {
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const curVRM = characterManager.getCurrentOptimizerCharacterModel();
-    if (curVRM){
+    const curCharacter = characterManager.getCurrentCharacterModel();
+    if (curCharacter){
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
-      await animationManager.loadAnimation(url, true, "", animName);
-      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
+      await animationManager.loadAnimation(url,false,0, true, "", animName);
+      setLoadedAnimationName(animationManager.getCurrentAnimationName());
 
       URL.revokeObjectURL(url);
     }
@@ -193,10 +198,6 @@ function BatchManifest() {
       handleJsonDrop(files);
     } 
   };
-
-  const clickDebugMode = ()=>{
-    toggleDebugMode();
-  }
   
 
   return (
@@ -217,6 +218,7 @@ function BatchManifest() {
         model={model}
       />
       <JsonAttributes jsonSelectionArray={manifestSelectionArray} byManifest={true}/>
+      {(manifestSelectionArray?.length > 0) && (<BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>)}
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
@@ -225,13 +227,7 @@ function BatchManifest() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        <CustomButton
-          theme="light"
-          text={debugMode ? "normal" : "debug"}
-          size={14}
-          className={styles.buttonCenter}
-          onClick={clickDebugMode}
-        />
+        
         {(manifestSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"

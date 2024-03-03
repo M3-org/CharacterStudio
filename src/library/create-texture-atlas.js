@@ -110,14 +110,14 @@ function lerp(t, min, max, newMin, newMax) {
   return newMin + progress * (newMax - newMin);
 }
 
-export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false }) => {
+export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false, twoSidedMaterial = false }) => {
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
   if (isNode) {
     return await createTextureAtlasNode({ meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
   } else {
-    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
+    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial });
     //return await createTextureAtlasBrowser({ meshes, atlasSize });
   }
 };
@@ -237,7 +237,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
   return { bakeObjects, textures, uvs };
 };
 
-export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture }) => {
+export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
   // make sure to reset texture renderer container
   ResetRenderTextureContainer();
 
@@ -381,6 +381,10 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     if (uv) {
       for (let i = 0; i < geometry.attributes.uv.array.length; i += 2) {
+        uv.array[i] = (uv.array[i] % 1 + 1) % 1;
+        uv.array[i + 1] = (uv.array[i + 1] % 1 + 1) % 1;
+
+        // Apply lerp using the adjusted UV values
         uv.array[i] = lerp(uv.array[i], 0, 1, min.x, max.x);
         uv.array[i + 1] = lerp(uv.array[i + 1], 0, 1, min.y, max.y);
       }
@@ -391,6 +395,9 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     const uv2 = geometry.attributes.uv2;
     if (uv2) {
       for (let i = 0; i < uv2.array.length; i += 2) {
+        uv2.array[i] = (uv2.array[i] % 1 + 1) % 1;
+        uv2.array[i + 1] = (uv2.array[i + 1] % 1 + 1) % 1;
+
         uv2.array[i] = lerp(uv2.array[i], 0, 1, min.x, max.x);
         uv2.array[i + 1] = lerp(uv2.array[i + 1], 0, 1, min.y, max.y);
       }
@@ -415,7 +422,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       })
     )
   );
-
+  const side = twoSidedMaterial ? THREE.DoubleSide : THREE.FrontSide;
   let material;
   const materialPostName = transparentMaterial ? "transparent":"opaque"
   if (mtoon){
@@ -423,7 +430,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     // save material as standard material
     material = new THREE.MeshStandardMaterial({
       map: textures["diffuse"],
-      transparent: transparentMaterial
+      transparent: transparentMaterial,
+      side: side,
     });
 
     // make sure to avoid in transparent material alphatest
@@ -433,7 +441,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     if (vrmMaterial == null){
       vrmMaterial = new MToonMaterial();
     }
-
+    vrmMaterial.side = side;
     vrmMaterial.uniforms.map = textures["diffuse"];
     vrmMaterial.uniforms.shadeMultiplyTexture = textures["diffuse"];
     vrmMaterial.transparent = transparentMaterial;
@@ -455,7 +463,8 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       roughnessMap: textures["orm"],
       metalnessMap:  textures["orm"],
       normalMap: textures["normal"],
-      transparent: transparentMaterial
+      transparent: transparentMaterial,
+      side:side
     });
 
     // make sure to avoid in transparent material alphatest

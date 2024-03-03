@@ -7,6 +7,7 @@ import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
 import { loadVRM, addVRMToScene } from "../library/load-utils"
 import { downloadVRM } from "../library/download-utils"
@@ -18,12 +19,14 @@ import { local } from "../library/store"
 function BatchDownload() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    toggleDebugMode,
     characterManager,
     animationManager
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -34,7 +37,8 @@ function BatchDownload() {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
-    setViewMode(ViewMode.LANDING)
+    toggleDebugMode(false);
+    setViewMode(ViewMode.LANDING);
   }
 
   const getOptions = () =>{
@@ -48,7 +52,8 @@ function BatchDownload() {
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      ktxCompression: (local["merge_options_ktx_compression"] || false)
+      ktxCompression: (local["merge_options_ktx_compression"] || false),
+      twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
   const downloadVRMWithIndex=(index)=>{
@@ -72,13 +77,13 @@ function BatchDownload() {
   const { t } = useContext(LanguageContext)
 
   const handleAnimationDrop = async (file) => {
-    const curVRM = characterManager.getCurrentOptimizerCharacterModel();
-    if (curVRM){
+    const curCharacter = characterManager.getCurrentCharacterModel();
+    if (curCharacter){
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
-      await animationManager.loadAnimation(url, true, "", animName);
-      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
+      await animationManager.loadAnimation(url, false, 0, true, "", animName);
+      setLoadedAnimationName(animationManager.getCurrentAnimationName());
 
       URL.revokeObjectURL(url);
     }
@@ -182,6 +187,7 @@ function BatchDownload() {
         model={model}
       />
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
+      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"

@@ -15,7 +15,7 @@ const getRandomInt = (max) => {
 }
 
 class AnimationControl {
-  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx){
+  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx, poseStart){
     this.mixer = new THREE.AnimationMixer(scene);
     this.actions = [];
     this.to = null;
@@ -30,31 +30,42 @@ class AnimationControl {
     this.neckBone = vrm?.humanoid?.humanBones?.neck;
     this.spineBone = vrm?.humanoid?.humanBones?.spine;
 
+    this.timeScale = 1;
 
-    this.setAnimations(animations);
+    if (animations){
+      this.setAnimations(animations, null, null, poseStart );
 
-    this.to = this.actions[curIdx]
-    
-    if (lastIdx != -1){
-      this.from = this.actions[lastIdx];
-      this.from.reset();
-      this.from.time = animationManager.getFromActionTime();
-      this.from.play();
+      this.to = this.actions[curIdx]
+      
+      
+      if (lastIdx != -1){
+        this.from = this.actions[lastIdx];
+        this.from.reset();
+        this.from.time = animationManager.getFromActionTime();
+        this.from.play();
 
-      this.to.weight = animationManager.getWeightIn();
-      this.from.weight = animationManager.getWeightOut();
+        this.to.weight = animationManager.getWeightIn();
+        this.from.weight = animationManager.getWeightOut();
+      }
+
+      this.actions[curIdx].reset();
+      this.actions[curIdx].time = animationManager.getToActionTime();
+      this.actions[curIdx].play();
     }
+  }
 
-    this.actions[curIdx].reset();
-    this.actions[curIdx].time = animationManager.getToActionTime();
-    this.actions[curIdx].play();
+  setTimeScale(timeScale){
+    this.timeScale = timeScale;
+    this.actions.forEach(action => {
+      action.timeScale = timeScale;
+    });
   }
 
   setMouseLookEnabled(mouseLookEnabled){
     this.setAnimations(this.animations, this.mixamoModel, mouseLookEnabled);
   }
 
-  setAnimations(animations, mixamoModel, mouseLookEnabled = null){
+  setAnimations(animations, mixamoModel=null, mouseLookEnabled = null, quickChange = false){
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
     //this.mixer.stopAllAction();
@@ -82,15 +93,33 @@ class AnimationControl {
       })
     }
     
-    this.fadeOutActions = this.actions;
-    
-    this.actions = [];
-    this.newAnimationWeight = 0;
-    for (let i =0; i < animations.length;i++){
-      this.actions.push(this.mixer.clipAction(animations[i]));
+    if (!quickChange){
+      this.fadeOutActions = this.actions;
+      this.actions = [];
+      this.newAnimationWeight = 0;
+      for (let i =0; i < animations.length;i++){
+        const action = this.mixer.clipAction(animations[i]);
+        action.timeScale = this.timeScale;
+        this.actions.push(action);
+      }
+      this.actions[0].weight = 0;
+      this.actions[0].play();
     }
-    this.actions[0].weight = 0;
-    this.actions[0].play();
+    else{
+      this.actions.forEach(action => {
+        action.weight = 0;
+        action.stop();
+      });
+      this.actions = [];
+      this.newAnimationWeight = 1;
+      for (let i =0; i < animations.length;i++){
+        const action = this.mixer.clipAction(animations[i]);
+        action.timeScale = this.timeScale;
+        this.actions.push(action);
+      }
+      this.actions[0].weight = 1;
+      this.actions[0].play();
+    }
   }
 
   update(weightIn,weightOut){
@@ -134,6 +163,10 @@ class AnimationControl {
     this.to.paused = false;
   }
 
+  setTime(time){
+    this.mixer.setTime(time);
+  }
+
   dispose(){
     this.animationManager.disposeAnimation(this);
     //console.log("todo dispose animation control")
@@ -147,6 +180,7 @@ export class AnimationManager{
     this.mainControl = null;
     this.animationControl  = null;
     this.animations = null;
+    this.paused = false;
 
     this.scale = 1;
 
@@ -164,6 +198,8 @@ export class AnimationManager{
     this.mixamoModel = null;
     this.mixamoAnimations = null;
 
+    this.currentClip = null;
+
     setInterval(() => {
       this.update();
     }, 1000/30);
@@ -180,7 +216,7 @@ export class AnimationManager{
     this.scale = scale;
   }
 
-  async loadAnimation(paths, isfbx = true, pathBase = "", name = ""){
+  async loadAnimation(paths, isPose, poseTime = 0, isfbx = true, pathBase = "", name = ""){
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
@@ -194,26 +230,34 @@ export class AnimationManager{
     if (clip != null){
       this.mixamoModel = animationModel.clone();
       this.mixamoAnimations =   animationModel.animations;
+      this.currentClip = clip;
     }
     // if no mixamo animation is present, just save the animations
     else{
       this.mixamoModel = null
       this.animations = animationModel.animations;
+      this.currentClip = animationModel.animations[0];
     }
     
     if (this.mainControl == null){
       this.curAnimID = 0;
       this.lastAnimID = -1;
-      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID)
+      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID,isPose)
       this.animationControls.push(this.mainControl)
     }
-    else{
-      //cons
-      this.animationControls.forEach(animationControl => {
-        animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled)
-      });
-    }
-  
+
+    this.animationControls.forEach(animationControl => {
+      animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
+    });
+    this.setTime(poseTime);
+    if(isPose)this.pause();
+    else this.play();
+
+  }
+
+  getCurrentClip(){
+    return this.currentClip;
+      
   }
 
   getCurrentAnimationName(){
@@ -276,8 +320,8 @@ export class AnimationManager{
   }
 
   addVRM(vrm){
-    if (this.mainControl == null){
-      console.log("No animations preloaded");
+    if (vrm == null){
+      console.error("Non Existing VRM was provided.")
       return;
     }
     let animations = null;
@@ -289,17 +333,12 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-    //const animation = 
-    if (!animations) {
-      console.warn("no animations were preloaded, ignoring");
-      return
-    }
     const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
     //addModelData(vrm , {animationControl});
-    if (this.started === false){
+    if (this.started === false && animations){
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
@@ -367,8 +406,33 @@ export class AnimationManager{
     }, (yieldTime * 1000));
   }
 
+  pause(){
+    this.paused = true;
+  }
+
+  play(){
+    this.paused = false;
+  }
+  isPaused(){
+    return this.paused;
+  }
+  setTime(time){
+    if (this.mainControl){
+      this.animationControls.forEach(animControl => {
+        animControl.setTime(time);
+      });
+    }
+  }
+  setSpeed(speed){
+    if (this.mainControl){
+      this.animationControls.forEach(animControl => {
+        animControl.setTimeScale(speed);
+      });
+    }
+  }
+
   update(){
-    if (this.mainControl) {
+    if (this.mainControl && !this.paused) {
       this.animationControls.forEach(animControl => {
         animControl.update(this.weightIn,this.weightOut);
       });

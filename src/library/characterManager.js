@@ -25,7 +25,6 @@ export class CharacterManager {
       const{
         parentModel = null,
         renderCamera = null,
-        createAnimationManager = true,
         manifestURL = null
       }= options;
 
@@ -43,10 +42,10 @@ export class CharacterManager {
       this.lipSync = null;
 
       this.lookAtManager = null;
-      this.animationManager = createAnimationManager ?  new AnimationManager() : null;
-      this.screenshotManager = new ScreenshotManager();
+      this.animationManager = new AnimationManager();
+      this.screenshotManager = new ScreenshotManager(this, parentModel || this.rootModel);
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-      this._setupScreenshotManager();
+      
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -322,7 +321,7 @@ export class CharacterManager {
       model.add(this.rootModel);
       this.parentModel = model;
       if (this.screenshotManager)
-        this.screenshotManager.scene =  this.parentModel;
+        this.screenshotManager.setScene(this.parentModel);
     }
     setRenderCamera(camera){
       this.renderCamera = camera;
@@ -823,7 +822,7 @@ export class CharacterManager {
         this.animationManager.setScale(scale);
         if (paths.length > 0){
           this.animationManager.storeAnimationPaths(animationPaths, baseLocation || "");
-          await this.animationManager.loadAnimation(animationPaths, animationPaths[0].endsWith('.fbx'), baseLocation || "")
+          await this.animationManager.loadAnimation(animationPaths,false, 0, animationPaths[0].endsWith('.fbx'), baseLocation || "")
         }
       }
     }
@@ -871,12 +870,7 @@ export class CharacterManager {
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
-    _setupScreenshotManager(){
-      if (this.parentModel)
-        this.screenshotManager.scene = this.parentModel;
-      else
-        this.screenshotManager.scene = this.rootModel;
-    }
+
     _setupWireframeMaterial(mesh){
       // Set Wireframe material with random colors for each material the object has
       mesh.origMat = mesh.material;

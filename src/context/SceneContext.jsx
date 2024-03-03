@@ -3,12 +3,16 @@ import React, { createContext, useEffect, useState } from "react"
 import gsap from "gsap"
 import { local } from "../library/store"
 import { sceneInitializer } from "../library/sceneInitializer"
+import { LoraDataGenerator } from "../library/loraDataGenerator"
+import { SpriteAtlasGenerator } from "../library/spriteAtlasGenerator"
 
 export const SceneContext = createContext()
 
 export const SceneProvider = (props) => {
 
   const [characterManager, setCharacterManager] = useState(null)
+  const [loraDataGenerator, setLoraDataGenerator] = useState(null)
+  const [spriteAtlasGenerator, setSrptieAtlasGenerator] = useState(null)
   const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
@@ -34,7 +38,6 @@ export const SceneProvider = (props) => {
       characterManager,
       sceneElements
     } = sceneInitializer("editor-scene");
-
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
@@ -42,6 +45,8 @@ export const SceneProvider = (props) => {
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
+    setLoraDataGenerator(new LoraDataGenerator(characterManager))
+    setSrptieAtlasGenerator(new SpriteAtlasGenerator(characterManager))
   },[])
 
 
@@ -117,6 +122,8 @@ export const SceneProvider = (props) => {
         setManifest,
         scene,
         characterManager,
+        loraDataGenerator,
+        spriteAtlasGenerator,
         showEnvironmentModels,
         debugMode,
         toggleDebugMode,
@@ -125,6 +132,7 @@ export const SceneProvider = (props) => {
         camera,
         moveCamera,
         controls,
+        sceneElements,
       }}
     >
       {props.children}

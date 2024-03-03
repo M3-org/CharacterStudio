@@ -8,24 +8,29 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
-import { loadVRM, addVRMToScene } from "../library/load-utils"
-import { downloadVRM } from "../library/download-utils"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 
 function Optimizer() {
-  const { isLoading, setViewMode } = React.useContext(ViewContext)
+  const { 
+    isLoading, 
+    setViewMode 
+  } = React.useContext(ViewContext)
   const {
     characterManager,
-    animationManager
+    animationManager,
+    sceneElements,
+    loraDataGenerator,
+    spriteAtlasGenerator
   } = React.useContext(SceneContext)
+  const { playSound } = React.useContext(SoundContext)
+  const { isMute } = React.useContext(AudioContext)
   
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
-  const { playSound } = React.useContext(SoundContext)
-  const { isMute } = React.useContext(AudioContext)
+
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -45,8 +50,22 @@ function Optimizer() {
       stdAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_std_transp_size"] || 6),
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
-      ktxCompression: (local["merge_options_ktx_compression"] || false)
+      ktxCompression: (local["merge_options_ktx_compression"] || false),
+      twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
+  }
+
+  const createLora = async() =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
+    parentScene.add(sceneElements);
+  }
+  const createSpriteAtlas = async () =>{
+    const parentScene = sceneElements.parent;
+    parentScene.remove(sceneElements);
+    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
+    parentScene.add(sceneElements);
   }
 
   const download = () => {
@@ -67,8 +86,7 @@ function Optimizer() {
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
-      await animationManager.loadAnimation(url, true, "", animName);
-      animationManager.addVRM(characterManager.getCurrentOptimizerCharacterModel());
+      await animationManager.loadAnimation(url, false, 0, true, "", animName);
 
       URL.revokeObjectURL(url);
     }
@@ -90,10 +108,8 @@ function Optimizer() {
 
   const handleFilesDrop = async(files) => {
     const file = files[0];
-    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
-      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
@@ -141,6 +157,24 @@ function Optimizer() {
           className={styles.buttonRight}
           onClick={download}
         />)}
+        {(model != "")&&(
+          <CustomButton
+          theme="light"
+          text="Create Lora"
+          size={14}
+          className={styles.buttonRight}
+          onClick={createLora}
+        />)}
+        {(model != "")&&(
+          <CustomButton
+          theme="light"
+          text="Create Sprite Atlas"
+          size={14}
+          className={styles.buttonRight}
+          onClick={createSpriteAtlas}
+        />)}
+        
+        
       </div>
     </div>
   )

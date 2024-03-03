@@ -29,6 +29,7 @@ export const ExportMenu = () => {
       ktxCompression:local["merge_options_ktx_compression"],
       exportStdAtlas:(currentOption === 0 || currentOption == 2),
       exportMtoonAtlas:(currentOption === 1 || currentOption == 2),
+      twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
 
