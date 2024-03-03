@@ -35,7 +35,7 @@ export class SpriteAtlasGenerator {
         this.screenshotManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        this.screenshotManager._setBonesOffset(0.2);
+        await this.screenshotManager._setBonesOffset(0.2);
 
         let counter = 0;
         console.log(manifest);
@@ -60,19 +60,17 @@ export class SpriteAtlasGenerator {
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, 0);
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
-                        const clipDuration = scope.animationManager.getCurrentClip()?.duration;
-                        if (clipDuration){
-                            console.log(clipDuration);
-                            const timeOffsets = clipDuration/framesNumber
-                            for (let i =0; i < framesNumber ; i++){
-                                
-                                scope.animationManager.setTime(i * timeOffsets);
-                                // delay required as its saving images too fast
-                                await delay(100);
-                                pixelStyleSize ?
-                                    scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
-                                    scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
-                            }
+                        const clipDuration = scope.animationManager.getCurrentClipDuration();
+
+                        const timeOffsets = clipDuration/framesNumber
+                        for (let i =0; i < framesNumber ; i++){
+                            
+                            scope.animationManager.setTime(i * timeOffsets);
+                            // delay required as its saving images too fast
+                            await delay(100);
+                            pixelStyleSize ?
+                                scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
+                                scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
                         }
                     }
                 }
