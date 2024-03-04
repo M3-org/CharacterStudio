@@ -103,7 +103,7 @@ function Optimizer() {
     const name = getFileNameWithoutExtension(file.name);
     setNameVRM (name);
 
-    setModel(characterManager.getCurrentCharacterModel());
+    setModel({...characterManager.getCurrentCharacterModel()});
   }
 
   const handleFilesDrop = async(files) => {
