@@ -58,34 +58,44 @@ function BatchManifest() {
       twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
-  const downloadVRMWithIndex= async(index, onlyImage = false)=>{
-    await characterManager.setManifest(manifestSelectionArray[index]);
+
+  const downloadLoaded = (index, onlyImage = false) =>{
     const downloadName = manifestSelectionArray[index].manifestName;
-    setIsLoading(true);
-    characterManager.loadInitialTraits().then(async()=>{
-      const delay = ms => new Promise(res => setTimeout(res, ms));
-      await delay(1);
-        characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
-        if (onlyImage){
-          if (index < manifestSelectionArray.length-1 ){
-            console.log("downloaded " + downloadName)
-            downloadVRMWithIndex(index + 1, onlyImage)
-          }
-          else{
-            setIsLoading(false);
-          }
+    characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
+    if (onlyImage){
+      if (index < manifestSelectionArray.length-1 ){
+        console.log("downloaded " + downloadName)
+        downloadVRMWithIndex(index + 1, onlyImage)
+      }
+      else{
+        setIsLoading(false);
+      }
+    }
+    else{
+      characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
+        if (index < manifestSelectionArray.length-1 ){
+          console.log("downloaded " + downloadName)
+          downloadVRMWithIndex(index + 1)
         }
-        else{
-          characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
-            if (index < manifestSelectionArray.length-1 ){
-              console.log("downloaded " + downloadName)
-              downloadVRMWithIndex(index + 1)
-            }
-            else
-              setIsLoading(false);
-          })
-        }
-    })
+        else
+          setIsLoading(false);
+      })
+    }
+  }
+
+  const downloadVRMWithIndex= async(index, onlyImage = false)=>{
+    if (index == 0){
+      downloadLoaded(index, onlyImage)
+    }
+    else{
+      await characterManager.setManifest(manifestSelectionArray[index]);
+      setIsLoading(true);
+      characterManager.loadInitialTraits().then(async()=>{
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        await delay(1);
+        downloadLoaded(index + 1, onlyImage);
+      })
+    }
   }
 
   const download = () => {
