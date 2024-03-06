@@ -93,7 +93,7 @@ function BatchManifest() {
       characterManager.loadInitialTraits().then(async()=>{
         const delay = ms => new Promise(res => setTimeout(res, ms));
         await delay(1);
-        downloadLoaded(index + 1, onlyImage);
+        downloadLoaded(index, onlyImage);
       })
     }
   }
