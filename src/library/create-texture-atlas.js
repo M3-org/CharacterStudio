@@ -9,6 +9,7 @@ function ResetRenderTextureContainer(){
 }
 
 function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent) {
+  // if texture is nuill, create a texture only with clearColor (that is color type)
   if (texture == null) {
     const data = new Uint8Array([clearColor.r * 255, clearColor.g * 255, clearColor.b * 255]); // Convert color to Uint8Array
 
@@ -16,9 +17,6 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
     texture.needsUpdate = true; // Make sure to update the texture
   }
 
-
-
-  // if texture is nuill, create a texture only with clearColor (that is color type)
   if (container == null) {
     container = document.createElement("div");
     sceneRTT = new THREE.Scene();
@@ -258,7 +256,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     if (mtoon && vrmMaterial == null && material.type == "ShaderMaterial") {
       vrmMaterial = material.clone();
     }
-
     // check if bakeObjects objects that contain the material property with value of mesh.material
     let bakeObject = bakeObjects.find((bakeObject) => {
       bakeObject.material === material;
@@ -275,7 +272,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   // create the canvas to draw textures
   //transparent: (name == "diffuse" && drawTransparent)
   const contexts = Object.fromEntries(
-    IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX, transparent:transparentTexture })])
+    IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX, transparent:transparentTexture && name == "diffuse" })])
   );
 
   const numTiles = Math.floor(Math.sqrt(meshes.length) + 1);
@@ -363,7 +360,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
           clearColor = new THREE.Color(0x8080ff);
           break;
         case 'orm':
-          clearColor = new THREE.Color(material.aoMapIntensity, material.roughness, material.metalness);
+          clearColor = new THREE.Color(0, material.roughness, material.metalness);
           break;
         default:
           clearColor = new THREE.Color(1, 1, 1);
@@ -371,7 +368,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       }
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX,transparentTexture);
+      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture);
       createImageBitmap(imgData)// bmp is trasnaprent
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
     }
