@@ -9,6 +9,7 @@ An open, collaborative, and evolving 3D avatar studio for making glTF / VRM avat
 
 ![image](https://github.com/M3-org/CharacterStudio/assets/32600939/fad3002f-78cd-4cd2-8eae-0c1663a86d25)
 
+:star: **NEW: DOCS!!!** https://m3-org.github.io/characterstudio-docs/ ⭐
 
 # Installation
 
