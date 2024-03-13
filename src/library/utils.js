@@ -626,7 +626,6 @@ export const createBoneDirection = (skinMesh) => {
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
 
-  bones['hips'].node.parent.name = "root";
   // // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
