@@ -575,7 +575,10 @@ export default class VRMExporterv0 {
         const boneGroups = [];
         rootSpringBones.forEach(springBone => {
             const boneIndices = findBoneIndices(springBone.name);
-
+            if (boneIndices[0] === -1) {
+                console.warn("Spring bone " + springBone.name + " was removed during cleanup process. Skipping.");
+                return; // Skip to the next iteration
+            }
             // get the collider group indices
             const colliderIndices = [];
             springBone.colliderGroups.forEach(colliderGroup => {
@@ -596,10 +599,7 @@ export default class VRMExporterv0 {
                 }
             });
 
-            if (boneIndices === [-1]) {
-                console.warn("No bone found for spring bone " + springBone.name);
-                return; // Skip to the next iteration
-            }
+            
             let centerIndex = findBoneIndex(springBone.center?.name);   
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
