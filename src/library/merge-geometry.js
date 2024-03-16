@@ -143,10 +143,14 @@ function createMergedSkeleton(meshes, scale){
                                 clone.bone.userData.VRMcolliders = bone.userData.VRMcolliders;
                             }
                             else{
-                                clone.bone.userData.VRMcolliders = [
-                                    ...clone.bone.userData.VRMcolliders,
-                                    ...bone.userData.VRMcolliders
-                                ];
+                                // compare before merge if its not already added:
+                                // this case happens when a single trait model includes more than on skinned mesh
+                                if (bone.userData.VRMcollidersID != clone.bone.userData.VRMcollidersID){
+                                    clone.bone.userData.VRMcolliders = [
+                                        ...clone.bone.userData.VRMcolliders,
+                                        ...bone.userData.VRMcolliders
+                                    ];
+                                }
                             }
                         }
                     }    

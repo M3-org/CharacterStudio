@@ -554,28 +554,11 @@ export default class VRMExporterv0 {
             return -1;
         }
 
-        // returns the bone index of the bones name and its childrens
-        const findBoneIndices = (boneName) =>{
-            const bnIndex = findBoneIndex(boneName);
-            if (bnIndex == -1){
-                return [-1]
-            }
-            else{
-                const result = [];
-                const rootBone = nodes[bnIndex]
-                rootBone.traverse((child)=>{
-                    if (child.isBone){
-                        result.push(findBoneIndex(child.name));
-                    }
-                })
-                return result;
-            }
-        }
-
         const boneGroups = [];
         rootSpringBones.forEach(springBone => {
-            const boneIndices = findBoneIndices(springBone.name);
-            if (boneIndices[0] === -1) {
+            //const boneIndices = findBoneIndices(springBone.name);
+            const boneIndex = findBoneIndex(springBone.name)
+            if (boneIndex === -1) {
                 console.warn("Spring bone " + springBone.name + " was removed during cleanup process. Skipping.");
                 return; // Skip to the next iteration
             }
@@ -588,7 +571,8 @@ export default class VRMExporterv0 {
                     const springParent = springCollider.parent;
                     const ind = colliderGroups.findIndex(group => group.name === springParent.name);
                     if (ind != -1){
-                        colliderIndices.push(ind);
+                        if (!colliderIndices.includes(ind))
+                            colliderIndices.push(ind);
                     }
                     else{
                         console.warn("No collider group for bone name: ", springParent.name + " was found");
@@ -604,10 +588,12 @@ export default class VRMExporterv0 {
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
             const settings = springBone.settings;
+
+            // FIX!!
             
             boneGroups.push(
                 {
-                    bones: boneIndices,
+                    bones: [boneIndex],
                     center:centerIndex,
                     colliderGroups: colliderIndices,
                     dragForce: settings.dragForce,
@@ -624,6 +610,7 @@ export default class VRMExporterv0 {
             colliderGroups,
         }
         console.log(outputSecondaryAnimation);
+        
         
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];

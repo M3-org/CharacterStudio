@@ -1,6 +1,6 @@
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { getAsArray, renameVRMBones } from "../library/utils"
+import { getAsArray, renameVRMBones,getUniqueId } from "../library/utils"
 import { findChildByName } from '../library/utils';
 import { PropertyBinding } from 'three';
 
@@ -72,6 +72,8 @@ const saveVRM0Colliders = (gltf) => {
             offset:[collider.offset.x,collider.offset.y, collider.offset.z]
           }}));
       }
+      // add a unique id so we dont duplicat them later when merging different colliders
+      nodeObject.userData.VRMcollidersID = getUniqueId();
     });
   }
 }
@@ -108,6 +110,7 @@ const saveVRM1Colliders = (gltf) => {
               shape.offset[0] = -shape.offset[0];
             }
           }
+          currentNode.userData.VRMcollidersID = getUniqueId();
           currentNode.userData.VRMcolliders.push(colliderShape)
         }
         else {

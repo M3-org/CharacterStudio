@@ -623,6 +623,17 @@ export const createBoneDirection = (skinMesh) => {
   }
   geometry.userData.boneDirections = boneDirections;
 };
+
+export const getUniqueId = () => {
+  const timestamp = new Date().getTime();
+
+  const random = Math.random().toString(36).substr(2, 9); // Using base36 encoding
+
+  const uniqueId = timestamp + '-' + random;
+
+  return uniqueId;
+}
+
 export const renameVRMBones = (vrm) => {
   const bones = vrm.humanoid.humanBones;
 
