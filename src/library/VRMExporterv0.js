@@ -571,7 +571,8 @@ export default class VRMExporterv0 {
                     const springParent = springCollider.parent;
                     const ind = colliderGroups.findIndex(group => group.name === springParent.name);
                     if (ind != -1){
-                        colliderIndices.push(ind);
+                        if (!colliderIndices.includes(ind))
+                            colliderIndices.push(ind);
                     }
                     else{
                         console.warn("No collider group for bone name: ", springParent.name + " was found");
