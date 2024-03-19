@@ -440,6 +440,8 @@ export default class VRMExporterv0 {
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
         
+
+
         const vrmMaterialProperties = {
             floatProperties : {
                 // _BlendMode : 0, 
@@ -503,6 +505,17 @@ export default class VRMExporterv0 {
             }
         }
 
+        const getVRMProperties = (mToonMaterial) => {
+            //vrmMaterialProperties.
+            if (mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent){
+                vrmMaterialProperties.tagMap.RenderType = "TransparentCutout"
+            }
+            else if (mToonMaterial.transparent){
+                vrmMaterialProperties.tagMap.RenderType = "Transparent"
+            }
+            return vrmMaterialProperties;
+        }
+
         const stdMaterialProperties ={
             name : "STDCombinedMat", 
             shader : "VRM_USE_GLTFSHADER", 
@@ -510,9 +523,10 @@ export default class VRMExporterv0 {
 
         const materialProperties = []
         uniqueMaterials.forEach(mat => {
-            if (mat.type == "ShaderMaterial"){
+            if (mat.userData.vrmMaterial){
+                console.log(mat.userData.vrmMaterial)
                 materialProperties.push(
-                    materialProperties.push(Object.assign({}, vrmMaterialProperties))
+                    materialProperties.push(Object.assign({}, getVRMProperties(mat.userData.vrmMaterial)))
                 )
             }
             else{
