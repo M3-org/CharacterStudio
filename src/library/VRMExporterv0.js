@@ -589,14 +589,10 @@ export default class VRMExporterv0 {
         uniqueMaterials.forEach(mat => {
             if (mat.userData.vrmMaterial){
                 console.log("VRM MATERIAL TAKING ONLY FIRST TEXTURE, PENDING TO CHECK FOR DIFFERENT ATLAS")
-                materialProperties.push(
-                    materialProperties.push(Object.assign({}, getVRMProperties(mat.userData.vrmMaterial)))
-                )
+                materialProperties.push(Object.assign({}, getVRMProperties(mat.userData.vrmMaterial)))
             }
             else{
-                materialProperties.push(
-                    materialProperties.push(Object.assign({}, stdMaterialProperties))
-                )
+                materialProperties.push(Object.assign({}, stdMaterialProperties))
             }
         });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
