@@ -437,7 +437,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     // make sure to avoid in transparent material alphatest
 
-
     // but also store a vrm material that will hold the extension information
     if (vrmMaterial == null){
       vrmMaterial = new MToonMaterial();
@@ -455,8 +454,10 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     // uniform color is not defined, remove or check why
     material.userData.shadeTexture = textures["uniformColor"];
-    material.name = "mToon_" + materialPostName;
-    material.map.name = material.name;
+    
+    material.name = vrmMaterial.name = material.map.name = vrmMaterial.uniforms.map = "mToon_" + materialPostName;
+    //vrmMaterial.uniforms.shadeMultiplyTexture.name =  + "_shade";
+
   }
   else{
     material = new THREE.MeshStandardMaterial({

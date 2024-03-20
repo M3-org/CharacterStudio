@@ -441,79 +441,8 @@ export default class VRMExporterv0 {
         // };
         
 
-
-        const vrmMaterialProperties = {
-            floatProperties : {
-                // _BlendMode : 0, 
-                // _BumpScale : 1, 
-                // _CullMode : 0,
-                // _Cutoff : 0.5,
-                // _DebugMode : 0,
-                _DstBlend : 0.5,
-                // _IndirectLightIntensity : 0.1,
-                // _LightColorAttenuation : 0,
-                // _MToonVersion : 38, 
-                // _OutlineColorMode : 0,
-                // _OutlineCullMode : 1, 
-                // _OutlineLightingMix : 1,
-                // _OutlineScaledMaxDistance : 1, 
-                // _OutlineWidth : 0.079, 
-                // _OutlineWidthMode : 1, 
-                // _ReceiveShadowRate : 1,
-                // _RimFresnelPower : 1, 
-                // _RimLift : 0, 
-                // _RimLightingMix : 0, 
-                _ShadeShift : 0.5, 
-                _ShadeToony : 0.5, 
-                _ShadingGradeRate : 0.5, 
-                // _SrcBlend : 1, 
-                // _UvAnimRotation : 0,
-                // _UvAnimScrollX : 0, 
-                // _UvAnimScrollY : 0, 
-                // _ZWrite : 1
-            },
-            keywordMap : {
-                _NORMALMAP : false, 
-                MTOON_OUTLINE_COLOR_FIXED : true, 
-                MTOON_OUTLINE_WIDTH_WORLD : true
-            }, 
-            name : "VRMCombinedMat", 
-            renderQueue : 2000, 
-            shader : "VRM/MToon", 
-            tagMap : {
-                RenderType : "Opaque"
-            }, 
-            textureProperties : {
-                _MainTex : 0, 
-                _ShadeTexture : 0
-            }, 
-            vectorProperties : {
-                _Color : [1, 1, 1, 1], 
-                _EmissionColor : [0, 0, 0, 1], 
-                _EmissionMap : [0, 0, 1, 1], 
-                _MainTex : [0, 0, 1, 1], 
-                _OutlineColor : [0, 0, 0, 1], 
-                _OutlineWidthTexture : [0, 0, 1, 1], 
-                _ReceiveShadowTexture : [0, 0, 1, 1], 
-                _RimColor : [0, 0, 0, 1], 
-                _RimTexture : [0, 0, 1, 1], 
-                _ShadeColor : [0.9, 0.9, 0.9, 1], 
-                // _ShadeTexture : [0, 0, 1, 1], 
-                // _ShadingGradeTexture : [0, 0, 1, 1], 
-                // _SphereAdd : [0, 0, 1, 1], 
-                // _UvAnimMaskTexture : [0, 0, 1, 1]
-            }
-        }
-
         const getVRMProperties = (mToonMaterial) => {
-            //vrmMaterialProperties.
-            if (mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent){
-                vrmMaterialProperties.tagMap.RenderType = "TransparentCutout"
-            }
-            else if (mToonMaterial.transparent){
-                vrmMaterialProperties.tagMap.RenderType = "Transparent"
-            }
-            return {
+            const vrmMat = {
                 floatProperties : {
                     // _BlendMode : 0, 
                     // _BumpScale : 1, 
@@ -558,8 +487,8 @@ export default class VRMExporterv0 {
                                 mToonMaterial.transparent ? "Transparent" : "Opaque"
                 }, 
                 textureProperties : {
-                    _MainTex : 0, 
-                    _ShadeTexture : 0
+                    _MainTex : images.map((image) => image.name).indexOf(mToonMaterial.name),
+                    _ShadeTexture : images.map((image) => image.name).indexOf(mToonMaterial.name) // temporal, should be mToonMaterial.name + "_shade"
                 }, 
                 vectorProperties : {
                     _Color : [1, 1, 1, 1], 
@@ -578,6 +507,8 @@ export default class VRMExporterv0 {
                     // _UvAnimMaskTexture : [0, 0, 1, 1]
                 }
             }
+
+            return vrmMat;
         }
 
         const stdMaterialProperties ={
@@ -588,7 +519,6 @@ export default class VRMExporterv0 {
         const materialProperties = []
         uniqueMaterials.forEach(mat => {
             if (mat.userData.vrmMaterial){
-                console.log("VRM MATERIAL TAKING ONLY FIRST TEXTURE, PENDING TO CHECK FOR DIFFERENT ATLAS")
                 materialProperties.push(Object.assign({}, getVRMProperties(mat.userData.vrmMaterial)))
             }
             else{
