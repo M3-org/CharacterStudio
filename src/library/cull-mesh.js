@@ -19,7 +19,7 @@ BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
 
-const createFaceNormals = (geometry) => {
+const createFaceNormalsAndCenters = (geometry) => {
     const pos = geometry.attributes.position;
     const idx = geometry.index;
   
@@ -27,17 +27,25 @@ const createFaceNormals = (geometry) => {
     const a = new Vector3(), b = new Vector3(), c = new Vector3(); // for re-use
   
     const faceNormals = [];
-  
+    const centers = []; // Array to hold centers of each triangle
+
     //set foreach vertex
     for (let f = 0; f < (idx.array.length / 3); f++) {
-      const idxBase = f * 3;
-      a.fromBufferAttribute(pos, idx.getX(idxBase + 0));
-      b.fromBufferAttribute(pos, idx.getX(idxBase + 1));
-      c.fromBufferAttribute(pos, idx.getX(idxBase + 2));
-      tri.set(a, b, c);
-      faceNormals.push(tri.getNormal(new Vector3()));
+        const idxBase = f * 3;
+        a.fromBufferAttribute(pos, idx.getX(idxBase + 0));
+        b.fromBufferAttribute(pos, idx.getX(idxBase + 1));
+        c.fromBufferAttribute(pos, idx.getX(idxBase + 2));
+
+        // Calculate center of the triangle
+        const center = new Vector3();
+        center.addVectors(a, b).add(c).multiplyScalar(1 / 3);
+        centers.push(center);
+
+        tri.set(a, b, c);
+        faceNormals.push(tri.getNormal(new Vector3()));
     }
     geometry.userData.faceNormals = faceNormals;
+    geometry.userData.faceCenters = centers;
 }
 
 const createCloneCullMesh = (mesh) => {
@@ -66,7 +74,7 @@ const createCloneCullMesh = (mesh) => {
     const clonedMesh = new Mesh(clonedGeometry, clonedMaterial);
     
      // bvh calculation
-    createFaceNormals(clonedMesh.geometry)
+    createFaceNormalsAndCenters(clonedMesh.geometry)
     clonedMesh.geometry.computeBoundsTree({strategy:SAH});
     return clonedMesh;
 }
@@ -74,6 +82,7 @@ const createCloneCullMesh = (mesh) => {
 const disposeMesh = (mesh) => {
     if (mesh.isMesh){
       mesh.geometry.userData.faceNormals = null;
+      mesh.geometry.userData.faceCenters = null;
       mesh.geometry.dispose();
       mesh.geometry.disposeBoundsTree();
       if (mesh.parent) {
@@ -192,9 +201,10 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = cloneMesh.geometry.attributes.position.array;
                 const normalsData = cloneMesh.geometry.attributes.normal.array;
                 const faceNormals = cloneMesh.geometry.userData.faceNormals;
+                const faceCenters = cloneMesh.geometry.userData.faceCenters;
                 geomsIndices.push({
                     geom: mesh.geometry,
-                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
+                    index: getIndexBuffer(index,vertexData,normalsData, faceNormals, faceCenters, hitArr,mesh.userData.cullDistance/*,i === 0*/)
                 })
             }
         }
@@ -231,7 +241,11 @@ const getDistanceInOut = (distanceArr) => {
     return [distIn, distOut]
 }
 
-const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
+const castRays = (position, direction) => {
+
+}
+
+const getIndexBuffer = (index, vertexData, normalsData, faceNormals, faceCenters, intersectModels, distanceArr, debug = false) =>{
 
     const indexCustomArr = [];
     const distArr = getDistanceInOut(distanceArr);
@@ -240,7 +254,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     let distOut = distArr[1];
 
     raycaster.far = distIn + distOut;
-    
+
     for (let i =0; i < index.length/3 ;i++){
 
         //set the direction of the raycast with the normals of the faces
@@ -250,23 +264,37 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
         const idxBase = i * 3;
         //if at least 1 vertex collides with nothing, it is visible
         let intersectedDups = [];
-        for (let j = 0; j < 3 ; j++){
+
+        // starts in -1: -1 will be the center face defined apart
+        for (let j = -1; j < 3 ; j++){
             // reset intersections
             intersections.length = 0;
 
             // mutliplied by 3 as it refers to a vector3 saved as a float array
-            const vi = index[idxBase+j] * 3;
+            const vi = j === -1 ? index[idxBase+j+1] * 3: index[idxBase+j] * 3;
 
             // if face normals was not defined, use vertex normals instead
-            if (faceNormals == null)
+            if (faceNormals == null){
                 direction.set(normalsData[vi],normalsData[vi+1],normalsData[vi+2]).normalize();
+            }
 
             // move the origin away to have the raycast being casted from outside
-            origin.set( 
-                vertexData[vi], 
-                vertexData[vi+1],
-                vertexData[vi+2])
-                .add(direction.clone().multiplyScalar(distIn))
+            if (j !== -1){
+                // ray from vertices
+                origin.set( 
+                    vertexData[vi], 
+                    vertexData[vi+1],
+                    vertexData[vi+2])
+                    .add(direction.clone().multiplyScalar(distIn))
+            }
+            else{
+                // ray from center of face
+                origin.set( 
+                    faceCenters[i].x, 
+                    faceCenters[i].y,
+                    faceCenters[i].z)
+                    .add(direction.clone().multiplyScalar(distIn))
+            }
             
             //invert the direction of the raycaster as we moved it away from its origin
             raycaster.set( origin, direction.clone().multiplyScalar(-1));
