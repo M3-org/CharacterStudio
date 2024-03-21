@@ -260,7 +260,9 @@ export default class VRMExporterv0 {
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
                 const morphTargetBinds = expression._binds.map(obj => {  
-                    const posValus = mesh.geometry.morphAttributes.position[obj.index].array;
+                    const posValus = mesh.geometry?.morphAttributes?.position[obj.index]?.array;
+                    if (posValus == null)
+                        return null;
                     // very important not to consider 0 elements, as its causing issues
                     for (let i = 1; i < posValus.length; i++) {
                         if (posValus[i] !== 0) {
