@@ -221,7 +221,7 @@ export default class VRMExporterv0 {
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
         
-        meshes.forEach((object) => {
+        meshes.forEach((object,meshIndex) => {
             const mesh = (object.type === VRMObjectType.Group
                 ? object.children[0]
                 : object);
@@ -255,37 +255,44 @@ export default class VRMExporterv0 {
             }
 
             mesh.geometry.userData.targetNames = [];
-            console.warn("taking only mesh 0 for morph targets now, take the correct mesh");
+            const expressionValues = Object.values(VRMExpressionPresetName);
+
             for (const prop in vrm.expressionManager.expressionMap){
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
-                //only add those that have connected binds
-                if (morphTargetBinds.length > 0){
-                    let isPreset = false;
-                    for (const presetName in VRMExpressionPresetName) {
-                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
-                            blendShapeGroups.push({
-                                name:getVRM0BlendshapeName(prop, false),
-                                presetName: getVRM0BlendshapeName(prop, true),
-                                binds:morphTargetBinds,
-                                isBinary:expression.isBinary,
-                                materialValue:[]
-                            })
-                            isPreset = true;
-                            break;
+                const morphTargetBinds = expression._binds.map(obj => {  
+                    const posValus = mesh.geometry.morphAttributes.position[obj.index].array;
+                    // very important not to consider 0 elements, as its causing issues
+                    for (let i = 1; i < posValus.length; i++) {
+                        if (posValus[i] !== 0) {
+                            return {mesh:meshIndex, index:obj.index, weight:obj.weight * 100}
                         }
                     }
-                    if (isPreset === false){
+                    return null;
+                   
+                }).filter(item => item !== null);
+
+                //only add those that have connected binds
+                if (morphTargetBinds.length > 0){
+                    const shapeName = getVRM0BlendshapeName(prop, false);
+
+                    const existingBlendGrps = blendShapeGroups.filter(e => e.name === shapeName);
+                    if (existingBlendGrps.length > 0) {
+                        const exsitingBlendshapeGroup = existingBlendGrps[0];
+                        exsitingBlendshapeGroup.binds = [...exsitingBlendshapeGroup.binds, ...morphTargetBinds];
+                    }
+                    else{
                         blendShapeGroups.push({
-                            name:prop,
-                            presetName: "unknown",
+                            name:shapeName,
+                            presetName: expressionValues.includes(prop) ? getVRM0BlendshapeName(prop, true) : "unknown",
                             binds:morphTargetBinds,
                             isBinary:expression.isBinary,
+                            // to do, material target binds, and texture transform binds
+                            materialValue:[]
                         })
                     }
                 }
                 
-                // to do, material target binds, and texture transform binds
+                
             }
 
             const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
@@ -335,9 +342,7 @@ export default class VRMExporterv0 {
                         sparseData));
                 }
             }
-
             for (const prop in mesh.morphTargetDictionary){
-
                 mesh.geometry.userData.targetNames.push(prop);
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
@@ -480,7 +485,7 @@ export default class VRMExporterv0 {
                     _ALPHATEST_ON: mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent ? true : false
                 }, 
                 name : "VRMCombinedMat", 
-                renderQueue : 2450, 
+                renderQueue : !mToonMaterial.transparent ? 2450 : 3500, 
                 shader : "VRM/MToon", 
                 tagMap : {
                     RenderType : mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent ? "TransparentCutout" : 
@@ -565,7 +570,6 @@ export default class VRMExporterv0 {
                 colliderGroups.push(colliderGroup)
             }
         }
-        console.log("COLLIDER GROUPS", colliderGroups);
 
         const findBoneIndex = (boneName) =>{
             for (let i = 0; i < nodes.length; i++) {
