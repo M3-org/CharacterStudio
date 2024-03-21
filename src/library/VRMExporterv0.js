@@ -451,7 +451,8 @@ export default class VRMExporterv0 {
         const getVRMProperties = (mToonMaterial) => {
             const vrmMat = {
                 floatProperties : {
-                    // _BlendMode : 0, 
+                    _BlendMode : mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent ? 1 : 
+                        mToonMaterial.transparent ? 2 : 0,
                     // _BumpScale : 1, 
                     // _CullMode : 0,
                     // _Cutoff : 0.5,
