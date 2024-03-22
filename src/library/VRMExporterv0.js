@@ -454,7 +454,7 @@ export default class VRMExporterv0 {
                     _BlendMode : mToonMaterial.alphaTest == 0.5 && !mToonMaterial.transparent ? 1 : 
                         mToonMaterial.transparent ? 2 : 0,
                     // _BumpScale : 1, 
-                    // _CullMode : 0,
+                    _CullMode : mToonMaterial.side == 2 ? 0 : 1,
                     // _Cutoff : 0.5,
                     // _DebugMode : 0,
                     _DstBlend : 0.5,
