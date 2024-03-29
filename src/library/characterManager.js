@@ -912,6 +912,7 @@ export class CharacterManager {
     }
     _VRMBaseSetup(m, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
+      console.log("loaded model:", m)
       if (m.userData.vrm == null){
         console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
         return null;
@@ -932,11 +933,10 @@ export class CharacterManager {
 
       // Rotate model 180 degrees
       if (vrm.meta?.metaVersion === '0'){
+        VRMUtils.rotateVRM0( vrm );
+        console.log("Loaded VRM0 file ", vrm);
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
-          
-              VRMUtils.rotateVRM0( vrm );
-              console.log("Loaded VRM0 file ", vrm);
               for (let i =0; i < child.skeleton.bones.length;i++){
                 child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
               }
@@ -1138,6 +1138,7 @@ export class CharacterManager {
       let vrm = null;
 
       models.map((m)=>{
+        console.log(m);
           if (m != null)
             vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
 
