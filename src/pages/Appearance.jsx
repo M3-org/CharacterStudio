@@ -11,13 +11,14 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import MenuTitle from "../components/MenuTitle"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import TraitInformation from "../components/TraitInformation"
+
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
+import RightPanel from "../components/RightPanel"
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -395,8 +396,8 @@ function Appearance() {
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
-      <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={loadedAnimationName} setAnimationName={setLoadedAnimationName}
-      />
+      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM}/>
+
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
         <CustomButton
