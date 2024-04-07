@@ -53,11 +53,13 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
     }
 
     return (
-        selectedTrait != null ? (
+        
         <div>
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Trait Information" width={180} right={20}/>
                 <div className={styles["scrollContainer"]}>
+                    {selectedTrait != null ? (
+                        <>
                     <div className={styles["traitInfoTitle"]}>
                         Trait ID
                     </div>
@@ -79,6 +81,7 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
                     <div className={styles["traitInfoTitle"]}>
                         Culling Options
                     </div>
+                    <br/>
                         <div className={styles["traitInfoText"]}>
                             Culling Layer
                                 <input
@@ -93,9 +96,9 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
                             <br/>
                             <br/>
                             
-                            <Slider title={"Cull Out Distance"} value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
+                            <Slider title={"Out Distance"} value={cullOutDistance} onChange={handleCullOutChange} min={0} max={1} step={0.001}stepBox={0.01}/>
                             <br/>
-                            <Slider title={"Cull In Distance"} value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
+                            <Slider title={"In Distance"} value={cullInDistance} onChange={handleCullInChange}  min={0} max={1} step={0.001}stepBox={0.01}/>
                             <div 
                                 className={styles["actionButton"]}
                                 onClick={updateCulling}>
@@ -104,11 +107,15 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
                             </div>
                         </div>
                         
-                       
+                        </>):(<>
+                            <div className={styles["traitInfoTitle"]}>
+                                No Trait Selected
+                            </div>
+                        
+                        </>)}
                     </div>
 
             </div>
         </div>
-        ):(<></>)
       )
 }
