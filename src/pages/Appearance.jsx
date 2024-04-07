@@ -420,13 +420,6 @@ function Appearance() {
         }
         <CustomButton
           theme="light"
-          text={"Lora Data"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createLora}
-        />
-        <CustomButton
-          theme="light"
           text={"Sprite Atlas"}
           size={14}
           className={styles.buttonRight}
