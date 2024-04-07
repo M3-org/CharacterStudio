@@ -111,7 +111,7 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
                             <div className={styles["traitInfoTitle"]}>
                                 No Trait Selected
                             </div>
-                        
+
                         </>)}
                     </div>
 
