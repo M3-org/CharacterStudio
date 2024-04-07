@@ -3,9 +3,46 @@ import styles from "./TraitInformation.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
 
 export default function LoraCreation({selectedTrait, selectedVRM}){
+    const { manifest, loraDataGenerator, sceneElements } = React.useContext(SceneContext)
 
+    const [ loraOptions, setLoraOptions ] = useState([]) 
+    const [ description, setDescription ] = useState("");
+    const [ loraManifestLocation, setLoraManifestLocation ] = useState("");
+
+    const onSelect = (sel) =>{
+        if (manifest?.loras != null){
+            setDescription(manifest.loras[sel.value].description)
+            setLoraManifestLocation(manifest.loras[sel.value].manifest);
+
+            console.log(manifest.loras[sel.value].manifest)
+        }
+    }
+
+    const createLoraData = async() =>{
+        const parentScene = sceneElements.parent;
+        parentScene.remove(sceneElements);
+        await loraDataGenerator.createLoraData(loraManifestLocation);
+        parentScene.add(sceneElements);
+      }
+
+
+    useEffect(() => {
+    if (manifest?.loras != null){
+        const loraManifestOptions = manifest.loras.map((c,i) => {
+            return {
+                value:i, 
+                label:c.name, 
+                description: c.description,
+                manifest: c.manifest,
+            }
+          })
+          setLoraOptions(loraManifestOptions);
+    }
+    }, [manifest])
     return (
         
         <div>
@@ -13,8 +50,21 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
                 <MenuTitle title="Lora Creation" width={180} right={20}/>
                 <div className={styles["scrollContainer"]}>
                     <div className={styles["traitInfoTitle"]}>
-                        Loras manifests
+                        Lora Manifests
                     </div>
+                    <Dropdown options={loraOptions} onChange={onSelect} placeholder="Select an option" />;
+                
+                    <div className={styles["traitInfoText"]}>
+                        {description}
+                    </div>
+                    {
+                        loraManifestLocation != "" && 
+                        <div 
+                            className={styles["actionButton"]}
+                            onClick={createLoraData}>
+                            <div>  Create Lora Data </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
