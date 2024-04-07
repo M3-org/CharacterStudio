@@ -1,9 +1,9 @@
 
 .InformationContainerPos {
   position: fixed;
-  right: 32px;
+  right: 132px;
   top: 98px;
-  width:350px;
+  width:250px;
   height: -webkit-calc(100vh - 176px);
   height: calc(100vh - 176px);
   backdrop-filter: blur(22.5px);
