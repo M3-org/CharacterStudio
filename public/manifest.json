@@ -1,32 +1,37 @@
 {
   "characters":[
-  {
-    "name": "Anata",
-    "description": "Anata",
-    "portrait": "./assets/portraitImages/anata.png",
-    "manifest":"./character-assets/anata/manifest.json",
-    "icon": "./assets/icons/class-neural-hacker.svg",
-    "format": "vrm"
-  },
-  {
-    "name": "Anata Male",
-    "description": "Anata Male",
-    "portrait": "./assets/portraitImages/anata_male.png",
-    "manifest":"./character-assets/anata_male/manifest.json",
-    "icon": "|",
-    "format": "vrm"
-  },
-  {
-    "name": "Anata Male",
-    "description": "Anata Male",
-    "portrait": "./assets/portraitImages/anata_male.png",
-    "manifest":"./character-assets/test.json",
-    "icon": "|",
-    "format": "vrm"
-  }
+    {
+      "name": "Anata",
+      "description": "Anata",
+      "portrait": "./assets/portraitImages/anata.png",
+      "manifest":"./character-assets/anata/manifest.json",
+      "icon": "./assets/icons/class-neural-hacker.svg",
+      "format": "vrm"
+    },
+    {
+      "name": "Anata Male",
+      "description": "Anata Male",
+      "portrait": "./assets/portraitImages/anata_male.png",
+      "manifest":"./character-assets/anata_male/manifest.json",
+      "icon": "|",
+      "format": "vrm"
+    },
+    {
+      "name": "Anata Male",
+      "description": "Anata Male",
+      "portrait": "./assets/portraitImages/anata_male.png",
+      "manifest":"./character-assets/test.json",
+      "icon": "|",
+      "format": "vrm"
+    }
   ],
   "loras":[
-
+    {
+      "name": "SDXL Lora 728",
+      "description": "Poses and camera positions to create Lora for SDXL 726 x 726",
+      "manifest":"./lora-assets/manifest.json",
+      "icon": "|"
+    }
   ],
   "sprites":[
 
