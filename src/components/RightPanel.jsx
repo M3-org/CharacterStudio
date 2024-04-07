@@ -4,6 +4,9 @@ import MenuTitle from "./MenuTitle"
 import randomizeIcon from "../images/randomize.png"
 import { TokenBox } from "../components/token-box/TokenBox"
 import TraitInformation from "../components/TraitInformation"
+import LoraCreation from "./LoraCreation"
+import SpriteCreation from "./SpriteCreation"
+import ThumbnailCreation from "./ThumbnailCreation"
 
 export default function RightPanel({selectedTrait, selectedVRM}){
     const [selectedOption, setSelectedOption] = React.useState("")
@@ -18,6 +21,9 @@ export default function RightPanel({selectedTrait, selectedVRM}){
     return (
         <div>
             {selectedOption=="Information" && <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
