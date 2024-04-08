@@ -34,9 +34,20 @@
     }
   ],
   "sprites":[
-
+    {
+      "name": "Multiple Animations",
+      "description": "Multiple definitions for different animations converted to sprites.",
+      "manifest":"./sprite-atlas-assets/manifest.json",
+      "icon": "|"
+    }
+    
   ],
   "thumbnails":[
-    
+    {
+      "name": "Clothing Thumbnail",
+      "description": "Create thumbnails for Clothing",
+      "manifest":"./thumbnail-assets/manifest.json",
+      "icon": "|"
+    }
   ]
 }
