@@ -93,27 +93,6 @@ function Appearance() {
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
   }
 
-  const createLora = async() =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
-    parentScene.add(sceneElements);
-  }
-
-  const createSpriteAtlas = async () =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
-    parentScene.add(sceneElements);
-  }
-
-  const createThumbnails = async () =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await thumbnailsGenerator.createThumbnails('./thumbnail-assets/manifest.json');
-    parentScene.add(sceneElements);
-  }
-
   const handleImageDrop = (file) => {
     setIsPickingColor(false);
     if (traitGroupName != ""){
@@ -418,20 +397,6 @@ function Appearance() {
             onClick={next}
           />
         }
-        <CustomButton
-          theme="light"
-          text={"Sprite Atlas"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createSpriteAtlas}
-        />
-        <CustomButton
-          theme="light"
-          text={"Thumbnails"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createThumbnails}
-        />
 
         
         {/* <CustomButton
