@@ -48,6 +48,12 @@
       "description": "Create thumbnails for Clothing",
       "manifest":"./thumbnail-assets/manifest.json",
       "icon": "|"
+    },
+    {
+      "name": "Clothing Thumbnail2",
+      "description": "Create thumbnails for Clothing",
+      "manifest":"./thumbnail-assets/manifest.json",
+      "icon": "|"
     }
   ]
 }
