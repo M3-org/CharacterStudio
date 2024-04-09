@@ -22,22 +22,67 @@
     height: -webkit-calc(100% - 40px);
     height: calc(100% - 40px);
   }
-  
+  .centerAlign{
+    text-align: center;
+  }
   .traitInfoTitle {
+    text-align: center;
     color: white;
     text-transform: uppercase;
     text-shadow: 1px 1px 2px black;
-    font-size: 16px;
+    font-size: 14px;
     word-spacing: 2px;
     margin-bottom: 10px;
   }
+
+  .dropdownFlex{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 5px;
+  }
+  .checkboxFlex{
+    display: flex;
+    align-items: center;
+    margin: 5px;
+  }
+  .simpleFlex{
+    display: flex;
+    align-items: center;
+    margin: 5px;
+  }
+
   .traitInfoText {
+    text-align: center;
     color: rgb(179, 179, 179);
     /* text-transform: uppercase; */
     text-shadow: 1px 1px 2px black;
-    font-size: 16px;
+    font-size: 13px;
     word-spacing: 2px;
     margin-bottom: 30px;
+  }
+  .dropdownBase{
+    color: #5eb086 !important;
+    background-color:#1e2530 !important;
+    font-size: 12px;
+    height: 30px;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    margin: auto;
+  }
+  .dropdownControl{
+    color: #63af88 !important;
+    background-color: #1e2530 !important;
+    font-size: 12px;
+    height: 30px; 
+  }
+  .dropdownControlSmall{
+    color: #63af88 !important;
+    background-color: #1e2530 !important;
+    font-size: 12px;
+    height: 30px; 
+    width: 120px;
   }
   .input-box {
     width: 60px; /* Adjust as needed */
@@ -47,7 +92,7 @@
     border: none;
     font-size: medium;
     font-weight: 500;
-    margin-left: 15px;
+    margin: 4px 15px;
   }
   .input-box:focus {
     outline: none;
@@ -161,16 +206,23 @@
     cursor: pointer;
   }
   
-  .actionButton{
-    margin: 10px auto;
+  .tabHolder{
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+  }
+  .tabButton{
+    margin: 2px 3px;
     text-align: center;
-    outline-color: #3b434f;
-    color: #d1d7df;
-    outline-width: 2px;
+    outline-color: #5eb086;
+    color: #5eb086;
+    outline-width: 1px;
+    width: 60px;
     outline-style: solid;
     background-color: #1e2530;
-    height: 30px;
-    width: 80%;
+    height: 15px;
+    padding: 2px 10px;
     font-family: "TTSC-Bold";
     text-transform: uppercase !important;
     font-size:x-small;
@@ -179,5 +231,10 @@
     align-items : center;
     user-select: none;
     cursor: pointer;
+  }
+  .tabButtonSelected{
+    outline-color: #34634b;
+    color: #478666;
+    cursor: auto;
   }
   
