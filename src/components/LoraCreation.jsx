@@ -52,7 +52,11 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
                     <div className={styles["traitInfoTitle"]}>
                         Lora Manifests
                     </div>
-                    <Dropdown options={options} onChange={onSelect} placeholder="Select an option" />;
+                    <Dropdown 
+                        className={styles.dropdownControl}
+                        options={options} 
+                        onChange={onSelect} 
+                        placeholder="Select an option" />;
                 
                     <div className={styles["traitInfoText"]}>
                         {description}
