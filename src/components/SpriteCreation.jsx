@@ -47,12 +47,16 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
         
         <div>
             <div className={styles["InformationContainerPos"]}>
-                <MenuTitle title="Lora Creation" width={180} right={20}/>
+                <MenuTitle title="Sprite Creation" width={180} right={20}/>
                 <div className={styles["scrollContainer"]}>
                     <div className={styles["traitInfoTitle"]}>
                         Sprite Manifests
                     </div>
-                    <Dropdown options={options} onChange={onSelect} placeholder="Select an option" />;
+                    <Dropdown 
+                        className={styles.dropdownControl}
+                        options={options} 
+                        onChange={onSelect} 
+                        placeholder="Select an option" />;
                 
                     <div className={styles["traitInfoText"]}>
                         {description || ""}
