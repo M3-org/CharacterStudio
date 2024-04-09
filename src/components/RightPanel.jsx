@@ -8,7 +8,7 @@ import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
 
-export default function RightPanel({selectedTrait, selectedVRM}){
+export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
     const [selectedOption, setSelectedOption] = React.useState("")
     const setSelectedOptionString = (option) => {
         if (option != selectedOption){
@@ -23,7 +23,7 @@ export default function RightPanel({selectedTrait, selectedVRM}){
             {selectedOption=="Information" && <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
-            {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
