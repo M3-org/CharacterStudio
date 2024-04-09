@@ -10,9 +10,8 @@ export class ThumbnailGenerator {
         this.animationManager = this.characterManager.animationManager;
     }
 
-    async createThumbnails(manifestURL){
-        
-        const manifest = await this._fetchManifest(manifestURL);
+    async createThumbnailsWithObjectData(objectData, maxQty = Infinity, loadAnimation = true, loadTrait = true){
+
         const {
 
             assetsLocation = "",
@@ -27,15 +26,17 @@ export class ThumbnailGenerator {
             thumbnailsHeight = 128,
             
             thumbnailsCollection
-        } = manifest
+        } = objectData
         const animBasePath = assetsLocation + "/";
 
         let finalAnimationTime = animationFrame || 0;
-        if (animationFrame != null){
-            finalAnimationTime = animationFrame * 30;
+        if (animationTime != null){
+            finalAnimationTime = animationTime * 30;
         }
 
-        await this.animationManager.loadAnimation(animBasePath + poseAnimation, true, finalAnimationTime);
+        if (loadAnimation){
+            await this.animationManager.loadAnimation(animBasePath + poseAnimation, true, finalAnimationTime);
+        }
 
 
         // const normalizedTopOffset = topFrameOffsetPixels/height;
@@ -49,11 +50,11 @@ export class ThumbnailGenerator {
         this.blinkManager.enableScreenshot();
         await this.screenshotManager._setBonesOffset(0.2);
 
-        console.log(manifest);
         const scope = this;
         let counter = 0;
 
         // pose the character
+        console.log(objectData);
         
         if (Array.isArray(thumbnailsCollection)){
             console.log("t");
@@ -102,14 +103,15 @@ export class ThumbnailGenerator {
                     for (let i=0; i < modelTraits.length;i++){
                         console.log(modelTraits[i].id);
                         const traitId = modelTraits[i].id;
-                        await scope.characterManager.loadTrait(traitGroup, traitId,true);
+                        if (loadTrait)
+                            await scope.characterManager.loadTrait(traitGroup, traitId,true);
                         //await scope.animationManager.loadAnimation(animBasePath + poseAnimation, true, finalAnimationTime);
                         //scope.animationManager.setTime(finalAnimationTime);
                         await delay(100);
                         scope.screenshotManager.saveScreenshot(traitGroup + "_" + traitId, thumbnailsWidth, thumbnailsHeight);
                    
                         counter++
-                        if (counter > 10){
+                        if (counter >= maxQty){
                             break;
                         }
                         else{
@@ -125,6 +127,13 @@ export class ThumbnailGenerator {
         }
 
         this.blinkManager.disableScreenshot();
+    }
+
+    async createThumbnailsWithManifest(manifestURL, maxQty){
+        
+        const manifest = await this._fetchManifest(manifestURL);
+        await this.createThumbnailsWithObjectData(manifest,maxQty)
+        
     }
 
     async _fetchManifest(location) {
