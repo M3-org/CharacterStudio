@@ -375,7 +375,7 @@ function Appearance() {
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
-      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM}/>
+      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM} traitGroupName={traitGroupName}/>
 
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
