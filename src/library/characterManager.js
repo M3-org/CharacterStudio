@@ -57,7 +57,8 @@ export class CharacterManager {
          this.animationManager.setScale(this.manifestData.displayScale)
       }
       
-      this.avatar = {};   // Holds information of traits within the avatar
+      this.avatar = {};       // Holds information of traits within the avatar
+      this.storedAvatar = {}; // Holds information of an avatar previously stored
       this.traitLoadManager = new TraitLoadingManager();
 
       // XXX actually use the vrm helper
@@ -65,6 +66,8 @@ export class CharacterManager {
       helperRoot.renderOrder = 10000;
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
+
+      
     }
 
     update(){
@@ -795,8 +798,46 @@ export class CharacterManager {
         }
       });
     }
+    /**
+     * Displays only target trait, and removes all others
+     *
+     * @param {string} groupTraitID - The name of the trait that will be solo, (accepts also an array of traits)
+     */
+    async soloTargetGroupTrait(groupTraitID){
+      const groupTraitIDArray = getAsArray(groupTraitID) 
+      const options = [];
+      for (const trait in this.avatar){
+        if (groupTraitIDArray.includes(trait)){
+          options.push(this.manifestData.getTraitOption(trait, this.avatar[trait].traitInfo.id));
+        }
+      }
+      await this._loadTraits(options,true);
+    }
+
+    /**
+     * Stores the current selected avatar for later loading
+     *
+     */
+    storeCurrentAvatar(){
+      this.storedAvatar = {...this.avatar}
+    }
+    /**
+     * Loads a previously stored avatar
+     *
+     */
+    async loadStoredAvatar(){
+      const options = [];
+      for (const trait in this.storedAvatar){
+        options.push(this.manifestData.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
+        // TO DO, ALSO GET COLOR TRAITS AND TEXTURE TRAITS
+      }
+      console.log(options);
+      this._loadTraits(options,true);
+      //const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
+    }
 
     async _loadTraits(options, fullAvatarReplace = false){
+      console.log("laoded traits:", options)
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
