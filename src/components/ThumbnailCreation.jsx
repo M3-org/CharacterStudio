@@ -92,7 +92,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         parentScene.add(sceneElements);
     }
 
-    const getOptions = () =>{
+    const getOptions = (exportAll = true) =>{
         return {
             topFrameOffset:topFrame,
             bottomFrameOffset:botFrame,
@@ -105,18 +105,27 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                     cameraPosition:`${xCam-yCam-zCam}`,
                     topBoneName:topBone,
                     topBoneMaxVertex:topVertexMax,
+                    // cameraFrame:'cowboyShot',
                     bottomBoneName:bottomBone,
-                    bottomBoneMaxVertex:bottomVertexMax
+                    bottomBoneMaxVertex:bottomVertexMax,
+                    saveOnlyIDs:exportAll ? null : selectedTrait.id
                 }
             ]
         }
     }
 
-    const createCustomThumbnails = async (createAlll = false) => {
+    const createCustomThumbnails = async (createAll = false) => {
+        characterManager.storeCurrentAvatar();
+        //await characterManager.soloTargetGroupTrait(traitGroupName);
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),createAlll ? 10 : 1,false,false);
+        if (createAll)
+            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),10,false);
+        else
+            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(false),1,false);`   `
         parentScene.add(sceneElements);
+
+       characterManager.loadStoredAvatar();
     }
 
 

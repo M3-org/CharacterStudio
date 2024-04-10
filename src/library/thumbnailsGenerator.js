@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { getVectorCameraPosition } from "./utils";
+import { getAsArray, getVectorCameraPosition } from "./utils";
 const localVector3 = new THREE.Vector3();
 
 export class ThumbnailGenerator {
@@ -69,7 +69,8 @@ export class ThumbnailGenerator {
                         topBoneMaxVertex = true,
                         groupTopOffset,
                         groupBotomOffset,
-                        cameraFrame
+                        cameraFrame,
+                        saveOnlyIDs
                     } = thumbnailInfo;
 
                     if (!bottomBoneName || !topBoneName){
@@ -82,14 +83,27 @@ export class ThumbnailGenerator {
                         continue;
                     }
 
-                    const modelTraits = scope.characterManager.getTraits(traitGroup)
-                    
+                    const getSaveOnlyIDs = () => {
+                        const resultArray = [];
+                        const saveOnlyIDArray = getAsArray (saveOnlyIDs);
+                        saveOnlyIDArray.forEach(idValue => {
+                            resultArray.push({id:idValue})
+                        });
+                        return resultArray;
+                    }
+
+
+                    const modelTraits = saveOnlyIDs == null ? 
+                        scope.characterManager.getTraits(traitGroup):
+                        getSaveOnlyIDs();
+                        
+
                     if (modelTraits == null){
                         console.log("SKipping Thumbnail Generation for trait group " + traitGroup + ", its not present in the character manifest.")
                         continue;
                     }
+                    console.log("TRAITS", modelTraits);
 
-                    console.log(modelTraits);
                     const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                     if (cameraFrame){
                         console.log("frames camera");
@@ -103,8 +117,7 @@ export class ThumbnailGenerator {
                     for (let i=0; i < modelTraits.length;i++){
                         console.log(modelTraits[i].id);
                         const traitId = modelTraits[i].id;
-                        if (loadTrait)
-                            await scope.characterManager.loadTrait(traitGroup, traitId,true);
+                        await scope.characterManager.loadTrait(traitGroup, traitId,true);
                         //await scope.animationManager.loadAnimation(animBasePath + poseAnimation, true, finalAnimationTime);
                         //scope.animationManager.setTime(finalAnimationTime);
                         await delay(100);
@@ -113,9 +126,6 @@ export class ThumbnailGenerator {
                         counter++
                         if (counter >= maxQty){
                             break;
-                        }
-                        else{
-                            counter++;
                         }
                     }
                     //const saveName = animationName ? animationName : counter.toString().padStart(2, '0');
