@@ -39,68 +39,68 @@ const CHUNK_TYPE_JSON = "JSON";
 const CHUNK_TYPE_BIN = "BIN\x00";
 const GLTF_VERSION = 2;
 const HEADER_SIZE = 12;
-function convertMetaToVRM0(meta){
-  return {
-    title:meta.name,
-    version:"v0", 
-    author: meta.authors[0] || "",
-    contactInformation: meta.contactInformation,
-    allowedUserName:meta.allowedUserName,
-    violentUssageName: meta.allowExcessivelyViolentUsage ? "Allow":"Disallow",
-    sexualUssageName: meta.allowExcessivelySexualUsage ? "Allow":"Disallow",
-    commercialUssageName: "Disallow",
-  }
+function convertMetaToVRM0(meta) {
+    return {
+        title: meta.name,
+        version: "v0",
+        author: meta.authors[0] || "",
+        contactInformation: meta.contactInformation,
+        allowedUserName: meta.allowedUserName,
+        violentUssageName: meta.allowExcessivelyViolentUsage ? "Allow" : "Disallow",
+        sexualUssageName: meta.allowExcessivelySexualUsage ? "Allow" : "Disallow",
+        commercialUssageName: "Disallow",
+    }
 }
-function convertHumanoidToVRM0(humanoid){
-  const newHumanBones = [];
-  for (const prop in humanoid.humanBones){
-    newHumanBones.push({
-      bone:prop,
-      node:humanoid.humanBones[prop].node
-    })
-  }
-  return {
-    humanBones:newHumanBones
-  }
-}
-
-function getVRM0BlendshapeName(curName){
-  switch(curName){
-    case "happy":
-      return "joy"
-    case "sad":
-      return "sorrow"
-    case "relaxed":
-      return "fun"
-    case "aa":
-      return "a"
-    case "ih":
-      return "i"
-    case "ou":
-      return "u"
-    case "ee":
-      return "e"
-    case "oh":
-      return "o"
-    default:
-      return curName;
-  }
+function convertHumanoidToVRM0(humanoid) {
+    const newHumanBones = [];
+    for (const prop in humanoid.humanBones) {
+        newHumanBones.push({
+            bone: prop,
+            node: humanoid.humanBones[prop].node
+        })
+    }
+    return {
+        humanBones: newHumanBones
+    }
 }
 
-function getVRM0BoneName(name){
-  if (name.includes("Thumb")){
-    if (name.includes ("Metacarpal"))
-      return name.replace("Metacarpal", "Proximal")
-    if (name.includes ("Proximal"))
-      return name.replace("Proximal", "Intermediate")
-  }
-  return name;
+function getVRM0BlendshapeName(curName) {
+    switch (curName) {
+        case "happy":
+            return "joy"
+        case "sad":
+            return "sorrow"
+        case "relaxed":
+            return "fun"
+        case "aa":
+            return "a"
+        case "ih":
+            return "i"
+        case "ou":
+            return "u"
+        case "ee":
+            return "e"
+        case "oh":
+            return "o"
+        default:
+            return curName;
+    }
+}
+
+function getVRM0BoneName(name) {
+    if (name.includes("Thumb")) {
+        if (name.includes("Metacarpal"))
+            return name.replace("Metacarpal", "Proximal")
+        if (name.includes("Proximal"))
+            return name.replace("Proximal", "Intermediate")
+    }
+    return name;
 }
 export default class VRMExporterv0 {
     parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
-        
+
         const materials = vrm.materials;
         //const expressionsPreset = {};
         //const expressionCustom = {};
@@ -132,7 +132,7 @@ export default class VRMExporterv0 {
         //     throw new Error("springBone is undefined or null");
         // }
         // TODO: name基準で重複除外 これでいいのか？
-        
+
 
         const uniqueMaterials = materials
             .filter((material, index, self) => self.findIndex((e) => e.name === material.name.replace(" (Outline)", "")) === index)
@@ -143,37 +143,37 @@ export default class VRMExporterv0 {
         const icon = screenshot
             ? { name: "icon", imageBitmap: screenshot.image }
             : null; // TODO: ない場合もある
-        
+
         const mainImages = uniqueMaterials
             .filter((material) => material.map)
             .map((material) => {
-            if (!material.map)
-                throw new Error(material.name + " map is null");
-            return { name: material.name, imageBitmap: material.map.image };
-        }); 
+                if (!material.map)
+                    throw new Error(material.name + " map is null");
+                return { name: material.name, imageBitmap: material.map.image };
+            });
         const shadeImages = uniqueMaterials
             .filter((material) => material.userData.shadeTexture)
             .map((material) => {
-            if (!material.userData.shadeTexture)
-                throw new Error(material.userData.shadeTexture + " map is null");
-            return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
-        }); 
+                if (!material.userData.shadeTexture)
+                    throw new Error(material.userData.shadeTexture + " map is null");
+                return { name: material.name + "_shade", imageBitmap: material.userData.shadeTexture.image };
+            });
         const ormImages = uniqueMaterials
             .filter((material) => material.roughnessMap)
             .map((material) => {
-            if (!material.roughnessMap)
-                return null;
-            return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
-        }); 
+                if (!material.roughnessMap)
+                    return null;
+                return { name: material.name + "_orm", imageBitmap: material.roughnessMap.image };
+            });
 
         const normalImages = uniqueMaterials
-        .filter((material) => material.roughnessMap)
-        .map((material) => {
-            if (!material.normalMap)
-                return null
-            return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
-        }); 
-        const images =  [...mainImages, ...shadeImages, ...ormImages,...normalImages].filter(element => element !== null);
+            .filter((material) => material.roughnessMap)
+            .map((material) => {
+                if (!material.normalMap)
+                    return null
+                return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
+            });
+        const images = [...mainImages, ...shadeImages, ...ormImages, ...normalImages].filter(element => element !== null);
         const outputImages = toOutputImages(images, icon);
         const outputSamplers = toOutputSamplers(outputImages);
         const outputTextures = toOutputTextures(outputImages);
@@ -183,26 +183,28 @@ export default class VRMExporterv0 {
         const nodes = getNodes(rootNode).filter((node) => node.name !== SPRINGBONE_COLLIDER_NAME);
         const nodeNames = nodes.map((node) => node.name);
         const outputNodes = nodes.map((node) => {
-            return {
-            children: node.children
+            const childNodeIndices = node.children
                 .filter((childNode) => childNode.name !== SPRINGBONE_COLLIDER_NAME)
-                .map((childNode) => nodeNames.indexOf(childNode.name)),
-            name: node.name,
-            rotation: [
-                node.quaternion.x,
-                node.quaternion.y,
-                node.quaternion.z,
-                node.quaternion.w,
-            ],
-            scale: [node.scale.x, node.scale.y, node.scale.z],
-            translation: [node.position.x, node.position.y, node.position.z],
-            }
+                .map((childNode) => nodeNames.indexOf(childNode.name));
+
+            return {
+                name: node.name,
+                rotation: [
+                    node.quaternion.x,
+                    node.quaternion.y,
+                    node.quaternion.z,
+                    node.quaternion.w,
+                ],
+                scale: [node.scale.x, node.scale.y, node.scale.z],
+                translation: [node.position.x, node.position.y, node.position.z],
+                children: childNodeIndices.length > 0 ? childNodeIndices : undefined,  // only include children if there are any
+            };
         });
         const outputAccessors = [];
         const meshes = avatar.children.filter((child) => child.type === VRMObjectType.Group ||
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
-        
+
         meshes.forEach((object) => {
             const mesh = (object.type === VRMObjectType.Group
                 ? object.children[0]
@@ -210,9 +212,31 @@ export default class VRMExporterv0 {
             const attributes = mesh.geometry.attributes;
             const positionAttribute = new MeshData(attributes.position, WEBGL_CONST.FLOAT, MeshDataType.POSITION, AccessorsType.VEC3, mesh.name, undefined);
             meshDatas.push(positionAttribute);
-            const meshDataIndex = meshDatas.length-1;
+            const meshDataIndex = meshDatas.length - 1;
 
-            const normalAttribute = new MeshData(attributes.normal, WEBGL_CONST.FLOAT, MeshDataType.NORMAL, AccessorsType.VEC3, mesh.name, undefined);
+            const normalArray = attributes.normal.array;
+            const normalizedArray = new Float32Array(normalArray.length);
+
+            for (let i = 0; i < normalArray.length; i += 3) {
+                const x = normalArray[i];
+                const y = normalArray[i + 1];
+                const z = normalArray[i + 2];
+
+                const length = Math.sqrt(x * x + y * y + z * z);
+
+                normalizedArray[i] = x / length;
+                normalizedArray[i + 1] = y / length;
+                normalizedArray[i + 2] = z / length;
+            }
+
+            const normalAttribute = new MeshData(
+                new BufferAttribute(normalizedArray, 3),
+                WEBGL_CONST.FLOAT,
+                MeshDataType.NORMAL,
+                AccessorsType.VEC3,
+                mesh.name,
+                undefined
+            );
             meshDatas.push(normalAttribute);
 
             meshDatas.push(new MeshData(attributes.uv, WEBGL_CONST.FLOAT, MeshDataType.UV, AccessorsType.VEC2, mesh.name, undefined));
@@ -238,41 +262,42 @@ export default class VRMExporterv0 {
 
             mesh.geometry.userData.targetNames = [];
             console.warn("taking only mesh 0 for morph targets now, take the correct mesh");
-            for (const prop in vrm.expressionManager.expressionMap){
+            for (const prop in vrm.expressionManager.expressionMap) {
                 const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({mesh:0, index:obj.index, weight:obj.weight * 100  }))
+                const morphTargetBinds = expression._binds.map(obj => ({ mesh: 0, index: obj.index, weight: obj.weight * 100 }))
                 //only add those that have connected binds
-                if (morphTargetBinds.length > 0){
+                if (morphTargetBinds.length > 0) {
                     let isPreset = false;
                     for (const presetName in VRMExpressionPresetName) {
-                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised"){
-                        blendShapeGroups.push({
-                            name:prop,
-                            presetName: getVRM0BlendshapeName(prop),
-                            binds:morphTargetBinds,
-                            isBinary:expression.isBinary,
-                        })
-                        isPreset = true;
-                        break;
+                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised") {
+                            blendShapeGroups.push({
+                                name: prop,
+                                presetName: getVRM0BlendshapeName(prop),
+                                binds: morphTargetBinds,
+                                isBinary: expression.isBinary,
+                            })
+                            isPreset = true;
+                            break;
                         }
                     }
-                    if (isPreset === false){
-                    blendShapeGroups.push({
-                        name:prop,
-                        presetName: "unknown",
-                        binds:morphTargetBinds,
-                        isBinary:expression.isBinary,
-                    })
+                    if (isPreset === false) {
+                        blendShapeGroups.push({
+                            name: prop,
+                            presetName: "unknown",
+                            binds: morphTargetBinds,
+                            isBinary: expression.isBinary,
+                        })
                     }
                 }
-                
+
                 // to do, material target binds, and texture transform binds
             }
 
-            const getMorphData = ( attributeData , prop , meshDataType, baseAttribute) => {
+            const getMorphData = (attributeData, prop, meshDataType, baseAttribute) => {
                 const nonZeroIndices = [];
-                const nonZeroValues = [];    
-                // Step 1: Get Zero Elements
+                const nonZeroValues = [];
+
+                // Step 1: Get Non-Zero Elements
                 for (let i = 0; i < attributeData.length; i += 3) {
                     const x = attributeData[i];
                     const y = attributeData[i + 1];
@@ -284,49 +309,50 @@ export default class VRMExporterv0 {
                         nonZeroValues.push(x, y, z);
                     }
                 }
-                if (nonZeroIndices.length > 0){
-                    // Step 2: Calculate padding
-                    const originalLength = nonZeroIndices.length;
-                    const remainder = originalLength % 4;
-                    const padding = (remainder === 0) ? 0 : 4 - remainder;
 
-                    // Step 3: Add padding if needed
-                    if (padding > 0) {
-                        for (let i = 0; i < padding; i++) {
-                            nonZeroIndices.push(0); // Add dummy indices for padding
-                            nonZeroValues.push(0, 0, 0);
-                        }
+                if (nonZeroIndices.length > 0) {
+                    // Step 2: Sort the nonZeroIndices array in ascending order
+                    const sortedIndices = [...nonZeroIndices].sort((a, b) => a - b);
+
+                    // Step 3: Create a new nonZeroValues array based on the sorted indices
+                    const sortedValues = [];
+                    for (let i = 0; i < sortedIndices.length; i++) {
+                        const index = sortedIndices[i];
+                        const valueIndex = nonZeroIndices.indexOf(index);
+                        sortedValues.push(nonZeroValues[valueIndex * 3], nonZeroValues[valueIndex * 3 + 1], nonZeroValues[valueIndex * 3 + 2]);
                     }
 
-                    // Step 3: Create sparse data
+                    // Step 4: Create sparse data
                     const sparseData = {
-                        targetMeshDataIndex:meshDataIndex,
-                        count: nonZeroIndices.length,  // Total number of position elements
-                        indices: new Uint32Array(nonZeroIndices),
-                        values: new Float32Array(nonZeroValues),
+                        targetMeshDataIndex: meshDataIndex,
+                        count: sortedIndices.length,
+                        indices: new Uint32Array(sortedIndices),
+                        values: new Float32Array(sortedValues),
                     };
-                    // Step 4: Create MeshData
-                    meshDatas.push(new MeshData(
-                        baseAttribute, 
-                        WEBGL_CONST.FLOAT, 
-                        meshDataType, 
-                        AccessorsType.VEC3, 
-                        mesh.name, 
-                        BLENDSHAPE_PREFIX + prop,
-                        sparseData));
-                }
-            }
 
-            for (const prop in mesh.morphTargetDictionary){
+                    // Step 5: Create MeshData
+                    meshDatas.push(new MeshData(
+                        baseAttribute,
+                        WEBGL_CONST.FLOAT,
+                        meshDataType,
+                        AccessorsType.VEC3,
+                        mesh.name,
+                        BLENDSHAPE_PREFIX + prop,
+                        sparseData
+                    ));
+                }
+            };
+
+            for (const prop in mesh.morphTargetDictionary) {
 
                 mesh.geometry.userData.targetNames.push(prop);
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
 
-                getMorphData(morphAttribute.position[morphIndex].array, prop , MeshDataType.BLEND_POSITION , attributes.position)
-                
+                getMorphData(morphAttribute.position[morphIndex].array, prop, MeshDataType.BLEND_POSITION, attributes.position)
+
                 if (morphAttribute.normal)
-                    getMorphData(morphAttribute.normal[morphIndex].array, prop , MeshDataType.BLEND_NORMAL , attributes.normal)
+                    getMorphData(morphAttribute.normal[morphIndex].array, prop, MeshDataType.BLEND_NORMAL, attributes.normal)
 
             }
         });
@@ -340,8 +366,9 @@ export default class VRMExporterv0 {
             meshDatas.push(new MeshData(new BufferAttribute(inverseBindMatrices, 16), WEBGL_CONST.FLOAT, MeshDataType.BIND_MATRIX, AccessorsType.MAT4, mesh.name, mesh.name));
         });
         outputAccessors.push(...meshDatas.map((meshData) => ({
-           // bufferView: -1,
-            byteOffset: 0,
+            // bufferView: -1,
+            // commented out byteOffset as it'd except a bufferView property to be present in the accessors sparse causing an error
+            // byteOffset: 0,
             componentType: meshData.valueType,
             count: meshData.attribute.count,
             max: meshData.max,
@@ -390,17 +417,17 @@ export default class VRMExporterv0 {
         const outputSkins = toOutputSkins(meshes, meshDatas, nodeNames);
 
         const vrmHumanoid = {
-          humanBones: []
-          //humanBones2: Object.assign(humanoid.humanBones)
+            humanBones: []
+            //humanBones2: Object.assign(humanoid.humanBones)
 
         };
         humanoid.humanBones.forEach(bone => {
-           
+
             if (nodeNames.indexOf(bone.node.name) != -1) vrmHumanoid.humanBones.push({
-            bone: getVRM0BoneName(bone.bone), //for thumb
-            node: nodeNames.indexOf(bone.node.name),
-            useDefaultValues:true
-          })
+                bone: getVRM0BoneName(bone.bone), //for thumb
+                node: nodeNames.indexOf(bone.node.name),
+                useDefaultValues: true
+            })
         });
         //rest of the data is stored in VRMHumanoidDescription
         // const vrmHumanoid = {
@@ -420,15 +447,15 @@ export default class VRMExporterv0 {
         //     upperArmTwist: humanoid.humanDescription.upperArmTwist,
         //     upperLegTwist: humanoid.humanDescription.upperLegTwist,
         // };
-        
+
         const vrmMaterialProperties = {
-            floatProperties : {
+            floatProperties: {
                 // _BlendMode : 0, 
                 // _BumpScale : 1, 
                 // _CullMode : 0,
                 // _Cutoff : 0.5,
                 // _DebugMode : 0,
-                _DstBlend : 0.5,
+                _DstBlend: 0.5,
                 // _IndirectLightIntensity : 0.1,
                 // _LightColorAttenuation : 0,
                 // _MToonVersion : 38, 
@@ -442,41 +469,41 @@ export default class VRMExporterv0 {
                 // _RimFresnelPower : 1, 
                 // _RimLift : 0, 
                 // _RimLightingMix : 0, 
-                _ShadeShift : 0.5, 
-                _ShadeToony : 0.5, 
-                _ShadingGradeRate : 0.5, 
+                _ShadeShift: 0.5,
+                _ShadeToony: 0.5,
+                _ShadingGradeRate: 0.5,
                 // _SrcBlend : 1, 
                 // _UvAnimRotation : 0,
                 // _UvAnimScrollX : 0, 
                 // _UvAnimScrollY : 0, 
                 // _ZWrite : 1
             },
-            keywordMap : {
-                _NORMALMAP : false, 
-                MTOON_OUTLINE_COLOR_FIXED : true, 
-                MTOON_OUTLINE_WIDTH_WORLD : true
-            }, 
-            name : "VRMCombinedMat", 
-            renderQueue : 2000, 
-            shader : "VRM/MToon", 
-            tagMap : {
-                RenderType : "Opaque"
-            }, 
-            textureProperties : {
-                _MainTex : 0, 
-                _ShadeTexture : 0
-            }, 
-            vectorProperties : {
-                _Color : [1, 1, 1, 1], 
-                _EmissionColor : [0, 0, 0, 1], 
-                _EmissionMap : [0, 0, 1, 1], 
-                _MainTex : [0, 0, 1, 1], 
-                _OutlineColor : [0, 0, 0, 1], 
-                _OutlineWidthTexture : [0, 0, 1, 1], 
-                _ReceiveShadowTexture : [0, 0, 1, 1], 
-                _RimColor : [0, 0, 0, 1], 
-                _RimTexture : [0, 0, 1, 1], 
-                _ShadeColor : [0.9, 0.9, 0.9, 1], 
+            keywordMap: {
+                _NORMALMAP: false,
+                MTOON_OUTLINE_COLOR_FIXED: true,
+                MTOON_OUTLINE_WIDTH_WORLD: true
+            },
+            name: "VRMCombinedMat",
+            renderQueue: 2000,
+            shader: "VRM/MToon",
+            tagMap: {
+                RenderType: "Opaque"
+            },
+            textureProperties: {
+                _MainTex: 0,
+                _ShadeTexture: 0
+            },
+            vectorProperties: {
+                _Color: [1, 1, 1, 1],
+                _EmissionColor: [0, 0, 0, 1],
+                _EmissionMap: [0, 0, 1, 1],
+                _MainTex: [0, 0, 1, 1],
+                _OutlineColor: [0, 0, 0, 1],
+                _OutlineWidthTexture: [0, 0, 1, 1],
+                _ReceiveShadowTexture: [0, 0, 1, 1],
+                _RimColor: [0, 0, 0, 1],
+                _RimTexture: [0, 0, 1, 1],
+                _ShadeColor: [0.9, 0.9, 0.9, 1],
                 // _ShadeTexture : [0, 0, 1, 1], 
                 // _ShadingGradeTexture : [0, 0, 1, 1], 
                 // _SphereAdd : [0, 0, 1, 1], 
@@ -484,19 +511,19 @@ export default class VRMExporterv0 {
             }
         }
 
-        const stdMaterialProperties ={
-            name : "STDCombinedMat", 
-            shader : "VRM_USE_GLTFSHADER", 
+        const stdMaterialProperties = {
+            name: "STDCombinedMat",
+            shader: "VRM_USE_GLTFSHADER",
         }
 
         const materialProperties = []
         uniqueMaterials.forEach(mat => {
-            if (mat.type == "ShaderMaterial"){
+            if (mat.type == "ShaderMaterial") {
                 materialProperties.push(
                     materialProperties.push(Object.assign({}, vrmMaterialProperties))
                 )
             }
-            else{
+            else {
                 materialProperties.push(
                     materialProperties.push(Object.assign({}, stdMaterialProperties))
                 )
@@ -523,20 +550,20 @@ export default class VRMExporterv0 {
         const skeleton = meshes.find(mesh => mesh.isSkinnedMesh)?.skeleton || null;
 
         //current method: were saving in userData the values that we want to store, 
-        for (let i =0; i < skeleton.bones.length;i++){
+        for (let i = 0; i < skeleton.bones.length; i++) {
             const bn = skeleton.bones[i];
-            if (bn.userData.VRMcolliders){
+            if (bn.userData.VRMcolliders) {
                 // get the node value here
                 const colliderGroup = {
-                    node:nodeNames.indexOf(bn.name),
-                    colliders:[],
-                    name:bn.name
+                    node: nodeNames.indexOf(bn.name),
+                    colliders: [],
+                    name: bn.name
                 }
                 bn.userData.VRMcolliders.forEach(collider => {
                     const sphere = collider.sphere
                     colliderGroup.colliders.push({
-                        radius:sphere.radius * scale,
-                        offset:{x:sphere.offset[0] * scale,y:sphere.offset[1] * scale,z:sphere.offset[2] * scale}
+                        radius: sphere.radius * scale,
+                        offset: { x: sphere.offset[0] * scale, y: sphere.offset[1] * scale, z: sphere.offset[2] * scale }
                     })
                 });
                 colliderGroups.push(colliderGroup)
@@ -544,7 +571,7 @@ export default class VRMExporterv0 {
         }
         console.log("COLLIDER GROUPS", colliderGroups);
 
-        const findBoneIndex = (boneName) =>{
+        const findBoneIndex = (boneName) => {
             for (let i = 0; i < nodes.length; i++) {
                 const node = nodes[i];
                 if (node.name === boneName) {
@@ -567,39 +594,39 @@ export default class VRMExporterv0 {
             springBone.colliderGroups.forEach(colliderGroup => {
                 const springCollider = colliderGroup.colliders[0];
                 // sometimes there are no colliders defined in collidersGroup
-                if (springCollider != null){
+                if (springCollider != null) {
                     const springParent = springCollider.parent;
                     const ind = colliderGroups.findIndex(group => group.name === springParent.name);
-                    if (ind != -1){
+                    if (ind != -1) {
                         if (!colliderIndices.includes(ind))
                             colliderIndices.push(ind);
                     }
-                    else{
+                    else {
                         console.warn("No collider group for bone name: ", springParent.name + " was found");
                     }
                 }
-                else{
+                else {
                     console.log("No colliders definition were present in vrm file file for: ", springBone.name + " spring bones")
                 }
             });
 
-            
-            let centerIndex = findBoneIndex(springBone.center?.name);   
+
+            let centerIndex = findBoneIndex(springBone.center?.name);
             if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
             // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
             const settings = springBone.settings;
 
             // FIX!!
-            
+
             boneGroups.push(
                 {
                     bones: [boneIndex],
-                    center:centerIndex,
+                    center: centerIndex,
                     colliderGroups: colliderIndices,
                     dragForce: settings.dragForce,
                     gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
                     gravityPower: settings.gravityPower,
-                    hitRadius:settings.hitRadius,
+                    hitRadius: settings.hitRadius,
                     stiffiness: settings.stiffness // for some reason specs mark as stiffiness, but loads it as stiffness
                 }
             );
@@ -610,24 +637,24 @@ export default class VRMExporterv0 {
             colliderGroups,
         }
         console.log(outputSecondaryAnimation);
-        
-        
+
+
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
         const bufferViews = [];
         bufferViews.push(...images.map((image) => ({
             buffer: imageBitmap2png(image.imageBitmap),
             type: MeshDataType.IMAGE,
         })));
-        
+
         // bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
 
         const meshDataBufferViewRelation = [];
         meshDatas.forEach((data, i) => {
             if (data.buffer) {
-                bufferViews.push({ buffer: data.buffer, typeString:"", type: data.type });
+                bufferViews.push({ buffer: data.buffer, typeString: "", type: data.type });
             } else if (data.sparse) {
-                bufferViews.push({ buffer: data.sparse.indices, typeString:"indices", type: data.type, count:data.sparse.count });
-                bufferViews.push({ buffer: data.sparse.values, typeString:"values",type: data.type });
+                bufferViews.push({ buffer: data.sparse.indices, typeString: "indices", type: data.type, count: data.sparse.count });
+                bufferViews.push({ buffer: data.sparse.values, typeString: "values", type: data.type });
             }
             meshDataBufferViewRelation[i] = bufferViews.length - 1;
         });
@@ -649,11 +676,13 @@ export default class VRMExporterv0 {
                 byteLength: bufferView.buffer.byteLength,
                 byteOffset: bufferOffset,
                 target: bufferView.type === MeshDataType.IMAGE ||
-                    bufferView.type === MeshDataType.BIND_MATRIX
+                    bufferView.type === MeshDataType.BIND_MATRIX ||
+                    bufferView.typeString === "indices" || // added these conditions
+                    bufferView.typeString === "values"
                     ? undefined
                     : bufferView.type === MeshDataType.INDEX
                         ? WEBGL_CONST.ELEMENT_ARRAY_BUFFER
-                        : WEBGL_CONST.ARRAY_BUFFER, // TODO: だいたいこれだったの　Mesh/indicesだけELEMENT...
+                        : WEBGL_CONST.ARRAY_BUFFER,
             };
             bufferOffset += bufferView.buffer.byteLength;
             if (bufferView.type === MeshDataType.IMAGE) {
@@ -661,7 +690,7 @@ export default class VRMExporterv0 {
                 index++;
             }
             else {
-                if (!meshDatas[accessorIndex].sparse){
+                if (!meshDatas[accessorIndex].sparse) {
                     meshDatas[accessorIndex].bufferIndex = index;
                     // save the bufferview in case we need it for sparse accessors
                     outputAccessors[accessorIndex].bufferView = index;
@@ -669,37 +698,37 @@ export default class VRMExporterv0 {
                     accessorIndex++
                     index++;
                 }
-                else{
+                else {
                     // create the sparse object if it has not been created yet
-                    if (outputAccessors[accessorIndex].sparse == null){
+                    if (outputAccessors[accessorIndex].sparse == null) {
                         outputAccessors[accessorIndex].sparse = {}
                         // const targetBufferView = meshDataBufferViewRelation[meshDatas[accessorIndex].targetMeshDataIndex];
                         // outputAccessors[accessorIndex].bufferView = targetBufferView;
                         // console.log(outputAccessors[accessorIndex].bufferView);
                     }
-                    
+
                     // if the buffer view is representing indices of the sparse, save them into an indices object
                     // also save count, we can take the length of the indicesw view for this
-                    if (bufferView.typeString === "indices"){
+                    if (bufferView.typeString === "indices") {
                         outputAccessors[accessorIndex].sparse.count = bufferView.count;
                         outputAccessors[accessorIndex].sparse[bufferView.typeString] = {
-                            bufferView : index,
-                            byteOffset : 0,
-                            componentType : WEBGL_CONST.UNSIGNED_INT
+                            bufferView: index,
+                            byteOffset: 0,
+                            componentType: WEBGL_CONST.UNSIGNED_INT
                         }
                     }
-                    if (bufferView.typeString === "values"){
+                    if (bufferView.typeString === "values") {
                         outputAccessors[accessorIndex].sparse[bufferView.typeString] = {
-                            bufferView : index,
-                            byteOffset : 0,
+                            bufferView: index,
+                            byteOffset: 0,
                             // componentType : WEBGL_CONST.FLOAT
                         }
                     }
-                    
+
                     //outputAccessors[accessorIndex].sparse
 
                     // add accessor index only if this is the last sparse type value
-                    if (bufferView.typeString === "values"){
+                    if (bufferView.typeString === "values") {
                         accessorIndex++;
                     }
 
@@ -725,16 +754,16 @@ export default class VRMExporterv0 {
             bufferViews: outputBufferViews,
             extensions: {
                 VRM: {
-                    blendShapeMaster: {blendShapeGroups},
+                    blendShapeMaster: { blendShapeGroups },
                     //firstPerson: vrmFirstPerson,
                     firstPerson: {
                         firstPersonBone: 44,
                         firstPersonBoneOffset: new Vector3(),
-                        lookAtHorizontalInner: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
-                        lookAtHorizontalOuter: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtHorizontalInner: { curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10 },
+                        lookAtHorizontalOuter: { curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10 },
                         lookAtTypeName: 'Bone',
-                        lookAtVerticalDown: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
-                        lookAtVerticalUp: {curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10},
+                        lookAtVerticalDown: { curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10 },
+                        lookAtVerticalUp: { curve: [0, 0, 0, 1, 1, 1, 1, 0], xRange: 90, yRange: 10 },
                     },
                     materialProperties,
                     humanoid: vrmHumanoid,
@@ -744,9 +773,9 @@ export default class VRMExporterv0 {
                 },
             },
             extensionsUsed: [
-              "KHR_materials_unlit",
-              "KHR_texture_transform",
-              "VRM",
+                "KHR_materials_unlit",
+                "KHR_texture_transform",
+                "VRM",
             ],
             images: outputImages,
             materials: outputMaterials,
@@ -769,7 +798,7 @@ export default class VRMExporterv0 {
         onDone(concatBinary([header, fileData]));
     }
 }
-function fillVRMMissingMetaData(vrmMeta){
+function fillVRMMissingMetaData(vrmMeta) {
     vrmMeta.title = vrmMeta.title || "Character";
     vrmMeta.version = vrmMeta.version || "1";
     vrmMeta.author = vrmMeta.author || "Anon";
@@ -797,22 +826,22 @@ function imageBitmap2png(image) {
     canvas.width = image.width;
     canvas.height = image.height;
     canvas.getContext("2d").drawImage(image, 0, 0);
-    
+
     // Convert canvas data to PNG format
     const pngUrl = canvas.toDataURL("image/png");
-    
+
     // Extract base64-encoded data
     const data = atob(pngUrl.split(",")[1]);
-    
+
     // Calculate the necessary padding to ensure the length is a multiple of 4
     const padding = (4 - (data.length % 4)) % 4;
-    
+
     // Create an array with the correct length (padded if needed)
     const array = new ArrayBuffer(data.length + padding);
-    
+
     // Use a DataView to set Uint8 values
     const view = new DataView(array);
-    
+
     // Copy the original data to the array
     for (let i = 0; i < data.length; i++) {
         view.setUint8(i, data.charCodeAt(i));
@@ -886,24 +915,23 @@ class GlbChunk {
     constructor(data, type) {
         this.data = data;
         this.type = type;
-        const buf = this.data; //, this.type === "JSON" ? 0x20 : 0x00);
+        const paddedData = this.padBuffer(this.data, type === "JSON" ? 0x20 : 0x00);
         this.buffer = concatBinary([
-            parseNumber2Binary(buf.byteLength, 4),
+            parseNumber2Binary(paddedData.byteLength, 4),
             parseString2Binary(this.type),
-            buf,
+            paddedData,
         ]);
     }
-    // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#structured-json-content
-    paddingBinary(array, value) {
-        const paddedLength = Math.ceil(array.byteLength / 4) * 4;
-        if (array.byteLength === paddedLength)
-            return array;
-        const paddedArray = new Uint8Array(paddedLength);
-        paddedArray.set(new Uint8Array(array), 0);
-        for (let i = array.byteLength; i < paddedLength; i++) {
-            paddedArray.set(new Uint8Array(value), i);
+
+    padBuffer(buffer, paddingByte) {
+        const paddedLength = Math.ceil(buffer.byteLength / 4) * 4;
+        if (buffer.byteLength === paddedLength) {
+            return buffer;
         }
-        return paddedArray.buffer;
+        const paddedBuffer = new ArrayBuffer(paddedLength);
+        new Uint8Array(paddedBuffer).set(new Uint8Array(buffer));
+        new Uint8Array(paddedBuffer).fill(paddingByte, buffer.byteLength);
+        return paddedBuffer;
     }
 }
 export class MeshData {
@@ -916,9 +944,9 @@ export class MeshData {
         this.name = name;
 
         // Check if sparse data is provided
-        
+
         if (sparseData) {
-            const { indices, values, count, targetMeshDataIndex } =sparseData;
+            const { indices, values, count, targetMeshDataIndex } = sparseData;
 
             // Convert indices and values to BufferAttributes
             const indicesBufferAttribute = new BufferAttribute(
@@ -931,51 +959,51 @@ export class MeshData {
             );
 
             this.targetMeshDataIndex = targetMeshDataIndex;
-            
+
             // pass as attribute
-            this.sparse  = {
+            this.sparse = {
                 targetMeshDataIndex,
                 count,
-                indices:parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
-                values:parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
+                indices: parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
+                values: parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
             }
 
             this.max =
-            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                ? [
-                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
-                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
-                    Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
-                ]
-                : undefined;
+                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                    ? [
+                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                    ]
+                    : undefined;
             this.min =
-            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                ? [
-                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
-                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
-                    Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
-                ]
-                : undefined;
+                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                    ? [
+                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
+                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
+                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
+                    ]
+                    : undefined;
         }
-        else{
+        else {
             this.buffer = parseBinary(this.attribute, this.valueType)
 
             this.max =
-            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                ? [
-                    Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
-                    Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
-                    Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
-                ]
-                : undefined;
+                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                    ? [
+                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
+                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
+                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
+                    ]
+                    : undefined;
             this.min =
-            type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                ? [
-                    Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
-                    Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
-                    Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
-                ]
-                : undefined;
+                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
+                    ? [
+                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
+                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
+                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
+                    ]
+                    : undefined;
         }
 
     }
@@ -1045,8 +1073,8 @@ const toOutputMeshes = (meshes, meshDatas, uniqueMaterialNames) => {
                     },
                     indices: meshDatas
                         .map((data) => data.type === MeshDataType.INDEX && data.meshName === mesh.name
-                        ? data.name
-                        : null)
+                            ? data.name
+                            : null)
                         .indexOf(subMesh.name),
                     material: uniqueMaterialNames.indexOf(materialName),
                     mode: 4,
@@ -1058,15 +1086,15 @@ const toOutputMeshes = (meshes, meshDatas, uniqueMaterialNames) => {
                                     ? data.name
                                     : null)
                                 .indexOf(BLENDSHAPE_PREFIX + targetName);
-                    
+
                             const positionIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_POSITION &&
                                     data.meshName === mesh.name
                                     ? data.name
                                     : null)
                                 .indexOf(BLENDSHAPE_PREFIX + targetName);
-                    
-                    
+
+
                             const result = {}
                             if (positionIndex !== -1)
                                 result.POSITION = positionIndex;
@@ -1096,81 +1124,82 @@ const toOutputSkins = (meshes, meshDatas, nodeNames) => {
     });
 };
 const toOutputMaterials = (uniqueMaterials, images) => {
-  return uniqueMaterials.map((material) => {
-      let baseColor;
-      let VRMC_materials_mtoon = null;
-      
-      material = material.userData.vrmMaterial?material.userData.vrmMaterial:material;
-      if (material.type === "ShaderMaterial") {
-          //VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
-          VRMC_materials_mtoon = {};
-          VRMC_materials_mtoon.shadeMultiplyTexture = {index:images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name)};
-          const mtoonMaterial = material;
-          baseColor = mtoonMaterial.color ? [
-                  1,
-                  1,
-                  1,
-                  1,
-              ] :
-              undefined;
-      } else {
-          const otherMaterial = material;
-          baseColor = otherMaterial.color ? [
-                  otherMaterial.color.r,
-                  otherMaterial.color.g,
-                  otherMaterial.color.b,
-                  1, // TODO:
-              ] :
-              undefined;
-      }
-      let baseTxrIndex = -1;
-      if (material.map)
-          baseTxrIndex = images.map((image) => image.name).indexOf(material.name);
-      else if (material.uniforms){
-          if (material.uniforms.map){
-              baseTxrIndex = images.map((image) => image.name).indexOf(material.uniforms.map.name);
-          }
-      }
+    return uniqueMaterials.map((material) => {
+        let baseColor;
+        let VRMC_materials_mtoon = null;
 
-      let metalicRoughnessIndex = -1;
-      if (material.roughnessMap)
-        metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
+        material = material.userData.vrmMaterial ? material.userData.vrmMaterial : material;
+        if (material.type === "ShaderMaterial") {
+            //VRMC_materials_mtoon = material.userData.gltfExtensions.VRMC_materials_mtoon;
+            VRMC_materials_mtoon = {};
+            //   VRMC_materials_mtoon.specVersion = VRMC_materials_mtoon.specVersion || "1.0";
+            VRMC_materials_mtoon.shadeMultiplyTexture = { index: images.map((image) => image.name).indexOf(material.uniforms.shadeMultiplyTexture.name) };
+            const mtoonMaterial = material;
+            baseColor = mtoonMaterial.color ? [
+                1,
+                1,
+                1,
+                1,
+            ] :
+                undefined;
+        } else {
+            const otherMaterial = material;
+            baseColor = otherMaterial.color ? [
+                otherMaterial.color.r,
+                otherMaterial.color.g,
+                otherMaterial.color.b,
+                1, // TODO:
+            ] :
+                undefined;
+        }
+        let baseTxrIndex = -1;
+        if (material.map)
+            baseTxrIndex = images.map((image) => image.name).indexOf(material.name);
+        else if (material.uniforms) {
+            if (material.uniforms.map) {
+                baseTxrIndex = images.map((image) => image.name).indexOf(material.uniforms.map.name);
+            }
+        }
 
-      let normalTextureIndex = -1;
-      if (material.normalMap)
-        normalTextureIndex = images.map((image) => image.name).indexOf(material.name + "_normal");
+        let metalicRoughnessIndex = -1;
+        if (material.roughnessMap)
+            metalicRoughnessIndex = images.map((image) => image.name).indexOf(material.name + "_orm");
 
-      const baseTexture = baseTxrIndex >= 0 ? {
-              extensions: {
-                  KHR_texture_transform: {
-                      offset: [0, 0],
-                      scale: [1, 1],
-                  },
-              },
-              index: baseTxrIndex,
-              texCoord: 0, // TODO:
-          } :
-          undefined;
+        let normalTextureIndex = -1;
+        if (material.normalMap)
+            normalTextureIndex = images.map((image) => image.name).indexOf(material.name + "_normal");
 
-          const pbrMetallicRoughness = {
+        const baseTexture = baseTxrIndex >= 0 ? {
+            extensions: {
+                KHR_texture_transform: {
+                    offset: [0, 0],
+                    scale: [1, 1],
+                },
+            },
+            index: baseTxrIndex,
+            texCoord: 0, // TODO:
+        } :
+            undefined;
+
+        const pbrMetallicRoughness = {
             baseColorFactor: baseColor,
             baseColorTexture: baseTexture,
-          }
+        }
 
-      const metalRoughTexture = metalicRoughnessIndex >= 0 ?{
+        const metalRoughTexture = metalicRoughnessIndex >= 0 ? {
             index: metalicRoughnessIndex,
             texCoord: 0, // TODO:
-        }:undefined
+        } : undefined
 
         const normalMapTexture = normalTextureIndex >= 0 ? {
             index: normalTextureIndex,
             texCoord: 0,
-        }:undefined;
+        } : undefined;
 
-        if (metalRoughTexture){
+        if (metalRoughTexture) {
             pbrMetallicRoughness.metallicRoughnessTexture = metalRoughTexture;
         }
-        else{
+        else {
             const metallicFactor = (() => {
                 switch (material.type) {
                     case MaterialType.MeshStandardMaterial:
@@ -1200,29 +1229,29 @@ const toOutputMaterials = (uniqueMaterials, images) => {
             alphaCutoff: material.alphaTest > 0 ? material.alphaTest : undefined,
             alphaMode: material.transparent ?
                 "BLEND" : material.alphaTest > 0 ?
-                "MASK" : "OPAQUE",
+                    "MASK" : "OPAQUE",
             doubleSided: material.side === 2,
             extensions: material.type === "ShaderMaterial" ? {
                 KHR_materials_unlit: {}, // TODO:
-                VRMC_materials_mtoon
+                // VRMC_materials_mtoon
             } : undefined,
             name: material.name,
             pbrMetallicRoughness
         }
-        if (normalMapTexture){
+        if (normalMapTexture) {
             parseMaterial.normalTexture = normalMapTexture;
         }
-      return parseMaterial;
-  });
+        return parseMaterial;
+    });
 };
 const toOutputImages = (images, icon) => {
     return (icon ? images.concat(icon) : images)
         .filter((image) => image && image.imageBitmap)
         .map((image) => ({
-        bufferView: -1,
-        mimeType: "image/png",
-        name: image.name, // TODO: 取得できないので仮のテクスチャ名としてマテリアル名を入れた
-    }));
+            bufferView: -1,
+            mimeType: "image/png",
+            name: image.name, // TODO: 取得できないので仮のテクスチャ名としてマテリアル名を入れた
+        }));
 };
 const toOutputSamplers = (outputImages) => {
     return outputImages.map(() => ({
@@ -1244,9 +1273,9 @@ const toOutputScenes = (avatar, outputNodes) => {
         {
             nodes: avatar.children
                 .filter((child) => child.type === VRMObjectType.Object3D ||
-                child.type === VRMObjectType.SkinnedMesh ||
-                child.type === VRMObjectType.Group ||
-                child.type === VRMObjectType.Bone)
+                    child.type === VRMObjectType.SkinnedMesh ||
+                    child.type === VRMObjectType.Group ||
+                    child.type === VRMObjectType.Bone)
                 .map((x) => nodeNames.indexOf(x.name)),
         },
     ];
