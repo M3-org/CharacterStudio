@@ -152,15 +152,16 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                 <div className={styles["scrollContainer"]}>
                     <div className={styles["tabHolder"]}>
                         <div 
-                            className={styles["tabButton"] +(viewingManifests ? ' ' + styles["tabButtonSelected"]:'')}
-                            onClick={()=>{switchAction(true)}}>
-                            <div>  {"Manifest"} </div>
-                        </div>
-                        <div 
                             className={styles["tabButton"] +(!viewingManifests ? ' ' + styles["tabButtonSelected"]:'')}
                             onClick={()=>{switchAction(false)}}>
                             <div>  {"Custom"} </div>
                         </div>
+                        <div 
+                            className={styles["tabButton"] +(viewingManifests ? ' ' + styles["tabButtonSelected"]:'')}
+                            onClick={()=>{switchAction(true)}}>
+                            <div>  {"Manifest"} </div>
+                        </div>
+
                     </div>
                     <br />
                     
