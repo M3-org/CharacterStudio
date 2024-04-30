@@ -58,9 +58,9 @@ function Landing() {
           <img src="./assets/media/btn_optimize_character.png" />
         </button>
         }
-        <button className={styles.button} onClick={createCharacter}>
+        {/* <button className={styles.button} onClick={createCharacter}>
           <img src="./assets/media/btn_tools.png" />
-        </button>
+        </button> */}
         {/*
         <button className={styles.button}
             onClick={
