@@ -575,6 +575,9 @@ async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
       this.scene.remove(this.backgroundPlane);
     }
   }
+  getImageData(width, height, pixelStyle = false){
+    return this._createImage(width, height, pixelStyle).split("base64,")[1];
+  }
 
   _createImage(width, height, pixelStyle = false){
     const aspectRatio = width / height;
