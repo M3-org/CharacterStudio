@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import { getVectorCameraPosition, saveTextFile } from "./utils";
+import { ZipManager } from "./zipManager";
 const localVector3 = new THREE.Vector3();
 
 export class LoraDataGenerator {
@@ -41,6 +42,7 @@ export class LoraDataGenerator {
         let counter = 0;
         const scope = this;
         if (Array.isArray(dataCollection)){
+            const zip = new ZipManager();
             const processAnimations = async() =>{
                 if (Array.isArray(dataCollection)) {
                     for (let i =0; i < dataCollection.length;i++){
@@ -64,15 +66,23 @@ export class LoraDataGenerator {
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
             
                         // add small delay to avoid skipping saves
-                        await delay(100);
-                        scope.screenshotManager.saveScreenshot(saveName, width, height);
-                        saveTextFile("anata" + " " + description + " " + backgroundDescription,saveName);
+                        //await delay(100);
+                        //scope.screenshotManager.saveScreenshot(saveName, width, height);
+                        const imgData = scope.screenshotManager.getImageData(width, height, false);
+                        zip.addData(imgData,saveName, "png", "lora_data");
+                        zip.addData("anata" + " " + description + " " + backgroundDescription,saveName, "txt", "lora_data")
+                        //saveTextFile("anata" + " " + description + " " + backgroundDescription,saveName);
                     }
                 }
             }
             
+            
+            
             // Call the function to start processing animations
             await processAnimations();
+
+
+            zip.saveZip("lora_zip");
         }
 
         this.blinkManager.disableScreenshot();
