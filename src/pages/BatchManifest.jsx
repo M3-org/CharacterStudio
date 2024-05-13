@@ -20,9 +20,11 @@ import { connectWallet } from "../library/mint-utils"
 function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    manifest,
     characterManager,
     animationManager,
     toggleDebugMode,
+    loraDataGenerator
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -72,7 +74,8 @@ function BatchManifest() {
       }
     }
     else{
-      characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
+      characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
+        await loraDataGenerator.createLoraData(manifest.loras[0].manifest, manifestSelectionArray[index].manifestName);
         if (index < manifestSelectionArray.length-1 ){
           console.log("downloaded " + downloadName)
           downloadVRMWithIndex(index + 1)
@@ -85,13 +88,16 @@ function BatchManifest() {
 
   const downloadVRMWithIndex= async(index, onlyImage = false)=>{
     if (index == 0){
+      console.log(manifest.loras[0]);
+      
       downloadLoaded(index, onlyImage)
     }
     else{
       await characterManager.setManifest(manifestSelectionArray[index]);
       setIsLoading(true);
       characterManager.loadInitialTraits().then(async()=>{
-        const delay = ms => new Promise(res => setTimeout(res, ms));
+        
+        const delay = ms => new Promise(res => setTimeout(res, ms));        
         await delay(1);
         downloadLoaded(index, onlyImage);
       })
