@@ -10,13 +10,11 @@ export class LoraDataGenerator {
         this.blinkManager = characterManager.blinkManager;
         this.animationManager = this.characterManager.animationManager;
 
-        console.log(this.characterManager);
-        console.log(this.screenshotManager);
-
         this.temptime = 0;
     }
 
-    async createLoraData(manifestURL, baseText){
+    async createLoraData(manifestURL, zipName = "", baseText){
+        console.log("enterssss")
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
@@ -56,7 +54,6 @@ export class LoraDataGenerator {
                             cameraFrame,
                             description
                         } = dataCollection[i];
-                        console.log(i);
                         counter++
                         const saveName = counter.toString().padStart(4, '0');
                         const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
@@ -81,8 +78,9 @@ export class LoraDataGenerator {
             // Call the function to start processing animations
             await processAnimations();
 
-
-            zip.saveZip("lora_zip");
+            if (zipName == "")
+                zipName = "lora_zip"; 
+            zip.saveZip(zipName);
         }
 
         this.blinkManager.disableScreenshot();
