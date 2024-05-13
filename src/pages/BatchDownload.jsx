@@ -19,9 +19,11 @@ import { local } from "../library/store"
 function BatchDownload() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    manifest,
     toggleDebugMode,
     characterManager,
-    animationManager
+    animationManager,
+    loraDataGenerator
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -56,10 +58,14 @@ function BatchDownload() {
       twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
-  const downloadVRMWithIndex=(index)=>{
-    
-    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
-      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then(()=>{
+  const downloadVRMWithIndex = (index, downloadLora = false) =>{
+    console.log(downloadLora)
+    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(async()=>{
+      if (downloadLora == true){
+        await loraDataGenerator.createLoraData(manifest.loras[0].manifest, jsonSelectionArray[index].name);
+      }
+      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then( ()=>{
+
         if (index < jsonSelectionArray.length-1 )
           downloadVRMWithIndex(index + 1)
         else
@@ -70,7 +76,7 @@ function BatchDownload() {
 
   const download = () => {
     setIsLoading(true);
-    downloadVRMWithIndex(0);
+    downloadVRMWithIndex(0, true);
   }
 
   // Translate hook
