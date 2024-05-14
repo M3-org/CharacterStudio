@@ -48,7 +48,7 @@ export class ThumbnailGenerator {
         this.screenshotManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        await this.screenshotManager._setBonesOffset(0.2);
+        await this.screenshotManager._calculateBoneOffsets(0.2);
 
         const scope = this;
         let counter = 0;
