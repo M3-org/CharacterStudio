@@ -23,7 +23,8 @@ function BatchDownload() {
     toggleDebugMode,
     characterManager,
     animationManager,
-    loraDataGenerator
+    loraDataGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -62,14 +63,18 @@ function BatchDownload() {
     console.log(downloadLora)
     characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(async()=>{
       if (downloadLora == true){
+        const parentScene = sceneElements.parent;
+        parentScene.remove(sceneElements);
         await loraDataGenerator.createLoraData(manifest.loras[0].manifest, jsonSelectionArray[index].name);
+        parentScene.add(sceneElements);
       }
       characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then( ()=>{
 
         if (index < jsonSelectionArray.length-1 )
           downloadVRMWithIndex(index + 1)
-        else
+        else{
           setIsLoading(false);
+        }
       })
     })
   }

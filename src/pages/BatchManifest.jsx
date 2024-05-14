@@ -24,7 +24,8 @@ function BatchManifest() {
     characterManager,
     animationManager,
     toggleDebugMode,
-    loraDataGenerator
+    loraDataGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -74,8 +75,12 @@ function BatchManifest() {
       }
     }
     else{
+
       characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
+        const parentScene = sceneElements.parent;
+        parentScene.remove(sceneElements);
         await loraDataGenerator.createLoraData(manifest.loras[0].manifest, manifestSelectionArray[index].manifestName);
+        parentScene.add(sceneElements);
         if (index < manifestSelectionArray.length-1 ){
           console.log("downloaded " + downloadName)
           downloadVRMWithIndex(index + 1)
@@ -105,6 +110,7 @@ function BatchManifest() {
   }
 
   const download = () => {
+
     setIsLoading(true);
     downloadVRMWithIndex(0);
   }
