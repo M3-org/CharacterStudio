@@ -14,7 +14,6 @@ export class LoraDataGenerator {
     }
 
     async createLoraData(manifestURL, zipName = "", baseText){
-        console.log("enterssss")
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
@@ -35,7 +34,7 @@ export class LoraDataGenerator {
         this.screenshotManager.setBackground([backgroundGrayscale,backgroundGrayscale,backgroundGrayscale])
         this.blinkManager.enableScreenshot();
 
-        this.screenshotManager._setBonesOffset(0.2);
+        this.screenshotManager._calculateBoneOffsets(0.2);
         const delay = ms => new Promise(res => setTimeout(res, ms));
         let counter = 0;
         const scope = this;

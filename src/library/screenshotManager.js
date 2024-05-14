@@ -178,7 +178,7 @@ export class ScreenshotManager {
   }
 
 
-  async _setBonesOffset(minWeight) {
+  async _calculateBoneOffsets(minWeight) {
     for (const boneName in this.boneOffsets) {
         // Use await to wait for the promise to resolve
         this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight).then((res)=>{
