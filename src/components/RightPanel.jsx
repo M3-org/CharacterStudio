@@ -1,7 +1,10 @@
 import React, { useContext, useState, useEffect } from "react"
 import styles from "./RightPanel.module.css"
 import MenuTitle from "./MenuTitle"
-import randomizeIcon from "../images/randomize.png"
+import traitsIcon from "../images/t-shirt.png"
+import genSpriteIcon from "../images/users.png"
+import genLoraIcon from "../images/paste.png"
+import genThumbIcon from "../images/portraits.png"
 import { TokenBox } from "../components/token-box/TokenBox"
 import TraitInformation from "../components/TraitInformation"
 import LoraCreation from "./LoraCreation"
@@ -34,7 +37,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                     >
                         <TokenBox
                         size={56}
-                        icon={randomizeIcon}
+                        icon={traitsIcon}
                         rarity={selectedOption == "Information" ? "mythic" : "none"}      
                         />
                     </div>
@@ -44,7 +47,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                     >
                         <TokenBox
                         size={56}
-                        icon={randomizeIcon}
+                        icon={genLoraIcon}
                         rarity={selectedOption == "LoraCreation" ? "mythic" : "none"}      
                         />
                     </div>
@@ -54,7 +57,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                     >
                         <TokenBox
                         size={56}
-                        icon={randomizeIcon}
+                        icon={genSpriteIcon}
                         rarity={selectedOption == "SpriteCreation" ? "mythic" : "none"}      
                         />
                     </div>
@@ -64,7 +67,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                     >
                         <TokenBox
                         size={56}
-                        icon={randomizeIcon}
+                        icon={genThumbIcon}
                         rarity={selectedOption == "ThumbnailCreation" ? "mythic" : "none"}      
                         />
                     </div>
