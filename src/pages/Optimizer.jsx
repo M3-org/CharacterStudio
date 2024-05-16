@@ -18,6 +18,7 @@ function Optimizer() {
     setViewMode 
   } = React.useContext(ViewContext)
   const {
+    manifest,
     characterManager,
     animationManager,
     sceneElements,
@@ -56,16 +57,26 @@ function Optimizer() {
   }
 
   const createLora = async() =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
-    parentScene.add(sceneElements);
+    console.log("TO DO: export all loras")
+    if (manifest.loras?.length != null){
+      if (manifest.loras[0] != null){
+        const parentScene = sceneElements.parent;
+        parentScene.remove(sceneElements);
+        await loraDataGenerator.createLoraData(manifest.loras[0]);
+        parentScene.add(sceneElements);
+      }
+    }
   }
   const createSpriteAtlas = async () =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
-    parentScene.add(sceneElements);
+    if (manifest.loras?.length != null){
+      if (manifest.loras[0] != null){
+        const parentScene = sceneElements.parent;
+        parentScene.remove(sceneElements);
+        console.log("TO DO: export all sprites")
+        await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
+        parentScene.add(sceneElements);
+      }
+    }
   }
 
   const download = () => {

@@ -10,22 +10,22 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
     const { manifest, loraDataGenerator, sceneElements } = React.useContext(SceneContext)
 
     const [ options, setOptions ] = useState([]) 
-    const [ description, setDescription ] = useState("");
-    const [ manifestLocation, setManifestLocation ] = useState("");
+    //const [ description, setDescription ] = useState("");
+    const [ targetLora, setTargetLora ] = useState(null);
 
     const onSelect = (sel) =>{
         if (manifest?.loras != null){
-            setDescription(manifest.loras[sel.value].description)
-            setManifestLocation(manifest.loras[sel.value].manifest);
+            //setDescription(manifest.loras[sel.value].description)
+            setTargetLora(manifest.loras[sel.value]);
 
-            console.log(manifest.loras[sel.value].manifest)
+            console.log(manifest.loras[sel.value])
         }
     }
 
     const createLoraData = async() =>{
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await loraDataGenerator.createLoraData(manifestLocation);
+        await loraDataGenerator.createLoraData(targetLora);
         parentScene.add(sceneElements);
       }
 
@@ -59,10 +59,10 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
                         placeholder="Select an option" />;
                 
                     <div className={styles["traitInfoText"]}>
-                        {description}
+                        {targetLora?.description || ""}
                     </div>
                     {
-                        manifestLocation != "" && 
+                        targetLora != null  && 
                         <div 
                             className={styles["actionButton"]}
                             onClick={createLoraData}>
