@@ -13,7 +13,9 @@ export class LoraDataGenerator {
         this.temptime = 0;
     }
 
-    async createLoraData(manifestURL, zipName = "", baseText){
+    async createLoraData(loraObject, zipName = "", baseText){
+        const manifestURL = loraObject.manifest;
+        const loraFolderName = loraObject.name || "lora_Data";
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
@@ -65,8 +67,8 @@ export class LoraDataGenerator {
                         //await delay(100);
                         //scope.screenshotManager.saveScreenshot(saveName, width, height);
                         const imgData = scope.screenshotManager.getImageData(width, height, false);
-                        zip.addData(imgData,saveName, "png", "lora_data");
-                        zip.addData("anata" + " " + description + " " + backgroundDescription,saveName, "txt", "lora_data")
+                        zip.addData(imgData,saveName, "png", loraFolderName);
+                        zip.addData("anata" + " " + description + " " + backgroundDescription,saveName, "txt", loraFolderName)
                         //saveTextFile("anata" + " " + description + " " + backgroundDescription,saveName);
                     }
                 }

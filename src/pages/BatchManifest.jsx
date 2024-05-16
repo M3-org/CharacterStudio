@@ -79,7 +79,18 @@ function BatchManifest() {
       characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await loraDataGenerator.createLoraData(manifest.loras[0].manifest, manifestSelectionArray[index].manifestName);
+        if (local["mergeOptions_download_lora"] === true) {
+          const promises = manifest.loras.map(async lora => {
+              return loraDataGenerator.createLoraData(lora, manifestSelectionArray[index].manifestName);
+          });
+      
+          await Promise.all(promises);
+        }
+
+        if (local["mergeOptions_download_sprites"] === true){
+          console.log("download all sprites");
+        }
+        
         parentScene.add(sceneElements);
         if (index < manifestSelectionArray.length-1 ){
           console.log("downloaded " + downloadName)
