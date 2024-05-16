@@ -22,6 +22,8 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
 
   // creator
   const [createAtlas, setCreateAtlas] = useState(local["mergeOptions_create_atlas"] == null ?  true : local["mergeOptions_create_atlas"])
+  const [downloadLora, setDownloadLora] = useState(local["mergeOptions_download_lora"] == null ?  true : local["mergeOptions_download_lora"])
+  const [downloadSprites, setDownloadSprites] = useState(local["mergeOptions_download_sprites"] == null ?  true : local["mergeOptions_download_sprites"])
 
   const handleDropDownloadEnable = (event) => {
     setDownloadOnDrop(event.target.checked);
@@ -41,6 +43,16 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
   const handleCreateAtlas = (event) => {
     setCreateAtlas(event.target.checked)
     local["mergeOptions_create_atlas"] = event.target.checked;
+  }
+
+  const handleDownloadLora = (event) => {
+    setDownloadLora(event.target.checked)
+    local["mergeOptions_download_lora"] = event.target.checked;
+  }
+
+  const handleDownloadSprite = (event) => {
+    setDownloadSprites(event.target.checked)
+    local["mergeOptions_download_sprites"] = event.target.checked;
   }
   
 
@@ -189,7 +201,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
           </>
         )}
         <div className={styles["traitInfoTitle"]}>
-                Two Sided Material
+                Options
             </div>
             <div className={styles["traitInfoText"]}>
               <div className={styles["checkboxHolder"]}>
@@ -205,14 +217,11 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
                       <div className={styles["checkbox-container"]}></div>
                   </label>
                   <div/><div/>
-                  {twoSidedMaterial ? "True": "False"}
+                  Two Sided Material
               </div>
             </div>
         {showDropToDownload && (
           <>
-          <div className={styles["traitInfoTitle"]}>
-              Drag Drop - Download
-          </div>
           <div className={styles["traitInfoText"]}>
             <div className={styles["checkboxHolder"]}>
               <div>
@@ -227,16 +236,13 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
                     <div className={styles["checkbox-container"]}></div>
                 </label>
                 <div/><div/>
-                {downloadOnDrop ? "True": "False"}
+                Drag Drop - Download
               
             </div>
           </div>
           </>
         )}
         <>
-          <div className={styles["traitInfoTitle"]}>
-                KTX Compression
-            </div>
             <div className={styles["traitInfoText"]}>
               <div className={styles["checkboxHolder"]}>
                 <div>
@@ -251,7 +257,47 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
                       <div className={styles["checkbox-container"]}></div>
                   </label>
                   <div/><div/>
-                  {ktxCompression ? "True": "False"}
+                  KTX Compression
+              </div>
+            </div>
+            
+        </>
+        <>
+            <div className={styles["traitInfoText"]}>
+              <div className={styles["checkboxHolder"]}>
+                <div>
+                  </div>
+                  
+                  <label className={styles["custom-checkbox"]}>
+                      <input 
+                          type="checkbox" 
+                          checked={downloadLora}
+                          onChange={handleDownloadLora}
+                      />
+                      <div className={styles["checkbox-container"]}></div>
+                  </label>
+                  <div/><div/>
+                  Download Lora Data
+              </div>
+            </div>
+            
+        </>
+        <>
+            <div className={styles["traitInfoText"]}>
+              <div className={styles["checkboxHolder"]}>
+                <div>
+                  </div>
+                  
+                  <label className={styles["custom-checkbox"]}>
+                      <input 
+                          type="checkbox" 
+                          checked={downloadSprites}
+                          onChange={handleDownloadSprite}
+                      />
+                      <div className={styles["checkbox-container"]}></div>
+                  </label>
+                  <div/><div/>
+                  Download Sprites Data
               </div>
             </div>
             
