@@ -26,6 +26,7 @@ function BatchManifest() {
     animationManager,
     toggleDebugMode,
     loraDataGenerator,
+    spriteAtlasGenerator,
     sceneElements
   } = React.useContext(SceneContext)
   
@@ -90,7 +91,11 @@ function BatchManifest() {
         }
 
         if (local["mergeOptions_download_sprites"] === true){
-          console.log("download all sprites");
+          const promises = manifest.sprites.map(async sprite => {
+            return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+          });
+      
+          await Promise.all(promises);
         }
 
         if(local["mergeOptions_download_sprites"] === true || local["mergeOptions_download_lora"] === true){
