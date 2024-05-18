@@ -66,7 +66,7 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
   return (
       jsonSelectionArray?.length > 0 ? (
         <div className={styles["InformationContainerPos"]}>
-          <MenuTitle title="TraitSelection" width={180} right={20} />
+          <MenuTitle title="Trait Selection" width={180} right={20} />
           <div className={styles["scrollContainer"]}>
             <div className={styles["flexSelect"]}>
               {jsonSelectionArray?.length > 1 ? <div // add left arrow only when array is greater than 1
