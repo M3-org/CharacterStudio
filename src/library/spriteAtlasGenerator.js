@@ -35,7 +35,7 @@ export class SpriteAtlasGenerator {
         this.screenshotManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        await this.screenshotManager._calculateBoneOffsets(0.2);
+        await this.screenshotManager.calculateBoneOffsets(0.2);
 
         let counter = 0;
         console.log(manifest);

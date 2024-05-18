@@ -36,7 +36,7 @@ export class LoraDataGenerator {
         this.screenshotManager.setBackground([backgroundGrayscale,backgroundGrayscale,backgroundGrayscale])
         this.blinkManager.enableScreenshot();
 
-        await this.screenshotManager._calculateBoneOffsets(0.2);
+        await this.screenshotManager.calculateBoneOffsets(0.2);
         const delay = ms => new Promise(res => setTimeout(res, ms));
         let counter = 0;
         const scope = this;
