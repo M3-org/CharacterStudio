@@ -68,12 +68,13 @@ function Optimizer() {
     }
   }
   const createSpriteAtlas = async () =>{
+    console.log("TO DO: export all sprites")
     if (manifest.loras?.length != null){
       if (manifest.loras[0] != null){
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        console.log("TO DO: export all sprites")
-        await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
+        
+        await spriteAtlasGenerator.createSpriteAtlas(manifest.sprites[0]);
         parentScene.add(sceneElements);
       }
     }

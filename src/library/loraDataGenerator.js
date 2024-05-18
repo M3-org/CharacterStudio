@@ -15,7 +15,7 @@ export class LoraDataGenerator {
 
     async createLoraData(loraObject, exsitingZipFile = null, zipName = "", baseText){
         const manifestURL = loraObject.manifest;
-        const loraFolderName = loraObject.name || "lora_Data";
+        const loraFolderName = loraObject.name ? "loraData/" + loraObject.name : "loraData";
         const manifest = await this._fetchManifest(manifestURL);
         const {
 

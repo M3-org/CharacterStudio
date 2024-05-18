@@ -10,8 +10,8 @@ export class SpriteAtlasGenerator {
         this.animationManager = this.characterManager.animationManager;
     }
 
-    async createSpriteAtlas(manifestURL){
-        
+    async createSpriteAtlas(spriteObject){
+        const manifestURL = spriteObject.manifest;
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
