@@ -11,21 +11,19 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
 
     const [ options, setOptions ] = useState([]) 
     const [ description, setDescription ] = useState("");
-    const [ manifestLocation, setManifestLocation ] = useState("");
+    const [ spriteObject, setSpriteObject ] = useState(null);
 
     const onSelect = (sel) =>{
         if (manifest?.sprites != null){
             setDescription(manifest.sprites[sel.value].description)
-            setManifestLocation(manifest.sprites[sel.value].manifest);
-
-            console.log(manifest.sprites[sel.value].manifest)
+            setSpriteObject(manifest.sprites[sel.value]);
         }
     }
 
     const createSpritesData = async() =>{
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await spriteAtlasGenerator.createSpriteAtlas(manifestLocation);
+        await spriteAtlasGenerator.createSpriteAtlas(spriteObject);
         parentScene.add(sceneElements);
       }
 
@@ -62,7 +60,7 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
                         {description || ""}
                     </div>
                     {
-                        manifestLocation != "" && 
+                        spriteObject != null && 
                         <div 
                             className={styles["actionButton"]}
                             onClick={createSpritesData}>
