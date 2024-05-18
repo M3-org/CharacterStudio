@@ -32,7 +32,6 @@ export class ZipManager{
     saveZip(zipName, reset = true) {
         const zipContainer = this.zipContainer;
         const zip = new JSZip();
-
         // zip.file(filename + ".txt", textContent);
         for (const prop in zipContainer){
             if (prop == "_"){
@@ -52,12 +51,14 @@ export class ZipManager{
                 });
 
             }
-            zip.generateAsync({ type: "blob" })
-                .then((content) => {
-                    this._saveZipFile(content, zipName+".zip");
 
-            });
         }
+
+        zip.generateAsync({ type: "blob" })
+        .then((content) => {
+            this._saveZipFile(content, zipName+".zip");
+
+        });
 
         if (reset)
             this.zipContainer = {}
