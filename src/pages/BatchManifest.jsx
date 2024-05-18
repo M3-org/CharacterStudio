@@ -15,6 +15,7 @@ import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
+import { ZipManager } from "../library/zipManager"
 import { connectWallet } from "../library/mint-utils"
 
 function BatchManifest() {
@@ -75,13 +76,14 @@ function BatchManifest() {
       }
     }
     else{
-
+      console.log("DOWNLOAD!! " + index)
       characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
+        const downloadZip = new ZipManager();
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
         if (local["mergeOptions_download_lora"] === true) {
           const promises = manifest.loras.map(async lora => {
-              return loraDataGenerator.createLoraData(lora, manifestSelectionArray[index].manifestName);
+              return loraDataGenerator.createLoraData(lora, downloadZip);
           });
       
           await Promise.all(promises);
@@ -89,6 +91,10 @@ function BatchManifest() {
 
         if (local["mergeOptions_download_sprites"] === true){
           console.log("download all sprites");
+        }
+
+        if(local["mergeOptions_download_sprites"] === true || local["mergeOptions_download_lora"] === true){
+          downloadZip.saveZip(manifestSelectionArray[index].manifestName);
         }
         
         parentScene.add(sceneElements);
@@ -121,7 +127,6 @@ function BatchManifest() {
   }
 
   const download = () => {
-
     setIsLoading(true);
     downloadVRMWithIndex(0);
   }
