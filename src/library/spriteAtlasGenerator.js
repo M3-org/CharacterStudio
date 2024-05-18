@@ -1,5 +1,7 @@
 import * as THREE from "three"
 import { getVectorCameraPosition } from "./utils";
+import { ZipManager } from "./zipManager";
+
 const localVector3 = new THREE.Vector3();
 
 export class SpriteAtlasGenerator {
@@ -10,8 +12,9 @@ export class SpriteAtlasGenerator {
         this.animationManager = this.characterManager.animationManager;
     }
 
-    async createSpriteAtlas(spriteObject){
+    async createSpriteAtlas(spriteObject, exsitingZipFile = null, zipName = ""){
         const manifestURL = spriteObject.manifest;
+        const spriteFolderName = spriteObject.name ? "spriteData/" + spriteObject.name : "spriteData";
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
@@ -38,13 +41,13 @@ export class SpriteAtlasGenerator {
         await this.screenshotManager.calculateBoneOffsets(0.2);
 
         let counter = 0;
-        console.log(manifest);
         const scope = this;
         
         if (Array.isArray(spritesCollection)){
-            console.log("e");
+            const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
             async function processAnimations() {
                 if (Array.isArray(spritesCollection)) {
+                    
                     for (const spriteInfo of spritesCollection) {
                         const {
                             animationName,
@@ -56,7 +59,7 @@ export class SpriteAtlasGenerator {
                             cameraFrame,
                         } = spriteInfo;
                         counter++
-                        const saveName = animationName ? animationName : counter.toString().padStart(2, '0');
+                        const currentAnimationFolder = spriteFolderName + "/" + (animationName ? animationName : counter.toString().padStart(2, '0'));
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, 0);
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
@@ -67,16 +70,29 @@ export class SpriteAtlasGenerator {
                             
                             scope.animationManager.setTime(i * timeOffsets);
                             // delay required as its saving images too fast
-                            await delay(100);
-                            pixelStyleSize ?
-                                scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
-                                scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
+                            // await delay(100);
+                            // pixelStyleSize ?
+                            //     scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
+                            //     scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
+
+
+
+                            const imgData = scope.screenshotManager.getImageData(atlasWidth, atlasHeight, pixelStyleSize != null);
+                            // add lora data folder?
+                            zip.addData(imgData,i.toString().padStart(2, '0'), "png", currentAnimationFolder);
                         }
                     }
                 }
             }
             // Call the function to start processing animations
             await processAnimations();
+
+            // save only if no zipcontainer was provided
+            if (exsitingZipFile == null){
+                if (zipName == "")
+                    zipName = "sprites_zip"; 
+                zip.saveZip(zipName);
+            }
         }
 
         this.blinkManager.disableScreenshot();
