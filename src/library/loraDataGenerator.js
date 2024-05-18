@@ -13,7 +13,7 @@ export class LoraDataGenerator {
         this.temptime = 0;
     }
 
-    async createLoraData(loraObject, zipName = "", baseText){
+    async createLoraData(loraObject, exsitingZipFile = null, zipName = "", baseText){
         const manifestURL = loraObject.manifest;
         const loraFolderName = loraObject.name || "lora_Data";
         const manifest = await this._fetchManifest(manifestURL);
@@ -36,12 +36,12 @@ export class LoraDataGenerator {
         this.screenshotManager.setBackground([backgroundGrayscale,backgroundGrayscale,backgroundGrayscale])
         this.blinkManager.enableScreenshot();
 
-        this.screenshotManager._calculateBoneOffsets(0.2);
+        await this.screenshotManager._calculateBoneOffsets(0.2);
         const delay = ms => new Promise(res => setTimeout(res, ms));
         let counter = 0;
         const scope = this;
         if (Array.isArray(dataCollection)){
-            const zip = new ZipManager();
+            const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
             const processAnimations = async() =>{
                 if (Array.isArray(dataCollection)) {
                     for (let i =0; i < dataCollection.length;i++){
@@ -62,26 +62,24 @@ export class LoraDataGenerator {
                         
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
-            
-                        // add small delay to avoid skipping saves
-                        //await delay(100);
-                        //scope.screenshotManager.saveScreenshot(saveName, width, height);
+
                         const imgData = scope.screenshotManager.getImageData(width, height, false);
+                        // add lora data folder?
                         zip.addData(imgData,saveName, "png", loraFolderName);
                         zip.addData("anata" + " " + description + " " + backgroundDescription,saveName, "txt", loraFolderName)
-                        //saveTextFile("anata" + " " + description + " " + backgroundDescription,saveName);
                     }
                 }
             }
-            
-            
-            
+
             // Call the function to start processing animations
             await processAnimations();
 
-            if (zipName == "")
-                zipName = "lora_zip"; 
-            zip.saveZip(zipName);
+            // save only if no zipcontainer was provided
+            if (exsitingZipFile == null){
+                if (zipName == "")
+                    zipName = "lora_zip"; 
+                zip.saveZip(zipName);
+            }
         }
 
         this.blinkManager.disableScreenshot();

@@ -65,7 +65,8 @@ function BatchDownload() {
       if (downloadLora == true){
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await loraDataGenerator.createLoraData(manifest.loras[0], jsonSelectionArray[index].name);
+
+        await loraDataGenerator.createLoraData(manifest.loras[0], null, jsonSelectionArray[index].name);
         parentScene.add(sceneElements);
       }
       characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then( ()=>{
