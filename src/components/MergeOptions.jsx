@@ -159,7 +159,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
                 onClick={nextOption}
             ></div>
         </div>
-        <br /><br /><br />
+        <br /><br />
 
         {(currentOption === 0 || currentOption == 2)&&(
           <>
@@ -177,7 +177,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
               Transparent: {getAtlasSize(atlasStdTransp) + " x " + getAtlasSize(atlasStdTransp)}
           </div>
             <Slider value = {atlasStdTransp} onChange={(value) => handleChangeAtlasSize(value, 'standard transparent')} min={1} max={8} step={1}/>
-            <br/> <br/> <br/>
+            <br/> <br />
           </>
         )}
 
@@ -197,7 +197,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
             Transparent: {getAtlasSize(atlasMtoonTransp) + " x " + getAtlasSize(atlasMtoonTransp)}
         </div>
           <Slider value = {atlasMtoonTransp} onChange={(value) => handleChangeAtlasSize(value, 'mtoon transparent')} min={1} max={8} step={1}/>
-          <br/> <br/>
+          <br/> <br />
           </>
         )}
         <div className={styles["traitInfoTitle"]}>
