@@ -88,7 +88,8 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
     const createThumbnails = async () =>{
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        await thumbnailsGenerator.createThumbnailsWithManifest('./thumbnail-assets/manifest.json',10);
+        
+        await thumbnailsGenerator.createThumbnails(manifest.thumbnails[0]);
         parentScene.add(sceneElements);
     }
 
@@ -120,9 +121,9 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
         if (createAll)
-            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),10,false);
+            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),false,null,traitGroupName + "_thumbnails");
         else
-            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(false),1,false);`   `
+            await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(false),false);
         parentScene.add(sceneElements);
 
        characterManager.loadStoredAvatar();
