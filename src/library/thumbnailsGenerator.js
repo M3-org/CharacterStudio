@@ -1,6 +1,9 @@
 import * as THREE from "three"
 import { getAsArray, getVectorCameraPosition } from "./utils";
+import { ZipManager } from "./zipManager";
+
 const localVector3 = new THREE.Vector3();
+
 
 export class ThumbnailGenerator {
     constructor(characterManager){
@@ -9,8 +12,8 @@ export class ThumbnailGenerator {
         this.blinkManager = characterManager.blinkManager;
         this.animationManager = this.characterManager.animationManager;
     }
-
-    async createThumbnailsWithObjectData(objectData, maxQty = Infinity, loadAnimation = true, loadTrait = true){
+    //, exsitingZipFile = null, zipName = ""
+    async createThumbnailsWithObjectData(objectData, loadAnimation = true, exsitingZipFile = null, zipName = ""){
 
         const {
 
@@ -51,15 +54,17 @@ export class ThumbnailGenerator {
         await this.screenshotManager.calculateBoneOffsets(0.2);
 
         const scope = this;
-        let counter = 0;
+        
 
         // pose the character
         console.log(objectData);
         
         if (Array.isArray(thumbnailsCollection)){
-            console.log("t");
+            const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
+           
             async function processScreenshots() {
                 for (const thumbnailInfo of thumbnailsCollection) {
+                    
                     const {
                         traitGroup,
                         cameraPosition = "front",
@@ -114,35 +119,42 @@ export class ThumbnailGenerator {
                         scope.screenshotManager.frameShot(bottomBoneName, topBoneName, vectorCameraPosition, bottomBoneMaxVertex, topBoneMaxVertex);
                     }
 
+                    //let counter = 0;
                     for (let i=0; i < modelTraits.length;i++){
-                        console.log(modelTraits[i].id);
+
                         const traitId = modelTraits[i].id;
                         await scope.characterManager.loadTrait(traitGroup, traitId,true);
-                        //await scope.animationManager.loadAnimation(animBasePath + poseAnimation, true, finalAnimationTime);
-                        //scope.animationManager.setTime(finalAnimationTime);
-                        await delay(100);
-                        scope.screenshotManager.saveScreenshot(traitGroup + "_" + traitId, thumbnailsWidth, thumbnailsHeight);
+
+
+                        const imgData = scope.screenshotManager.getImageData(thumbnailsWidth, thumbnailsHeight);
+                        zip.addData(imgData,traitId, "png", traitGroup);
                    
-                        counter++
-                        if (counter >= maxQty){
-                            break;
-                        }
+                        // counter++
+                        // if (counter >= 10){
+                        //     break;
+                        // }
                     }
                     //const saveName = animationName ? animationName : counter.toString().padStart(2, '0');
 
                 }
             }
+            
             // Call the function to start processing animations
             await processScreenshots();
+            if (exsitingZipFile == null){
+                if (zipName == "")
+                    zipName = "thumbnails_zip"; 
+                zip.saveZip(zipName);
+            }
         }
 
         this.blinkManager.disableScreenshot();
     }
 
-    async createThumbnailsWithManifest(manifestURL, maxQty){
-        
+    async createThumbnails(spriteObject, exsitingZipFile = null, zipName = ""){
+        const manifestURL = spriteObject.manifest;
         const manifest = await this._fetchManifest(manifestURL);
-        await this.createThumbnailsWithObjectData(manifest,maxQty)
+        await this.createThumbnailsWithObjectData(manifest, true, exsitingZipFile, zipName);
         
     }
 

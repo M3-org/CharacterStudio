@@ -15,6 +15,13 @@
             "cameraFrame":"mediumShot",
             "groupTopOffset":0.1,
             "groupBotomOffset":0.1
+        },
+        {
+            "traitGroup":"HAIR",
+            "cameraPosition":"front-left",
+            "cameraFrame":"mediumShot",
+            "groupTopOffset":0.1,
+            "groupBotomOffset":0.1
         }
     ]
 }
