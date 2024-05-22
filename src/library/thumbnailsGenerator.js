@@ -60,8 +60,9 @@ export class ThumbnailGenerator {
         console.log(objectData);
         
         if (Array.isArray(thumbnailsCollection)){
+
             const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
-           
+            let singleSave = false;
             async function processScreenshots() {
                 for (const thumbnailInfo of thumbnailsCollection) {
                     
@@ -77,6 +78,8 @@ export class ThumbnailGenerator {
                         cameraFrame,
                         saveOnlyIDs
                     } = thumbnailInfo;
+
+
 
                     if (!bottomBoneName || !topBoneName){
                         if (!cameraFrame){
@@ -103,10 +106,14 @@ export class ThumbnailGenerator {
                         getSaveOnlyIDs();
                         
 
+
                     if (modelTraits == null){
                         console.log("SKipping Thumbnail Generation for trait group " + traitGroup + ", its not present in the character manifest.")
                         continue;
                     }
+
+
+
                     console.log("TRAITS", modelTraits);
 
                     const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
@@ -125,9 +132,14 @@ export class ThumbnailGenerator {
                         const traitId = modelTraits[i].id;
                         await scope.characterManager.loadTrait(traitGroup, traitId,true);
 
-
-                        const imgData = scope.screenshotManager.getImageData(thumbnailsWidth, thumbnailsHeight);
-                        zip.addData(imgData,traitId, "png", traitGroup);
+                        if (thumbnailsCollection.length == 1 && modelTraits.length == 1){
+                            singleSave = true;
+                            scope.screenshotManager.saveScreenshot(traitId,thumbnailsWidth, thumbnailsHeight);
+                        }
+                        else{
+                            const imgData = scope.screenshotManager.getImageData(thumbnailsWidth, thumbnailsHeight);
+                            zip.addData(imgData,traitId, "png", traitGroup);
+                        }
                    
                         // counter++
                         // if (counter >= 10){
@@ -141,7 +153,7 @@ export class ThumbnailGenerator {
             
             // Call the function to start processing animations
             await processScreenshots();
-            if (exsitingZipFile == null){
+            if (exsitingZipFile == null && singleSave == false){
                 if (zipName == "")
                     zipName = "thumbnails_zip"; 
                 zip.saveZip(zipName);
