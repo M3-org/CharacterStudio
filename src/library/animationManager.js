@@ -24,8 +24,6 @@ class AnimationControl {
     this.animationManager = animationManager;
     this.mixamoModel = null;
 
-    console.log("poseStart", poseStart)
-
     this.fadeOutActions = null;
     this.newAnimationWeight = 1;
 
@@ -68,7 +66,6 @@ class AnimationControl {
   }
 
   setAnimations(animations, mixamoModel=null, mouseLookEnabled = null, quickChange = false){
-    console.log("quickchange", quickChange);
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
     //this.mixer.stopAllAction();
@@ -176,7 +173,6 @@ class AnimationControl {
 
   dispose(){
     this.animationManager.disposeAnimation(this);
-    //console.log("todo dispose animation control")
   }
 }
 
@@ -344,7 +340,6 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-    console.log("is paused", this.isPaused());
     const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID, this.isPaused())
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
@@ -429,7 +424,6 @@ export class AnimationManager{
   }
 
   pause(){
-    console.log("PAUSED");
     this.paused = true;
   }
 
