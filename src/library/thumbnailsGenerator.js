@@ -57,7 +57,6 @@ export class ThumbnailGenerator {
         
 
         // pose the character
-        console.log(objectData);
         
         if (Array.isArray(thumbnailsCollection)){
 
@@ -112,13 +111,8 @@ export class ThumbnailGenerator {
                         continue;
                     }
 
-
-
-                    console.log("TRAITS", modelTraits);
-
                     const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                     if (cameraFrame){
-                        console.log("frames camera");
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame, vectorCameraPosition);
                     }
                     else{
