@@ -22,7 +22,6 @@ function Create() {
   
   useEffect(() => {
     if (manifest?.characters != null){
-      console.log(manifest);
       const manifestClasses = manifest.characters.map((c) => {
         return {
           name:c.name, 
