@@ -105,6 +105,7 @@ export class ScreenshotManager {
       neck:null,
       chest:null,
       hips:null,
+      spine:null,
       leftUpperLeg:null,
       leftLowerLeg:null,
       leftFoot:null,
