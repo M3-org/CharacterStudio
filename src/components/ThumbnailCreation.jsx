@@ -46,8 +46,6 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
             setDescription(manifest.thumbnails[sel.value].description)
             setManifestLocation(manifest.thumbnails[sel.value].manifest);
             setSelection(manifest.thumbnails[sel.value].name);
-
-            console.log(manifest.thumbnails[sel.value].manifest)
         }
     }
     const validateValue = (value, min, max, fallback) => {
@@ -124,8 +122,6 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         //await characterManager.soloTargetGroupTrait(traitGroupName);
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        console.log("HHHEEEE")
-        console.log(getOptions());
         if (createAll)
             await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),false,null,traitGroupName + "_thumbnails");
         else
@@ -138,7 +134,6 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
 
     useEffect(() => {
     if (manifest?.thumbnails != null){
-        console.log(manifest?.thumbnails);
         const manifestOptions = manifest.thumbnails.map((c,i) => {
             return {
                 value:i, 
@@ -323,25 +318,23 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                                 <input type="checkbox" 
                                     checked={topVertexMax} 
                                     onChange={(e)=>{
-                                        console.log(e.target.checked)
                                         setTopVertexMax(e.target.checked);
                                     }}
                                     
                                 />
-                                <div className={styles["traitInfoText"]} style={{ margin: '0px' }}>
-                                    Top Use Max Vertex 
+                                <div className={styles["traitInfoText"]} style={{ margin: '0px', fontSize:'12px'}}>
+                                    {`Top bone ${topVertexMax ? "uses Top" : "uses Low"} Vertex`} 
                                 </div>
                             </div>
                             <div className={styles["checkboxFlex"]} style={{marginTop:'10px'}}>
                                 <input type="checkbox"
                                     checked={bottomVertexMax} 
                                     onChange={(e)=>{
-                                        console.log(e)
                                         setBottomVertexMax(e.target.checked);
                                     }}
                                 />
-                                <div className={styles["traitInfoText"]} style={{ margin: '0px' }}>
-                                    Bottom use Max Vertex 
+                                <div className={styles["traitInfoText"]} style={{ margin: '0px',  fontSize:'12px'}}>
+                                    {`Bottom bone ${bottomVertexMax ? "uses Top" : "uses Low"} Vertex`} 
                                 </div>
                             </div>
                         </div>
