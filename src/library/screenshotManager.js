@@ -102,11 +102,14 @@ export class ScreenshotManager {
 
     this.boneOffsets = {
       head:null,
+      neck:null,
       chest:null,
       hips:null,
       leftUpperLeg:null,
+      leftLowerLeg:null,
       leftFoot:null,
       rightUpperLeg:null,
+      rightLowerLeg:null,
       rightFoot:null,
     }
   }
@@ -160,8 +163,6 @@ export class ScreenshotManager {
   frameShot(minBoneName, maxBoneName, cameraPosition = null, minGetsMaxVertex = false, maxGetsMaxVertex = true){
     const min = this._getBoneWorldPositionWithOffset(minBoneName, minGetsMaxVertex);
     const max = this._getBoneWorldPositionWithOffset(maxBoneName, maxGetsMaxVertex);
-    console.log(min);
-    console.log(max);
     min.y -= this.frameOffset.max;
     max.y += this.frameOffset.min;
 
@@ -181,24 +182,18 @@ export class ScreenshotManager {
   async calculateBoneOffsets(minWeight) {
     for (const boneName in this.boneOffsets) {
         // Use await to wait for the promise to resolve
-        this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight).then((res)=>{
-          console.log(res.min);
-        })
         const result = await this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight);
-        console.log("res");
-        console.log(result.min);
 
         // Store the result in the boneOffsets property
         this.boneOffsets[boneName] = result;
     }
-
-    console.log(this.boneOffsets["head"].min);
 }
 
   _getBoneWorldPositionWithOffset(boneName, getMax) {
     const bone = this._getFirstBoneWithName(boneName);
-    console.log("HERE")
+    console.log("HERE: ", boneName)
     console.log(bone);
+    console.log(this.boneOffsets[boneName]);
     if (!bone || !this.boneOffsets[boneName]) {
       console.log("exits");
         return new THREE.Vector3();
@@ -328,7 +323,6 @@ async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
               const skinWeightAttribute = child.geometry.getAttribute("skinWeight");
               const skinIndexAttribute = child.geometry.getAttribute("skinIndex");
 
-              console.log(positionAttribute.count);
               // Iterate through each vertex
               for (let i = 0; i < positionAttribute.count; i++) {
                   const worldVertex = new THREE.Vector3().fromBufferAttribute(positionAttribute, i).applyMatrix4(child.matrixWorld);
@@ -358,6 +352,7 @@ async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
           }
       });
 
+      console.log("ossets for " + boneName)
       console.log(minOffset);
       console.log(maxOffset);
 
