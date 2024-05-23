@@ -104,10 +104,14 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                 {
                     traitGroup:traitGroupName,
                     cameraPosition:`${xCam-yCam-zCam}`,
-                    topBoneName:topBone,
+                    topBoneName:(topBone === "upperLeg" || topBone === "lowerLeg" || topBone === "foot") ? 
+                        "left" + topBone[0].toUpperCase() + topBone.slice(1) :
+                        topBone,
                     topBoneMaxVertex:topVertexMax,
                     // cameraFrame:'cowboyShot',
-                    bottomBoneName:bottomBone,
+                    bottomBoneName:(bottomBone === "upperLeg" || bottomBone === "lowerLeg" || topBone === "foot") ? 
+                        "left" + bottomBone[0].toUpperCase() + bottomBone.slice(1) :
+                        bottomBone,
                     bottomBoneMaxVertex:bottomVertexMax,
                     saveOnlyIDs:exportAll ? null : selectedTrait.id
                 }
@@ -120,6 +124,8 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         //await characterManager.soloTargetGroupTrait(traitGroupName);
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
+        console.log("HHHEEEE")
+        console.log(getOptions());
         if (createAll)
             await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),false,null,traitGroupName + "_thumbnails");
         else
