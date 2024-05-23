@@ -5,7 +5,6 @@ export class PixelatePass extends Pass {
         super();
         this.resolution = resolution;
         this.fsQuad = new FullScreenQuad(this.material());
-        console.log( this.fsQuad)
     }
     setResolution(resolution){
         this.resolution = resolution;
