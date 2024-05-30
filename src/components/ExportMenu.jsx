@@ -36,12 +36,6 @@ export const ExportMenu = () => {
   const downloadVRM = () =>{
     const options = getOptions();
     characterManager.downloadVRM(name, options);
-    if (local["mergeOptions_download_lora"] === true){
-      console.log("download lora data");
-    }
-    if (local["mergeOptions_download_sprites"] === true){
-      console.log("download sprites data")
-    }
   }
   const downloadGLB = () =>{
     const options = getOptions();
