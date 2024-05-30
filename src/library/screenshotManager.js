@@ -479,18 +479,23 @@ async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
       this.scene.remove(this.backgroundPlane);
     }
   }
-  getImageData(width, height, pixelStyle = false){
-    return this._createImage(width, height, pixelStyle).split("base64,")[1];
+  getImageData(width, height, pixelSize = null){
+    return this._createImage(width, height, pixelSize).split("base64,")[1];
   }
 
-  _createImage(width, height, pixelStyle = false){
+  _createImage(width, height, pixelSize = null){
     const aspectRatio = width / height;
+
+    if (typeof pixelSize === 'number'){
+      this.pixelRenderer.setPixelSize(pixelSize);
+    }
     this.renderer.setSize(width, height);
+    this.pixelRenderer.setSize(width,height);
     const strMime = "image/png";
 
     this.camera.aspect = aspectRatio;
     this.camera.updateProjectionMatrix();
-    const renderer = pixelStyle ? this.pixelRenderer : this.renderer;
+    const renderer = typeof pixelSize === 'number' ? this.pixelRenderer : this.renderer;
     try {
       
       this._setBackground();
