@@ -14,18 +14,8 @@ export class ZipManager{
             this.zipContainer[zipFolder] = [];
         }
 
-        
-        console.log("check if data with dataname already exists");
         this.zipContainer[zipFolder].push({ data: data , name: dataName, extension:extension});
 
-    }
-
-    addTextData(text, extension, zipFolder = ""){
-        if (zipFolder == "") zipFolder = "_";
-            
-        if ( this.zipContainer[zipFolder] == null){
-            this.zipContainer[zipFolder] = [];
-        }
     }
 
     // Function to save the image array as a zip folder
