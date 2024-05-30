@@ -82,7 +82,8 @@ function BatchManifest() {
         const downloadZip = new ZipManager();
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        if (local["mergeOptions_download_lora"] === true) {
+        const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+        if (downloadLora === true) {
           const promises = manifest.loras.map(async lora => {
               return loraDataGenerator.createLoraData(lora, downloadZip);
           });
@@ -90,7 +91,8 @@ function BatchManifest() {
           await Promise.all(promises);
         }
 
-        if (local["mergeOptions_download_sprites"] === true){
+        const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
+        if (downloadSprites === true){
           const promises = manifest.sprites.map(async sprite => {
             return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
           });
@@ -98,7 +100,7 @@ function BatchManifest() {
           await Promise.all(promises);
         }
 
-        if(local["mergeOptions_download_sprites"] === true || local["mergeOptions_download_lora"] === true){
+        if(downloadLora === true || downloadSprites === true){
           downloadZip.saveZip(manifestSelectionArray[index].manifestName);
         }
         
