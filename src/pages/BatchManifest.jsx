@@ -77,8 +77,11 @@ function BatchManifest() {
       }
     }
     else{
-      console.log("DOWNLOAD!! " + index)
-      characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
+      const saveData = async()=>{
+        const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
+        if (downloadVRM){
+          await  characterManager.downloadVRM(downloadName, getOptions());
+        }
         const downloadZip = new ZipManager();
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
@@ -111,7 +114,42 @@ function BatchManifest() {
         }
         else
           setIsLoading(false);
-      })
+      }
+      saveData();
+      // characterManager.downloadVRM(downloadName, getOptions()).then(async()=>{
+      //   const downloadZip = new ZipManager();
+      //   const parentScene = sceneElements.parent;
+      //   parentScene.remove(sceneElements);
+      //   const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+      //   if (downloadLora === true) {
+      //     const promises = manifest.loras.map(async lora => {
+      //         return loraDataGenerator.createLoraData(lora, downloadZip);
+      //     });
+      
+      //     await Promise.all(promises);
+      //   }
+
+      //   const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
+      //   if (downloadSprites === true){
+      //     const promises = manifest.sprites.map(async sprite => {
+      //       return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+      //     });
+      
+      //     await Promise.all(promises);
+      //   }
+
+      //   if(downloadLora === true || downloadSprites === true){
+      //     downloadZip.saveZip(manifestSelectionArray[index].manifestName);
+      //   }
+        
+      //   parentScene.add(sceneElements);
+      //   if (index < manifestSelectionArray.length-1 ){
+      //     console.log("downloaded " + downloadName)
+      //     downloadVRMWithIndex(index + 1)
+      //   }
+      //   else
+      //     setIsLoading(false);
+      // })
     }
   }
 
