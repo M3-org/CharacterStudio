@@ -77,7 +77,7 @@ export class SpriteAtlasGenerator {
 
 
 
-                            const imgData = scope.screenshotManager.getImageData(atlasWidth, atlasHeight, pixelStyleSize != null);
+                            const imgData = scope.screenshotManager.getImageData(atlasWidth, atlasHeight, pixelStyleSize);
                             // add lora data folder?
                             zip.addData(imgData,i.toString().padStart(2, '0'), "png", currentAnimationFolder);
                         }
