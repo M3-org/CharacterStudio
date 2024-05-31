@@ -18,6 +18,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
 
   // download vrm
   const [downloadVRM, setDownloadVRM] = useState(local["mergeOptions_download_vrm"] == null ?  true : local["mergeOptions_download_vrm"])
+  const [downloadVRMPreview, setDownloadVRMPreviw] = useState(local["mergeOptions_download_vrm_preview"] == null ?  true : local["mergeOptions_download_vrm_preview"])
 
   // optimizer
   const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
@@ -51,6 +52,11 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
   const handleDownloadVRM = (event) => {
     setDownloadVRM(event.target.checked)
     local["mergeOptions_download_vrm"] = event.target.checked;
+  }
+
+  const handleDownloadVRMPreview = (event) => {
+    setDownloadVRMPreview(event.target.checked)
+    local["mergeOptions_download_vrm_preview"] = event.target.checked;
   }
 
   const handleDownloadLora = (event) => {
@@ -126,26 +132,43 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
         <div className={styles["traitInfoTitle"]}>
             Download Options
         </div>
-      <>
-      
-            <div className={styles["traitInfoText"]}>
-              <div className={styles["checkboxHolder"]}>
-                <div>
-                  </div>
-                  
-                  <label className={styles["custom-checkbox"]}>
-                      <input 
-                          type="checkbox" 
-                          checked={downloadVRM}
-                          onChange={handleDownloadVRM}
-                      />
-                      <div className={styles["checkbox-container"]}></div>
-                  </label>
-                  <div/><div/>
-                  Download VRM
-              </div>
+        <>
+          <div className={styles["traitInfoText"]}>
+            <div className={styles["checkboxHolder"]}>
+              <div>
+                </div>
+                
+                <label className={styles["custom-checkbox"]}>
+                    <input 
+                        type="checkbox" 
+                        checked={downloadVRM}
+                        onChange={handleDownloadVRM}
+                    />
+                    <div className={styles["checkbox-container"]}></div>
+                </label>
+                <div/><div/>
+                Download VRM
             </div>
-            
+          </div>
+        </>
+        <>
+          <div className={styles["traitInfoText"]}>
+            <div className={styles["checkboxHolder"]}>
+              <div>
+                </div>
+                
+                <label className={styles["custom-checkbox"]}>
+                    <input 
+                        type="checkbox" 
+                        checked={downloadVRMPreview}
+                        onChange={handleDownloadVRMPreview}
+                    />
+                    <div className={styles["checkbox-container"]}></div>
+                </label>
+                <div/><div/>
+                Download VRM Preview
+            </div>
+          </div>
         </>
         <>
             <div className={styles["traitInfoText"]}>
