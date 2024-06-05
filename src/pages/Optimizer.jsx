@@ -11,6 +11,7 @@ import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../librar
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
+import { ZipManager } from "../library/zipManager"
 
 function Optimizer() {
   const { 
@@ -56,37 +57,43 @@ function Optimizer() {
     }
   }
 
-  const createLora = async() =>{
-    console.log("TO DO: export all loras")
-    if (manifest.loras?.length != null){
-      if (manifest.loras[0] != null){
-        const parentScene = sceneElements.parent;
-        parentScene.remove(sceneElements);
-        await loraDataGenerator.createLoraData(manifest.loras[0]);
-        parentScene.add(sceneElements);
-      }
-    }
-  }
-  const createSpriteAtlas = async () =>{
-    console.log("TO DO: export all sprites")
-    if (manifest.loras?.length != null){
-      if (manifest.loras[0] != null){
-        const parentScene = sceneElements.parent;
-        parentScene.remove(sceneElements);
-        
-        await spriteAtlasGenerator.createSpriteAtlas(manifest.sprites[0]);
-        parentScene.add(sceneElements);
-      }
-    }
-  }
-
   const download = () => {
+    const saveData = async() =>{
+      const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
+      if (downloadVRMImage){
+        characterManager.savePortraitScreenshot(nameVRM + "_portrait", 512,1024,1.5,-0.1);
+      }
+      const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
+      if (downloadVRM){
+        await  characterManager.downloadVRM(nameVRM + "_merged", getOptions());
+      }
+      const downloadZip = new ZipManager();
+      const parentScene = sceneElements.parent;
+      parentScene.remove(sceneElements);
+      const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+      if (downloadLora === true) {
+        const promises = manifest.loras.map(async lora => {
+            return loraDataGenerator.createLoraData(lora, downloadZip);
+        });
+    
+        await Promise.all(promises);
+      }
+      const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
+      if (downloadSprites === true){
+        const promises = manifest.sprites.map(async sprite => {
+          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+        });
+    
+        await Promise.all(promises);
+      }
 
-    // const vrmData = currentVRM.userData.vrm
-    // console.log("VRM DATA:", vrmData);
-    // downloadVRM(model, vrmData,nameVRM + "_merged", getOptions())
-    characterManager.downloadVRM(nameVRM + "_merged", getOptions())
+      if(downloadLora === true || downloadSprites === true){
+        downloadZip.saveZip(nameVRM);
+      }
+      parentScene.add(sceneElements);
+    }
 
+    saveData();
   }
 
   // Translate hook
@@ -168,22 +175,6 @@ function Optimizer() {
           size={14}
           className={styles.buttonRight}
           onClick={download}
-        />)}
-        {(model != "")&&(
-          <CustomButton
-          theme="light"
-          text="Create Lora"
-          size={14}
-          className={styles.buttonRight}
-          onClick={createLora}
-        />)}
-        {(model != "")&&(
-          <CustomButton
-          theme="light"
-          text="Create Sprite Atlas"
-          size={14}
-          className={styles.buttonRight}
-          onClick={createSpriteAtlas}
         />)}
         
         
