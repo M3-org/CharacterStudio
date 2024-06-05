@@ -18,7 +18,7 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
 
   // download vrm
   const [downloadVRM, setDownloadVRM] = useState(local["mergeOptions_download_vrm"] == null ?  true : local["mergeOptions_download_vrm"])
-  const [downloadVRMPreview, setDownloadVRMPreviw] = useState(local["mergeOptions_download_vrm_preview"] == null ?  true : local["mergeOptions_download_vrm_preview"])
+  const [downloadVRMPreview, setDownloadVRMPreview] = useState(local["mergeOptions_download_vrm_preview"] == null ?  true : local["mergeOptions_download_vrm_preview"])
 
   // optimizer
   const [downloadOnDrop, setDownloadOnDrop] = useState(local["mergeOptions_drop_download"] || false)
