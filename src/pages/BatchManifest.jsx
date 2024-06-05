@@ -109,7 +109,7 @@ function BatchManifest() {
       else
         setIsLoading(false);
     }
-    saveData();
+    saveData(); 
   }
 
   const downloadVRMWithIndex= async(index)=>{
