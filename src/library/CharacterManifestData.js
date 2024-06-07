@@ -700,7 +700,7 @@ class ModelTrait{
       }
 
       const restrictedTypes = this.manifestData.restrictedTypes;
-      traitTypes = getAsArray(trait.type);
+      traitTypes = getAsArray(this.type);
       this.type.forEach(type => {
         return haveCommonValue(restrictedTypes[type], traitTypes)
       });
