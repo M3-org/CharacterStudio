@@ -24,6 +24,7 @@ import BatchDownload from "./pages/BatchDownload"
 import Optimizer from "./pages/Optimizer"
 import LanguageSwitch from "./components/LanguageSwitch"
 import BatchManifest from "./pages/BatchManifest"
+import ManifestBuild from "./pages/ManifestBuild"
 import Wallet from "./pages/Wallet"
 
 // dynamically import the manifest
@@ -235,6 +236,7 @@ export default function App() {
     [ViewMode.MINT]: <Mint />,
     [ViewMode.SAVE]: <Save />,
     [ViewMode.CHAT]: <View />,
+    [ViewMode.MANIFESTBUILD]:< ManifestBuild />,
   }
 
   let lastTap = 0

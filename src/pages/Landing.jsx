@@ -31,6 +31,10 @@ function Landing() {
     characterManager.loadOptimizerManifest();
     !isMute && playSound('backNextButton');
   }
+  const manifestBuild = () => {
+    setViewMode(ViewMode.MANIFESTBUILD);
+    !isMute && playSound('backNextButton');
+  }
   const getWallet = async() => {
     const address = await connectWallet()
     if (address != "")setViewMode(ViewMode.WALLET)
@@ -58,9 +62,9 @@ function Landing() {
           <img src="./assets/media/btn_optimize_character.png" />
         </button>
         }
-        {/* <button className={styles.button} onClick={createCharacter}>
+        <button className={styles.button} onClick={manifestBuild}>
           <img src="./assets/media/btn_tools.png" />
-        </button> */}
+        </button>
         {/*
         <button className={styles.button}
             onClick={

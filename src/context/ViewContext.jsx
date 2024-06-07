@@ -20,7 +20,8 @@ export const ViewMode = {
   CHAT: "CHAT",
   OPTIMIZER: "OPTIMIZER",
   BATCHMANIFEST: "BATCHMANIFEST",
-  WALLET: "WALLET"
+  WALLET: "WALLET",
+  MANIFESTBUILD: "MANIFESTBUILD"
 }
 
 export const ViewContext = React.createContext()
