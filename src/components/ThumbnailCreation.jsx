@@ -101,7 +101,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
             thumbnailsCollection:[
                 {
                     traitGroup:traitGroupName,
-                    cameraPosition:`${xCam-yCam-zCam}`,
+                    cameraPosition:xCam+'-'+yCam+'-'+zCam,
                     topBoneName:(topBone === "upperLeg" || topBone === "lowerLeg" || topBone === "foot") ? 
                         "left" + topBone[0].toUpperCase() + topBone.slice(1) :
                         topBone,
@@ -122,6 +122,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         //await characterManager.soloTargetGroupTrait(traitGroupName);
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
+        console.log(getOptions())
         if (createAll)
             await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),false,null,traitGroupName + "_thumbnails");
         else
@@ -227,12 +228,12 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             onBlur={blurHeight}
                         />
                         <br />
-                        Bottom Frame <input value={botFrame} className={styles["input-box"]}  step ={0.1}
+                        Top Spacing <input value={botFrame} className={styles["input-box"]}  step ={0.1}
                             onChange={(e)=>{setBotFrame(e.target.value)}}
                             onBlur={blurBotFrame}
                         />
                         <br />
-                        Top Frame <input value={topFrame} className={styles["input-box"]}  step ={0.1}
+                        Bottom Spacing <input value={topFrame} className={styles["input-box"]}  step ={0.1}
                             onChange={(e)=>{setTopFrame(e.target.value)}}
                             onBlur={blurTopFrame}
                         />
