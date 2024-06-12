@@ -388,12 +388,6 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       }
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-
-      // if(!texture){
-      //   // No texture found, create a solid color texture given the clearColor; this is to handle the case where a mesh has no textures and solely rely on colors.
-      //   texture = createSolidColorTexture(clearColor, xTileSize, yTileSize)
-      // }
-
       const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture);
       createImageBitmap(imgData)// bmp is trasnaprent
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
