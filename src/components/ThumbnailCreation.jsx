@@ -122,7 +122,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
         //await characterManager.soloTargetGroupTrait(traitGroupName);
         const parentScene = sceneElements.parent;
         parentScene.remove(sceneElements);
-        console.log(getOptions())
+        
         if (createAll)
             await thumbnailsGenerator.createThumbnailsWithObjectData(getOptions(),false,null,traitGroupName + "_thumbnails");
         else
