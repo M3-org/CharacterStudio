@@ -99,7 +99,6 @@ export class ThumbnailGenerator {
                         return resultArray;
                     }
 
-
                     const modelTraits = saveOnlyIDs == null ? 
                         scope.characterManager.getTraits(traitGroup):
                         getSaveOnlyIDs();
@@ -124,15 +123,22 @@ export class ThumbnailGenerator {
                     for (let i=0; i < modelTraits.length;i++){
 
                         const traitId = modelTraits[i].id;
+                        let imgName = traitId;
+
+                        if (modelTraits[i].fullDirectory != null){
+                            const fullDir = modelTraits[i].fullDirectory.split('/');
+                            const baseName = fullDir[fullDir.length - 1];
+                            imgName = baseName.split('.')[0];
+                        }
                         await scope.characterManager.loadTrait(traitGroup, traitId,true);
 
                         if (thumbnailsCollection.length == 1 && modelTraits.length == 1){
                             singleSave = true;
-                            scope.screenshotManager.saveScreenshot(traitId,thumbnailsWidth, thumbnailsHeight);
+                            scope.screenshotManager.saveScreenshot(imgName,thumbnailsWidth, thumbnailsHeight);
                         }
                         else{
                             const imgData = scope.screenshotManager.getImageData(thumbnailsWidth, thumbnailsHeight);
-                            zip.addData(imgData,traitId, "png", traitGroup);
+                            zip.addData(imgData,imgName, "png", traitGroup);
                         }
                    
                         // counter++
