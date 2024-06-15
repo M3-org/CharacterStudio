@@ -8,13 +8,33 @@ function ResetRenderTextureContainer(){
     renderer.clear(true, true);
 }
 
-function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent) {
-  // if texture is nuill, create a texture only with clearColor (that is color type)
-  if (texture == null) {
-    const data = new Uint8Array([clearColor.r * 255, clearColor.g * 255, clearColor.b * 255]); // Convert color to Uint8Array
+function createSolidColorTexture(color, width, height) {
 
-    texture = new THREE.DataTexture(data, width, height, THREE.RGBFormat); // Create a new texture
-    texture.needsUpdate = true; // Make sure to update the texture
+  const size = width * height;
+  const data = new Uint8Array( 4 * size );
+
+  const r = Math.floor( color.r * 255 );
+  const g = Math.floor( color.g * 255 );
+  const b = Math.floor( color.b * 255 );
+
+  for ( let i = 0; i < size; i ++ ) {
+    const stride = i * 4;
+    data[ stride ] = r;
+    data[ stride + 1 ] = g;
+    data[ stride + 2 ] = b;
+    data[ stride + 3 ] = 255;
+  }
+
+  // used the buffer to create a DataTexture
+  const texture = new THREE.DataTexture( data, width, height );
+  texture.needsUpdate = true;
+  return texture
+}
+
+function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent) {
+  // if texture is null or undefined, create a texture only with clearColor (that is color type)
+  if (!texture) {
+    texture = createSolidColorTexture(clearColor, width, height);
   }
 
   if (container == null) {
