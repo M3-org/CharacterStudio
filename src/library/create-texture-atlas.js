@@ -440,7 +440,11 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
     // but also store a vrm material that will hold the extension information
     if (vrmMaterial == null){
-      vrmMaterial = new MToonMaterial();
+      vrmMaterial = new MToonMaterial({
+        //map:textures["diffuse"],
+        outlineWidthFactor:0.079,
+        shadingToonyFactor: 0.95
+      });
     }
     vrmMaterial.side = side;
     vrmMaterial.uniforms.map = textures["diffuse"];

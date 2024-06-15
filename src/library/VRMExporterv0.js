@@ -452,25 +452,25 @@ export default class VRMExporterv0 {
             floatProperties: {
                 // _BlendMode : 0, 
                 // _BumpScale : 1, 
-                // _CullMode : 0,
+                // _CullMode : 0, // 0=2 side, 1=Front(faces looking away from camera), 2=Back(faces looking to camera) 
                 // _Cutoff : 0.5,
                 // _DebugMode : 0,
                 _DstBlend: 0.5,
                 // _IndirectLightIntensity : 0.1,
                 // _LightColorAttenuation : 0,
                 // _MToonVersion : 38, 
-                // _OutlineColorMode : 0,
-                // _OutlineCullMode : 1, 
-                // _OutlineLightingMix : 1,
-                // _OutlineScaledMaxDistance : 1, 
-                // _OutlineWidth : 0.079, 
-                // _OutlineWidthMode : 1, 
+                _OutlineColorMode : 0,
+                _OutlineCullMode : 1, 
+                _OutlineLightingMix : 1,
+                _OutlineScaledMaxDistance : 1, 
+                _OutlineWidth : 0.079, 
+                _OutlineWidthMode : 1, 
                 // _ReceiveShadowRate : 1,
                 // _RimFresnelPower : 1, 
                 // _RimLift : 0, 
                 // _RimLightingMix : 0, 
-                _ShadeShift: 0.5,
-                _ShadeToony: 0.5,
+                _ShadeShift: 0, // how far the shade appear?, 0 default
+                _ShadeToony: 0.5, // 1 = full toon, no shade
                 _ShadingGradeRate: 0.5,
                 // _SrcBlend : 1, 
                 // _UvAnimRotation : 0,
@@ -487,11 +487,12 @@ export default class VRMExporterv0 {
             renderQueue: 2000,
             shader: "VRM/MToon",
             tagMap: {
-                RenderType: "Opaque"
+                RenderType: "Opaque" // Transparent, Cutout
             },
             textureProperties: {
                 _MainTex: 0,
                 _ShadeTexture: 0
+                // missing emission
             },
             vectorProperties: {
                 _Color: [1, 1, 1, 1],
@@ -518,12 +519,14 @@ export default class VRMExporterv0 {
 
         const materialProperties = []
         uniqueMaterials.forEach(mat => {
-            if (mat.type == "ShaderMaterial") {
+            if (mat.userData?.vrmMaterial != null) {
+                console.log("Mtoon", mat);
                 materialProperties.push(
                     materialProperties.push(Object.assign({}, vrmMaterialProperties))
                 )
             }
             else {
+                console.log("standard", mat);
                 materialProperties.push(
                     materialProperties.push(Object.assign({}, stdMaterialProperties))
                 )
