@@ -32,7 +32,8 @@ function Optimizer() {
   const [model, setModel] = useState(null);
   const [nameVRM, setNameVRM] = useState("");
 
-
+  const [vrmFiles, setVRMFiles] = useState([]);
+  const [vrmIndex, setVRMIndex] = useState(0);
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -57,7 +58,15 @@ function Optimizer() {
     }
   }
 
-  const download = () => {
+  const downloadAll = async () =>{
+    for( let i =0; i < vrmFiles.length ; i++){
+      await loadVRMModel(vrmFiles[i]);
+      const  name = getFileNameWithoutExtension(vrmFiles[i].name);
+      download(name);
+    }
+  }
+
+  const download = (saveName) => {
     const saveData = async() =>{
       const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
       if (downloadVRMImage){
@@ -65,7 +74,7 @@ function Optimizer() {
       }
       const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
       if (downloadVRM){
-        await  characterManager.downloadVRM(nameVRM + "_merged", getOptions());
+        await  characterManager.downloadVRM(saveName || nameVRM + "_merged", getOptions());
       }
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
@@ -113,8 +122,31 @@ function Optimizer() {
       console.warn("Please load a vrm model to test animations.")
     }
   }
+  const loadPreviousVRM = ()=>{
+    if (vrmIndex === 0){
+      loadVRMModel(vrmFiles[vrmFiles.length -1]);
+      setVRMIndex(vrmFiles.length -1);
+    }
+    else{
+      const newIndex = vrmIndex - 1;
+      loadVRMModel(vrmFiles[newIndex]);
+      setVRMIndex(newIndex);
+    }
+  }
+  
+  const loadNextVRM = ()=>{
+    if (vrmIndex >= vrmFiles.length -1){
+      loadVRMModel(vrmFiles[0]);
+      setVRMIndex(0);
+    }
+    else{
+      const newIndex = vrmIndex + 1;
+      loadVRMModel(vrmFiles[newIndex]);
+      setVRMIndex(newIndex);
+    }
+  }
 
-  const handleVRMDrop = async (file) =>{
+  const loadVRMModel = async (file)=>{
     const url = URL.createObjectURL(file);
     await characterManager.loadOptimizerCharacter(url);
     URL.revokeObjectURL(url);
@@ -125,6 +157,20 @@ function Optimizer() {
     setModel({...characterManager.getCurrentCharacterModel()});
   }
 
+  const handleVRMDrop = async (files) =>{
+    
+    loadVRMModel(files[0]);
+    const newVRMFiles = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file && file.name.toLowerCase().endsWith('.vrm')) {
+        newVRMFiles.push(files[i]);
+      }
+    }
+    setVRMFiles(newVRMFiles)
+    setVRMIndex(0);
+  }
+
   const handleFilesDrop = async(files) => {
     const file = files[0];
     // Check if the file has the .fbx extension
@@ -132,7 +178,7 @@ function Optimizer() {
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
-      handleVRMDrop(file);
+      handleVRMDrop(files);
     } 
   };
 
@@ -152,6 +198,11 @@ function Optimizer() {
       />
       <ModelInformation
         model={model}
+        name = {nameVRM}
+        files={vrmFiles}
+        index={vrmIndex}
+        nextVrm={loadNextVRM}
+        previousVrm={loadPreviousVRM}
       />
       <div className={styles.buttonContainer}>
         <CustomButton
@@ -168,6 +219,14 @@ function Optimizer() {
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
+        {(vrmFiles?.length > 1 != "")&&(
+          <CustomButton
+          theme="light"
+          text="Download All"
+          size={14}
+          className={styles.buttonRight}
+          onClick={downloadAll}
+        />)}   
         {(model != "")&&(
           <CustomButton
           theme="light"
@@ -175,9 +234,7 @@ function Optimizer() {
           size={14}
           className={styles.buttonRight}
           onClick={download}
-        />)}
-        
-        
+        />)}   
       </div>
     </div>
   )
