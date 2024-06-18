@@ -974,11 +974,10 @@ export class CharacterManager {
 
       // Rotate model 180 degrees
       if (vrm.meta?.metaVersion === '0'){
+        VRMUtils.rotateVRM0( vrm );
+        console.log("Loaded VRM0 file ", vrm);
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
-          
-              VRMUtils.rotateVRM0( vrm );
-              console.log("Loaded VRM0 file ", vrm);
               for (let i =0; i < child.skeleton.bones.length;i++){
                 child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
               }
