@@ -62,48 +62,49 @@ function Optimizer() {
     for( let i =0; i < vrmFiles.length ; i++){
       await loadVRMModel(vrmFiles[i]);
       const  name = getFileNameWithoutExtension(vrmFiles[i].name);
-      download(name);
+      await download(name);
     }
   }
 
-  const download = (saveName) => {
-    const saveData = async() =>{
+  const download = async (saveName) => {
+    const saveData = async () => {
+      saveName = saveName || nameVRM + "_merged", getOptions();
       const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
-      if (downloadVRMImage){
-        characterManager.savePortraitScreenshot(nameVRM + "_portrait", 512,1024,1.5,-0.1);
+      if (downloadVRMImage) {
+        characterManager.savePortraitScreenshot(saveName + "_portrait", 512, 1024, 1.5, -0.1);
       }
-      const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
-      if (downloadVRM){
-        await  characterManager.downloadVRM(saveName || nameVRM + "_merged", getOptions());
+      const downloadVRM = local["mergeOptions_download_vrm"] == null ? true : local["mergeOptions_download_vrm"];
+      if (downloadVRM) {
+        await characterManager.downloadVRM(saveName + "_merged", getOptions());
       }
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
       parentScene.remove(sceneElements);
-      const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+      const downloadLora = local["mergeOptions_download_lora"] == null ? true : local["mergeOptions_download_lora"];
       if (downloadLora === true) {
-        const promises = manifest.loras.map(async lora => {
-            return loraDataGenerator.createLoraData(lora, downloadZip);
+        const promises = manifest.loras.map(async (lora) => {
+          return loraDataGenerator.createLoraData(lora, downloadZip);
         });
-    
+  
         await Promise.all(promises);
       }
       const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
-      if (downloadSprites === true){
-        const promises = manifest.sprites.map(async sprite => {
+      if (downloadSprites === true) {
+        const promises = manifest.sprites.map(async (sprite) => {
           return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
         });
-    
+  
         await Promise.all(promises);
       }
-
-      if(downloadLora === true || downloadSprites === true){
-        downloadZip.saveZip(nameVRM);
+  
+      if (downloadLora === true || downloadSprites === true) {
+        downloadZip.saveZip(saveName);
       }
       parentScene.add(sceneElements);
-    }
-
-    saveData();
-  }
+    };
+  
+    await saveData();
+  };
 
   // Translate hook
   const { t } = useContext(LanguageContext)
