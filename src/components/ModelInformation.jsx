@@ -4,7 +4,7 @@ import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
 import { getMaterialsSortedByArray } from "../library/utils";
 
-export default function ModelInformation({model}){
+export default function ModelInformation({model, name, files, index, nextVrm, previousVrm}){
     const [meshQty, setMeshQty] = useState(0);
     const [skinnedMeshQty, setSkinnedMeshQty] = useState(0);
 
@@ -43,6 +43,37 @@ export default function ModelInformation({model}){
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Model Information" width={180} right={20}/>
                 <div className={styles["scrollContainer"]}>
+                    <div className={styles["flexSelect"]}>
+
+
+                        {files?.length > 1 ? <div // add left arrow only when array is greater than 1
+                            className={`${styles["arrow-button"]} ${styles["left-button"]}`}
+                            onClick={previousVrm}
+                        />:<></>}
+
+
+                        {(name) && (
+                            <div style={{ textAlign: 'center' }}>
+                                <div className={styles["traitInfoTitle"]} style={{ 
+                                    margin:'auto',
+                                    fontSize: '14px' ,
+                                    width:'200px',
+                                    textAlign:'center',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    }}>
+                                    {name}
+                                </div>
+                            </div>
+                        )}
+
+
+                        {files?.length > 1 ? <div //add right arrow only when array is greater than 1
+                            className={`${styles["arrow-button"]} ${styles["right-button"]}`}
+                            onClick={nextVrm}
+                        />:<></>}
+                    </div>
                     <div className={styles["traitInfoTitle"]}>
                         Meshes:
                     </div>
