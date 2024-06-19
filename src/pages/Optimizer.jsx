@@ -60,9 +60,14 @@ function Optimizer() {
 
   const downloadAll = async () =>{
     for( let i =0; i < vrmFiles.length ; i++){
-      await loadVRMModel(vrmFiles[i]);
-      const  name = getFileNameWithoutExtension(vrmFiles[i].name);
-      await download(name);
+      try {
+        await loadVRMModel(vrmFiles[i]);
+        const name = getFileNameWithoutExtension(vrmFiles[i].name);
+        await download(name);
+      } catch (error) {
+        console.error(`Error processing ${vrmFiles[i].name}:`, error);
+        // Continue to the next file
+      }
     }
   }
 
