@@ -59,6 +59,7 @@ function Optimizer() {
   }
 
   const downloadAll = async () =>{
+   
     for( let i =0; i < vrmFiles.length ; i++){
       try {
         await loadVRMModel(vrmFiles[i]);
@@ -84,7 +85,13 @@ function Optimizer() {
       }
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
+      
       parentScene.remove(sceneElements);
+      const isVRM0 = characterManager.getCurrentOptimizerCharacterModel().data?.isVRM0;
+      
+      if (isVRM0)parentScene.rotateY(3.14159);
+        
+      
       const downloadLora = local["mergeOptions_download_lora"] == null ? true : local["mergeOptions_download_lora"];
       if (downloadLora === true) {
         const promises = manifest.loras.map(async (lora) => {
@@ -105,6 +112,7 @@ function Optimizer() {
       if (downloadLora === true || downloadSprites === true) {
         downloadZip.saveZip(saveName);
       }
+      if (isVRM0)parentScene.rotateY(-3.14159);
       parentScene.add(sceneElements);
     };
   
