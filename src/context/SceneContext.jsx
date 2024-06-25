@@ -68,8 +68,10 @@ export const SceneProvider = (props) => {
   }
   useEffect(() => {
     if (manifest != null){
-      const locationArray = manifest.defaultAnimations.map(animation => animation.location);
-      animationManager.storeDefaultAnimationPaths(locationArray, "");
+      if (manifest.defaultAnimations){
+        const locationArray = manifest.defaultAnimations.map(animation => animation.location);
+        animationManager.storeDefaultAnimationPaths(locationArray, "");
+      }
     }
   }, [manifest])
 
