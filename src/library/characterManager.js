@@ -274,6 +274,26 @@ export class CharacterManager {
       }
       return result; 
     }
+    getBoneTriangleCount(){
+      let indexCount = 0;
+      let boneSet  = new Set();
+      for (const prop in this.avatar) {
+        this.avatar[prop].model.traverse((child)=>{
+          if (child.isMesh){
+            indexCount+= child.geometry.index.array.length;
+          }
+          if (child.isSkinnedMesh){
+            child.skeleton.bones.forEach(bone => {
+              boneSet.add(bone.name); // Add bone name to the Set
+            });
+          }
+        })
+      }
+      return {
+        triangles:indexCount/3,
+        bones:boneSet.size
+      }
+    }
     getGroupTraits(){
       if (this.manifestData){
         return this.manifestData.getGroupModelTraits();
@@ -329,6 +349,7 @@ export class CharacterManager {
     setRenderCamera(camera){
       this.renderCamera = camera;
     }
+
     
     /**
      * Loads random traits based on manifest data.
