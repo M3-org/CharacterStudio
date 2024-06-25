@@ -289,7 +289,7 @@ export default function App() {
       
       <div className="generalTitle">Character Studio</div>
 
-      <LanguageSwitch />
+      {/* <LanguageSwitch /> */}
       <MessageWindow
         confirmDialogText = {confirmDialogText}
         confirmDialogCallback = {confirmDialogCallback}
