@@ -178,7 +178,8 @@ class AnimationControl {
 
 export class AnimationManager{
   constructor (){
-    this.animationPaths = null;
+    this.animationPaths = [];
+    this.defaultAnimations = [];
     this.lastAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
@@ -272,14 +273,24 @@ export class AnimationManager{
   }
 
   clearCurrentAnimations(){
-    this.animationPaths = null;
+    this.animationPaths = this.defaultAnimations;
     this.animationControls = [];
     this.mainControl = null;
   }
 
-  storeAnimationPaths(pathArray, pathBase){
+  storeAnimationPaths(pathArray, pathBase, addDefaultAnimationPaths = true){
+    const paths = getAsArray(pathArray);
+    if (addDefaultAnimationPaths) {
+        this.animationPaths = [...this.defaultAnimations, ...paths.map(path => `${pathBase}/${path}`)];
+    } else {
+        this.animationPaths = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
+    }
+  }
+
+  storeDefaultAnimationPaths(pathArray, pathBase){
     const paths = getAsArray(pathArray);   
-    this.animationPaths = paths.map(path => `${pathBase}/${path}`);
+    this.defaultAnimations = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
+    this.animationPaths = this.defaultAnimations;
   }
 
   loadNextAnimation(){

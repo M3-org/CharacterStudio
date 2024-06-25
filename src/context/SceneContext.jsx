@@ -66,6 +66,12 @@ export const SceneProvider = (props) => {
       }
     });
   }
+  useEffect(() => {
+    if (manifest != null){
+      const locationArray = manifest.defaultAnimations.map(animation => animation.location);
+      animationManager.storeDefaultAnimationPaths(locationArray, "");
+    }
+  }, [manifest])
 
   const showEnvironmentModels = (display) => {
 

@@ -12,6 +12,7 @@ import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
 
 function Optimizer() {
   const { 
@@ -34,6 +35,8 @@ function Optimizer() {
 
   const [vrmFiles, setVRMFiles] = useState([]);
   const [vrmIndex, setVRMIndex] = useState(0);
+
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("T-Pose");
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -129,7 +132,7 @@ function Optimizer() {
       const url = URL.createObjectURL(file);
 
       await animationManager.loadAnimation(url, false, 0, true, "", animName);
-
+      setLoadedAnimationName(animationManager.getCurrentAnimationName());
       URL.revokeObjectURL(url);
     }
     else{
@@ -218,6 +221,7 @@ function Optimizer() {
         nextVrm={loadNextVRM}
         previousVrm={loadPreviousVRM}
       />
+      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
