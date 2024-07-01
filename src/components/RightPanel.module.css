@@ -1,0 +1,31 @@
+
+.InformationContainerPos {
+  position: fixed;
+  right: 32px;
+  top: 98px;
+  width:90px;
+  height: 270px;
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  z-index: 1000;
+  user-select: none;
+}
+
+
+.scrollContainer {
+  height: 100%;
+  width: 80%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin: 16px;
+  height: 270px;
+}
+.options-container {
+  user-select: none;
+  flex: 1;
+  width: 200px;
+  position: relative;
+  text-align: center;
+}
+

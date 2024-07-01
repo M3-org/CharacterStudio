@@ -28,6 +28,7 @@ import Wallet from "./pages/Wallet"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
+//const assetImportPath = "./manifest.json"
 
 let cameraDistance
 const centerCameraTarget = new THREE.Vector3()
@@ -288,7 +289,7 @@ export default function App() {
       
       <div className="generalTitle">Character Studio</div>
 
-      <LanguageSwitch />
+      {/* <LanguageSwitch /> */}
       <MessageWindow
         confirmDialogText = {confirmDialogText}
         confirmDialogCallback = {confirmDialogCallback}

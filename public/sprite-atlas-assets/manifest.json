@@ -5,8 +5,8 @@
     "atlasWidth":128,
     "atlasHeight":128,
     "screenshotOffset":[-1,0.5],
-    "topFrameOffset":0,
-    "bottomFrameOffset":0,
+    "topFrameOffset":0.2,
+    "bottomFrameOffset":0.2,
     "pixelStyleSize":2,
     "spritesCollection":[
         {

@@ -15,14 +15,19 @@ import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
+import { ZipManager } from "../library/zipManager"
 import { connectWallet } from "../library/mint-utils"
 
 function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    manifest,
     characterManager,
     animationManager,
     toggleDebugMode,
+    loraDataGenerator,
+    spriteAtlasGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -59,41 +64,68 @@ function BatchManifest() {
     }
   }
 
-  const downloadLoaded = (index, onlyImage = false) =>{
+  const downloadLoaded = (index) =>{
     const downloadName = manifestSelectionArray[index].manifestName;
-    characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
-    if (onlyImage){
+
+    const saveData = async()=>{
+      const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
+      if (downloadVRMImage){
+        characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
+      }
+      const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
+      if (downloadVRM){
+        await  characterManager.downloadVRM(downloadName, getOptions());
+      }
+      const downloadZip = new ZipManager();
+      const parentScene = sceneElements.parent;
+      parentScene.remove(sceneElements);
+      const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+      if (downloadLora === true) {
+        const promises = manifest.loras.map(async lora => {
+            return loraDataGenerator.createLoraData(lora, downloadZip);
+        });
+    
+        await Promise.all(promises);
+      }
+
+      const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
+      if (downloadSprites === true){
+        const promises = manifest.sprites.map(async sprite => {
+          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+        });
+    
+        await Promise.all(promises);
+      }
+
+      if(downloadLora === true || downloadSprites === true){
+        downloadZip.saveZip(manifestSelectionArray[index].manifestName);
+      }
+      
+      parentScene.add(sceneElements);
       if (index < manifestSelectionArray.length-1 ){
         console.log("downloaded " + downloadName)
-        downloadVRMWithIndex(index + 1, onlyImage)
+        downloadVRMWithIndex(index + 1)
       }
-      else{
+      else
         setIsLoading(false);
-      }
     }
-    else{
-      characterManager.downloadVRM(downloadName, getOptions()).then(()=>{
-        if (index < manifestSelectionArray.length-1 ){
-          console.log("downloaded " + downloadName)
-          downloadVRMWithIndex(index + 1)
-        }
-        else
-          setIsLoading(false);
-      })
-    }
+    saveData(); 
   }
 
-  const downloadVRMWithIndex= async(index, onlyImage = false)=>{
+  const downloadVRMWithIndex= async(index)=>{
     if (index == 0){
-      downloadLoaded(index, onlyImage)
+      console.log(manifest.loras[0]);
+      
+      downloadLoaded(index)
     }
     else{
       await characterManager.setManifest(manifestSelectionArray[index]);
       setIsLoading(true);
       characterManager.loadInitialTraits().then(async()=>{
-        const delay = ms => new Promise(res => setTimeout(res, ms));
+        
+        const delay = ms => new Promise(res => setTimeout(res, ms));        
         await delay(1);
-        downloadLoaded(index, onlyImage);
+        downloadLoaded(index);
       })
     }
   }
@@ -101,11 +133,6 @@ function BatchManifest() {
   const download = () => {
     setIsLoading(true);
     downloadVRMWithIndex(0);
-  }
-
-  const downloadImage = () => {
-    setIsLoading(true);
-    downloadVRMWithIndex(0, true);
   }
 
   // Translate hook
@@ -253,22 +280,6 @@ function BatchManifest() {
           size={14}
           className={styles.buttonRight}
           onClick={download}
-        />)}
-                {(manifestSelectionArray?.length == 1)&&(
-          <CustomButton
-          theme="light"
-          text="Get Image"
-          size={14}
-          className={styles.buttonRight}
-          onClick={downloadImage}
-        />)}
-        {(manifestSelectionArray?.length > 1)&&(
-          <CustomButton
-          theme="light"
-          text="Get All Images"
-          size={14}
-          className={styles.buttonRight}
-          onClick={downloadImage}
         />)}
       </div>
     </div>

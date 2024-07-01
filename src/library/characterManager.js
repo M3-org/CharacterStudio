@@ -57,7 +57,8 @@ export class CharacterManager {
          this.animationManager.setScale(this.manifestData.displayScale)
       }
       
-      this.avatar = {};   // Holds information of traits within the avatar
+      this.avatar = {};       // Holds information of traits within the avatar
+      this.storedAvatar = {}; // Holds information of an avatar previously stored
       this.traitLoadManager = new TraitLoadingManager();
 
       // XXX actually use the vrm helper
@@ -65,6 +66,8 @@ export class CharacterManager {
       helperRoot.renderOrder = 10000;
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
+
+      
     }
 
     update(){
@@ -271,6 +274,26 @@ export class CharacterManager {
       }
       return result; 
     }
+    getBoneTriangleCount(){
+      let indexCount = 0;
+      let boneSet  = new Set();
+      for (const prop in this.avatar) {
+        this.avatar[prop].model.traverse((child)=>{
+          if (child.isMesh){
+            indexCount+= child.geometry.index.array.length;
+          }
+          if (child.isSkinnedMesh){
+            child.skeleton.bones.forEach(bone => {
+              boneSet.add(bone.name); // Add bone name to the Set
+            });
+          }
+        })
+      }
+      return {
+        triangles:indexCount/3,
+        bones:boneSet.size
+      }
+    }
     getGroupTraits(){
       if (this.manifestData){
         return this.manifestData.getGroupModelTraits();
@@ -326,6 +349,7 @@ export class CharacterManager {
     setRenderCamera(camera){
       this.renderCamera = camera;
     }
+
     
     /**
      * Loads random traits based on manifest data.
@@ -492,10 +516,11 @@ export class CharacterManager {
      *
      * @param {string} groupTraitID - The ID of the trait group.
      * @param {string} traitID - The ID of the specific trait.
+     * @param {boolean} soloView - Should character display only new loaded trait?.
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTrait(groupTraitID, traitID) {
+    loadTrait(groupTraitID, traitID, soloView = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
@@ -505,7 +530,7 @@ export class CharacterManager {
 
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
-              await this._loadTraits(getAsArray(selectedTrait));
+              await this._loadTraits(getAsArray(selectedTrait),soloView);
               resolve();
             }
           } catch (error) {
@@ -794,8 +819,46 @@ export class CharacterManager {
         }
       });
     }
+    /**
+     * Displays only target trait, and removes all others
+     *
+     * @param {string} groupTraitID - The name of the trait that will be solo, (accepts also an array of traits)
+     */
+    async soloTargetGroupTrait(groupTraitID){
+      const groupTraitIDArray = getAsArray(groupTraitID) 
+      const options = [];
+      for (const trait in this.avatar){
+        if (groupTraitIDArray.includes(trait)){
+          options.push(this.manifestData.getTraitOption(trait, this.avatar[trait].traitInfo.id));
+        }
+      }
+      await this._loadTraits(options,true);
+    }
+
+    /**
+     * Stores the current selected avatar for later loading
+     *
+     */
+    storeCurrentAvatar(){
+      this.storedAvatar = {...this.avatar}
+    }
+    /**
+     * Loads a previously stored avatar
+     *
+     */
+    async loadStoredAvatar(){
+      const options = [];
+      for (const trait in this.storedAvatar){
+        options.push(this.manifestData.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
+        // TO DO, ALSO GET COLOR TRAITS AND TEXTURE TRAITS
+      }
+      console.log(options);
+      this._loadTraits(options,true);
+      //const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
+    }
 
     async _loadTraits(options, fullAvatarReplace = false){
+      console.log("laoded traits:", options)
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
@@ -932,11 +995,10 @@ export class CharacterManager {
 
       // Rotate model 180 degrees
       if (vrm.meta?.metaVersion === '0'){
+        VRMUtils.rotateVRM0( vrm );
+        console.log("Loaded VRM0 file ", vrm);
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
-          
-              VRMUtils.rotateVRM0( vrm );
-              console.log("Loaded VRM0 file ", vrm);
               for (let i =0; i < child.skeleton.bones.length;i++){
                 child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
               }

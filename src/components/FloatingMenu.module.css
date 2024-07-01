@@ -1,0 +1,240 @@
+
+.InformationContainerPos {
+    position: fixed;
+    right: 132px;
+    top: 98px;
+    width:250px;
+    height: -webkit-calc(100vh - 176px);
+    height: calc(100vh - 176px);
+    backdrop-filter: blur(22.5px);
+    background: rgba(5, 11, 14, 0.8);
+    z-index: 1000;
+    user-select: none;
+  }
+  
+  .scrollContainer {
+    height: 100%;
+    width: 80%;
+    overflow-y: scroll;
+    position: relative;
+    overflow-x: hidden !important;
+    margin: 30px;
+    height: -webkit-calc(100% - 40px);
+    height: calc(100% - 40px);
+  }
+  .centerAlign{
+    text-align: center;
+  }
+  .traitInfoTitle {
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px black;
+    font-size: 14px;
+    word-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .dropdownFlex{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 5px;
+  }
+  .checkboxFlex{
+    display: flex;
+    align-items: center;
+    margin: 5px;
+  }
+  .simpleFlex{
+    display: flex;
+    align-items: center;
+    margin: 5px;
+  }
+
+  .traitInfoText {
+    text-align: center;
+    color: rgb(179, 179, 179);
+    /* text-transform: uppercase; */
+    text-shadow: 1px 1px 2px black;
+    font-size: 13px;
+    word-spacing: 2px;
+    margin-bottom: 30px;
+  }
+  .dropdownBase{
+    color: #5eb086 !important;
+    background-color:#1e2530 !important;
+    font-size: 12px;
+    height: 30px;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    margin: auto;
+  }
+  .dropdownControl{
+    color: #63af88 !important;
+    background-color: #1e2530 !important;
+    font-size: 12px;
+    height: 30px; 
+  }
+  .dropdownControlSmall{
+    color: #63af88 !important;
+    background-color: #1e2530 !important;
+    font-size: 12px;
+    height: 30px; 
+    width: 120px;
+  }
+  .input-box {
+    width: 60px; /* Adjust as needed */
+    height: 20px;
+    color: #5eb086;
+    background-color:rgba(5, 11, 14, 0.5);
+    border: none;
+    font-size: medium;
+    font-weight: 500;
+    margin: 4px 15px;
+  }
+  .input-box:focus {
+    outline: none;
+  }
+    
+  .input-box::selection {
+    background-color: #111f17;
+    color: #5eb086;
+  }
+  
+  .flexSelect{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height:40px;
+    align-items: center;
+  }
+  
+  .arrow-button {
+  
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0.8;
+    width: 32px;
+    height: 32px;
+    margin: 2px;
+    text-align: center;
+    outline-color: #3b434f;
+    outline-width: 2px;
+    outline-style: solid;
+    align-items: center;
+    margin-bottom: 30px;
+    background-color: #1e2530;
+  }
+  .left-button{
+    background: url('./ui/backButton_small.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .right-button{
+    background: url('./ui/nextButton_small.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .anim-button:hover {
+    opacity: 1;
+  }
+  
+  /* Hide the default checkbox */
+  .custom-checkbox input[type="checkbox"] {
+    display: none;
+  }
+  
+  /* Style the custom checkbox */
+  .custom-checkbox .checkbox-container {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #284b39; /* Change border color as needed */
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .custom-checkbox .checkbox-container.checked {
+    background-color: #5eb086; /* Change background color when checked */
+  }
+  
+  .custom-checkbox .checkbox-container .checkmark {
+    display: none;
+  }
+  
+  /* Style the checkmark when the checkbox is checked */
+  .custom-checkbox input[type="checkbox"]:checked + .checkbox-container {
+    background-color: #5eb086; /* Change background color when checked */
+  }
+  
+  .custom-checkbox input[type="checkbox"]:checked + .checkbox-container .checkmark {
+    display: block;
+  }
+  
+  .checkboxHolder {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    height: 40px;
+  }
+  
+  .actionButton{
+    margin: 30px auto;
+    text-align: center;
+    outline-color: #3b434f;
+    color: #d1d7df;
+    outline-width: 2px;
+    outline-style: solid;
+    background-color: #1e2530;
+    height: 30px;
+    width: 80%;
+    font-family: "TTSC-Bold";
+    text-transform: uppercase !important;
+    font-size:x-small;
+    display: flex;
+    justify-content: center;
+    align-items : center;
+    user-select: none;
+    cursor: pointer;
+  }
+  
+  .tabHolder{
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+  }
+  .tabButton{
+    margin: 2px 3px;
+    text-align: center;
+    outline-color: #5eb086;
+    color: #5eb086;
+    outline-width: 1px;
+    width: 60px;
+    outline-style: solid;
+    background-color: #1e2530;
+    height: 15px;
+    padding: 2px 10px;
+    font-family: "TTSC-Bold";
+    text-transform: uppercase !important;
+    font-size:x-small;
+    display: flex;
+    justify-content: center;
+    align-items : center;
+    user-select: none;
+    cursor: pointer;
+  }
+  .tabButtonSelected{
+    outline-color: #34634b;
+    color: #478666;
+    cursor: auto;
+  }
+  

@@ -5,6 +5,7 @@ import { local } from "../library/store"
 import { sceneInitializer } from "../library/sceneInitializer"
 import { LoraDataGenerator } from "../library/loraDataGenerator"
 import { SpriteAtlasGenerator } from "../library/spriteAtlasGenerator"
+import { ThumbnailGenerator } from "../library/thumbnailsGenerator"
 
 export const SceneContext = createContext()
 
@@ -12,7 +13,8 @@ export const SceneProvider = (props) => {
 
   const [characterManager, setCharacterManager] = useState(null)
   const [loraDataGenerator, setLoraDataGenerator] = useState(null)
-  const [spriteAtlasGenerator, setSrptieAtlasGenerator] = useState(null)
+  const [spriteAtlasGenerator, setSpriteAtlasGenerator] = useState(null)
+  const [thumbnailsGenerator, setThumbnailsGenerator] = useState(null)
   const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
   const [lookAtManager, setLookAtManager] = useState(null)
@@ -46,7 +48,8 @@ export const SceneProvider = (props) => {
     setLookAtManager(characterManager.lookAtManager)
     setControls(controls);
     setLoraDataGenerator(new LoraDataGenerator(characterManager))
-    setSrptieAtlasGenerator(new SpriteAtlasGenerator(characterManager))
+    setSpriteAtlasGenerator(new SpriteAtlasGenerator(characterManager))
+    setThumbnailsGenerator(new ThumbnailGenerator(characterManager))
   },[])
 
 
@@ -63,6 +66,14 @@ export const SceneProvider = (props) => {
       }
     });
   }
+  useEffect(() => {
+    if (manifest != null){
+      if (manifest.defaultAnimations){
+        const locationArray = manifest.defaultAnimations.map(animation => animation.location);
+        animationManager.storeDefaultAnimationPaths(locationArray, "");
+      }
+    }
+  }, [manifest])
 
   const showEnvironmentModels = (display) => {
 
@@ -124,6 +135,7 @@ export const SceneProvider = (props) => {
         characterManager,
         loraDataGenerator,
         spriteAtlasGenerator,
+        thumbnailsGenerator,
         showEnvironmentModels,
         debugMode,
         toggleDebugMode,

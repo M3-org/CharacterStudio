@@ -167,15 +167,19 @@ class AnimationControl {
     this.mixer.setTime(time);
   }
 
+  getTime(){
+    return this.mixer.time;
+  }
+
   dispose(){
     this.animationManager.disposeAnimation(this);
-    //console.log("todo dispose animation control")
   }
 }
 
 export class AnimationManager{
   constructor (){
-    this.animationPaths = null;
+    this.animationPaths = [];
+    this.defaultAnimations = [];
     this.lastAnimID = null;
     this.mainControl = null;
     this.animationControl  = null;
@@ -260,19 +264,33 @@ export class AnimationManager{
       
   }
 
+  getCurrentClipDuration(){
+    return this.currentClip ? this.currentClip.duration : 0;
+  }
+
   getCurrentAnimationName(){
     return this.currentAnimationName;
   }
 
   clearCurrentAnimations(){
-    this.animationPaths = null;
+    this.animationPaths = this.defaultAnimations;
     this.animationControls = [];
     this.mainControl = null;
   }
 
-  storeAnimationPaths(pathArray, pathBase){
+  storeAnimationPaths(pathArray, pathBase, addDefaultAnimationPaths = true){
+    const paths = getAsArray(pathArray);
+    if (addDefaultAnimationPaths) {
+        this.animationPaths = [...this.defaultAnimations, ...paths.map(path => `${pathBase}/${path}`)];
+    } else {
+        this.animationPaths = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
+    }
+  }
+
+  storeDefaultAnimationPaths(pathArray, pathBase){
     const paths = getAsArray(pathArray);   
-    this.animationPaths = paths.map(path => `${pathBase}/${path}`);
+    this.defaultAnimations = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
+    this.animationPaths = this.defaultAnimations;
   }
 
   loadNextAnimation(){
@@ -333,7 +351,7 @@ export class AnimationManager{
     else{
       animations = this.animations;
     }
-    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID)
+    const animationControl = new AnimationControl(this, vrm.scene, vrm, animations, this.curAnimID, this.lastAnimID, this.isPaused())
     this.animationControls.push(animationControl);
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
@@ -342,6 +360,16 @@ export class AnimationManager{
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
+
+    this.update(true);
+    //animationControl.setTime(this.mainControl.getTime());
+    //this.set
+    // this.animationControls.forEach(animationControl => {
+    //   animationControl.setAnimations(animationModel.animations, this.mixamoModel, this.mouseLookEnabled, isPose)
+    // });
+    // this.setTime(poseTime);
+    // if(isPose)this.pause();
+    // else this.play();
   }
 
   removeVRM(vrmToRemove) {
@@ -423,6 +451,9 @@ export class AnimationManager{
       });
     }
   }
+  setFrame(frame){
+    this.setTime(frame * 30);
+  }
   setSpeed(speed){
     if (this.mainControl){
       this.animationControls.forEach(animControl => {
@@ -431,8 +462,8 @@ export class AnimationManager{
     }
   }
 
-  update(){
-    if (this.mainControl && !this.paused) {
+  update(force=false){
+    if ((this.mainControl && !this.paused)||force) {
       this.animationControls.forEach(animControl => {
         animControl.update(this.weightIn,this.weightOut);
       });

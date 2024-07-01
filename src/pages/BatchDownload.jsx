@@ -15,13 +15,18 @@ import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
+import { ZipManager } from "../library/zipManager"
 
 function BatchDownload() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
+    manifest,
     toggleDebugMode,
     characterManager,
-    animationManager
+    animationManager,
+    loraDataGenerator,
+    spriteAtlasGenerator,
+    sceneElements
   } = React.useContext(SceneContext)
   
   const [model, setModel] = useState(null);
@@ -56,21 +61,71 @@ function BatchDownload() {
       twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
-  const downloadVRMWithIndex=(index)=>{
+  const downloadVRMWithIndex = (index, downloadLora = false) =>{
+    console.log(downloadLora)
+    const saveData = async()=>{
+      await characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]);
+      const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
+      if (downloadVRM){
+        await  characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions());
+      }
+
+      const downloadZip = new ZipManager();
+      const parentScene = sceneElements.parent;
+      parentScene.remove(sceneElements);
+      const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
+      if (downloadLora === true) {
+        const promises = manifest.loras.map(async lora => {
+            return loraDataGenerator.createLoraData(lora, downloadZip);
+        });
     
-    characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(()=>{
-      characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then(()=>{
-        if (index < jsonSelectionArray.length-1 )
-          downloadVRMWithIndex(index + 1)
-        else
-          setIsLoading(false);
-      })
-    })
+        await Promise.all(promises);
+      }
+
+      const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
+      if (downloadSprites === true){
+        const promises = manifest.sprites.map(async sprite => {
+          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+        });
+    
+        await Promise.all(promises);
+      }
+
+      if(downloadLora === true || downloadSprites === true){
+        downloadZip.saveZip(jsonSelectionArray[index].name);
+      }
+      
+      parentScene.add(sceneElements);
+
+      if (index < jsonSelectionArray.length-1 )
+        downloadVRMWithIndex(index + 1)
+      else{
+        setIsLoading(false);
+      }
+    }
+    saveData();
+    // characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(async()=>{
+    //   if (downloadLora == true){
+    //     const parentScene = sceneElements.parent;
+    //     parentScene.remove(sceneElements);
+
+    //     await loraDataGenerator.createLoraData(manifest.loras[0], null, jsonSelectionArray[index].name);
+    //     parentScene.add(sceneElements);
+    //   }
+    //   characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then( ()=>{
+
+    //     if (index < jsonSelectionArray.length-1 )
+    //       downloadVRMWithIndex(index + 1)
+    //     else{
+    //       setIsLoading(false);
+    //     }
+    //   })
+    // })
   }
 
   const download = () => {
     setIsLoading(true);
-    downloadVRMWithIndex(0);
+    downloadVRMWithIndex(0, true);
   }
 
   // Translate hook

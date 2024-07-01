@@ -11,13 +11,14 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import MenuTitle from "../components/MenuTitle"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import TraitInformation from "../components/TraitInformation"
+
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
 import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
+import RightPanel from "../components/RightPanel"
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -28,6 +29,7 @@ function Appearance() {
     moveCamera,
     loraDataGenerator,
     spriteAtlasGenerator,
+    thumbnailsGenerator,
     sceneElements
   } = React.useContext(SceneContext)
   
@@ -89,20 +91,6 @@ function Appearance() {
     const path = URL.createObjectURL(file);
     await animationManager.loadAnimation(path,false,0, true, "", animName);
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
-  }
-
-  const createLora = async() =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await loraDataGenerator.createLoraData('./lora-assets/manifest.json');
-    parentScene.add(sceneElements);
-  }
-
-  const createSpriteAtlas = async () =>{
-    const parentScene = sceneElements.parent;
-    parentScene.remove(sceneElements);
-    await spriteAtlasGenerator.createSpriteAtlas('./sprite-atlas-assets/manifest.json');
-    parentScene.add(sceneElements);
   }
 
   const handleImageDrop = (file) => {
@@ -387,8 +375,8 @@ function Appearance() {
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
-      <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} animationName={loadedAnimationName} setAnimationName={setLoadedAnimationName}
-      />
+      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM} traitGroupName={traitGroupName}/>
+
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
         <CustomButton
@@ -409,20 +397,6 @@ function Appearance() {
             onClick={next}
           />
         }
-        <CustomButton
-          theme="light"
-          text={"Create Lora Data"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createLora}
-        />
-        <CustomButton
-          theme="light"
-          text={"Create Sprite Atlas"}
-          size={14}
-          className={styles.buttonRight}
-          onClick={createSpriteAtlas}
-        />
 
         
         {/* <CustomButton

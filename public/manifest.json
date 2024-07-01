@@ -1,0 +1,85 @@
+{
+  "characters":[
+    {
+      "name": "Anata",
+      "description": "Anata",
+      "portrait": "./assets/portraitImages/anata.png",
+      "manifest":"./character-assets/anata/manifest.json",
+      "icon": "./assets/icons/class-neural-hacker.svg",
+      "format": "vrm"
+    },
+    {
+      "name": "Anata Male",
+      "description": "Anata Male",
+      "portrait": "./assets/portraitImages/anata_male.png",
+      "manifest":"./character-assets/anata_male/manifest.json",
+      "icon": "|",
+      "format": "vrm"
+    },
+    {
+      "name": "Anata Male",
+      "description": "Anata Male",
+      "portrait": "./assets/portraitImages/anata_male.png",
+      "manifest":"./character-assets/test.json",
+      "icon": "|",
+      "format": "vrm"
+    }
+  ],
+  "loras":[
+    {
+      "name": "SDXL Lora 728",
+      "description": "Poses and camera positions to create Lora for SDXL 726 x 726",
+      "manifest":"./lora-assets/manifest.json",
+      "icon": "|"
+    }
+  ],
+  "sprites":[
+    {
+      "name": "Multiple Animations",
+      "description": "Multiple definitions for different animations converted to sprites.",
+      "manifest":"./sprite-atlas-assets/manifest.json",
+      "icon": "|"
+    }
+    
+  ],
+  "thumbnails":[
+    {
+      "name": "Clothing Thumbnail",
+      "description": "Create thumbnails for Clothing",
+      "manifest":"./thumbnail-assets/manifest.json",
+      "icon": "|"
+    },
+    {
+      "name": "Clothing Thumbnail2",
+      "description": "Create thumbnails for Clothing",
+      "manifest":"./thumbnail-assets/manifest.json",
+      "icon": "|"
+    }
+  ],
+  "defaultAnimations":[
+    {
+      "name": "T-Pose",
+      "description": "T-Pose",
+      "location":"./animations/T-Pose.fbx",
+      "icon": "|"
+    },
+    {
+      "name": "Dancing",
+      "description": "Basic Dance Animation",
+      "location":"./animations/Dancing.fbx",
+      "icon": "|"
+    },
+    {
+      "name": "Walking",
+      "description": "Basic Walk Animation",
+      "location":"./animations/Walking.fbx",
+      "icon": "|"
+    },
+    {
+      "name": "Waving",
+      "description": "Basic Waving Animation",
+      "location":"./animations/Waving.fbx",
+      "icon": "|"
+    }
+  ]
+}

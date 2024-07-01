@@ -21,8 +21,8 @@ function Create() {
   const [ classes, setClasses ] = useState([]) 
   
   useEffect(() => {
-    if (manifest != null){
-      const manifestClasses = manifest.map((c) => {
+    if (manifest?.characters != null){
+      const manifestClasses = manifest.characters.map((c) => {
         return {
           name:c.name, 
           image:c.portrait, 
@@ -45,7 +45,7 @@ function Create() {
   const selectClass = async (index) => {
     setIsLoading(true)
     // Load manifest first
-    characterManager.loadManifest(manifest[index].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest).then(()=>{
       setViewMode(ViewMode.APPEARANCE)
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{

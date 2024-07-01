@@ -1,5 +1,7 @@
 import * as THREE from "three"
 import { getVectorCameraPosition } from "./utils";
+import { ZipManager } from "./zipManager";
+
 const localVector3 = new THREE.Vector3();
 
 export class SpriteAtlasGenerator {
@@ -10,8 +12,9 @@ export class SpriteAtlasGenerator {
         this.animationManager = this.characterManager.animationManager;
     }
 
-    async createSpriteAtlas(manifestURL){
-        
+    async createSpriteAtlas(spriteObject, exsitingZipFile = null, zipName = ""){
+        const manifestURL = spriteObject.manifest;
+        const spriteFolderName = spriteObject.name ? "spriteData/" + spriteObject.name : "spriteData";
         const manifest = await this._fetchManifest(manifestURL);
         const {
 
@@ -35,16 +38,16 @@ export class SpriteAtlasGenerator {
         this.screenshotManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        this.screenshotManager._setBonesOffset(0.2);
+        await this.screenshotManager.calculateBoneOffsets(0.2);
 
         let counter = 0;
-        console.log(manifest);
         const scope = this;
         
         if (Array.isArray(spritesCollection)){
-            console.log("e");
+            const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
             async function processAnimations() {
                 if (Array.isArray(spritesCollection)) {
+                    
                     for (const spriteInfo of spritesCollection) {
                         const {
                             animationName,
@@ -56,29 +59,40 @@ export class SpriteAtlasGenerator {
                             cameraFrame,
                         } = spriteInfo;
                         counter++
-                        const saveName = animationName ? animationName : counter.toString().padStart(2, '0');
+                        const currentAnimationFolder = spriteFolderName + "/" + (animationName ? animationName : counter.toString().padStart(2, '0'));
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, 0);
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
-                        const clipDuration = scope.animationManager.getCurrentClip()?.duration;
-                        if (clipDuration){
-                            console.log(clipDuration);
-                            const timeOffsets = clipDuration/framesNumber
-                            for (let i =0; i < framesNumber ; i++){
-                                
-                                scope.animationManager.setTime(i * timeOffsets);
-                                // delay required as its saving images too fast
-                                await delay(100);
-                                pixelStyleSize ?
-                                    scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
-                                    scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
-                            }
+                        const clipDuration = scope.animationManager.getCurrentClipDuration();
+
+                        const timeOffsets = clipDuration/framesNumber
+                        for (let i =0; i < framesNumber ; i++){
+                            
+                            scope.animationManager.setTime(i * timeOffsets);
+                            // delay required as its saving images too fast
+                            // await delay(100);
+                            // pixelStyleSize ?
+                            //     scope.screenshotManager.savePixelScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight,pixelStyleSize):
+                            //     scope.screenshotManager.saveScreenshot(saveName + "_" +i.toString().padStart(2, '0'), atlasWidth, atlasHeight);
+
+
+
+                            const imgData = scope.screenshotManager.getImageData(atlasWidth, atlasHeight, pixelStyleSize);
+                            // add lora data folder?
+                            zip.addData(imgData,i.toString().padStart(2, '0'), "png", currentAnimationFolder);
                         }
                     }
                 }
             }
             // Call the function to start processing animations
             await processAnimations();
+
+            // save only if no zipcontainer was provided
+            if (exsitingZipFile == null){
+                if (zipName == "")
+                    zipName = "sprites_zip"; 
+                zip.saveZip(zipName);
+            }
         }
 
         this.blinkManager.disableScreenshot();

@@ -3,8 +3,13 @@ import styles from "./ModelInformation.module.css"
 import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
 import { getMaterialsSortedByArray } from "../library/utils";
+import { SceneContext } from "../context/SceneContext"
 
-export default function ModelInformation({model}){
+export default function ModelInformation({model, name, files, index, nextVrm, previousVrm}){
+    const {
+        characterManager
+      } = React.useContext(SceneContext)
+
     const [meshQty, setMeshQty] = useState(0);
     const [skinnedMeshQty, setSkinnedMeshQty] = useState(0);
 
@@ -15,6 +20,10 @@ export default function ModelInformation({model}){
     const [vrmMaterialQty, setVrmMaterialQty] = useState(0);
     const [vrmTranspMaterialQty, setVrmTranspMaterialQty] = useState(0);
     const [vrmCutoutMaterialQty, setVrmCutoutMaterialQty] = useState(0);
+
+    const [trianglesCount, setTrianglesCount] = useState(0);
+    const [bonesCount, setBonesCount] = useState(0);
+
 
     useEffect(() => {
         if (model != null){
@@ -33,6 +42,13 @@ export default function ModelInformation({model}){
             setVrmMaterialQty(mToonMats.length);
             setVrmTranspMaterialQty(mToonTranspMats.length);
             setVrmCutoutMaterialQty(mToonCutoutMats.length);
+
+            const {
+                triangles,
+                bones
+            } = characterManager.getBoneTriangleCount();
+            setTrianglesCount(triangles);
+            setBonesCount(bones);
         }
     }, [model])
 
@@ -43,17 +59,51 @@ export default function ModelInformation({model}){
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Model Information" width={180} right={20}/>
                 <div className={styles["scrollContainer"]}>
+                    <div className={styles["flexSelect"]}>
+
+
+                        {files?.length > 1 ? <div // add left arrow only when array is greater than 1
+                            className={`${styles["arrow-button"]} ${styles["left-button"]}`}
+                            onClick={previousVrm}
+                        />:<></>}
+
+
+                        {(name) && (
+                            <div style={{ textAlign: 'center' }}>
+                                <div className={styles["traitInfoTitle"]} style={{ 
+                                    margin:'auto',
+                                    fontSize: '14px' ,
+                                    width:'200px',
+                                    textAlign:'center',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    }}>
+                                    {name}
+                                </div>
+                            </div>
+                        )}
+
+
+                        {files?.length > 1 ? <div //add right arrow only when array is greater than 1
+                            className={`${styles["arrow-button"]} ${styles["right-button"]}`}
+                            onClick={nextVrm}
+                        />:<></>}
+                    </div>
                     <div className={styles["traitInfoTitle"]}>
-                        Meshes:
+                        Geometry info:
                     </div>
                     <div className={styles["traitInfoText"]}>
-                       {meshQty}
-                    </div>
-                    <div className={styles["traitInfoTitle"]}>
-                        SkinnedMeshes:
+                        Meshes: {meshQty}
                     </div>
                     <div className={styles["traitInfoText"]}>
-                        {skinnedMeshQty}
+                        SkinnedMeshes: {skinnedMeshQty}
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        Triangles: {trianglesCount}
+                    </div>
+                    <div className={styles["traitInfoText"]}>
+                        Bones: {bonesCount}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
                         Standard Material Count:
