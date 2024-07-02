@@ -2,27 +2,23 @@
   "characters":[
     {
       "name": "Anata",
-      "description": "Anata",
+      "description": "Owned Customizer",
       "portrait": "./assets/portraitImages/anata.png",
       "manifest":"./character-assets/anata/manifest.json",
       "icon": "./assets/icons/class-neural-hacker.svg",
-      "format": "vrm"
+      "format": "vrm",
+      "collectionLock":"the-anata-nft"
+
     },
     {
-      "name": "Anata Male",
-      "description": "Anata Male",
+      "name": "Anata",
+      "description": "Full Customizer",
       "portrait": "./assets/portraitImages/anata_male.png",
       "manifest":"./character-assets/anata_male/manifest.json",
-      "icon": "|",
-      "format": "vrm"
-    },
-    {
-      "name": "Anata Male",
-      "description": "Anata Male",
-      "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/test.json",
-      "icon": "|",
-      "format": "vrm"
+      "icon": "./assets/icons/class-neural-hacker.svg",
+      "format": "vrm",
+      "collectionLock":"the-anata-nft",
+      "fullTraits":true
     }
   ],
   "loras":[

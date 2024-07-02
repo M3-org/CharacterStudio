@@ -35,10 +35,9 @@ export function getOpenseaCollection(address, collection) {
     method: 'GET',
     headers: { accept: 'application/json', 'x-api-key': opensea_Key },
   };
-  console.log(options);
   // Returning a Promise
   return new Promise((resolve, reject) => {
-    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?collection=' + collection, options)
+    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=200&collection=' + collection, options)
       .then(response => {
         // Check if the response status is ok (2xx range)
         if (response.ok) {
@@ -59,9 +58,50 @@ export function getOpenseaCollection(address, collection) {
   });
 }
 
+export function ownsCollection(address, collection){
+  const options = {
+    method: 'GET',
+    headers: { accept: 'application/json', 'x-api-key': opensea_Key },
+  };
+  // Returning a Promise
+  return new Promise((resolve, reject) => {
+    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=1&collection=' + collection, options)
+      .then(response => {
+        // Check if the response status is ok (2xx range)
+        if (response.ok) {
+          return response.json();
+        } else {
+          // If the response status is not ok, reject the Promise with an error message
+          reject('Failed to fetch data from Opensea API');
+        }
+      })
+      .then(response => {
+        // Resolve the Promise with the JSON response
+        resolve(response.nfts.length>0);
+      })
+      .catch(err => {
+        // Reject the Promise with the error encountered during the fetch
+        reject(err);
+      });
+  });
+}
+
+export async function currentWallet(){
+  console.log("get")
+  const chain = await window.ethereum.request({ method: 'eth_chainId' })
+  if (parseInt(chain, 16) == parseInt(chainId, 16)) {
+    const addressArray = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    })
+    console.log(addressArray);
+    return addressArray.length > 0 ? addressArray[0] : ""
+  }
+  return "";
+}
 
 // ready to test
 export async function connectWallet(){
+  console.log("connect")
   if (window.ethereum) {
     try {
       const chain = await window.ethereum.request({ method: 'eth_chainId' })
@@ -70,6 +110,7 @@ export async function connectWallet(){
         const addressArray = await window.ethereum.request({
           method: 'eth_requestAccounts',
         })
+        console.log(addressArray);
         return addressArray.length > 0 ? addressArray[0] : ""
       } else {
           try {
