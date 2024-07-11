@@ -292,6 +292,9 @@ export class AnimationManager{
     this.defaultAnimations = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
     this.animationPaths = this.defaultAnimations;
   }
+  loadCurrentAnimation(){
+    this.loadAnimation(this.animationPaths[this.curLoadAnim])
+  }
 
   loadNextAnimation(){
     if (this.curLoadAnim == this.animationPaths.length-1)

@@ -25,6 +25,10 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
   useEffect(()=>{
+    animationManager.loadCurrentAnimation();
+  },[])
+
+  useEffect(()=>{
     if (loadedAnimationName == null){
       loadedAnimationName = "T-Pose";
     }
