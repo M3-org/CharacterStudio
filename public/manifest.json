@@ -58,6 +58,12 @@
   ],
   "defaultAnimations":[
     {
+      "name": "A-Pose",
+      "description": "Static idle pose",
+      "location":"./animations/A-Pose.fbx",
+      "icon": "|"
+    },
+    {
       "name": "T-Pose",
       "description": "T-Pose",
       "location":"./animations/T-Pose.fbx",
@@ -73,12 +79,6 @@
       "name": "Walking",
       "description": "Basic Walk Animation",
       "location":"./animations/Walking.fbx",
-      "icon": "|"
-    },
-    {
-      "name": "Waving",
-      "description": "Basic Waving Animation",
-      "location":"./animations/Waving.fbx",
       "icon": "|"
     }
   ]

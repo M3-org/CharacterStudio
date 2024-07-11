@@ -36,7 +36,7 @@ function Optimizer() {
   const [vrmFiles, setVRMFiles] = useState([]);
   const [vrmIndex, setVRMIndex] = useState(0);
 
-  const [loadedAnimationName, setLoadedAnimationName] = React.useState("T-Pose");
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("A-Pose");
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -80,7 +80,7 @@ function Optimizer() {
       saveName = saveName || nameVRM + "_merged", getOptions();
       const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
       if (downloadVRMImage) {
-        characterManager.savePortraitScreenshot(saveName + "_portrait", 512, 1024, 1.5, -0.1);
+        characterManager.savePortraitScreenshot(saveName + "_portrait", 1024, 1024, 1.5, -0.1);
       }
       const downloadVRM = local["mergeOptions_download_vrm"] == null ? true : local["mergeOptions_download_vrm"];
       if (downloadVRM) {
@@ -215,7 +215,7 @@ function Optimizer() {
       />
       <ModelInformation
         model={model}
-        name = {nameVRM}
+        name={nameVRM}
         files={vrmFiles}
         index={vrmIndex}
         nextVrm={loadNextVRM}
