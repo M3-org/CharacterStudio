@@ -293,7 +293,12 @@ export class AnimationManager{
     this.animationPaths = this.defaultAnimations;
   }
   loadCurrentAnimation(){
-    this.loadAnimation(this.animationPaths[this.curLoadAnim])
+    if (this.animationPaths.length > 0){
+      this.loadAnimation(this.animationPaths[this.curLoadAnim])
+    }
+    else{
+      console.warn("No animations have been loaded");
+    }
   }
 
   loadNextAnimation(){
