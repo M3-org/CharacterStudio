@@ -4,6 +4,7 @@ import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { useContext } from "react"
+import path from 'path';
 
 import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
@@ -53,16 +54,19 @@ function Create() {
   },[requireWalletConnect])
   useEffect(() => {
     if (manifest?.characters != null){
+      console.log("characters")
       let requiresConnect = false;
       const manifestClasses = manifest.characters.map((c) => {
         let enabled = c.collectionLock == null ? false : true;
         if (c.collectionLock != null)
           requiresConnect = true;
         console.log(c.collectionLock)
+        console.log(c.manifest)
         return {
           name:c.name, 
           image:c.portrait, 
           description: c.description,
+          manifestsPath:c.manifestsPath || "",
           manifest: c.manifest,
           icon:c.icon,
           format:c.format,
@@ -92,26 +96,132 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
+  const joinPaths = (...paths) => {
+    return paths
+      .map(path => path.replace(/(^\/+|\/+$)/g, '')) // Remove leading and trailing slashes
+      .filter(path => path) // Remove empty strings
+      .join('/');
+  };
+
   const selectClass = async (index) => {
     setIsLoading(true)
     console.log(classes[index]);
+    console.log(classes[index].manifestsPath);
     // Load manifest first
-    let unlockedTraits = null;
-    if (classes[index].collection.length > 0 && classes[index].fullTraits == false){
-      console.log("got 1")
+
+    if (classes[index].manifestsPath == ""){
+      let unlockedTraits = null;
+      if (classes[index].collection.length > 0 && classes[index].fullTraits == false){
+        console.log("got 1")
+        const address = await connectWallet();
+        const result = await getOpenseaCollection(address,classes[index].collection[0])
+        const nfts = getAsArray(result?.nfts);
+        console.log("nfts", result?.nfts);
+        const nftsMeta = [];
+
+        const promises = nfts.map(nft => 
+          new Promise((resolve)=>{
+            console.log("here");
+            console.log(nft.indentifier);
+            console.log()
+            fetch(nft.metadata_url)
+            .then(response=>{
+              response.json()
+              .then(metadata=>{
+                nftsMeta.push(metadata);
+                resolve ();
+              })
+              .catch(err=>{
+                console.warn("error converting to json");
+                console.error(err);
+                resolve ()
+              })
+            })
+            .catch(err=>{
+              // resolve even if it fails, to avoid complete freeze
+              console.warn("error getting " + nft.metadata_url + ", skpping")
+              console.error(err);
+              resolve ()
+            })
+          })
+        );
+
+        await Promise.all(promises);
+
+        unlockedTraits = {};
+        const getTraitsFromNFTsArray = (arr) =>{
+          const nftArr = getAsArray(arr);
+          nftArr.forEach(nft => {
+            nft.attributes.forEach(attr => {
+              if (unlockedTraits[attr.trait_type] == null)
+                unlockedTraits[attr.trait_type] = []
+              if (!unlockedTraits[attr.trait_type].includes(attr.value))
+                unlockedTraits[attr.trait_type].push(attr.value);
+            });
+            
+          });
+        }
+        getTraitsFromNFTsArray(nftsMeta);
+
+        console.log(unlockedTraits)
+        // unlockedTraits
+      }
+
+      // finally load character manifest
+
+
+      const manifestsToLoad = getAsArray(classes[index].manifest);
+      console.log(classes[index].manifestsPath);
+      console.log(path);
+      if (classes[index].manifestsPath != ""){
+        if (!classes[index].manifestsPath.endsWith("/")){
+          classes[index].manifestsPath += "/";
+        }
+        manifestsToLoad.forEach(manifestPath => {
+          const result = joinPaths(classes[index].manifestsPath, manifestPath);
+          console.log(result);
+        });
+      }
+
+      
+      console.log(manifestsToLoad)
+      characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(()=>{
+        setViewMode(ViewMode.APPEARANCE)
+        // When Manifest is Loaded, load initial traits from given manifest
+        characterManager.loadInitialTraits().then(()=>{
+          setIsLoading(false)
+        })
+      })
+    }
+    else{
+
+
       const address = await connectWallet();
       const result = await getOpenseaCollection(address,classes[index].collection[0])
-      const nfts = getAsArray(result?.nfts);
+      //const nfts = getAsArray(result?.nfts);
+      const nfts = [{identifier:1},{identifier:2},{identifier:3},{identifier:4}]
       console.log("nfts", result?.nfts);
-      const nftsMeta = [];
-
+      const manifestData = [];
+      let count = 1;
       const promises = nfts.map(nft => 
         new Promise((resolve)=>{
-          fetch(nft.metadata_url)
+          console.log("here");
+          console.log(nft.indentifier);
+          console.log()
+
+          //const manifestURL = classes[index].manifestsPath + "/" + nft.indentifier + "/" + nft.indentifier + ".json";
+          const testIdentifier = count;
+          const manifestURL = classes[index].manifestsPath + "/" + testIdentifier + "/" + testIdentifier + ".json";
+          count++;
+          console.log(manifestURL)
+          fetch(manifestURL)
           .then(response=>{
             response.json()
-            .then(metadata=>{
-              nftsMeta.push(metadata);
+            .then(data=>{
+              console.log(data)
+              //data.identifier = nft.indentifier;
+              data.identifier = testIdentifier;
+              manifestData.push(data);
               resolve ();
             })
             .catch(err=>{
@@ -122,7 +232,7 @@ function Create() {
           })
           .catch(err=>{
             // resolve even if it fails, to avoid complete freeze
-            console.warn("error getting " + nft.metadata_url + ", skpping")
+            console.warn("error getting " + classes[index].manifestsPath + "/" + nft.indentifier + "/" + nft.indentifier + ".json" + ", skpping")
             console.error(err);
             resolve ()
           })
@@ -131,33 +241,41 @@ function Create() {
 
       await Promise.all(promises);
 
-      unlockedTraits = {};
-      const getTraitsFromNFTsArray = (arr) =>{
-        const nftArr = getAsArray(arr);
-        nftArr.forEach(nft => {
-          nft.attributes.forEach(attr => {
-            if (unlockedTraits[attr.trait_type] == null)
-              unlockedTraits[attr.trait_type] = []
-            if (!unlockedTraits[attr.trait_type].includes(attr.value))
-              unlockedTraits[attr.trait_type].push(attr.value);
-          });
-          
+      manifestData.forEach(manifest => {
+        manifest.traits.forEach(trait => {
+          if (trait.trait.toLowerCase() != 'body'){
+            trait.collection.forEach(item => {
+              item.id = manifest.identifier + "_" + item.id;
+            });
+          }
         });
-      }
-      getTraitsFromNFTsArray(nftsMeta);
+      });
+      console.log(manifestData);
 
-      console.log(unlockedTraits)
-      // unlockedTraits
-    }
-    characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(()=>{
-      setViewMode(ViewMode.APPEARANCE)
-      // When Manifest is Loaded, load initial traits from given manifest
-      characterManager.loadInitialTraits().then(()=>{
-        setIsLoading(false)
+      characterManager.setManifest(manifestData[0]).then(()=>{
+
+        const promises = manifestData.map((manifest, index) => {
+          if (index !== 0) {
+            return characterManager.appendManifest(manifest);
+          }
+        });
+        const filteredPromises = promises.filter(promise => promise !== undefined);
+
+        Promise.all(filteredPromises)
+        .then(() => {
+          setViewMode(ViewMode.APPEARANCE)
+          // When Manifest is Loaded, load initial traits from given manifest
+          characterManager.loadInitialTraits().then(()=>{
+            setIsLoading(false)
+          })
+        })
+        .catch(error => {
+          console.error('Error appending manifests:', error);
+        });
       })
-    })
-    !isMute && playSound('classSelect');
 
+    }
+    !isMute && playSound('classSelect');
   }
   useEffect(()=>{
     if (ownedCollections != null){      
@@ -175,6 +293,7 @@ function Create() {
           name:c.name, 
           image:c.image, 
           description: c.description,
+          manifestsPath: c.manifestsPath || "",
           manifest: c.manifest,
           icon:c.icon,
           format:c.format,

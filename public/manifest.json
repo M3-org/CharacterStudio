@@ -19,6 +19,16 @@
       "format": "vrm",
       "collectionLock":"the-anata-nft",
       "fullTraits":true
+    },
+    {
+      "name": "Anata",
+      "description": "Full Customizer",
+      "portrait": "./assets/portraitImages/anata_male.png",
+      "manifestsPath":"./anata-vrm/male/",
+      "icon": "./assets/icons/class-neural-hacker.svg",
+      "format": "vrm",
+      "collectionLock":"the-anata-nft",
+      "fullTraits":true
     }
   ],
   "loras":[
