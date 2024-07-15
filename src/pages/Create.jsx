@@ -121,9 +121,6 @@ function Create() {
 
         const promises = nfts.map(nft => 
           new Promise((resolve)=>{
-            console.log("here");
-            console.log(nft.indentifier);
-            console.log()
             fetch(nft.metadata_url)
             .then(response=>{
               response.json()
@@ -198,29 +195,22 @@ function Create() {
 
       const address = await connectWallet();
       const result = await getOpenseaCollection(address,classes[index].collection[0])
-      //const nfts = getAsArray(result?.nfts);
-      const nfts = [{identifier:1},{identifier:2},{identifier:3},{identifier:4}]
+      const nfts = getAsArray(result?.nfts);
+      //const nfts = [...[{identifier:1}],...nfts1]; 
+      //const nfts = [{identifier:1},{identifier:2},{identifier:3},{identifier:4}]
       console.log("nfts", result?.nfts);
       const manifestData = [];
-      let count = 1;
+      //let count = 1;
       const promises = nfts.map(nft => 
         new Promise((resolve)=>{
-          console.log("here");
-          console.log(nft.indentifier);
-          console.log()
 
-          //const manifestURL = classes[index].manifestsPath + "/" + nft.indentifier + "/" + nft.indentifier + ".json";
-          const testIdentifier = count;
-          const manifestURL = classes[index].manifestsPath + "/" + testIdentifier + "/" + testIdentifier + ".json";
-          count++;
-          console.log(manifestURL)
+          const manifestURL = classes[index].manifestsPath + "/" + nft.identifier + "/" + nft.identifier + ".json";
           fetch(manifestURL)
           .then(response=>{
             response.json()
             .then(data=>{
-              console.log(data)
-              //data.identifier = nft.indentifier;
-              data.identifier = testIdentifier;
+              data.identifier = nft.identifier;
+              //data.identifier = testIdentifier;
               manifestData.push(data);
               resolve ();
             })
