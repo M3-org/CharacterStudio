@@ -995,7 +995,8 @@ export class CharacterManager {
 
       // Rotate model 180 degrees
       if (vrm.meta?.metaVersion === '0'){
-        VRMUtils.rotateVRM0( vrm );
+        vrm.humanoid.humanBones.hips.node.parent.rotateY(3.14159);
+        //VRMUtils.rotateVRM0( vrm );
         console.log("Loaded VRM0 file ", vrm);
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
