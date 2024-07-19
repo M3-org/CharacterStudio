@@ -76,8 +76,9 @@ function Optimizer() {
   }
 
   const download = async (saveName) => {
+    if (typeof saveName != "string" )
+      saveName = nameVRM;
     const saveData = async () => {
-      saveName = saveName || nameVRM + "_merged", getOptions();
       const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
       if (downloadVRMImage) {
         characterManager.savePortraitScreenshot(saveName + "_portrait", 512, 1024, 1.5, -0.1);
