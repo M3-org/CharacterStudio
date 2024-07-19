@@ -14,6 +14,20 @@ export function getAsArray(target) {
   return Array.isArray(target) ? target : [target]
 }
 
+export function addChildAtFirst(parent, newChild) {
+  // Store the current children of the parent
+  let currentChildren = parent.children.slice();
+
+  // Clear all children from the parent
+  currentChildren.forEach(child => parent.remove(child));
+
+  // Add the new child at the first position
+  parent.add(newChild);
+
+  // Re-add the original children
+  currentChildren.forEach(child => parent.add(child));
+}
+
 export async function setTextureToChildMeshes(scene, url){
   const textureLoader = new THREE.TextureLoader();
 

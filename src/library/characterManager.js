@@ -7,7 +7,7 @@ import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
 import { saveVRMCollidersToUserData } from "./load-utils";
-import { cullHiddenMeshes, setTextureToChildMeshes } from "./utils";
+import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
 import { CharacterManifestData } from "./CharacterManifestData";
@@ -994,7 +994,15 @@ export class CharacterManager {
       this._modelBaseSetup(vrm, item, traitID, textures, colors);
 
       // Rotate model 180 degrees
+
+      
       if (vrm.meta?.metaVersion === '0'){
+        if (vrm.humanoid.humanBones.hips.node.parent == vrm.scene){
+          const dummyRotate = new THREE.Object3D();
+          dummyRotate.name = "newRootNode";
+          addChildAtFirst(vrm.scene, dummyRotate)
+          dummyRotate.add(vrm.humanoid.humanBones.hips.node);
+        }
         vrm.humanoid.humanBones.hips.node.parent.rotateY(3.14159);
         //VRMUtils.rotateVRM0( vrm );
         console.log("Loaded VRM0 file ", vrm);
