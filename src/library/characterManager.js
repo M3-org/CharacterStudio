@@ -1342,7 +1342,6 @@ class TraitLoadingManager{
             });
             Promise.allSettled(promises)
                 .then(() => {
-                    console.log("IMPORTED DATA", resultData)
                     this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
                     resolve(resultData);
                     this.isLoading = false;
