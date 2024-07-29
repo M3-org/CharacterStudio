@@ -1005,15 +1005,26 @@ export class CharacterManager {
         }
         vrm.humanoid.humanBones.hips.node.parent.rotateY(3.14159);
         //VRMUtils.rotateVRM0( vrm );
-        console.log("Loaded VRM0 file ", vrm);
+        
+
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
-              for (let i =0; i < child.skeleton.bones.length;i++){
-                child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
-              }
-              child.userData.isVRM0 = true;
+            const newMorphTargets  = {};
+            const targetNames = getAsArray(child.geometry.userData?.targetNames);
+            for (let i =0; i < targetNames.length;i++){
+              newMorphTargets[targetNames[i]] =  child.morphTargetDictionary[i];
+            }
+            child.morphTargetDictionary = newMorphTargets;
+            for (let i =0; i < child.skeleton.bones.length;i++){
+              child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+            }
+            child.userData.isVRM0 = true;
           }
         })
+        console.log("Loaded VRM0 file ", vrm);
+      }
+      else{
+        console.log("Loaded VRM1 file ", vrm);
       }
 
       return vrm;
@@ -1331,6 +1342,7 @@ class TraitLoadingManager{
             });
             Promise.allSettled(promises)
                 .then(() => {
+                    console.log("IMPORTED DATA", resultData)
                     this.setLoadPercentage(100); // Set progress to 100% once all assets are loaded
                     resolve(resultData);
                     this.isLoading = false;
