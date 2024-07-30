@@ -519,19 +519,16 @@ export default class VRMExporterv0 {
         const materialProperties = []
         uniqueMaterials.forEach(mat => {
             if (mat.type == "ShaderMaterial") {
-                materialProperties.push(
-                    materialProperties.push(Object.assign({}, vrmMaterialProperties))
-                )
+                materialProperties.push(Object.assign({}, vrmMaterialProperties))
             }
             else {
-                materialProperties.push(
-                    materialProperties.push(Object.assign({}, stdMaterialProperties))
-                )
+                materialProperties.push(Object.assign({}, stdMaterialProperties))
             }
         });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
-
+        console.log(uniqueMaterials)
+        console.log(materialProperties)
         const rootSpringBonesIndexes = [];
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
@@ -755,6 +752,7 @@ export default class VRMExporterv0 {
             extensions: {
                 VRM: {
                     blendShapeMaster: { blendShapeGroups },
+                    exporterVersion:"UniGLTF-2.0.0",
                     //firstPerson: vrmFirstPerson,
                     firstPerson: {
                         firstPersonBone: 44,
@@ -786,7 +784,7 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log(outputData);
+        console.log("output", outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
