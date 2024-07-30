@@ -527,8 +527,6 @@ export default class VRMExporterv0 {
         });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
-        console.log(uniqueMaterials)
-        console.log(materialProperties)
         const rootSpringBonesIndexes = [];
         rootSpringBones.forEach(rootSpringBone => {
             for (let i = 0; i < nodes.length; i++) {
@@ -752,7 +750,6 @@ export default class VRMExporterv0 {
             extensions: {
                 VRM: {
                     blendShapeMaster: { blendShapeGroups },
-                    exporterVersion:"UniGLTF-2.0.0",
                     //firstPerson: vrmFirstPerson,
                     firstPerson: {
                         firstPersonBone: 44,
