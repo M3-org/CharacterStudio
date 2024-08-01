@@ -205,7 +205,7 @@ export default class VRMExporterv0 {
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
 
-        meshes.forEach((object) => {
+        meshes.forEach((object, meshindex) => {
             const mesh = (object.type === VRMObjectType.Group
                 ? object.children[0]
                 : object);
@@ -261,37 +261,7 @@ export default class VRMExporterv0 {
             }
 
             mesh.geometry.userData.targetNames = [];
-            console.warn("taking only mesh 0 for morph targets now, take the correct mesh");
-            for (const prop in vrm.expressionManager.expressionMap) {
-                const expression = vrm.expressionManager.expressionMap[prop];
-                const morphTargetBinds = expression._binds.map(obj => ({ mesh: 0, index: obj.index, weight: obj.weight * 100 }))
-                //only add those that have connected binds
-                if (morphTargetBinds.length > 0) {
-                    let isPreset = false;
-                    for (const presetName in VRMExpressionPresetName) {
-                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised") {
-                            blendShapeGroups.push({
-                                name: prop,
-                                presetName: getVRM0BlendshapeName(prop),
-                                binds: morphTargetBinds,
-                                isBinary: expression.isBinary,
-                            })
-                            isPreset = true;
-                            break;
-                        }
-                    }
-                    if (isPreset === false) {
-                        blendShapeGroups.push({
-                            name: prop,
-                            presetName: "unknown",
-                            binds: morphTargetBinds,
-                            isBinary: expression.isBinary,
-                        })
-                    }
-                }
-
-                // to do, material target binds, and texture transform binds
-            }
+            
 
             const getMorphData = (attributeData, prop, meshDataType, baseAttribute) => {
                 const nonZeroIndices = [];
@@ -356,6 +326,40 @@ export default class VRMExporterv0 {
 
             }
         });
+
+        console.warn("taking only mesh 0 for morph targets now");
+        for (const prop in vrm.expressionManager.expressionMap) {
+            const expression = vrm.expressionManager.expressionMap[prop];
+            const morphTargetBinds = expression._binds.map(obj => ({ mesh: 0, index: obj.index, weight: obj.weight * 100 }))
+            //only add those that have connected binds
+            if (morphTargetBinds.length > 0) {
+                let isPreset = false;
+                for (const presetName in VRMExpressionPresetName) {
+                    if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised") {
+                        blendShapeGroups.push({
+                            name: prop,
+                            presetName: getVRM0BlendshapeName(prop),
+                            binds: morphTargetBinds,
+                            isBinary: expression.isBinary,
+                        })
+                        isPreset = true;
+                        break;
+                    }
+                }
+                if (isPreset === false) {
+                    blendShapeGroups.push({
+                        name: prop,
+                        presetName: "unknown",
+                        binds: morphTargetBinds,
+                        isBinary: expression.isBinary,
+                    })
+                }
+            }
+
+            // to do, material target binds, and texture transform binds
+        }
+
+
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
         meshes.forEach((object) => {
