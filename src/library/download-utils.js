@@ -311,7 +311,7 @@ function parseVRM (glbModel, avatar, options){
     // XXX collider bones should be taken from springBone.colliderBones
     const colliderBones = [];
 
-    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, colliderBones, scale, (vrm) => {
+    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, options.ktxCompression, scale, (vrm) => {
       resolve(vrm)
     })
   })
