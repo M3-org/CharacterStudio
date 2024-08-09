@@ -1,5 +1,7 @@
 import { BufferAttribute, Euler, Vector3 } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
+import { encodeToKTX2 } from 'ktx2-encoder';
+
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
         allowedUserName: vrmMeta.allowedUserName,
@@ -97,7 +99,7 @@ function getVRM0BoneName(name) {
     return name;
 }
 export default class VRMExporterv0 {
-    parse(vrm, avatar, screenshot, rootSpringBones, colliderBones, scale, onDone) {
+    async parse(vrm, avatar, screenshot, rootSpringBones, isktx2, scale, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
 
@@ -105,7 +107,6 @@ export default class VRMExporterv0 {
         //const expressionsPreset = {};
         //const expressionCustom = {};
         const blendShapeGroups = [];
-
         // to do, add support to spring bones
         //const springBone = vrm.springBoneManager;
         const exporterInfo = {
@@ -174,9 +175,9 @@ export default class VRMExporterv0 {
                 return { name: material.name + "_normal", imageBitmap: material.normalMap.image };
             });
         const images = [...mainImages, ...shadeImages, ...ormImages, ...normalImages].filter(element => element !== null);
-        const outputImages = toOutputImages(images, icon);
+        const outputImages = toOutputImages(images, icon, isktx2 ? "image/ktx2" : "image/png");
         const outputSamplers = toOutputSamplers(outputImages);
-        const outputTextures = toOutputTextures(outputImages);
+        const outputTextures = toOutputTextures(outputImages, isktx2);
         const outputMaterials = toOutputMaterials(uniqueMaterials, images);
         const rootNode = avatar.children.filter((child) => child.children.length > 0 &&
             child.children[0].type === VRMObjectType.Bone)[0];
@@ -639,13 +640,14 @@ export default class VRMExporterv0 {
 
 
         outputVrmMeta.texture = icon ? outputImages.length - 1 : undefined;
-        const bufferViews = [];
-        bufferViews.push(...images.map((image) => ({
-            buffer: imageBitmap2png(image.imageBitmap),
-            type: MeshDataType.IMAGE,
-        })));
+        const bufferViews = await Promise.all(
+            images.map(async (image) => ({
+                buffer: isktx2 ? await imageBitmap2ktx2(image.imageBitmap) : imageBitmap2png(image.imageBitmap),
+                type: MeshDataType.IMAGE,
+            }))
+        );
 
-        // bufferViews.push(...meshDatas.map((data) => ({ buffer: data.buffer, type: data.type })));
+        /// continue until code finished assigning buffers
 
         const meshDataBufferViewRelation = [];
         meshDatas.forEach((data, i) => {
@@ -661,7 +663,7 @@ export default class VRMExporterv0 {
 
         if (icon)
             bufferViews.push({
-                buffer: imageBitmap2png(icon.imageBitmap),
+                buffer:  isktx2 ?  await imageBitmap2ktx2(icon.imageBitmap) : imageBitmap2png(icon.imageBitmap),
                 type: MeshDataType.IMAGE,
             });
         let bufferOffset = 0;
@@ -742,6 +744,16 @@ export default class VRMExporterv0 {
 
         fillVRMMissingMetaData(outputVrmMeta);
 
+        const extensionsUsed = [              
+            "KHR_materials_unlit",
+            "KHR_texture_transform",
+            "VRM"
+        ];
+
+        if (isktx2){
+            extensionsUsed.push("KHR_texture_basisu");
+        }
+
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,
@@ -771,11 +783,7 @@ export default class VRMExporterv0 {
                     specVersion: "0.0"
                 },
             },
-            extensionsUsed: [
-                "KHR_materials_unlit",
-                "KHR_texture_transform",
-                "VRM",
-            ],
+            extensionsUsed: extensionsUsed,    
             images: outputImages,
             materials: outputMaterials,
             meshes: outputMeshes,
@@ -820,6 +828,33 @@ function getNodes(parentNode) {
         return [parentNode];
     return [parentNode].concat(parentNode.children.map((child) => getNodes(child)).flat());
 }
+
+async function imageBitmap2ktx2(image) {
+    // Create ImageBitmap from the image
+    const bitmap = await createImageBitmap(image);
+
+    // Create a canvas and draw the ImageBitmap onto it
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+
+    const ctx = canvas.getContext('bitmaprenderer');
+    ctx.transferFromImageBitmap(bitmap);
+
+    // Convert the canvas to a Blob
+    const blob2 = await new Promise((res) => canvas.toBlob(res));
+
+    // Encode the Blob to KTX2 format
+    const ktx2Data = await encodeToKTX2(blob2,{
+        mode: 'etc1s',  // Use ETC1S for better compression
+        quality: 'low',  // Adjust based on acceptable quality loss
+        compressionLevel: 1  // Lower values can increase compression
+    });
+
+    // Return the KTX2 data as an ArrayBuffer or Uint8Array
+    return new Uint8Array(ktx2Data);
+}
+
 function imageBitmap2png(image) {
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
@@ -1173,7 +1208,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
                 KHR_texture_transform: {
                     offset: [0, 0],
                     scale: [1, 1],
-                },
+                }
             },
             index: baseTxrIndex,
             texCoord: 0, // TODO:
@@ -1243,12 +1278,12 @@ const toOutputMaterials = (uniqueMaterials, images) => {
         return parseMaterial;
     });
 };
-const toOutputImages = (images, icon) => {
+const toOutputImages = (images, icon, mimeType) => {
     return (icon ? images.concat(icon) : images)
         .filter((image) => image && image.imageBitmap)
         .map((image) => ({
             bufferView: -1,
-            mimeType: "image/png",
+            mimeType: mimeType,
             name: image.name, // TODO: 取得できないので仮のテクスチャ名としてマテリアル名を入れた
         }));
 };
@@ -1260,11 +1295,23 @@ const toOutputSamplers = (outputImages) => {
         wrapT: WEBGL_CONST.REPEAT, // TODO: だいたいこれだった
     }));
 };
-const toOutputTextures = (outputImages) => {
-    return outputImages.map((_, index) => ({
-        sampler: 0,
-        source: index, // TODO: 全パターンでindexなのか不明
-    }));
+const toOutputTextures = (outputImages, isktx2) => {
+    if (isktx2){
+        return outputImages.map((_, index) => ({
+            sampler: 0,
+            extensions: {
+                KHR_texture_basisu: {
+                    source: index
+                }
+            }
+        }));
+    }
+    else{
+        return outputImages.map((_, index) => ({
+            sampler: 0,
+            source: index, // TODO: 全パターンでindexなのか不明
+        }));
+    }
 };
 const toOutputScenes = (avatar, outputNodes) => {
     const nodeNames = outputNodes.map((node) => node.name);
