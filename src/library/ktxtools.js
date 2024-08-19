@@ -51,7 +51,6 @@ export class KTXTools{
                 
         // missing
         //userBasisuOptions.ETC1SQualityLevel
-        console.log(basisu_options)
         options.basisu_options = basisu_options;
 
         // supercmp_scheme
@@ -65,8 +64,6 @@ export class KTXTools{
         // if (!options.hasOwnProperty('compression_level')) {
         //     options.compression_level = 18;
         // }
-       
-        console.log(basisu_options);
         return await this.ktxEncoder.compress(raw_data, width, height, comps, options);
     }
 }
