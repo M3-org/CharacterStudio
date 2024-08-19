@@ -1,6 +1,11 @@
 import { BufferAttribute, Euler, Vector3 } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
 import { encodeToKTX2 } from 'ktx2-encoder';
+import { KtxDecoder } from "./ktx";
+import { KTXTools } from "./ktxtools";
+
+
+
 
 function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
     return {
@@ -19,6 +24,11 @@ function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
         violentUssageName: vrmMeta.violentUssageName,
     };
 }
+
+
+
+
+
 // WebGL(OpenGL)マクロ定数
 var WEBGL_CONST;
 (function (WEBGL_CONST) {
@@ -829,31 +839,155 @@ function getNodes(parentNode) {
     return [parentNode].concat(parentNode.children.map((child) => getNodes(child)).flat());
 }
 
+// async function imageBitmap2ktx2(image) {
+//     // Create ImageBitmap from the image
+//     const bitmap = await createImageBitmap(image);
+
+//     // Create a canvas and draw the ImageBitmap onto it
+//     const canvas = document.createElement('canvas');
+//     canvas.width = bitmap.width;
+//     canvas.height = bitmap.height;
+
+//     const ctx = canvas.getContext('bitmaprenderer');
+//     ctx.transferFromImageBitmap(bitmap);
+
+//     // Convert the canvas to a Blob
+//     const blob2 = await new Promise((res) => canvas.toBlob(res));
+
+//     // Encode the Blob to KTX2 format
+//     const ktx2Data = await encodeToKTX2(blob2,{
+//         mode: 'etc1s',  // Use ETC1S for better compression
+//         quality: 'low',  // Adjust based on acceptable quality loss
+//         compressionLevel: 1  // Lower values can increase compression
+//     });
+
+//     // Return the KTX2 data as an ArrayBuffer or Uint8Array
+//     return new Uint8Array(ktx2Data);
+// }
+
+  // Initialize the KTX decoder/compressor
+
+const ktxTools = new KTXTools();
+
 async function imageBitmap2ktx2(image) {
     // Create ImageBitmap from the image
-    const bitmap = await createImageBitmap(image);
+  const bitmap = await createImageBitmap(image);
 
-    // Create a canvas and draw the ImageBitmap onto it
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
+  // Create a canvas and draw the ImageBitmap onto it
+  const canvas = document.createElement('canvas');
+  
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  
 
-    const ctx = canvas.getContext('bitmaprenderer');
-    ctx.transferFromImageBitmap(bitmap);
+  const ctx = canvas.getContext('2d');
+  
+  ctx.drawImage(bitmap, 0, 0);
 
-    // Convert the canvas to a Blob
-    const blob2 = await new Promise((res) => canvas.toBlob(res));
+  // Get the image data as a Uint8Array (RGBA format)
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixelData = new Uint8Array(imageData.data.buffer);
 
-    // Encode the Blob to KTX2 format
-    const ktx2Data = await encodeToKTX2(blob2,{
-        mode: 'etc1s',  // Use ETC1S for better compression
-        quality: 'low',  // Adjust based on acceptable quality loss
-        compressionLevel: 1  // Lower values can increase compression
-    });
 
-    // Return the KTX2 data as an ArrayBuffer or Uint8Array
-    return new Uint8Array(ktx2Data);
+  
+
+  // Compress the image data to KTX2 format
+  // reference https://github.khronos.org/KTX-Software/ktxtools/ktx_create.html
+  const ktx2Data = await ktxTools.compress(pixelData, canvas.width, canvas.height, 4, {
+    //basisu_options: {
+        normalMap : false,
+
+        uastc: false, // Set to true for higher quality UASTC compression
+        qualityLevel: 50, // Adjust compression quality (0-100)
+        compressionLevel: 2,
+        /** Set the compression quality KTX2 - UASTC */
+        // compressionUASTC_Rdo: false,
+        // UASTC_supercmp_scheme: "Zstd",
+
+        // --uastc-quality <level>
+        uastcFlags: "DEFAULT", // "FASTEST", "FASTER", "DEFAULT", "SLOWER", "SLOWEST"
+
+        // --astc-quality <level>
+        // The quality level configures the quality-performance tradeoff for the compressor; more complete searches of the search space improve image quality at the expense of compression time
+        // fastest == 0, fast == 10, medium == 60, thorough == 98, exhaustive == 100, 
+        compressionUASTC_Rdo_Level: 18,
+
+        // --uastc-rdo
+        // Enable UASTC RDO post-processing.
+        uastcRDO: false,
+
+        // --uastc-rdo-l <lambda>
+        // Set UASTC RDO quality scalar (lambda) to lambda. Lower values yield higher quality/larger LZ compressed files, higher values yield lower quality/smaller LZ compressed files.
+        // A good range to try is [.25,10]. For normal maps a good range is [.25,.75]. The full 
+        // Range is [.001,10.0]. Default is 1.0.
+        uastcRDOQualityScalar: 1.0, 
+
+        // --uastc-rdo-d <dictsize>
+        // Set UASTC RDO dictionary size in bytes. Default is 4096. Lower values=faster, but give less compression. 
+        // Range is [64,65536]
+        uastcRDODictSize: 4096,
+
+        // --uastc-rdo-b <scale>
+        // Set UASTC RDO max smooth block error scale. Default is 10.0, 1.0 is disabled. Larger values suppress more artifacts (and allocate more bits) on smooth blocks.
+        // Range is [1.0,300.0]
+        uastcRDOMaxSmoothBlockErrorScale: 10.0,
+
+        // --uastc-rdo-s <deviation>
+        // Set UASTC RDO max smooth block standard deviation. Default is 18.0. Larger values expand the range of blocks considered smooth.
+        // Range is [.01,65536.0]
+        uastcRDOMaxSmoothBlockStdDev: 18.0,
+
+        // --uastc-rdo-f
+        uastcRDODontFavorSimplerModes: false,
+        
+
+        
+        /** Set the compression quality KTX2 - ETC1S */
+        // --clevel <level>
+        // ETC1S / BasisLZ compression level, an encoding speed vs. quality tradeoff. Range is [0,5], default is 1. Higher values are slower but give higher quality.
+        // ETC1SCompressionLevel: 2,
+
+        // --qlevel <level>
+        // ETC1S / BasisLZ quality level. 
+        //Range is [1,255]. Lower gives better compression/lower quality/faster. Higher gives less compression/higher quality/slower. 
+        //--qlevel automatically determines values for --max-endpoints, --max-selectors, --endpoint-rdo-threshold and --selector-rdo-threshold for the target quality level. Setting these options overrides the values determined by -qlevel which defaults to 128 if neither it nor --max-endpoints and --max-selectors have been set.
+        ETC1SQualityLevel: 128,
+
+        // --max-endpoints <arg>
+        // Manually set the maximum number of color endpoint clusters. 
+        // Range is [1,16128]. Default is 0, unset.
+        ETC1SmaxEndpoints: 0,
+
+        // --endpoint-rdo-threshold <arg>
+        // Set endpoint RDO quality threshold. 
+        // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
+        ETC1SEndpointRdoThreshold: 1.25,
+
+        // --max-selectors <arg>
+        // Manually set the maximum number of color selector clusters from [1,16128]. Default is 0, unset.
+        ETC1SMaxSelectors: 0,
+
+        // --selector-rdo-threshold <arg>
+        // Set selector RDO quality threshold. 
+        // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
+        ETC1SSelectorRdoThreshold: 1.25,
+
+        // --no-endpoint-rdo
+        // Disable endpoint rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do endpoint RDO.
+        ETC1SNoEndpointRdo: false,
+
+        // --no-selector-rdo
+        // Disable selector rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do selector RDO.
+        ETC1SNoSelectorRdo: false,
+    //},
+    supercmp_scheme: 'Zstd', // Optional: Enable supercompression Zstd, Zlib, BasisLZ, None
+
+    //compression_level: 18
+  });
+
+  return ktx2Data;
 }
+  
 
 function imageBitmap2png(image) {
     const canvas = document.createElement('canvas');
