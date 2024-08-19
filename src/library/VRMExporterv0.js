@@ -26,7 +26,7 @@ function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
 }
 
 
-
+const debug = false;
 
 
 // WebGL(OpenGL)マクロ定数
@@ -612,11 +612,11 @@ export default class VRMExporterv0 {
                             colliderIndices.push(ind);
                     }
                     else {
-                        console.warn("No collider group for bone name: ", springParent.name + " was found");
+                        if (debug) console.warn("No collider group for bone name: ", springParent.name + " was found");
                     }
                 }
                 else {
-                    console.log("No colliders definition were present in vrm file file for: ", springBone.name + " spring bones")
+                    if(debug) console.log("No colliders definition were present in vrm file file for: ", springBone.name + " spring bones")
                 }
             });
 
