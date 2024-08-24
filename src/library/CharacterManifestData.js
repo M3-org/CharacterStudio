@@ -11,6 +11,7 @@ export class CharacterManifestData{
         exportScale,
         displayScale,
         initialTraits,
+        mainTrait,
         requiredTraits,
         randomTraits,
         colliderTraits,
@@ -35,7 +36,10 @@ export class CharacterManifestData{
       this.displayScale = displayScale || exportScale || 1;
       this.animationPath = getAsArray(animationPath);
       
+      
       this.requiredTraits = getAsArray(requiredTraits);
+
+      this.mainTrait = mainTrait || this.requiredTraits[0] || traits[0].trait;
       this.randomTraits = getAsArray(randomTraits);
       this.initialTraits = initialTraits || [...new Set(this.requiredTraits.concat(this.randomTraits))];
       this.colliderTraits = getAsArray(colliderTraits);
