@@ -1102,6 +1102,23 @@ class GlbChunk {
         return paddedBuffer;
     }
 }
+const calculateMinMax = (valuesArray) => {
+    const max = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY];
+    const min = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+
+    for (let i = 0; i < valuesArray.length; i += 3) {
+        max[0] = Math.max(max[0], valuesArray[i]);
+        max[1] = Math.max(max[1], valuesArray[i + 1]);
+        max[2] = Math.max(max[2], valuesArray[i + 2]);
+
+        min[0] = Math.min(min[0], valuesArray[i]);
+        min[1] = Math.min(min[1], valuesArray[i + 1]);
+        min[2] = Math.min(min[2], valuesArray[i + 2]);
+    }
+
+    return { max, min };
+}
+
 export class MeshData {
     constructor(attribute, valueType, type, accessorsType, meshName, name, sparseData) {
         this.attribute = attribute;
@@ -1136,46 +1153,31 @@ export class MeshData {
                 values: parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
             }
 
-            this.max =
-                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                    ? [
-                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
-                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
-                        Math.max.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
-                    ]
-                    : undefined;
-            this.min =
-                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                    ? [
-                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 0)),
-                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 1)),
-                        Math.min.apply(null, Array.from(values).filter((_, i) => i % 3 === 2)),
-                    ]
-                    : undefined;
+            if (type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION){
+                const {
+                    min,
+                    max
+                } = calculateMinMax(values);
+                this.max = max;
+                this.min = min;
+            }
         }
         else {
             this.buffer = parseBinary(this.attribute, this.valueType)
 
-            this.max =
-                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                    ? [
-                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
-                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
-                        Math.max.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
-                    ]
-                    : undefined;
-            this.min =
-                type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION
-                    ? [
-                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 0)),
-                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 1)),
-                        Math.min.apply(null, Array.from(this.attribute.array).filter((_, i) => i % 3 === 2)),
-                    ]
-                    : undefined;
+            if (type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION){
+                const {
+                    min,
+                    max
+                } = calculateMinMax(this,attribute.array);
+                this.max = max;
+                this.min = min;
+            }
         }
 
     }
 }
+
 var MaterialType;
 (function (MaterialType) {
     MaterialType["MeshBasicMaterial"] = "MeshBasicMaterial";
