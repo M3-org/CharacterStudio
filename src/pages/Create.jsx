@@ -55,6 +55,7 @@ function Create() {
     if (manifest?.characters != null){
       let requiresConnect = false;
       const manifestClasses = manifest.characters.map((c) => {
+        console.log("APPEND", c.manifestAppend);
         let enabled = c.collectionLock == null ? false : true;
         if (c.collectionLock != null)
           requiresConnect = true;
@@ -68,6 +69,7 @@ function Create() {
           format:c.format,
           disabled:enabled,
           collection: getAsArray(c.collectionLock),
+          manifestAppend: getAsArray(c.manifestAppend),
           fullTraits: c.fullTraits || false
         }
       })
@@ -92,44 +94,54 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
+  const getNftsMeta = async(nfts) =>{
+    const nftsMeta = [];
+    const promises = nfts.map(nft => {
+        return new Promise((resolve)=>{
+        fetch(nft.metadata_url)
+        .then(response=>{
+          response.json()
+          .then(metadata=>{
+            nftsMeta.push(metadata);
+            resolve ();
+          })
+          .catch(err=>{
+            console.warn("error converting to json");
+            console.error(err);
+            resolve ()
+          })
+        })
+        .catch(err=>{
+          // resolve even if it fails, to avoid complete freeze
+          console.warn("error getting " + nft.metadata_url + ", skpping")
+          console.error(err);
+          resolve ()
+        })
+        })
+        
+      }
+    );
+
+    await Promise.all(promises);
+    console.log("result", nfts, nftsMeta);
+    return nftsMeta;
+  }
+
   const selectClass = async (index) => {
     setIsLoading(true)
     console.log(classes[index]);
     // Load manifest first
     let unlockedTraits = null;
-    if (classes[index].collection.length > 0 && classes[index].fullTraits == false){
+    const selectedClass = classes[index];
+    if (selectedClass.collection.length > 0 && selectedClass.fullTraits == false){
       console.log("got 1")
       const address = await connectWallet();
-      const result = await getOpenseaCollection(address,classes[index].collection[0])
+      const result = await getOpenseaCollection(address,selectedClass.collection[0])
       const nfts = getAsArray(result?.nfts);
       console.log("nfts", result?.nfts);
-      const nftsMeta = [];
 
-      const promises = nfts.map(nft => 
-        new Promise((resolve)=>{
-          fetch(nft.metadata_url)
-          .then(response=>{
-            response.json()
-            .then(metadata=>{
-              nftsMeta.push(metadata);
-              resolve ();
-            })
-            .catch(err=>{
-              console.warn("error converting to json");
-              console.error(err);
-              resolve ()
-            })
-          })
-          .catch(err=>{
-            // resolve even if it fails, to avoid complete freeze
-            console.warn("error getting " + nft.metadata_url + ", skpping")
-            console.error(err);
-            resolve ()
-          })
-        })
-      );
-
-      await Promise.all(promises);
+      const nftsMeta = await getNftsMeta(nfts);
+      console.log(nftsMeta);
 
       unlockedTraits = {};
       const getTraitsFromNFTsArray = (arr) =>{
@@ -149,8 +161,49 @@ function Create() {
       console.log(unlockedTraits)
       // unlockedTraits
     }
-    characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(()=>{
+    if (selectedClass.manifestAppend.length > 0){
+      console.log("getting only first one for now")
+      //const address = await connectWallet();
+      const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
+      const result = await getOpenseaCollection(addressTest,selectedClass.manifestAppend[0].collectionLock)
+      const nfts = getAsArray(result?.nfts);
+      console.log("append nfts", nfts);
+      const nftsMeta = await getNftsMeta(nfts);
+      console.log("META", nftsMeta);
+      const decodedSVG = atob(nftsMeta[0].image.split(",")[1]);
+      // Parse the decoded SVG
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
+
+      // Extract text content from the SVG
+      const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
+      console.log(texts);
+    }
+    characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(async()=>{
       setViewMode(ViewMode.APPEARANCE)
+
+      if (selectedClass.manifestAppend.length > 0){
+        console.log("getting only first one for now")
+        //const address = await connectWallet();
+        const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
+        const result = await getOpenseaCollection(addressTest,selectedClass.manifestAppend[0].collectionLock)
+        const nfts = getAsArray(result?.nfts);
+        console.log("append nfts", nfts);
+        const nftsMeta = await getNftsMeta(nfts);
+        const decodedSVG = atob(nftsMeta[0].image.split(",")[1]);
+        // Parse the decoded SVG
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
+  
+        // Extract text content from the SVG
+        const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
+
+        console.log("selclass", selectedClass.manifestAppend[0])
+        characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
+        console.log(texts);
+      }
+
+
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{
         setIsLoading(false)
@@ -180,6 +233,7 @@ function Create() {
           format:c.format,
           disabled:locked,
           collection: c.collection,
+          manifestAppend: c.manifestAppend,
           fullTraits: c.fullTraits
         }});
       
