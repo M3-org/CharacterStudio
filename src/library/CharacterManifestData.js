@@ -519,12 +519,13 @@ export class TraitModelsGroup{
         
         this.collection = [];
         this.collectionMap = null;
-
         if (unlockedTraits == null){
           this.createCollection(collection);
         }
         else{
-          this.createCollection(collection, false, unlockedTraits[trait] || []);
+          const finalUnlockedTraits = Array.isArray(unlockedTraits) ? unlockedTraits : unlockedTraits[trait]
+          console.log("UNLOCKED", finalUnlockedTraits,);
+          this.createCollection(collection, false, finalUnlockedTraits || []);
         }
         
     }
