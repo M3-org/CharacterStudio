@@ -31,7 +31,7 @@ function createSolidColorTexture(color, width, height) {
   return texture
 }
 
-function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent) {
+function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent, sRGBEncoding = true) {
   // if texture is null or undefined, create a texture only with clearColor (that is color type)
   if (!texture) {
     texture = createSolidColorTexture(clearColor, width, height);
@@ -78,7 +78,7 @@ function RenderTextureImageData(texture, multiplyColor, clearColor, width, heigh
   }
 
   rtTexture = new THREE.WebGLRenderTarget(width, height);
-  rtTexture.texture.encoding = THREE.sRGBEncoding;
+  rtTexture.texture.encoding = sRGBEncoding ? THREE.sRGBEncoding : THREE.NoColorSpace;
 
   material.map = texture;
   material.color = multiplyColor.clone();
@@ -260,7 +260,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   ResetRenderTextureContainer();
 
   const ATLAS_SIZE_PX = atlasSize;
-  const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm"];// not using normal texture for now
+  const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm", "normal"];// not using normal texture for now
   const bakeObjects = [];
   // save if there is vrm data
   let vrmMaterial = null;
@@ -354,7 +354,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   );
 
 
-
+  let usesNormal = false;
   bakeObjects.forEach((bakeObject) => {
     const { material, mesh } = bakeObject;
     const { min, max } = uvs.get(mesh);
@@ -377,7 +377,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
           }
           break;
         case 'normal':
-          clearColor = new THREE.Color(0x8080ff);
+          clearColor = new THREE.Color(0x8080FF);
           break;
         case 'orm':
           clearColor = new THREE.Color(0, material.roughness, material.metalness);
@@ -388,11 +388,13 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       }
       // iterate through imageToMaterialMapping[name] and find the first image that is not null
       let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture);
+      if (usesNormal == false && name == 'normal' && texture != null){
+        usesNormal = true;
+      }
+      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
       createImageBitmap(imgData)// bmp is trasnaprent
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
-    }
-    );
+    });
 
     const geometry = mesh.geometry.clone();
     mesh.geometry = geometry;
@@ -483,7 +485,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       map: textures["diffuse"],
       roughnessMap: textures["orm"],
       metalnessMap:  textures["orm"],
-      normalMap: textures["normal"],
+      normalMap: usesNormal ? textures["normal"]:null,
       transparent: transparentMaterial,
       side:side
     });
