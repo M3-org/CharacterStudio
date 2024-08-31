@@ -1169,7 +1169,7 @@ export class MeshData {
                 const {
                     min,
                     max
-                } = calculateMinMax(this,attribute.array);
+                } = calculateMinMax(this.attribute.array);
                 this.max = max;
                 this.min = min;
             }
