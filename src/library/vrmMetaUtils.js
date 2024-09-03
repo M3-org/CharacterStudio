@@ -132,7 +132,6 @@ function GetFullMeta1Data(meta0ValuesMerged, meta1Values){
 }
 
 function GetMeta0DataAsMeta1(meta0Values){
-    //let title = "";
     let author = [];
     let contactInformation = [];
     let reference = [];
@@ -145,8 +144,6 @@ function GetMeta0DataAsMeta1(meta0Values){
     let licenseName = undefined;
 
     meta0Values.forEach(meta => {
-        // if (title == null)
-        //     title = meta.title;
         author = author.concat(getAsArray(meta.author));
         contactInformation = contactInformation.concat(getAsArray(meta.contactInformation));
         reference = reference.concat(getAsArray(meta.reference));
@@ -195,20 +192,7 @@ function getAvatarPermissionFromMeta0(allowedUsername){
         return "everyone";
     }
 }
-//authors:["CharacterStudio"],
-//metaVersion:"1",
-//version:"v1",
-//name:name,
-//licenseUrl:"https://vrm.dev/licenses/1.0/",
-//commercialUssageName: "personalNonProfit",
-//contactInformation: "https://m3org.com/", 
-//allowExcessivelyViolentUsage:false,
-//allowExcessivelySexualUsage:false,
-//allowPoliticalOrReligiousUsage:false,
-//allowAntisocialOrHateUsage:false,
-// creditNotation:"required",
-// allowRedistribution:false,
-// modification:"prohibited"
+
 const ModificationType = {
     prohibited:0,
     allowModification:1,
