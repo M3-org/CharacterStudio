@@ -55,12 +55,17 @@ function convertMetaToVRM0(meta) {
     return {
         title: meta.name,
         version: "v0",
-        author: meta.authors[0] || "",
-        contactInformation: meta.contactInformation,
-        allowedUserName: meta.allowedUserName,
+        author: meta.authors?.length > 0 ? meta.authors.join(", ") : "",
+        reference: meta.references != null ? meta.references.join(", "):"",
+        contactInformation: meta.contactInformation != null ? meta.contactInformation : "",
+        otherPermissionUrl: meta.otherPermissionUrl,
+        allowedUserName: meta.avatarPermission != null ? meta.avatarPermission : "",
         violentUssageName: meta.allowExcessivelyViolentUsage ? "Allow" : "Disallow",
         sexualUssageName: meta.allowExcessivelySexualUsage ? "Allow" : "Disallow",
-        commercialUssageName: "Disallow",
+        commercialUssageName: meta.commercialUsage == "personalProfit" || meta.commercialUsage == "corporation"? "Allow" : "Disallow",
+        licenseName:meta.copyrightInformation,
+        otherLicenseUrl:meta.otherLicenseUrl,
+        metaVersion:"0"
     }
 }
 function convertHumanoidToVRM0(humanoid) {
@@ -112,7 +117,6 @@ export default class VRMExporterv0 {
     async parse(vrm, avatar, screenshot, rootSpringBones, isktx2, scale, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
-
         const materials = vrm.materials;
         //const expressionsPreset = {};
         //const expressionCustom = {};
@@ -753,7 +757,6 @@ export default class VRMExporterv0 {
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
         fillVRMMissingMetaData(outputVrmMeta);
-
         const extensionsUsed = [              
             "KHR_materials_unlit",
             "KHR_texture_transform",

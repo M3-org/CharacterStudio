@@ -1,11 +1,12 @@
 import { Group, MeshStandardMaterial, Color } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
-import { getAvatarData } from "./utils"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
+import { findChildrenByType } from "./utils"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 import { encodeToKTX2 } from 'ktx2-encoder';
+import { GetMetadataFromAvatar } from "./vrmMetaUtils"
 
 
 function cloneAvatarModel (model){
@@ -233,56 +234,71 @@ function getRootBones (avatar) {
   return rootSpringBones;
 }
 
+function getHumanoidByBoneNames(skinnedMesh){
+  const humanBones = {}
+  skinnedMesh.skeleton.bones.map((bone)=>{
+    for (const boneName in VRMHumanBoneName) {
+      if (VRMHumanBoneName[boneName] === bone.name){
+        humanBones[bone.name] ={node : bone};
+        break;
+      }
+    }
+  })
+  return humanBones
+}
+
+function getAvatarData (avatarModel, vrmMeta){
+  const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
+  return{
+    humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
+    materials : avatarModel.userData.atlasMaterial,
+    meta : getVRMMeta( vrmMeta)
+  }
+}
+
+function getVRMMeta( vrmMeta){
+  vrmMeta = vrmMeta||{}
+
+  const defaults = {
+    authors:["CharacterStudio"],
+    metaVersion:"1",
+    version:"v1",
+    name:"CharacterCreator",
+    licenseUrl:"https://vrm.dev/licenses/1.0/",
+    commercialUssageName: "personalNonProfit",
+    contactInformation: "https://m3org.com/", 
+    allowExcessivelyViolentUsage:false,
+    allowExcessivelySexualUsage:false,
+    allowPoliticalOrReligiousUsage:false,
+    allowAntisocialOrHateUsage:false,
+    creditNotation:"required",
+    allowRedistribution:false,
+    modification:"prohibited"
+  }
+
+  return { ...defaults, ...vrmMeta };
+}
+
 function parseVRM (glbModel, avatar, options){
   const {
     screenshot = null, 
     isVrm0 = false, 
     vrmMeta = null,
-    scale = 1
+    scale = 1,
+    vrmName = "CharacterCreator"
   } = options
+
+  const metadataMerged = GetMetadataFromAvatar(avatar, vrmMeta, vrmName);
+
+
 
   return new Promise(async (resolve) => {
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
-
-
-
     const vrmData = {
       ...getVRMBaseData(avatar),
-      ...getAvatarData(glbModel, "CharacterCreator", vrmMeta),
+      ...getAvatarData(glbModel, metadataMerged),
     }
-    
-    if (options.ktxCompression) {
-      console.log("ktx compression")
-      for(let i = 0; i < vrmData.materials.length;i++){
-        const material = vrmData.materials[i];
-        if (material.map && material.map.isTexture) {
-          const textureData = material.map;
 
-          if (textureData.source && textureData.source.isSource) {
-            const oldMimeType = textureData.userData.mimeType;
-            if (oldMimeType === "image/png") {
-              const newMimeType = "image/ktx2";
-
-              textureData.userData.mimeType = newMimeType;
-              textureData.source.mimeType = newMimeType;
-
-              const bmp = textureData.source; // not working, probably should be done as commented below
-              // const bmp = await createImageBitmap(textureData.image);
-              const canvas = document.createElement('canvas');
-              canvas.width = bmp.width;
-              canvas.height = bmp.height;
-              const ctx = canvas.getContext('bitmaprenderer');
-              ctx.transferFromImageBitmap(bmp);
-              const blob2 = await new Promise((res) => canvas.toBlob(res));
-              const encoded = await encodeToKTX2(blob2);
-              const blob = new Blob(encoded, {type:"image/ktx2"});
-              const bitmap = await createImageBitmap(blob);
-              vrmData.materials[i].map.source = bitmap;
-            }
-          }
-        }
-      }
-    }
     let skinnedMesh;
     glbModel.traverse(child => {
       if (child.isSkinnedMesh) skinnedMesh = child;

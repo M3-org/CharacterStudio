@@ -784,39 +784,10 @@ export function findChildrenByType(root, types) {
     predicate: (o) => getAsArray(types).includes(o.type),
   });
 }
-export function getAvatarData (avatarModel, modelName, vrmMeta){
-  const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
-  return{
-    humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
-    materials : avatarModel.userData.atlasMaterial,
-    meta : getVRMMeta(modelName, vrmMeta)
-  }
-
-}
 
 
-function getVRMMeta(name, vrmMeta){
-  vrmMeta = vrmMeta||{}
 
-  const defaults = {
-    authors:["CharacterStudio"],
-    metaVersion:"1",
-    version:"v1",
-    name:name,
-    licenseUrl:"https://vrm.dev/licenses/1.0/",
-    commercialUssageName: "personalNonProfit",
-    contactInformation: "https://m3org.com/", 
-    allowExcessivelyViolentUsage:false,
-    allowExcessivelySexualUsage:false,
-    allowPoliticalOrReligiousUsage:false,
-    allowAntisocialOrHateUsage:false,
-    creditNotation:"required",
-    allowRedistribution:false,
-    modification:"prohibited"
-  }
 
-  return { ...defaults, ...vrmMeta };
-}
 
 // function getVRMDefaultLookAt(){
 //   return {
@@ -843,18 +814,7 @@ function getVRMMeta(name, vrmMeta){
 //   }
 
 // }
-function getHumanoidByBoneNames(skinnedMesh){
-  const humanBones = {}
-  skinnedMesh.skeleton.bones.map((bone)=>{
-    for (const boneName in VRMHumanBoneName) {
-      if (VRMHumanBoneName[boneName] === bone.name){
-        humanBones[bone.name] ={node : bone};
-        break;
-      }
-    }
-  })
-  return humanBones
-}
+
 function traverseWithDepth({ object3D, depth = 0, callback, result }) {
     result.push(callback(object3D, depth));
     const children = object3D.children;
