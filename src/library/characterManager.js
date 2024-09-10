@@ -585,6 +585,34 @@ export class CharacterManager {
       });
     }
 
+    loadCustomModelTrait(groupTraitID, url, parentBoneName){
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve the selected custom trait using manifest data
+            const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+
+            // If the custom trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTraits(getAsArray(selectedTrait),false, parentBoneName);
+              resolve();
+            }
+
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during custom trait retrieval
+            console.error("Error loading custom trait:", error.message);
+            reject(new Error("Failed to load custom trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, custom trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
     /**
      * Loads a custom texture to the specified group trait's model.
      *
@@ -859,10 +887,12 @@ export class CharacterManager {
       //const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
     }
 
-    async _loadTraits(options, fullAvatarReplace = false){
+    async _loadTraits(options, fullAvatarReplace = false, parentBoneName = null){
       console.log("laoded traits:", options)
 
-      await this._createSBaseSkeleton(options);
+      await this._createBaseSkeleton(options);
+
+      console.log("parent bone name: ", parentBoneName)
 
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
 
@@ -881,7 +911,7 @@ export class CharacterManager {
         
         loadedData.forEach(itemData => {
           console.log(itemData);
-            this._addLoadedData(itemData)
+            this._addLoadedData(itemData, parentBoneName)
         });
         
         cullHiddenMeshes(this.avatar);
@@ -1162,14 +1192,28 @@ export class CharacterManager {
         if (this.animationManager)
           this.animationManager.addVRM(vrm)
     }
-    _displayModel(model){
+    _displayModel(model, parentBoneName = null){
       if(model) {
         // call transition
         const m = model.scene;
         //m.visible = false;
         // add the now model to the current scene
+        const targetBone = parentBoneName != null ? this.baseSkeletonVRM.humanoid.humanBones[parentBoneName]?.node : null;
+
         
-        this.characterModel.attach(m)
+        
+        if (targetBone != null){
+          targetBone.add(m)
+        }
+        else{
+          this.characterModel.attach(m)
+        }
+        
+
+
+
+
+
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
 
@@ -1215,7 +1259,7 @@ export class CharacterManager {
       disposeVRM(vrm)
     }
 
-    async _createSBaseSkeleton(traitOptions){
+    async _createBaseSkeleton(traitOptions){
       if (this.baseSkeletonVRM == null){
         const mainAsset = traitOptions.find(obj => obj.traitModel?.traitGroup.trait === this.manifestData.mainTrait);
         await this.traitLoadManager.loadTraitOptions(getAsArray(mainAsset)).then(loadedData=>{
@@ -1257,7 +1301,7 @@ export class CharacterManager {
       this.baseSkeletonVRM = vrm;
     }
 
-    _addLoadedData(itemData){
+    _addLoadedData(itemData, parentBoneName){
       const {
           traitGroupID,
           traitModel,
@@ -1288,19 +1332,15 @@ export class CharacterManager {
 
       })
 
-      console.log("vrm",vrm);
       // do nothing, an error happened
       if (vrm == null){
         // found model that is not vrmc
-        console.log("Loading GLTF Model in " + traitGroupID)
-        return;
         let gltfModel = models[0]
         if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
           this._disposeTrait(this.avatar[traitGroupID].vrm)
         }
         this._positionModel(gltfModel)
-        this._displayModel(gltfModel) // probably attach to bone instead
-        console.log(gltfModel);
+        this._displayModel(gltfModel, parentBoneName) // probably attach to bone instead
         this.avatar[traitGroupID] = {
           traitInfo: traitModel,
           textureInfo: textureTrait,
