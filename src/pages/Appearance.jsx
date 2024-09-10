@@ -19,6 +19,7 @@ import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
+import { BoneSelector } from "../components/BoneSelector"
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -55,6 +56,8 @@ function Appearance() {
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
+  const [selectingBone, setSelectingBone] = React.useState(false)
+  const [modelFile, setModelFile] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -106,6 +109,23 @@ function Appearance() {
       console.warn("Please select a group trait first.")
     }
   }
+
+  // const loadGLTFModel = async (file)=>{
+  //   const url = URL.createObjectURL(file);
+
+  //   URL.revokeObjectURL(url);
+  // }
+
+  const handleModelDrop = (file) =>{
+    if (traitGroupName != ""){
+      setSelectingBone(true);
+      setModelFile(file);
+    }
+    else{
+      console.warn("Please select a group trait first.")
+    }
+  }
+
   const handleVRMDrop = (file) =>{
     setIsPickingColor(false);
     if (traitGroupName != ""){
@@ -113,6 +133,7 @@ function Appearance() {
       const path = URL.createObjectURL(file);
       characterManager.loadCustomTrait(traitGroupName, path).then(()=>{
         setIsLoading(false);
+        URL.revokeObjectURL(path);
       })
     }
     else{
@@ -204,6 +225,9 @@ function Appearance() {
     if (file && file.name.toLowerCase().endsWith('.json')) {
       handleJsonDrop(files);
     } 
+    if (file && (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb') )) {
+      handleModelDrop(file);
+    } 
   };
 
   const selectTraitGroup = (traitGroup) => {
@@ -243,6 +267,17 @@ function Appearance() {
     }
     input.click();
   }
+  const placeModelOnBone = async (boneName) => {
+    setSelectingBone(false);
+    setIsLoading(true);
+    const path = URL.createObjectURL(modelFile);
+    characterManager.loadCustomModelTrait(traitGroupName, path, boneName).then(()=>{
+      setIsLoading(false);
+      setModelFile(null)
+      URL.revokeObjectURL(path);
+    })
+    
+  }
 
   return (
     <div className={styles.container}>
@@ -253,6 +288,9 @@ function Appearance() {
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
+      {selectingBone && <BoneSelector
+        onSelect={placeModelOnBone}  
+      />}
       {/* Main Menu section */}
       <div className={styles["sideMenu"]}>
         <MenuTitle title="Appearance" left={20}/>

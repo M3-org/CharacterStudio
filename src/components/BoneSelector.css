@@ -1,0 +1,51 @@
+.bone-selector {
+  position: absolute;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  height: 100vh;           /* Full viewport height */
+  width: 100vw;           /* Full viewport height */
+  pointer-events: none;
+  top:-30px;
+}
+
+.character-base {
+  /* position: relative;
+  display: inline-block;
+  width: 300px;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  text-align: center; */
+  user-select: none;
+  
+  height: 70%;
+  position: relative;
+  display: inline-block;
+}
+
+.character-base img {
+  height: 100%;
+  /* width: 100%; */
+}
+
+.bone-dot {
+  pointer-events: auto;
+  user-select: none;
+  position: relative;
+  width: 0px;
+  height: 0px;
+  background-size: cover;
+  
+  cursor: pointer;
+}
+
+.bone-dot img {
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%); /* Center the dot */
+}
+
+.bone-dot-position {
+  position: absolute;
+}

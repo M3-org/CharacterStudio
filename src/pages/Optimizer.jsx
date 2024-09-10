@@ -13,6 +13,7 @@ import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
+import { BoneSelector } from "../components/BoneSelector"
 
 function Optimizer() {
   const { 
@@ -218,6 +219,7 @@ function Optimizer() {
         nextVrm={loadNextVRM}
         previousVrm={loadPreviousVRM}
       />
+      {/* <BoneSelector/> */}
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
       <div className={styles.buttonContainer}>
         <CustomButton

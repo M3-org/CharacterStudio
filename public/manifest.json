@@ -4,7 +4,7 @@
       "name": "Anata",
       "description": "Anata",
       "portrait": "./assets/portraitImages/anata.png",
-      "manifest":"./character-assets/anata/manifest.json",
+      "manifest":"./loot-assets/anata/female/manifest.json",
       "icon": "./assets/icons/class-neural-hacker.svg",
       "format": "vrm"
     },
@@ -12,15 +12,7 @@
       "name": "Anata Male",
       "description": "Anata Male",
       "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/anata_male/manifest.json",
-      "icon": "|",
-      "format": "vrm"
-    },
-    {
-      "name": "Anata Male",
-      "description": "Anata Male",
-      "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/test.json",
+      "manifest":"./loot-assets/anata/male/manifest.json",
       "icon": "|",
       "format": "vrm"
     }
@@ -60,25 +52,25 @@
     {
       "name": "T-Pose",
       "description": "T-Pose",
-      "location":"./animations/T-Pose.fbx",
+      "location":"./animations/1_T-Pose.fbx",
       "icon": "|"
     },
     {
-      "name": "Dancing",
-      "description": "Basic Dance Animation",
-      "location":"./animations/Dancing.fbx",
+      "name": "Idle",
+      "description": "Basic Idle Animation",
+      "location":"./animations/2_Idle.fbx",
       "icon": "|"
     },
     {
       "name": "Walking",
       "description": "Basic Walk Animation",
-      "location":"./animations/Walking.fbx",
+      "location":"./animations/3_Walking.fbx",
       "icon": "|"
     },
     {
       "name": "Waving",
       "description": "Basic Waving Animation",
-      "location":"./animations/Waving.fbx",
+      "location":"./animations/4_Waving.fbx",
       "icon": "|"
     }
   ]

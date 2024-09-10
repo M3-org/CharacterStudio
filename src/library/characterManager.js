@@ -51,6 +51,7 @@ export class CharacterManager {
       this.renderCamera = renderCamera;
 
       this.manifestData = null;
+      this.baseSkeletonVRM = null
       this.manifest = null
       if (manifestURL){
          this.loadManifest(manifestURL)
@@ -199,6 +200,7 @@ export class CharacterManager {
         
         clearTraitData.push(new LoadedData({traitGroupID:prop, traitModel:null}))
       }
+      this.baseSkeletonVRM = null;
       clearTraitData.forEach(itemData => {
         this._addLoadedData(itemData)
       });
@@ -471,12 +473,12 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadInitialTraits() {
+      
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
           // Load initial traits using the _loadTraits method
           await this._loadTraits(this.manifestData.getInitialTraits());
-
           resolve();
         } else {
           // Manifest data is not available, log an error and reject the Promise
@@ -566,6 +568,34 @@ export class CharacterManager {
             // If the custom trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait));
+              resolve();
+            }
+
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during custom trait retrieval
+            console.error("Error loading custom trait:", error.message);
+            reject(new Error("Failed to load custom trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, custom trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
+    loadCustomModelTrait(groupTraitID, url, parentBoneName){
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve the selected custom trait using manifest data
+            const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+
+            // If the custom trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTraits(getAsArray(selectedTrait),false, parentBoneName);
               resolve();
             }
 
@@ -857,9 +887,15 @@ export class CharacterManager {
       //const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
     }
 
-    async _loadTraits(options, fullAvatarReplace = false){
+    async _loadTraits(options, fullAvatarReplace = false, parentBoneName = null){
       console.log("laoded traits:", options)
+
+      await this._createBaseSkeleton(options);
+
+      console.log("parent bone name: ", parentBoneName)
+
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
+
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
           const groupTraits = this.getGroupTraits();
@@ -874,8 +910,10 @@ export class CharacterManager {
         }
         
         loadedData.forEach(itemData => {
-            this._addLoadedData(itemData)
+          console.log(itemData);
+            this._addLoadedData(itemData, parentBoneName)
         });
+        
         cullHiddenMeshes(this.avatar);
       })
     }
@@ -895,6 +933,13 @@ export class CharacterManager {
         const response = await fetch(location)
         const data = await response.json()
         return data
+    }
+
+    _createBoneSphere(radius){
+      const geometry = new THREE.SphereGeometry( radius, 32, 16 ); 
+      const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+      const sphere = new THREE.Mesh( geometry, material );
+      return sphere;
     }
 
     _getPortaitScreenshotTexture(getBlob, options){
@@ -933,6 +978,8 @@ export class CharacterManager {
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
+
+
 
     _setupWireframeMaterial(mesh){
       // Set Wireframe material with random colors for each material the object has
@@ -973,25 +1020,28 @@ export class CharacterManager {
       // }
       
     }
-    _VRMBaseSetup(m, item, traitID, textures, colors){
+    _VRMBaseSetup(m, item, traitID, textures, colors, isSkeleton = false){
       let vrm = m.userData.vrm;
       if (m.userData.vrm == null){
-        console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
         return null;
       }
 
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
-      if (this.manifestData.isColliderRequired(traitID))
+      
+      if (this.manifestData.isColliderRequired(traitID) && !isSkeleton)
         saveVRMCollidersToUserData(m);
       
+
       renameVRMBones(vrm);
       
-      if (this.manifestData.isLipsyncTrait(traitID))
+      
+      if (this.manifestData.isLipsyncTrait(traitID) && !isSkeleton)
         this.lipSync = new LipSync(vrm);
 
 
-      this._modelBaseSetup(vrm, item, traitID, textures, colors);
+      if (!isSkeleton)
+        this._modelBaseSetup(vrm, item, traitID, textures, colors);
 
       // Rotate model 180 degrees
 
@@ -1029,6 +1079,8 @@ export class CharacterManager {
 
       return vrm;
     }
+
+
     _modelBaseSetup(model, item, traitID, textures, colors){
 
       const meshTargets = [];
@@ -1140,14 +1192,28 @@ export class CharacterManager {
         if (this.animationManager)
           this.animationManager.addVRM(vrm)
     }
-    _displayModel(model){
+    _displayModel(model, parentBoneName = null){
       if(model) {
         // call transition
         const m = model.scene;
         //m.visible = false;
         // add the now model to the current scene
+        const targetBone = parentBoneName != null ? this.baseSkeletonVRM.humanoid.humanBones[parentBoneName]?.node : null;
+
         
-        this.characterModel.attach(m)
+        
+        if (targetBone != null){
+          targetBone.add(m)
+        }
+        else{
+          this.characterModel.attach(m)
+        }
+        
+
+
+
+
+
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
 
@@ -1193,8 +1259,49 @@ export class CharacterManager {
       disposeVRM(vrm)
     }
 
+    async _createBaseSkeleton(traitOptions){
+      if (this.baseSkeletonVRM == null){
+        const mainAsset = traitOptions.find(obj => obj.traitModel?.traitGroup.trait === this.manifestData.mainTrait);
+        await this.traitLoadManager.loadTraitOptions(getAsArray(mainAsset)).then(loadedData=>{
+          this._addLoadedDataSkeleton(loadedData[0])
+        });
+      }
+    }
+    _addLoadedDataSkeleton(itemData){
+      const {
+        models
+      } = itemData;
 
-    _addLoadedData(itemData){
+      let vrm = null;
+      models.map((m)=>{
+        if (m != null)
+          vrm = this._VRMBaseSetup(m, null, null, null,null, true);
+      })
+
+      this._positionModel(vrm)
+        
+      this._applyManagers(vrm)
+
+      let targetSkinnedMesh = null;
+      vrm.scene.traverse((object) => {
+        if (object.isSkinnedMesh) { // Check if the object is a SkinnedMesh
+          targetSkinnedMesh = object;
+          // object.skeleton.bones.forEach((bn)=>{
+          //   const sphere = this._createBoneSphere(.05);
+          //   bn.add(sphere);
+          // })
+        }
+      });
+      if (targetSkinnedMesh != null ){
+        targetSkinnedMesh.parent.remove(targetSkinnedMesh);
+      }
+
+      this.characterModel.attach(vrm.scene)
+
+      this.baseSkeletonVRM = vrm;
+    }
+
+    _addLoadedData(itemData, parentBoneName){
       const {
           traitGroupID,
           traitModel,
@@ -1226,31 +1333,49 @@ export class CharacterManager {
       })
 
       // do nothing, an error happened
-      if (vrm == null)
-        return;
+      if (vrm == null){
+        // found model that is not vrmc
+        let gltfModel = models[0]
+        if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
+          this._disposeTrait(this.avatar[traitGroupID].vrm)
+        }
+        this._positionModel(gltfModel)
+        this._displayModel(gltfModel, parentBoneName) // probably attach to bone instead
+        this.avatar[traitGroupID] = {
+          traitInfo: traitModel,
+          textureInfo: textureTrait,
+          colorInfo: colorTrait,
+          name: traitModel.name,
+          model: gltfModel,
+          vrm: vrm
+        }
+      }
+      else{
 
       // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
-      if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
-        this._disposeTrait(this.avatar[traitGroupID].vrm)
-        // XXX restore effects
-      }
+        if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
+          this._disposeTrait(this.avatar[traitGroupID].vrm)
+          // XXX restore effects
+        }
 
-      this._positionModel(vrm)
-    
-      this._displayModel(vrm)
-        
-      this._applyManagers(vrm)
+        this._positionModel(vrm)
       
-      console.log(this.characterModel)
-      // and then add the new avatar data
-      // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
-      this.avatar[traitGroupID] = {
-        traitInfo: traitModel,
-        textureInfo: textureTrait,
-        colorInfo: colorTrait,
-        name: traitModel.name,
-        model: vrm && vrm.scene,
-        vrm: vrm
+        this._displayModel(vrm)
+          
+        this._applyManagers(vrm)
+        
+        console.log(this.characterModel)
+        // and then add the new avatar data
+        // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
+        this.avatar[traitGroupID] = {
+          traitInfo: traitModel,
+          textureInfo: textureTrait,
+          colorInfo: colorTrait,
+          name: traitModel.name,
+          model: vrm && vrm.scene,
+          vrm: vrm
+        }
+        console.log(this.avatar[traitGroupID]);
       }
     }
 }
