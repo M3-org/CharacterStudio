@@ -120,7 +120,7 @@ export const SceneProvider = (props) => {
         controls.minPolarAngle = 0
         controls.maxPolarAngle = 3.1415
         controls.minDistance = 0.5
-        controls.maxDistance = 10
+        controls.maxDistance = 20
         controls.minAzimuthAngle = Infinity
         controls.maxAzimuthAngle = Infinity
       })
