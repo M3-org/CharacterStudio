@@ -1286,10 +1286,10 @@ export class CharacterManager {
       vrm.scene.traverse((object) => {
         if (object.isSkinnedMesh) { // Check if the object is a SkinnedMesh
           targetSkinnedMesh = object;
-          object.skeleton.bones.forEach((bn)=>{
-            const sphere = this._createBoneSphere(.05);
-            bn.add(sphere);
-          })
+          // object.skeleton.bones.forEach((bn)=>{
+          //   const sphere = this._createBoneSphere(.05);
+          //   bn.add(sphere);
+          // })
         }
       });
       if (targetSkinnedMesh != null ){
