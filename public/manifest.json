@@ -17,8 +17,8 @@
     {
       "name": "ON1FORCE",
       "description": "Demon",
-      "portrait": "./assets/portraitImages/on1.jpg",
-      "manifest":"./loot-assets/ON1/manifest.json",
+      "portrait": "./assets/portraitImages/0n1.jpg",
+      "manifest":"./loot-assets/0N1/manifest.json",
       "format": "vrm"
     },
     {
