@@ -2,26 +2,30 @@
   "characters":[
     {
       "name": "Anata",
-      "description": "Anata",
-      "portrait": "./assets/portraitImages/anata.png",
-      "manifest":"./character-assets/anata/manifest.json",
-      "icon": "./assets/icons/class-neural-hacker.svg",
+      "description": "Female",
+      "portrait": "./assets/portraitImages/female.jpg",
+      "manifest":"./loot-assets/anata/female/manifest.json",
       "format": "vrm"
     },
     {
-      "name": "Anata Male",
-      "description": "Anata Male",
-      "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/anata_male/manifest.json",
-      "icon": "|",
+      "name": "Anata",
+      "description": "Male",
+      "portrait": "./assets/portraitImages/male.jpg",
+      "manifest":"./loot-assets/anata/male/manifest.json",
       "format": "vrm"
     },
     {
-      "name": "Anata Male",
-      "description": "Anata Male",
-      "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/test.json",
-      "icon": "|",
+      "name": "ON1FORCE",
+      "description": "Demon",
+      "portrait": "./assets/portraitImages/on1.jpg",
+      "manifest":"./loot-assets/ON1/manifest.json",
+      "format": "vrm"
+    },
+    {
+      "name": "TUBBY CAT",
+      "description": "Cute",
+      "portrait": "./assets/portraitImages/tubby.jpg",
+      "manifest":"./loot-assets/tubbycats/manifest.json",
       "format": "vrm"
     }
   ],
