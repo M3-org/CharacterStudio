@@ -80,13 +80,13 @@ export function sceneInitializer(canvasId) {
 
 
     async function fetchScene() {
-        // load environment
-        const modelPath = "./3d/Platform.glb"
+        // // load environment
+        // const modelPath = "./3d/Platform.glb"
       
-        const loader = new GLTFLoader()
-        // load the modelPath
-        const gltf = await loader.loadAsync(modelPath)
-        sceneElements.add(gltf.scene);
+        // const loader = new GLTFLoader()
+        // // load the modelPath
+        // const gltf = await loader.loadAsync(modelPath)
+        // sceneElements.add(gltf.scene);
     }
     fetchScene();
 
