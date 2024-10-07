@@ -1,18 +1,3 @@
-.chatContainer {
-    position: absolute;
-    width: 100%;
-    max-width: 50%;
-    top: 50%;
-    right: 32px;
-    transform: translateY(-50%);
-    -webkit-transform: translateY(-50%);
-    text-align: center;
-    height: -webkit-calc(100vh - 266px);
-    height: calc(100vh - 266px);
-    background: rgba(5, 11, 14, 0.8);
-    color: aliceblue;
-  }
-  
   .scrollContainer {
     height: 98%;
     width: 99%;

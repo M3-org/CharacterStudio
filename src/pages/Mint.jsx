@@ -21,11 +21,6 @@ function MintComponent() {
     !isMute && playSound('backNextButton');
   }
 
-  const next = () => {
-    setViewMode(ViewMode.CHAT)
-    !isMute && playSound('backNextButton');
-  }
-
   function MenuTitle() {
     return (
       <div className={styles["mainTitleWrap"]}>
@@ -91,13 +86,6 @@ function MintComponent() {
           size={14}
           className={styles.buttonLeft}
           onClick={back}
-        />
-        <CustomButton
-          theme="light"
-          text="Chat"
-          size={14}
-          className={styles.buttonRight}
-          onClick={next}
         />
       </div>
     </div>

@@ -1,6 +1,5 @@
 import React from "react"
 
-import logo from "../../public/ui/anata.png"
 import styles from "./Background.module.css"
 import { SceneContext } from "../context/SceneContext"
 export default function Background() {
