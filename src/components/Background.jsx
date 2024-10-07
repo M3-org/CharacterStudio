@@ -12,7 +12,6 @@ export default function Background() {
       <div className={styles["backgroundBlur"]}></div>
       <div className={styles["Background"]}>
         <div className={styles["webamark"]}>
-          <img src={logo} className={styles["logo"]} />
         </div>
       </div>
     </div>
