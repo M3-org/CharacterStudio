@@ -55,14 +55,6 @@
     position: absolute;
 }
 
-.webamark {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
-    width: 100px;
-    bottom: 10vh;
-}
-
 .logo-gradient {
     height: 20vh;
     width: 100vw;

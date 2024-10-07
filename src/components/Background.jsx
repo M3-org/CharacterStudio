@@ -10,8 +10,6 @@ export default function Background() {
     <div className={debugMode ? styles["darkBackground"] : styles["backgroundImg"]}>
       <div className={styles["backgroundBlur"]}></div>
       <div className={styles["Background"]}>
-        <div className={styles["webamark"]}>
-        </div>
       </div>
     </div>
   )
