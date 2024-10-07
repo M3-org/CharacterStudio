@@ -109,12 +109,6 @@ function Create() {
                   )}
                 </div>
               </div>
-              <div className={styles.icon}>
-                <img
-                  src={characterClass["icon"]}
-                  alt={characterClass["name"]}
-                />
-              </div>
               
               <div className={styles.name}>{characterClass["name"]}</div>
               <div className={styles.description}>
