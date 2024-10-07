@@ -666,7 +666,7 @@ class ModelTrait{
       
       this.name = name;
       this.thumbnail = thumbnail;
-      this.fullThumbnail = fullThumbnail || traitGroup.manifestData.getTraitsDirectory() + thumbnail;
+      this.fullThumbnail = fullThumbnail || traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
 
       this.cullHiddenMeshes = cullingDistance;
       this.cullingLayer = cullingLayer;
@@ -741,7 +741,7 @@ class TextureTrait{
 
       this.name = name;
       this.thumbnail = thumbnail;
-      this.fullThumbnail = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
+      this.fullThumbnail = traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
   }
 }
 class ColorTrait{
