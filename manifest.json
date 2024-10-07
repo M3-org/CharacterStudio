@@ -4,28 +4,28 @@
       "name": "Anata",
       "description": "Female",
       "portrait": "./assets/portraitImages/female.jpg",
-      "manifest":"./loot-assets/anata/female/manifest.json",
+      "manifest":"https://m3-org.github.io/loot-assets/anata/female/manifest.json",
       "format": "vrm"
     },
     {
       "name": "Anata",
       "description": "Male",
       "portrait": "./assets/portraitImages/male.jpg",
-      "manifest":"./loot-assets/anata/male/manifest.json",
+      "manifest":"https://m3-org.github.io/loot-assets/anata/male/manifest.json",
       "format": "vrm"
     },
     {
       "name": "ON1FORCE",
       "description": "Demon",
       "portrait": "./assets/portraitImages/0n1.jpg",
-      "manifest":"./loot-assets/0N1/manifest.json",
+      "manifest":"https://m3-org.github.io/loot-assets/0N1/manifest.json",
       "format": "vrm"
     },
     {
       "name": "TUBBY CAT",
       "description": "Cute",
       "portrait": "./assets/portraitImages/tubby.jpg",
-      "manifest":"./loot-assets/tubbycats/manifest.json",
+      "manifest":"https://m3-org.github.io/loot-assets/tubbycats/manifest.json",
       "format": "vrm"
     }
   ],
