@@ -13,7 +13,7 @@ An open, collaborative, and evolving 3D avatar studio for making glTF / VRM avat
 
 # Installation
 
-> Note: You need character-assets imported to public folder for this to work! https://github.com/memelotsqui/character-assets
+> Note: You need loot-assets imported to public folder for this to work! https://github.com/m3-org/loot-assets
 
 ```bash
 # Clone the repo and change directory into it
