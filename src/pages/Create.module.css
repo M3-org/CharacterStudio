@@ -13,7 +13,6 @@
 
 .classContainer {
   text-align: center;
-  background: rgba(5, 11, 14, 0.8);
   color: aliceblue;
   overflow-x: scroll;
   overflow-y: hidden;
