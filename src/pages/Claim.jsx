@@ -112,12 +112,6 @@ function Claim() {
                   )}
                 </div>
               </div>
-              <div className={styles.icon}>
-                <img
-                  src={characterClass["icon"]}
-                  alt={characterClass["name"]}
-                />
-              </div>
               
               <div className={styles.name}>{characterClass["name"]}</div>
               <div className={styles.description}>
@@ -143,13 +137,7 @@ function Claim() {
                   />
                 </div>
               </div>
-              <div className={styles.icon}>
-                <img
-                  src={"./assets/icons/class-neural-hacker.svg"}
-                  alt={"manifest icons"}
-                />
-              </div>
-              
+
               <div className={styles.name}>{"Manifest"}</div>
               <div className={styles.description}>
                 {"Load by manifest"}
