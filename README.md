@@ -23,6 +23,9 @@ cd CharacterStudio
 # Install dependencies with legacy peer deps flag to ignore React errors
 npm install
 npm run dev
+
+# Install default assets
+npm run get-assets
 ```
 
 ---
