@@ -26,12 +26,6 @@ import Wallet from "./pages/Wallet"
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
 //const assetImportPath = "./manifest.json"
 
-let cameraDistance
-const centerCameraTarget = new THREE.Vector3()
-const centerCameraPosition = new THREE.Vector3()
-let centerCameraPositionLength
-let ndcBias
-
 const cameraDistanceOther = 6
 const centerCameraTargetOther = new THREE.Vector3(0, 0.8, 0)
 const centerCameraPositionOther = new THREE.Vector3(
@@ -39,15 +33,6 @@ const centerCameraPositionOther = new THREE.Vector3(
   1.1512971720174363,
   2.2612065299409223,
 ) // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
-const centerCameraPositionLengthOther = centerCameraPositionOther.length()
-const ndcBiasOther = 0.5
-
-const localVector3 = new THREE.Vector3()
-const localVector4 = new THREE.Vector4()
-const localVector4_2 = new THREE.Vector4()
-const xAxis = new THREE.Vector3(1, 0, 0)
-const yAxis = new THREE.Vector3(0, 1, 0)
-
 async function fetchManifest(location) {
   try {
     const response = await fetch(location);
