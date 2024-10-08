@@ -1095,29 +1095,15 @@ export class CharacterManager {
       // once the setup is done, assign texture to meshes
       meshTargets.map((mesh, index)=>{
           
+        
         if (textures){
           const txt = textures[index] || textures[0]
           if (txt != null){
-            if (mesh.material.type === "MeshStandardMaterial") {
-              if (Array.isArray(mesh.material)) {
-                mesh.material.forEach((mat) => {
-                  mat.map = txt
-                });
-              } else {
-                mesh.material.map = txt
-              }
-            } else {
-              console.warn("XXX set material texture to shader material", mesh.material)
-              // mat.map = txt
-              // material[0].shadeMultiplyTexture = txt
 
-              // mesh.material[0].uniforms.litFactor.value = color;
-              // mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
-              //   color.r * 0.8,
-              //   color.g * 0.8,
-              //   color.b * 0.8
-              // );
-            }
+            // mesh.material can be an array (two MToonMaterials)
+            getAsArray(mesh.material).map((mat) => {
+              updateMaterialTexture(mat, txt)
+            })
           }
         }
         if (colors){
@@ -1381,4 +1367,17 @@ class LoadedData{
 }
 
 
-
+/**
+ * 
+ * @param {THREE.MeshStandardMaterial|MToonMaterial} mat 
+ * @param {THREE.Texture} txt 
+ * @returns 
+ */
+function updateMaterialTexture(mat,txt){
+  if(mat.type === "Shadermaterial" && !mat.isMToonMaterial){
+    console.warn("XXX set material texture to shader material", mat)
+    return 
+  }
+  mat.map = txt
+  mat.needsUpdate = true;
+}
