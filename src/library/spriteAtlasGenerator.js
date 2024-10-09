@@ -1,10 +1,13 @@
-import * as THREE from "three"
 import { getVectorCameraPosition } from "./utils";
 import { ZipManager } from "./zipManager";
 
-const localVector3 = new THREE.Vector3();
-
 export class SpriteAtlasGenerator {
+    /**
+     * @typedef {import('./screenshotManager').ScreenshotManager} ScreenshotManager
+     * @type {ScreenshotManager}
+     */
+    screenshotManager
+
     constructor(characterManager){
         this.characterManager = characterManager;
         this.screenshotManager = characterManager.screenshotManager;
@@ -32,20 +35,19 @@ export class SpriteAtlasGenerator {
         const animBasePath = assetsLocation + animationsDirectory + "/";
         // const normalizedTopOffset = topFrameOffsetPixels/height;
         // const normalizedBottomOffset = bottomFrameOffsetPixels/height;
-        const delay = ms => new Promise(res => setTimeout(res, ms));
         
-        this.screenshotManager.setBottomFrameOffset(bottomFrameOffset);
-        this.screenshotManager.setTopFrameOffset(topFrameOffset);
+        this.screenshotManager.cameraFrameManager.setBottomFrameOffset(bottomFrameOffset);
+        this.screenshotManager.cameraFrameManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        await this.screenshotManager.calculateBoneOffsets(0.2);
+        await this.screenshotManager.cameraFrameManager.calculateBoneOffsets(this.characterManager.characterModel,0.2);
 
         let counter = 0;
         const scope = this;
         
         if (Array.isArray(spritesCollection)){
             const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
-            async function processAnimations() {
+            const processAnimations=async ()=> {
                 if (Array.isArray(spritesCollection)) {
                     
                     for (const spriteInfo of spritesCollection) {
@@ -62,7 +64,7 @@ export class SpriteAtlasGenerator {
                         const currentAnimationFolder = spriteFolderName + "/" + (animationName ? animationName : counter.toString().padStart(2, '0'));
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, 0);
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
-                        scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
+                        scope.screenshotManager.cameraFrameManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
                         const clipDuration = scope.animationManager.getCurrentClipDuration();
 
                         const timeOffsets = clipDuration/framesNumber

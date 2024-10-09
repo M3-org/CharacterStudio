@@ -1,9 +1,14 @@
-import * as THREE from "three"
-import { getVectorCameraPosition, saveTextFile } from "./utils";
+
+import { getVectorCameraPosition } from "./utils";
 import { ZipManager } from "./zipManager";
-const localVector3 = new THREE.Vector3();
 
 export class LoraDataGenerator {
+    /**
+     * @typedef {import('./screenshotManager').ScreenshotManager} ScreenshotManager
+     * @type {ScreenshotManager}
+     */
+    screenshotManager
+
     constructor(characterManager){
         this.characterManager = characterManager;
         this.screenshotManager = characterManager.screenshotManager;
@@ -13,7 +18,7 @@ export class LoraDataGenerator {
         this.temptime = 0;
     }
 
-    async createLoraData(loraObject, exsitingZipFile = null, zipName = "", baseText){
+    async createLoraData(loraObject, exsitingZipFile = null, zipName = ""){
         const manifestURL = loraObject.manifest;
         const loraFolderName = loraObject.name ? "loraData/" + loraObject.name : "loraData";
         const manifest = await this._fetchManifest(manifestURL);
@@ -22,22 +27,24 @@ export class LoraDataGenerator {
             assetsLocation = "",
             animationsDirectory = "",
             backgroundGrayscale = 1,
-            topFrameOffsetPixels = 64,
-            bottomFrameOffsetPixels = 64,
+            // @dev unused, commented out for now;
+            // topFrameOffsetPixels = 64,
+            // bottomFrameOffsetPixels = 64,
             backgroundDescription ="",
             width = 512,
             height = 512,
             dataCollection
         } = manifest
         const animBasePath = assetsLocation + animationsDirectory + "/";
-        const normalizedTopOffset = topFrameOffsetPixels/height;
-        const normalizedBottomOffset = bottomFrameOffsetPixels/height;
+        // @dev unused, commented out for now;
+        // const normalizedTopOffset = topFrameOffsetPixels/height;
+        // const normalizedBottomOffset = bottomFrameOffsetPixels/height;
 
         this.screenshotManager.setBackground([backgroundGrayscale,backgroundGrayscale,backgroundGrayscale])
         this.blinkManager.enableScreenshot();
 
-        await this.screenshotManager.calculateBoneOffsets(0.2);
-        const delay = ms => new Promise(res => setTimeout(res, ms));
+        await this.screenshotManager.cameraFrameManager.calculateBoneOffsets(this.characterManager.characterModel,0.2);
+
         let counter = 0;
         const scope = this;
         if (Array.isArray(dataCollection)){
@@ -49,8 +56,9 @@ export class LoraDataGenerator {
                             animationPath,
                             animationTime = 0,
                             animationFrame,
-                            lookAtCamera,
-                            expression,
+                            // @dev unused, commented out for now;
+                            // lookAtCamera,
+                            // expression,
                             cameraPosition,
                             cameraFrame,
                             description
@@ -61,7 +69,7 @@ export class LoraDataGenerator {
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, finalAnimationTime);
                         
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
-                        scope.screenshotManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
+                        scope.screenshotManager.cameraFrameManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
 
                         const imgData = scope.screenshotManager.getImageData(width, height, false);
                         // add lora data folder?
