@@ -362,7 +362,7 @@ export default class CameraFrameManager {
     this.camera.position.copy(headPosition)
     this.camera.fov = fieldOfView
     localVector.set(0, 0, -1)
-    this.cameraDir = localVector.apply.Quaternion(this.camera.quaternion)
+    this.cameraDir = localVector.applyQuaternion(this.camera.quaternion)
     this.cameraDir.normalize()
     this.camera.position.x -= this.cameraDir.x * playerCameraDistance
     this.camera.position.z -= this.cameraDir.z * playerCameraDistance
