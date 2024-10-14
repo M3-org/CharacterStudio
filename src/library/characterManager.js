@@ -70,6 +70,18 @@ export class CharacterManager {
       
     }
 
+    /**
+     * toggle whether the spring bone animations are paused or not; this is useful when taking screenshots or calculating bone offsets
+     * @param x true to pause, false to unpause
+     */
+    togglePauseSpringBoneAnimation(x){
+      for(const [_,trait] of Object.entries(this.avatar)){
+        if(trait.vrm.springBoneManager){
+            trait.vrm.springBoneManager.paused =x
+        }
+      }
+    }
+
     update(deltaTime){
       if (this.lookAtManager != null){
         this.lookAtManager.update();
@@ -77,6 +89,9 @@ export class CharacterManager {
       if(this.avatar){
         for (const prop in this.avatar){
           if (this.avatar[prop]?.vrm != null){
+            if(this.avatar[prop].vrm.springBoneManager?.paused){
+              return
+            }
             this.avatar[prop].vrm.springBoneManager?.update(deltaTime);
           }
         }
