@@ -196,6 +196,82 @@ function parseGLB (glbModel){
   })
 }
 
+/**
+ * 
+ * @param {Record<string, Record<string,any>>} avatar 
+ * @returns  {GroupSpringBones[]}
+ */
+function getGroupSpringBones (avatar) {
+
+  /**
+   * @typedef {Object} GroupSpringBones
+   * @property {THREE.Bone[]} bones
+   * @property {VRMSpringBoneJointSettings} settings
+   * @property {VRMSpringBoneColliderGroup[]} colliderGroups
+   * @property {string} name
+   * @property {any} center
+   */
+
+  /**
+   * @type {Object[]}
+   */
+  const finalSpringBones= [];
+
+  // add non repeating spring bones
+  for(const trait in avatar){
+    if (avatar[trait]?.vrm?.springBoneManager!= null){
+        const joints = avatar[trait].vrm.springBoneManager.joints;
+        for (const item of joints) {
+          const doesNameExist = finalSpringBones.some(boneData => boneData.name === item.bone.name);
+          if (!doesNameExist) {
+            finalSpringBones.push({
+              name:item.bone.name, 
+              settings:item.settings, 
+              bone:item.bone, 
+              colliderGroups:item.colliderGroups,
+              center:item.center
+            }); 
+          }
+
+        }
+    }
+  }
+
+  //get only the root bone of the last array
+  /**
+   * @type {GroupSpringBones[]}
+   */
+  const groupSpringBones = [];
+
+    // create a group for each root bone
+    finalSpringBones.forEach(springBone => {
+      const parent = finalSpringBones.find(bone => bone.name == springBone.bone.parent?.name)
+      if(parent == null){
+        // current spring bone is a root bone
+        groupSpringBones.push({
+          bones:[springBone],
+          settings:springBone.settings,
+          center:springBone.center,
+          colliderGroups:springBone.colliderGroups,
+          name:springBone.bone.name
+        });
+        return;
+      }
+    })
+
+    finalSpringBones.map((springBone) => {
+      const group = groupSpringBones.find(group => group.bones.find(bone => bone.name == springBone.bone.parent?.name) != null);
+      if(group != null){
+        group.bones.push({
+          name:springBone.name,
+          bone:springBone.bone
+        });
+      }
+    })
+
+  return groupSpringBones;
+}
+
 function getRootBones (avatar) {
   const finalSpringBones = [];
   //const springBonesData = [];
@@ -320,16 +396,24 @@ function parseVRM (glbModel, avatar, options){
     }
     reverseBonesXZ();
     
-    const headBone = skinnedMesh.skeleton.bones.filter(bone => bone.name === 'head')[0];
 
-    
-    const rootSpringBones = getRootBones(avatar);
+    const isOutputVRM0 = options.outputVRM0 ?? options.isVrm0 ?? false;
+    // @TODO: change springBone selection logic for VRM1
+    const rootSpringBones = isOutputVRM0?getGroupSpringBones(avatar):getRootBones(avatar);
     // XXX collider bones should be taken from springBone.colliderBones
-    const colliderBones = [];
-
-    exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, options.ktxCompression, scale, (vrm) => {
-      resolve(vrm)
-    })
+    // const colliderBones = [];
+    
+    if(options.outputVRM0){
+      // VRM 0.0
+      exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, options.ktxCompression, scale, (vrm) => {
+        resolve(vrm)
+      })
+    }else{
+      // VRM 1.0 has a different amount of parameters
+      exporter.parse(vrmData, glbModel, screenshot, (vrm) => {
+        resolve(vrm)
+      })
+    }
   })
 }
 

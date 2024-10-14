@@ -60,13 +60,16 @@ export function sceneInitializer(canvasId) {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputEncoding = THREE.sRGBEncoding;
 
+    const clock = new THREE.Clock();
     const animate = () => {
         requestAnimationFrame(animate);
+        const delta = clock.getDelta();
         controls.target.clamp(minPan, maxPan);
         controls?.update();
-        characterManager.update();
+        characterManager.update(delta);
         renderer.render(scene, camera);
     };
+
 
     animate();
 
@@ -98,6 +101,7 @@ export function sceneInitializer(canvasId) {
         camera,
         controls,
         characterManager,
-        sceneElements
+        sceneElements,
+        clock
     };
 }
