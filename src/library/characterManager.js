@@ -108,7 +108,7 @@ export class CharacterManager {
       });
       localVector3.z += 0.3;
       localVector3.y += headHeightOffset;
-      this.screenshotManager.setCamera(localVector3, distance);
+      this.screenshotManager.cameraFrameManager.setCamera(localVector3, distance);
       this.screenshotManager.saveScreenshot(name, width,height);
 
       this.blinkManager.disableScreenshot();
@@ -924,7 +924,7 @@ export class CharacterManager {
       localVector3.z += screenshotFaceOffset[2];
       
       this.screenshotManager.setBackground(screenshotBackground);
-      this.screenshotManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
+      this.screenshotManager.cameraFrameManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
