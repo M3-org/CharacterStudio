@@ -668,8 +668,11 @@ class ModelTrait{
       this.thumbnail = thumbnail;
       this.fullThumbnail = fullThumbnail || traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
 
-      this.cullHiddenMeshes = cullingDistance;
-      this.cullingLayer = cullingLayer;
+      this.cullHiddenMeshes = cullingDistance|| [0,0];
+      // Prioritize cullingLayer from trait, then from traitGroup, then default
+      this.cullingLayer = cullingLayer ?? traitGroup.manifestData.defaultCullingLayer ?? 0;
+      // Prioritize cullingDistance from trait, then from traitGroup, then default
+      this.cullingDistance = cullingDistance || traitGroup.manifestData.defaultCullingDistance || [0,0];
       this.type = type;
 
       this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
