@@ -20,6 +20,11 @@ import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 
+export const TraitPage ={
+  TRAIT:0,
+  BLEND_SHAPE:1,
+}
+
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
@@ -33,6 +38,7 @@ function Appearance() {
     sceneElements
   } = React.useContext(SceneContext)
   
+  const [traitView, setTraitView] = React.useState(TraitPage.TRAIT)
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -51,6 +57,7 @@ function Appearance() {
   const [traits, setTraits] = React.useState(null)
   const [traitGroupName, setTraitGroupName] = React.useState("")
   const [selectedTrait, setSelectedTrait] = React.useState(null)
+  const [selectedBlendshapeTraits, setSelectedBlendshapeTraits] = React.useState({})
   const [selectedVRM, setSelectedVRM] = React.useState(null)
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
@@ -120,10 +127,23 @@ function Appearance() {
     }
   }
   const selectTrait = (trait) => {
+    if(trait.id === selectedTrait?.id){
+      if(trait.blendshapeTraits){
+        setTraitView(TraitPage.BLEND_SHAPE);
+      }
+      // We already selected this trait, do nothing
+      return
+    }
+
     setIsPickingColor(false);
     setIsLoading(true);
     characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
       setIsLoading(false);
+      if(trait.blendshapeTraits){
+        const selectedBlendshapeTrait = characterManager.getCurrentBlendShapeTraitData(trait.traitGroup.trait);
+        setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
+        setTraitView(TraitPage.BLEND_SHAPE);
+      }
       setSelectedTrait(trait);
     })
   }
@@ -212,7 +232,13 @@ function Appearance() {
     if (traitGroupName !== traitGroup.trait){
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
-      setSelectedTrait(characterManager.getCurrentTraitData(traitGroup.trait));
+
+      const selectedT = characterManager.getCurrentTraitData(traitGroup.trait)
+      const selectedBlendshapeTraits = characterManager.getCurrentBlendShapeTraitData(traitGroup.trait);
+
+      setSelectedTrait(selectedT);
+      setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTraits).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
+
       setSelectedVRM(characterManager.getCurrentTraitVRM(traitGroup.trait))
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
     }
@@ -220,6 +246,7 @@ function Appearance() {
       setTraits(null);
       setTraitGroupName("");
       setSelectedTrait(null);
+      setSelectedBlendshapeTraits({})
       moveCamera({ targetY: 0.8, distance: 3.2 })
     }
   }
@@ -288,7 +315,7 @@ function Appearance() {
           <MenuTitle title={traitGroupName} width={130} left={20}/>
 
           {/* color section */
-          selectedTrait && (
+          selectedTrait && traitView==TraitPage.TRAIT &&(
           <div className={styles["selectorColorPickerButton"]}
             onClick={()=>{setIsPickingColor(!isPickingColor)}}
             >
@@ -296,7 +323,7 @@ function Appearance() {
           </div>
           )}
           {
-          !!isPickingColor && (<div 
+          traitView==TraitPage.TRAIT && !!isPickingColor && (<div 
             draggable = {false}
             className={styles["selectorColorPickerUI"]}>
             <ChromePicker 
@@ -310,6 +337,7 @@ function Appearance() {
           
           <div className={styles["bottomLine"]} />
           <div className={styles["scrollContainerOptions"]}>
+          {traitView == TraitPage.TRAIT && (
             <div className={styles["selector-container"]}>
               {
                 <div
@@ -359,7 +387,10 @@ function Appearance() {
                   </div>
                 )
               })}
-            </div>
+            </div>)}
+            {traitView == TraitPage.BLEND_SHAPE && (
+              <BlendShapeTraitView selectedTrait={selectedTrait} onBack={()=>{setTraitView(TraitPage.TRAIT)}} selectedBlendShapeTrait={selectedBlendshapeTraits} setSelectedBlendshapeTrait={setSelectedBlendshapeTraits} />
+            )}
           </div>
           
           <div className={styles["uploadContainer"]}>
@@ -419,3 +450,73 @@ function Appearance() {
 }
 
 export default Appearance
+
+/**
+ * @param {{selectedTrait:ModelTrait|null,selectedBlendShapeTrait:Record<string,string>,onBack:()=>void,setSelectedBlendshapeTrait:(x:Record<string,string>)=>void}} param0 
+ */
+const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSelectedBlendshapeTrait})=>{
+  const {characterManager} = React.useContext(SceneContext);
+
+  const groups = characterManager.getBlendShapeGroupTraits(selectedTrait?.traitGroup.trait||"",selectedTrait?.id||"");
+
+  /**
+   * 
+   * @param {import('../library/CharacterManifestData').BlendShapeTrait} newBlendShape 
+   */
+  const selectBlendShapeTrait = (newBlendShape)=>{
+    const parent = newBlendShape.parentGroup;
+    characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",newBlendShape?.id||'');
+
+    const prev = {...selectedBlendShapeTrait};
+    prev[parent.trait||''] = newBlendShape.id;
+    setSelectedBlendshapeTrait(prev);
+  }
+
+  return (
+    <div className={styles["selector-container-column"]}>
+        <CustomButton
+          theme="dark"
+          text={"Back"}
+          size={14}
+          className={styles.buttonLeft}
+          onClick={onBack}
+        />
+        {groups && groups.length > 0 && groups.map((group)=>{
+          return (
+            <div key={group.trait} className={styles.blendshapeGroup}> 
+              <div>{group.name}</div>
+              <div className={styles["selector-container"]} >
+                {group.collection.map((blendShapeTrait)=>{
+                  let active = blendShapeTrait.id === selectedBlendShapeTrait[group.trait]
+                  return (
+                    <BlendShapeItem key={blendShapeTrait.id} src={blendShapeTrait.fullThumbnail||''} active={active} blendshapeID={blendShapeTrait.id} select={()=>selectBlendShapeTrait(blendShapeTrait)}/>
+                  )
+                })}
+              </div>
+
+            </div>
+          )
+        })}
+    </div>
+  )
+}
+
+/**
+ * @param {{active:boolean,blendshapeID:string,src:string,select:()=>void}} param0 
+ */
+const BlendShapeItem = ({active,blendshapeID,src,select})=>{
+
+  return (
+    <div
+      key={blendshapeID}
+      className={`${styles["selectorButton"]}`}
+      onClick={select}
+    >
+      <TokenBox
+        size={56}
+        icon={src||''}
+        rarity={active ? "mythic" : "none"}      
+      />
+    </div>
+  )
+}

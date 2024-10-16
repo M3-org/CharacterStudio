@@ -4,8 +4,8 @@ import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
 import { findChildrenByType } from "./utils"
-import { VRMHumanBoneName } from "@pixiv/three-vrm";
-import { encodeToKTX2 } from 'ktx2-encoder';
+import { VRMHumanBoneName, VRMExpression, VRMExpressionPresetName, VRMExpressionManager,VRMExpressionMorphTargetBind} from "@pixiv/three-vrm";
+import { doesMeshHaveMorphTargetBoundToManager } from './utils';
 import { GetMetadataFromAvatar } from "./vrmMetaUtils"
 
 
@@ -134,19 +134,21 @@ export function downloadVRMWithAvatar(model, avatar, fileName, options){
 }
 
 async function getVRMData(model, avatar, options){
-  const vrmModel = await getOptimizedGLB(model, options);
+  const vrmModel = await getOptimizedGLB(model,avatar, options);
   return parseVRM(vrmModel,avatar,options) 
 }
 
-function getOptimizedGLB(model, options){
+function getOptimizedGLB(model, avatar, options){
   const modelClone = cloneAvatarModel(model)
+  // default for now ?
+  options.mergeAppliedMorphs = true;
   const { createTextureAtlas = true } = options;
   if (createTextureAtlas){
-    return combine(modelClone, options);
+    return combine(modelClone, avatar, options);
   }
   else{
     console.log("no atlas");
-    return combineNoAtlas(modelClone,options)
+    return combineNoAtlas(modelClone,avatar, options)
   }
 }
 
@@ -247,12 +249,13 @@ function getHumanoidByBoneNames(skinnedMesh){
   return humanBones
 }
 
-function getAvatarData (avatarModel, vrmMeta){
+function getAvatarData (avatarModel, vrmMeta, options){
   const skinnedMeshes = findChildrenByType(avatarModel, "SkinnedMesh")
   return{
     humanBones:getHumanoidByBoneNames(skinnedMeshes[0]),
     materials : avatarModel.userData.atlasMaterial,
-    meta : getVRMMeta( vrmMeta)
+    meta : getVRMMeta( vrmMeta),
+    ...(options.mergeAppliedMorphs?{expressionManager:getRebindedVRMExpressionManager(avatarModel)}:{}),
   }
 }
 
@@ -296,7 +299,7 @@ function parseVRM (glbModel, avatar, options){
     const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
-      ...getAvatarData(glbModel, metadataMerged),
+      ...getAvatarData(glbModel, metadataMerged,options),
     }
 
     let skinnedMesh;
@@ -359,4 +362,122 @@ function getVRMBaseData(avatar) {
       return avatar[prop].vrm
     }
   }
+}
+
+
+/**
+ * Rebinds the BlendShapes to a new VRMExpressionManager. Used before exporting the VRM.
+ * @param {THREE.Object3D} avatarModel - The avatar model.
+ */
+function getRebindedVRMExpressionManager(avatarModel){
+  const expressionManager = new VRMExpressionManager();
+  // Get old expression manager or a new default one if it doesnt exist
+  /**
+   * @type {THREE.VRMExpressionManager|undefined}
+   */
+  let oldExpressionManager = avatarModel.userData.expressionManagerToClone;
+  if(!oldExpressionManager){
+      oldExpressionManager = new VRMExpressionManager();
+      for(const exp of Object.values(VRMExpressionPresetName)){
+        const expression = new VRMExpression(exp)
+        oldExpressionManager.registerExpression(expression)
+      }
+  }
+  // Copy the old expression manager
+  expressionManager.copy(oldExpressionManager);
+  // Remove reference to the old expression manager
+  avatarModel.userData.expressionManagerToClone = null
+
+  for(const child of avatarModel.children){
+    if(!child.isMesh && !child.isSkinnedMesh) continue;
+
+    if(!child.morphTargetDictionary) continue
+
+    /**
+     * @type {{
+     * new:{[key:string]:{
+     *   index:number,
+     *   primitives:number[]
+     *}},
+     * old:{[key:string]:{
+     *   index:number,
+     *   primitives:number[]
+     *}}
+     *}}
+     */
+    const changedDictionaries = child.userData.bindMorphs
+
+    // If the child has no changed dictionaries, skip
+    if(!changedDictionaries) continue
+
+    // If the child has no blendshape that is in the expression manager, skip
+    const hasBlendshape = doesMeshHaveMorphTargetBoundToManager(child, changedDictionaries.old)
+    if(!hasBlendshape) continue
+
+    /**
+     * Get Weight from previous bind
+     * @param {import('@pixiv/three-vrm').VRMExpressionMorphTargetBind[]} binds
+     * @param {number} indexToLookFor
+     */
+    const getPrevBoundWeight = (binds,indexToLookFor) => {
+      return binds.find((bind) => bind.index == indexToLookFor)?.weight||0
+    }
+
+    const VRMExpressionNames = Object.entries(VRMExpressionPresetName).flat()
+    // List of expressions keys that can be removed
+    const expressionsToUnBind = Object.keys(changedDictionaries.old).filter((key) => VRMExpressionNames.includes(key));
+
+    // Iterate through all old expressions
+    for(const item of Object.keys(oldExpressionManager.expressionMap)){
+      const expression = oldExpressionManager.expressionMap[item];
+      if(!expression) continue 
+      const prevBounds = expression._binds
+      if(!prevBounds || prevBounds.length==0) {
+        // No binds, remove the expression
+        expressionManager.unregisterExpression(expression)
+        continue
+      }
+
+      // Go through all blendshapes bound to old expressions
+      for(const morph of expressionsToUnBind){
+        const blendShapeKeyEntry = changedDictionaries.new[morph] || changedDictionaries.new[morph.toLowerCase()]
+        const blendShapeKeyEntryOld = changedDictionaries.old[morph] || changedDictionaries.old[morph.toLowerCase()]
+        if(blendShapeKeyEntry){
+          // Get all meshes that are bound to the expression
+          const meshes = []
+          avatarModel.traverse((o)=>{
+            if(!o.isMesh && !o.isSkinnedMesh) return
+            if(blendShapeKeyEntry.primitives.includes(o.id)){
+              meshes.push(o)
+            }
+          })
+          // Unregister the old expression
+          expressionManager.unregisterExpression(expression)
+          // remove all binds from the old expression
+          expression._binds = []
+          // get weight from previous bind
+          const weight = getPrevBoundWeight(prevBounds,blendShapeKeyEntryOld.index);
+          // Create a new expression with the same name
+          const newExpression = new VRMExpression(expression.expressionName)
+          // Copy the old expression (no binds)
+          newExpression.copy(expression)
+          // Add the new bind
+          console.log('adding bind',expression.expressionName)
+          newExpression.addBind(new VRMExpressionMorphTargetBind({
+            index:blendShapeKeyEntry.index,
+            weight:weight,
+            primitives:meshes
+          }))
+
+          // Register the new expression
+          expressionManager.registerExpression(newExpression)
+        }else{
+          expressionManager.unregisterExpression(expression)
+        }
+      }
+
+    }
+
+  }
+  return expressionManager
 }
