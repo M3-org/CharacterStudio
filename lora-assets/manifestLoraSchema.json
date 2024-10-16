@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "assetsLocation": {
+        "type": "string"
+      },
+      "animationsDirectory": {
+        "type": "string"
+      },
+      "backgroundGrayscale": {
+        "type": "integer"
+      },
+      "backgroundDescription": {
+        "type": "string"
+      },
+      "width": {
+        "type": "integer"
+      },
+      "height": {
+        "type": "integer"
+      },
+      "topFrameOffsetPixels": {
+        "type": "integer"
+      },
+      "bottomFrameOffsetPixels": {
+        "type": "integer"
+      },
+      "dataCollection": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "animationPath": {
+                "type": "string"
+              },
+              "animationFrame": {
+                "type": "integer"
+              },
+              "lookAtCamera": {
+                "type": "boolean"
+              },
+              "expression": {
+                "type": "string"
+              },
+              "cameraPosition": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "cameraFrame": {
+                "type": "string",
+                "enum": ["fullshot", "closeup", "mediumshot", "cowboyshot","mediumcloseup","mediumcloseupshot","closeupshot"]
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "animationPath",
+              "animationFrame",
+              "lookAtCamera",
+              "expression",
+              "cameraPosition",
+              "cameraFrame",
+              "description"
+            ]
+          }
+        
+        ]
+      }
+    },
+    "required": [
+      "assetsLocation",
+      "animationsDirectory",
+      "backgroundGrayscale",
+      "backgroundDescription",
+      "width",
+      "height",
+      "topFrameOffsetPixels",
+      "bottomFrameOffsetPixels",
+      "dataCollection"
+    ]
+  }
