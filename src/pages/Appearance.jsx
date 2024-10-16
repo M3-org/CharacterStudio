@@ -455,7 +455,7 @@ export default Appearance
  * @param {{selectedTrait:ModelTrait|null,selectedBlendShapeTrait:Record<string,string>,onBack:()=>void,setSelectedBlendshapeTrait:(x:Record<string,string>)=>void}} param0 
  */
 const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSelectedBlendshapeTrait})=>{
-  const {characterManager} = React.useContext(SceneContext);
+  const {characterManager,moveCamera} = React.useContext(SceneContext);
 
   const groups = characterManager.getBlendShapeGroupTraits(selectedTrait?.traitGroup.trait||"",selectedTrait?.id||"");
 
@@ -466,7 +466,7 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
   const selectBlendShapeTrait = (newBlendShape)=>{
     const parent = newBlendShape.parentGroup;
     characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",newBlendShape?.id||'');
-
+    moveCamera({ targetY: newBlendShape.cameraTarget.height, distance: newBlendShape.cameraTarget.distance})
     const prev = {...selectedBlendShapeTrait};
     prev[parent.trait||''] = newBlendShape.id;
     setSelectedBlendshapeTrait(prev);
