@@ -4,7 +4,7 @@ import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
 import VRMExporter from "./VRMExporter"
 import VRMExporterv0 from "./VRMExporterv0"
 import { findChildrenByType } from "./utils"
-import { VRMHumanBoneName, VRMExpression, VRMExpressionPresetName, VRMExpressionManager,VRMExpressionMorphTargetBind} from "@pixiv/three-vrm";
+import { VRMHumanBoneName, VRMExpression, VRMExpressionPresetName, VRMExpressionManager, VRMExpressionMorphTargetBind} from "@pixiv/three-vrm";
 import { doesMeshHaveMorphTargetBoundToManager } from './utils';
 import { GetMetadataFromAvatar } from "./vrmMetaUtils"
 
@@ -416,7 +416,7 @@ function getRebindedVRMExpressionManager(avatarModel){
 
     /**
      * Get Weight from previous bind
-     * @param {import('@pixiv/three-vrm').VRMExpressionMorphTargetBind[]} binds
+     * @param {Object[]} binds
      * @param {number} indexToLookFor
      */
     const getPrevBoundWeight = (binds,indexToLookFor) => {

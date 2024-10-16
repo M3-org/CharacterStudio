@@ -799,7 +799,8 @@ function getVRMBoundExpressionMorphs(avatar){
             expressionNameDone.push(expression.expressionName)
             // Get the bound Blendshape from the expression
             /**
-             * @type {import('@pixiv/three-vrm').VRMExpressionMorphTargetBind[]}
+             *type VRMExpressionMorphTargetBind from pixiv VRM but cjs wont export it?
+             * @type {Object[]}
              */
             const bounds = expression._binds
             if(!bounds || bounds.length == 0) continue;

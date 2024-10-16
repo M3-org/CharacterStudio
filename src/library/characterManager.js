@@ -534,7 +534,7 @@ export class CharacterManager {
      * Load and activate blendshape trait
      * @param {string} traitGroupID 
      * @param {string} blendshapeGroupId 
-     * @param {string} blendshapeTraitId 
+     * @param {string|null} blendshapeTraitId 
      * @returns 
      */
     loadBlendShapeTrait(traitGroupID, blendshapeGroupId,blendshapeTraitId){
@@ -928,7 +928,7 @@ export class CharacterManager {
      * 
      * @param {string} traitGroupID 
      * @param {string} blendshapeGroupId 
-     * @param {string} blendshapeTraitId 
+     * @param {string|null} blendshapeTraitId 
      * @returns 
      */
     async _loadBlendShapeTrait(traitGroupID, blendshapeGroupId,blendshapeTraitId){
@@ -943,6 +943,11 @@ export class CharacterManager {
       if(currentTrait.blendShapeTraitsInfo[blendshapeGroupId]){
         // Deactivate the current blendshape trait
         this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[blendshapeGroupId], false);
+      }
+      if(blendshapeTraitId == null){
+        // Deactivated the blendshape trait; dont do anything else
+        delete this.avatar[traitGroupID].blendShapeTraitsInfo[blendshapeGroupId]
+        return
       }
 
       const blendShape = currentTrait.traitInfo.getBlendShape(blendshapeGroupId, blendshapeTraitId);

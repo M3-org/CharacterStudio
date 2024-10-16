@@ -11,7 +11,7 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import MenuTitle from "../components/MenuTitle"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-
+import {BlendShapeTrait} from '../library/CharacterManifestData'
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
@@ -464,9 +464,14 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
    * @param {import('../library/CharacterManifestData').BlendShapeTrait} newBlendShape 
    */
   const selectBlendShapeTrait = (newBlendShape)=>{
+    if(newBlendShape.id==null){
+      const parent = newBlendShape.parentGroup;
+      characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",null);
+      return 
+    }
     const parent = newBlendShape.parentGroup;
     characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",newBlendShape?.id||'');
-    moveCamera({ targetY: newBlendShape.cameraTarget.height, distance: newBlendShape.cameraTarget.distance})
+    moveCamera({ targetY: parent.cameraTarget.height, distance: parent.cameraTarget.distance})
     const prev = {...selectedBlendShapeTrait};
     prev[parent.trait||''] = newBlendShape.id;
     setSelectedBlendshapeTrait(prev);
@@ -486,6 +491,12 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
             <div key={group.trait} className={styles.blendshapeGroup}> 
               <div>{group.name}</div>
               <div className={styles["selector-container"]} >
+                <BlendShapeItem key={"empty"}
+                    src={cancel}
+                    active={!selectedBlendShapeTrait[group.trait]}
+                    blendshapeID="cancel"
+                    select={()=>selectBlendShapeTrait(new BlendShapeTrait(group,{id:null}))}
+                    />
                 {group.collection.map((blendShapeTrait)=>{
                   let active = blendShapeTrait.id === selectedBlendShapeTrait[group.trait]
                   return (

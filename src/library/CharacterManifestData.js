@@ -769,7 +769,6 @@ export class BlendShapeGroup {
     this.trait = trait;
     this.name = name;
 
-
     this.cameraTarget = cameraTarget;
     this.createCollection(collection);
   }

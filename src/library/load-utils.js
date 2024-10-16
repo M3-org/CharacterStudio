@@ -1,5 +1,5 @@
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import {  GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { getAsArray, renameVRMBones,getUniqueId } from "../library/utils"
 import { findChildByName } from '../library/utils';
 import { PropertyBinding,SkinnedMesh } from 'three';
