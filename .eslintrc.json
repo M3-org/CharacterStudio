@@ -8,6 +8,7 @@
         "plugin:react/recommended"
     ],
     "parserOptions": {
+        "ecmaVersion": 13,
         "ecmaFeatures": {
             "jsx": true
         },
