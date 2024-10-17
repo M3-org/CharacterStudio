@@ -128,7 +128,7 @@ function Appearance() {
   }
   const selectTrait = (trait) => {
     if(trait.id === selectedTrait?.id){
-      if(trait.blendshapeTraits){
+      if(trait.blendshapeTraits?.length>0){
         setTraitView(TraitPage.BLEND_SHAPE);
       }
       // We already selected this trait, do nothing
@@ -139,7 +139,7 @@ function Appearance() {
     setIsLoading(true);
     characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
       setIsLoading(false);
-      if(trait.blendshapeTraits){
+      if(trait.blendshapeTraits?.length>0){
         const selectedBlendshapeTrait = characterManager.getCurrentBlendShapeTraitData(trait.traitGroup.trait);
         setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
         setTraitView(TraitPage.BLEND_SHAPE);
@@ -230,6 +230,7 @@ function Appearance() {
     !isMute && playSound('optionClick');
     setIsPickingColor(false);
     if (traitGroupName !== traitGroup.trait){
+      setTraitView(TraitPage.TRAIT);
       setTraits(characterManager.getTraits(traitGroup.trait));
       setTraitGroupName(traitGroup.trait);
 
