@@ -354,20 +354,15 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     uvBoundsMin.push(min);
   });
 
-  // find the largest x and y in the Vector2 array uvBoundsMax
-  const maxUv = new THREE.Vector2(
-    Math.max(...uvBoundsMax.map((uv) => uv.x)),
-    Math.max(...uvBoundsMax.map((uv) => uv.y))
-  );
-
   // find the smallest x and y in the Vector2 array uvBoundsMin
   const minUv = new THREE.Vector2(
     Math.min(...uvBoundsMin.map((uv) => uv.x)),
     Math.min(...uvBoundsMin.map((uv) => uv.y))
   );
 
-  const xScaleFactor = 1 / (maxUv.x - minUv.x);
-  const yScaleFactor = 1 / (maxUv.y - minUv.y);
+  // We want the highest X to be the atlas size;
+  const xScaleFactor = 1 / (ATLAS_SIZE_PX - minUv.x);
+  const yScaleFactor = 1 / (ATLAS_SIZE_PX - minUv.y);
 
   const uvs = new Map(
     bakeObjects.map((bakeObject) => {
