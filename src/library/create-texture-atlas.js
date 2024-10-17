@@ -325,7 +325,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   console.log(scaledBoxes)
 
   const tileSize = new Map(scaledBoxes.map((square, i) => {
-    return [bakeObjects[i].mesh, square];
+    return [meshTriangleSorted[i][0], square];
   }))
 
   // get the min/max of the uvs of each mesh
@@ -333,7 +333,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     scaledBoxes.map((square, i) => {
       const min = new THREE.Vector2(square.x, square.y);
       const max = new THREE.Vector2((square.x + square.width), (square.y + square.height));
-      return [bakeObjects[i].mesh, { min, max }];
+      return [meshTriangleSorted[i][0], { min, max }];
     })
   );
 
