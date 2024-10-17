@@ -1313,7 +1313,7 @@ export class CharacterManager {
               // just dispose for now
               this._disposeTrait(this.avatar[traitGroupID].vrm)
               
-              this.avatar[traitGroupID] = {}
+              delete this.avatar[traitGroupID]
               // XXX restore effects without setTimeout
           }
           return;
