@@ -163,6 +163,21 @@ const saveVRM1Colliders = (gltf) => {
   }
 }
 
+/**
+ * Get the Bones with colliders in userData; these would be from the traits in "colliderTraits" in the manifest
+ * @param {VRM} vrm 
+ * @returns {Array<THREE.Object3D>} an array of objects with the shape of the colliders
+ */
+export const getNodesWithColliders = (vrm)=>{
+  const nodes = [];
+  vrm.scene.traverse((child)=>{
+    if (child.userData?.VRMcolliders && child.userData.VRMcolliders.length > 0){
+      nodes.push(child);
+    }
+  })
+  return nodes;
+}
+
 // code from gltf loader, follows the same process of renaming
 const uniqueNames = (originalName, namesUsed) => {
   const sanitizedName = PropertyBinding.sanitizeNodeName(originalName || '');

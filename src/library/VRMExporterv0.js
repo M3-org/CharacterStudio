@@ -114,7 +114,26 @@ function getVRM0BoneName(name) {
     return name;
 }
 export default class VRMExporterv0 {
-    async parse(vrm, avatar, screenshot, rootSpringBones, isktx2, scale, onDone) {
+        /**
+     * 
+     * @param {*} vrm 
+     * @param {*} avatar 
+     * @param {Object} screenshot 
+     * @param {{
+        * bones:{
+        *   name:string, 
+        *   bone:Object3D, 
+        * }[]
+        * settings:VRMSpringBoneJointSettings,
+        * center:any,
+        * colliderGroups:VRMSpringBoneColliderGroup[],
+        * name:string
+        * }[] } springBoneGroups 
+        * @param {boolean} isktx2
+        * @param {number} scale 
+        * @param {*} onDone 
+        */
+    async parse(vrm, avatar, screenshot, springBoneGroups, isktx2, scale, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
         const materials = vrm.materials;
@@ -546,17 +565,21 @@ export default class VRMExporterv0 {
         });
         //const outputVrmMeta = ToOutputVRMMeta(vrmMeta, icon, outputImages);
         const outputVrmMeta = vrmMeta;
-        const rootSpringBonesIndexes = [];
-        rootSpringBones.forEach(rootSpringBone => {
+
+        const rootGroupSpringBonesIndexes = {}
+
+        springBoneGroups.forEach(group => {
             for (let i = 0; i < nodes.length; i++) {
                 const node = nodes[i];
-                if (node.name === rootSpringBone.name) {
-                    rootSpringBonesIndexes.push(i);
+                if(!rootGroupSpringBonesIndexes[group.name]){
+                    rootGroupSpringBonesIndexes[group.name] = []
+                }
+                if (node.name === group.bones.name) {
+                    rootGroupSpringBonesIndexes[group.name].push(i);
                     break;
                 }
             }
         })
-
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
 
@@ -596,16 +619,31 @@ export default class VRMExporterv0 {
         }
 
         const boneGroups = [];
-        rootSpringBones.forEach(springBone => {
-            //const boneIndices = findBoneIndices(springBone.name);
-            const boneIndex = findBoneIndex(springBone.name)
-            if (boneIndex === -1) {
-                console.warn("Spring bone " + springBone.name + " was removed during cleanup process. Skipping.");
-                return; // Skip to the next iteration
+        springBoneGroups.forEach(boneGroup => {
+            const settings = boneGroup.settings
+            const group = {
+                bones: [],
+                center: -1,
+                colliderGroups: [],
+                dragForce: settings.dragForce,
+                gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
+                gravityPower: settings.gravityPower,
+                hitRadius: settings.hitRadius,
+                stiffiness: settings.stiffness // for some reason specs mark as stiffiness, but loads it as stiffness
+            }
+            for(const bone of boneGroup.bones){
+                //const boneIndices = findBoneIndices(springBone.name);
+                const boneIndex = findBoneIndex(bone.name)
+                if (boneIndex === -1) {
+                    console.warn("Spring bone " + bone.name + " was removed during cleanup process. Skipping.");
+                    return; // Skip to the next iteration
+                }                
+                // FIX!!
+                group.bones.push(boneIndex)
             }
             // get the collider group indices
             const colliderIndices = [];
-            springBone.colliderGroups.forEach(colliderGroup => {
+            boneGroup.colliderGroups.forEach(colliderGroup => {
                 const springCollider = colliderGroup.colliders[0];
                 // sometimes there are no colliders defined in collidersGroup
                 if (springCollider != null) {
@@ -616,33 +654,23 @@ export default class VRMExporterv0 {
                             colliderIndices.push(ind);
                     }
                     else {
-                        if (debug) console.warn("No collider group for bone name: ", springParent.name + " was found");
+                        console.warn("No collider group for bone name: ", springParent.name + " was found");
                     }
                 }
                 else {
-                    if(debug) console.log("No colliders definition were present in vrm file file for: ", springBone.name + " spring bones")
+                    console.warn("No colliders definition were present in vrm file file for: ", boneGroup.name + " spring bones")
                 }
             });
+            group.colliderGroups.push(...colliderIndices);
+            group.center = findBoneIndex(boneGroup.center?.name)
 
-
-            let centerIndex = findBoneIndex(springBone.center?.name);
-            if (centerIndex == -1) console.warn("no center bone for spring bone " + springBone.name);
-            // springBone: bone:boneObject, center:boneObject, string:name, array:colliderGroup, settings:object,  
-            const settings = springBone.settings;
-
-            // FIX!!
+            if (group.center == -1) {
+                // it's ok if there is no center bone; it's optional
+                console.debug("no center bone for spring bone " + boneGroup.name);
+            }
 
             boneGroups.push(
-                {
-                    bones: [boneIndex],
-                    center: centerIndex,
-                    colliderGroups: colliderIndices,
-                    dragForce: settings.dragForce,
-                    gravityDir: { x: settings.gravityDir.x, y: settings.gravityDir.y, z: settings.gravityDir.z },
-                    gravityPower: settings.gravityPower,
-                    hitRadius: settings.hitRadius,
-                    stiffiness: settings.stiffness // for some reason specs mark as stiffiness, but loads it as stiffness
-                }
+                group
             );
         });
 
