@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometry } from "./merge-geometry.js";
 import { MToonMaterial } from "@pixiv/three-vrm";
+import potpack, { PotpackBox } from 'potpack';
 
 let container, cameraRTT, sceneRTT, material, quad, renderer, rtTexture;
 function ResetRenderTextureContainer(){
@@ -295,15 +296,44 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX, transparent:transparentTexture && name == "diffuse" })])
   );
 
-  const numTiles = Math.floor(Math.sqrt(meshes.length) + 1);
-  const tileSize = ATLAS_SIZE_PX / numTiles;
+  const meshTriangleSorted = bakeObjects.map<[THREE.Mesh,number]>((bakeObject) => {
+    const geometry = bakeObject.mesh.geometry;
+    return [bakeObject.mesh, geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3];
+  }).sort((a, b) => b[1] - a[1]);
+
+  console.log(meshTriangleSorted);
+  /**
+   * We use the log10 of the number of triangles for a better -more natural- distribution of the textures
+   */
+  const sumOfTriangles = meshTriangleSorted.reduce((acc, [, count]) => acc + Math.log10(count), 0); // sum of all triangles
+  const triangleRatio = meshTriangleSorted.map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
+  const textureSizes = triangleRatio.map((ratio) => Math.floor(ATLAS_SIZE_PX * ratio)); // size of each textures in the texture
+
+  // boxes are mutated by potpack; sorted by height
+  const boxes = textureSizes.map((size) => ({w:size, h:size}));
+
+  const {w,h,fill} = potpack(boxes);
+  console.log('Packing efficiency:', fill);
+  console.log( fill);
+
+  const ratio = ATLAS_SIZE_PX / Math.max(w,h);
+
+  // scale the boxes to the size of the texture
+  const scaledBoxes = boxes.map((box) => {
+    return {x:Math.ceil((box.x||0 )* ratio), y:Math.ceil((box.y||0) * ratio), width:Math.ceil(box.w*ratio), height:Math.ceil(box.h*ratio)}
+  });
+  console.log(scaledBoxes)
+
+  const tileSize = new Map(scaledBoxes.map((square, i) => {
+    return [meshTriangleSorted[i][0], square];
+  }))
 
   // get the min/max of the uvs of each mesh
   const originalUVs = new Map(
-    bakeObjects.map((bakeObject, i) => {
-      const min = new THREE.Vector2(i % numTiles, Math.floor(i / numTiles)).multiplyScalar(1 / numTiles);
-      const max = new THREE.Vector2(min.x + 1 / numTiles, min.y + 1 / numTiles);
-      return [bakeObject.mesh, { min, max }];
+    scaledBoxes.map((square, i) => {
+      const min = new THREE.Vector2(square.x, square.y);
+      const max = new THREE.Vector2((square.x + square.width), (square.y + square.height));
+      return [meshTriangleSorted[i][0], { min, max }];
     })
   );
 
@@ -324,23 +354,15 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     uvBoundsMin.push(min);
   });
 
-  // find the largest x and y in the Vector2 array uvBoundsMax
-  const maxUv = new THREE.Vector2(
-    Math.max(...uvBoundsMax.map((uv) => uv.x)),
-    Math.max(...uvBoundsMax.map((uv) => uv.y))
-  );
-
   // find the smallest x and y in the Vector2 array uvBoundsMin
   const minUv = new THREE.Vector2(
     Math.min(...uvBoundsMin.map((uv) => uv.x)),
     Math.min(...uvBoundsMin.map((uv) => uv.y))
   );
 
-  const xScaleFactor = 1 / (maxUv.x - minUv.x);
-  const yScaleFactor = 1 / (maxUv.y - minUv.y);
-
-  const xTileSize = tileSize * xScaleFactor;
-  const yTileSize = tileSize * yScaleFactor;
+  // We want the highest X to be the atlas size;
+  const xScaleFactor = 1 / (ATLAS_SIZE_PX - minUv.x);
+  const yScaleFactor = 1 / (ATLAS_SIZE_PX - minUv.y);
 
   const uvs = new Map(
     bakeObjects.map((bakeObject) => {
@@ -358,6 +380,10 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   bakeObjects.forEach((bakeObject) => {
     const { material, mesh } = bakeObject;
     const { min, max } = uvs.get(mesh);
+    
+    const xTileSize = tileSize.get(mesh).width;
+    const yTileSize = tileSize.get(mesh).height;
+
     IMAGE_NAMES.forEach((name) => {
       const context = contexts[name];
       //context.globalAlpha = transparent ? 0.2 : 1;
