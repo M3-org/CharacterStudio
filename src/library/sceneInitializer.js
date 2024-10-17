@@ -47,7 +47,7 @@ export function sceneInitializer(canvasId) {
     controls.dampingFactor = 0.1;
 
     const minPan = new THREE.Vector3(-0.5, 0, -0.5);
-    const maxPan = new THREE.Vector3(0.5, 1.5, 0.5);
+    const maxPan = new THREE.Vector3(0.5, 1.7, 0.5);
 
     const handleResize = () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
