@@ -1,100 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometry } from "./merge-geometry.js";
 import { MToonMaterial } from "@pixiv/three-vrm";
-
-let container, cameraRTT, sceneRTT, material, quad, renderer, rtTexture;
-function ResetRenderTextureContainer(){
-  if (renderer != null)
-    renderer.clear(true, true);
-}
-
-function createSolidColorTexture(color, width, height) {
-
-  const size = width * height;
-  const data = new Uint8Array( 4 * size );
-
-  const r = Math.floor( color.r * 255 );
-  const g = Math.floor( color.g * 255 );
-  const b = Math.floor( color.b * 255 );
-
-  for ( let i = 0; i < size; i ++ ) {
-    const stride = i * 4;
-    data[ stride ] = r;
-    data[ stride + 1 ] = g;
-    data[ stride + 2 ] = b;
-    data[ stride + 3 ] = 255;
-  }
-
-  // used the buffer to create a DataTexture
-  const texture = new THREE.DataTexture( data, width, height );
-  texture.needsUpdate = true;
-  return texture
-}
-
-function RenderTextureImageData(texture, multiplyColor, clearColor, width, height, isTransparent, sRGBEncoding = true) {
-  // if texture is null or undefined, create a texture only with clearColor (that is color type)
-  if (!texture) {
-    texture = createSolidColorTexture(clearColor, width, height);
-  }
-
-  if (container == null) {
-    container = document.createElement("div");
-    sceneRTT = new THREE.Scene();
-    cameraRTT = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -10000, 10000);
-    cameraRTT.position.z = 100;
-
-    sceneRTT.add(cameraRTT);
-
-    material = new THREE.MeshBasicMaterial({
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 1,
-      color: new THREE.Color(1, 1, 1),
-    });
-
-    const plane = new THREE.PlaneGeometry(1, 1);
-    quad = new THREE.Mesh(plane, material);
-    quad.scale.set(width,height,1);
-    sceneRTT.add(quad);
-
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio(1);
-    renderer.setSize(width, height);
-    //renderer.setClearColor(new THREE.Color(1, 1, 1), 1);
-    renderer.autoClear = false;
-
-    container.appendChild(renderer.domElement);
-
-  } else {
-    cameraRTT.left = -width / 2;
-    cameraRTT.right = width / 2;
-    cameraRTT.top = height / 2;
-    cameraRTT.bottom = - height / 2;
-
-    cameraRTT.updateProjectionMatrix();
-    quad.scale.set(width,height,1)
-
-    renderer.setSize(width, height);
-  }
-
-  rtTexture = new THREE.WebGLRenderTarget(width, height);
-  rtTexture.texture.encoding = sRGBEncoding ? THREE.sRGBEncoding : THREE.NoColorSpace;
-
-  material.map = texture;
-  material.color = multiplyColor.clone();
-  // set opacoty to 0 if texture is transparent
-  renderer.setClearColor(clearColor.clone(), isTransparent ? 0 : 1);
-
-  renderer.setRenderTarget(rtTexture);
-  renderer.clear();
-  renderer.render(sceneRTT, cameraRTT);
-
-  let buffer = new Uint8ClampedArray(rtTexture.width * rtTexture.height * 4)
-  renderer.readRenderTargetPixels(rtTexture, 0, 0, width, height, buffer);
-  const imgData = new ImageData(buffer, width, height)
-
-  return imgData;
-}
+import TextureImageDataRenderer from "./textureImageDataRenderer.js";
 
 function createContext({ width, height, transparent }) {
   const canvas = document.createElement("canvas");
@@ -256,9 +163,6 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
 };
 
 export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
-  // make sure to reset texture renderer container
-  ResetRenderTextureContainer();
-
   const ATLAS_SIZE_PX = atlasSize;
   const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm", "normal"];// not using normal texture for now
   const bakeObjects = [];
@@ -355,6 +259,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
 
   let usesNormal = false;
+  const textureImageDataRenderer = new TextureImageDataRenderer(ATLAS_SIZE_PX, ATLAS_SIZE_PX);
   bakeObjects.forEach((bakeObject) => {
     const { material, mesh } = bakeObject;
     const { min, max } = uvs.get(mesh);
@@ -391,7 +296,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
       if (usesNormal == false && name == 'normal' && texture != null){
         usesNormal = true;
       }
-      const imgData = RenderTextureImageData(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
+      const imgData = textureImageDataRenderer.render(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
       createImageBitmap(imgData)// bmp is trasnaprent
         .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
     });
@@ -432,7 +337,7 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     // // meshBufferGeometry is a THREE.BufferGeometry
     // const meshBufferGeometry = mesh.geometry;
   });
-
+  textureImageDataRenderer.destroy();
   // Create textures from canvases
   const textures = Object.fromEntries(
     await Promise.all(
