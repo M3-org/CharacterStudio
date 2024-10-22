@@ -544,6 +544,7 @@ export async function combine(model,avatar, options) {
         mToonAtlasSizeTransp = 4096, 
         stdAtlasSize = 4096, 
         stdAtlasSizeTransp = 4096,
+        includeNonTexturedMeshesInAtlas = false,
         exportMtoonAtlas = false, 
         exportStdAtlas = true,
         mergeAppliedMorphs = false,
@@ -605,7 +606,7 @@ export async function combine(model,avatar, options) {
         if (arr.length > 0)
         {        
             const { bakeObjects, material } = 
-                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency, twoSidedMaterial:twoSidedMaterial});
+                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, includeNonTexturedMeshesInAtlas, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency, twoSidedMaterial:twoSidedMaterial});
                 const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
 
             const skinnedMeshes = [];

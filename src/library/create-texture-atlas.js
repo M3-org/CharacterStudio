@@ -36,14 +36,20 @@ function lerp(t, min, max, newMin, newMax) {
   return newMin + progress * (newMax - newMin);
 }
 
-export const createTextureAtlas = async ({ transparentColor, meshes, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false, twoSidedMaterial = false }) => {
+const imageToMaterialMapping = {
+  diffuse: ["map"],
+  normal: ["normalMap"],
+  orm: ["ormMap", "aoMap", "roughnessMap", "metalnessMap"]
+};
+
+export const createTextureAtlas = async ({ transparentColor, meshes, includeNonTexturedMeshesInAtlas=false, atlasSize = 4096, mtoon=true, transparentMaterial=false, transparentTexture = false, twoSidedMaterial = false }) => {
   // detect whether we are in node or the browser
   const isNode = typeof window === 'undefined';
   // if we are in node, call createTextureAtlasNode
   if (isNode) {
     return await createTextureAtlasNode({ meshes, atlasSize, mtoon, transparentMaterial, transparentTexture });
   } else {
-    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial });
+    return await createTextureAtlasBrowser({ backColor: transparentColor, meshes, atlasSize, mtoon,includeNonTexturedMeshesInAtlas, transparentMaterial, transparentTexture, twoSidedMaterial });
     //return await createTextureAtlasBrowser({ meshes, atlasSize });
   }
 };
@@ -73,11 +79,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
     const max = new THREE.Vector2(min.x + 1 / numTiles, min.y + 1 / numTiles);
     return [bakeObject.mesh, { min, max }];
   }));
-  const imageToMaterialMapping = {
-    diffuse: ["map"],
-    normal: ["normalMap"],
-    orm: ["ormMap", "aoMap", "roughnessMap", "metalnessMap"]
-  };
+
   const uvBoundsMin = [];
   const uvBoundsMax = [];
   bakeObjects.forEach((bakeObject) => {
@@ -163,7 +165,20 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
   return { bakeObjects, textures, uvs };
 };
 
-export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
+/**
+ * Creates a texture atlas for the given meshes in a browser environment.
+ * 
+ * @param {Object} params - The parameters for creating the texture atlas.
+ * @param {THREE.Color} params.backColor - The background color for the texture atlas.
+ * @param {boolean} [params.includeNonTexturedMeshesInAtlas=false] - Whether to include meshes without textures in the atlas.
+ * @param {THREE.Mesh[]} params.meshes - The array of meshes to include in the texture atlas.
+ * @param {number} params.atlasSize - The size of the texture atlas in pixels.
+ * @param {boolean} params.mtoon - Whether to use MToon material.
+ * @param {boolean} params.transparentMaterial - Whether the material is transparent.
+ * @param {boolean} params.transparentTexture - Whether the texture is transparent.
+ * @param {boolean} params.twoSidedMaterial - Whether the material is two-sided.
+ */
+export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedMeshesInAtlas=false,meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
   const ATLAS_SIZE_PX = atlasSize;
   const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm", "normal"];// not using normal texture for now
   const bakeObjects = [];
@@ -200,24 +215,49 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     IMAGE_NAMES.map((name) => [name, createContext({ width: ATLAS_SIZE_PX, height: ATLAS_SIZE_PX, transparent:transparentTexture && name == "diffuse" })])
   );
 
+
+  const bakeObjectsWithNoTextures=new Set()
+
   const meshTriangleSorted = bakeObjects.map((bakeObject) => {
     const geometry = bakeObject.mesh.geometry;
+    
+    /**
+     *  We don't want to include meshes that have no textures in the atlas
+     *  */
+    if(includeNonTexturedMeshesInAtlas == false){
+      let hasNoTexture = true
+      for(const name of IMAGE_NAMES){
+        for(const textureName of imageToMaterialMapping[name]){
+          const texture = getTextureImage(bakeObject.material, textureName)
+          if(texture){
+            if(hasNoTexture){
+              hasNoTexture = false;
+              break;
+            }
+          }
+        }
+      }
+      if(hasNoTexture){
+        bakeObjectsWithNoTextures.add(bakeObject.mesh)
+        // mesh has no texture whatsoever
+        return [bakeObject.mesh, 0];
+      }
+    }
+    
     return [bakeObject.mesh, geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3];
   }).sort((a, b) => b[1] - a[1]);
-
-  console.log(meshTriangleSorted);
+  
   /**
    * We use the log10 of the number of triangles for a better -more natural- distribution of the textures
    */
-  const sumOfTriangles = meshTriangleSorted.reduce((acc, [, count]) => acc + Math.log10(count), 0); // sum of all triangles
-  const triangleRatio = meshTriangleSorted.map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
+  const sumOfTriangles = meshTriangleSorted.filter(([, count])=>count!=0).reduce((acc, [, count]) => acc + Math.log10(count), 0); // sum of all triangles
+  const triangleRatio = meshTriangleSorted.filter(([, count])=>count!=0).map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
   const textureSizes = triangleRatio.map((ratio) => Math.floor(ATLAS_SIZE_PX * ratio)); // size of each textures in the texture
 
   // boxes are mutated by potpack; sorted by height
   const boxes = textureSizes.map((size) => ({w:size, h:size}));
 
   const {w,h,fill} = potpack(boxes);
-
   const ratio = ATLAS_SIZE_PX / Math.max(w,h);
 
   // scale the boxes to the size of the texture
@@ -238,18 +278,15 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
     })
   );
 
-
-  const imageToMaterialMapping = {
-    diffuse: ["map"],
-    normal: ["normalMap"],
-    orm: ["ormMap", "aoMap", "roughnessMap", "metalnessMap"]
-  }
-
   // uvs
   const uvBoundsMin = [];
   const uvBoundsMax = [];
 
   bakeObjects.forEach((bakeObject) => {
+    if(bakeObjectsWithNoTextures.has(bakeObject.mesh)){
+      // mesh has no UVs
+      return;
+    }
     const { min, max } = originalUVs.get(bakeObject.mesh);
     uvBoundsMax.push(max);
     uvBoundsMin.push(min);
@@ -267,13 +304,17 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
 
   const uvs = new Map(
     bakeObjects.map((bakeObject) => {
+      if(bakeObjectsWithNoTextures.has(bakeObject.mesh)){
+        // mesh has no texture whatsoever, remove the UV mapping
+        return
+      }
       let { min, max } = originalUVs.get(bakeObject.mesh);
       min.x = min.x * xScaleFactor;
       min.y = min.y * yScaleFactor;
       max.x = max.x * xScaleFactor;
       max.y = max.y * yScaleFactor;
       return [bakeObject.mesh, { min, max }];
-    })
+    }).filter((x=>x) ) // remove undefined
   );
 
 
@@ -281,48 +322,60 @@ export const createTextureAtlasBrowser = async ({ backColor, meshes, atlasSize, 
   const textureImageDataRenderer = new TextureImageDataRenderer(ATLAS_SIZE_PX, ATLAS_SIZE_PX);
   bakeObjects.forEach((bakeObject) => {
     const { material, mesh } = bakeObject;
-    const { min, max } = uvs.get(mesh);
-    
-    const xTileSize = tileSize.get(mesh).width;
-    const yTileSize = tileSize.get(mesh).height;
+    let min, max;
+    const uvMinMax = uvs.get(mesh);
+    if(uvMinMax){
+      min = uvMinMax.min;
+      max = uvMinMax.max;
+    }else{
+      min = new THREE.Vector2(0,0);
+      max = new THREE.Vector2(0,0);
+    }
 
-    IMAGE_NAMES.forEach((name) => {
-      const context = contexts[name];
-      //context.globalAlpha = transparent ? 0.2 : 1;
-      context.globalCompositeOperation = "source-over";
+    // If the mesh has no texture, we don't need to draw anything;
+    if(!bakeObjectsWithNoTextures.has(bakeObject.mesh)){
 
-      // set white color base
-      let clearColor;
-      let multiplyColor = new THREE.Color(1, 1, 1);
-      switch (name) {
-        case 'diffuse':
-          clearColor = material.color || backColor;
-          if (material.uniforms?.litFactor){
-            multiplyColor = material.uniforms.litFactor.value;
-          }
-          else{
-            multiplyColor = material.color;
-          }
-          break;
-        case 'normal':
-          clearColor = new THREE.Color(0x8080FF);
-          break;
-        case 'orm':
-          clearColor = new THREE.Color(0, material.roughness, material.metalness);
-          break;
-        default:
-          clearColor = new THREE.Color(1, 1, 1);
-          break;
-      }
-      // iterate through imageToMaterialMapping[name] and find the first image that is not null
-      let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
-      if (usesNormal == false && name == 'normal' && texture != null){
-        usesNormal = true;
-      }
-      const imgData = textureImageDataRenderer.render(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
-      createImageBitmap(imgData)// bmp is trasnaprent
-        .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
-    });
+      const xTileSize = tileSize.get(mesh).width;
+      const yTileSize = tileSize.get(mesh).height;
+
+      IMAGE_NAMES.forEach((name) => {
+        const context = contexts[name];
+        //context.globalAlpha = transparent ? 0.2 : 1;
+        context.globalCompositeOperation = "source-over";
+
+        // set white color base
+        let clearColor;
+        let multiplyColor = new THREE.Color(1, 1, 1);
+        switch (name) {
+          case 'diffuse':
+            clearColor = material.color || backColor;
+            if (material.uniforms?.litFactor){
+              multiplyColor = material.uniforms.litFactor.value;
+            }
+            else{
+              multiplyColor = material.color;
+            }
+            break;
+          case 'normal':
+            clearColor = new THREE.Color(0x8080FF);
+            break;
+          case 'orm':
+            clearColor = new THREE.Color(0, material.roughness, material.metalness);
+            break;
+          default:
+            clearColor = new THREE.Color(1, 1, 1);
+            break;
+        }
+        // iterate through imageToMaterialMapping[name] and find the first image that is not null
+        let texture = getTexture(material, imageToMaterialMapping[name].find((textureName) => getTextureImage(material, textureName)));
+        if (usesNormal == false && name == 'normal' && texture != null){
+          usesNormal = true;
+        }
+        const imgData = textureImageDataRenderer.render(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
+        createImageBitmap(imgData)// bmp is trasnaprent
+          .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
+      });
+    }
 
     const geometry = mesh.geometry.clone();
     mesh.geometry = geometry;
