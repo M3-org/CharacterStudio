@@ -358,7 +358,7 @@ function getVRMMeta( vrmMeta){
 function parseVRM (glbModel, avatar, options){
   const {
     screenshot = null, 
-    isVrm0 = false, 
+    isVrm0 = false,
     vrmMeta = null,
     scale = 1,
     vrmName = "CharacterCreator"
@@ -369,7 +369,8 @@ function parseVRM (glbModel, avatar, options){
 
 
   return new Promise(async (resolve) => {
-    const exporter = options.outputVRM0 ? new VRMExporterv0() :  new VRMExporter()
+    const isOutputVRM0 = options.outputVRM0 ?? options.isVrm0 ?? false;
+    const exporter = isOutputVRM0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, metadataMerged),
@@ -397,13 +398,13 @@ function parseVRM (glbModel, avatar, options){
     reverseBonesXZ();
     
 
-    const isOutputVRM0 = options.outputVRM0 ?? options.isVrm0 ?? false;
+
     // @TODO: change springBone selection logic for VRM1
     const rootSpringBones = isOutputVRM0?getGroupSpringBones(avatar):getRootBones(avatar);
     // XXX collider bones should be taken from springBone.colliderBones
     // const colliderBones = [];
     
-    if(options.outputVRM0){
+    if(isOutputVRM0){
       // VRM 0.0
       exporter.parse(vrmData, glbModel, screenshot, rootSpringBones, options.ktxCompression, scale, (vrm) => {
         resolve(vrm)

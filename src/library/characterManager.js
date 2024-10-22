@@ -252,7 +252,6 @@ export class CharacterManager {
             exportOptions = exportOptions || {};
             const manifestOptions = this.manifestData.getExportOptions();
             const finalOptions = { ...manifestOptions, ...exportOptions };
-            finalOptions.isVrm0 = true; // currently vrm1 not supported
             finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
             // Log the final export options

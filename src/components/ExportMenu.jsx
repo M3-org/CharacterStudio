@@ -20,7 +20,6 @@ export const ExportMenu = () => {
     const currentOption = local["mergeOptions_sel_option"] || 0;
     const createTextureAtlas = local["mergeOptions_create_atlas"] == null ? true:local["mergeOptions_create_atlas"] 
     return {
-      // isVrm0 : true,
       createTextureAtlas : createTextureAtlas,
       mToonAtlasSize:getAtlasSize(local["mergeOptions_atlas_mtoon_size"] || 6),
       mToonAtlasSizeTransp:getAtlasSize(local["mergeOptions_atlas_mtoon_transp_size"] || 6),
@@ -33,10 +32,16 @@ export const ExportMenu = () => {
     }
   }
 
-  const downloadVRM = () =>{
+  const downloadVRM = (version) =>{
     const options = getOptions();
+    /**
+     * Blindly assume the whole avatar is VRM0 if the first vrm is VRM0
+     */
+    options.isVrm0 = Object.values(characterManager.avatar)[0].vrm.meta.metaVersion=='0'
+    options.outputVRM0 = !(version === 1)
     characterManager.downloadVRM(name, options);
   }
+  
   const downloadGLB = () =>{
     const options = getOptions();
     characterManager.downloadGLB(name, options);
@@ -54,14 +59,25 @@ export const ExportMenu = () => {
           downloadGLB()
         }}
       />
-      <CustomButton
+        <CustomButton
         theme="light"
-        text="VRM"
+        text="VRM 0"
         icon="download"
         size={14}
         className={styles.button}
-        onClick={downloadVRM}
+        onClick={()=>downloadVRM(0)}
       />
+      {/**
+       * Only show VRM1 download button if the avatar is VRM1
+       */}
+        {Object.values(characterManager.avatar)[0].vrm.meta.metaVersion=='1'&&<CustomButton
+        theme="light"
+        text="VRM 1"
+        icon="download"
+        size={14}
+        className={styles.button}
+        onClick={()=>downloadVRM(1)}
+      />}
     </React.Fragment>
   )
 }
