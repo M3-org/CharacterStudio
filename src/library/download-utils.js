@@ -369,7 +369,10 @@ function parseVRM (glbModel, avatar, options){
 
 
   return new Promise(async (resolve) => {
-    const isOutputVRM0 = options.outputVRM0 ?? options.isVrm0 ?? false;
+    /**
+     * Because vrm1 Exporter is broken, always default to vrm0 exporter;
+     */
+    const isOutputVRM0 = options.outputVRM0 ?? options.isVrm0 ?? true;
     const exporter = isOutputVRM0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),

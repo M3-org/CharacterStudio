@@ -67,17 +67,6 @@ export const ExportMenu = () => {
         className={styles.button}
         onClick={()=>downloadVRM(0)}
       />
-      {/**
-       * Only show VRM1 download button if the avatar is VRM1
-       */}
-        {Object.values(characterManager.avatar)[0].vrm.meta.metaVersion=='1'&&<CustomButton
-        theme="light"
-        text="VRM 1"
-        icon="download"
-        size={14}
-        className={styles.button}
-        onClick={()=>downloadVRM(1)}
-      />}
     </React.Fragment>
   )
 }
