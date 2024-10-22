@@ -510,7 +510,6 @@ export async function combine(avatar, options) {
         stdAtlasSizeTransp = 4096,
         exportMtoonAtlas = false, 
         exportStdAtlas = true,
-        isVrm0 = false,
         scale = 1,
         twoSidedMaterial = false,
     } = options;
@@ -621,16 +620,15 @@ export async function combine(avatar, options) {
                 }
 
             });
-            const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale },isVrm0);
+            const { dest } = mergeGeometry({ meshes:skinnedMeshes, scale });
             const geometry = new THREE.BufferGeometry();
 
-            // modify all merged vertices to reflect vrm0 format
-            if (isVrm0){
-                for (let i = 0; i < dest.attributes.position.array.length; i+=3){
-                    dest.attributes.position.array[i] *= -1
-                    dest.attributes.position.array[i+2] *= -1
-                }
+
+            for (let i = 0; i < dest.attributes.position.array.length; i+=3){
+                dest.attributes.position.array[i] *= -1
+                dest.attributes.position.array[i+2] *= -1
             }
+            
 
             geometry.attributes = dest.attributes;
             geometry.morphAttributes = dest.morphAttributes;
@@ -712,7 +710,7 @@ function mergeSourceMorphTargetDictionaries({ sourceMorphTargetDictionaries }) {
     });
     return destMorphTargetDictionary;
 }
-function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}, isVrm0 = false) {
+function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
     allSourceMorphAttributes.forEach((sourceMorphAttributes) => {
@@ -944,7 +942,7 @@ function mergeSourceIndices({ meshes }) {
 // }
 
 
-export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
+export function mergeGeometry({ meshes, scale }) {
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
@@ -985,7 +983,7 @@ export function mergeGeometry({ meshes, scale }, isVrm0 = false) {
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
         scale,
-    },isVrm0);
+    });
     dest.morphTargetInfluences = mergeMorphTargetInfluences({
         meshes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
