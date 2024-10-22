@@ -369,7 +369,7 @@ function parseVRM (glbModel, avatar, options){
 
 
   return new Promise(async (resolve) => {
-    const exporter = isVrm0 ? new VRMExporterv0() :  new VRMExporter()
+    const exporter = options.outputVRM0 ? new VRMExporterv0() :  new VRMExporter()
     const vrmData = {
       ...getVRMBaseData(avatar),
       ...getAvatarData(glbModel, metadataMerged),
