@@ -248,12 +248,11 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   }).sort((a, b) => b[1] - a[1]);
   
   /**
-   * We use the log10 of the number of triangles for a better -more natural- distribution of the textures
+   * Get all meshes that have textures
    */
-  const sumOfTriangles = meshTriangleSorted.filter(([, count])=>count!=0).reduce((acc, [, count]) => acc + Math.log10(count), 0); // sum of all triangles
-  const triangleRatio = meshTriangleSorted.filter(([, count])=>count!=0).map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
+  const meshTriangleSortedWithTextures = meshTriangleSorted.filter(([, count])=>count!=0)
 
-  const {squares,fill} = squaresplit(triangleRatio.length,ATLAS_SIZE_PX);
+  const {squares,fill} = squaresplit(meshTriangleSortedWithTextures.length,ATLAS_SIZE_PX);
   console.log('squaresplit',fill)
 
   const reformattedSquares = squares.map((box) => {
