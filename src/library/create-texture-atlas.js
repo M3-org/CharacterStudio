@@ -254,7 +254,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   const triangleRatio = meshTriangleSorted.filter(([, count])=>count!=0).map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
 
   const {squares,fill} = squaresplit(triangleRatio.length,1024);
-  console.log(squares,fill)
+  console.log('squaresplit',fill)
 
   const reformattedSquares = squares.map((box) => {
     return {x:box.x, y:box.y, width:box.w, height:box.h}
