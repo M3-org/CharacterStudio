@@ -217,14 +217,27 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
 
 
   const bakeObjectsWithNoTextures=new Set()
+  const bakeObjectsWithSameMaterial = new Map();
 
+  /**
+   * Sorts the meshes by the number of triangles they have, but also groups meshes with the same material properties if they have no textures.
+   * A high number (high tri count) means the mesh will take up more space in the atlas.
+   * A low number (low tri count) means the mesh will take up less space in the atlas.
+   */
   const meshTriangleSorted = bakeObjects.map((bakeObject) => {
     const geometry = bakeObject.mesh.geometry;
     
     /**
-     *  We don't want to include meshes that have no textures in the atlas
+     *  We don't want to include meshes that are turned off in the atlas, and
+     *  we want to combine meshes with the same material properties;
      *  */
     if(includeNonTexturedMeshesInAtlas == false){
+      if(!bakeObject.mesh.visible){
+        bakeObjectsWithNoTextures.add(bakeObject.mesh)
+        // mesh is not visible
+        return [bakeObject.mesh, 0];
+      }
+
       let hasNoTexture = true
       for(const name of IMAGE_NAMES){
         for(const textureName of imageToMaterialMapping[name]){
@@ -238,9 +251,50 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
         }
       }
       if(hasNoTexture){
-        bakeObjectsWithNoTextures.add(bakeObject.mesh)
-        // mesh has no texture whatsoever
-        return [bakeObject.mesh, 0];
+        /**
+         * For each mesh with no textures, group with those that have the same properties
+         */
+        const material = bakeObject.material;
+        if(material instanceof THREE.ShaderMaterial){
+          // if it's a shaderMaterial, we can't compare the material directly assign small space
+          return [bakeObject.mesh, 10];
+        }
+
+        if(bakeObjectsWithSameMaterial.size == 0){
+          // if there are no meshes with the same material, add the first one
+          bakeObjectsWithSameMaterial.set(material,[bakeObject.mesh])
+          return [bakeObject.mesh, 5];// assign small space
+        }
+
+        for(let [mat,prevBakeMeshes] of Array.from(bakeObjectsWithSameMaterial.entries())){
+          const isSimilarMat = ()=>{            
+            /**
+             * Typical javascript will convert colors to numbers with billions of decimal places and compare each.
+             * comparing colors at the 5th decimal place is enough to determine if they are the same
+             */
+            const colorAlmostEqual = mat.color.r.toFixed(5) == material.color.r.toFixed(5) &&
+            mat.color.g.toFixed(5) == material.color.g.toFixed(5) &&
+            mat.color.b.toFixed(5) == material.color.b.toFixed(5)
+
+            // no need to check metalnessMap, aoMap, roughnessMap, normalMap, Map because we already checked if the textures exist
+            return colorAlmostEqual &&
+            mat.emissive.equals(material.emissive) && 
+            mat.aoMapIntensity == material.aoMapIntensity &&
+            mat.metalness == material.metalness &&
+            mat.normalScale.equals(material.normalScale) &&
+            mat.roughness == material.roughness && 
+            mat.transparent == material.transparent &&
+            mat.vertexColors == material.vertexColors
+          }
+          if(isSimilarMat()){
+            prevBakeMeshes.push(bakeObject.mesh)
+            return [bakeObject.mesh, 0];// no need to add space since it's the same material as another mesh
+          }else{
+            continue;
+          }
+        }
+        bakeObjectsWithSameMaterial.set(material,[bakeObject.mesh])
+        return [bakeObject.mesh, 5];// assign small space
       }
     }
     
@@ -251,7 +305,9 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
    * Get all meshes that have textures
    */
   const meshTriangleSortedWithTextures = meshTriangleSorted.filter(([, count])=>count!=0)
-
+  /**
+   * Generate a square for each mesh with a material
+   */
   const {squares,fill} = squaresplit(meshTriangleSortedWithTextures.length,ATLAS_SIZE_PX);
   console.log('squaresplit',fill)
 
@@ -259,16 +315,33 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
     return {x:box.x, y:box.y, width:box.w, height:box.h}
   });
 
+  /**
+   *  Map each mesh to a square
+   */
   const tileSize = new Map(reformattedSquares.map((square, i) => {
     return [meshTriangleSorted[i][0], square];
-  }))
+  }));
+
+  /**
+   * Add the meshes that have shared material to the square
+   */
+  bakeObjectsWithSameMaterial.forEach((meshes)=>{
+    if(meshes.length>1){
+      const square = tileSize.get(meshes[0])
+      meshes.forEach((mesh)=>{
+        tileSize.set(mesh,square)
+      })
+    }
+  })
+
+
 
   // get the min/max of the uvs of each mesh
   const originalUVs = new Map(
-    reformattedSquares.map((square, i) => {
+    Array.from(tileSize.entries()).map(([mesh,square]) => {
       const min = new THREE.Vector2(square.x, square.y);
       const max = new THREE.Vector2((square.x + square.width), (square.y + square.height));
-      return [meshTriangleSorted[i][0], { min, max }];
+      return [mesh, { min, max }];
     })
   );
 
@@ -276,12 +349,12 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   const uvBoundsMin = [];
   const uvBoundsMax = [];
 
-  bakeObjects.forEach((bakeObject) => {
-    if(bakeObjectsWithNoTextures.has(bakeObject.mesh)){
+  Array.from(tileSize.keys()).forEach((mesh) => {
+    if(bakeObjectsWithNoTextures.has(mesh)){
       // mesh has no UVs
       return;
     }
-    const { min, max } = originalUVs.get(bakeObject.mesh);
+    const { min, max } = originalUVs.get(mesh);
     uvBoundsMax.push(max);
     uvBoundsMin.push(min);
   });
@@ -297,25 +370,26 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   const yScaleFactor = 1 / (ATLAS_SIZE_PX - minUv.y);
 
   const uvs = new Map(
-    bakeObjects.map((bakeObject) => {
-      if(bakeObjectsWithNoTextures.has(bakeObject.mesh)){
+    Array.from(tileSize.keys()).map((mesh) => {
+      if(bakeObjectsWithNoTextures.has(mesh)){
         // mesh has no texture whatsoever, remove the UV mapping
         return
       }
-      let { min, max } = originalUVs.get(bakeObject.mesh);
+      let { min, max } = originalUVs.get(mesh);
       min.x = min.x * xScaleFactor;
       min.y = min.y * yScaleFactor;
       max.x = max.x * xScaleFactor;
       max.y = max.y * yScaleFactor;
-      return [bakeObject.mesh, { min, max }];
+      return [mesh, { min, max }];
     }).filter((x=>x) ) // remove undefined
   );
 
 
   let usesNormal = false;
   const textureImageDataRenderer = new TextureImageDataRenderer(ATLAS_SIZE_PX, ATLAS_SIZE_PX);
-  bakeObjects.forEach((bakeObject) => {
-    const { material, mesh } = bakeObject;
+  Array.from(tileSize.keys()).forEach((mesh) => {
+    const bakeObject = bakeObjects.find((bakeObject) => bakeObject.mesh === mesh);
+    const { material } = bakeObject;
     let min, max;
     const uvMinMax = uvs.get(mesh);
     if(uvMinMax){
