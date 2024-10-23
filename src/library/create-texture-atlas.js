@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometry } from "./merge-geometry.js";
 import { MToonMaterial } from "@pixiv/three-vrm";
-import potpack from 'potpack';
+import squaresplit from 'squaresplit';
 import TextureImageDataRenderer from "./textureImageDataRenderer.js";
 
 function createContext({ width, height, transparent }) {
@@ -252,26 +252,21 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
    */
   const sumOfTriangles = meshTriangleSorted.filter(([, count])=>count!=0).reduce((acc, [, count]) => acc + Math.log10(count), 0); // sum of all triangles
   const triangleRatio = meshTriangleSorted.filter(([, count])=>count!=0).map(([, count]) => Math.log10(count) / sumOfTriangles); // ratio of each mesh
-  const textureSizes = triangleRatio.map((ratio) => Math.floor(ATLAS_SIZE_PX * ratio)); // size of each textures in the texture
 
-  // boxes are mutated by potpack; sorted by height
-  const boxes = textureSizes.map((size) => ({w:size, h:size}));
+  const {squares,fill} = squaresplit(triangleRatio.length,1024);
+  console.log(squares,fill)
 
-  const {w,h,fill} = potpack(boxes);
-  const ratio = ATLAS_SIZE_PX / Math.max(w,h);
-
-  // scale the boxes to the size of the texture
-  const scaledBoxes = boxes.map((box) => {
-    return {x:Math.ceil((box.x||0 )* ratio), y:Math.ceil((box.y||0) * ratio), width:Math.ceil(box.w*ratio), height:Math.ceil(box.h*ratio)}
+  const reformattedSquares = squares.map((box) => {
+    return {x:box.x, y:box.y, width:box.w, height:box.h}
   });
 
-  const tileSize = new Map(scaledBoxes.map((square, i) => {
+  const tileSize = new Map(reformattedSquares.map((square, i) => {
     return [meshTriangleSorted[i][0], square];
   }))
 
   // get the min/max of the uvs of each mesh
   const originalUVs = new Map(
-    scaledBoxes.map((square, i) => {
+    reformattedSquares.map((square, i) => {
       const min = new THREE.Vector2(square.x, square.y);
       const max = new THREE.Vector2((square.x + square.width), (square.y + square.height));
       return [meshTriangleSorted[i][0], { min, max }];
