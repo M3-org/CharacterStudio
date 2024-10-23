@@ -257,13 +257,13 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
         const material = bakeObject.material;
         if(material instanceof THREE.ShaderMaterial){
           // if it's a shaderMaterial, we can't compare the material directly assign small space
-          return [bakeObject.mesh, 10];
+          return [bakeObject.mesh, 2];
         }
 
         if(bakeObjectsWithSameMaterial.size == 0){
           // if there are no meshes with the same material, add the first one
           bakeObjectsWithSameMaterial.set(material,[bakeObject.mesh])
-          return [bakeObject.mesh, 5];// assign small space
+          return [bakeObject.mesh, 1];// assign small space
         }
 
         for(let [mat,prevBakeMeshes] of Array.from(bakeObjectsWithSameMaterial.entries())){
@@ -294,7 +294,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
           }
         }
         bakeObjectsWithSameMaterial.set(material,[bakeObject.mesh])
-        return [bakeObject.mesh, 5];// assign small space
+        return [bakeObject.mesh, 1];// assign small space
       }
     }
     
