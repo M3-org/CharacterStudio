@@ -951,7 +951,6 @@ export class CharacterManager {
         console.warn(`Trait with name: ${traitGroupID} was not found or not selected.`)
         return;
       }
-      console.log("load blendshape trait", traitGroupID, blendshapeGroupId, blendshapeTraitId)
       if(!currentTrait.blendShapeTraitsInfo){
         currentTrait.blendShapeTraitsInfo = {};
       }
@@ -988,8 +987,6 @@ export class CharacterManager {
         if(child.isMesh || child.isSkinnedMesh){
 
           const mesh = child;
-          console.log("toggle blendshape", blendshape.id, enable)
-          console.log("mesh.morphTargetDictionary", mesh)
           if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return
           const blendShapeIndex = mesh.morphTargetDictionary[blendshape.id];
           if (blendShapeIndex != undefined){
@@ -1114,7 +1111,7 @@ export class CharacterManager {
        * unregister the Blendshapes from the manifest -if any.
        * This is to avoid BlendshapeTraits being affected by the vrm.ExpressionManager
        */
-      // this._unregisterMorphTargetsFromManifest(vrm);
+      this._unregisterMorphTargetsFromManifest(vrm);
       
       if (this.manifestData.isLipsyncTrait(traitID))
         this.lipSync = new LipSync(vrm);
