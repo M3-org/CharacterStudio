@@ -34,7 +34,7 @@ export const renameMorphTargets = (gltf) => {
   const json = gltf.parser.json
   const meshesJson = json.meshes;
   const associations = gltf.parser.associations
-  
+
   gltf.scene.traverse((child) => {
     if(child instanceof SkinnedMesh){
       if(child.morphTargetDictionary){
@@ -47,7 +47,6 @@ export const renameMorphTargets = (gltf) => {
         const meshJson = meshesJson[meshIndex]
 
         const primitives = meshJson?.primitives[primitivesIndex]
-
         if(primitives?.extras?.targetNames){
           const targetNames = primitives.extras.targetNames;
           for (let i = 0; i < targetNames.length; i++){
@@ -58,6 +57,7 @@ export const renameMorphTargets = (gltf) => {
         }
 
         if(hasEditedMorphs){
+          // remove all morph target keys that are numbers
           for(const key in child.morphTargetDictionary){
             if(!isNaN(parseInt(key))){
               delete child.morphTargetDictionary[key]
