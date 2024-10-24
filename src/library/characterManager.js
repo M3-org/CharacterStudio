@@ -3,10 +3,10 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
 import { BlinkManager } from "./blinkManager";
-import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+import { VRMLoaderPlugin } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
-import { saveVRMCollidersToUserData } from "./load-utils";
+import { saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
 import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
@@ -554,7 +554,21 @@ export class CharacterManager {
         console.error("Error loading blendshape trait "+traitGroupID, blendshapeGroupId, blendshapeTraitId);
       }
     }
-
+    /**
+     * remove blendshape trait
+     * @param {string} traitGroupID 
+     * @param {string} blendshapeGroupId 
+     * @returns 
+     */
+    removeBlendShapeTrait(groupTraitID, blendShapeGroupId){
+      const currentTrait = this.avatar[groupTraitID];
+      if (currentTrait){
+        this._loadBlendShapeTrait(groupTraitID,blendShapeGroupId,null);
+      }
+      else{
+        console.warn(`No trait with name: ${ groupTraitID } was found.`)
+      }
+    }
     /**
      * Loads a specific trait based on group and trait IDs.
      *
@@ -971,6 +985,7 @@ export class CharacterManager {
     toggleBinaryBlendShape = (model,blendshape,enable)=>{
       model.traverse((child)=>{
         if(child.isMesh || child.isSkinnedMesh){
+
           const mesh = child;
           if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return
           const blendShapeIndex = mesh.morphTargetDictionary[blendshape.id];
@@ -1089,6 +1104,14 @@ export class CharacterManager {
         saveVRMCollidersToUserData(m);
       
       renameVRMBones(vrm);
+
+      renameMorphTargets(m);
+
+      /**
+       * unregister the Blendshapes from the manifest -if any.
+       * This is to avoid BlendshapeTraits being affected by the vrm.ExpressionManager
+       */
+      this._unregisterMorphTargetsFromManifest(vrm);
       
       if (this.manifestData.isLipsyncTrait(traitID))
         this.lipSync = new LipSync(vrm);
@@ -1112,12 +1135,6 @@ export class CharacterManager {
 
         vrm.scene.traverse((child) => {
           if (child.isSkinnedMesh) {
-            const newMorphTargets  = {};
-            const targetNames = getAsArray(child.geometry.userData?.targetNames);
-            for (let i =0; i < targetNames.length;i++){
-              newMorphTargets[targetNames[i]] =  child.morphTargetDictionary[i];
-            }
-            child.morphTargetDictionary = newMorphTargets;
             for (let i =0; i < child.skeleton.bones.length;i++){
               child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
             }
@@ -1132,6 +1149,29 @@ export class CharacterManager {
 
       return vrm;
     }
+
+    /**
+     * 
+     * @param {import("@pixiv/three-vrm").VRM} vrm 
+     * @returns 
+     */
+    _unregisterMorphTargetsFromManifest(vrm){
+      const manifestBlendShapes = this.manifestData.getAllBlendShapeTraits()
+      const expressions = vrm.expressionManager?.expressions
+      if(manifestBlendShapes.length == 0) return
+      if(!expressions) return
+      const expressionToRemove = []
+      for(const expression of expressions){
+        if(manifestBlendShapes.map((b)=>b.id).includes(expression.expressionName)){
+          expressionToRemove.push(expression)
+        }
+      }
+
+      for(const expression of expressionToRemove){
+        vrm.expressionManager.unregisterExpression(expression)
+      }
+    }
+
     _modelBaseSetup(model, item, traitID, textures, colors){
 
       const meshTargets = [];
