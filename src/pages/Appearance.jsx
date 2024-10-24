@@ -461,21 +461,26 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
   const groups = characterManager.getBlendShapeGroupTraits(selectedTrait?.traitGroup.trait||"",selectedTrait?.id||"");
 
   /**
-   * 
+   *
+   * @param {string} traitGroup
+   * @param {import('../library/CharacterManifestData').BlendShapeGroup} blendShapeGroupTrait 
+    */
+  const removeBlendShapeTrait = (traitGroup,blendShapeGroupTrait)=>{
+    characterManager.removeBlendShapeTrait(traitGroup,blendShapeGroupTrait.trait);
+    const blendShapeTraitCopy = {...selectedBlendShapeTrait};
+    delete blendShapeTraitCopy[blendShapeGroupTrait.trait]
+    setSelectedBlendshapeTrait(blendShapeTraitCopy);
+  }
+  /**
    * @param {import('../library/CharacterManifestData').BlendShapeTrait} newBlendShape 
    */
   const selectBlendShapeTrait = (newBlendShape)=>{
-    if(newBlendShape.id==null){
-      const parent = newBlendShape.parentGroup;
-      characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",null);
-      return 
-    }
     const parent = newBlendShape.parentGroup;
     characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",newBlendShape?.id||'');
     moveCamera({ targetY: parent.cameraTarget.height, distance: parent.cameraTarget.distance})
-    const prev = {...selectedBlendShapeTrait};
-    prev[parent.trait||''] = newBlendShape.id;
-    setSelectedBlendshapeTrait(prev);
+    const blendShapeTraitCopy = {...selectedBlendShapeTrait};
+    blendShapeTraitCopy[parent.trait||''] = newBlendShape.id;
+    setSelectedBlendshapeTrait(blendShapeTraitCopy);
   }
 
   return (
@@ -496,7 +501,7 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
                     src={cancel}
                     active={!selectedBlendShapeTrait[group.trait]}
                     blendshapeID="cancel"
-                    select={()=>selectBlendShapeTrait(new BlendShapeTrait(group,{id:null}))}
+                    select={()=>removeBlendShapeTrait(selectedTrait.traitGroup.trait,group)}
                     />
                 {group.collection.map((blendShapeTrait)=>{
                   let active = blendShapeTrait.id === selectedBlendShapeTrait[group.trait]
