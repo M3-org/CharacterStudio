@@ -18,6 +18,10 @@ export class LoraDataGenerator {
         this.temptime = 0;
     }
 
+    get vrms(){
+        return (Object.values(this.characterManager.avatar).map((vrm)=>vrm.vrm))
+    }
+
     async createLoraData(loraObject, exsitingZipFile = null, zipName = ""){
         const manifestURL = loraObject.manifest;
         const loraFolderName = loraObject.name ? "loraData/" + loraObject.name : "loraData";
@@ -67,7 +71,9 @@ export class LoraDataGenerator {
                         const saveName = counter.toString().padStart(4, '0');
                         const finalAnimationTime = animationFrame ? animationFrame/30 : animationTime
                         await scope.animationManager.loadAnimation(animBasePath + animationPath, true, finalAnimationTime);
-                        
+                        this.vrms.forEach((vrm)=>{
+                            vrm.springBoneManager?.reset()
+                        })
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.cameraFrameManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
 
