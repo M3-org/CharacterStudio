@@ -135,7 +135,7 @@ const customThreejsPipelineModule = () => {
     })
     renderer.autoClear = false
     renderer.setSize(canvasWidth, canvasHeight)
-    renderer.outputEncoding = window.THREE.sRGBEncoding
+    renderer.outputColorSpace = window.THREE.SRGBColorSpace
 
     scene3 = {scene, camera, renderer}
     engaged = true

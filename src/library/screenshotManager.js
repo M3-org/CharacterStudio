@@ -81,7 +81,7 @@ export class ScreenshotManager {
     this.renderer.premultipliedAlpha = false;
     this.scene = scene;
     this.characterManager = characterManager;
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.renderer.setSize(screenshotSize, screenshotSize);
 

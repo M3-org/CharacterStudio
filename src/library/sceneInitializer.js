@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
@@ -58,7 +57,7 @@ export function sceneInitializer(canvasId) {
     window.addEventListener("resize", handleResize);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const animate = () => {
         requestAnimationFrame(animate);
