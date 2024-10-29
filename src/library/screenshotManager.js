@@ -23,7 +23,7 @@ class PixelRenderer{
 
     const screenshotResolution = new THREE.Vector2(screenshotSize,screenshotSize);
     pixelRenderer.setClearColor( 0x000000, 0);
-    pixelRenderer.outputEncoding = THREE.LinearEncoding;
+    pixelRenderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     pixelRenderer.setSize(screenshotResolution.x, screenshotResolution.y);
     pixelRenderer.setPixelRatio(window.devicePixelRatio);
     //pixelRenderer.shadowMap.enabled = true
