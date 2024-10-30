@@ -4,10 +4,10 @@ import { CharacterManager } from "./characterManager";
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     // rotate the directional light to be a key light
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
