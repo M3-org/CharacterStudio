@@ -1,14 +1,13 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     // rotate the directional light to be a key light
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
@@ -58,7 +57,7 @@ export function sceneInitializer(canvasId) {
     window.addEventListener("resize", handleResize);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const animate = () => {
         requestAnimationFrame(animate);

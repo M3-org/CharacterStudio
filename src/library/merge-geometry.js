@@ -862,7 +862,7 @@ function mergeSourceAttributes({ sourceAttributes }) {
     });
     const destAttributes = {};
     Array.from(propertyNames.keys()).map((name) => {
-        destAttributes[name] = BufferGeometryUtils.mergeBufferAttributes(allSourceAttributes.map((sourceAttributes) => sourceAttributes[name]).flat().filter((attr) => attr !== undefined));
+        destAttributes[name] = BufferGeometryUtils.mergeAttributes(allSourceAttributes.map((sourceAttributes) => sourceAttributes[name]).flat().filter((attr) => attr !== undefined));
     });
     return destAttributes;
 }
@@ -937,7 +937,7 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
     propertyNames.forEach((propName) => {
         merged[propName] = [];
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
-            merged[propName][i] = BufferGeometryUtils.mergeBufferAttributes(unmerged[propName][i]);
+            merged[propName][i] = BufferGeometryUtils.mergeAttributes(unmerged[propName][i]);
             const buffArr = merged[propName][i].array;
             for (let j = 0; j < buffArr.length; j+=3){
                 buffArr[j] *= scale;
