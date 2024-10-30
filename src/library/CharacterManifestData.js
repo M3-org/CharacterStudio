@@ -416,8 +416,8 @@ class TraitModelsGroup{
           name,
           iconSvg,
           cameraTarget = { distance:3 , height:1 },
-          cullingDistance,
-          cullingLayer,
+          cullingDistance, // can be undefined; if undefined, will use default from manifestData
+          cullingLayer, // can be undefined; if undefined, will use default from manifestData
           collection,
           restrictedTraits = [],
           restrictedTypes = []
@@ -676,9 +676,9 @@ class ModelTrait{
 
       this.cullHiddenMeshes = cullingDistance|| [0,0];
       // Prioritize cullingLayer from trait, then from traitGroup, then default
-      this.cullingLayer = cullingLayer ?? traitGroup.manifestData.defaultCullingLayer ?? 0;
+      this.cullingLayer = cullingLayer ?? traitGroup.cullingLayer ?? traitGroup.manifestData.defaultCullingLayer ?? 0;
       // Prioritize cullingDistance from trait, then from traitGroup, then default
-      this.cullingDistance = cullingDistance || traitGroup.manifestData.defaultCullingDistance || [0,0];
+      this.cullingDistance = cullingDistance || traitGroup.cullingDistance || traitGroup.manifestData.defaultCullingDistance || [0,0];
       this.type = type;
 
       this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
