@@ -33,7 +33,7 @@ export async function setTextureToChildMeshes(scene, url){
 
   // Load the image as a texture
   const texture = await textureLoader.load(url);
-  texture.encoding = THREE.sRGBEncoding;
+  texture.colorSpace = THREE.SRGBColorSpace;
   texture.flipY = false;
 
   // Traverse through the child meshes in the scene

@@ -1449,7 +1449,7 @@ class TraitLoadingManager{
                           new Promise((resolve) => {
                               this.textureLoader.load(textureDir, (txt) => {
                                   txt.flipY = false;
-                                  txt.encoding = THREE.sRGBEncoding;
+                                  txt.colorSpace = THREE.SRGBColorSpace;
                                   resolve(txt);
                               },null,(err)=>{
                                 console.error("error loading texture: ", err)

@@ -60,13 +60,7 @@ export default class TextureImageDataRenderer {
     }
 
     this.rtTexture = new THREE.WebGLRenderTarget(width, height)
-    if('encoding' in this.rtTexture.texture){
-        // for THREE version < 0.151
-        this.rtTexture.texture.encoding = sRGBEncoding ? THREE.sRGBEncoding : THREE.NoColorSpace;
-    }else if ('colorSpace' in this.rtTexture.texture) {
-        // for THREE version > 0.151
-        this.rtTexture.texture.colorSpace = sRGBEncoding ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-    }
+    this.rtTexture.texture.colorSpace = sRGBEncoding ? THREE.SRGBColorSpace : THREE.NoColorSpace;
 
     if(this.material){
       this.material.map = texture
