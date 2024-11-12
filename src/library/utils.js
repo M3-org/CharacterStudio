@@ -298,31 +298,6 @@ async function getScreenShotByElementId(id) {
     return blob;
   });
 }
-function createSpecifiedImage(ctx){
-  const context = createContext(256,256);
-  const imageData = ctx.getImageData(left, top, width, height);
-  const arr = new ImageData(imageData, xTileSize, yTileSize);
-  const tempcanvas = document.createElement("canvas");
-  tempcanvas.width = xTileSize;
-  tempcanvas.height = yTileSize;
-  const tempctx = tempcanvas.getContext("2d");
-
-  tempctx.putImageData(arr, 0, 0);
-  tempctx.save();
-  // draw tempctx onto context
-  context.drawImage(tempcanvas, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
-
-}
-
-function createContext({ width, height }) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  context.fillStyle = "white";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  return context;
-}
 
 export async function getSkinColor(scene, targets) {
   for (const target of targets) {
@@ -872,4 +847,17 @@ export function doesMeshHaveMorphTargetBoundToManager(mesh, oldDictionary){
     }
   }
   return false
+}
+
+export function createContext({ width, height, transparent }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "white";
+  if (transparent) 
+    context.globalAlpha = 0;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.globalAlpha = 1;
+  return context;
 }

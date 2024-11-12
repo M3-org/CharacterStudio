@@ -2,20 +2,10 @@ import * as THREE from "three";
 import { mergeGeometry } from "./merge-geometry.js";
 import { MToonMaterial } from "@pixiv/three-vrm";
 import squaresplit from 'squaresplit';
+import {createContext} from "./utils.js";
 import TextureImageDataRenderer from "./textureImageDataRenderer.js";
 
-function createContext({ width, height, transparent }) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  context.fillStyle = "white";
-  if (transparent) 
-    context.globalAlpha = 0;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.globalAlpha = 1;
-  return context;
-}
+
 function getTextureImage(material, textureName) {
 
   // material can come in arrays or single values, in case of ccoming in array take the first one
@@ -439,7 +429,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
         if (usesNormal == false && name == 'normal' && texture != null){
           usesNormal = true;
         }
-        const imgData = textureImageDataRenderer.render(texture, multiplyColor, clearColor, ATLAS_SIZE_PX, ATLAS_SIZE_PX, name == 'diffuse' && transparentTexture, name != 'normal');
+        const imgData = textureImageDataRenderer.render(texture, multiplyColor, clearColor, name == 'diffuse' && transparentTexture, name != 'normal');
         createImageBitmap(imgData)// bmp is trasnaprent
           .then((bmp) => context.drawImage(bmp, min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize));
       });

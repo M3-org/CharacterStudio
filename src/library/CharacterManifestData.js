@@ -6,6 +6,7 @@ export class CharacterManifestData{
         assetsLocation,
         traitsDirectory,
         thumbnailsDirectory,
+        decalDirectory,
         traitIconsDirectorySvg,
         animationPath,
         exportScale,
@@ -31,6 +32,7 @@ export class CharacterManifestData{
       this.assetsLocation = assetsLocation;
       this.traitsDirectory = traitsDirectory;
       this.thumbnailsDirectory = thumbnailsDirectory;
+      this.decalDirectory = decalDirectory;
       this.traitIconsDirectorySvg = traitIconsDirectorySvg;
       this.displayScale = displayScale || exportScale || 1;
       this.animationPath = getAsArray(animationPath);
@@ -409,7 +411,7 @@ export class CharacterManifestData{
 
 
 // Must be created AFTER color collections and texture collections have been created
-class TraitModelsGroup{
+export class TraitModelsGroup{
     constructor(manifestData, options){
         const {
           trait,
@@ -419,6 +421,8 @@ class TraitModelsGroup{
           cullingDistance, // can be undefined; if undefined, will use default from manifestData
           cullingLayer, // can be undefined; if undefined, will use default from manifestData
           collection,
+          decalMeshNameTargets,
+          decals,
           restrictedTraits = [],
           restrictedTypes = []
         } = options;
@@ -432,6 +436,8 @@ class TraitModelsGroup{
 
         this.restrictedTraits = restrictedTraits;
         this.restrictedTypes = restrictedTypes;
+        this.decalMeshNameTargets = decalMeshNameTargets;
+        this.decals = decals;
 
         this.cameraTarget = cameraTarget;
         this.cullingDistance = cullingDistance;
@@ -628,7 +634,7 @@ class TraitColorsGroup{
       null;
   }
 }
-class ModelTrait{
+export class ModelTrait{
   blendshapeTraits = []; 
   blendshapeTraitsMap = new Map();
   constructor(traitGroup, options){
