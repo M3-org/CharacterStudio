@@ -36,7 +36,7 @@ const DecalGridView = ({selectedTraitGroup,onBack})=>{
                     }}
                 />
             {decals.map((decal)=>{
-              const path = combineURLs(characterManager.manifestData.decalDirectory,decal.diffuse);
+              const path = combineURLs(characterManager.manifestData.getDecalsDirectory(),decal.diffuse);
   
               return (
                 <DecalItem 

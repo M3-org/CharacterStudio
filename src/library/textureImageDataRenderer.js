@@ -44,6 +44,7 @@ export default class TextureImageDataRenderer {
     const textures = getAsArray(texture)
     if (textures.length === 0) {
       texture = getAsArray(TextureImageDataRenderer.createSolidColorTexture(clearColor, this.width, this.height))
+    }
 
     if (this.renderer == null) {
       this.sceneRTT = new THREE.Scene()
@@ -124,8 +125,8 @@ export default class TextureImageDataRenderer {
     const imgData = new ImageData(buffer, this.width, this.height)
 
     return imgData
-  }
 }
+
 
   clearRenderer() {
     this.rtTexture?.dispose()

@@ -112,7 +112,9 @@ export default class OverlayedTextureManager{
 
         // render the textures through the imageDataRenderer
         const imgData= this.imageDataRenderer.render(this.textures, mat.color || new THREE.Color(1, 1, 1), new THREE.Color(1, 1, 1), true, true);
-
+        if(!imgData){
+            console.error("Failed to update OverlayTextureManager, ImageData is undefined");
+        }
         const context = createContext({width,height,transparent:true})
 
         const bitmap = await createImageBitmap(imgData)
@@ -147,9 +149,9 @@ export default class OverlayedTextureManager{
             throw new Error("Decal not found in trait group");
         }
 
-        const diffuseFullPath = combineURLs(this.manifest.decalDirectory,diffusePath);
-
+        const diffuseFullPath = combineURLs(this.manifest.getDecalsDirectory(),diffusePath);
         const decalDiffuse = await textureLoader.loadAsync( diffuseFullPath );
+
         decalDiffuse.colorSpace = THREE.SRGBColorSpace;
         decalDiffuse.flipY = false;
         if(!this.textures.length){

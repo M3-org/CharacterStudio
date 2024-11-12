@@ -362,6 +362,12 @@ export class CharacterManifestData{
       return result;
     }
 
+    getDecalsDirectory(){
+      let result = (this.assetsLocation || "") + (this.decalDirectory || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
+    }
     
 
 
