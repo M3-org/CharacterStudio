@@ -369,9 +369,21 @@ export class CharacterManifestData{
     createModelTraits(modelTraits, replaceExisting = false){
       if (replaceExisting) this.modelTraits = [];
 
+      let hasTraitWithDecals = false
       getAsArray(modelTraits).forEach(traitObject => {
         this.modelTraits.push(new TraitModelsGroup(this, traitObject))
+
+        /**
+         * We only support one group with decals at the moment; if there are multiple groups with decals, we will log a warning
+         */
+        if(hasTraitWithDecals && traitObject.decals?.length){
+          console.warn("Detected multiple traits with decals; only one trait with decals is supported at the moment")
+        }else if (!traitObject.decals?.length){
+          traitObject.decals = traitObject
+          hasTraitWithDecals = true
+        }
       });
+
 
       this.modelTraitsMap = new Map(this.modelTraits.map(item => [item.trait, item]));
 
