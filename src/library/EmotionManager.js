@@ -154,7 +154,7 @@ export class EmotionManager {
     if(this.mode === 'animating' && this.emotionPlaying){
       this.continuous = false;
       // transition to the next emotion
-      this.nextEmotion = emotion
+      this._nextEmotion = emotion
       this._nextEmotionTime = time || this.emotionTime 
       this._nextEmotionValue = 0
       this._nextIntensity = intensity_
@@ -181,7 +181,7 @@ export class EmotionManager {
   }
 
   _removeNextEmotion(){
-    this.nextEmotion = null
+    this._nextEmotion = null
     this._nextIntensity = 1
     this._nextEmotionValue = 0
     this._nextEmotionTime = 0
@@ -230,9 +230,8 @@ export class EmotionManager {
           if(this._nextEmotion){
             if(this._nextEmotionValue < this._nextIntensity){
               this._nextEmotionValue += deltaTime / this._nextEmotionTime;
-              this.emotionValue = Math.min(this._nextIntensity,this.emotionValue)
+              this.emotionValue = Math.min(this.intensity,this.emotionValue)
             }
-
             if(this.emotionValue > 0){
               this.emotionValue -=deltaTime / this._nextEmotionTime
             }else{
