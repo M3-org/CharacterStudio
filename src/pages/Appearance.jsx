@@ -20,6 +20,11 @@ import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 
+  /**
+   * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
+   * @typedef {import("../library/CharacterManifestData.js").ModelTrait} ModelTrait
+  */
+
 export const TraitPage ={
   TRAIT:0,
   BLEND_SHAPE:1,
@@ -52,7 +57,13 @@ function Appearance() {
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [traits, setTraits] = React.useState(null)
+  /**
+  * @type {[TraitModelsGroup, React.Dispatch<TraitModelsGroup>]} state
+  */
   const [selectedTraitGroup, setSelectedTraitGroup] = React.useState(null)
+  /**
+   * @type {[ModelTrait|null, React.Dispatch<ModelTrait|null>]} state
+   */
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedBlendshapeTraits, setSelectedBlendshapeTraits] = React.useState({})
   const [selectedVRM, setSelectedVRM] = React.useState(null)
@@ -324,7 +335,7 @@ function Appearance() {
                   <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
                 </div>
                  )}
-                {selectedTraitGroup && selectedTraitGroup.decals?.length && <div className={styles["selectorColorPickerButton"]}
+                {selectedTraitGroup && selectedTraitGroup.getAllDecals()?.length && <div className={styles["selectorColorPickerButton"]}
                   onClick={()=>traitView==TraitPage.DECAL?setTraitView(TraitPage.TRAIT):setTraitView(TraitPage.DECAL)}
                   >
                   <img className={styles["selectorColorPickerImg"]} src={decalPicker}/>
@@ -398,7 +409,7 @@ function Appearance() {
               <BlendShapeTraitView selectedTrait={selectedTrait} onBack={()=>{setTraitView(TraitPage.TRAIT)}} selectedBlendShapeTrait={selectedBlendshapeTraits} setSelectedBlendshapeTrait={setSelectedBlendshapeTraits} />
             )}
             {traitView == TraitPage.DECAL && (
-              <DecalGridView selectedTrait={selectedTrait} selectedTraitGroup={selectedTraitGroup} onBack={()=>{setTraitView(TraitPage.TRAIT)}} />
+              <DecalGridView selectedTraitGroup={selectedTraitGroup} onBack={()=>{setTraitView(TraitPage.TRAIT)}} />
             )}
           </div>
           

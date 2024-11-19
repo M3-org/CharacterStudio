@@ -137,19 +137,19 @@ export default class OverlayedTextureManager{
      */
     async loadOverlayTexture(traitGroup,decalId){
         const textureLoader = new THREE.TextureLoader();
-        const decal = traitGroup.decals.find(decal=>decal.id === decalId);
+        const decal = traitGroup.getAllDecals().find(decal=>decal.id === decalId);
         if(!decal) {
             throw new Error("Decal "+decalId+" not found in trait group");
         }
         if(this.targetVRMMeshes.length === 0){
             throw new Error("No target meshes found");
         }
-        const diffusePath = decal.diffuse;
+        const diffusePath = decal.directory;
         if(!diffusePath) {
             throw new Error("Decal not found in trait group");
         }
 
-        const diffuseFullPath = combineURLs(this.manifest.getDecalsDirectory(),diffusePath);
+        const diffuseFullPath = combineURLs(this.manifest.getTraitsDirectory(),diffusePath);
         const decalDiffuse = await textureLoader.loadAsync( diffuseFullPath );
 
         decalDiffuse.colorSpace = THREE.SRGBColorSpace;

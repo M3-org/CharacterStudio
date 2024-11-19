@@ -1468,9 +1468,8 @@ export class CharacterManager {
       this._applyManagers(vrm)
 
       if(this.overlayedTextureManager){
-        const traitGroup = this.manifestData.getModelGroup(traitGroupID);
-        if(traitGroup && traitGroup.decals?.length){
-          this.overlayedTextureManager.setTargetVRM(vrm, traitGroup.decalMeshNameTargets)
+        if(traitModel.targetDecalCollection){
+          this.overlayedTextureManager.setTargetVRM(vrm, traitModel.decalMeshNameTargets)
         }
       }
       

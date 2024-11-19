@@ -7,11 +7,10 @@ import {combineURLs} from "../../library/load-utils";
 import DecalItem from "./decalItem";
 
 const DecalGridView = ({selectedTraitGroup,onBack})=>{
-    // const {characterManager,moveCamera} = React.useContext(SceneContext);
     const {decalManager,characterManager} = React.useContext(SceneContext);
     const [selectedDecals, setSelectedDecals] = React.useState([]);
   
-    const decals = selectedTraitGroup.decals;
+    const decals = selectedTraitGroup.getAllDecals();
     React.useEffect(()=>{
       const selected= Array.from(decalManager.applied.keys())
       setSelectedDecals(selected.map((x)=>x));
@@ -33,10 +32,11 @@ const DecalGridView = ({selectedTraitGroup,onBack})=>{
                     active={false}
                     select={()=>{
                       decalManager.removeAllOverlayedTextures()
+                      setSelectedDecals([]);
                     }}
                 />
             {decals.map((decal)=>{
-              const path = combineURLs(characterManager.manifestData.getDecalsDirectory(),decal.diffuse);
+              const path = combineURLs(characterManager.manifestData.getTraitsDirectory(),decal.thumbnail);
   
               return (
                 <DecalItem 
@@ -44,7 +44,6 @@ const DecalGridView = ({selectedTraitGroup,onBack})=>{
                     src={path}
                     active={selectedDecals.includes(decal.id)}
                     select={()=>{
-                      console.log(selectedDecals)
                       if(selectedDecals.includes(decal.id)){
                         decalManager.removeOverlayTexture(decal.id).then(()=>{
                           setSelectedDecals(selectedDecals.filter((x)=>x!==decal.id));
