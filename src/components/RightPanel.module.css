@@ -4,7 +4,7 @@
   right: 32px;
   top: 98px;
   width:90px;
-  height: 270px;
+  height: auto;
   backdrop-filter: blur(22.5px);
   background: rgba(5, 11, 14, 0.8);
   z-index: 1000;
@@ -19,7 +19,7 @@
   position: relative;
   overflow-x: hidden !important;
   margin: 16px;
-  height: 270px;
+  height: 280px;
 }
 .options-container {
   user-select: none;

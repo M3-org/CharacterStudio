@@ -1,16 +1,30 @@
 import React, { createContext, useEffect, useState } from "react"
 
 import gsap from "gsap"
-import { local } from "../library/store"
 import { sceneInitializer } from "../library/sceneInitializer"
 import { LoraDataGenerator } from "../library/loraDataGenerator"
 import { SpriteAtlasGenerator } from "../library/spriteAtlasGenerator"
 import { ThumbnailGenerator } from "../library/thumbnailsGenerator"
 
-export const SceneContext = createContext()
+export const SceneContext = createContext({
+    /**
+ * @typedef {import('../library/characterManager').CharacterManager} CharacterManager
+ * @type {CharacterManager}
+ */
+  characterManager: null,
+  /**
+   * @typedef {Object} MoveCameraParam
+   * @property {number} targetX
+   * @property {number} targetY
+   * @property {number} targetZ
+   * @property {number} distance
+   * @param {MoveCameraParam} _value
+   */
+  // eslint-disable-next-line no-unused-vars
+  moveCamera: (_value) => {},
+})
 
 export const SceneProvider = (props) => {
-
   const [characterManager, setCharacterManager] = useState(null)
   const [loraDataGenerator, setLoraDataGenerator] = useState(null)
   const [spriteAtlasGenerator, setSpriteAtlasGenerator] = useState(null)
