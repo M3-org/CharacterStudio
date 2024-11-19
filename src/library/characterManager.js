@@ -3,10 +3,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
 import { BlinkManager } from "./blinkManager";
-import { VRMLoaderPlugin } from "@pixiv/three-vrm";
+
+import { VRMLoaderPlugin, VRMSpringBoneCollider } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
-import { saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
+import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
 import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
@@ -72,9 +73,31 @@ export class CharacterManager {
       
     }
 
-    update(){
+    /**
+     * toggle whether the spring bone animations are paused or not; this is useful when taking screenshots or calculating bone offsets
+     * @param x true to pause, false to unpause
+     */
+    togglePauseSpringBoneAnimation(x){
+      for(const [_,trait] of Object.entries(this.avatar)){
+        if(trait.vrm.springBoneManager){
+            trait.vrm.springBoneManager.paused =x
+        }
+      }
+    }
+
+    update(deltaTime){
       if (this.lookAtManager != null){
         this.lookAtManager.update();
+      }
+      if(this.avatar){
+        for (const prop in this.avatar){
+          if (this.avatar[prop]?.vrm != null){
+            if(this.avatar[prop].vrm.springBoneManager?.paused){
+              return
+            }
+            this.avatar[prop].vrm.springBoneManager?.update(deltaTime);
+          }
+        }
       }
     }
 
@@ -232,7 +255,6 @@ export class CharacterManager {
             exportOptions = exportOptions || {};
             const manifestOptions = this.manifestData.getExportOptions();
             const finalOptions = { ...manifestOptions, ...exportOptions };
-            finalOptions.isVrm0 = true; // currently vrm1 not supported
             finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
             // Log the final export options
@@ -1102,8 +1124,12 @@ export class CharacterManager {
 
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
-      if (this.manifestData.isColliderRequired(traitID))
+      if (this.manifestData.isColliderRequired(traitID)){
         saveVRMCollidersToUserData(m);
+      }
+      
+      // apply colliders to the spring manager
+      this._applySpringBoneColliders(vrm);
       
       renameVRMBones(vrm);
 
@@ -1153,10 +1179,79 @@ export class CharacterManager {
     }
 
     /**
-     * 
-     * @param {import("@pixiv/three-vrm").VRM} vrm 
-     * @returns 
+     * Naive Method that will apply all colliders to all spring bones;
+     * @param {import('@pixiv/three-vrm').VRM} vrm 
      */
+    _applySpringBoneColliders(vrm){
+
+      /**
+       * method to add collider groups to the joints of the new VRM
+       * @param {import('@pixiv/three-vrm').VRMSpringBoneColliderGroup[]} colliderGroups
+       */
+      function addToJoints(colliderGroups){
+        vrm.springBoneManager.joints.forEach((joint)=>{
+          for(const group of colliderGroups){
+            const isSameName = joint.colliderGroups.find((cg) => cg.name === group.name)
+            if(isSameName){
+              return;
+            }
+            if (joint.colliderGroups.indexOf(group) === -1){
+              joint.colliderGroups.push(group)
+            }
+          }
+        })
+
+      }
+      
+      // Iterate through the avatar record;
+      Object.entries(this.avatar).map(([key, entry]) => {
+
+        // Step 1: Check if other trait have colliders; if they do, just copy them over to new trait
+        const colliderGroups = []
+        // first check if the collider group already exists in vrm.springBoneManager
+        if(entry.vrm.springBoneManager?.colliderGroups.length){
+          colliderGroups.push(...entry.vrm.springBoneManager.colliderGroups)
+        }
+        
+        if(colliderGroups.length){
+          addToJoints(colliderGroups)
+          // done
+          return
+        }
+
+        // Step 2: If no colliders found, check for saved colliders in the userData
+        // This is useful for VRMs that have colliders but no spring bones
+
+        // get nodes with colliders
+        const nodes = getNodesWithColliders(entry.vrm);
+        if(nodes.length == 0) return
+        
+        // For each node with colliders info
+        nodes.forEach((node) => {
+          if(!vrm.springBoneManager){
+            return
+          }
+
+            const colliderGroup = {
+              colliders: [],
+              name: node.name
+            }
+            // Only direct children
+            for(const child of node.children){
+              if (child instanceof VRMSpringBoneCollider){
+                if(colliderGroup.colliders.indexOf(child) === -1){
+                  colliderGroup.colliders.push(child);
+                }
+              }
+            }
+
+            if(colliderGroup.colliders.length){
+              addToJoints([colliderGroup])
+            }
+        })
+      
+      })
+    }
     _unregisterMorphTargetsFromManifest(vrm){
       const manifestBlendShapes = this.manifestData.getAllBlendShapeTraits()
       const expressions = vrm.expressionManager?.expressions
@@ -1342,7 +1437,7 @@ export class CharacterManager {
               // just dispose for now
               this._disposeTrait(this.avatar[traitGroupID].vrm)
               
-              this.avatar[traitGroupID] = {}
+              delete this.avatar[traitGroupID]
               // XXX restore effects without setTimeout
           }
           return;
@@ -1406,9 +1501,6 @@ class TraitLoadingManager{
         const gltfLoader = new GLTFLoader(loadingManager);
         gltfLoader.crossOrigin = 'anonymous';
         gltfLoader.register((parser) => {
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, helperRoot:vrmHelperRoot})
-            // const springBoneLoader = new VRMSpringBoneLoaderPlugin(parser);
-            // return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true, springBonePlugin:springBoneLoader})
             return new VRMLoaderPlugin(parser, {autoUpdateHumanBones: true})
         })
       
