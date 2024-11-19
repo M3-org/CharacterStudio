@@ -130,7 +130,7 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
         }
       }
       else {
-        context.fillStyle = name === 'diffuse' ? `#${material.color.clone().getHexString()}` : name === 'normal' ? '#8080ff' : name === 'orm' ?
+        context.fillStyle = name === 'diffuse' ? `#${material.color.clone().getHexString()}` : name === 'normal' ? '#bcbcff' : name === 'orm' ?
           `#${(new THREE.Color(material.aoMapIntensity, material.roughness, material.metalness)).getHexString()}` : '#7F7F7F';
         context.fillRect(min.x * ATLAS_SIZE_PX, min.y * ATLAS_SIZE_PX, xTileSize, yTileSize);
       }
@@ -425,7 +425,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
             }
             break;
           case 'normal':
-            clearColor = new THREE.Color(0x8080FF);
+            clearColor = new THREE.Color(0xbcbcff);
             break;
           case 'orm':
             clearColor = new THREE.Color(0, material.roughness, material.metalness);
