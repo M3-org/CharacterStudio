@@ -690,17 +690,16 @@ export async function combine(model,avatar, options) {
                 }
 
             });
-            const { dest, destMorphToMerge} = mergeGeometry({ meshes:skinnedMeshes, scale , morphTargetsProcess },isVrm0);
+            const { dest, destMorphToMerge } = mergeGeometry({ meshes:skinnedMeshes, scale , morphTargetsProcess },isVrm0);
             console.log('destMorphToMerge',destMorphToMerge)
             const geometry = new THREE.BufferGeometry();
 
-            // modify all merged vertices to reflect vrm0 format
-            if (isVrm0){
-                for (let i = 0; i < dest.attributes.position.array.length; i+=3){
-                    dest.attributes.position.array[i] *= -1
-                    dest.attributes.position.array[i+2] *= -1
-                }
+
+            for (let i = 0; i < dest.attributes.position.array.length; i+=3){
+                dest.attributes.position.array[i] *= -1
+                dest.attributes.position.array[i+2] *= -1
             }
+            
 
             geometry.attributes = dest.attributes;
             geometry.morphAttributes = dest.morphAttributes;
@@ -903,7 +902,7 @@ function mergeSourceMorphTargetDictionaries(params) {
     });
     return destMorphTargetDictionary;
 }
-function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}, isVrm0 = false) {
+function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
     allSourceMorphAttributes.forEach((sourceMorphAttributes) => {
@@ -1134,6 +1133,7 @@ function mergeSourceIndices({ meshes }) {
 //     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 // }
 
+
 /**
  * 
  * @param {{
@@ -1149,6 +1149,7 @@ function mergeSourceIndices({ meshes }) {
  * @returns 
  */
 export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = false) {
+
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
@@ -1200,7 +1201,7 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
         scale,
-    },isVrm0);
+    });
     dest.morphTargetInfluences = mergeMorphTargetInfluences({
         meshes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
