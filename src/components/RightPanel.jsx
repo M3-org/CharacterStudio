@@ -29,7 +29,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
-            {selectedOption=="EmotionManager" && <Emotions selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="EmotionManager" && <Emotions />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
@@ -74,7 +74,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                         rarity={selectedOption == "ThumbnailCreation" ? "mythic" : "none"}      
                         />
                     </div>
-                    {selectedTrait && <div
+                     <div
                             key={"Emotions"}
                             onClick={()=>{setSelectedOptionString("EmotionManager")}}
                         >
@@ -83,7 +83,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                             icon={emotionIcon}
                             rarity={selectedOption == "EmotionManager" ? "mythic" : "none"}      
                             />
-                        </div>}
+                        </div>
                     </div>    
                 </div>
 
