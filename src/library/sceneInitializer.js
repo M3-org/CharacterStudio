@@ -1,14 +1,25 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 
 export function sceneInitializer(canvasId) {
     const scene = new THREE.Scene()
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+
+    
+    new RGBELoader().load("./hdr/studio_small_09_2k.hdr", (hdr_) => {
+        hdr_.mapping = THREE.EquirectangularReflectionMapping;
+        hdr_.colorSpace = THREE.LinearSRGBColorSpace
+        scene.environment = hdr_;
+    })
+    scene.environmentIntensity = 0.5
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+
     // rotate the directional light to be a key light
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
@@ -47,7 +58,7 @@ export function sceneInitializer(canvasId) {
     controls.dampingFactor = 0.1;
 
     const minPan = new THREE.Vector3(-0.5, 0, -0.5);
-    const maxPan = new THREE.Vector3(0.5, 1.5, 0.5);
+    const maxPan = new THREE.Vector3(0.5, 1.7, 0.5);
 
     const handleResize = () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -58,7 +69,7 @@ export function sceneInitializer(canvasId) {
     window.addEventListener("resize", handleResize);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const clock = new THREE.Clock();
     const animate = () => {

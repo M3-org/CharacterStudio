@@ -3,12 +3,12 @@ import { Buffer } from "buffer";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { RenderPixelatedPass } from "./shaders/RenderPixelatedPass";
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 import { PixelatePass } from "./shaders/PixelatePass"
-
+import CameraFrameManager from "./cameraFrameManager";
+/**
+ * @typedef {import("./cameraFrameManager.js").default} CameraFrameManager
+ */
 const screenshotSize = 4096;
-
-const localVector = new THREE.Vector3();
 
 class PixelRenderer{
   constructor(scene,camera, pixelSize ){
@@ -23,7 +23,7 @@ class PixelRenderer{
 
     const screenshotResolution = new THREE.Vector2(screenshotSize,screenshotSize);
     pixelRenderer.setClearColor( 0x000000, 0);
-    pixelRenderer.outputEncoding = THREE.LinearEncoding;
+    pixelRenderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     pixelRenderer.setSize(screenshotResolution.x, screenshotResolution.y);
     pixelRenderer.setPixelRatio(window.devicePixelRatio);
     //pixelRenderer.shadowMap.enabled = true
@@ -41,8 +41,6 @@ class PixelRenderer{
 
     
     composer.addPass( this._renderPixelPass )
-    // let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
-    // composer.addPass( bloomPass )
     composer.addPass( this._pixelPass )
     
     this.renderer = pixelRenderer;
@@ -67,6 +65,12 @@ class PixelRenderer{
 }
 
 export class ScreenshotManager {
+/**
+ * @typedef {import("./cameraFrameManager.js").default} CameraFrameManager
+ * @type {CameraFrameManager}
+ */
+  cameraFrameManager
+
   constructor(characterManager, scene) {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
@@ -77,18 +81,15 @@ export class ScreenshotManager {
     this.renderer.premultipliedAlpha = false;
     this.scene = scene;
     this.characterManager = characterManager;
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.renderer.setSize(screenshotSize, screenshotSize);
 
-    this.camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
+    const camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
     this.textureLoader = new THREE.TextureLoader();
     this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
     this.sceneBackgroundAlpha = 1;
-    this.frameOffset = {
-      min:0.2,
-      max:0.2,
-    }
+
     this.usesBackgroundImage = false;
 
     this.backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
@@ -97,33 +98,32 @@ export class ScreenshotManager {
     plane.renderOrder = -1
     this.backgroundPlane = plane;
 
-    this.pixelRenderer = new PixelRenderer(scene, this.camera, 20);
+    this.pixelRenderer = new PixelRenderer(scene, camera, 20);
 
-
-    this.boneOffsets = {
-      head:null,
-      neck:null,
-      chest:null,
-      hips:null,
-      spine:null,
-      leftUpperLeg:null,
-      leftLowerLeg:null,
-      leftFoot:null,
-      rightUpperLeg:null,
-      rightLowerLeg:null,
-      rightFoot:null,
-    }
+    this.cameraFrameManager = new CameraFrameManager(camera);
+    this.cameraFrameManager.setFrameTarget(this.characterManager.characterModel);
   }
   setScene(scene){
     this.scene = scene;
   }
-
-  setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30){
-    this.camera.position.copy(cameraPosition);
-    this.camera.lookAt(lookAtPosition)
-    this.camera.fov = fieldOfView;
+  get camera(){
+    return this.cameraFrameManager.camera
   }
 
+  /**
+   * 
+   * @param {*} cameraPosition 
+   * @param {*} lookAtPosition 
+   * @param {*} fieldOfView 
+   */
+  setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30){
+    this.cameraFrameManager.setupCamera(cameraPosition, lookAtPosition, fieldOfView)
+
+  }
+
+  /**
+   * @dev currently unused; @todo remove?
+   */
   _getCharacterMinMax(){
     let minY = Number.POSITIVE_INFINITY;
     let maxY = Number.NEGATIVE_INFINITY;
@@ -147,65 +147,15 @@ export class ScreenshotManager {
     return {minY, maxY}
   }
 
-  frameCloseupShot(){
-    this.frameShot("head", "head")
-  }
-  frameMediumShot(){
-    this.frameShot("chest", "head")
-  }
-  frameCowboyShot(){
-    this.frameShot("hips", "head")
-  }
-  frameFullShot(){
-    this.frameShot("leftFoot", "head")
-  }
 
-
-  frameShot(minBoneName, maxBoneName, cameraPosition = null, minGetsMaxVertex = false, maxGetsMaxVertex = true){
-    const min = this._getBoneWorldPositionWithOffset(minBoneName, minGetsMaxVertex);
-    const max = this._getBoneWorldPositionWithOffset(maxBoneName, maxGetsMaxVertex);
-    min.y -= this.frameOffset.max;
-    max.y += this.frameOffset.min;
-
-    cameraPosition = cameraPosition || new THREE.Vector3(0,0,0)
-    
-    this.positionCameraBetweenPoints(min,max,cameraPosition)
-  }
-
-  setBottomFrameOffset(min){
-    this.frameOffset.min = min;
-  }
-  setTopFrameOffset(max){
-    this.frameOffset.max = max;
-  }
-
-
-  async calculateBoneOffsets(minWeight) {
-    for (const boneName in this.boneOffsets) {
-        // Use await to wait for the promise to resolve
-        const result = await this._getMinMaxOffsetByBone(this.characterManager.characterModel, boneName, minWeight);
-
-        // Store the result in the boneOffsets property
-        this.boneOffsets[boneName] = result;
-    }
-}
-
-  _getBoneWorldPositionWithOffset(boneName, getMax) {
-    const bone = this._getFirstBoneWithName(boneName);
-    if (!bone || !this.boneOffsets[boneName]) {
-        return new THREE.Vector3();
-    }
-    const boneWorldPosition = new THREE.Vector3();
-    bone.getWorldPosition(boneWorldPosition);
-    
-    const offset = getMax ? this.boneOffsets[boneName].max : this.boneOffsets[boneName].min;
-    boneWorldPosition.y += offset.y;
-
-    return boneWorldPosition;
-  }
-
-  _getBoneWorldPosition(boneName){
-    const bone = this._getFirstBoneWithName(boneName);
+  /**
+   * @dev UNUSED anywhere, maybe @todo remove?
+   * @param {string} boneName 
+   * @param {THREE.Object3D|undefined} targetObject
+   * @returns 
+   */
+  _getBoneWorldPosition(boneName,targetObject=undefined){
+    const bone = this.cameraFrameManager._getFirstBoneWithName(boneName,targetObject);
     if (bone != null){
       return new THREE.Vector3().setFromMatrixPosition(bone.matrixWorld);
     }
@@ -215,196 +165,6 @@ export class ScreenshotManager {
     }
   }
 
-  _getFirstBoneWithName(boneName) {
-    let resultBone = null;
-
-    this.characterManager.characterModel.traverse(child => {
-        if (child instanceof THREE.SkinnedMesh) {
-            if (!child.geometry) {
-                console.error("Invalid skinned mesh found in children.");
-                return;
-            }
-
-            const boneIndex = child.skeleton.bones.findIndex(bone => bone.name === boneName);
-
-            if (boneIndex !== -1) {
-                resultBone = child.skeleton.bones[boneIndex];
-                // Break out of the loop since we found the bone
-                return;
-            }
-        }
-    });
-    return resultBone;
-  }
-
-  setCameraFrameWithName(shotName, vectorCameraPosition){
-    const shotNameLower = shotName.toLowerCase();
-    switch (shotNameLower){
-        case "fullshot":
-            this.frameShot("leftFoot", "head",vectorCameraPosition)
-            break;
-        case "cowboyshot":
-            this.frameShot("hips", "head",vectorCameraPosition)
-            break;
-        case "mediumshot":
-            this.frameShot("chest", "head",vectorCameraPosition)
-            break;
-        case "mediumcloseup":
-        case "mediumcloseupshot":
-            this.frameShot("chest", "head",vectorCameraPosition,true)
-            break;
-        case "closeup":
-        case "closeupshot":
-            this.frameShot("head", "head",vectorCameraPosition)
-            break;
-        default:
-            console.warn("unkown cameraFrame: " + shotName + ". Please use fullShot, cowboyShot, mediumShot, mediumCloseup or closeup")
-            this.frameShot("leftFoot", "head",vectorCameraPosition)
-            break;
-    }
-}
-
-async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
-  return new Promise(async(resolve, reject) => {
-      // Ensure parent is valid
-      if (!parent || !parent.traverse) {
-          console.error("Invalid parent object provided.");
-          reject(null);
-      }
-
-      // Initialize min and max offset vectors
-      const minOffset = new THREE.Vector3(Infinity, Infinity, Infinity);
-      const maxOffset = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
-
-      const prevPos = []
-      parent.traverse(async (child) => {
-        if (child instanceof THREE.SkinnedMesh) {
-          prevPos.push(this._saveBonesPos(child.skeleton));
-          child.skeleton.pose();
-        }
-      });
-      let prevPosCount = 0;
-
-      const delay = ms => new Promise(res => setTimeout(res, ms));
-      await delay(10);
-      // Traverse all children of the parent
-      parent.traverse((child) => {
-          if (child instanceof THREE.SkinnedMesh) {
-              
-              // Ensure each skinnedMesh has geometry
-              if (!child.geometry) {
-                  console.error("Invalid skinned mesh found in children.");
-                  return;
-              }
-
-              // Find the index of the bone by name
-              const boneIndex = child.skeleton.bones.findIndex(bone => bone.name === boneName);
-
-              // Check if the bone with the given name exists
-              if (boneIndex === -1) {
-                  console.error(`Bone with name '${boneName}' not found in one of the skinned meshes.`);
-                  return;
-              }
-
-              const positionAttribute = child.geometry.getAttribute("position");
-              const skinWeightAttribute = child.geometry.getAttribute("skinWeight");
-              const skinIndexAttribute = child.geometry.getAttribute("skinIndex");
-
-              // Iterate through each vertex
-              for (let i = 0; i < positionAttribute.count; i++) {
-                  const worldVertex = new THREE.Vector3().fromBufferAttribute(positionAttribute, i).applyMatrix4(child.matrixWorld);
-
-                  // Check the influence of the bone on the vertex
-                  const skinIndex = skinIndexAttribute.getX(i);
-
-                  if (skinIndex === boneIndex) {
-                      // Get the weight of the bone influence
-                      const influence = skinWeightAttribute.getX(i);
-
-                      // If the influence is above the minimum weight
-                      if (influence >= minWeight) {
-                          // Calculate offset from the bone's position difference
-                          const bone = child.skeleton.bones[boneIndex];
-                          const bonePosition = new THREE.Vector3().setFromMatrixPosition(bone.matrixWorld);
-                          const offset = worldVertex.clone().sub(bonePosition);
-
-                          // Update min and max offset vectors
-                          minOffset.min(offset);
-                          maxOffset.max(offset);
-                      }
-                  }
-              }
-              this._restoreSavedPose(prevPos[prevPosCount], child.skeleton);
-              prevPosCount++;
-          }
-      });
-
-      // Resolve with min and max offset vectors
-      resolve({ min: minOffset, max: maxOffset });
-  });
-}
-
-  _saveBonesPos(skeleton){
-      let savedPose = [];
-      skeleton.bones.forEach(bone => {
-          savedPose.push({
-              position: bone.position.clone(),
-              rotation: bone.rotation.clone(),
-              scale: bone.scale.clone()
-          });
-      });
-      return savedPose;
-  }
-
-  _restoreSavedPose(savedPose, skeleton) {
-    if (savedPose) {
-        skeleton.bones.forEach((bone, index) => {
-            bone.position.copy(savedPose[index].position);
-            bone.rotation.copy(savedPose[index].rotation);
-            bone.scale.copy(savedPose[index].scale);
-        });
-    }
-  }
-
-  positionCameraBetweenPoints(vector1, vector2,cameraPosition, fieldOfView = 30) {
-    const boundingBox = new THREE.Box3();
-    boundingBox.expandByPoint(vector1);
-    boundingBox.expandByPoint(vector2);
-
-    this.camera.fov = fieldOfView;
-
-    const verticalFOV = this.camera.fov * (Math.PI / 180); 
-
-    const diagonalDistance = boundingBox.getSize(new THREE.Vector3()).length();
-
-    const distance = diagonalDistance / (2 * Math.tan(verticalFOV / 2));
-
-    boundingBox.getCenter(localVector)
-    // Set the camera's position and lookAt
-    this.camera.position.copy(localVector);
-
-    cameraPosition.y *= 0.5; 
-
-    this.camera.lookAt(localVector.clone().sub(cameraPosition)); // adjust lookAt position if needed
-
-    // Adjust the camera position based on the calculated distance
-    const direction = new THREE.Vector3();
-    this.camera.getWorldDirection(direction);
-    this.camera.position.addScaledVector(direction, -distance);
-
-    // Update the camera's projection matrix to ensure proper rendering
-    this.camera.updateProjectionMatrix();
-  }
-
-  setCamera(headPosition, playerCameraDistance,fieldOfView = 30) {
-    this.camera.position.copy(headPosition);
-    this.camera.fov = fieldOfView;
-    localVector.set(0, 0, -1);
-    this.cameraDir = localVector.applyQuaternion(this.camera.quaternion);
-    this.cameraDir.normalize();
-    this.camera.position.x -= this.cameraDir.x * playerCameraDistance;
-    this.camera.position.z -= this.cameraDir.z * playerCameraDistance;
-  }
 
   /**
    * Sets the background using either color or image.
@@ -435,6 +195,7 @@ async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
   }
 
   setBackgroundImage(url){
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try{
         const backgroundTexture = await this.texureLoader.load(url);

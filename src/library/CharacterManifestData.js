@@ -173,6 +173,9 @@ export class CharacterManifestData{
     getAllTraits(){
       return this.getRandomTraits(this.allTraits);
     }
+    getAllBlendShapeTraits(){
+      return this.modelTraits.map(traitGroup => traitGroup.getCollection()).flat().map((c)=>c.blendshapeTraits).flat().map((c)=>c?.collection).flat().filter((c)=>!!c);
+    }
     isColliderRequired(groupTraitID){
       if (this.colliderTraits.indexOf(groupTraitID) != -1)
         return true;
@@ -413,8 +416,8 @@ class TraitModelsGroup{
           name,
           iconSvg,
           cameraTarget = { distance:3 , height:1 },
-          cullingDistance,
-          cullingLayer,
+          cullingDistance, // can be undefined; if undefined, will use default from manifestData
+          cullingLayer, // can be undefined; if undefined, will use default from manifestData
           collection,
           restrictedTraits = [],
           restrictedTypes = []
@@ -626,6 +629,8 @@ class TraitColorsGroup{
   }
 }
 class ModelTrait{
+  blendshapeTraits = []; 
+  blendshapeTraitsMap = new Map();
   constructor(traitGroup, options){
       const {
           id,
@@ -636,6 +641,7 @@ class ModelTrait{
           cullingLayer,
           type = [],
           textureCollection,
+          blendshapeTraits,
           colorCollection,
           fullDirectory,
           fullThumbnail,
@@ -668,15 +674,24 @@ class ModelTrait{
       this.thumbnail = thumbnail;
       this.fullThumbnail = fullThumbnail || traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
 
-      this.cullHiddenMeshes = cullingDistance;
-      this.cullingLayer = cullingLayer;
+      this.cullHiddenMeshes = cullingDistance|| [0,0];
+      // Prioritize cullingLayer from trait, then from traitGroup, then default
+      this.cullingLayer = cullingLayer ?? traitGroup.cullingLayer ?? traitGroup.manifestData.defaultCullingLayer ?? 0;
+      // Prioritize cullingDistance from trait, then from traitGroup, then default
+      this.cullingDistance = cullingDistance || traitGroup.cullingDistance || traitGroup.manifestData.defaultCullingDistance || [0,0];
       this.type = type;
 
       this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
       this.targetColorCollection = colorCollection ? traitGroup.manifestData.getColorGroup(colorCollection) : null;
 
-      if (this.targetTextureCollection)
-        console.log(this.targetTextureCollection);
+      if(blendshapeTraits && Array.isArray(blendshapeTraits)){
+
+        this.blendshapeTraits = blendshapeTraits.map((blendshapeGroup) => {
+          return new BlendShapeGroup(this, blendshapeGroup)
+        })
+
+        this.blendshapeTraitsMap = new Map(this.blendshapeTraits.map(item => [item.trait, item]));
+      }
   }
   isRestricted(targetModelTrait){
     if (targetModelTrait == null)
@@ -688,7 +703,7 @@ class ModelTrait{
 
     if (this.type.length > 0 && this.manifestData.restrictedTypes > 0){
 
-      haveCommonValue = (arr1, arr2) => {
+      const haveCommonValue = (arr1, arr2) => {
         if (arr1 == null || arr2 == null)
           return false;
         for (let i = 0; i < arr1.length; i++) {
@@ -700,15 +715,128 @@ class ModelTrait{
       }
 
       const restrictedTypes = this.manifestData.restrictedTypes;
-      traitTypes = getAsArray(this.type);
+      const traitTypes = getAsArray(this.type);
       traitTypes.forEach(type => {
         return haveCommonValue(restrictedTypes[type], traitTypes)
       });
     }
     return false;
   }
+  getGroupBlendShapeTraits(){
+    return this.blendshapeTraits;
+  }
 
+  /**
+   * 
+   * @param {string} traitGroupID 
+   * @returns {BlendShapeTrait[]}
+   */
+  getBlendShapes(traitGroupID){
+    return this.blendshapeTraitsMap?.get(traitGroupID)?.collection
+  }
+
+  /**
+   * 
+   * @param {string} traitGroupID 
+   * @param {string} traitID 
+   * @returns {BlendShapeTrait | undefined}
+   */
+  getBlendShape(traitGroupID,traitID){
+    return this.blendshapeTraitsMap?.get(traitGroupID)?.getTrait(traitID);
+  }
 }
+
+
+export class BlendShapeGroup {
+  trait
+  name
+  isBlendShapeGroup = true
+  collection=[]
+  cameraTarget=null
+  collectionMap= null
+  /**
+   * @param {ModelTrait} modelTrait 
+   * @param {BlendShapeGroupModelTraitData} options 
+   */
+  constructor( modelTrait, options){
+    const {
+        trait,
+        name,
+        collection,
+        cameraTarget = modelTrait.traitGroup.cameraTarget || { distance:3 , height:1 }
+    }= options;
+    this.modelTrait = modelTrait;
+    this.trait = trait;
+    this.name = name;
+
+    this.cameraTarget = cameraTarget;
+    this.createCollection(collection);
+  }
+  /**
+   * @param {BlendShapeTraitData[]} itemCollection 
+   * @param {boolean} [replaceExisting] (default false)
+   */
+  createCollection(itemCollection, replaceExisting = false){
+    if (replaceExisting) this.collection = [];
+
+    getAsArray(itemCollection).forEach(item => {
+      this.collection.push(new BlendShapeTrait(this, item))
+    });
+    this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  /**
+   * @param {number} index 
+   */
+  getTraitByIndex(index){
+    return this.collection[index];
+  }
+
+  getRandomTrait(){
+    return this.collection.length > 0 ? 
+      this.collection[Math.floor(Math.random() * this.collection.length)] : 
+      null;
+  }
+}
+
+export class BlendShapeTrait{
+  id
+  name
+  fullThumbnail=undefined
+  isBlendShape = true
+  /**
+   * @param {BlendShapeGroup} parentGroup 
+   * @param {BlendShapeTraitData} options 
+   */
+  constructor(parentGroup,options){
+      const {
+          id,
+          name,
+          fullThumbnail
+      }= options;
+
+      if(!id){
+        console.warn("BlendShapeTrait is missing id, parent trait: "+ parentGroup.trait)
+      }
+      if(!name){
+        console.warn("BlendShapeTrait is missing name, parent trait: "+ parentGroup.trait)
+      }
+
+      this.parentGroup = parentGroup;
+      this.id = id;
+      this.fullThumbnail = fullThumbnail;
+      this.name = name;
+  }
+
+  getGroupId(){
+    return this.parentGroup.trait;
+  }
+}
+
 class TextureTrait{
   constructor(traitGroup, options){
       const {

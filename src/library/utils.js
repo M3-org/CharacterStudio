@@ -33,7 +33,7 @@ export async function setTextureToChildMeshes(scene, url){
 
   // Load the image as a texture
   const texture = await textureLoader.load(url);
-  texture.encoding = THREE.sRGBEncoding;
+  texture.colorSpace = THREE.SRGBColorSpace;
   texture.flipY = false;
 
   // Traverse through the child meshes in the scene
@@ -180,8 +180,16 @@ export function getMaterialsSortedByArray (meshes){
 
   return { stdMats, stdCutoutpMats, stdTranspMats , mToonMats, mToonCutoutMats , mToonTranspMats }
 }
-
-export async function getModelFromScene(avatarScene, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
+/**
+ * @dev UNUSED ? To delete?
+ * @param {import("three/examples/jsm/Addons.js").GLTF} modelScene 
+ * @param {Object} avatar
+ * @param {string} [format] 
+ * @param {THREE.Color} [skinColor] 
+ * @param {number} [scale] 
+ * @returns 
+ */
+export async function getModelFromScene(modelScene,avatar, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter();
     const options = {
@@ -193,13 +201,13 @@ export async function getModelFromScene(avatarScene, format = 'glb', skinColor =
       maxTextureSize: 1024 || Infinity
     };
 
-    const avatar = await combine({ transparentColor: skinColor, avatar: avatarScene, scale:scale });
+    const avatarCombined = await combine(modelScene,avatar,{ transparentColor: skinColor, scale:scale });
 
-    const glb = await new Promise((resolve) => exporter.parse(avatar, resolve, (error) => console.error("Error getting model", error), options));
+    const glb = await new Promise((resolve) => exporter.parse(avatarCombined, resolve, (error) => console.error("Error getting model", error), options));
     return new Blob([glb], { type: 'model/gltf-binary' });
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
-    const vrm = await new Promise((resolve) => exporter.parse(avatarScene, resolve));
+    const vrm = await new Promise((resolve) => exporter.parse(modelScene, resolve));
     return new Blob([vrm], { type: 'model/gltf-binary' });
   } else {
     return console.error("Invalid format");
@@ -843,4 +851,25 @@ const describe = (function () {
 })();
 export function describeObject3D(root) {
     return traverseWithDepth({ object3D: root, callback: describe, result: [] }).join("\n");
+}
+
+
+/**
+ * 
+ * @param {THREE.Mesh} mesh 
+ * @param {{[key:string]:{
+ * index:number,
+ * primitives:number[]
+ *}}} oldDictionary 
+ * @returns 
+ */
+export function doesMeshHaveMorphTargetBoundToManager(mesh, oldDictionary){
+  if(!mesh.morphTargetDictionary) return false
+
+  for(const key of Object.keys(mesh.morphTargetDictionary)){
+    if(oldDictionary[key]){
+      return true
+    }
+  }
+  return false
 }

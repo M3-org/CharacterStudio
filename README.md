@@ -35,7 +35,23 @@ npm run get-assets
 We separate the program from the asset packs. We have some sample assets here: https://github.com/memelotsqui/character-assets
 ![Screenshot from 2023-10-17 17-10-38](https://github.com/M3-org/CharacterStudio/assets/32600939/23768dc3-b834-4f70-a986-a4a0141c4014)
 
-Instructions coming soon
+Refer to docs to add your own 3d models
+
+## Features
+- **Personalized Creation**: Point and click to build 3D characters
+    - Drag and drop local 3D files (VRM) and textures
+    - Color picker for adding a personal touch
+    - Export creatoins as glb and VRM + screenshots
+- **Dynamic animation**: Variety of programmable animations
+- **Effortless Optimization** One-click VRM optimizer
+    - Merge skinned meshes + Texture atlassing
+        - Can reduce avatars to a single draw call!
+- **Batch Export**: Randomize or adhere to metadata schemas
+- **Transparent Development**: Open-source MIT licensed codebase
+- **Robust Rendering**: Using Three.js, WebGL, and React
+    - Recently refactored to NOT need React as a dependency
+    - Logic is now all inside `CharacterManager` class
+- **Face auto culling**: Automatically cull undereneath faces with custom layer system
 
 ---
 

@@ -795,6 +795,19 @@ export default class VRMExporterv0 {
             extensionsUsed.push("KHR_texture_basisu");
         }
 
+        /**
+         * Check for bone count mismatch else the VRM will be broken
+         */
+        for(const skin of outputSkins){
+            const mats = outputAccessors.filter(acc => acc.type == "MAT4");
+            for(let m of mats){
+                if(skin.joints.length != m.count){
+                    throw new Error(`The number of joints in the skin is not equal to the number of Accessors of type MAT4. Got ${skin.joints.length} when accessors show ${m.count} This is usually because of a bone count mismatch in your VRMs!`);
+                }
+            }
+
+        }
+
         const outputData = {
             accessors: outputAccessors,
             asset: exporterInfo,

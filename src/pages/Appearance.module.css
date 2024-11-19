@@ -126,6 +126,14 @@
   width: 140px;
   position: relative;
 }
+.selector-container-column {
+  user-select: none;
+  flex: 1;
+  flex-direction: column;
+  width: 140px;
+  position: relative;
+}
+
 .selectorButton {
   padding: 0.25em;
   display: block;
@@ -191,4 +199,14 @@
   align-items : center;
   user-select: none;
   cursor: pointer;
+}
+
+.relativeBox{
+  position: relative;
+}
+
+.blendshapeGroup{
+  flex-direction: column;
+  display: flex;
+  color: white;
 }

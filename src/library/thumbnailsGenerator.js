@@ -1,11 +1,15 @@
-import * as THREE from "three"
+
 import { getAsArray, getVectorCameraPosition } from "./utils";
 import { ZipManager } from "./zipManager";
 
-const localVector3 = new THREE.Vector3();
-
 
 export class ThumbnailGenerator {
+        /**
+     * @typedef {import('./screenshotManager').ScreenshotManager} ScreenshotManager
+     * @type {ScreenshotManager}
+     */
+    screenshotManager
+
     constructor(characterManager){
         this.characterManager = characterManager;
         this.screenshotManager = characterManager.screenshotManager;
@@ -45,13 +49,12 @@ export class ThumbnailGenerator {
         // const normalizedTopOffset = topFrameOffsetPixels/height;
         // const normalizedBottomOffset = bottomFrameOffsetPixels/height;
 
-        const delay = ms => new Promise(res => setTimeout(res, ms));
-        
-        this.screenshotManager.setBottomFrameOffset(bottomFrameOffset);
-        this.screenshotManager.setTopFrameOffset(topFrameOffset);
+
+        this.screenshotManager.cameraFrameManager.setBottomFrameOffset(bottomFrameOffset);
+        this.screenshotManager.cameraFrameManager.setTopFrameOffset(topFrameOffset);
         this.screenshotManager.setBackground(backgroundColor)
         this.blinkManager.enableScreenshot();
-        await this.screenshotManager.calculateBoneOffsets(0.2);
+        await this.screenshotManager.cameraFrameManager.calculateBoneOffsets(this.characterManager.characterModel,0.2);
 
         const scope = this;
         
@@ -62,7 +65,7 @@ export class ThumbnailGenerator {
 
             const zip = exsitingZipFile == null ? new ZipManager() : exsitingZipFile;
             let singleSave = false;
-            async function processScreenshots() {
+            const processScreenshots = async()=> {
                 for (const thumbnailInfo of thumbnailsCollection) {
                     
                     const {
@@ -112,11 +115,11 @@ export class ThumbnailGenerator {
 
                     const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                     if (cameraFrame){
-                        scope.screenshotManager.setCameraFrameWithName(cameraFrame, vectorCameraPosition);
+                        scope.screenshotManager.cameraFrameManager.setCameraFrameWithName(cameraFrame, vectorCameraPosition);
                     }
                     else{
                         
-                        scope.screenshotManager.frameShot(bottomBoneName, topBoneName, vectorCameraPosition, bottomBoneMaxVertex, topBoneMaxVertex);
+                        scope.screenshotManager.cameraFrameManager.frameShot(bottomBoneName, topBoneName, vectorCameraPosition, bottomBoneMaxVertex, topBoneMaxVertex);
                     }
 
                     //let counter = 0;

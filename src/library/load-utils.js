@@ -1,8 +1,8 @@
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import {  GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { getAsArray, renameVRMBones,getUniqueId } from "../library/utils"
 import { findChildByName } from '../library/utils';
-import { PropertyBinding } from 'three';
+import { PropertyBinding,SkinnedMesh } from 'three';
 
 export const loadVRM = async(url) => {
     const gltfLoader = new GLTFLoader()
@@ -27,7 +27,48 @@ export const loadVRM = async(url) => {
     }
     return vrm;
 }
+/**
+ * @param {GLTF} gltf 
+ */
+export const renameMorphTargets = (gltf) => {
+  const json = gltf.parser.json
+  const meshesJson = json.meshes;
+  const associations = gltf.parser.associations
 
+  gltf.scene.traverse((child) => {
+    if(child instanceof SkinnedMesh){
+      if(child.morphTargetDictionary){
+        let hasEditedMorphs = false
+        const associationValues = associations.get(child)
+        if(typeof associationValues == 'undefined') return;
+
+        const meshIndex = associationValues.meshes||0;
+        const primitivesIndex = associationValues.primitives||0;
+        const meshJson = meshesJson[meshIndex]
+
+        const primitives = meshJson?.primitives[primitivesIndex]
+        if(primitives?.extras?.targetNames){
+          const targetNames = primitives.extras.targetNames;
+          for (let i = 0; i < targetNames.length; i++){
+            // console.log('assigning morphTargetDictionary',targetNames[i])
+            child.morphTargetDictionary[targetNames[i]] = i;
+            hasEditedMorphs = true;
+          }
+        }
+
+        if(hasEditedMorphs){
+          // remove all morph target keys that are numbers
+          for(const key in child.morphTargetDictionary){
+            if(!isNaN(parseInt(key))){
+              delete child.morphTargetDictionary[key]
+            }
+          }
+        }
+      }
+    }
+  })
+
+}
 export const addVRMToScene = (vrm, scene) => {
   const vrmData = vrm.userData.vrm;
   renameVRMBones(vrmData);
