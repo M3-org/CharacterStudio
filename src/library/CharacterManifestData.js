@@ -599,8 +599,13 @@ class TraitTexturesGroup{
         trait,
         collection
     }= options;
+    if(!trait){
+      console.warn("TraitTexturesGroup is missing property trait")
+      this.trait = "undefined"+Math.floor(Math.random()*10)
+    }else{
+      this.trait = trait;
+    }
     this.manifestData = manifestData;
-    this.trait = trait;
 
     this.collection = [];
     this.collectionMap = null;
@@ -678,8 +683,12 @@ export class DecalTextureGroup{
         collection
     }= options;
     this.manifestData = manifestData;
-    this.trait = trait;
-
+    if(!trait){
+      console.warn("TraitTexturesGroup is missing property trait")
+      this.trait = "undefined"+Math.floor(Math.random()*10)
+    }else{
+      this.trait = trait;
+    }
     this.collection = [];
     this.collectionMap = null;
     this.createCollection(collection);    
