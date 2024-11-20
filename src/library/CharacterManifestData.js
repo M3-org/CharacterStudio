@@ -684,7 +684,7 @@ export class DecalTextureGroup{
     }= options;
     this.manifestData = manifestData;
     if(!trait){
-      console.warn("TraitTexturesGroup is missing property trait")
+      console.warn("DecalTextureGroup is missing property trait")
       this.trait = "undefined"+Math.floor(Math.random()*10)
     }else{
       this.trait = trait;
