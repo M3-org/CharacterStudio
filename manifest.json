@@ -11,7 +11,7 @@
       "name": "Anata",
       "description": "Male",
       "portrait": "./assets/portraitImages/male.jpg",
-      "manifest":"https://m3-org.github.io/loot-assets/anata/male/manifest.json",
+      "manifest":"./loot-assets/anata/male/manifest.json",
       "format": "vrm"
     },
     {
