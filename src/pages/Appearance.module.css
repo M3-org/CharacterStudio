@@ -154,13 +154,18 @@
   background: rgba(5, 11, 14, 0.8);
   width:40px;
   height: 40px;
-  position: absolute;
-  right: -40px;
-  top: 15px;
   display: flex;
   align-items: center;
   border-radius: 0 8px 8px 0;
   cursor: pointer;
+}
+.selectorPickerTabs {
+  position: absolute;
+  right: -40px;
+  top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap:2px;
 }
 .selectorColorPickerImg{
   width:20px;

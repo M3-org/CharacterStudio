@@ -1,5 +1,22 @@
 import { getAsArray } from "./utils";
 
+/**
+ * @typedef {Object} TextureCollectionItem
+ * @property {string} id
+ * @property {string} name
+ * @property {string} directory
+ * @property {string} [fullDirectory]
+ * @property {string} [thumbnail]
+ */
+
+/**
+ * @typedef {Object} TextureCollection
+ * @property {string} trait
+ * @property {string} type
+ * @property {TextureCollectionItem[]} collection
+ * 
+ */
+
 export class CharacterManifestData{
     constructor(manifest){
       const {
@@ -23,6 +40,7 @@ export class CharacterManifestData{
         vrmMeta,
         traits,
         textureCollections,
+        decalCollections,
         colorCollections,
         canDownload = true,
         downloadOptions = {}
@@ -104,6 +122,11 @@ export class CharacterManifestData{
       this.textureTraits = [];
       this.textureTraitsMap = null;
       this.createTextureTraits(textureCollections);
+
+      this.decalTraits = [];
+      this.decalTraitsMap = null;
+
+      this.createDecalTraits(decalCollections);
 
       this.colorTraits = [];
       this.colorTraitsMap = null;
@@ -324,6 +347,14 @@ export class CharacterManifestData{
       return this.textureTraitsMap.get(groupTraitID);
     }
 
+    // decals
+    getDecalTrait(groupTraitID, traitID){
+      return this.getDecalGroup(groupTraitID)?.getTrait(traitID);
+    }
+    getDecalGroup(decalGroupTraitId){
+      return this.decalTraitsMap.get(decalGroupTraitId);
+    }
+
     // colors
     getColorTrait(groupTraitID, traitID){
       return this.getColorGroup(groupTraitID)?.getTrait(traitID);
@@ -360,6 +391,12 @@ export class CharacterManifestData{
       return result;
     }
 
+    getDecalsDirectory(){
+      let result = (this.assetsLocation || "") + (this.decalDirectory || "");
+      if (!result.endsWith("/")&&!result.endsWith("\\"))
+        result += "/";
+      return result;
+    }
     
 
 
@@ -367,9 +404,21 @@ export class CharacterManifestData{
     createModelTraits(modelTraits, replaceExisting = false){
       if (replaceExisting) this.modelTraits = [];
 
+      let hasTraitWithDecals = false
       getAsArray(modelTraits).forEach(traitObject => {
-        this.modelTraits.push(new TraitModelsGroup(this, traitObject))
+        const group = new TraitModelsGroup(this, traitObject)
+        this.modelTraits.push(group)
+
+        /**
+         * We only support one group with decals at the moment; if there are multiple groups with decals, we will log a warning
+         */
+        if(hasTraitWithDecals && group.getAllDecals()?.length){
+          console.warn("Detected multiple traits with decals; only one trait with decals is supported at the moment")
+        }else if (!group.getAllDecals()?.length){
+          hasTraitWithDecals = true
+        }
       });
+
 
       this.modelTraitsMap = new Map(this.modelTraits.map(item => [item.trait, item]));
 
@@ -394,6 +443,19 @@ export class CharacterManifestData{
 
       this.textureTraitsMap = new Map(this.textureTraits.map(item => [item.trait, item]));
     }
+    /**
+     * @param {TextureCollection[]} decalTraitGroups 
+     * @param {boolean} [replaceExisting] 
+     */
+    createDecalTraits(decalTraitGroups, replaceExisting = false){
+      if (replaceExisting) this.decalTraits = [];
+
+      getAsArray(decalTraitGroups).forEach(traitObject => {
+        this.decalTraits.push(new DecalTextureGroup(this, traitObject))
+      });
+
+      this.decalTraitsMap = new Map(this.decalTraits.map(item => [item.trait, item]));
+    }
 
     createColorTraits(colorTraits, replaceExisting = false){
       if (replaceExisting) this.colorTraits = [];
@@ -409,7 +471,16 @@ export class CharacterManifestData{
 
 
 // Must be created AFTER color collections and texture collections have been created
-class TraitModelsGroup{
+export class TraitModelsGroup{
+  /** 
+   * @type {ModelTrait[]}
+  */
+  collection
+  /**
+   * @type {CharacterManifestData}
+   */
+  manifestData
+
     constructor(manifestData, options){
         const {
           trait,
@@ -487,6 +558,15 @@ class TraitModelsGroup{
       return this.collectionMap.get(traitID);
     }
 
+    /**
+     * 
+     * @returns {DecalTrait[]}
+     */
+    getAllDecals(){
+      const decalGroup = this.collection.map(trait => trait.targetDecalCollection).flat();
+      return decalGroup.map((c)=>c?.collection).flat().filter((c)=>!!c);
+    }
+
     getTraitByIndex(index){
       return this.collection[index];
     }
@@ -509,13 +589,23 @@ class TraitModelsGroup{
 
 }
 class TraitTexturesGroup{
+  /**
+   * 
+   * @param {CharacterManifestData} manifestData 
+   * @param {TextureCollection} options 
+   */
   constructor(manifestData, options){
     const {
         trait,
         collection
     }= options;
+    if(!trait){
+      console.warn("TraitTexturesGroup is missing property trait")
+      this.trait = "undefined"+Math.floor(Math.random()*10)
+    }else{
+      this.trait = trait;
+    }
     this.manifestData = manifestData;
-    this.trait = trait;
 
     this.collection = [];
     this.collectionMap = null;
@@ -551,6 +641,86 @@ class TraitTexturesGroup{
 
     getAsArray(itemCollection).forEach(item => {
       this.collection.push(new TextureTrait(this, item))
+    });
+    this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
+  }
+
+  getTrait(traitID){
+    return this.collectionMap.get(traitID);
+  }
+
+  getTraitByIndex(index){
+    return this.collection[index];
+  }
+
+  getRandomTrait(){
+    return this.collection.length > 0 ? 
+      this.collection[Math.floor(Math.random() * this.collection.length)] : 
+      null;
+  }
+}
+export class DecalTextureGroup{
+  /**
+   * @type {string}
+   */
+  trait
+  /**
+   * @type {DecalTrait[]}
+   */
+  collection
+  /**
+   * @type {Map<string,DecalTrait>}
+   */
+  collectionMap
+  /**
+   * 
+   * @param {CharacterManifestData} manifestData 
+   * @param {TextureCollection} options 
+   */
+  constructor(manifestData, options){
+    const {
+        trait,
+        collection
+    }= options;
+    this.manifestData = manifestData;
+    if(!trait){
+      console.warn("DecalTextureGroup is missing property trait")
+      this.trait = "undefined"+Math.floor(Math.random()*10)
+    }else{
+      this.trait = trait;
+    }
+    this.collection = [];
+    this.collectionMap = null;
+    this.createCollection(collection);    
+  }
+
+  appendCollection(decalTraitGroup, replaceExisting=false){
+    decalTraitGroup.collection.forEach(newTextureTrait => {
+      const textureTrait = this.getTrait(newTextureTrait.id)
+      if (textureTrait != null){
+        // replace only if requested ro replace
+        if (replaceExisting){
+          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
+          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
+          const ind = this.collection.indexOf(textureTrait)
+          this.collection[ind] = newTextureTrait;
+        }
+        else{
+          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
+        }
+      }
+      else{
+        // create
+        this.collection.push(newTextureTrait)
+        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
+      }
+    });
+  }
+
+  createCollection(itemCollection, replaceExisting = false){
+    if (replaceExisting) this.collection = [];
+    getAsArray(itemCollection).forEach(item => {
+      this.collection.push(new DecalTrait(this, item))
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
@@ -628,8 +798,20 @@ class TraitColorsGroup{
       null;
   }
 }
-class ModelTrait{
-  blendshapeTraits = []; 
+export class ModelTrait{
+  blendshapeTraits = [];
+  /**
+   * @type {string[]}
+   * */ 
+  decalMeshNameTargets=[]
+  /**
+   * @type {DecalTextureGroup | null}
+   */
+  targetDecalCollection=null
+  /**
+   * @type {TraitModelsGroup}
+   */
+  traitGroup
   blendshapeTraitsMap = new Map();
   constructor(traitGroup, options){
       const {
@@ -643,11 +825,14 @@ class ModelTrait{
           textureCollection,
           blendshapeTraits,
           colorCollection,
+          decalCollection,
+          decalMeshNameTargets,
           fullDirectory,
           fullThumbnail,
       }= options;
       this.manifestData = traitGroup.manifestData;
       this.traitGroup = traitGroup;
+      this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
 
       this.id = id;
       this.directory = directory;
@@ -683,6 +868,7 @@ class ModelTrait{
 
       this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
       this.targetColorCollection = colorCollection ? traitGroup.manifestData.getColorGroup(colorCollection) : null;
+      this.targetDecalCollection = decalCollection ? traitGroup.manifestData.getDecalGroup(decalCollection) : null;
 
       if(blendshapeTraits && Array.isArray(blendshapeTraits)){
 
@@ -838,6 +1024,10 @@ export class BlendShapeTrait{
 }
 
 class TextureTrait{
+  /**
+   * @param {TraitTexturesGroup} traitGroup 
+   * @param {TextureCollectionItem} options 
+   */
   constructor(traitGroup, options){
       const {
           id,
@@ -848,6 +1038,67 @@ class TextureTrait{
       }= options;
       this.traitGroup = traitGroup;
 
+      this.id = id;
+      this.directory = directory;
+      if (fullDirectory){
+        this.fullDirectory = fullDirectory
+      }
+      else{
+        if (Array.isArray(directory))
+        {
+          this.fullDirectory = [];
+          for (let i =0;i< directory.length;i++){
+            this.fullDirectory[i] = traitGroup.manifestData.getTraitsDirectory() + directory[i]
+          }  
+        }
+        else
+        {
+          this.fullDirectory = traitGroup.manifestData.getTraitsDirectory() + thumbnail;
+        }
+      }
+
+      this.name = name;
+      this.thumbnail = thumbnail;
+      this.fullThumbnail = traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
+  }
+}
+export class DecalTrait extends TextureTrait{
+  /**
+   * @type {string}
+   */
+  id
+  /**
+   * @type {string}
+   */
+  directory
+  /**
+   * @type {string | undefined}
+   * */
+  fullDirectory
+  name
+  thumbnail
+  /**
+   * @type {string|undefined}
+   */
+  fullThumbnail
+  /**
+   * @type {TraitTexturesGroup}
+   */
+  traitGroup
+  /**
+   * @param {TraitTexturesGroup} traitGroup 
+   * @param {TextureCollectionItem} options 
+   */
+  constructor( traitGroup, options){
+      super(traitGroup,options);  
+    const {
+            id,
+            directory,
+            fullDirectory,
+            name,
+            thumbnail,
+        }= options;
+      this.traitGroup = traitGroup;
       this.id = id;
       this.directory = directory;
       if (fullDirectory){

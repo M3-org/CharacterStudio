@@ -4,6 +4,17 @@ import { getAsArray, renameVRMBones,getUniqueId } from "../library/utils"
 import { findChildByName } from '../library/utils';
 import { PropertyBinding,SkinnedMesh } from 'three';
 
+/**
+ * @param {string} baseURL base of a path or URL
+ * @param {string} relativeURL next path
+ * @returns 
+ */
+export function combineURLs(baseURL, relativeURL) {
+  return relativeURL && baseURL
+    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    : baseURL ? baseURL: relativeURL;
+}
+
 export const loadVRM = async(url) => {
     const gltfLoader = new GLTFLoader()
     gltfLoader.crossOrigin = 'anonymous';

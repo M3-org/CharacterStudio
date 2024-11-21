@@ -11,6 +11,7 @@ import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} 
 import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
+import OverlayedTextureManager from "./OverlayTextureManager";
 import { CharacterManifestData } from "./CharacterManifestData";
 
 const mouse = new THREE.Vector2();
@@ -45,6 +46,7 @@ export class CharacterManager {
       this.lookAtManager = null;
       this.animationManager = new AnimationManager();
       this.screenshotManager = new ScreenshotManager(this, parentModel || this.rootModel);
+      this.overlayedTextureManager = new OverlayedTextureManager(this)
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       
 
@@ -1464,8 +1466,13 @@ export class CharacterManager {
       this._displayModel(vrm)
         
       this._applyManagers(vrm)
+
+      if(this.overlayedTextureManager){
+        if(traitModel.targetDecalCollection){
+          this.overlayedTextureManager.setTargetVRM(vrm, traitModel.decalMeshNameTargets)
+        }
+      }
       
-      console.log(this.characterModel)
       // and then add the new avatar data
       // to do, we are now able to load multiple vrm models per options, set the options to include vrm arrays
       this.avatar[traitGroupID] = {

@@ -14,6 +14,7 @@ export const SceneProvider = (props) => {
   const [characterManager, setCharacterManager] = useState(null)
   const [loraDataGenerator, setLoraDataGenerator] = useState(null)
   const [spriteAtlasGenerator, setSpriteAtlasGenerator] = useState(null)
+  const [decalManager, setDecalManager] = useState(null)
   const [thumbnailsGenerator, setThumbnailsGenerator] = useState(null)
   const [sceneElements, setSceneElements] = useState(null)
   const [animationManager, setAnimationManager] = useState(null)
@@ -46,6 +47,7 @@ export const SceneProvider = (props) => {
     setSceneElements(sceneElements);
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
+    setDecalManager(characterManager.overlayedTextureManager)
     setControls(controls);
     setLoraDataGenerator(new LoraDataGenerator(characterManager))
     setSpriteAtlasGenerator(new SpriteAtlasGenerator(characterManager))
@@ -132,6 +134,7 @@ export const SceneProvider = (props) => {
         manifest,
         setManifest,
         scene,
+        decalManager,
         characterManager,
         loraDataGenerator,
         spriteAtlasGenerator,

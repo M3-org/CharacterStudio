@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from "react"
+import React, { useContext } from "react"
 import styles from "./Appearance.module.css"
-import { Color } from "three"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
@@ -11,18 +10,25 @@ import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension } from "../library/utils"
 import MenuTitle from "../components/MenuTitle"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import {BlendShapeTrait} from '../library/CharacterManifestData'
+import decalPicker from "../images/sticker.png"
 import { TokenBox } from "../components/token-box/TokenBox"
 import JsonAttributes from "../components/JsonAttributes"
 import cancel from "../images/cancel.png"
+import DecalGridView from "../components/decals/decalGrid"
 import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 
+  /**
+   * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
+   * @typedef {import("../library/CharacterManifestData.js").ModelTrait} ModelTrait
+  */
+
 export const TraitPage ={
   TRAIT:0,
   BLEND_SHAPE:1,
+  DECAL:2
 }
 
 function Appearance() {
@@ -32,10 +38,6 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
-    loraDataGenerator,
-    spriteAtlasGenerator,
-    thumbnailsGenerator,
-    sceneElements
   } = React.useContext(SceneContext)
   
   const [traitView, setTraitView] = React.useState(TraitPage.TRAIT)
@@ -55,7 +57,13 @@ function Appearance() {
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
   const [traits, setTraits] = React.useState(null)
-  const [traitGroupName, setTraitGroupName] = React.useState("")
+  /**
+  * @type {[TraitModelsGroup, React.Dispatch<TraitModelsGroup>]} state
+  */
+  const [selectedTraitGroup, setSelectedTraitGroup] = React.useState(null)
+  /**
+   * @type {[ModelTrait|null, React.Dispatch<ModelTrait|null>]} state
+   */
   const [selectedTrait, setSelectedTrait] = React.useState(null)
   const [selectedBlendshapeTraits, setSelectedBlendshapeTraits] = React.useState({})
   const [selectedVRM, setSelectedVRM] = React.useState(null)
@@ -74,8 +82,8 @@ function Appearance() {
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
       console.log("success")
-      if (traitGroupName != ""){
-        setSelectedTrait(characterManager.getCurrentTraitData(traitGroupName));
+      if (selectedTraitGroup && selectedTraitGroup.trait != ""){
+        setSelectedTrait(characterManager.getCurrentTraitData(selectedTraitGroup.trait));
       }
       setIsLoading(false);
     })
@@ -90,7 +98,7 @@ function Appearance() {
   }
   const handleChangeComplete = (color) =>{
     setColorPicked({ background: color.hex });
-    characterManager.setTraitColor(traitGroupName, color.hex);
+    characterManager.setTraitColor(selectedTraitGroup?.trait, color.hex);
   } 
 
   const handleAnimationDrop = async (file) => {
@@ -102,10 +110,10 @@ function Appearance() {
 
   const handleImageDrop = (file) => {
     setIsPickingColor(false);
-    if (traitGroupName != ""){
+    if (selectedTraitGroup && selectedTraitGroup.trait != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
-      characterManager.loadCustomTexture(traitGroupName, path).then(()=>{
+      characterManager.loadCustomTexture(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
       })
     }
@@ -115,10 +123,10 @@ function Appearance() {
   }
   const handleVRMDrop = (file) =>{
     setIsPickingColor(false);
-    if (traitGroupName != ""){
+    if (selectedTraitGroup && selectedTraitGroup.trait != ""){
       setIsLoading(true);
       const path = URL.createObjectURL(file);
-      characterManager.loadCustomTrait(traitGroupName, path).then(()=>{
+      characterManager.loadCustomTrait(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
       })
     }
@@ -229,10 +237,10 @@ function Appearance() {
   const selectTraitGroup = (traitGroup) => {
     !isMute && playSound('optionClick');
     setIsPickingColor(false);
-    if (traitGroupName !== traitGroup.trait){
+    if (selectedTraitGroup?.trait !== traitGroup.trait){
       setTraitView(TraitPage.TRAIT);
       setTraits(characterManager.getTraits(traitGroup.trait));
-      setTraitGroupName(traitGroup.trait);
+      setSelectedTraitGroup(traitGroup);
 
       const selectedT = characterManager.getCurrentTraitData(traitGroup.trait)
       const selectedBlendshapeTraits = characterManager.getCurrentBlendShapeTraitData(traitGroup.trait);
@@ -245,7 +253,7 @@ function Appearance() {
     }
     else{
       setTraits(null);
-      setTraitGroupName("");
+      setSelectedTraitGroup(null)
       setSelectedTrait(null);
       setSelectedBlendshapeTraits({})
       moveCamera({ targetY: 0.8, distance: 3.2 })
@@ -258,13 +266,15 @@ function Appearance() {
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".vrm"
-
+    if(!selectedTraitGroup){
+      return console.error("Please select a trait group first")
+    }
     input.onchange = e => { 
       var file = e.target.files[0]; 
       if (file.name.endsWith(".vrm")){
         const url = URL.createObjectURL(file);
         setIsLoading(true);
-        characterManager.loadCustomTrait(traitGroupName,url).then(()=>{
+        characterManager.loadCustomTrait(selectedTraitGroup.trait,url).then(()=>{
           setIsLoading(false);
         })
       }
@@ -297,7 +307,7 @@ function Appearance() {
                   <TokenBox
                     size={56}
                     icon={ traitGroup.fullIconSvg }
-                    rarity={traitGroupName !== traitGroup.trait ? "none" : "mythic"}
+                    rarity={selectedTraitGroup?.trait !== traitGroup.trait ? "none" : "mythic"}
                     
                   />
                   <div className={styles["editorText"]}>{traitGroup.name}</div>
@@ -310,32 +320,38 @@ function Appearance() {
       </div>
 
       {/* Option Selection section */
-      !!traits && (
+      !!traits && selectedTraitGroup && (
         <div className={styles["selectorContainerPos"]}>
         
-          <MenuTitle title={traitGroupName} width={130} left={20}/>
-
-          {/* color section */
-          selectedTrait && traitView==TraitPage.TRAIT &&(
-          <div className={styles["selectorColorPickerButton"]}
-            onClick={()=>{setIsPickingColor(!isPickingColor)}}
-            >
-            <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
-          </div>
-          )}
-          {
+          <MenuTitle title={selectedTraitGroup.trait} width={130} left={20}/>
+          <div
+              className={styles["selectorPickerTabs"]}
+              >
+            {/* color section */
+              selectedTrait && traitView==TraitPage.TRAIT && (
+                <div className={styles["selectorColorPickerButton"]}
+                  onClick={()=>{setIsPickingColor(!isPickingColor)}}
+                  >
+                  <img className={styles["selectorColorPickerImg"]} src={colorPicker}/>
+                </div>
+                 )}
+                {selectedTraitGroup && selectedTraitGroup.getAllDecals()?.length && <div className={styles["selectorColorPickerButton"]}
+                  onClick={()=>traitView==TraitPage.DECAL?setTraitView(TraitPage.TRAIT):setTraitView(TraitPage.DECAL)}
+                  >
+                  <img className={styles["selectorColorPickerImg"]} src={decalPicker}/>
+                </div>}
+            </div>
+            {
           traitView==TraitPage.TRAIT && !!isPickingColor && (<div 
             draggable = {false}
             className={styles["selectorColorPickerUI"]}>
             <ChromePicker 
-              draggable = {false}
-              width={'200px'}
+              styles={{ default: {picker:{ width: '200px' }} }}
               color={ colorPicked.background }
               onChange={ handleColorChange }
               onChangeComplete={ handleChangeComplete }
               />
           </div>)}
-          
           <div className={styles["bottomLine"]} />
           <div className={styles["scrollContainerOptions"]}>
           {traitView == TraitPage.TRAIT && (
@@ -344,7 +360,7 @@ function Appearance() {
                 <div
                   key={"randomize-trait"}
                   className={`${styles["selectorButton"]}`}
-                  onClick={() => {randomTrait(traitGroupName)}}
+                  onClick={() => {randomTrait(selectedTraitGroup.trait)}}
                 >
                   <TokenBox
                     size={56}
@@ -354,12 +370,12 @@ function Appearance() {
                 </div>
               }
               {/* Null button section */
-                !characterManager.isTraitGroupRequired(traitGroupName) ? (
+                !characterManager.isTraitGroupRequired(selectedTraitGroup.trait) ? (
                   <div
                     key={"no-trait"}
                     className={`${styles["selectorButton"]}`}
                     icon={cancel}
-                    onClick={() => {removeTrait(traitGroupName)}}
+                    onClick={() => {removeTrait(selectedTraitGroup.trait)}}
                   >
                     <TokenBox
                       size={56}
@@ -392,6 +408,9 @@ function Appearance() {
             {traitView == TraitPage.BLEND_SHAPE && (
               <BlendShapeTraitView selectedTrait={selectedTrait} onBack={()=>{setTraitView(TraitPage.TRAIT)}} selectedBlendShapeTrait={selectedBlendshapeTraits} setSelectedBlendshapeTrait={setSelectedBlendshapeTraits} />
             )}
+            {traitView == TraitPage.DECAL && (
+              <DecalGridView selectedTraitGroup={selectedTraitGroup} onBack={()=>{setTraitView(TraitPage.TRAIT)}} />
+            )}
           </div>
           
           <div className={styles["uploadContainer"]}>
@@ -407,7 +426,7 @@ function Appearance() {
       )}
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
-      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM} traitGroupName={traitGroupName}/>
+      <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM} traitGroupName={selectedTraitGroup?.trait||""}/>
 
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
