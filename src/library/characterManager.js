@@ -69,8 +69,6 @@ export class CharacterManager {
       helperRoot.renderOrder = 10000;
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
-
-      
     }
 
     /**
@@ -593,6 +591,73 @@ export class CharacterManager {
         console.warn(`No trait with name: ${ groupTraitID } was found.`)
       }
     }
+
+
+    /**
+     * @private
+     * Can be used to check if a trait is restricted by another trait
+     * @param {string} traitGroupID
+     * @param {string} traitID
+     * @typedef {Object} RuleResult
+     * @property {boolean} allowed - Whether the trait is allowed.
+     * @property {Object} blocking - The blocking trait information.
+     * @returns {RuleResult[]}
+     */
+    _getTraitAllowedRules(traitGroupID,traitID){
+    const isAllowAggregated = []
+      for( const trait in this.avatar){
+        const object = this.avatar[trait];
+        const isAllowed = object.traitInfo.traitGroup.restrictions?.isReverseAllowed(object.traitInfo.type,traitGroupID,object.traitInfo.id,traitID)
+        if(isAllowed && !isAllowed?.allowed){
+          isAllowAggregated.push(isAllowed)
+        }
+      }
+      return isAllowAggregated.length? isAllowAggregated:[{allowed:true,blocking:{}}]
+    }
+
+    /**
+     * INTERNAL: Checks and Remove blocking traits; Used when loading a new trait
+     * @param {string} groupTraitID 
+     * @param {string} traitID 
+     */
+    _checkRestrictionsBeforeLoad(groupTraitID,traitID){
+      const isAllowed = this._getTraitAllowedRules(groupTraitID,traitID)
+
+      if(isAllowed[0].allowed){
+        return
+      }
+      for(const rule of isAllowed){
+        if(rule.blocking.blockingTrait){
+          /**
+           * We have a trait blocking, remove it;
+           */
+          this.removeTrait(rule.blocking.blockingTrait);
+        }
+         if(rule.blocking.blockingItemId){
+          /**
+           * We have a specific item ID blocking, remove it;
+           */
+          const trait = this.manifestData.getTraitOptionById(rule.blocking.blockingItemId);
+          if(trait){
+            this.removeTrait(trait.traitGroup.trait);
+          }
+        }
+         if (rule.blocking.blockingType){
+          /*
+          * We have a specific type blocking, remove it;
+          */
+          const traits = this.manifestData.getTraitOptionsByType(rule.blocking.blockingType);
+          if(traits.length){
+            for(const prop in this.avatar){
+              if(this.avatar[prop].traitInfo.type == rule.blocking.blockingType){
+                this.removeTrait(prop);
+              }
+            }
+          }
+        }
+      }
+    }
+
     /**
      * Loads a specific trait based on group and trait IDs.
      *
@@ -609,7 +674,7 @@ export class CharacterManager {
           try {
             // Retrieve the selected trait using manifest data
             const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
-
+            this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait),soloView);
