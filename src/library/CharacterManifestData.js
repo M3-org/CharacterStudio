@@ -1,4 +1,9 @@
 import { getAsArray } from "./utils";
+import { ManifestRestrictions } from "./manifestRestrictions";
+
+/**
+ * @typedef {import('./manifestRestrictions').TraitRestriction} TraitRestriction
+ */
 
 /**
  * @typedef {Object} TextureCollectionItem
@@ -33,7 +38,7 @@ export class CharacterManifestData{
         colliderTraits,
         lipSyncTraits,
         blinkerTraits,
-        typeRestrictions,
+        traitRestrictions,
         defaultCullingLayer,
         defaultCullingDistance,
         offset,
@@ -59,7 +64,7 @@ export class CharacterManifestData{
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
-      this.typeRestrictions = typeRestrictions;  
+      this.traitRestrictions = traitRestrictions;
       this.defaultCullingLayer = defaultCullingLayer
       this.defaultCullingDistance = defaultCullingDistance 
       this.offset = offset;
@@ -76,23 +81,6 @@ export class CharacterManifestData{
       this.allTraits = getAllTraitsGroupID();
 
       getAllTraitsGroupID();
-      
-      const populateTypeRestrictions = () =>{
-        if (this.typeRestrictions){
-          for (const prop in this.typeRestrictions){
-            const typeRestrictionValues = getAsArray(this.typeRestrictions[prop]);
-            typeRestrictionValues.forEach(tr => {
-              if (this.typeRestrictions[tr] == null){
-                this.typeRestrictions[tr] = [];
-              }
-              if (this.typeRestrictions[tr].indexOf(prop) == -1){
-                this.typeRestrictions[tr].push(prop);
-              }
-            });
-          }
-        }
-      }
-      populateTypeRestrictions();
       
       const defaultOptions = () =>{
         // Support Old configuration
@@ -117,6 +105,7 @@ export class CharacterManifestData{
       }
       defaultOptions();
 
+      this.manifestRestrictions = new ManifestRestrictions(this);
 
       // create texture and color traits first
       this.textureTraits = [];
@@ -135,6 +124,8 @@ export class CharacterManifestData{
       this.modelTraits = [];
       this.modelTraitsMap = null;
       this.createModelTraits(traits);
+
+      this.manifestRestrictions._init()
     }
     appendManifestData(manifestData, replaceExisting){
       manifestData.textureTraits.forEach(newTextureTraitGroup => {
@@ -196,6 +187,28 @@ export class CharacterManifestData{
     getAllTraits(){
       return this.getRandomTraits(this.allTraits);
     }
+
+    /**
+     * Assumes the trait options have unique IDs;
+     * @param {string} optionID
+     */
+    getTraitOptionById(optionID){
+      return this.getAllTraitOptions().find((option)=>option.id == optionID);
+    }
+    /**
+     * Get trait options by type;
+     * @param {string} type
+    */
+    getTraitOptionsByType(type){
+      return this.getAllTraitOptions().filter((option)=>option.type == type);
+    }
+    /**
+     * Returns all ModelTrait items in an array.
+     */
+    getAllTraitOptions(){
+      return this.modelTraits.map((trait)=>trait?.getCollection()).flat();
+    }
+
     getAllBlendShapeTraits(){
       return this.modelTraits.map(traitGroup => traitGroup.getCollection()).flat().map((c)=>c.blendshapeTraits).flat().map((c)=>c?.collection).flat().filter((c)=>!!c);
     }
@@ -424,13 +437,7 @@ export class CharacterManifestData{
 
       // Updates all restricted traits for each group models
       this.modelTraits.forEach(modelTrait => {
-        modelTrait.restrictedTraits.forEach(groupTraitID => {
-          const groupModel = this.getModelGroup(groupTraitID);
-          console.log(groupModel);
-          if (groupModel){
-            groupModel.addTraitRestriction(modelTrait.trait);
-          }
-        });
+        this.manifestRestrictions.createTraitRestriction(modelTrait);
       });
     }
 
@@ -481,6 +488,11 @@ export class TraitModelsGroup{
    */
   manifestData
 
+  /**
+   * @type {TraitRestriction|undefined}
+   */
+  restrictions
+
     constructor(manifestData, options){
         const {
           trait,
@@ -490,8 +502,6 @@ export class TraitModelsGroup{
           cullingDistance, // can be undefined; if undefined, will use default from manifestData
           cullingLayer, // can be undefined; if undefined, will use default from manifestData
           collection,
-          restrictedTraits = [],
-          restrictedTypes = []
         } = options;
         this.manifestData = manifestData;
 
@@ -500,9 +510,6 @@ export class TraitModelsGroup{
         this.name = name;
         this.iconSvg = iconSvg;
         this.fullIconSvg = manifestData.getTraitIconsDirectorySvg() + iconSvg;
-
-        this.restrictedTraits = restrictedTraits;
-        this.restrictedTypes = restrictedTypes;
 
         this.cameraTarget = cameraTarget;
         this.cullingDistance = cullingDistance;
@@ -534,11 +541,6 @@ export class TraitModelsGroup{
           this.collectionMap.set(newModelTrait.id, newModelTrait);
         }
       });
-    }
-    addTraitRestriction(traitID){
-      if (this.restrictedTraits.indexOf(traitID) == -1){
-        this.restrictedTraits.push(traitID)
-      }
     }
 
     createCollection(itemCollection, replaceExisting = false){
@@ -799,6 +801,11 @@ class TraitColorsGroup{
   }
 }
 export class ModelTrait{
+  /**
+   * @type {string}
+   */
+  type
+
   blendshapeTraits = [];
   /**
    * @type {string[]}
@@ -813,15 +820,19 @@ export class ModelTrait{
    */
   traitGroup
   blendshapeTraitsMap = new Map();
+  /**
+   * @type {string[]}
+   */
+  _restrictedItems = []
   constructor(traitGroup, options){
       const {
           id,
+          type = '',
           directory,
           name,
           thumbnail,
           cullingDistance,
           cullingLayer,
-          type = [],
           textureCollection,
           blendshapeTraits,
           colorCollection,
@@ -829,6 +840,7 @@ export class ModelTrait{
           decalMeshNameTargets,
           fullDirectory,
           fullThumbnail,
+          restrictedItems
       }= options;
       this.manifestData = traitGroup.manifestData;
       this.traitGroup = traitGroup;
@@ -837,7 +849,7 @@ export class ModelTrait{
       this.id = id;
       this.directory = directory;
 
-      
+      this._restrictedItems = restrictedItems||[];
       if (fullDirectory){
         this.fullDirectory = fullDirectory
       }
@@ -882,31 +894,13 @@ export class ModelTrait{
   isRestricted(targetModelTrait){
     if (targetModelTrait == null)
       return false;
-
-    const groupTraitID = targetModelTrait.traitGroup.trait;
-    if (this.traitGroup.restrictedTraits.indexOf(groupTraitID) != -1)
-      return true;
-
-    if (this.type.length > 0 && this.manifestData.restrictedTypes > 0){
-
-      const haveCommonValue = (arr1, arr2) => {
-        if (arr1 == null || arr2 == null)
-          return false;
-        for (let i = 0; i < arr1.length; i++) {
-          if (arr2.includes(arr1[i])) {
-            return true; // Found a common value
-          }
-        }
-        return false; // No common value found
-      }
-
-      const restrictedTypes = this.manifestData.restrictedTypes;
-      const traitTypes = getAsArray(this.type);
-      traitTypes.forEach(type => {
-        return haveCommonValue(restrictedTypes[type], traitTypes)
-      });
+    if(this.traitGroup.restrictions?.isTraitAllowed(targetModelTrait.traitGroup.trait)){
+      return false;
     }
-    return false;
+    if(this.traitGroup.restrictions?.isTypeAllowed(targetModelTrait.type)){
+      return false;
+    }
+    return true
   }
   getGroupBlendShapeTraits(){
     return this.blendshapeTraits;
@@ -1147,138 +1141,4 @@ class SelectedOption{
   }
 }
 
-
-
- const getRestrictions = () => {
-
-    const traitRestrictions = templateInfo.traitRestrictions // can be null
-    const typeRestrictions = {};
-
-    for (const prop in traitRestrictions){
-
-      // create the counter restrcitions traits
-      getAsArray(traitRestrictions[prop].restrictedTraits).map((traitName)=>{
-
-        // check if the trait restrictions exists for the other trait, if not add it
-        if (traitRestrictions[traitName] == null) traitRestrictions[traitName] = {}
-        // make sure to have an array setup, if there is none, create a new empty one
-        if (traitRestrictions[traitName].restrictedTraits == null) traitRestrictions[traitName].restrictedTraits = []
-
-        // finally merge existing and new restrictions
-        traitRestrictions[traitName].restrictedTraits = [...new Set([
-          ...traitRestrictions[traitName].restrictedTraits ,
-          ...[prop]])]  // make sure to add prop as restriction
-      })
-
-      // do the same for the types
-      getAsArray(traitRestrictions[prop].restrictedTypes).map((typeName)=>{
-        //notice were adding the new data to typeRestrictions and not trait
-        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
-        //create the restricted trait in this type
-        if (typeRestrictions[typeName].restrictedTraits == null) typeRestrictions[typeName].restrictedTraits = []
-
-        typeRestrictions[typeName].restrictedTraits = [...new Set([
-          ...typeRestrictions[typeName].restrictedTraits ,
-          ...[prop]])]  // make sure to add prop as restriction
-      })
-    }
-
-    // now merge defined type to type restrictions
-    for (const prop in templateInfo.typeRestrictions){
-      // check if it already exsits
-      if (typeRestrictions[prop] == null) typeRestrictions[prop] = {}
-      if (typeRestrictions[prop].restrictedTypes == null) typeRestrictions[prop].restrictedTypes = []
-      typeRestrictions[prop].restrictedTypes = [...new Set([
-        ...typeRestrictions[prop].restrictedTypes ,
-        ...getAsArray(templateInfo.typeRestrictions[prop])])]  
-
-      // now that we have setup the type restrictions, lets counter create for the other traits
-      getAsArray(templateInfo.typeRestrictions[prop]).map((typeName)=>{
-        // prop = boots
-        // typeName = pants
-        if (typeRestrictions[typeName] == null) typeRestrictions[typeName] = {}
-        if (typeRestrictions[typeName].restrictedTypes == null) typeRestrictions[typeName].restrictedTypes =[]
-        typeRestrictions[typeName].restrictedTypes = [...new Set([
-          ...typeRestrictions[typeName].restrictedTypes ,
-          ...[prop]])]  // make sure to add prop as restriction
-      })
-    }
-  }
-
-    // _filterRestrictedOptions(options){
-    //     let removeTraits = [];
-    //     for (let i =0; i < options.length;i++){
-    //       const option = options[i];
-          
-    //      //if this option is not already in the remove traits list then:
-    //      if (!removeTraits.includes(option.trait.name)){
-    //         const typeRestrictions = restrictions?.typeRestrictions;
-    //         // type restrictions = what `type` cannot go wit this trait or this type
-    //         if (typeRestrictions){
-    //           getAsArray(option.item?.type).map((t)=>{
-    //             //combine to array
-    //             removeTraits = [...new Set([
-    //               ...removeTraits , // get previous remove traits
-    //               ...findTraitsWithTypes(getAsArray(typeRestrictions[t]?.restrictedTypes)),  //get by restricted traits by types coincidence
-    //               ...getAsArray(typeRestrictions[t]?.restrictedTraits)])]  // get by restricted trait setup
-    
-    //           })
-    //         }
-    
-    //         // trait restrictions = what `trait` cannot go wit this trait or this type
-    //         const traitRestrictions = restrictions?.traitRestrictions;
-    //         if (traitRestrictions){
-    //           removeTraits = [...new Set([
-    //             ...removeTraits,
-    //             ...findTraitsWithTypes(getAsArray(traitRestrictions[option.trait.name]?.restrictedTypes)),
-    //             ...getAsArray(traitRestrictions[option.trait.name]?.restrictedTraits),
-    
-    //           ])]
-    //         }
-    //       }
-    //     }
-    
-    //     // now update uptions
-    //     removeTraits.forEach(trait => {
-    //       let removed = false;
-    //       updateCurrentTraitMap(trait, null);
-          
-    //       for (let i =0; i < options.length;i++){
-    //         // find an option with the trait name 
-    //         if (options[i].trait?.name === trait){
-    //           options[i] = {
-    //             item:null,
-    //             trait:templateInfo.traits.find((t) => t.name === trait)
-    //           }
-    //           removed = true;
-    //           break;
-    //         }
-    //       }
-    //       // if no option setup was found, add a null option to remove in case user had it added before
-    //       if (!removed){
-    //         options.push({
-    //           item:null,
-    //           trait:templateInfo.traits.find((t) => t.name === trait)
-    //         })
-    //       }
-    //     });
-       
-    //     return options;
-    // }
-
-        // const findTraitsWithTypes = (types) => {
-        //   const typeTraits = [];
-        //   for (const prop in avatar){
-        //     for (let i = 0; i < types.length; i++){
-        //       const t = types[i]
-            
-        //       if (avatar[prop].traitInfo?.type?.includes(t)){
-        //         typeTraits.push(prop);
-        //         break;
-        //       }
-        //     }
-        //   }
-        //   return typeTraits;
-        // }
- 
     
