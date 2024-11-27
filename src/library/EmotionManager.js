@@ -37,7 +37,7 @@ export class EmotionManager {
    * Time for the emotion to go from 0 to 1 (divide by two if you want fast in and out)
    * @type {number}
    */
-  emotionTime = 0.6;
+  emotionTime = 0.1;
   /**
    * @type {boolean}
    */
