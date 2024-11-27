@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
 import { BlinkManager } from "./blinkManager";
-
+import { EmotionManager } from "./EmotionManager";
 import { VRMLoaderPlugin, VRMSpringBoneCollider } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
@@ -13,12 +13,27 @@ import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
 import { CharacterManifestData } from "./CharacterManifestData";
-
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 const localVector3 = new THREE.Vector3(); 
 
 export class CharacterManager {
+  /**
+   * @type {EmotionManager}
+   */
+  emotionManager = null;
+  /**
+   * @type {AnimationManager}
+   */
+  animationManager = null;
+  /**
+   * @type {BlinkManager}
+   */
+  blinkManager
+  /**
+   * @type {ScreenshotManager}
+   */
+  screenshotManager
     constructor(options){
       this._start(options);
     }
@@ -48,7 +63,7 @@ export class CharacterManager {
       this.screenshotManager = new ScreenshotManager(this, parentModel || this.rootModel);
       this.overlayedTextureManager = new OverlayedTextureManager(this)
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
-      
+      this.emotionManager = new EmotionManager();
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -1423,6 +1438,7 @@ export class CharacterManager {
     _applyManagers(vrm){
   
         this.blinkManager.addVRM(vrm)
+        this.emotionManager.addVRM(vrm)
 
         if (this.lookAtManager)
           this.lookAtManager.addVRM(vrm);
@@ -1474,7 +1490,8 @@ export class CharacterManager {
 
     _disposeTrait(vrm){
       this.blinkManager.removeVRM(vrm)
-
+      this.emotionManager.removeVRM(vrm)
+      
       if (this.lookAtManager)
         this.lookAtManager.removeVRM(vrm);
 

@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from "react"
+import React from "react"
 import styles from "./RightPanel.module.css"
 import MenuTitle from "./MenuTitle"
 import traitsIcon from "../images/t-shirt.png"
 import genSpriteIcon from "../images/users.png"
+import emotionIcon from "../images/emotion.png"
 import genLoraIcon from "../images/paste.png"
 import genThumbIcon from "../images/portraits.png"
 import { TokenBox } from "../components/token-box/TokenBox"
@@ -10,6 +11,7 @@ import TraitInformation from "../components/TraitInformation"
 import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
+import Emotions from "./Emotions"
 
 export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
     const [selectedOption, setSelectedOption] = React.useState("")
@@ -27,6 +29,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
+            {selectedOption=="EmotionManager" && <Emotions />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
@@ -71,6 +74,16 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                         rarity={selectedOption == "ThumbnailCreation" ? "mythic" : "none"}      
                         />
                     </div>
+                     <div
+                            key={"Emotions"}
+                            onClick={()=>{setSelectedOptionString("EmotionManager")}}
+                        >
+                            <TokenBox
+                            size={56}
+                            icon={emotionIcon}
+                            rarity={selectedOption == "EmotionManager" ? "mythic" : "none"}      
+                            />
+                        </div>
                     </div>    
                 </div>
 
