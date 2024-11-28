@@ -13,6 +13,46 @@ const chainId = "0x89";
 let tokenPrice;
 
 
+// setTimeout(() => {
+//   console.log("t")
+//   getContract("0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7");
+// }, 5000);
+
+
+
+async function getContract(address) {
+  // const contractAddress = address; // Loot NFT contract address
+  // const tokenId = 1; // Replace with the desired token ID
+
+  // // ABI for a typical ERC721 contract (simplified)
+  // const abi = [
+  //     "function tokenURI(uint256 tokenId) view returns (string)"
+  // ];
+
+  // const key = await import.meta.env.ALCHEMY_API_KEY;
+  // const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+
+  // //const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+  // // Use Ethereum mainnet provider
+  // //const defaultProvider = ethers.getDefaultProvider('mainnet');
+  // //const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
+  // console.log(defaultProvider);
+  // try {
+  //   // Connect to the contract
+  //   const contract = new ethers.Contract(contractAddress, abi, defaultProvider);
+  //   console.log("Contract instance:", contract);
+
+  //   // Fetch the token URI (metadata URL)
+  //   const tokenURI = await contract.tokenURI(tokenId);
+  //   console.log("Token URI:", tokenURI);
+
+  //   // Handle the metadata (your existing logic continues here)
+  // } catch (error) {
+  //   console.error("Error fetching metadata:", error);
+  // }
+}
+
+
 async function getTokenPrice(){
   if (tokenPrice != null)
     return tokenPrice
@@ -31,6 +71,7 @@ async function getTokenPrice(){
  * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
  */
 export function getOpenseaCollection(address, collection) {
+  console.log("GETTING COLLECTION", collection);
   const options = {
     method: 'GET',
     headers: { accept: 'application/json', 'x-api-key': opensea_Key },
@@ -101,7 +142,6 @@ export async function currentWallet(){
 
 // ready to test
 export async function connectWallet(){
-  console.log("connect")
   if (window.ethereum) {
     try {
       const chain = await window.ethereum.request({ method: 'eth_chainId' })

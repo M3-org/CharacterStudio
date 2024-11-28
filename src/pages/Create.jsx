@@ -161,30 +161,13 @@ function Create() {
       console.log(unlockedTraits)
       // unlockedTraits
     }
-    if (selectedClass.manifestAppend.length > 0){
-      console.log("getting only first one for now")
-      //const address = await connectWallet();
-      const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
-      const result = await getOpenseaCollection(addressTest,selectedClass.manifestAppend[0].collectionLock)
-      const nfts = getAsArray(result?.nfts);
-      console.log("append nfts", nfts);
-      const nftsMeta = await getNftsMeta(nfts);
-      console.log("META", nftsMeta);
-      const decodedSVG = atob(nftsMeta[0].image.split(",")[1]);
-      // Parse the decoded SVG
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
 
-      // Extract text content from the SVG
-      const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
-      console.log(texts);
-    }
     characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(async()=>{
       setViewMode(ViewMode.APPEARANCE)
 
       if (selectedClass.manifestAppend.length > 0){
         console.log("getting only first one for now")
-        //const address = await connectWallet();
+        const address = await connectWallet();
         const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
         const result = await getOpenseaCollection(addressTest,selectedClass.manifestAppend[0].collectionLock)
         const nfts = getAsArray(result?.nfts);
@@ -199,7 +182,10 @@ function Create() {
         const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
 
         console.log("selclass", selectedClass.manifestAppend[0])
-        characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
+        //characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
+        const allowAllTraits = selectedClass.manifestAppend[0].fullTraits || false;
+        console.log(allowAllTraits)
+        characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false, allowAllTraits ? null : texts)
         console.log(texts);
       }
 

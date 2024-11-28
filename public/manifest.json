@@ -35,7 +35,16 @@
       "manifest":"./character-assets/anata/manifest.json",
       "icon": "./assets/icons/class-neural-hacker.svg",
       "format": "vrm",
-      "collectionLock":"the-anata-nft"
+
+      "collectionLock":"the-anata-nft",
+      "manifestAppend":[
+        {
+          "name": "Loot",
+          "description": "Adventurere's loot",
+          "manifest":"./loot-assets/anata/female/manifest.json",
+          "collectionLock":"lootproject"
+        }
+      ]
     },
     {
       "name": "Anata",
@@ -46,6 +55,23 @@
       "format": "vrm",
       "collectionLock":"the-anata-nft",
       "fullTraits":true
+    },
+    {
+      "name": "Tubbies",
+      "description": "Tubbies",
+      "portrait": "./assets/portraitImages/anata.png",
+      "manifest":"./tubby/manifest.json",
+      "icon": "./assets/icons/class-neural-hacker.svg",
+      "format": "vrm",
+      "manifestAppend":[
+        {
+          "name": "Loot",
+          "description": "Adventurere's loot",
+          "manifest":"./loot-assets/tubbycats/manifest.json",
+          "collectionLock":"lootproject",
+          "fullTraits":true
+        }
+      ]
     }
   ],
   "loras":[
@@ -82,26 +108,26 @@
   "defaultAnimations":[
     {
       "name": "T-Pose",
-      "description": "T-Pose",
+      "description": "1_T-Pose",
       "location":"./animations/T-Pose.fbx",
       "icon": "|"
     },
     {
-      "name": "Dancing",
+      "name": "Idle",
       "description": "Basic Dance Animation",
-      "location":"./animations/Dancing.fbx",
+      "location":"./animations/2_Idle.fbx",
       "icon": "|"
     },
     {
       "name": "Walking",
       "description": "Basic Walk Animation",
-      "location":"./animations/Walking.fbx",
+      "location":"./animations/3_Walking.fbx",
       "icon": "|"
     },
     {
       "name": "Waving",
       "description": "Basic Waving Animation",
-      "location":"./animations/Waving.fbx",
+      "location":"./animations/4_Waving.fbx",
       "icon": "|"
     }
   ]
