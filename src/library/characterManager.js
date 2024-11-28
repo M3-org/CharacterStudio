@@ -1182,76 +1182,73 @@ export class CharacterManager {
      * Naive Method that will apply all colliders to all spring bones;
      * @param {import('@pixiv/three-vrm').VRM} vrm 
      */
-    _applySpringBoneColliders(vrm){
-
+     _applySpringBoneColliders(vrm) {
       /**
        * method to add collider groups to the joints of the new VRM
        * @param {import('@pixiv/three-vrm').VRMSpringBoneColliderGroup[]} colliderGroups
        */
-      function addToJoints(colliderGroups){
-        vrm.springBoneManager.joints.forEach((joint)=>{
-          for(const group of colliderGroups){
-            const isSameName = joint.colliderGroups.find((cg) => cg.name === group.name)
-            if(isSameName){
-              return;
-            }
-            if (joint.colliderGroups.indexOf(group) === -1){
+      function addToJoints(colliderGroups) {
+        vrm.springBoneManager.joints.forEach((joint) => {
+          for (const group of colliderGroups) {
+  
+            const joinGroup = joint.colliderGroups.find((cg)=>cg.name == group.name) 
+            if(joinGroup){
+              if(group.colliders.length != joinGroup.colliders.length){
+                const newColliders = group.colliders.filter((c)=>!joinGroup.colliders.find((cc)=>cc.name == c.name))
+                joinGroup.colliders.push(...newColliders)
+              }
+            }else{
               joint.colliderGroups.push(group)
             }
           }
         })
-
       }
-      
-      // Iterate through the avatar record;
-      Object.entries(this.avatar).map(([key, entry]) => {
-
-        // Step 1: Check if other trait have colliders; if they do, just copy them over to new trait
-        const colliderGroups = []
-        // first check if the collider group already exists in vrm.springBoneManager
-        if(entry.vrm.springBoneManager?.colliderGroups.length){
-          colliderGroups.push(...entry.vrm.springBoneManager.colliderGroups)
-        }
-        
-        if(colliderGroups.length){
-          addToJoints(colliderGroups)
-          // done
-          return
-        }
-
-        // Step 2: If no colliders found, check for saved colliders in the userData
-        // This is useful for VRMs that have colliders but no spring bones
-
-        // get nodes with colliders
-        const nodes = getNodesWithColliders(entry.vrm);
-        if(nodes.length == 0) return
-        
-        // For each node with colliders info
-        nodes.forEach((node) => {
-          if(!vrm.springBoneManager){
-            return
-          }
-
+  
+      const getColliders = ()=>{
+        const colliderGroups = [] 
+        Object.entries(this.avatar).map(([_, entry]) => {
+          // get nodes with colliders
+          const nodes = getNodesWithColliders(entry.vrm)
+          if (nodes.length === 0) return
+  
+          // For each node with colliders info
+          nodes.forEach((node) => {
+  
+            if (!vrm.springBoneManager) {
+              return
+            }
+  
             const colliderGroup = {
               colliders: [],
-              name: node.name
+              name: node.name,
             }
             // Only direct children
-            for(const child of node.children){
-              if (child instanceof VRMSpringBoneCollider){
-                if(colliderGroup.colliders.indexOf(child) === -1){
-                  colliderGroup.colliders.push(child);
+            for (const child of node.children) {
+              if (child instanceof VRMSpringBoneCollider) {
+                if (colliderGroup.colliders.indexOf(child) === -1) {
+                  colliderGroup.colliders.push(child)
                 }
               }
             }
-
-            if(colliderGroup.colliders.length){
-              addToJoints([colliderGroup])
+            if (colliderGroup.colliders.length) {
+              const groupExists= colliderGroups.find((cg)=>cg.name == colliderGroup.name)
+              if(groupExists && groupExists.colliders.length != colliderGroup.colliders.length){
+                // Get the different colliders
+                const newColliders = colliderGroup.colliders.filter((c)=>!groupExists.colliders.find((cg)=>cg.name == c.name))
+                groupExists.colliders.push(...newColliders)
+              }else if (!groupExists){
+                colliderGroups.push(colliderGroup)
+              }
             }
+          })
         })
-      
-      })
+        return colliderGroups
+      }
+  
+      const groups = getColliders()
+      addToJoints(groups)
     }
+  
     _unregisterMorphTargetsFromManifest(vrm){
       const manifestBlendShapes = this.manifestData.getAllBlendShapeTraits()
       const expressions = vrm.expressionManager?.expressions
