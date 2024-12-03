@@ -23,7 +23,7 @@ import { ManifestRestrictions } from "./manifestRestrictions";
  */
 
 export class CharacterManifestData{
-    constructor(manifest){
+    constructor(manifest, unlockedTraits = null){
       const {
         assetsLocation,
         traitsDirectory,
@@ -110,7 +110,7 @@ export class CharacterManifestData{
       // create texture and color traits first
       this.textureTraits = [];
       this.textureTraitsMap = null;
-      this.createTextureTraits(textureCollections);
+      this.createTextureTraits(textureCollections, false, unlockedTraits);
 
       this.decalTraits = [];
       this.decalTraitsMap = null;
@@ -119,12 +119,12 @@ export class CharacterManifestData{
 
       this.colorTraits = [];
       this.colorTraitsMap = null;
-      this.createColorTraits(colorCollections);
+      this.createColorTraits(colorCollections, false, unlockedTraits);
 
       this.modelTraits = [];
       this.modelTraitsMap = null;
-      this.createModelTraits(traits);
 
+      this.createModelTraits(traits, false, unlockedTraits);
       this.manifestRestrictions._init()
     }
     appendManifestData(manifestData, replaceExisting){
@@ -414,12 +414,11 @@ export class CharacterManifestData{
 
 
     // Given an array of traits, saves an array of TraitModels
-    createModelTraits(modelTraits, replaceExisting = false){
+    createModelTraits(modelTraits, replaceExisting = false, unlockedTraits = null){
       if (replaceExisting) this.modelTraits = [];
-
       let hasTraitWithDecals = false
       getAsArray(modelTraits).forEach(traitObject => {
-        const group = new TraitModelsGroup(this, traitObject)
+        const group = new TraitModelsGroup(this, traitObject, unlockedTraits)
         this.modelTraits.push(group)
 
         /**
@@ -441,11 +440,11 @@ export class CharacterManifestData{
       });
     }
 
-    createTextureTraits(textureTraits, replaceExisting = false){
+    createTextureTraits(textureTraits, replaceExisting = false, unlockedTraits = null){
       if (replaceExisting) this.textureTraits = [];
 
       getAsArray(textureTraits).forEach(traitObject => {
-        this.textureTraits.push(new TraitTexturesGroup(this, traitObject))
+        this.textureTraits.push(new TraitTexturesGroup(this, traitObject, unlockedTraits))
       });
 
       this.textureTraitsMap = new Map(this.textureTraits.map(item => [item.trait, item]));
@@ -464,11 +463,11 @@ export class CharacterManifestData{
       this.decalTraitsMap = new Map(this.decalTraits.map(item => [item.trait, item]));
     }
 
-    createColorTraits(colorTraits, replaceExisting = false){
+    createColorTraits(colorTraits, replaceExisting = false, unlockedTraits = null){
       if (replaceExisting) this.colorTraits = [];
 
       getAsArray(colorTraits).forEach(traitObject => {
-        this.colorTraits.push(new TraitColorsGroup(this, traitObject))
+        this.colorTraits.push(new TraitColorsGroup(this, traitObject, unlockedTraits))
       });
 
       this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
@@ -487,13 +486,16 @@ export class TraitModelsGroup{
    * @type {CharacterManifestData}
    */
   manifestData
-
+    /**
+   * @type {string[]}
+   */
+  unlockedTraits
   /**
    * @type {TraitRestriction|undefined}
    */
   restrictions
 
-    constructor(manifestData, options){
+  constructor(manifestData, options, unlockedTraits = null){
         const {
           trait,
           name,
@@ -504,7 +506,7 @@ export class TraitModelsGroup{
           collection,
         } = options;
         this.manifestData = manifestData;
-
+       
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
         this.name = name;
@@ -517,7 +519,14 @@ export class TraitModelsGroup{
         
         this.collection = [];
         this.collectionMap = null;
-        this.createCollection(collection);
+
+        if (unlockedTraits == null){
+          this.createCollection(collection);
+        }
+        else{
+          this.createCollection(collection, false, unlockedTraits[trait] || []);
+        }
+        
     }
 
     appendCollection(modelTraitGroup, replaceExisting){
@@ -543,12 +552,21 @@ export class TraitModelsGroup{
       });
     }
 
-    createCollection(itemCollection, replaceExisting = false){
+    createCollection(itemCollection, replaceExisting = false, unlockedTraits = null){
       if (replaceExisting) this.collection = [];
 
-      getAsArray(itemCollection).forEach(item => {
-        this.collection.push(new ModelTrait(this, item))
-      });
+      if (unlockedTraits == null){
+        getAsArray(itemCollection).forEach(item => {
+          this.collection.push(new ModelTrait(this, item))
+        });
+      }
+      else{
+        getAsArray(itemCollection).forEach(item => {
+          if (unlockedTraits.includes(item.id)){
+            this.collection.push(new ModelTrait(this, item))
+          }
+        });
+      }
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
@@ -595,8 +613,9 @@ class TraitTexturesGroup{
    * 
    * @param {CharacterManifestData} manifestData 
    * @param {TextureCollection} options 
+   * @param {string[]} unlockedTraits 
    */
-  constructor(manifestData, options){
+  constructor(manifestData, options, unlockedTraits = null){
     const {
         trait,
         collection
@@ -611,7 +630,13 @@ class TraitTexturesGroup{
 
     this.collection = [];
     this.collectionMap = null;
-    this.createCollection(collection);
+
+    if (unlockedTraits == null){
+      this.createCollection(collection);
+    }
+    else{
+      this.createCollection(collection, false, unlockedTraits[trait] || []);
+    }
 
     
   }
@@ -638,12 +663,21 @@ class TraitTexturesGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection, replaceExisting = false, unlockedTraits = null){
     if (replaceExisting) this.collection = [];
 
-    getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new TextureTrait(this, item))
-    });
+    if (unlockedTraits == null){
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new TextureTrait(this, item))
+      });
+    }
+    else{
+      getAsArray(itemCollection).forEach(item => {
+        if (unlockedTraits.includes(item.id)){
+          this.collection.push(new TextureTrait(this, item))
+        }
+      });
+    }
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
@@ -742,7 +776,7 @@ export class DecalTextureGroup{
   }
 }
 class TraitColorsGroup{
-  constructor(manifestData, options){
+  constructor(manifestData, options, unlockedTraits = null){
     const {
         trait,
         collection
@@ -752,7 +786,13 @@ class TraitColorsGroup{
 
     this.collection = [];
     this.collectionMap = null;
-    this.createCollection(collection);
+
+    if (unlockedTraits == null){
+      this.createCollection(collection);
+    }
+    else{
+      this.createCollection(collection, false, unlockedTraits[trait] || []);
+    }
   }
 
   appendCollection(colorTraitGroup, replaceExisting){
@@ -777,12 +817,21 @@ class TraitColorsGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection, replaceExisting = false, unlockedTraits = null){
     if (replaceExisting) this.collection = [];
 
-    getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new ColorTrait(this, item))
-    });
+    if (unlockedTraits == null){
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new ColorTrait(this, item))
+      });
+    }
+    else{
+      getAsArray(itemCollection).forEach(item => {
+        if (unlockedTraits.includes(item.id)){
+          this.collection.push(new ColorTrait(this, item))
+        }
+      });
+    }
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 

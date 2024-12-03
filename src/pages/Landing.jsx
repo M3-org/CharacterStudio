@@ -54,9 +54,10 @@ function Landing() {
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="./assets/media/btn_optimize_character.png" />
         </button>
-        {opensea_Key && opensea_Key != "" && <button className={styles.button} onClick={getWallet}>
-          <img src="./assets/media/btn_optimize_character.png" />
-        </button>
+        {
+        // opensea_Key && opensea_Key != "" && <button className={styles.button} onClick={getWallet}>
+        //   <img src="./assets/media/btn_optimize_character.png" />
+        // </button>
         }
         {/* <button className={styles.button} onClick={createCharacter}>
           <img src="./assets/media/btn_tools.png" />
