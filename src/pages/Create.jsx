@@ -9,6 +9,9 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
+import { getAsArray } from "../library/utils"
+import { WalletCollections } from "../library/walletCollections"
+
 function Create() {
   
   // Translate hook
@@ -19,21 +22,28 @@ function Create() {
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
   const [ classes, setClasses ] = useState([]) 
-  
+  let [walletCollections, setWalletCollections] = useState(null)
+
+  useEffect(()=>{
+      if (walletCollections == null){
+        setWalletCollections (new WalletCollections()); 	  
+      }
+    },[])
   useEffect(() => {
+
     if (manifest?.characters != null){
-      const manifestClasses = manifest.characters.map((c) => {
-        return {
-          name:c.name, 
-          image:c.portrait, 
-          description: c.description,
-          manifest: c.manifest,
-          icon:c.icon,
-          format:c.format,
-          disabled:false
+
+      const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
+      const nonRepeatingCollections = [];
+      const seenCollections = new Set();
+      manifest.characters.forEach((c) => {
+      if (c.collectionLock != null && !seenCollections.has(c.collectionLock)) {
+          nonRepeatingCollections.push(c.collectionLock);
+          seenCollections.add(c.collectionLock);
         }
-      })
+      });
       setClasses(manifestClasses);
+
     }
   }, [manifest])
 
@@ -42,20 +52,72 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
+  const getCharacterManifests = (charactersArray) =>{
+      return charactersArray.map((c) => {
+        let enabled = c.collectionLock == null ? false : true;
+        return {
+          name:c.name, 
+          image:c.portrait, 
+          description: c.description,
+          manifest: c.manifest,
+          icon:c.icon,
+          format:c.format,
+          disabled:enabled,
+          collectionLock: getAsArray(c.collectionLock),
+          manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
+          fullTraits: c.fullTraits || false,
+          chainName:c.chainName || "ethereum",
+          dataSource:c.dataSource || "attributes"
+        }
+      })
+  }
+
+  const addressTest = null;
   const selectClass = async (index) => {
     setIsLoading(true)
-    // Load manifest first
-    characterManager.loadManifest(manifest.characters[index].manifest).then(()=>{
-      setViewMode(ViewMode.APPEARANCE)
-      // When Manifest is Loaded, load initial traits from given manifest
-      characterManager.loadInitialTraits().then(()=>{
-        setIsLoading(false)
+    const selectedClass = classes[index];
+
+    if (selectedClass.collectionLock.length > 0){
+      const owns = await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits, addressTest);
+      if (!owns){
+        // display not own window
+        return;
+      }
+    }
+    else{
+      await characterManager.loadManifest(selectedClass.manifest);
+    }
+
+    
+    
+    setViewMode(ViewMode.APPEARANCE)
+    const promises = selectedClass.manifestAppend.map(manifestAppend => {
+      return new Promise((resolve)=>{
+        // check if it requires nft validation
+        if (manifestAppend.collectionLock.length > 0){
+          characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits,addressTest).then((owns)=>{
+            resolve(owns);
+          })
+        }
+        else{
+          characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
+            resolve(owns);
+          })
+        }
       })
+    });
+
+    await Promise.all(promises);
+    // When Manifest is Loaded, load initial traits from given manifest
+
+    characterManager.loadInitialTraits().then(()=>{
+      setIsLoading(false)
     })
     !isMute && playSound('classSelect');
 
   }
-  const hoverClass = () => {
+
+  const hoverSound = () => {
     !isMute && playSound('classMouseOver');
   }
   
@@ -64,6 +126,8 @@ function Create() {
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
       <div className={styles.vrmOptimizerButton}>
       </div>
+
+      
       <div className={styles.topLine} />
       
       <div className={styles.classContainer}>
@@ -77,14 +141,10 @@ function Create() {
                   : styles.classdisabled
               }
               onClick={
-                characterClass["disabled"]
-                  ? null
-                  : () => selectClass(i)
+                  () => selectClass(i)
               }
               onMouseOver={
-                characterClass["disabled"]
-                  ? null
-                  : () => hoverClass()
+                  () => hoverSound()
               }
             >
             <div

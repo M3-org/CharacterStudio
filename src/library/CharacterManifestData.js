@@ -1,5 +1,6 @@
 import { getAsArray } from "./utils";
 import { ManifestRestrictions } from "./manifestRestrictions";
+import { OwnedTraitIDs } from "./ownedTraitIDs";
 
 /**
  * @typedef {import('./manifestRestrictions').TraitRestriction} TraitRestriction
@@ -23,7 +24,7 @@ import { ManifestRestrictions } from "./manifestRestrictions";
  */
 
 export class CharacterManifestData{
-    constructor(manifest){
+    constructor(manifest, ownedTraits = null){
       const {
         assetsLocation,
         traitsDirectory,
@@ -50,6 +51,8 @@ export class CharacterManifestData{
         canDownload = true,
         downloadOptions = {}
       }= manifest;
+
+      console.log(manifest);
 
       this.assetsLocation = assetsLocation;
       this.traitsDirectory = traitsDirectory;
@@ -110,23 +113,27 @@ export class CharacterManifestData{
       // create texture and color traits first
       this.textureTraits = [];
       this.textureTraitsMap = null;
-      this.createTextureTraits(textureCollections);
+      this.createTextureTraits(textureCollections, false, ownedTraits);
 
       this.decalTraits = [];
       this.decalTraitsMap = null;
-
       this.createDecalTraits(decalCollections);
 
       this.colorTraits = [];
       this.colorTraitsMap = null;
-      this.createColorTraits(colorCollections);
+      this.createColorTraits(colorCollections, false, ownedTraits);
 
       this.modelTraits = [];
       this.modelTraitsMap = null;
-      this.createModelTraits(traits);
-
+      this.createModelTraits(traits, false, ownedTraits);
       this.manifestRestrictions._init()
+      
     }
+
+    async _initialize(){
+
+    }
+
     appendManifestData(manifestData, replaceExisting){
       manifestData.textureTraits.forEach(newTextureTraitGroup => {
         const textureGroup = this.getTextureGroup(newTextureTraitGroup.trait)
@@ -414,12 +421,11 @@ export class CharacterManifestData{
 
 
     // Given an array of traits, saves an array of TraitModels
-    createModelTraits(modelTraits, replaceExisting = false){
+    createModelTraits(modelTraits, replaceExisting = false, ownedTraits = null){
       if (replaceExisting) this.modelTraits = [];
-
       let hasTraitWithDecals = false
       getAsArray(modelTraits).forEach(traitObject => {
-        const group = new TraitModelsGroup(this, traitObject)
+        const group = new TraitModelsGroup(this, traitObject, ownedTraits)
         this.modelTraits.push(group)
 
         /**
@@ -441,11 +447,11 @@ export class CharacterManifestData{
       });
     }
 
-    createTextureTraits(textureTraits, replaceExisting = false){
+    createTextureTraits(textureTraits, replaceExisting = false, ownedTraits = null){
       if (replaceExisting) this.textureTraits = [];
 
       getAsArray(textureTraits).forEach(traitObject => {
-        this.textureTraits.push(new TraitTexturesGroup(this, traitObject))
+        this.textureTraits.push(new TraitTexturesGroup(this, traitObject, ownedTraits))
       });
 
       this.textureTraitsMap = new Map(this.textureTraits.map(item => [item.trait, item]));
@@ -464,11 +470,11 @@ export class CharacterManifestData{
       this.decalTraitsMap = new Map(this.decalTraits.map(item => [item.trait, item]));
     }
 
-    createColorTraits(colorTraits, replaceExisting = false){
+    createColorTraits(colorTraits, replaceExisting = false, ownedTraits = null){
       if (replaceExisting) this.colorTraits = [];
 
       getAsArray(colorTraits).forEach(traitObject => {
-        this.colorTraits.push(new TraitColorsGroup(this, traitObject))
+        this.colorTraits.push(new TraitColorsGroup(this, traitObject, ownedTraits))
       });
 
       this.colorTraitsMap = new Map(this.colorTraits.map(item => [item.trait, item]));
@@ -487,13 +493,16 @@ export class TraitModelsGroup{
    * @type {CharacterManifestData}
    */
   manifestData
-
+    /**
+   * @type {OwnedTraitIDs}
+   */
+    ownedTraits
   /**
    * @type {TraitRestriction|undefined}
    */
   restrictions
 
-    constructor(manifestData, options){
+  constructor(manifestData, options, ownedTraits = null){
         const {
           trait,
           name,
@@ -504,7 +513,7 @@ export class TraitModelsGroup{
           collection,
         } = options;
         this.manifestData = manifestData;
-
+       
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
         this.name = name;
@@ -517,7 +526,13 @@ export class TraitModelsGroup{
         
         this.collection = [];
         this.collectionMap = null;
-        this.createCollection(collection);
+        if (ownedTraits == null){
+          this.createCollection(collection);
+        }
+        else{
+          this.createCollection(collection, false, ownedTraits.getOwnedTraitIDs(trait));
+        }
+        
     }
 
     appendCollection(modelTraitGroup, replaceExisting){
@@ -543,12 +558,21 @@ export class TraitModelsGroup{
       });
     }
 
-    createCollection(itemCollection, replaceExisting = false){
+    createCollection(itemCollection, replaceExisting = false, ownedTraitsArray = null){
       if (replaceExisting) this.collection = [];
 
-      getAsArray(itemCollection).forEach(item => {
-        this.collection.push(new ModelTrait(this, item))
-      });
+      if (ownedTraitsArray == null){
+        getAsArray(itemCollection).forEach(item => {
+          this.collection.push(new ModelTrait(this, item))
+        });
+      }
+      else{
+        getAsArray(itemCollection).forEach(item => {
+          if (ownedTraitsArray.includes(item.id)){
+            this.collection.push(new ModelTrait(this, item))
+          }
+        });
+      }
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
@@ -595,8 +619,9 @@ class TraitTexturesGroup{
    * 
    * @param {CharacterManifestData} manifestData 
    * @param {TextureCollection} options 
+   * @param {OwnedTraitIDs} ownedTraits 
    */
-  constructor(manifestData, options){
+  constructor(manifestData, options, ownedTraits = null){
     const {
         trait,
         collection
@@ -611,7 +636,13 @@ class TraitTexturesGroup{
 
     this.collection = [];
     this.collectionMap = null;
-    this.createCollection(collection);
+
+    if (ownedTraits == null){
+      this.createCollection(collection);
+    }
+    else{
+      this.createCollection(collection, false, ownedTraits.getOwnedTraitIDs[trait]);
+    }
 
     
   }
@@ -638,12 +669,21 @@ class TraitTexturesGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection, replaceExisting = false, ownedTraitsArray = null){
     if (replaceExisting) this.collection = [];
 
-    getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new TextureTrait(this, item))
-    });
+    if (ownedTraitsArray == null){
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new TextureTrait(this, item))
+      });
+    }
+    else{
+      getAsArray(itemCollection).forEach(item => {
+        if (ownedTraitsArray.includes(item.id)){
+          this.collection.push(new TextureTrait(this, item))
+        }
+      });
+    }
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
@@ -678,8 +718,9 @@ export class DecalTextureGroup{
    * 
    * @param {CharacterManifestData} manifestData 
    * @param {TextureCollection} options 
+   * @param {OwnedTraitIDs} ownedTraits 
    */
-  constructor(manifestData, options){
+  constructor(manifestData, options, ownedTraits = null){
     const {
         trait,
         collection
@@ -693,7 +734,12 @@ export class DecalTextureGroup{
     }
     this.collection = [];
     this.collectionMap = null;
-    this.createCollection(collection);    
+    if (ownedTraits == null){
+      this.createCollection(collection);
+    }
+    else{
+      this.createCollection(collection, false, ownedTraits.getOwnedTraitIDs[trait]);
+    }
   }
 
   appendCollection(decalTraitGroup, replaceExisting=false){
@@ -719,11 +765,20 @@ export class DecalTextureGroup{
     });
   }
 
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection, replaceExisting = false, ownedTraitsArray = null){
     if (replaceExisting) this.collection = [];
-    getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new DecalTrait(this, item))
-    });
+    if (ownedTraitsArray == null){
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new DecalTrait(this, item))
+      });
+    }
+    else{
+      getAsArray(itemCollection).forEach(item => {
+        if (ownedTraitsArray.includes(item.id)){
+          this.collection.push(new DecalTrait(this, item))
+        }
+      });
+    }
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
@@ -742,7 +797,7 @@ export class DecalTextureGroup{
   }
 }
 class TraitColorsGroup{
-  constructor(manifestData, options){
+  constructor(manifestData, options, ownedTraits = null){
     const {
         trait,
         collection
@@ -752,7 +807,13 @@ class TraitColorsGroup{
 
     this.collection = [];
     this.collectionMap = null;
-    this.createCollection(collection);
+
+    if (ownedTraits == null){
+      this.createCollection(collection);
+    }
+    else{
+      this.createCollection(collection, false, ownedTraits[trait] || []);
+    }
   }
 
   appendCollection(colorTraitGroup, replaceExisting){
@@ -777,12 +838,21 @@ class TraitColorsGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection, replaceExisting = false, ownedTraitsArray = null){
     if (replaceExisting) this.collection = [];
 
-    getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new ColorTrait(this, item))
-    });
+    if (ownedTraitsArray == null){
+      getAsArray(itemCollection).forEach(item => {
+        this.collection.push(new ColorTrait(this, item))
+      });
+    }
+    else{
+      getAsArray(itemCollection).forEach(item => {
+        if (ownedTraitsArray.includes(item.id)){
+          this.collection.push(new ColorTrait(this, item))
+        }
+      });
+    }
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 

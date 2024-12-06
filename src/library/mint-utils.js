@@ -13,6 +13,46 @@ const chainId = "0x89";
 let tokenPrice;
 
 
+// setTimeout(() => {
+//   console.log("t")
+//   getContract("0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7");
+// }, 5000);
+
+
+
+async function getContract(address) {
+  const contractAddress = address; // Loot NFT contract address
+  const tokenId = 1; // Replace with the desired token ID
+
+  // ABI for a typical ERC721 contract (simplified)
+  const abi = [
+      "function tokenURI(uint256 tokenId) view returns (string)"
+  ];
+
+  const key = await import.meta.env.ALCHEMY_API_KEY;
+  const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+
+  //const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+  // Use Ethereum mainnet provider
+  //const defaultProvider = ethers.getDefaultProvider('mainnet');
+  //const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
+  console.log(defaultProvider);
+  try {
+    // Connect to the contract
+    const contract = new ethers.Contract(contractAddress, abi, defaultProvider);
+    console.log("Contract instance:", contract);
+
+    // Fetch the token URI (metadata URL)
+    const tokenURI = await contract.tokenURI(tokenId);
+    console.log("Token URI:", tokenURI);
+
+    // Handle the metadata (your existing logic continues here)
+  } catch (error) {
+    console.error("Error fetching metadata:", error);
+  }
+}
+
+
 async function getTokenPrice(){
   if (tokenPrice != null)
     return tokenPrice
@@ -31,14 +71,17 @@ async function getTokenPrice(){
  * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
  */
 export function getOpenseaCollection(address, collection) {
+  if (opensea_Key == null){
+    console.error("No opensea key was provided. Cant fetch user's owned nft's");
+    return;
+  }
   const options = {
     method: 'GET',
     headers: { accept: 'application/json', 'x-api-key': opensea_Key },
   };
-  console.log(options);
   // Returning a Promise
   return new Promise((resolve, reject) => {
-    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?collection=' + collection, options)
+    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=200&collection=' + collection, options)
       .then(response => {
         // Check if the response status is ok (2xx range)
         if (response.ok) {
@@ -59,6 +102,44 @@ export function getOpenseaCollection(address, collection) {
   });
 }
 
+export function ownsCollection(address, collection){
+  const options = {
+    method: 'GET',
+    headers: { accept: 'application/json', 'x-api-key': opensea_Key },
+  };
+  // Returning a Promise
+  return new Promise((resolve, reject) => {
+    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=1&collection=' + collection, options)
+      .then(response => {
+        // Check if the response status is ok (2xx range)
+        if (response.ok) {
+          return response.json();
+        } else {
+          // If the response status is not ok, reject the Promise with an error message
+          reject('Failed to fetch data from Opensea API');
+        }
+      })
+      .then(response => {
+        // Resolve the Promise with the JSON response
+        resolve(response.nfts.length>0);
+      })
+      .catch(err => {
+        // Reject the Promise with the error encountered during the fetch
+        reject(err);
+      });
+  });
+}
+
+export async function currentWallet(){
+  const chain = await window.ethereum.request({ method: 'eth_chainId' })
+  if (parseInt(chain, 16) == parseInt(chainId, 16)) {
+    const addressArray = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    })
+    return addressArray.length > 0 ? addressArray[0] : ""
+  }
+  return "";
+}
 
 // ready to test
 export async function connectWallet(){
