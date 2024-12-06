@@ -24,7 +24,6 @@ export class OwnedTraitIDs {
         if (dataSource == null || dataSource === "attributes") {
             // Extract data from "attributes"
             metadataNft.forEach(nft => {
-                console.log(nft);
                 nft.attributes.forEach(attr => {
                     this.addOwnedTrait(attr.trait_type, attr.value);
                 });
