@@ -72,15 +72,21 @@ function Create() {
       })
   }
 
-
+  const addressTest = null;
   const selectClass = async (index) => {
     setIsLoading(true)
     const selectedClass = classes[index];
 
-    if (selectedClass.collectionLock.length > 0) 
-      await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits);
-    else
+    if (selectedClass.collectionLock.length > 0){
+      const owns = await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits, addressTest);
+      if (!owns){
+        // display not own window
+        return;
+      }
+    }
+    else{
       await characterManager.loadManifest(selectedClass.manifest);
+    }
 
     
     
@@ -89,7 +95,7 @@ function Create() {
       return new Promise((resolve)=>{
         // check if it requires nft validation
         if (manifestAppend.collectionLock.length > 0){
-          characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits).then((owns)=>{
+          characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits,addressTest).then((owns)=>{
             resolve(owns);
           })
         }
@@ -135,14 +141,10 @@ function Create() {
                   : styles.classdisabled
               }
               onClick={
-                characterClass["disabled"]
-                  ? () => selectClass(i)
-                  : () => selectClass(i)
+                  () => selectClass(i)
               }
               onMouseOver={
-                characterClass["disabled"]
-                  ? () => hoverSound()
-                  : () => hoverSound()
+                  () => hoverSound()
               }
             >
             <div
