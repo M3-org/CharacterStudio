@@ -14,7 +14,7 @@ export class WalletCollections{
 
     }
 
-    hasOwnership(collectionName, chainName, testWallet) {
+    checkForOwnership(collectionName, chainName, testWallet) {
       const walletPromise = testWallet 
         ? Promise.resolve(testWallet) 
         : this.switchWallet(chainName);
