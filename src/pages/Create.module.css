@@ -60,6 +60,9 @@
   opacity: 0.5;
   /* cursor: auto; */
 }
+.classdisabled:hover{
+  opacity: 1;
+}
 .refreshDisabled {
   opacity: 0.5;
   cursor: auto;
@@ -153,8 +156,9 @@
 .classContainer .classFrame .locked {
   width: 100%;
   height: auto;
-  max-width: 2vw;
+  max-width: 4vw;
 }
+
 
 .classContainer .class:hover .name {
   color: #fcc000;
