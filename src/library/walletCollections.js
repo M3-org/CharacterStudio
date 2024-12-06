@@ -14,73 +14,69 @@ export class WalletCollections{
 
     }
 
-    async hasOwnership(collectionName, chainName,testWallet){
-        const wallet = testWallet == null ? await (this.switchWallet(chainName)) : testWallet;
-        console.log(wallet);
-        return await ownsCollection(wallet, collectionName);
+    hasOwnership(collectionName, chainName, testWallet) {
+      const walletPromise = testWallet 
+        ? Promise.resolve(testWallet) 
+        : this.switchWallet(chainName);
+    
+      return walletPromise.then(wallet => ownsCollection(wallet, collectionName));
     }
 
-    async getNftsFromCollection(collectionName, chainName,testWallet){
-        const wallet = testWallet == null ? await (this.switchWallet(chainName)): testWallet;
-        const collection = await getOpenseaCollection(wallet, collectionName);
-        return getAsArray(collection?.nfts);
+    getNftsFromCollection(collectionName, chainName, testWallet) {
+      const walletPromise = testWallet 
+        ? Promise.resolve(testWallet) 
+        : this.switchWallet(chainName);
+    
+      return walletPromise
+        .then(wallet => getOpenseaCollection(wallet, collectionName))
+        .then(collection => getAsArray(collection?.nfts));
     }
 
-    async getMetaFromCollection(collectionName, chainName, testWallet){
-
-        const ownedNfts = await this.getNftsFromCollection(collectionName, chainName, testWallet);
-        
-        const getNftsMeta = async(nfts) =>{
+    getMetaFromCollection(collectionName, chainName, testWallet) {
+      return this.getNftsFromCollection(collectionName, chainName, testWallet)
+        .then(ownedNfts => {
+          const getNftsMeta = nfts => {
             const nftsMeta = [];
-            const promises = nfts.map(nft => {
-                return new Promise((resolve)=>{
+            const promises = nfts.map(nft =>
+              new Promise(resolve => {
                 fetch(nft.metadata_url)
-                .then(response=>{
-                  response.json()
-                  .then(metadata=>{
+                  .then(response => response.json())
+                  .then(metadata => {
                     nftsMeta.push(metadata);
-                    resolve ();
+                    resolve();
                   })
-                  .catch(err=>{
-                    console.warn("error converting to json");
+                  .catch(err => {
+                    console.warn("Error processing metadata:", nft.metadata_url);
                     console.error(err);
-                    resolve ()
-                  })
-                })
-                .catch(err=>{
-                  // resolve even if it fails, to avoid complete freeze
-                  console.warn("error getting " + nft.metadata_url + ", skpping")
-                  console.error(err);
-                  resolve ()
-                })
-                })
-                
-              }
+                    resolve(); // Resolve even on failure to avoid halting
+                  });
+              })
             );
-        
-            await Promise.all(promises);
-            return nftsMeta;
-          }
-        return await getNftsMeta(ownedNfts);
+    
+            return Promise.all(promises).then(() => nftsMeta);
+          };
+    
+          return getNftsMeta(ownedNfts);
+        });
     }
 
-    async getTraitsFromCollection(collectionName, chainName, dataSource, testWallet){
-        const nftMeta = await this.getMetaFromCollection(collectionName, chainName, testWallet);
-        return new OwnedTraitIDs(nftMeta, dataSource);    
+    getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
+      return this.getMetaFromCollection(collectionName, chainName, testWallet)
+        .then(nftMeta => new OwnedTraitIDs(nftMeta, dataSource));
     }
 
-    async switchWallet(chainName){
-        try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: chain[chainName] }],
-            })
-            const addressArray = await window.ethereum.request({
-              method: 'eth_requestAccounts',
-            })
-            return addressArray.length > 0 ? addressArray[0] : ""
-          } catch (err) {
-            console.log(`${chainName} polygon not find:`, err)
-        }
+    switchWallet(chainName) {
+      return new Promise((resolve, reject) => {
+        window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: chain[chainName] }],
+        })
+          .then(() => window.ethereum.request({ method: 'eth_requestAccounts' }))
+          .then(addressArray => resolve(addressArray.length > 0 ? addressArray[0] : ""))
+          .catch(err => {
+            console.log(`${chainName} polygon not found:`, err);
+            resolve(""); // Fallback to an empty wallet on error
+          });
+      });
     }
 }
