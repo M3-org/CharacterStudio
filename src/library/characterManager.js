@@ -1194,9 +1194,22 @@ export class CharacterManager {
 
     // XXX check if we can move this code only to manifestData
     async _fetchManifest(location) {
-        const response = await fetch(location)
-        const data = await response.json()
-        return data
+      return new Promise((resolve,reject)=>{
+        fetch(location)
+          .then(response=>{
+            response.json().then((data)=>{
+              resolve(data);
+            })
+            .catch(err=>{
+              console.error("Unable to convert manifest to json data: " + err);
+              reject();
+            })
+          })
+          .catch(err=>{
+            console.error("Unable to fetch manifesta: " + err);
+            reject()
+          })
+      })
     }
 
     _getPortaitScreenshotTexture(getBlob, options){
