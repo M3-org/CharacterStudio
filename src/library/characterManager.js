@@ -938,21 +938,19 @@ export class CharacterManager {
      * Loads the manifest data for the character.
      *
      * @param {string} url - The URL of the manifest.
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    loadManifest(url, ownedTraits= null) {
+    loadManifest(url) {
       // remove in case character was loaded
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          const manifest = await this._fetchManifest(url);
-
-          this.setManifest(manifest, ownedTraits).then(()=>{
-            resolve();
+          this._fetchManifest(url).then(manifest=>{
+            this.setManifest(manifest).then(()=>{
+              resolve();
+            })
           })
-
         } catch (error) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
@@ -967,8 +965,11 @@ export class CharacterManager {
           if (unlockFullTraits){
             this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
               if (owns){
-                this.loadManifest(url)
-                  .then(resolve(true));
+                this._fetchManifest(url).then(manifest=>{
+                  this.setManifest(manifest, ownedTraits).then(()=>{
+                    resolve(true);
+                  })
+                })
               }
               else{
                 console.log("User does not owns this collection")
@@ -981,8 +982,10 @@ export class CharacterManager {
             this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
             .then(ownedTraits=>{
               if (ownedTraits.ownTraits){
-                this.loadManifest(url, ownedTraits).then(()=>{
-                  resolve(true);
+                this._fetchManifest(url).then(manifest=>{
+                  this.setManifest(manifest, ownedTraits).then(()=>{
+                    resolve(true);
+                  })
                 })
               }
               else{
@@ -1004,20 +1007,18 @@ export class CharacterManager {
      *
      * @param {string} url - The URL of the manifest.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      *                         or rejects with an error message if loading fails.
      */
-    loadAppendManifest(url, replaceExisting, ownedTraits= null){
+    loadAppendManifest(url, replaceExisting){
       // remove in case character was loaded
-      return new Promise(async (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          const manifest = await this._fetchManifest(url);
-
-          this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
-            resolve();
+          this._fetchManifest(url).then(manifest=>{
+            this.appendManifest(manifest, replaceExisting).then(()=>{
+              resolve();
+            })
           })
-
         } catch (error) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
@@ -1031,8 +1032,11 @@ export class CharacterManager {
           if (unlockFullTraits){
             this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
               if (owns){
-                this.loadAppendManifest(url, replaceExisting)
-                  .then(resolve(true));
+                this._fetchManifest(url).then(manifest=>{
+                  this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
+                    resolve(true);
+                  })
+                })
               }
               else{
                 console.log("User does not owns this collection")
@@ -1045,8 +1049,10 @@ export class CharacterManager {
             this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
             .then(ownedTraits=>{
               if (ownedTraits.ownTraits){
-                this.loadAppendManifest(url, replaceExisting, ownedTraits).then(()=>{
-                  resolve(true);
+                this._fetchManifest(url).then(manifest=>{
+                  this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
+                    resolve(true);
+                  })
                 })
               }
               else{
@@ -1193,7 +1199,7 @@ export class CharacterManager {
     }
 
     // XXX check if we can move this code only to manifestData
-    async _fetchManifest(location) {
+    _fetchManifest(location) {
       return new Promise((resolve,reject)=>{
         fetch(location)
           .then(response=>{
