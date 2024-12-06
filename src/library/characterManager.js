@@ -13,6 +13,7 @@ import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
 import { CharacterManifestData } from "./CharacterManifestData";
+import { OwnedTraitIDs } from "./ownedTraitIDs";
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 const localVector3 = new THREE.Vector3(); 
@@ -864,11 +865,11 @@ export class CharacterManager {
      * Sets an existing manifest data for the character.
      *
      * @param {object} manifest - The loaded mmanifest object.
-     * @param {Array} unlockedTraits - Optional string array of the traits that will be unlocked, if none set, all traits will be unlocked.
+     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    setManifest(manifest, unlockedTraits = null){
+    setManifest(manifest, ownedTraits = null){
       this.removeCurrentCharacter();
       return new Promise(async (resolve, reject) => {
         try{
@@ -876,7 +877,7 @@ export class CharacterManager {
           this.manifest = manifest;
           if (this.manifest) {
             // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest, unlockedTraits);
+            this.manifestData = new CharacterManifestData(this.manifest, ownedTraits);
 
             // If an animation manager is available, set it up
             if (this.animationManager) {
@@ -908,7 +909,7 @@ export class CharacterManager {
       })
     }
 
-    appendManifest(manifest, replaceExisting, unlockedTraits= null){
+    appendManifest(manifest, replaceExisting, ownedTraits= null){
       return new Promise(async (resolve, reject) => {
         try{
           if (replaceExisting)
@@ -917,7 +918,7 @@ export class CharacterManager {
             this.manifest = {manifest, ...(this.manifest || {})};
 
           // Create a CharacterManifestData instance based on the fetched manifest
-          const manifestData = new CharacterManifestData(manifest, unlockedTraits);
+          const manifestData = new CharacterManifestData(manifest, ownedTraits);
           this.manifestData.appendManifestData(manifestData);
 
           // Resolve the Promise (without a value, as you mentioned it's not needed)
@@ -935,18 +936,18 @@ export class CharacterManager {
      * Loads the manifest data for the character.
      *
      * @param {string} url - The URL of the manifest.
-     * @param {Array} unlockedTraits - Optional string array of the traits that will be unlocked, if none set, all traits will be unlocked.
+     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    loadManifest(url, unlockedTraits= null) {
+    loadManifest(url, ownedTraits= null) {
       // remove in case character was loaded
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
           const manifest = await this._fetchManifest(url);
 
-          this.setManifest(manifest, unlockedTraits).then(()=>{
+          this.setManifest(manifest, ownedTraits).then(()=>{
             resolve();
           })
 
@@ -963,16 +964,17 @@ export class CharacterManager {
      *
      * @param {string} url - The URL of the manifest.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
+     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      *                         or rejects with an error message if loading fails.
      */
-    loadAppendManifest(url, replaceExisting, unlockedTraits= null){
+    loadAppendManifest(url, replaceExisting, ownedTraits= null){
       // remove in case character was loaded
       return new Promise(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
           const manifest = await this._fetchManifest(url);
 
-          this.appendManifest(manifest, replaceExisting, unlockedTraits).then(()=>{
+          this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
             resolve();
           })
 

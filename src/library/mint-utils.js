@@ -71,7 +71,10 @@ async function getTokenPrice(){
  * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
  */
 export function getOpenseaCollection(address, collection) {
-  console.log("GETTING COLLECTION", collection);
+  if (opensea_Key == null){
+    console.error("No opensea key was provided. Cant fetch user's owned nft's");
+    return;
+  }
   const options = {
     method: 'GET',
     headers: { accept: 'application/json', 'x-api-key': opensea_Key },
@@ -128,13 +131,11 @@ export function ownsCollection(address, collection){
 }
 
 export async function currentWallet(){
-  console.log("get")
   const chain = await window.ethereum.request({ method: 'eth_chainId' })
   if (parseInt(chain, 16) == parseInt(chainId, 16)) {
     const addressArray = await window.ethereum.request({
       method: 'eth_requestAccounts',
     })
-    console.log(addressArray);
     return addressArray.length > 0 ? addressArray[0] : ""
   }
   return "";
@@ -150,7 +151,6 @@ export async function connectWallet(){
         const addressArray = await window.ethereum.request({
           method: 'eth_requestAccounts',
         })
-        console.log(addressArray);
         return addressArray.length > 0 ? addressArray[0] : ""
       } else {
           try {
