@@ -24,17 +24,7 @@ function Create() {
   const [ classes, setClasses ] = useState([]) 
   let [walletCollections, setWalletCollections] = useState(null)
 
-  // useEffect(()=>{
-  //   if (requireWalletConnect == true){
-      
-  //     if (loaded || isLoaded) return
-  //     setIsLoaded(true)
-  //     loaded = true;
-
-      
-  //   }
-  // },[requireWalletConnect])
-    useEffect(()=>{
+  useEffect(()=>{
       if (walletCollections == null){
         setWalletCollections (new WalletCollections()); 	  
       }
@@ -53,7 +43,6 @@ function Create() {
         }
       });
       setClasses(manifestClasses);
-      //setRequireWalletConnect(requiresConnect);
 
     }
   }, [manifest])
@@ -66,8 +55,6 @@ function Create() {
   const getCharacterManifests = (charactersArray) =>{
       return charactersArray.map((c) => {
         let enabled = c.collectionLock == null ? false : true;
-        // if (c.collectionLock != null)
-        //   requiresConnect = true;
         return {
           name:c.name, 
           image:c.portrait, 
@@ -115,18 +102,18 @@ function Create() {
       setViewMode(ViewMode.APPEARANCE)
 
       if (selectedClass.manifestAppend.length > 0){
-        console.log("getting only first one for now")
+        if (selectedClass.manifestAppend.length > 1)
+          console.log("getting only first one for now")
         const manifestAppend = selectedClass.manifestAppend[0]
-        const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
         if (manifestAppend.collectionLock.length > 0){
           if (manifestAppend.fullTraits == true){
-            const owns = await walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName,addressTest);
+            const owns = await walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName);
             if (owns){
               await characterManager.loadAppendManifest(manifestAppend.manifest, false)
             }
           }
           else{
-            const ownedAppend = await walletCollections.getTraitsFromCollection(manifestAppend.collectionLock[0], manifestAppend.chainName, manifestAppend.dataSource, addressTest);
+            const ownedAppend = await walletCollections.getTraitsFromCollection(manifestAppend.collectionLock[0], manifestAppend.chainName, manifestAppend.dataSource);
             if (ownedAppend.ownTraits){
               await characterManager.loadAppendManifest(manifestAppend.manifest, false,ownedAppend)
             }
@@ -209,22 +196,6 @@ function Create() {
           )
         })}
       </div>
-
-      {/* <div className={styles.refreshContainer}>
-        <div className={
-          enabledRefresh ? 
-            styles.refreshButton :
-            styles.refreshDisabled
-        }
-          onClick={
-            enabledRefresh ?
-              () => fetchWalletNFTS(false):
-              ()=>{}
-          }
-          onMouseOver={
-            () => hoverSound()
-          }/>
-      </div> */}
 
       <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>
