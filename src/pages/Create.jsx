@@ -9,11 +9,8 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-import { local } from "../library/store"
-
-import { connectWallet, getOpenseaCollection, ownsCollection, currentWallet } from "../library/mint-utils"
-
 import { getAsArray } from "../library/utils"
+import { WalletCollections } from "../library/walletCollections"
 
 function Create() {
   
@@ -25,55 +22,28 @@ function Create() {
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
   const [ classes, setClasses ] = useState([]) 
-  const [ collections, setCollections ] = useState([]) 
-  const [ currentAddress, setCurrentAddress] = useState("");
-  const [ ownedCollections, setOwnedCollections] = useState(null);
-  const [ enabledRefresh, setEnabledRefresh] = useState(true);
-  
-  let loaded = false
-  let [isLoaded, setIsLoaded] = useState(false)
-  let [requireWalletConnect, setRequireWalletConnect] = useState(false)
+  let [walletCollections, setWalletCollections] = useState(null)
 
-  useEffect(()=>{
-    if (requireWalletConnect == true){
-      if (loaded || isLoaded) return
-      setIsLoaded(true)
-      loaded = true;
-      if (currentAddress == ""){
-        const getWallet = async ()=>{
-          const wallet = await currentWallet();
-          setCurrentAddress(wallet);
-          if (wallet != ""){
-            await fetchWalletNFTS();
-          }
-        }
-        getWallet();
-      }
-    }
-  },[requireWalletConnect])
-  useEffect(() => {
-    if (manifest?.characters != null){
-      let requiresConnect = false;
-      const manifestClasses = manifest.characters.map((c) => {
-        console.log("APPEND", c.manifestAppend);
-        let enabled = c.collectionLock == null ? false : true;
-        if (c.collectionLock != null)
-          requiresConnect = true;
-        console.log(c.collectionLock)
-        return {
-          name:c.name, 
-          image:c.portrait, 
-          description: c.description,
-          manifest: c.manifest,
-          icon:c.icon,
-          format:c.format,
-          disabled:enabled,
-          collection: getAsArray(c.collectionLock),
-          manifestAppend: getAsArray(c.manifestAppend),
-          fullTraits: c.fullTraits || false
-        }
-      })
+  // useEffect(()=>{
+  //   if (requireWalletConnect == true){
       
+  //     if (loaded || isLoaded) return
+  //     setIsLoaded(true)
+  //     loaded = true;
+
+      
+  //   }
+  // },[requireWalletConnect])
+    useEffect(()=>{
+      if (walletCollections == null){
+        setWalletCollections (new WalletCollections()); 	  
+      }
+    },[])
+  useEffect(() => {
+
+    if (manifest?.characters != null){
+
+      const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
       const nonRepeatingCollections = [];
       const seenCollections = new Set();
       manifest.characters.forEach((c) => {
@@ -82,9 +52,8 @@ function Create() {
           seenCollections.add(c.collectionLock);
         }
       });
-      setCollections(nonRepeatingCollections);
       setClasses(manifestClasses);
-      setRequireWalletConnect(requiresConnect);
+      //setRequireWalletConnect(requiresConnect);
 
     }
   }, [manifest])
@@ -94,99 +63,77 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
-  const getNftsMeta = async(nfts) =>{
-    const nftsMeta = [];
-    const promises = nfts.map(nft => {
-        return new Promise((resolve)=>{
-        fetch(nft.metadata_url)
-        .then(response=>{
-          response.json()
-          .then(metadata=>{
-            nftsMeta.push(metadata);
-            resolve ();
-          })
-          .catch(err=>{
-            console.warn("error converting to json");
-            console.error(err);
-            resolve ()
-          })
-        })
-        .catch(err=>{
-          // resolve even if it fails, to avoid complete freeze
-          console.warn("error getting " + nft.metadata_url + ", skpping")
-          console.error(err);
-          resolve ()
-        })
-        })
-        
-      }
-    );
-
-    await Promise.all(promises);
-    console.log("result", nfts, nftsMeta);
-    return nftsMeta;
+  const getCharacterManifests = (charactersArray) =>{
+      return charactersArray.map((c) => {
+        let enabled = c.collectionLock == null ? false : true;
+        // if (c.collectionLock != null)
+        //   requiresConnect = true;
+        return {
+          name:c.name, 
+          image:c.portrait, 
+          description: c.description,
+          manifest: c.manifest,
+          icon:c.icon,
+          format:c.format,
+          disabled:enabled,
+          collectionLock: getAsArray(c.collectionLock),
+          manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
+          fullTraits: c.fullTraits || false,
+          chainName:c.chainName || "ethereum",
+          dataSource:c.dataSource || "attributes"
+        }
+      })
   }
+
 
   const selectClass = async (index) => {
     setIsLoading(true)
-    console.log(classes[index]);
     // Load manifest first
-    let unlockedTraits = null;
+    let ownedTraits = null;
     const selectedClass = classes[index];
-    if (selectedClass.collection.length > 0 && selectedClass.fullTraits == false){
-      console.log("got 1")
-      const address = await connectWallet();
-      const result = await getOpenseaCollection(address,selectedClass.collection[0])
-      const nfts = getAsArray(result?.nfts);
-      console.log("nfts", result?.nfts);
-
-      const nftsMeta = await getNftsMeta(nfts);
-      console.log(nftsMeta);
-
-      unlockedTraits = {};
-      const getTraitsFromNFTsArray = (arr) =>{
-        const nftArr = getAsArray(arr);
-        nftArr.forEach(nft => {
-          nft.attributes.forEach(attr => {
-            if (unlockedTraits[attr.trait_type] == null)
-              unlockedTraits[attr.trait_type] = []
-            if (!unlockedTraits[attr.trait_type].includes(attr.value))
-              unlockedTraits[attr.trait_type].push(attr.value);
-          });
-          
-        });
+    if (selectedClass.collectionLock.length > 0){
+      if (selectedClass.fullTraits == true){
+        // user has at least one owned trait from that collection, unlock all
+        if (!walletCollections.hasOwnership(selectedClass.collectionLock[0], selectedClass.chainName)){
+          console.log("User has no owned traits of this colection");
+          //launch warning screen
+          return;
+        }
       }
-      getTraitsFromNFTsArray(nftsMeta);
-
-      console.log(unlockedTraits)
-      // unlockedTraits
+      else{
+        // user gets to see only its owned assets
+        ownedTraits = await walletCollections.getTraitsFromCollection(selectedClass.collectionLock[0], selectedClass.chainName, selectedClass.dataSource);
+        if (!ownedTraits.ownTraits()){
+          console.log("User has no owned traits of this colection");
+          //launch warning screen
+          return;
+        }
+      }
     }
 
-    characterManager.loadManifest(manifest.characters[index].manifest, unlockedTraits).then(async()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest, ownedTraits).then(async()=>{
       setViewMode(ViewMode.APPEARANCE)
 
       if (selectedClass.manifestAppend.length > 0){
         console.log("getting only first one for now")
-        const address = await connectWallet();
+        const manifestAppend = selectedClass.manifestAppend[0]
         const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
-        const result = await getOpenseaCollection(addressTest,selectedClass.manifestAppend[0].collectionLock)
-        const nfts = getAsArray(result?.nfts);
-        console.log("append nfts", nfts);
-        const nftsMeta = await getNftsMeta(nfts);
-        const decodedSVG = atob(nftsMeta[0].image.split(",")[1]);
-        // Parse the decoded SVG
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
-  
-        // Extract text content from the SVG
-        const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
 
-        console.log("selclass", selectedClass.manifestAppend[0])
-        //characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
-        const allowAllTraits = selectedClass.manifestAppend[0].fullTraits || false;
-        console.log(allowAllTraits)
-        characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false, allowAllTraits ? null : texts)
-        console.log(texts);
+        if (selectedClass.collectionLock.length > 0){
+          if (selectedClass.fullTraits == true){
+            if (!walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName)){
+              await characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
+            }
+          }
+          else{
+            const ownedAppend = await walletCollections.getTraitsFromCollection(manifestAppend.collectionLock[0], manifestAppend.chainName, manifestAppend.dataSource, addressTest);
+            if (ownedAppend.ownTraits){
+              await characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false,ownedAppend)
+            }
+          }
+        }
+        
+        
       }
 
 
@@ -197,76 +144,6 @@ function Create() {
     })
     !isMute && playSound('classSelect');
 
-  }
-  useEffect(()=>{
-    if (ownedCollections != null){      
-
-      const editedClasses = classes.map((c) => {
-        let locked =  c.collection.length > 0 ? true : false;
-        for (let i =0; i < c.collection.length;i++){
-          const collection = c.collection[i];
-          if (ownedCollections[collection] == true ){
-            locked = false;
-            break;
-          }
-        }
-        return {
-          name:c.name, 
-          image:c.image, 
-          description: c.description,
-          manifest: c.manifest,
-          icon:c.icon,
-          format:c.format,
-          disabled:locked,
-          collection: c.collection,
-          manifestAppend: c.manifestAppend,
-          fullTraits: c.fullTraits
-        }});
-      
-      console.log(editedClasses)
-      setClasses(editedClasses);
-    }
-  }, [ownedCollections])
-
-  const fetchWalletNFTS = async(getLocal = true)=>{
-    const address = await connectWallet()
-    if (address != ""){
-      //console.log(local[address + "collections"]);
-      if (getLocal && local[address + "collections"] != null){
-        setOwnedCollections(local[address + "collections"]); 
-      }
-      else{
-        // get it from opensea
-        console.log("from opensea")
-        setEnabledRefresh(false)
-        const owned = {};
-        const promises = collections.map(collection => 
-          ownsCollection(address, collection).then(result => {
-            owned[collection] = result;
-          })
-        );
-
-        await Promise.all(promises);
-
-        local[address + "collections"] = owned;
-
-        setOwnedCollections(owned);
-
-        setTimeout(() => {
-          setEnabledRefresh(true);
-        }, 5000);
-      }
-      
-      
-      // getAllCollections(address).then((result)=>{
-      //   // setWalletNFTs(result.nfts);
-      //   console.log(result);
-      // })  
-      // getOpenseaCollection(address,'the-anata-nft').then((result)=>{
-      //   // setWalletNFTs(result.nfts);
-      //   console.log(result.nfts);
-      // })  
-    }
   }
 
   const hoverSound = () => {
@@ -294,7 +171,7 @@ function Create() {
               }
               onClick={
                 characterClass["disabled"]
-                  ? () => fetchWalletNFTS()
+                  ? () => selectClass(i)
                   : () => selectClass(i)
               }
               onMouseOver={
@@ -335,7 +212,7 @@ function Create() {
         })}
       </div>
 
-      <div className={styles.refreshContainer}>
+      {/* <div className={styles.refreshContainer}>
         <div className={
           enabledRefresh ? 
             styles.refreshButton :
@@ -349,7 +226,7 @@ function Create() {
           onMouseOver={
             () => hoverSound()
           }/>
-      </div>
+      </div> */}
 
       <div className={styles.bottomLine} />
       <div className={styles.buttonContainer}>

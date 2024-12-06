@@ -58,7 +58,7 @@
 
 .classdisabled {
   opacity: 0.5;
-  cursor: auto;
+  /* cursor: auto; */
 }
 .refreshDisabled {
   opacity: 0.5;
