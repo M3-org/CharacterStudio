@@ -1000,7 +1000,7 @@ export class CharacterManager {
             // get all owned nft ids from specified collection
             this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
             .then(ownedTraits=>{
-              if (ownedTraits.ownTraits){
+              if (ownedTraits.ownTraits()){
                 this._fetchManifest(url).then(manifest=>{
                   this.setManifest(manifest, ownedTraits).then(()=>{
                     resolve(true);
@@ -1080,7 +1080,7 @@ export class CharacterManager {
             // get all owned nft ids from specified collection
             this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
             .then(ownedTraits=>{
-              if (ownedTraits.ownTraits){
+              if (ownedTraits.ownTraits()){
                 this._fetchManifest(url).then(manifest=>{
                   this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
                     resolve(true);
