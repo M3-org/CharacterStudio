@@ -27,51 +27,6 @@
       "portrait": "./assets/portraitImages/tubby.jpg",
       "manifest":"https://m3-org.github.io/loot-assets/tubbycats/manifest.json",
       "format": "vrm"
-    },
-    {
-      "name": "Anata",
-      "description": "Owned Customizer",
-      "portrait": "./assets/portraitImages/anata.png",
-      "manifest":"./character-assets/anata/manifest.json",
-      "icon": "./assets/icons/class-neural-hacker.svg",
-      "format": "vrm",
-
-      "collectionLock":"the-anata-nft",
-      "manifestAppend":[
-        {
-          "name": "Loot",
-          "description": "Adventurere's loot",
-          "manifest":"./loot-assets/anata/female/manifest.json",
-          "collectionLock":"lootproject"
-        }
-      ]
-    },
-    {
-      "name": "Anata",
-      "description": "Full Customizer",
-      "portrait": "./assets/portraitImages/anata_male.png",
-      "manifest":"./character-assets/anata_male/manifest.json",
-      "icon": "./assets/icons/class-neural-hacker.svg",
-      "format": "vrm",
-      "collectionLock":"the-anata-nft",
-      "fullTraits":true
-    },
-    {
-      "name": "Tubbies",
-      "description": "Tubbies",
-      "portrait": "./assets/portraitImages/anata.png",
-      "manifest":"./tubby/manifest.json",
-      "icon": "./assets/icons/class-neural-hacker.svg",
-      "format": "vrm",
-      "manifestAppend":[
-        {
-          "name": "Loot",
-          "description": "Adventurere's loot",
-          "manifest":"./loot-assets/tubbycats/manifest.json",
-          "collectionLock":"lootproject",
-          "fullTraits":true
-        }
-      ]
     }
   ],
   "loras":[
@@ -108,26 +63,26 @@
   "defaultAnimations":[
     {
       "name": "T-Pose",
-      "description": "1_T-Pose",
+      "description": "T-Pose",
       "location":"./animations/T-Pose.fbx",
       "icon": "|"
     },
     {
-      "name": "Idle",
+      "name": "Dancing",
       "description": "Basic Dance Animation",
-      "location":"./animations/2_Idle.fbx",
+      "location":"./animations/Dancing.fbx",
       "icon": "|"
     },
     {
       "name": "Walking",
       "description": "Basic Walk Animation",
-      "location":"./animations/3_Walking.fbx",
+      "location":"./animations/Walking.fbx",
       "icon": "|"
     },
     {
       "name": "Waving",
       "description": "Basic Waving Animation",
-      "location":"./animations/4_Waving.fbx",
+      "location":"./animations/Waving.fbx",
       "icon": "|"
     }
   ]
