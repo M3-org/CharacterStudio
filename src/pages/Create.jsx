@@ -118,22 +118,20 @@ function Create() {
         console.log("getting only first one for now")
         const manifestAppend = selectedClass.manifestAppend[0]
         const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
-
-        if (selectedClass.collectionLock.length > 0){
-          if (selectedClass.fullTraits == true){
-            if (!walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName)){
-              await characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false)
+        if (manifestAppend.collectionLock.length > 0){
+          if (manifestAppend.fullTraits == true){
+            const owns = await walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName,addressTest);
+            if (owns){
+              await characterManager.loadAppendManifest(manifestAppend.manifest, false)
             }
           }
           else{
             const ownedAppend = await walletCollections.getTraitsFromCollection(manifestAppend.collectionLock[0], manifestAppend.chainName, manifestAppend.dataSource, addressTest);
             if (ownedAppend.ownTraits){
-              await characterManager.loadAppendManifest(selectedClass.manifestAppend[0].manifest, false,ownedAppend)
+              await characterManager.loadAppendManifest(manifestAppend.manifest, false,ownedAppend)
             }
           }
         }
-        
-        
       }
 
 
