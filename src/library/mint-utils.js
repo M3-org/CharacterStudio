@@ -21,35 +21,35 @@ let tokenPrice;
 
 
 async function getContract(address) {
-  // const contractAddress = address; // Loot NFT contract address
-  // const tokenId = 1; // Replace with the desired token ID
+  const contractAddress = address; // Loot NFT contract address
+  const tokenId = 1; // Replace with the desired token ID
 
-  // // ABI for a typical ERC721 contract (simplified)
-  // const abi = [
-  //     "function tokenURI(uint256 tokenId) view returns (string)"
-  // ];
+  // ABI for a typical ERC721 contract (simplified)
+  const abi = [
+      "function tokenURI(uint256 tokenId) view returns (string)"
+  ];
 
-  // const key = await import.meta.env.ALCHEMY_API_KEY;
-  // const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+  const key = await import.meta.env.ALCHEMY_API_KEY;
+  const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
 
-  // //const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
-  // // Use Ethereum mainnet provider
-  // //const defaultProvider = ethers.getDefaultProvider('mainnet');
-  // //const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
-  // console.log(defaultProvider);
-  // try {
-  //   // Connect to the contract
-  //   const contract = new ethers.Contract(contractAddress, abi, defaultProvider);
-  //   console.log("Contract instance:", contract);
+  //const defaultProvider = new ethers.providers.AlchemyProvider('mainnet', key);
+  // Use Ethereum mainnet provider
+  //const defaultProvider = ethers.getDefaultProvider('mainnet');
+  //const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
+  console.log(defaultProvider);
+  try {
+    // Connect to the contract
+    const contract = new ethers.Contract(contractAddress, abi, defaultProvider);
+    console.log("Contract instance:", contract);
 
-  //   // Fetch the token URI (metadata URL)
-  //   const tokenURI = await contract.tokenURI(tokenId);
-  //   console.log("Token URI:", tokenURI);
+    // Fetch the token URI (metadata URL)
+    const tokenURI = await contract.tokenURI(tokenId);
+    console.log("Token URI:", tokenURI);
 
-  //   // Handle the metadata (your existing logic continues here)
-  // } catch (error) {
-  //   console.error("Error fetching metadata:", error);
-  // }
+    // Handle the metadata (your existing logic continues here)
+  } catch (error) {
+    console.error("Error fetching metadata:", error);
+  }
 }
 
 
