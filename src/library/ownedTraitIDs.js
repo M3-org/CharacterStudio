@@ -1,44 +1,90 @@
-export class OwnedTraitIDs{
-    constructor(metadataNft, dataSource){
+/**
+ * Represents owned traits and IDs extracted from NFT metadata.
+ */
+export class OwnedTraitIDs {
+    /**
+     * Initializes an instance of the OwnedTraitIDs class.
+     * 
+     * @param {Array<Object>} metadataNft - Array of NFT metadata objects.
+     * @param {string|null} dataSource - The source of the data (`"attributes"` or `"image"`).
+     */
+    constructor(metadataNft, dataSource) {
+        /**
+         * @type {Object<string, Array<string>>}
+         * Object mapping trait names to arrays of trait IDs.
+         */
         this.ownedTraits = {};
+
+        /**
+         * @type {Array<string>}
+         * Array of IDs extracted from the data source.
+         */
         this.ownedIDs = [];
-        if (dataSource == null || dataSource == "attributes"){
-            // get data from "attributes"
-            
+
+        if (dataSource == null || dataSource === "attributes") {
+            // Extract data from "attributes"
             metadataNft.forEach(nft => {
                 console.log(nft);
                 nft.attributes.forEach(attr => {
                     this.addOwnedTrait(attr.trait_type, attr.value);
                 });
             });
-          }
-          else if (dataSource = "image"){
+        } else if (dataSource === "image") {
+            // Extract data from "image"
             metadataNft.forEach(nft => {
-              const decodedSVG = atob(nft.image.split(",")[1]);
-              const parser = new DOMParser();
-              const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
-              const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
-              texts.forEach(text => {
-                this.addOwnedID(text);
-              });
+                const decodedSVG = atob(nft.image.split(",")[1]);
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
+                const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
+                texts.forEach(text => {
+                    this.addOwnedID(text);
+                });
             });
-          }
+        }
     }
-    
-    addOwnedID(traitID){
-        if (!this.ownedIDs.includes(traitID))
+
+    /**
+     * Adds an ID to the owned IDs list.
+     * 
+     * @param {string} traitID - The ID to add.
+     */
+    addOwnedID(traitID) {
+        if (!this.ownedIDs.includes(traitID)) {
             this.ownedIDs.push(traitID);
+        }
     }
-    addOwnedTrait(traitName, traitID){
-        if (this.ownedTraits[traitName] == null)
-            this.ownedTraits[traitName] = []
-        if (!this.ownedTraits[traitName].includes(traitID))
+
+    /**
+     * Adds a trait and its ID to the owned traits object.
+     * 
+     * @param {string} traitName - The name of the trait.
+     * @param {string} traitID - The ID of the trait.
+     */
+    addOwnedTrait(traitName, traitID) {
+        if (this.ownedTraits[traitName] == null) {
+            this.ownedTraits[traitName] = [];
+        }
+        if (!this.ownedTraits[traitName].includes(traitID)) {
             this.ownedTraits[traitName].push(traitID);
+        }
     }
-    getOwnedTraitIDs(traitName){
-        return [...(this.ownedTraits[traitName]||[]), ...this.ownedIDs]
+
+    /**
+     * Retrieves all IDs associated with a specific trait name.
+     * 
+     * @param {string} traitName - The name of the trait to retrieve IDs for.
+     * @returns {Array<string>} An array of trait IDs.
+     */
+    getOwnedTraitIDs(traitName) {
+        return [...(this.ownedTraits[traitName] || []), ...this.ownedIDs];
     }
-    ownTraits(){
-        return (Object.keys(this.ownedTraits).length > 0 || this.ownedIDs.length > 0)
+
+    /**
+     * Checks if any traits or IDs are owned.
+     * 
+     * @returns {boolean} `true` if there are owned traits or IDs, otherwise `false`.
+     */
+    ownTraits() {
+        return (Object.keys(this.ownedTraits).length > 0 || this.ownedIDs.length > 0);
     }
 }
