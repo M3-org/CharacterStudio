@@ -14,8 +14,9 @@ export class WalletCollections{
 
     }
 
-    async hasOwnership(collectionName, chainName){
-        const wallet = await (this.switchWallet(chainName))
+    async hasOwnership(collectionName, chainName,testWallet){
+        const wallet = testWallet == null ? await (this.switchWallet(chainName)) : testWallet;
+        console.log(wallet);
         return await ownsCollection(wallet, collectionName);
     }
 
