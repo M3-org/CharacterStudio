@@ -75,70 +75,27 @@ function Create() {
 
   const selectClass = async (index) => {
     setIsLoading(true)
-    // Load manifest first
-    let ownedTraits = null;
     const selectedClass = classes[index];
-    if (selectedClass.collectionLock.length > 0){
-      if (selectedClass.fullTraits == true){
-        // user has at least one owned trait from that collection, unlock all
-        if (!walletCollections.hasOwnership(selectedClass.collectionLock[0], selectedClass.chainName)){
-          console.log("User has no owned traits of this colection");
-          //launch warning screen
-          return;
-        }
-      }
-      else{
-        // user gets to see only its owned assets
-        ownedTraits = await walletCollections.getTraitsFromCollection(selectedClass.collectionLock[0], selectedClass.chainName, selectedClass.dataSource);
-        if (!ownedTraits.ownTraits()){
-          console.log("User has no owned traits of this colection");
-          //launch warning screen
-          return;
-        }
-      }
-    }
 
-    await characterManager.loadManifest(manifest.characters[index].manifest, ownedTraits);
+    if (selectedClass.collectionLock.length > 0) 
+      await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits);
+    else
+      await characterManager.loadManifest(selectedClass.manifest);
 
+    
+    
     setViewMode(ViewMode.APPEARANCE)
-    const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
     const promises = selectedClass.manifestAppend.map(manifestAppend => {
       return new Promise((resolve)=>{
         // check if it requires nft validation
         if (manifestAppend.collectionLock.length > 0){
-          // check if the user owns at least one nft
-          if (manifestAppend.fullTraits == true){
-            walletCollections.hasOwnership(manifestAppend.collectionLock[0], manifestAppend.chainName,addressTest).then((owns)=>{
-              if (owns){
-                characterManager.loadAppendManifest(manifestAppend.manifest, false).then(()=>{
-                  resolve();
-                })
-              }
-              else{
-                // resolve also when user does not owns nft traits from append collection
-                resolve();
-              }
-            })
-          }
-          else{
-            // get all owned nft ids from specified collection
-            walletCollections.getTraitsFromCollection(manifestAppend.collectionLock[0], manifestAppend.chainName, manifestAppend.dataSource,addressTest)
-            .then(ownedTraits=>{
-              if (ownedTraits.ownTraits){
-                characterManager.loadAppendManifest(manifestAppend.manifest, false,ownedTraits).then(()=>{
-                  resolve();
-                })
-              }
-              else{
-                // resolve also when user does not owns nft traits from append collection
-                resolve();
-              }
-            })
-          }
+          characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits).then((owns)=>{
+            resolve(owns);
+          })
         }
         else{
-          characterManager.loadAppendManifest(manifestAppend.manifest, false).then(()=>{
-            resolve();
+          characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
+            resolve(owns);
           })
         }
       })

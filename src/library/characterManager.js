@@ -14,6 +14,7 @@ import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
 import { CharacterManifestData } from "./CharacterManifestData";
 import { OwnedTraitIDs } from "./ownedTraitIDs";
+import { WalletCollections } from "./walletCollections";
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 const localVector3 = new THREE.Vector3(); 
@@ -65,6 +66,7 @@ export class CharacterManager {
       this.overlayedTextureManager = new OverlayedTextureManager(this)
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this.emotionManager = new EmotionManager();
+      this.walletCollections = new WalletCollections();
 
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
@@ -959,6 +961,44 @@ export class CharacterManager {
       });
     }
 
+    loadManifestWithOwnedTraits(url, collectionID, chainName, dataSource, unlockFullTraits, testWallet){
+      return new Promise((resolve, reject)=>{
+        try{
+          if (unlockFullTraits){
+            this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
+              if (owns){
+                this.loadManifest(url)
+                  .then(resolve(true));
+              }
+              else{
+                console.log("User does not owns this collection")
+                resolve(false);
+              }
+            })
+          }
+          else{
+            // get all owned nft ids from specified collection
+            this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
+            .then(ownedTraits=>{
+              if (ownedTraits.ownTraits){
+                this.loadManifest(url, ownedTraits).then(()=>{
+                  resolve(true);
+                })
+              }
+              else{
+                // resolve also when user does not owns nft traits from append collection
+                console.log("User does not owns this collection")
+                resolve(false);
+              }
+            })
+          } 
+        }
+        catch (err){
+          reject(err);
+        }
+      })
+    }
+
     /**
      * Loads manifest data and appends it to the current manifest
      *
@@ -984,6 +1024,42 @@ export class CharacterManager {
           reject(new Error("Failed to load the manifest."));
         }
       });
+    }
+    loadAppendManifestWithOwnedTraits(url, replaceExisting, collectionID, chainName, dataSource, unlockFullTraits, testWallet){
+      return new Promise((resolve, reject)=>{
+        try{
+          if (unlockFullTraits){
+            this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
+              if (owns){
+                this.loadAppendManifest(url, replaceExisting)
+                  .then(resolve(true));
+              }
+              else{
+                console.log("User does not owns this collection")
+                resolve(false);
+              }
+            })
+          }
+          else{
+            // get all owned nft ids from specified collection
+            this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
+            .then(ownedTraits=>{
+              if (ownedTraits.ownTraits){
+                this.loadAppendManifest(url, replaceExisting, ownedTraits).then(()=>{
+                  resolve(true);
+                })
+              }
+              else{
+                // resolve also when user does not owns nft traits from append collection
+                resolve(false);
+              }
+            })
+          } 
+        }
+        catch (err){
+          reject(err);
+        }
+      })
     }
     /**
      * Displays only target trait, and removes all others
