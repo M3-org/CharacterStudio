@@ -594,7 +594,7 @@ export class CharacterManager {
     /**
      * remove blendshape trait
      * @param {string} traitGroupID 
-     * @param {string} blendshapeGroupId 
+     * @param {string|null} blendshapeGroupId 
      * @returns 
      */
     removeBlendShapeTrait(groupTraitID, blendShapeGroupId){
@@ -631,6 +631,20 @@ export class CharacterManager {
     }
 
     /**
+     * INTERNAL: Check Blendshape restrictions;
+     * @param {} groupTraitID 
+     */
+    _checkBlendshapeRestrictions(groupTraitID){
+      for( const trait in this.avatar){
+        const p = this.manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendshapeTraitAllowed(groupTraitID)
+        if(!p.allowed && p.blockingTrait){
+          console.warn(`Trait with name: Blendshapes of ${trait} is not allowed to be loaded with ${groupTraitID}`)
+          this.removeBlendShapeTrait(trait,null)
+        }
+      }
+    }
+
+    /**
      * INTERNAL: Checks and Remove blocking traits; Used when loading a new trait
      * @param {string} groupTraitID 
      * @param {string} traitID 
@@ -639,6 +653,8 @@ export class CharacterManager {
       const isAllowed = this._getTraitAllowedRules(groupTraitID,traitID)
 
       if(isAllowed[0].allowed){
+        // check if blendshape restrictions are met
+        this._checkBlendshapeRestrictions(groupTraitID)
         return
       }
       for(const rule of isAllowed){
@@ -1045,7 +1061,7 @@ export class CharacterManager {
     /**
      * 
      * @param {string} traitGroupID 
-     * @param {string} blendshapeGroupId 
+     * @param {string|null} blendshapeGroupId 
      * @param {string|null} blendshapeTraitId 
      * @returns 
      */
@@ -1058,6 +1074,15 @@ export class CharacterManager {
       if(!currentTrait.blendShapeTraitsInfo){
         currentTrait.blendShapeTraitsInfo = {};
       }
+
+      if(!blendshapeGroupId){
+        for(const k in currentTrait.blendShapeTraitsInfo){
+          // Deactivate the current blendshape trait
+          this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[k], false);
+        }
+        return
+      }
+
       if(currentTrait.blendShapeTraitsInfo[blendshapeGroupId]){
         // Deactivate the current blendshape trait
         this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[blendshapeGroupId], false);
