@@ -71,6 +71,7 @@ async function getTokenPrice(){
  * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
  */
 export function getOpenseaCollection(address, collection) {
+  console.log(opensea_Key)
   if (opensea_Key == null){
     console.error("No opensea key was provided. Cant fetch user's owned nft's");
     return;

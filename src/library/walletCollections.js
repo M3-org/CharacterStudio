@@ -96,6 +96,10 @@ export class WalletCollections {
      * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedTraitIDs object.
      */
     getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
+        console.log("names");
+        console.log(collectionName);
+        console.log(chainName);
+        console.log(dataSource);
         return this.getMetaFromCollection(collectionName, chainName, testWallet)
             .then(nftMeta => new OwnedTraitIDs(nftMeta, dataSource));
     }
