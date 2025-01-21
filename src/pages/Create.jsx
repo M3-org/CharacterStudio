@@ -32,16 +32,16 @@ function Create() {
   useEffect(() => {
 
     if (manifest?.characters != null){
-
+      console.log(manifest?.characters)
       const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
-      const nonRepeatingCollections = [];
-      const seenCollections = new Set();
-      manifest.characters.forEach((c) => {
-      if (c.collectionLock != null && !seenCollections.has(c.collectionLock)) {
-          nonRepeatingCollections.push(c.collectionLock);
-          seenCollections.add(c.collectionLock);
-        }
-      });
+      // const nonRepeatingCollections = [];
+      // const seenCollections = new Set();
+      // manifest.characters.forEach((c) => {
+      // if (c.collectionLock != null && !seenCollections.has(c.collectionLock)) {
+      //     nonRepeatingCollections.push(c.collectionLock);
+      //     seenCollections.add(c.collectionLock);
+      //   }
+      // });
       setClasses(manifestClasses);
 
     }
@@ -54,39 +54,37 @@ function Create() {
 
   const getCharacterManifests = (charactersArray) =>{
       return charactersArray.map((c) => {
-        let enabled = c.collectionLock == null ? false : true;
         return {
           name:c.name, 
-          image:c.portrait, 
+          portrait:c.portrait, 
           description: c.description,
           manifest: c.manifest,
           icon:c.icon,
           format:c.format,
-          disabled:enabled,
-          collectionLock: getAsArray(c.collectionLock),
           manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
-          fullTraits: c.fullTraits || false,
-          chainName:c.chainName || "ethereum",
-          dataSource:c.dataSource || "attributes"
+          // chainName:c.chainName || "ethereum",
+          // dataSource:c.dataSource || "attributes"
         }
       })
   }
 
-  const addressTest = null;
+  const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
   const selectClass = async (index) => {
     setIsLoading(true)
     const selectedClass = classes[index];
 
-    if (selectedClass.collectionLock.length > 0){
-      const owns = await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits, addressTest);
-      if (!owns){
-        // display not own window
-        return;
-      }
-    }
-    else{
-      await characterManager.loadManifest(selectedClass.manifest);
-    }
+    await characterManager.loadManifest(selectedClass.manifest);
+
+    // if (selectedClass.collectionLock.length > 0){
+    //   const owns = await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits);
+    //   if (!owns){
+    //     // display not own window
+    //     return;
+    //   }
+    // }
+    // else{
+    //   await characterManager.loadManifest(selectedClass.manifest);
+    // }
 
     
     
@@ -94,16 +92,20 @@ function Create() {
     const promises = selectedClass.manifestAppend.map(manifestAppend => {
       return new Promise((resolve)=>{
         // check if it requires nft validation
-        if (manifestAppend.collectionLock.length > 0){
-          characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits,addressTest).then((owns)=>{
-            resolve(owns);
-          })
-        }
-        else{
-          characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
-            resolve(owns);
-          })
-        }
+        characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
+          resolve(owns);
+        })
+        
+        // if (manifestAppend.collectionLock.length > 0){
+        //   characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits,addressTest).then((owns)=>{
+        //     resolve(owns);
+        //   })
+        // }
+        // else{
+        //   characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
+        //     resolve(owns);
+        //   })
+        // }
       })
     });
 
@@ -150,7 +152,7 @@ function Create() {
             <div
                 className={styles.classFrame}
                 style={{
-                  "backgroundImage": `url(${characterClass["image"]})`,
+                  "backgroundImage": `url(${characterClass["portrait"]})`,
                 }}
               >
                 <div className={styles.frameContainer}>
@@ -160,14 +162,6 @@ function Create() {
                   />
                 </div>
 
-                <div className={styles.lockedContainer}>
-                  {characterClass["disabled"] && (
-                    <img
-                      src={"./assets/icons/locked.svg"}
-                      className={styles.locked}
-                    />
-                  )}
-                </div>
               </div>
               
               <div className={styles.name}>{characterClass["name"]}</div>
