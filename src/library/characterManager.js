@@ -875,11 +875,10 @@ export class CharacterManager {
      * Sets an existing manifest data for the character.
      *
      * @param {object} manifest - The loaded mmanifest object.
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    setManifest(manifest, ownedTraits = null){
+    setManifest(manifest){
       this.removeCurrentCharacter();
       return new Promise(async (resolve, reject) => {
         try{
@@ -887,7 +886,7 @@ export class CharacterManager {
           this.manifest = manifest;
           if (this.manifest) {
             // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest, ownedTraits);
+            this.manifestData = new CharacterManifestData(this.manifest);
 
             // If an animation manager is available, set it up
             if (this.animationManager) {
@@ -923,11 +922,10 @@ export class CharacterManager {
      *
      * @param {object} manifest - The loaded mmanifest object.
      * @param {boolean} replaceExisting - Should existing IDs be reaplced with the new manifest?
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked.
      * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
      *                         or rejects with an error message if loading fails.
      */
-    appendManifest(manifest, replaceExisting, ownedTraits= null){
+    appendManifest(manifest, replaceExisting){
       return new Promise(async (resolve, reject) => {
         try{
           if (replaceExisting)
@@ -936,7 +934,7 @@ export class CharacterManager {
             this.manifest = {manifest, ...(this.manifest || {})};
 
           // Create a CharacterManifestData instance based on the fetched manifest
-          const manifestData = new CharacterManifestData(manifest, ownedTraits);
+          const manifestData = new CharacterManifestData(manifest);
           this.manifestData.appendManifestData(manifestData);
 
           // Resolve the Promise (without a value, as you mentioned it's not needed)
@@ -974,60 +972,7 @@ export class CharacterManager {
         }
       });
     }
-    /**
-     * Loads the manifest restricted to the user owned NFT assets from collection
-     * @param {string} url - The URL of the manifest.
-     * @param {string} collectionID - The collection ID of the target collection
-     * @param {string} chainName - The name of the chain were nft is saved (ethereum, polygon)
-     * @param {string} dataSource - When receiving an nft asset, were should IDs be searched (attributes, image), defaults to  attributes
-     * @param {boolean} unlockFullTraits - Does owning a single NFT unlocks the whole collection, or that specific NFT with ID.
-     * @param {string} testWallet - Optional test wallet to fetch from.
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked. 
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    loadManifestWithOwnedTraits(url, collectionID, chainName="ethereum", dataSource = "attributes", unlockFullTraits = false, testWallet = null){
-      return new Promise((resolve, reject)=>{
-        try{
-          if (unlockFullTraits){
-            this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
-              if (owns){
-                this._fetchManifest(url).then(manifest=>{
-                  this.setManifest(manifest, ownedTraits).then(()=>{
-                    resolve(true);
-                  })
-                })
-              }
-              else{
-                console.log("User does not owns this collection")
-                resolve(false);
-              }
-            })
-          }
-          else{
-            // get all owned nft ids from specified collection
-            this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
-            .then(ownedTraits=>{
-              if (ownedTraits.ownTraits()){
-                this._fetchManifest(url).then(manifest=>{
-                  this.setManifest(manifest, ownedTraits).then(()=>{
-                    resolve(true);
-                  })
-                })
-              }
-              else{
-                // resolve also when user does not owns nft traits from append collection
-                console.log("User does not owns this collection")
-                resolve(false);
-              }
-            })
-          } 
-        }
-        catch (err){
-          reject(err);
-        }
-      })
-    }
+    
 
     /**
      * Loads manifest data and appends it to the current manifest
@@ -1053,60 +998,7 @@ export class CharacterManager {
         }
       });
     }
-        /**
-     * Loads the manifest restricted to the user owned NFT assets from collection
-     * @param {string} url - The URL of the manifest.
-     * @param {boolean} replaceExisting - Should existing IDs be reaplced with the new manifest?
-     * @param {string} collectionID - The collection ID of the target collection
-     * @param {string} chainName - The name of the chain were nft is saved (ethereum, polygon) defaults to ethereum
-     * @param {string} dataSource - When receiving an nft asset, were should IDs be searched (attributes, image), defaults to  attributes
-     * @param {boolean} unlockFullTraits - Does owning a single NFT unlocks the whole collection, or that specific NFT with ID.
-     * @param {string} testWallet - Optional test wallet to fetch from.
-     * @param {OwnedTraitIDs} ownedTraits - Optional traits that will be unlocked, if none set, all traits will be unlocked. 
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    loadAppendManifestWithOwnedTraits(url, replaceExisting, collectionID, chainName="ethereum", dataSource="attributes", unlockFullTraits=false, testWallet=null){
-      return new Promise((resolve, reject)=>{
-        try{
-          if (unlockFullTraits){
-            this.walletCollections.checkForOwnership(collectionID, chainName, testWallet).then((owns)=>{
-              if (owns){
-                this._fetchManifest(url).then(manifest=>{
-                  this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
-                    resolve(true);
-                  })
-                })
-              }
-              else{
-                console.log("User does not owns this collection")
-                resolve(false);
-              }
-            })
-          }
-          else{
-            // get all owned nft ids from specified collection
-            this.walletCollections.getTraitsFromCollection(collectionID, chainName, dataSource, testWallet)
-            .then(ownedTraits=>{
-              if (ownedTraits.ownTraits()){
-                this._fetchManifest(url).then(manifest=>{
-                  this.appendManifest(manifest, replaceExisting, ownedTraits).then(()=>{
-                    resolve(true);
-                  })
-                })
-              }
-              else{
-                // resolve also when user does not owns nft traits from append collection
-                resolve(false);
-              }
-            })
-          } 
-        }
-        catch (err){
-          reject(err);
-        }
-      })
-    }
+    
     /**
      * Displays only target trait, and removes all others
      *

@@ -75,19 +75,6 @@ function Create() {
 
     await characterManager.loadManifest(selectedClass.manifest);
 
-    // if (selectedClass.collectionLock.length > 0){
-    //   const owns = await characterManager.loadManifestWithOwnedTraits(selectedClass.manifest,selectedClass.collectionLock[0],selectedClass.chainName,selectedClass.dataSource,selectedClass.fullTraits);
-    //   if (!owns){
-    //     // display not own window
-    //     return;
-    //   }
-    // }
-    // else{
-    //   await characterManager.loadManifest(selectedClass.manifest);
-    // }
-
-    
-    
     setViewMode(ViewMode.APPEARANCE)
     const promises = selectedClass.manifestAppend.map(manifestAppend => {
       return new Promise((resolve)=>{
@@ -95,17 +82,6 @@ function Create() {
         characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
           resolve(owns);
         })
-        
-        // if (manifestAppend.collectionLock.length > 0){
-        //   characterManager.loadAppendManifestWithOwnedTraits(manifestAppend.manifest, false, manifestAppend.collectionLock, manifestAppend.chainName, manifestAppend.dataSource,manifestAppend.fullTraits,addressTest).then((owns)=>{
-        //     resolve(owns);
-        //   })
-        // }
-        // else{
-        //   characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
-        //     resolve(owns);
-        //   })
-        // }
       })
     });
 
