@@ -1,6 +1,7 @@
 import { getAsArray } from "./utils";
 import { ManifestRestrictions } from "./manifestRestrictions";
 import { OwnedTraitIDs } from "./ownedTraitIDs";
+import { WalletCollections } from "./walletCollections";
 
 /**
  * @typedef {import('./manifestRestrictions').TraitRestriction} TraitRestriction
@@ -26,6 +27,11 @@ import { OwnedTraitIDs } from "./ownedTraitIDs";
 export class CharacterManifestData{
     constructor(manifest, ownedTraits = null){
       const {
+        chainName,
+        collectionLockID,
+        dataSource,
+        locked,
+
         assetsLocation,
         traitsDirectory,
         thumbnailsDirectory,
@@ -52,7 +58,19 @@ export class CharacterManifestData{
         downloadOptions = {}
       }= manifest;
 
-      console.log(manifest);
+      // chainName:c.chainName || "ethereum",
+      // dataSource:c.dataSource || "attributes"
+      this.walletCollections = new WalletCollections();
+
+      this.chainName = chainName;
+      this.dataSource = dataSource;
+      this.collectionLockID = collectionLockID;
+      if (locked == null){
+        this.locked = collectionLockID != null;
+      }
+      else{
+        this.locked = locked;
+      }
 
       this.assetsLocation = assetsLocation;
       this.traitsDirectory = traitsDirectory;
@@ -128,13 +146,43 @@ export class CharacterManifestData{
       this.createModelTraits(traits, false, ownedTraits);
       this.manifestRestrictions._init()
       
+
+      this.unlockWalletOwnedTraits();
     }
 
-    async _initialize(){
-
+    isNFTLocked(){
+      return this.locked;
     }
+
+    unlockWalletOwnedTraits(testWallet = null){
+      //console.log(address)
+      console.log(this.collectionLockID);
+      this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
+            .then(userOwnedTraits=>{
+
+              console.log(userOwnedTraits.ownTraits());
+              console.log(userOwnedTraits);
+
+              const ownedIDs = userOwnedTraits.ownedIDs || [];
+              const ownedTraits = userOwnedTraits.ownedTraits || {};
+
+              this.modelTraits.forEach(groupModelTraits => {
+                console.log("unlocking for: ", groupModelTraits)
+                groupModelTraits.unlockTraits(ownedIDs)
+              });
+
+              for (const trait in ownedTraits){
+                this.unlockTraits(trait, ownedTraits[trait]);
+              }
+            })
+    }
+    
 
     appendManifestData(manifestData, replaceExisting){
+      console.log("append", manifestData);
+      if (manifestData.collectionLockID != null){
+        console.log("missing to lock append manifest data");
+      }
       manifestData.textureTraits.forEach(newTextureTraitGroup => {
         const textureGroup = this.getTextureGroup(newTextureTraitGroup.trait)
         if (textureGroup != null){
@@ -262,6 +310,7 @@ export class CharacterManifestData{
         if (traitSelectedOption)
           selectedOptions.push(traitSelectedOption)
       });
+      console.log(selectedOptions);
       return this._filterTraitOptions(selectedOptions);
     }
 
@@ -353,6 +402,15 @@ export class CharacterManifestData{
       else{
         console.warn("No model group with name " + groupTraitID);
         return null;
+      }
+    }
+    unlockTraits(groupTraitID, traitIDs){
+      const modelGroup = this.getModelGroup(groupTraitID);
+      if (modelGroup){
+        modelGroup.unlockTraits(traitIDs);
+      }
+      else{
+        console.warn("No model group with name " + groupTraitID);
       }
     }
     getModelGroup(groupTraitID){
@@ -504,6 +562,7 @@ export class TraitModelsGroup{
 
   constructor(manifestData, options, ownedTraits = null){
         const {
+          locked,
           trait,
           name,
           iconSvg,
@@ -513,6 +572,9 @@ export class TraitModelsGroup{
           collection,
         } = options;
         this.manifestData = manifestData;
+
+        
+        this.locked = locked == null ? manifestData.locked : locked;
        
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
@@ -584,6 +646,16 @@ export class TraitModelsGroup{
       return this.collectionMap.get(traitID);
     }
 
+    unlockTraits(traitIDs){
+      console.log("unlocking traits:", traitIDs);
+      traitIDs.forEach(traitID => {
+        const trait = this.collectionMap.get(traitID);
+        if (trait != null){
+          trait.locked = false;
+        }
+      });
+    }
+
     /**
      * 
      * @returns {DecalTrait[]}
@@ -593,23 +665,27 @@ export class TraitModelsGroup{
       return decalGroup.map((c)=>c?.collection).flat().filter((c)=>!!c);
     }
 
-    getTraitByIndex(index){
-      return this.collection[index];
+    getTraitByIndex(lockFilter = true){
+      const collection = this.getCollection(lockFilter)
+      return collection[index];
     }
 
-    getRandomTrait(){
-      // return SelectedTrait
-      // const traitModel = this.collection[Math.floor(Math.random() * this.collection.length)];
-      return this.collection.length > 0 ? 
-        this.collection[Math.floor(Math.random() * this.collection.length)] : 
+    getRandomTrait(lockFilter = true){
+      const collection = this.getCollection(lockFilter);
+      console.log(collection);
+      return collection.length > 0 ? 
+        collection[Math.floor(Math.random() * collection.length)] :
         null;
-      //traitModel
-      // return new SelectedTrait()
-      // return 
     }
 
-    getCollection(){
-      return this.collection;
+    getCollection(lockFilter = true){
+      if (lockFilter){
+        const filteredCollection = this.collection.filter((trait)=>trait.locked === false)
+        return filteredCollection;
+      }
+      else{
+        return this.collection;
+      }
     }
 
 
@@ -896,6 +972,7 @@ export class ModelTrait{
   _restrictedItems = []
   constructor(traitGroup, options){
       const {
+          locked,
           id,
           type = '',
           directory,
@@ -913,6 +990,9 @@ export class ModelTrait{
           restrictedItems
       }= options;
       this.manifestData = traitGroup.manifestData;
+      
+      this.locked = locked == null ? traitGroup.locked : locked;
+
       this.traitGroup = traitGroup;
       this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
 

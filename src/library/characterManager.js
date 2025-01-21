@@ -352,6 +352,14 @@ export class CharacterManager {
         return []
       }
     }
+    isNFTLocked(){
+      if (this.manifestData != null){
+        return this.manifestData.isNFTLocked();
+      }
+      else{
+        return false;
+      }
+    }
     getCurrentCharacterModel(){
       return this.characterModel;
     }
