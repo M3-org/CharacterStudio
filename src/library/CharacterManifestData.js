@@ -155,19 +155,13 @@ export class CharacterManifestData{
     }
 
     unlockWalletOwnedTraits(testWallet = null){
-      //console.log(address)
-      console.log(this.collectionLockID);
       this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
             .then(userOwnedTraits=>{
-
-              console.log(userOwnedTraits.ownTraits());
-              console.log(userOwnedTraits);
 
               const ownedIDs = userOwnedTraits.ownedIDs || [];
               const ownedTraits = userOwnedTraits.ownedTraits || {};
 
               this.modelTraits.forEach(groupModelTraits => {
-                console.log("unlocking for: ", groupModelTraits)
                 groupModelTraits.unlockTraits(ownedIDs)
               });
 
@@ -310,7 +304,6 @@ export class CharacterManifestData{
         if (traitSelectedOption)
           selectedOptions.push(traitSelectedOption)
       });
-      console.log(selectedOptions);
       return this._filterTraitOptions(selectedOptions);
     }
 
@@ -647,7 +640,6 @@ export class TraitModelsGroup{
     }
 
     unlockTraits(traitIDs){
-      console.log("unlocking traits:", traitIDs);
       traitIDs.forEach(traitID => {
         const trait = this.collectionMap.get(traitID);
         if (trait != null){
@@ -672,7 +664,6 @@ export class TraitModelsGroup{
 
     getRandomTrait(lockFilter = true){
       const collection = this.getCollection(lockFilter);
-      console.log(collection);
       return collection.length > 0 ? 
         collection[Math.floor(Math.random() * collection.length)] :
         null;
