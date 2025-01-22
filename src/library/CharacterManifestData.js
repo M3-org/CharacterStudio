@@ -156,19 +156,31 @@ export class CharacterManifestData{
 
     unlockWalletOwnedTraits(testWallet = null){
       this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
-            .then(userOwnedTraits=>{
+        .then(userOwnedTraits=>{
 
-              const ownedIDs = userOwnedTraits.ownedIDs || [];
-              const ownedTraits = userOwnedTraits.ownedTraits || {};
+          const ownedIDs = userOwnedTraits.ownedIDs || [];
+          const ownedTraits = userOwnedTraits.ownedTraits || {};
 
-              this.modelTraits.forEach(groupModelTraits => {
-                groupModelTraits.unlockTraits(ownedIDs)
-              });
-
-              for (const trait in ownedTraits){
-                this.unlockTraits(trait, ownedTraits[trait]);
-              }
+          // unlock all that has this id
+          if (ownedIDs.length > 0){
+            this.textureTraits.forEach(groupTrait =>{
+              groupTrait.unlockTraits(ownedIDs);
             })
+            this.decalTraits.forEach(groupTrait =>{
+              groupTrait.unlockTraits(ownedIDs);
+            })
+            this.colorTraits.forEach(groupTrait =>{
+              groupTrait.unlockTraits(ownedIDs);
+            })
+            this.modelTraits.forEach(groupTrait => {
+              groupTrait.unlockTraits(ownedIDs)
+            });
+          }
+
+          for (const trait in ownedTraits){
+            this.unlockTraits(trait, ownedTraits[trait]);
+          }
+        })
     }
     
 
@@ -398,12 +410,21 @@ export class CharacterManifestData{
       }
     }
     unlockTraits(groupTraitID, traitIDs){
+      const textureGroup = this.getTextureGroup(groupTraitID)
+      if (textureGroup){
+        textureGroup.unlockTraits(traitIDs);
+      }
+      const decalGroup = this.getDecalGroup(groupTraitID)
+      if (decalGroup){
+        decalGroup.unlockTraits(traitIDs);
+      }
+      const colorGroup = this.getColorGroup(groupTraitID)
+      if (colorGroup){
+        colorGroup.unlockTraits(traitIDs);
+      }
       const modelGroup = this.getModelGroup(groupTraitID);
       if (modelGroup){
         modelGroup.unlockTraits(traitIDs);
-      }
-      else{
-        console.warn("No model group with name " + groupTraitID);
       }
     }
     getModelGroup(groupTraitID){
@@ -725,6 +746,15 @@ class TraitTexturesGroup{
     return this.collectionMap.get(traitID);
   }
 
+  unlockTraits(traitIDs){
+    traitIDs.forEach(traitID => {
+      const trait = this.collectionMap.get(traitID);
+      if (trait != null){
+        trait.locked = false;
+      }
+    });
+  }
+
   getTraitByIndex(index){
     return this.collection[index];
   }
@@ -809,6 +839,15 @@ export class DecalTextureGroup{
     return this.collectionMap.get(traitID);
   }
 
+  unlockTraits(traitIDs){
+    traitIDs.forEach(traitID => {
+      const trait = this.collectionMap.get(traitID);
+      if (trait != null){
+        trait.locked = false;
+      }
+    });
+  }
+
   getTraitByIndex(index){
     return this.collection[index];
   }
@@ -869,6 +908,15 @@ class TraitColorsGroup{
 
   getTrait(traitID){
     return this.collectionMap.get(traitID);
+  }
+
+  unlockTraits(traitIDs){
+    traitIDs.forEach(traitID => {
+      const trait = this.collectionMap.get(traitID);
+      if (trait != null){
+        trait.locked = false;
+      }
+    });
   }
 
   getTraitByIndex(index){
