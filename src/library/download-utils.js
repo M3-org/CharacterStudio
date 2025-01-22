@@ -566,6 +566,44 @@ function getRebindedVRMExpressionManager(avatarModel){
 
     }
 
+    for(const expression of expressionManager.expressions){
+      const blendshapeNames = getBlendshapeForVRMExpression(expression)
+      const defaultBlendshape = blendshapeNames[0][0];
+      const oldBounds = expression._binds
+      const newBindIndex = changedDictionaries.new[defaultBlendshape].index
+      const binds = oldBounds.map((bind)=>{
+        return new VRMExpressionMorphTargetBind({
+          index:newBindIndex,
+          weight:bind.weight,
+          primitives:[child]
+        })
+      })
+      //@ts-ignore
+      expression._binds = binds
+    }
+
   }
   return expressionManager
+}
+
+
+
+function getBlendshapeForVRMExpression(expression){
+
+  const binds = expression._binds
+  if(!binds) return []
+
+  const blendshapes = binds.map((bind) => {
+    let blendshapeNames = []
+    bind.primitives.forEach((p)=>{
+      const morph = Object.entries(p.morphTargetDictionary).find(([_key,value])=>value==bind.index)
+      if(morph){
+        blendshapeNames.push(morph[0])
+      }
+    })
+
+    return blendshapeNames
+  })
+  return blendshapes
+
 }
