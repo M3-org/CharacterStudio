@@ -12,8 +12,7 @@ import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./ut
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
-import { CharacterManifestData, ManifestDataManager } from "./CharacterManifestData";
-import { OwnedTraitIDs } from "./ownedTraitIDs";
+import { ManifestDataManager } from "./manifestDataManager";
 import { WalletCollections } from "./walletCollections";
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -335,6 +334,7 @@ export class CharacterManager {
       }
     }
     getGroupTraits(){
+      console.log("called");
       return this.manifestDataManager.getGroupModelTraits();
     }
       /**
@@ -364,6 +364,7 @@ export class CharacterManager {
     
     // manifest data requests
     getTraits(groupTraitID){
+      console.log(this.manifestDataManager.getModelTraits(groupTraitID));
       return this.manifestDataManager.getModelTraits(groupTraitID);
     }
     getCurrentTraitID(groupTraitID){
@@ -668,12 +669,14 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadTrait(groupTraitID, traitID, soloView = false) {
+      console.log("calling load trait", groupTraitID, traitID);
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected trait using manifest data
             const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID);
+            console.log(selectedTrait)
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
@@ -1267,15 +1270,15 @@ export class CharacterManager {
       addModelData(model, {
         cullingLayer: 
           item.cullingLayer != null ? item.cullingLayer: 
-          traitGroup.cullingLayer != null ? traitGroup.cullingLayer: 
+          traitGroup?.cullingLayer != null ? traitGroup?.cullingLayer: 
           defaultValues.defaultCullingLayer != null?defaultValues.defaultCullingLayer: -1,
         cullingDistance: 
           item.cullingDistance != null ? item.cullingDistance: 
-          traitGroup.cullingDistance != null ? traitGroup.cullingDistance:
+          traitGroup?.cullingDistance != null ? traitGroup?.cullingDistance:
           defaultValues.defaultCullingDistance != null ? defaultValues.defaultCullingDistance: null,
         maxCullingDistance:
           item.maxCullingDistance != null ? item.maxCullingDistance: 
-          traitGroup.maxCullingDistance != null ? traitGroup.maxCullingDistance:
+          traitGroup?.maxCullingDistance != null ? traitGroup?.maxCullingDistance:
           defaultValues.maxCullingDistance != null ? defaultValues.maxCullingDistance: Infinity,
         cullingMeshes
       })  
