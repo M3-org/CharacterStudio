@@ -12,7 +12,7 @@ import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./ut
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
-import { CharacterManifestData } from "./CharacterManifestData";
+import { CharacterManifestData, ManifestDataManager } from "./CharacterManifestData";
 import { OwnedTraitIDs } from "./ownedTraitIDs";
 import { WalletCollections } from "./walletCollections";
 const mouse = new THREE.Vector2();
@@ -71,11 +71,12 @@ export class CharacterManager {
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
 
-      this.manifestData = null;
-      this.manifest = null
+      this.manifestDataManager = new ManifestDataManager();
       if (manifestURL){
-         this.loadManifest(manifestURL)
-         this.animationManager.setScale(this.manifestData.displayScale)
+        this.manifestDataManager.loadManifest(manifestURL).then(()=>{
+          this.animationManager.setScale(this.manifestDataManager.getDisplayScale());
+        })
+       
       }
       
       this.avatar = {};       // Holds information of traits within the avatar
@@ -247,13 +248,12 @@ export class CharacterManager {
     }
     removeCurrentManifest(){
       this.removeCurrentCharacter();
-      this.manifest = null;
-      this.manifestData = null;
+      this.manifestDataManager.clearManifests();
       if (this.animationManager)
         this.animationManager.clearCurrentAnimations();
     }
     canDownload(){
-      return this.manifestData?.canDownload || true;
+      return this.manifestDataManager.canDownload();
     }
     /**
      * Downloads the VRM file with the given name and export options.
@@ -269,7 +269,7 @@ export class CharacterManager {
           try {
             // Set default export options if not provided
             exportOptions = exportOptions || {};
-            const manifestOptions = this.manifestData.getExportOptions();
+            const manifestOptions = this.manifestDataManager.getExportOptions();
             const finalOptions = { ...manifestOptions, ...exportOptions };
             finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
@@ -297,7 +297,7 @@ export class CharacterManager {
       console.log("XXX fix glb downloader");
       if (this.canDownload()){
         exportOptions = exportOptions || {}
-        const finalOptions = {...this.manifestData.getExportOptions(), ...exportOptions};
+        const finalOptions = {...this.manifestDataManager.getExportOptions(), ...exportOptions};
         downloadGLB(this.characterModel, name, finalOptions);
       }
       else{
@@ -335,9 +335,7 @@ export class CharacterManager {
       }
     }
     getGroupTraits(){
-      if (this.manifestData){
-        return this.manifestData.getGroupModelTraits();
-      }
+      return this.manifestDataManager.getGroupModelTraits();
     }
       /**
      * Same as getGroupTraits() but for Blendshapes
@@ -346,19 +344,10 @@ export class CharacterManager {
      * @returns {Array} Array of blendshape traits
      */
     getBlendShapeGroupTraits(traitGroupId, traitId){
-      if (this.manifestData){
-        return this.manifestData.getModelTrait(traitGroupId, traitId)?.getGroupBlendShapeTraits()
-      }else {
-        return []
-      }
+      this.manifestDataManager.getGroupBlendShapeTraits(traitGroupId, traitId);
     }
     isNFTLocked(){
-      if (this.manifestData != null){
-        return this.manifestData.isNFTLocked();
-      }
-      else{
-        return false;
-      }
+      return this.manifestDataManager.isNFTLocked();
     }
     getCurrentCharacterModel(){
       return this.characterModel;
@@ -370,27 +359,12 @@ export class CharacterManager {
      * @returns {boolean} Returns true if the trait group is marked as required, otherwise false.
      */
     isTraitGroupRequired(groupTraitID) {
-      // Retrieve the trait group from the manifest data based on the provided ID
-      const groupTrait = this.manifestData.getModelGroup(groupTraitID);
-
-      // Check if the trait group exists and is marked as required
-      if (groupTrait?.isRequired) {
-        return true;
-      }
-
-      // The trait group is either not found or not marked as required
-      return false;
+      return this.manifestDataManager.isTraitGroupRequired(groupTraitID);
     }
     
     // manifest data requests
     getTraits(groupTraitID){
-      if (this.manifestData){
-        return this.manifestData.getModelTraits(groupTraitID);
-      }
-      else{
-        console.warn("No manifest file has been loaded, please load it before trait models.")
-        return null;
-      }
+      return this.manifestDataManager.getModelTraits(groupTraitID);
     }
     getCurrentTraitID(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo?.id;
@@ -429,8 +403,8 @@ export class CharacterManager {
      */
     loadRandomTraits() {
       return new Promise(async (resolve, reject) => {
-        if (this.manifestData) {
-          const randomTraits = this.manifestData.getRandomTraits();
+        if (this.manifestDataManager.hasExistingManifest()) {
+          const randomTraits = this.manifestDataManager.getRandomTraits();
           await this._loadTraits(randomTraits);
           resolve(); // Resolve the promise with the result
         } else {
@@ -450,8 +424,8 @@ export class CharacterManager {
      */
     loadRandomTrait(groupTraitID) {
       return new Promise(async (resolve, reject) => {
-        if (this.manifestData) {
-          const randomTrait = this.manifestData.getRandomTrait(groupTraitID);
+        if (this.manifestDataManager.hasExistingManifest()) {
+          const randomTrait = this.manifestDataManager.getRandomTrait(groupTraitID);
           await this._loadTraits(getAsArray(randomTrait));
           resolve(); // Resolve the promise with the result
         } else {
@@ -475,9 +449,9 @@ export class CharacterManager {
       return new Promise(async (resolve, reject) => {
         try {
           // Check if manifest data is available
-          if (this.manifestData) {
+          if (this.manifestDataManager.hasExistingManifest()) {
             // Retrieve traits from the NFT using the manifest data
-            const traits = this.manifestData.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+            const traits = await this.manifestDataManager.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
 
             // Load traits using the _loadTraits method
             await this._loadTraits(traits, fullAvatarReplace);
@@ -509,10 +483,10 @@ export class CharacterManager {
     loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
-        if (this.manifestData) {
+        if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve traits from the NFT object using manifest data
-            const traits = this.manifestData.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
+            const traits = this.manifestDataManager.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
 
             // Load traits into the avatar using the _loadTraits method
             await this._loadTraits(traits, fullAvatarReplace);
@@ -541,9 +515,9 @@ export class CharacterManager {
     loadInitialTraits() {
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
-        if (this.manifestData) {
+        if (this.manifestDataManager.hasExistingManifest()) {
           // Load initial traits using the _loadTraits method
-          await this._loadTraits(this.manifestData.getInitialTraits());
+          await this._loadTraits(this.manifestDataManager.getInitialTraits());
 
           resolve();
         } else {
@@ -565,9 +539,9 @@ export class CharacterManager {
       console.log("load all")
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
-        if (this.manifestData) {
+        if (this.manifestDataManager.hasExistingManifest()) {
           // Load initial traits using the _loadTraits method
-          await this._loadTraits(this.manifestData.getAllTraits());
+          await this._loadTraits(this.manifestDataManager.getAllTraits());
 
           resolve();
         } else {
@@ -591,8 +565,8 @@ export class CharacterManager {
         console.warn(`Trait with name: ${traitGroupID} was not found or not selected.`)
         return;
       }
-      if(!this.manifestData){
-        console.warn("No manifest data was found.")
+      if(!this.manifestDataManager.hasExistingManifest()){
+        console.warn("No manifest data was loaded.")
         return;
       }
 
@@ -663,7 +637,7 @@ export class CharacterManager {
           /**
            * We have a specific item ID blocking, remove it;
            */
-          const trait = this.manifestData.getTraitOptionById(rule.blocking.blockingItemId);
+          const trait = this.manifestDataManager.getTraitOptionById(rule.blocking.blockingItemId);
           if(trait){
             this.removeTrait(trait.traitGroup.trait);
           }
@@ -672,7 +646,7 @@ export class CharacterManager {
           /*
           * We have a specific type blocking, remove it;
           */
-          const traits = this.manifestData.getTraitOptionsByType(rule.blocking.blockingType);
+          const traits = this.manifestDataManager.getTraitOptionsByType(rule.blocking.blockingType);
           if(traits.length){
             for(const prop in this.avatar){
               if(this.avatar[prop].traitInfo.type == rule.blocking.blockingType){
@@ -696,10 +670,10 @@ export class CharacterManager {
     loadTrait(groupTraitID, traitID, soloView = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
-        if (this.manifestData) {
+        if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected trait using manifest data
-            const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
+            const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID);
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
@@ -731,10 +705,10 @@ export class CharacterManager {
     loadCustomTrait(groupTraitID, url) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
-        if (this.manifestData) {
+        if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected custom trait using manifest data
-            const selectedTrait = this.manifestData.getCustomTraitOption(groupTraitID, url);
+            const selectedTrait = this.manifestDataManager.getCustomTraitOption(groupTraitID, url);
 
             // If the custom trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
@@ -839,8 +813,7 @@ export class CharacterManager {
         return;
       }
 
-      const groupTrait = this.manifestData.getModelGroup(groupTraitID);
-      if (groupTrait){
+      if (this.manifestDataManager.containsModelGroupWithID(groupTraitID)){
         const itemData = new LoadedData({traitGroupID:groupTraitID, traitModel:null})
         this._addLoadedData(itemData);
         cullHiddenMeshes(this.avatar);
@@ -853,8 +826,14 @@ export class CharacterManager {
       cullHiddenMeshes(this.avatar);
     }
     loadOptimizerManifest(){
-      this.manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
-      this.manifestData = new CharacterManifestData(this.manifest);
+      this.manifestDataManager.setCustomManifest();
+    }
+
+    setManifest(manifest){
+      this.manifestDataManager.setCustomManifest(manifest);
+    }
+    loadManifest(url){
+      return this.manifestDataManager.loadManifest(url);
     }
     getCurrentOptimizerCharacterModel(){
       return this.avatar["CUSTOM"]?.vrm;
@@ -871,133 +850,13 @@ export class CharacterManager {
       return this.loadCustomTrait("CUSTOM", url);
     }
 
-    /**
-     * Sets an existing manifest data for the character.
-     *
-     * @param {object} manifest - The loaded mmanifest object.
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    setManifest(manifest){
-      this.removeCurrentCharacter();
-      return new Promise(async (resolve, reject) => {
-        try{
-          // remove in case character was loaded
-          this.manifest = manifest;
-          if (this.manifest) {
-            // Create a CharacterManifestData instance based on the fetched manifest
-            this.manifestData = new CharacterManifestData(this.manifest);
-
-            // If an animation manager is available, set it up
-            if (this.animationManager) {
-              try{
-                await this._animationManagerSetup(
-                  this.manifest.animationPath,
-                  this.manifest.assetsLocation,
-                  this.manifestData.displayScale
-                );
-              }
-              catch(err){
-                console.error("Error loading animations: " + err)
-              }
-            }
-
-            // Resolve the Promise (without a value, as you mentioned it's not needed)
-            resolve();
-          } else {
-            // The manifest could not be fetched, reject the Promise with an error message
-            const errorMessage = "Failed to fetch or parse the manifest.";
-            console.error(errorMessage);
-            reject(new Error(errorMessage));
-          }
-        } catch (error) {
-          // Handle any errors that occurred during the asynchronous operations
-          console.error("Error setting manifest:", error.message);
-          reject(new Error("Failed to set the manifest."));
-        }
-      })
-    }
-    /**
-     * Appends an existing manifest data to the current loaded manifest.
-     *
-     * @param {object} manifest - The loaded mmanifest object.
-     * @param {boolean} replaceExisting - Should existing IDs be reaplced with the new manifest?
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    appendManifest(manifest, replaceExisting){
-      return new Promise(async (resolve, reject) => {
-        try{
-          if (replaceExisting)
-            this.manifest = {...(this.manifest || {}), manifest};
-          else
-            this.manifest = {manifest, ...(this.manifest || {})};
-
-          // Create a CharacterManifestData instance based on the fetched manifest
-          const manifestData = new CharacterManifestData(manifest);
-          this.manifestData.appendManifestData(manifestData);
-
-          // Resolve the Promise (without a value, as you mentioned it's not needed)
-          resolve();
-
-        } catch (error) {
-          // Handle any errors that occurred during the asynchronous operations
-          console.error("Error setting manifest:", error.message);
-          reject(new Error("Failed to set the manifest."));
-        }
-      })
-    }
-
-    /**
-     * Loads the manifest data for the character.
-     *
-     * @param {string} url - The URL of the manifest.
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    loadManifest(url) {
-      // remove in case character was loaded
-      return new Promise((resolve, reject) => {
-        try {
-          // Fetch the manifest data asynchronously
-          this._fetchManifest(url).then(manifest=>{
-            this.setManifest(manifest).then(()=>{
-              resolve();
-            })
-          })
-        } catch (error) {
-          // Handle any errors that occurred during the asynchronous operations
-          console.error("Error loading manifest:", error.message);
-          reject(new Error("Failed to load the manifest."));
-        }
-      });
-    }
+    
     
 
-    /**
-     * Loads manifest data and appends it to the current manifest
-     *
-     * @param {string} url - The URL of the manifest.
-     * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
-     *                         or rejects with an error message if loading fails.
-     */
-    loadAppendManifest(url, replaceExisting){
-      // remove in case character was loaded
-      return new Promise((resolve, reject) => {
-        try {
-          // Fetch the manifest data asynchronously
-          this._fetchManifest(url).then(manifest=>{
-            this.appendManifest(manifest, replaceExisting).then(()=>{
-              resolve();
-            })
-          })
-        } catch (error) {
-          // Handle any errors that occurred during the asynchronous operations
-          console.error("Error loading manifest:", error.message);
-          reject(new Error("Failed to load the manifest."));
-        }
-      });
-    }
+    
+    
+
+
     
     /**
      * Displays only target trait, and removes all others
@@ -1009,7 +868,7 @@ export class CharacterManager {
       const options = [];
       for (const trait in this.avatar){
         if (groupTraitIDArray.includes(trait)){
-          options.push(this.manifestData.getTraitOption(trait, this.avatar[trait].traitInfo.id));
+          options.push(this.manifestDataManager.getTraitOption(trait, this.avatar[trait].traitInfo.id));
         }
       }
       await this._loadTraits(options,true);
@@ -1029,12 +888,11 @@ export class CharacterManager {
     async loadStoredAvatar(){
       const options = [];
       for (const trait in this.storedAvatar){
-        options.push(this.manifestData.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
+        options.push(this.manifestDataManager.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
         // TO DO, ALSO GET COLOR TRAITS AND TEXTURE TRAITS
       }
       console.log(options);
       this._loadTraits(options,true);
-      //const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
     }
 
     async _loadTraits(options, fullAvatarReplace = false){
@@ -1130,26 +988,6 @@ export class CharacterManager {
       }
     }
 
-    // XXX check if we can move this code only to manifestData
-    _fetchManifest(location) {
-      return new Promise((resolve,reject)=>{
-        fetch(location)
-          .then(response=>{
-            response.json().then((data)=>{
-              resolve(data);
-            })
-            .catch(err=>{
-              console.error("Unable to convert manifest to json data: " + err);
-              reject();
-            })
-          })
-          .catch(err=>{
-            console.error("Unable to fetch manifesta: " + err);
-            reject()
-          })
-      })
-    }
-
     _getPortaitScreenshotTexture(getBlob, options){
       this.blinkManager.enableScreenshot();
 
@@ -1235,7 +1073,7 @@ export class CharacterManager {
 
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
-      if (this.manifestData.isColliderRequired(traitID)){
+      if (this.manifestDataManager.isColliderRequired(traitID)){
         saveVRMCollidersToUserData(m);
       }
       
@@ -1252,7 +1090,7 @@ export class CharacterManager {
        */
       this._unregisterMorphTargetsFromManifest(vrm);
       
-      if (this.manifestData.isLipsyncTrait(traitID))
+      if (this.manifestDataManager.isLipsyncTrait(traitID))
         this.lipSync = new LipSync(vrm);
 
 
@@ -1361,7 +1199,7 @@ export class CharacterManager {
     }
   
     _unregisterMorphTargetsFromManifest(vrm){
-      const manifestBlendShapes = this.manifestData.getAllBlendShapeTraits()
+      const manifestBlendShapes = this.manifestDataManager.getAllBlendShapeTraits()
       const expressions = vrm.expressionManager?.expressions
       if(manifestBlendShapes.length == 0) return
       if(!expressions) return
@@ -1420,23 +1258,25 @@ export class CharacterManager {
         }
       })
 
-      const templateInfo = this.manifest;
+      const defaultValues = this.manifestDataManager.getDefaultValues();
 
-      const trait = this.manifestData.getModelGroup(traitID);
+      const traitGroup = this.manifestDataManager.getModelGroup(traitID);
+      console.log(traitID);
+      console.log(traitGroup)
       // culling layers setup section
       addModelData(model, {
         cullingLayer: 
           item.cullingLayer != null ? item.cullingLayer: 
-          trait.cullingLayer != null ? trait.cullingLayer: 
-          templateInfo.defaultCullingLayer != null?templateInfo.defaultCullingLayer: -1,
+          traitGroup.cullingLayer != null ? traitGroup.cullingLayer: 
+          defaultValues.defaultCullingLayer != null?defaultValues.defaultCullingLayer: -1,
         cullingDistance: 
           item.cullingDistance != null ? item.cullingDistance: 
-          trait.cullingDistance != null ? trait.cullingDistance:
-          templateInfo.defaultCullingDistance != null ? templateInfo.defaultCullingDistance: null,
+          traitGroup.cullingDistance != null ? traitGroup.cullingDistance:
+          defaultValues.defaultCullingDistance != null ? defaultValues.defaultCullingDistance: null,
         maxCullingDistance:
           item.maxCullingDistance != null ? item.maxCullingDistance: 
-          trait.maxCullingDistance != null ? trait.maxCullingDistance:
-          templateInfo.maxCullingDistance != null ? templateInfo.maxCullingDistance: Infinity,
+          traitGroup.maxCullingDistance != null ? traitGroup.maxCullingDistance:
+          defaultValues.maxCullingDistance != null ? defaultValues.maxCullingDistance: Infinity,
         cullingMeshes
       })  
 
@@ -1507,7 +1347,7 @@ export class CharacterManager {
       }
     }
     _positionModel(model){
-      const scale = this.manifestData.displayScale;
+      const scale = this.manifestDataManager.getDisplayScale();
         model.scene.scale.set(scale,scale,scale);
 
       // Move depending on manifest definition

@@ -79,7 +79,7 @@ function Create() {
     const promises = selectedClass.manifestAppend.map(manifestAppend => {
       return new Promise((resolve)=>{
         // check if it requires nft validation
-        characterManager.loadAppendManifest(manifestAppend.manifest, false).then((owns)=>{
+        characterManager.loadManifest(manifestAppend.manifest, false).then((owns)=>{
           resolve(owns);
         })
       })
