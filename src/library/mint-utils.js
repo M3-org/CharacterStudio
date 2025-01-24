@@ -131,77 +131,115 @@ export function ownsCollection(address, collection){
   });
 }
 
-export async function currentWallet(){
-  const chain = await window.ethereum.request({ method: 'eth_chainId' })
-  if (parseInt(chain, 16) == parseInt(chainId, 16)) {
-    const addressArray = await window.ethereum.request({
-      method: 'eth_requestAccounts',
-    })
-    return addressArray.length > 0 ? addressArray[0] : ""
-  }
-  return "";
+/**
+ * Switches the active wallet to a specific blockchain and retrieves the wallet address.
+ * 
+ * @param {string} network - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
+ * @returns {Promise<string>} A promise resolving to the active wallet address, or an empty string on error.
+ */
+export function connectWallet(network) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      switch (network.toLowerCase()) {
+        case 'ethereum':
+        case 'polygon': {
+          if (!window.ethereum) {
+            return reject(new Error('Ethereum wallet is not available.'));
+          }
+          const chainIdMap = {
+            ethereum: '0x1', // Ethereum Mainnet
+            polygon: '0x89', // Polygon Mainnet
+          };
+          const desiredChainId = chainIdMap[network.toLowerCase()];
+          const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+          if (parseInt(currentChainId, 16) !== parseInt(desiredChainId, 16)) {
+            return reject(new Error(`Please switch to the ${network} network in your wallet.`));
+          }
+
+          const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts',
+          });
+          return resolve(accounts.length > 0 ? accounts[0] : '');
+        }
+
+        case 'solana': {
+          if (!window.solana || !window.solana.isPhantom) {
+            return reject(new Error('Solana wallet (Phantom) is not available.'));
+          }
+          const response = await window.solana.connect();
+          return resolve(response.publicKey.toString());
+        }
+
+        default:
+          return reject(new Error('Unsupported network.'));
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
 }
 
 // ready to test
-export async function connectWallet(){
-  if (window.ethereum) {
-    try {
-      const chain = await window.ethereum.request({ method: 'eth_chainId' })
+// export async function connectWallet(){
+//   if (window.ethereum) {
+//     try {
+//       const chain = await window.ethereum.request({ method: 'eth_chainId' })
       
-      if (parseInt(chain, 16) == parseInt(chainId, 16)) {
-        const addressArray = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        })
-        return addressArray.length > 0 ? addressArray[0] : ""
-      } else {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: chainId }],
-            })
-            const addressArray = await window.ethereum.request({
-              method: 'eth_requestAccounts',
-            })
-            return addressArray.length > 0 ? addressArray[0] : ""
-          } catch (err) {
-            console.log("polygon not find:", err)
-            // Add Polygon chain to the metamask.
-            try {
-              await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [
-                  {   
-                    chainId: '0x89',
-                    chainName: 'Polygon Mainnet',
-                    rpcUrls: ['https://polygon-rpc.com'],
-                    nativeCurrency: {
-                        name: "Matic",
-                        symbol: "MATIC",
-                        decimals: 18
-                    },
-                    blockExplorerUrls: ['https://polygonscan.com/']                      },
-                ]
-              });
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: chainId }],
-            })
-            const addressArray = await window.ethereum.request({
-              method: 'eth_requestAccounts',
-            })
-          return addressArray.length > 0 ? addressArray[0] : ""
-            } catch (error) {
-              console.log("Adding polygon chain failed", error);
-            }
-          }
-      }
-    } catch (err) {
-      return "";
-    }
-  } else {
-    return "";
-  }
-}
+//       if (parseInt(chain, 16) == parseInt(chainId, 16)) {
+//         const addressArray = await window.ethereum.request({
+//           method: 'eth_requestAccounts',
+//         })
+//         return addressArray.length > 0 ? addressArray[0] : ""
+//       } else {
+//           try {
+//             await window.ethereum.request({
+//               method: 'wallet_switchEthereumChain',
+//               params: [{ chainId: chainId }],
+//             })
+//             const addressArray = await window.ethereum.request({
+//               method: 'eth_requestAccounts',
+//             })
+//             return addressArray.length > 0 ? addressArray[0] : ""
+//           } catch (err) {
+//             console.log("polygon not find:", err)
+//             // Add Polygon chain to the metamask.
+//             try {
+//               await window.ethereum.request({
+//                 method: 'wallet_addEthereumChain',
+//                 params: [
+//                   {   
+//                     chainId: '0x89',
+//                     chainName: 'Polygon Mainnet',
+//                     rpcUrls: ['https://polygon-rpc.com'],
+//                     nativeCurrency: {
+//                         name: "Matic",
+//                         symbol: "MATIC",
+//                         decimals: 18
+//                     },
+//                     blockExplorerUrls: ['https://polygonscan.com/']                      },
+//                 ]
+//               });
+//             await window.ethereum.request({
+//               method: 'wallet_switchEthereumChain',
+//               params: [{ chainId: chainId }],
+//             })
+//             const addressArray = await window.ethereum.request({
+//               method: 'eth_requestAccounts',
+//             })
+//           return addressArray.length > 0 ? addressArray[0] : ""
+//             } catch (error) {
+//               console.log("Adding polygon chain failed", error);
+//             }
+//           }
+//       }
+//     } catch (err) {
+//       return "";
+//     }
+//   } else {
+//     return "";
+//   }
+// }
 
 // ready to test
 async function saveFileToPinata(fileData, fileName) {

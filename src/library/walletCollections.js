@@ -1,11 +1,7 @@
 import { getOpenseaCollection, ownsCollection } from "./mint-utils";
 import { getAsArray } from "./utils";
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
-
-const chain = {
-    ethereum: "0x1",
-    polygon: "0x89",
-};
+import { connectWallet } from "./mint-utils";
 
 /**
  * Handles wallet operations and NFT collection interactions.
@@ -27,7 +23,7 @@ export class WalletCollections {
     checkForOwnership(collectionName, chainName, testWallet) {
         const walletPromise = testWallet
             ? Promise.resolve(testWallet)
-            : this.switchWallet(chainName);
+            : connectWallet(chainName);
 
         return walletPromise.then(wallet => ownsCollection(wallet, collectionName));
     }
@@ -43,7 +39,7 @@ export class WalletCollections {
     getNftsFromCollection(collectionName, chainName, testWallet) {
         const walletPromise = testWallet
             ? Promise.resolve(testWallet)
-            : this.switchWallet(chainName);
+            : connectWallet(chainName);
 
         return walletPromise
             .then(wallet => getOpenseaCollection(wallet, collectionName))
@@ -98,26 +94,5 @@ export class WalletCollections {
     getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
         return this.getMetaFromCollection(collectionName, chainName, testWallet)
             .then(nftMeta => new OwnedNFTTraitIDs(nftMeta, dataSource));
-    }
-
-    /**
-     * Switches the active wallet to a specific blockchain and retrieves the wallet address.
-     * 
-     * @param {string} chainName - The blockchain name (`"ethereum"` or `"polygon"`).
-     * @returns {Promise<string>} A promise resolving to the active wallet address, or an empty string on error.
-     */
-    switchWallet(chainName) {
-        return new Promise((resolve, reject) => {
-            window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: chain[chainName] }],
-            })
-                .then(() => window.ethereum.request({ method: 'eth_requestAccounts' }))
-                .then(addressArray => resolve(addressArray.length > 0 ? addressArray[0] : ""))
-                .catch(err => {
-                    console.log(`${chainName} polygon not found:`, err);
-                    resolve(""); // Fallback to an empty wallet on error
-                });
-        });
     }
 }
