@@ -1,7 +1,6 @@
 
 
 import { CharacterManifestData } from "./CharacterManifestData";
-import { OwnedTraitIDs } from "./ownedTraitIDs";
 
 export class ManifestDataManager{
     constructor(){
@@ -261,11 +260,9 @@ export class ManifestDataManager{
       const resultArray = [];
       this.manifestDataCollection.forEach(manifestData => {
         const traitCollection = manifestData.getModelTraits(groupTraitID);
-        console.log(traitCollection);
         if (traitCollection)
           resultArray.push(...traitCollection);
       });
-      console.log(resultArray);
       return resultArray;
     }
     getRandomTrait(groupTraitID){

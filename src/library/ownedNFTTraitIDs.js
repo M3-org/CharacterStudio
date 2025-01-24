@@ -1,7 +1,7 @@
 /**
  * Represents owned traits and IDs extracted from NFT metadata.
  */
-export class OwnedTraitIDs {
+export class OwnedNFTTraitIDs {
     /**
      * Initializes an instance of the OwnedTraitIDs class.
      * 

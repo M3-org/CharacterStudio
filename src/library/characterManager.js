@@ -334,7 +334,6 @@ export class CharacterManager {
       }
     }
     getGroupTraits(){
-      console.log("called");
       return this.manifestDataManager.getGroupModelTraits();
     }
       /**
@@ -364,7 +363,6 @@ export class CharacterManager {
     
     // manifest data requests
     getTraits(groupTraitID){
-      console.log(this.manifestDataManager.getModelTraits(groupTraitID));
       return this.manifestDataManager.getModelTraits(groupTraitID);
     }
     getCurrentTraitID(groupTraitID){
@@ -537,7 +535,6 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadAllTraits() {
-      console.log("load all")
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
@@ -669,14 +666,12 @@ export class CharacterManager {
      *                         or rejects with an error message if not.
      */
     loadTrait(groupTraitID, traitID, soloView = false) {
-      console.log("calling load trait", groupTraitID, traitID);
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected trait using manifest data
             const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID);
-            console.log(selectedTrait)
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
@@ -894,7 +889,6 @@ export class CharacterManager {
         options.push(this.manifestDataManager.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
         // TO DO, ALSO GET COLOR TRAITS AND TEXTURE TRAITS
       }
-      console.log(options);
       this._loadTraits(options,true);
     }
 
@@ -1264,8 +1258,6 @@ export class CharacterManager {
       const defaultValues = this.manifestDataManager.getDefaultValues();
 
       const traitGroup = this.manifestDataManager.getModelGroup(traitID);
-      console.log(traitID);
-      console.log(traitGroup)
       // culling layers setup section
       addModelData(model, {
         cullingLayer: 

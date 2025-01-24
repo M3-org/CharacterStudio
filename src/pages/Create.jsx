@@ -32,18 +32,8 @@ function Create() {
   useEffect(() => {
 
     if (manifest?.characters != null){
-      console.log(manifest?.characters)
       const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
-      // const nonRepeatingCollections = [];
-      // const seenCollections = new Set();
-      // manifest.characters.forEach((c) => {
-      // if (c.collectionLock != null && !seenCollections.has(c.collectionLock)) {
-      //     nonRepeatingCollections.push(c.collectionLock);
-      //     seenCollections.add(c.collectionLock);
-      //   }
-      // });
       setClasses(manifestClasses);
-
     }
   }, [manifest])
 
@@ -62,8 +52,6 @@ function Create() {
           icon:c.icon,
           format:c.format,
           manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
-          // chainName:c.chainName || "ethereum",
-          // dataSource:c.dataSource || "attributes"
         }
       })
   }

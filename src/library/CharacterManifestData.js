@@ -1,6 +1,5 @@
 import { getAsArray } from "./utils";
 import { ManifestRestrictions } from "./manifestRestrictions";
-import { OwnedTraitIDs } from "./ownedTraitIDs";
 import { WalletCollections } from "./walletCollections";
 
 

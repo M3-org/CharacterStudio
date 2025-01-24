@@ -1,6 +1,6 @@
 import { getOpenseaCollection, ownsCollection } from "./mint-utils";
 import { getAsArray } from "./utils";
-import { OwnedTraitIDs } from "./ownedTraitIDs";
+import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 
 const chain = {
     ethereum: "0x1",
@@ -93,15 +93,11 @@ export class WalletCollections {
      * @param {string} chainName - The blockchain name (`"ethereum"` or `"polygon"`).
      * @param {string} dataSource - The source of the data (`"attributes"` or `"image"`).
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
-     * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedTraitIDs object.
+     * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedNFTTraitIDs object.
      */
     getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
-        console.log("names");
-        console.log(collectionName);
-        console.log(chainName);
-        console.log(dataSource);
         return this.getMetaFromCollection(collectionName, chainName, testWallet)
-            .then(nftMeta => new OwnedTraitIDs(nftMeta, dataSource));
+            .then(nftMeta => new OwnedNFTTraitIDs(nftMeta, dataSource));
     }
 
     /**
