@@ -1,4 +1,4 @@
-import { getOpenseaCollection, ownsCollection } from "./mint-utils";
+import { fetchOwnedNFTs, ownsCollection } from "./mint-utils";
 import { getAsArray } from "./utils";
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 import { connectWallet } from "./mint-utils";
@@ -16,7 +16,7 @@ export class WalletCollections {
      * Checks if a wallet owns a specific NFT collection.
      * 
      * @param {string} collectionName - The name of the NFT collection.
-     * @param {string} chainName - The blockchain name (`"ethereum"` or `"polygon"`).
+     * @param {string} chainName - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
      * @returns {Promise<boolean>} A promise resolving to `true` if the wallet owns the collection, otherwise `false`.
      */
@@ -25,14 +25,14 @@ export class WalletCollections {
             ? Promise.resolve(testWallet)
             : connectWallet(chainName);
 
-        return walletPromise.then(wallet => ownsCollection(wallet, collectionName));
+        return walletPromise.then(wallet => ownsCollection(wallet, network, collectionName));
     }
 
     /**
      * Retrieves NFTs from a specific collection owned by a wallet.
      * 
      * @param {string} collectionName - The name of the NFT collection.
-     * @param {string} chainName - The blockchain name (`"ethereum"` or `"polygon"`).
+     * @param {string} chainName - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
      * @returns {Promise<Array<Object>>} A promise resolving to an array of NFT objects.
      */
@@ -42,7 +42,7 @@ export class WalletCollections {
             : connectWallet(chainName);
 
         return walletPromise
-            .then(wallet => getOpenseaCollection(wallet, collectionName))
+            .then(wallet => fetchOwnedNFTs(wallet, chainName, collectionName))
             .then(collection => getAsArray(collection?.nfts));
     }
 
@@ -57,10 +57,12 @@ export class WalletCollections {
     getMetaFromCollection(collectionName, chainName, testWallet) {
         return this.getNftsFromCollection(collectionName, chainName, testWallet)
             .then(ownedNfts => {
+                console.log(ownedNfts);
                 const getNftsMeta = nfts => {
                     const nftsMeta = [];
                     const promises = nfts.map(nft =>
                         new Promise(resolve => {
+                            console.log(nft);
                             fetch(nft.metadata_url)
                                 .then(response => response.json())
                                 .then(metadata => {

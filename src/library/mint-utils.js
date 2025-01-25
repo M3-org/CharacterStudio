@@ -1,6 +1,8 @@
 import { BigNumber, ethers } from "ethers"
 import { getVRMBlobData } from "./download-utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
+// import { Connection, PublicKey } from '@solana/web3.js';
+// import { Metaplex } from '@metaplex-foundation/js';
 import axios from "axios"
 
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
@@ -63,6 +65,18 @@ async function getTokenPrice(){
   return tokenPrice
 }
 
+
+export function ownsCollection (wallet, network, collection){
+  return new Promise((resolve, reject) => {
+    fetchOwnedNFTs(wallet, network, collection).then(response=>{
+      resolve (response?.nfts?.length > 0);
+    }).catch(err=>{
+      reject(err);
+    })
+  });
+}
+
+
 /**
  * Fetches Opensea collection data for a specific Ethereum account and collection.
  *
@@ -70,8 +84,28 @@ async function getTokenPrice(){
  * @param {string} collection - The name or identifier of the Opensea collection.
  * @returns {Promise} A Promise that resolves with the JSON response from the Opensea API.
  */
-export function getOpenseaCollection(address, collection) {
-  console.log(opensea_Key)
+
+
+export function fetchOwnedNFTs (walletAddress, network, collection){
+  switch (network.toLowerCase()) {
+    case 'ethereum':
+    case 'polygon':{
+      return fetchFromOpensea(walletAddress, collection);
+    }
+    case 'solana':{
+      console.warn("solana work in progress");
+      return Promise.resolve(false);
+      return fetchFromMetaplex(walletAddress, collection);
+    }
+    default:{
+      console.log("Unsupported Netwrok: " + walletAddress)
+      return Promise.resolve(false);
+    }
+  }
+}
+
+
+const fetchFromOpensea = (address, collection) => {
   if (opensea_Key == null){
     console.error("No opensea key was provided. Cant fetch user's owned nft's");
     return;
@@ -103,33 +137,27 @@ export function getOpenseaCollection(address, collection) {
   });
 }
 
-export function ownsCollection(address, collection){
-  const options = {
-    method: 'GET',
-    headers: { accept: 'application/json', 'x-api-key': opensea_Key },
-  };
-  // Returning a Promise
-  return new Promise((resolve, reject) => {
-    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=1&collection=' + collection, options)
-      .then(response => {
-        // Check if the response status is ok (2xx range)
-        if (response.ok) {
-          return response.json();
-        } else {
-          // If the response status is not ok, reject the Promise with an error message
-          reject('Failed to fetch data from Opensea API');
-        }
-      })
-      .then(response => {
-        // Resolve the Promise with the JSON response
-        resolve(response.nfts.length>0);
-      })
-      .catch(err => {
-        // Reject the Promise with the error encountered during the fetch
-        reject(err);
-      });
-  });
+
+const fetchFromMetaplex = (walletAddress, collection) =>{
+  console.log("work in progress");
+  // return new Promise((resolve, reject) => {
+  //   const connection = new Connection('https://api.mainnet-beta.solana.com'); // Mainnet endpoint
+  //   const metaplex = new Metaplex(connection);
+
+  //   const ownerPublicKey = new PublicKey(walletAddress);
+
+  //   metaplex.nfts().findAllByOwner({ owner: ownerPublicKey })
+  //     .then(nfts => {
+  //       console.log(collection);
+  //       console.log(nfts);
+  //       resolve(nfts); // Resolving with the NFTs data
+  //     })
+  //     .catch(error => {
+  //       reject(error); // Rejecting the promise in case of an error
+  //     });
+  // });
 }
+
 
 /**
  * Switches the active wallet to a specific blockchain and retrieves the wallet address.

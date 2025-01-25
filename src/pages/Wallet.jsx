@@ -10,7 +10,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 import { connectWallet } from "../library/mint-utils"
-import { getOpenseaCollection } from "../library/mint-utils"
+// import { getOpenseaCollection } from "../library/mint-utils"
 
 function Wallet() {
   
@@ -29,11 +29,11 @@ function Wallet() {
   }, [])
 
   const fetchWalletNFTS = async()=>{
-    const address = await connectWallet()
-    getOpenseaCollection(address,'the-anata-nft').then((result)=>{
-      setWalletNFTs(result.nfts);
-      console.log(result.nfts);
-    })  
+    // const address = await connectWallet()
+    // getOpenseaCollection(address,'the-anata-nft').then((result)=>{
+    //   setWalletNFTs(result.nfts);
+    //   console.log(result.nfts);
+    // })  
   }
 
   const back = () => {
