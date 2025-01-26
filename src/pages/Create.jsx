@@ -10,7 +10,6 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 import { getAsArray } from "../library/utils"
-import { WalletCollections } from "../library/walletCollections"
 
 function Create() {
   
@@ -22,13 +21,8 @@ function Create() {
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
   const [ classes, setClasses ] = useState([]) 
-  let [walletCollections, setWalletCollections] = useState(null)
 
-  useEffect(()=>{
-      if (walletCollections == null){
-        setWalletCollections (new WalletCollections()); 	  
-      }
-    },[])
+
   useEffect(() => {
 
     if (manifest?.characters != null){
@@ -56,7 +50,6 @@ function Create() {
       })
   }
 
-  const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
   const selectClass = async (index) => {
     setIsLoading(true)
     const selectedClass = classes[index];

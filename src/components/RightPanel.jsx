@@ -1,12 +1,15 @@
 import React from "react"
+import { SceneContext } from "../context/SceneContext"
 import styles from "./RightPanel.module.css"
 import MenuTitle from "./MenuTitle"
 import traitsIcon from "../images/t-shirt.png"
+import walletIcon from "../images/wallet.png"
 import genSpriteIcon from "../images/users.png"
 import emotionIcon from "../images/emotion.png"
 import genLoraIcon from "../images/paste.png"
 import genThumbIcon from "../images/portraits.png"
 import { TokenBox } from "../components/token-box/TokenBox"
+import WalletMenu from "./WalletMenu"
 import TraitInformation from "../components/TraitInformation"
 import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
@@ -14,7 +17,12 @@ import ThumbnailCreation from "./ThumbnailCreation"
 import Emotions from "./Emotions"
 
 export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
+    const {
+        characterManager,
+    } = React.useContext(SceneContext)
+
     const [selectedOption, setSelectedOption] = React.useState("")
+    const [lockedManifests, setLockedManifests] = React.useState("")
     const setSelectedOptionString = (option) => {
         if (option != selectedOption){
             setSelectedOption(option);
@@ -25,6 +33,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
     }
     return (
         <div>
+            {selectedOption=="wallet" && <WalletMenu lockedManifests={lockedManifests} />}
             {selectedOption=="Information" && <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
@@ -34,6 +43,19 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
                 <div className={styles["optionsContainer"]}>
+                    <div
+                        key={"wallet"}
+                        onClick={()=>{
+                            setSelectedOptionString("wallet"); 
+                            console.log(setLockedManifests(characterManager.getLoadedLockedManifests(true)))
+                        }}
+                    >
+                        <TokenBox
+                        size={56}
+                        icon={walletIcon}
+                        rarity={selectedOption == "wallet" ? "mythic" : "none"}      
+                        />
+                    </div>
                     <div
                         key={"Information"}
                         onClick={()=>{setSelectedOptionString("Information")}}
