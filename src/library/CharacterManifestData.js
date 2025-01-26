@@ -148,7 +148,7 @@ export class CharacterManifestData{
       this.manifestRestrictions._init()
       
 
-      this.unlockWalletOwnedTraits();
+      //this.unlockWalletOwnedTraits();
     }
 
     isNFTLocked(){

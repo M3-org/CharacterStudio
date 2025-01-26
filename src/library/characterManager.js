@@ -116,6 +116,18 @@ export class CharacterManager {
         }
       }
     }
+    unlockManifestByIndex(index, testWallet = null){
+      return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
+    }
+    isManifestByIndexLocked(index){
+      return this.manifestDataManager.isManifestByIndexNFTLocked(index);
+    }
+    getLoadedLockedManifests(isLocked){
+      return this.manifestDataManager.getLoadedManifests(isLocked);
+    }
+    getLoadedManifests(){
+      return this.manifestDataManager.getLoadedManifests();
+    }
 
     addLookAtMouse(screenPrecentage, canvasID, camera, enable = true){
       this.lookAtManager = new LookAtManager(screenPrecentage, canvasID, camera);

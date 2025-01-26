@@ -12,7 +12,18 @@ export class ManifestDataManager{
         maxCullingDistance:Infinity
       };
     }
-    
+    getLoadedLockedManifests(isLocked){
+      return this.manifestDataCollection.filter((manifestData)=>manifestData.locked == isLocked);
+    }
+    getLoadedManifests(){
+      return this.manifestDataCollection;
+    }
+    unlockManifestByIndex(index, testWallet = null){
+      this.manifestDataCollection[index].unlockWalletOwnedTraits(testWallet);
+    }
+    isManifestByIndexNFTLocked(index){
+      return  this.manifestDataCollection[index]?.isNFTLocked(testWallet);
+    }
     clearManifests(){
         this.mainManifestData = null;
         this.manifestDataCollection = [];
