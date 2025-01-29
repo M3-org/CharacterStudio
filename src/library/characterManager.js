@@ -697,13 +697,13 @@ export class CharacterManager {
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTrait(groupTraitID, traitID, soloView = false) {
+    loadTrait(groupTraitID, traitID, identifierID, soloView = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected trait using manifest data
-            const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID);
+            const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID, identifierID);
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
@@ -926,7 +926,7 @@ export class CharacterManager {
             const coincidence = loadedData.some((option) => option.traitModel?.traitGroup.trait === trait.trait);
             if (!coincidence) {
               if (this.avatar[trait.trait] != null){
-                loadedData.push(new LoadedData({traitGroupID:trait.trait, traitModel:null}));
+                loadedData.push(new LoadedData({collectionID:trait.collectionID, traitGroupID:trait.trait, traitModel:null}));
               }
             }
           });
@@ -1085,7 +1085,7 @@ export class CharacterManager {
       // }
       
     }
-    _VRMBaseSetup(m, item, traitID, textures, colors){
+    _VRMBaseSetup(m, collectionID, item, traitID, textures, colors){
       let vrm = m.userData.vrm;
       if (m.userData.vrm == null){
         console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
@@ -1109,13 +1109,13 @@ export class CharacterManager {
        * unregister the Blendshapes from the manifest -if any.
        * This is to avoid BlendshapeTraits being affected by the vrm.ExpressionManager
        */
-      this._unregisterMorphTargetsFromManifest(vrm);
+      this._unregisterMorphTargetsFromManifest(vrm, collectionID);
       
-      if (this.manifestDataManager.isLipsyncTrait(traitID))
+      if (this.manifestDataManager.isLipsyncTrait(traitID, collectionID))
         this.lipSync = new LipSync(vrm);
 
 
-      this._modelBaseSetup(vrm, item, traitID, textures, colors);
+      this._modelBaseSetup(vrm, collectionID, item, traitID, textures, colors);
 
       // Rotate model 180 degrees
 
@@ -1219,8 +1219,8 @@ export class CharacterManager {
       addToJoints(groups)
     }
   
-    _unregisterMorphTargetsFromManifest(vrm){
-      const manifestBlendShapes = this.manifestDataManager.getAllBlendShapeTraits()
+    _unregisterMorphTargetsFromManifest(vrm, identifier){
+      const manifestBlendShapes = this.manifestDataManager.getAllBlendShapeTraits(identifier)
       const expressions = vrm.expressionManager?.expressions
       if(manifestBlendShapes.length == 0) return
       if(!expressions) return
@@ -1236,7 +1236,7 @@ export class CharacterManager {
       }
     }
 
-    _modelBaseSetup(model, item, traitID, textures, colors){
+    _modelBaseSetup(model, collectionID, item, traitID, textures, colors){
 
       const meshTargets = [];
       const cullingIgnore = getAsArray(item.cullingIgnore)
@@ -1281,7 +1281,7 @@ export class CharacterManager {
 
       const defaultValues = this.manifestDataManager.getDefaultValues();
 
-      const traitGroup = this.manifestDataManager.getModelGroup(traitID);
+      const traitGroup = this.manifestDataManager.getModelGroup(traitID, collectionID);
       // culling layers setup section
       addModelData(model, {
         cullingLayer: 
@@ -1391,13 +1391,14 @@ export class CharacterManager {
 
     _addLoadedData(itemData){
       const {
+          collectionID,
           traitGroupID,
           traitModel,
           textureTrait,
           colorTrait,
           models,
           textures,
-          colors
+          colors,
       } = itemData;
 
       // user selected to remove trait
@@ -1416,7 +1417,7 @@ export class CharacterManager {
 
       models.map((m)=>{
           if (m != null)
-            vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors);
+            vrm = this._VRMBaseSetup(m, collectionID, traitModel, traitGroupID, textures, colors);
 
       })
 
@@ -1529,13 +1530,14 @@ class TraitLoadingManager{
     
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
                 resultData[index] = new LoadedData({
-                    traitGroupID: option?.traitModel.traitGroup.trait,
-                    traitModel: option?.traitModel,
-                    textureTrait: option?.traitTexture,
-                    colorTrait: option?.traitColor,
-                    models: loadedModels,
-                    textures: loadedTextures,
-                    colors: loadedColors,
+                  collectionID: option?.traitModel.collectionID,
+                  traitGroupID: option?.traitModel.traitGroup.trait,
+                  traitModel: option?.traitModel,
+                  textureTrait: option?.traitTexture,
+                  colorTrait: option?.traitColor,
+                  models: loadedModels,
+                  textures: loadedTextures,
+                  colors: loadedColors,
                 });
             });
             Promise.allSettled(promises)
@@ -1556,6 +1558,7 @@ class TraitLoadingManager{
 class LoadedData{
     constructor(data){
         const {
+            collectionID,
             traitGroupID,
             traitModel,
             textureTrait,
@@ -1564,6 +1567,8 @@ class LoadedData{
             textures,
             colors
         } = data;
+
+        this.collectionID = collectionID;
 
         // Option base data
         this.traitGroupID = traitGroupID;
