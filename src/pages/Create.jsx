@@ -54,14 +54,14 @@ function Create() {
     setIsLoading(true)
     const selectedClass = classes[index];
 
-    await characterManager.loadManifest(selectedClass.manifest);
+    await characterManager.loadManifest(selectedClass.manifest,selectedClass.name);
 
     setViewMode(ViewMode.APPEARANCE)
     const promises = selectedClass.manifestAppend.map(manifestAppend => {
       return new Promise((resolve)=>{
-        // check if it requires nft validation
-        characterManager.loadManifest(manifestAppend.manifest, false).then((owns)=>{
-          resolve(owns);
+        
+        characterManager.loadManifest(manifestAppend.manifest, manifestAppend.name).then(()=>{
+          resolve();
         })
       })
     });

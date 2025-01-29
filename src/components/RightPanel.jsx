@@ -47,7 +47,8 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                         key={"wallet"}
                         onClick={()=>{
                             setSelectedOptionString("wallet"); 
-                            console.log(setLockedManifests(characterManager.getLoadedLockedManifests(true)))
+                            console.log(characterManager.getLoadedLockedManifests(true));
+                            setLockedManifests(characterManager.getLoadedLockedManifests(true));
                         }}
                     >
                         <TokenBox

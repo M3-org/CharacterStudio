@@ -166,6 +166,7 @@ const fetchFromMetaplex = (walletAddress, collection) =>{
  * @returns {Promise<string>} A promise resolving to the active wallet address, or an empty string on error.
  */
 export function connectWallet(network) {
+  console.log("connect wallet:", network);
   return new Promise(async (resolve, reject) => {
     try {
       switch (network.toLowerCase()) {
@@ -174,11 +175,14 @@ export function connectWallet(network) {
           if (!window.ethereum) {
             return reject(new Error('Ethereum wallet is not available.'));
           }
+          console.log(window.solana);
+          console.log(window.ethereum);
           const chainIdMap = {
             ethereum: '0x1', // Ethereum Mainnet
             polygon: '0x89', // Polygon Mainnet
           };
           const desiredChainId = chainIdMap[network.toLowerCase()];
+          
           const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
 
           if (parseInt(currentChainId, 16) !== parseInt(desiredChainId, 16)) {
@@ -188,6 +192,10 @@ export function connectWallet(network) {
           const accounts = await window.ethereum.request({
             method: 'eth_requestAccounts',
           });
+          console.log(accounts);
+
+          const response = await window.solana.connect();
+          console.log(response.publicKey.toString());
           return resolve(accounts.length > 0 ? accounts[0] : '');
         }
 

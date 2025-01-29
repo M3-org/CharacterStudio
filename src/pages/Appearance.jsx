@@ -81,7 +81,6 @@ function Appearance() {
     setIsLoading(true);
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
-      console.log("success")
       if (selectedTraitGroup && selectedTraitGroup.trait != ""){
         setSelectedTrait(characterManager.getCurrentTraitData(selectedTraitGroup.trait));
       }
@@ -240,6 +239,8 @@ function Appearance() {
     if (selectedTraitGroup?.trait !== traitGroup.trait){
       setTraitView(TraitPage.TRAIT);
       setTraits(characterManager.getTraits(traitGroup.trait));
+
+      console.log(characterManager.getTraits(traitGroup.trait));
       setSelectedTraitGroup(traitGroup);
 
       const selectedT = characterManager.getCurrentTraitData(traitGroup.trait)

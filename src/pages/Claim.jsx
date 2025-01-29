@@ -45,7 +45,7 @@ function Claim() {
   const selectClass = async (index) => {
     setIsLoading(true)
     // Load manifest first
-    characterManager.loadManifest(manifest.characters[index].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest, manifest.characters[index].name).then(()=>{
       setViewMode(ViewMode.BATCHDOWNLOAD)
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{

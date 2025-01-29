@@ -44,7 +44,7 @@ function Wallet() {
   const selectClass = async (index) => {
     setIsLoading(true)
     // Load manifest first
-    characterManager.loadManifest(manifest.characters[index].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest, anifest.characters[index].name).then(()=>{
       setViewMode(ViewMode.APPEARANCE)
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{
@@ -56,7 +56,7 @@ function Wallet() {
 
   const appendManifest = () =>{
     console.log("ttt")
-    characterManager.loadManifest(manifest.characters[0].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[0].manifest, anifest.characters[index].name).then(()=>{
       // setViewMode(ViewMode.APPEARANCE)
       
       characterManager.loadAppendManifest(manifest.characters[1].manifest, true).then(()=>{

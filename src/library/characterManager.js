@@ -43,7 +43,8 @@ export class CharacterManager {
       const{
         parentModel = null,
         renderCamera = null,
-        manifestURL = null
+        manifestURL = null,
+        manifestIdentifier = null
       }= options;
 
      
@@ -72,7 +73,7 @@ export class CharacterManager {
 
       this.manifestDataManager = new ManifestDataManager();
       if (manifestURL){
-        this.manifestDataManager.loadManifest(manifestURL).then(()=>{
+        this.manifestDataManager.loadManifest(manifestURL,manifestIdentifier).then(()=>{
           this.animationManager.setScale(this.manifestDataManager.getDisplayScale());
         })
        
@@ -117,13 +118,20 @@ export class CharacterManager {
       }
     }
     unlockManifestByIndex(index, testWallet = null){
+      console.log(index);
       return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
+    }
+    unlockManifestByIdentifier(identifier, testWallet = null){
+      return this.manifestDataManager.unlockManifestByIdentifier(identifier, testWallet);
     }
     isManifestByIndexLocked(index){
       return this.manifestDataManager.isManifestByIndexNFTLocked(index);
     }
+    isManifestByIdentifierLocked(identifier){
+      return this.manifestDataManager.isManifestByIdentifierNFTLocked(identifier);
+    }
     getLoadedLockedManifests(isLocked){
-      return this.manifestDataManager.getLoadedManifests(isLocked);
+      return this.manifestDataManager.getLoadedLockedManifests(isLocked);
     }
     getLoadedManifests(){
       return this.manifestDataManager.getLoadedManifests();
@@ -281,6 +289,7 @@ export class CharacterManager {
             // Set default export options if not provided
             exportOptions = exportOptions || {};
             const manifestOptions = this.manifestDataManager.getExportOptions();
+            console.log(manifestOptions);
             const finalOptions = { ...manifestOptions, ...exportOptions };
             finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
 
@@ -345,6 +354,7 @@ export class CharacterManager {
         bones:boneSet.size
       }
     }
+
     getGroupTraits(){
       return this.manifestDataManager.getGroupModelTraits();
     }
@@ -352,13 +362,14 @@ export class CharacterManager {
      * Same as getGroupTraits() but for Blendshapes
      * @param {string} traitGroupId - The ID of the trait group.
      * @param {string} traitId - The ID of the trait.
+     * @param {string} identifier - Identifier of target manifest.
      * @returns {Array} Array of blendshape traits
      */
-    getBlendShapeGroupTraits(traitGroupId, traitId){
-      this.manifestDataManager.getGroupBlendShapeTraits(traitGroupId, traitId);
+    getBlendShapeGroupTraits(traitGroupId, traitId, identifier){
+      this.manifestDataManager.getGroupBlendShapeTraits(traitGroupId, traitId, identifier);
     }
-    isNFTLocked(){
-      return this.manifestDataManager.isNFTLocked();
+    hasManifestWithNFTLock(){
+      return this.manifestDataManager.hasManifestWithNFTLock();
     }
     getCurrentCharacterModel(){
       return this.characterModel;
@@ -373,10 +384,17 @@ export class CharacterManager {
       return this.manifestDataManager.isTraitGroupRequired(groupTraitID);
     }
     
-    // manifest data requests
-    getTraits(groupTraitID){
-      return this.manifestDataManager.getModelTraits(groupTraitID);
+    /**
+     * Returns all traits from tar
+     *
+     * @param {string} groupTraitID - The ID of the trait group.
+     * @param {string} identifier - Identifier of target manifest.
+     * @returns {Array} Returns An array with the traits of target groupTrait.
+     */
+    getTraits(groupTraitID, identifier){
+      return this.manifestDataManager.getModelTraits(groupTraitID, identifier);
     }
+
     getCurrentTraitID(groupTraitID){
       return this.avatar[groupTraitID]?.traitInfo?.id;
     }
@@ -456,13 +474,14 @@ export class CharacterManager {
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTraitsFromNFT(url, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFT(url, identifier = null, fullAvatarReplace = true, ignoreGroupTraits = null) {
+      // XXX should identifier be taken from nft group or passed by user?
       return new Promise(async (resolve, reject) => {
         try {
           // Check if manifest data is available
           if (this.manifestDataManager.hasExistingManifest()) {
             // Retrieve traits from the NFT using the manifest data
-            const traits = await this.manifestDataManager.getNFTraitOptionsFromURL(url, ignoreGroupTraits);
+            const traits = await this.manifestDataManager.getNFTraitOptionsFromURL(url, ignoreGroupTraits, identifier);
 
             // Load traits using the _loadTraits method
             await this._loadTraits(traits, fullAvatarReplace);
@@ -491,13 +510,14 @@ export class CharacterManager {
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTraitsFromNFTObject(NFTObject, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFTObject(NFTObject, identifier = null, fullAvatarReplace = true, ignoreGroupTraits = null) {
+      // XXX should identifier be taken from nft group or passed by user?
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve traits from the NFT object using manifest data
-            const traits = this.manifestDataManager.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits);
+            const traits = this.manifestDataManager.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits, identifier);
 
             // Load traits into the avatar using the _loadTraits method
             await this._loadTraits(traits, fullAvatarReplace);
@@ -551,7 +571,7 @@ export class CharacterManager {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           // Load initial traits using the _loadTraits method
-          await this._loadTraits(this.manifestDataManager.getAllTraits());
+          await this._loadTraits(this.manifestDataManager.getSelectionForAllTraits());
 
           resolve();
         } else {
@@ -719,7 +739,7 @@ export class CharacterManager {
           try {
             // Retrieve the selected custom trait using manifest data
             const selectedTrait = this.manifestDataManager.getCustomTraitOption(groupTraitID, url);
-
+            console.log(selectedTrait);
             // If the custom trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait));
@@ -839,11 +859,11 @@ export class CharacterManager {
       this.manifestDataManager.setCustomManifest();
     }
 
-    setManifest(manifest){
-      this.manifestDataManager.setCustomManifest(manifest);
+    setManifest(manifest, identifier){
+      this.manifestDataManager.setManifest(manifest, identifier);
     }
-    loadManifest(url){
-      return this.manifestDataManager.loadManifest(url);
+    loadManifest(url, identifier){
+      return this.manifestDataManager.loadManifest(url, identifier);
     }
     getCurrentOptimizerCharacterModel(){
       return this.avatar["CUSTOM"]?.vrm;
@@ -859,14 +879,6 @@ export class CharacterManager {
     loadOptimizerCharacter(url) {
       return this.loadCustomTrait("CUSTOM", url);
     }
-
-    
-    
-
-    
-    
-
-
     
     /**
      * Displays only target trait, and removes all others
