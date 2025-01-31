@@ -20,25 +20,36 @@ export class OwnedNFTTraitIDs {
          * Array of IDs extracted from the data source.
          */
         this.ownedIDs = [];
-
-        if (dataSource == null || dataSource === "attributes") {
-            // Extract data from "attributes"
-            metadataNft.forEach(nft => {
-                nft.attributes.forEach(attr => {
-                    this.addOwnedTrait(attr.trait_type, attr.value);
+        console.log("eee");
+        console.log(metadataNft)
+        switch (dataSource){
+            case "name":
+                metadataNft.forEach(nft => {
+                    console.log(nft);
+                    this.addOwnedID(nft.name);
                 });
-            });
-        } else if (dataSource === "image") {
-            // Extract data from "image"
-            metadataNft.forEach(nft => {
-                const decodedSVG = atob(nft.image.split(",")[1]);
-                const parser = new DOMParser();
-                const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
-                const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
-                texts.forEach(text => {
-                    this.addOwnedID(text);
+                break;
+            case "attributes":
+                metadataNft.forEach(nft => {
+                    nft.attributes.forEach(attr => {
+                        this.addOwnedTrait(attr.trait_type, attr.value);
+                    });
                 });
-            });
+                break;
+            case "image":
+                metadataNft.forEach(nft => {
+                    const decodedSVG = atob(nft.image.split(",")[1]);
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(decodedSVG, "image/svg+xml");
+                    const texts = [...svgDoc.querySelectorAll("text")].map(text => text.textContent);
+                    texts.forEach(text => {
+                        this.addOwnedID(text);
+                    });
+                });
+                break;
+            default:
+                console.log("unkkown data source",dataSource)
+                break;
         }
     }
 

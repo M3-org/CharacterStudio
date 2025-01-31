@@ -11,7 +11,7 @@ export default function WalletMenu({lockedManifests}){
     const unlockManifest = (index) => {
         const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
         console.log(index)
-        characterManager.unlockManifestByIndex(index, index === 0 ? null : addressTest)
+        characterManager.unlockManifestByIndex(index, index === 1 ? addressTest : null)
     };
 
     return (

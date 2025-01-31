@@ -40,10 +40,10 @@ export class WalletCollections {
         const walletPromise = testWallet
             ? Promise.resolve(testWallet)
             : connectWallet(chainName);
-
         return walletPromise
             .then(wallet => fetchOwnedNFTs(wallet, chainName, collectionName))
             .then(collection => getAsArray(collection?.nfts));
+            
     }
 
     /**
@@ -83,6 +83,7 @@ export class WalletCollections {
                 return getNftsMeta(ownedNfts);
             });
     }
+    
 
     /**
      * Retrieves traits or IDs from NFTs in a specific collection.
@@ -94,7 +95,15 @@ export class WalletCollections {
      * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedNFTTraitIDs object.
      */
     getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
-        return this.getMetaFromCollection(collectionName, chainName, testWallet)
-            .then(nftMeta => new OwnedNFTTraitIDs(nftMeta, dataSource));
+        console.log("gets");
+        if (dataSource == "name"){
+            return this.getNftsFromCollection(collectionName, chainName, testWallet)
+                .then(nfts=> {console.log(nfts); return new OwnedNFTTraitIDs(nfts, dataSource)});
+        }
+        else{
+            return this.getMetaFromCollection(collectionName, chainName, testWallet)
+                .then(nftMeta => new OwnedNFTTraitIDs(nftMeta, dataSource));
+        }
+
     }
 }

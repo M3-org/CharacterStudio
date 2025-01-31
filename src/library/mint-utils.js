@@ -88,9 +88,11 @@ export function ownsCollection (wallet, network, collection){
 
 export function fetchOwnedNFTs (walletAddress, network, collection){
   switch (network.toLowerCase()) {
-    case 'ethereum':
+    case 'ethereum':{
+      return fetchFromOpensea(walletAddress, "ethereum", collection);
+    }
     case 'polygon':{
-      return fetchFromOpensea(walletAddress, collection);
+      return fetchFromOpensea(walletAddress, "matic", collection);
     }
     case 'solana':{
       console.warn("solana work in progress");
@@ -105,7 +107,7 @@ export function fetchOwnedNFTs (walletAddress, network, collection){
 }
 
 
-const fetchFromOpensea = (address, collection) => {
+const fetchFromOpensea = (walletAddress, chain, collection) => {
   if (opensea_Key == null){
     console.error("No opensea key was provided. Cant fetch user's owned nft's");
     return;
@@ -116,10 +118,11 @@ const fetchFromOpensea = (address, collection) => {
   };
   // Returning a Promise
   return new Promise((resolve, reject) => {
-    fetch('https://api.opensea.io/api/v2/chain/ethereum/account/' + address + '/nfts?limit=200&collection=' + collection, options)
+    fetch('https://api.opensea.io/api/v2/chain/' + chain + '/account/' + walletAddress + '/nfts?limit=200&collection=' + collection, options)
       .then(response => {
         // Check if the response status is ok (2xx range)
         if (response.ok) {
+          
           return response.json();
         } else {
           // If the response status is not ok, reject the Promise with an error message
@@ -128,6 +131,7 @@ const fetchFromOpensea = (address, collection) => {
       })
       .then(response => {
         // Resolve the Promise with the JSON response
+        console.log(response)
         resolve(response);
       })
       .catch(err => {
@@ -181,18 +185,16 @@ export function connectWallet(network) {
             ethereum: '0x1', // Ethereum Mainnet
             polygon: '0x89', // Polygon Mainnet
           };
-          const desiredChainId = chainIdMap[network.toLowerCase()];
-          
-          const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+          const targetChain = network.toLowerCase() == ethereum ? chainIdMap.ethereum : chainIdMap.polygon;
 
-          if (parseInt(currentChainId, 16) !== parseInt(desiredChainId, 16)) {
-            return reject(new Error(`Please switch to the ${network} network in your wallet.`));
-          }
+          await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: targetChain }],
+            })  
 
           const accounts = await window.ethereum.request({
             method: 'eth_requestAccounts',
           });
-          console.log(accounts);
 
           const response = await window.solana.connect();
           console.log(response.publicKey.toString());
