@@ -10,11 +10,13 @@ import { LanguageContext } from "../context/LanguageContext"
 
 const defaultName = "Anon"
 
-export const ExportMenu = () => {
+export const ExportMenu = ({currentPrice, onPurchaseClick}) => {
+
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
   const { model, characterManager } = useContext(SceneContext)
+
 
   const getOptions = () =>{
     const currentOption = local["mergeOptions_sel_option"] || 0;
@@ -47,26 +49,43 @@ export const ExportMenu = () => {
     characterManager.downloadGLB(name, options);
   }
 
+  const purchaseAssets = () =>{
+    onPurchaseClick();
+  }
+
   return (
     <React.Fragment>
-      <CustomButton
-        theme="light"
-        text="GLB"
-        icon="download"
-        size={14}
-        className={styles.button}
-        onClick={() => {
-          downloadGLB()
-        }}
-      />
+      {currentPrice === 0 ? (
+        <>
+          <CustomButton
+            theme="light"
+            text="GLB"
+            icon="download"
+            size={14}
+            className={styles.button}
+            onClick={() => {
+              downloadGLB();
+            }}
+          />
+          <CustomButton
+            theme="light"
+            text="VRM 0"
+            icon="download"
+            size={14}
+            className={styles.button}
+            onClick={() => downloadVRM(0)}
+          />
+        </>
+      ) : (
         <CustomButton
-        theme="light"
-        text="VRM 0"
-        icon="download"
-        size={14}
-        className={styles.button}
-        onClick={()=>downloadVRM(0)}
-      />
+          theme="light"
+          text="Purchase Assets"
+          icon="purchase"
+          size={14}
+          className={styles.button}
+          onClick={() => purchaseAssets()}
+        />
+      )}
     </React.Fragment>
-  )
+  );
 }

@@ -186,6 +186,7 @@ function Optimizer() {
   }
 
   const handleFilesDrop = async(files) => {
+    console.log("dropped file");
     const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
