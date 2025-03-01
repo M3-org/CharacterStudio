@@ -19,6 +19,7 @@ import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
+import SaleIcon from "../images/sale-icon.png"
 
   /**
    * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
@@ -134,6 +135,7 @@ function Appearance() {
     }
   }
   const selectTrait = (trait) => {
+    console.log(trait);
     if(trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID){
       if(trait.blendshapeTraits?.length>0){
         setTraitView(TraitPage.BLEND_SHAPE);
@@ -146,6 +148,7 @@ function Appearance() {
     setIsLoading(true);
     characterManager.loadTrait(trait.traitGroup.trait, trait.id, trait.collectionID).then(()=>{
       setIsLoading(false);
+      console.log(characterManager.getCurrentTotalPrice());
       if(trait.blendshapeTraits?.length>0){
         const selectedBlendshapeTrait = characterManager.getCurrentBlendShapeTraitData(trait.traitGroup.trait);
         setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
@@ -240,7 +243,6 @@ function Appearance() {
       setTraitView(TraitPage.TRAIT);
       setTraits(characterManager.getTraits(traitGroup.trait));
 
-      console.log(characterManager.getTraits(traitGroup.trait));
       setSelectedTraitGroup(traitGroup);
 
       const selectedT = characterManager.getCurrentTraitData(traitGroup.trait)
@@ -312,7 +314,6 @@ function Appearance() {
                     
                   />
                   <div className={styles["editorText"]}>{traitGroup.name}</div>
-                  
                 </div>
               ))
             }
@@ -399,6 +400,7 @@ function Appearance() {
                   >
                     <TokenBox
                       size={56}
+                      iconOverlay={(trait.purchasable && trait.locked) ? SaleIcon:null}
                       icon={trait.fullThumbnail}
                       rarity={active ? "mythic" : "none"}      
                     />

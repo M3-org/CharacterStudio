@@ -1,0 +1,92 @@
+
+.InformationContainerPos {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 500px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(22.5px);
+  background: rgba(5, 11, 14, 0.8);
+  z-index: 1000;
+  user-select: none;
+}
+.traitText{
+  color: rgb(255, 255, 255);
+  text-transform: capitalize;
+  width: 200px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  font-size: small;
+}
+.traitTextSmall{
+  color: rgb(255, 255, 255);
+  text-transform: capitalize;
+  width: 56px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  font-size: small;
+}
+.traitTextLarge{
+  color: rgb(255, 255, 255);
+  text-transform: capitalize;
+  width: 90%;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: right;
+  font-size: medium;
+}
+.traitDisplay {
+  padding: 0.15em;
+  display: flex;
+  margin: auto;
+  position: relative;
+  align-items: center; /* Aligns items vertically */
+  justify-content: center; /* Aligns items horizontally */
+  gap: 10px;
+}
+.traitsTitle {
+  /* padding: 30px; */
+  width: 90%;
+  height: 80px;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  align-items: center; /* Aligns items vertically */
+  justify-content: center; /* Aligns items horizontally */
+  gap: 5px;
+  color: rgb(255, 255, 255);
+}
+.buttonAlign{
+  display: flex;
+  flex-direction: row-reverse;
+  width: 90%;
+}
+.optionsContainer{
+  width:100%;
+  overflow-x: hidden !important;
+  height: fit-content;
+}
+
+.scrollContainer {
+  width: 90%;
+  overflow-y: scroll;
+  position: relative;
+  overflow-x: hidden !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+.options-container {
+  user-select: none;
+  flex: 1;
+  width: 200px;
+  position: relative;
+  text-align: center;
+}
+

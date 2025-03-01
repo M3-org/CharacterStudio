@@ -1,9 +1,14 @@
 import { BigNumber, ethers } from "ethers"
 import { getVRMBlobData } from "./download-utils"
 import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
+import { SolanaManager } from "./solanaManager"
+import { Connection, Transaction } from "@solana/web3.js";
 // import { Connection, PublicKey } from '@solana/web3.js';
 // import { Metaplex } from '@metaplex-foundation/js';
 import axios from "axios"
+
+const rpcKey = import.meta.env.VITE_HELIUS_KEY;
+const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${rpcKey}`
 
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
 
@@ -14,6 +19,8 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 const chainId = "0x89";
 let tokenPrice;
 
+const manager = new SolanaManager();
+console.log(manager);
 
 // setTimeout(() => {
 //   console.log("t")
@@ -76,6 +83,95 @@ export function ownsCollection (wallet, network, collection){
   });
 }
 
+export function fetchSolanaPurchasedAssets(walletAddress, delegateAddress, collectionName){
+  return new Promise((resolve, reject) => {
+    manager.getUserCNFTs(walletAddress,delegateAddress,collectionName)
+      .then(response=>{
+        resolve(response)
+      }).catch(err => {
+        // Reject the Promise with the error encountered during the fetch
+        reject(err);
+      });
+  });
+}
+
+export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, collectionName, amount, purchaseNFTs){
+  
+  return new Promise(async(resolve, reject) => {
+    const { solana } = window;
+    if (!solana || !solana.isPhantom) {
+        alert("Please install Phantom Wallet!");
+        reject();
+    }
+    try{
+      const solanaAddress = await window.solana.connect();
+      const buyerPublicKey = solanaAddress.publicKey.toString();
+      const response = await fetch("http://localhost:3000/request-payment", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+            body: JSON.stringify({ buyerPublicKey, merchantPublicKey, treeAddress, collectionName, purchaseNFTs, amount })
+      });
+
+      const data = await response.json();
+      if (data.transaction) {
+        const transaction = data.transaction;
+        const signature = await signAndSendTransaction(transaction);
+        if (signature == null){
+          reject();
+        }
+        else{
+          resolve();
+        }
+      } else {
+        console.error("Error requesting payment:", data.error);
+        reject();
+      }
+    }
+    catch(e){
+      console.error("Error requesting payment:", data.error);
+      reject();
+    }
+    
+
+  });
+}
+
+async function signAndSendTransaction(base64Transaction) {
+  const { solana } = window;
+  if (!solana || !solana.isPhantom) {
+      alert("Please install Phantom Wallet!");
+      return;
+  }
+
+  try {
+      const connection = new Connection(rpcUrl);
+
+      // Decode Base64 transaction to Uint8Array
+      const transactionBytes = Uint8Array.from(atob(base64Transaction), (c) => c.charCodeAt(0));
+      const decodedTransaction = Transaction.from(transactionBytes);
+
+      // Request wallet to sign the transaction
+      const signedTransaction = await solana.signTransaction(decodedTransaction);
+      
+      // Send the signed transaction to Solana network
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize({ requireAllSignatures: false }));
+
+      console.log("✅ Transaction Signature:", signature);
+      return signature;
+  } catch (error) {
+      console.error("❌ Transaction failed:", error);
+      if (error.logs) {
+          console.error("🔍 Transaction logs:", error.logs);
+      } else if (error.signature) {
+          // Manually fetch logs from the blockchain
+          console.log("Fetching logs for signature:", error.signature);
+          const logs = await connection.getTransaction(error.signature, { commitment: "confirmed" });
+          console.error("🔍 Transaction logs:", logs?.meta?.logMessages);
+      }
+  }
+}
 
 /**
  * Fetches Opensea collection data for a specific Ethereum account and collection.
@@ -167,6 +263,7 @@ const fetchFromMetaplex = (walletAddress, collection) =>{
  * Switches the active wallet to a specific blockchain and retrieves the wallet address.
  * 
  * @param {string} network - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
+ * @param {string} wallet - The wallet name (`"metamask"`, `"phantom"` or `"solana"`).
  * @returns {Promise<string>} A promise resolving to the active wallet address, or an empty string on error.
  */
 export function connectWallet(network) {
@@ -179,8 +276,7 @@ export function connectWallet(network) {
           if (!window.ethereum) {
             return reject(new Error('Ethereum wallet is not available.'));
           }
-          console.log(window.solana);
-          console.log(window.ethereum);
+         
           const chainIdMap = {
             ethereum: '0x1', // Ethereum Mainnet
             polygon: '0x89', // Polygon Mainnet
@@ -190,14 +286,12 @@ export function connectWallet(network) {
           await window.ethereum.request({
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: targetChain }],
-            })  
+          })  
 
           const accounts = await window.ethereum.request({
             method: 'eth_requestAccounts',
           });
 
-          const response = await window.solana.connect();
-          console.log(response.publicKey.toString());
           return resolve(accounts.length > 0 ? accounts[0] : '');
         }
 
@@ -217,6 +311,8 @@ export function connectWallet(network) {
     }
   });
 }
+
+
 
 // ready to test
 // export async function connectWallet(){

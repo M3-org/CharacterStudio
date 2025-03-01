@@ -18,6 +18,15 @@ export class ManifestDataManager{
     getLoadedLockedManifests(isLocked){
       return this.manifestDataCollection.filter((manifestData)=>manifestData.locked == isLocked);
     }
+    getMainCurrency(){
+      return this.mainManifestData.getCurrency();
+    }
+    getMainSolanaPurchaseAssetsDefinition(){
+      return this.mainManifestData.getSolanaPurchaseAssets();
+    }
+    unlockMainPurchasedAssets(userOwnedTraits){
+      this.mainManifestData.unlockTraits(userOwnedTraits);
+    }
 
     getLoadedManifests(){
       return this.manifestDataCollection;
@@ -30,6 +39,7 @@ export class ManifestDataManager{
       return this.manifestDataCollection[index];
     }
 
+    
     unlockManifestByIndex(index, testWallet = null){
       const manifestData = this.manifestDataCollection[index];
       if (manifestData != null)

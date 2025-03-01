@@ -14,9 +14,16 @@ import { LookAtManager } from "./lookatManager";
 import OverlayedTextureManager from "./OverlayTextureManager";
 import { ManifestDataManager } from "./manifestDataManager";
 import { WalletCollections } from "./walletCollections";
+import { buySolanaPurchasableAssets } from "./mint-utils"
+import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
+
+//import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+
+
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 const localVector3 = new THREE.Vector3(); 
+
 
 export class CharacterManager {
   /**
@@ -48,7 +55,10 @@ export class CharacterManager {
       }= options;
 
      
-
+      // console.log(Connection);
+      // console.log(PublicKey);
+      // console.log(Transaction);
+      // console.log(SystemProgram);
       // data that is needed, but not required to be downloaded
       this.rootModel = new THREE.Object3D();
       // all data that will be downloaded
@@ -705,6 +715,7 @@ export class CharacterManager {
             // Retrieve the selected trait using manifest data
             const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID, identifierID);
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
+            console.log(selectedTrait);
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait),soloView);
@@ -931,9 +942,9 @@ export class CharacterManager {
             }
           });
         }
-        
         loadedData.forEach(itemData => {
-            this._addLoadedData(itemData)
+          
+          this._addLoadedData(itemData)
         });
         cullHiddenMeshes(this.avatar);
       })
@@ -996,6 +1007,75 @@ export class CharacterManager {
         }
       })
 
+    }
+
+    getCurrentTotalPrice(){
+      const avatar = this.avatar;
+      let price = 0;
+      for (const trait in avatar){
+        const traitInfo = avatar[trait].traitInfo;
+        if (traitInfo.locked === true && traitInfo.purchasable === true ){
+          price += traitInfo.price;
+        }
+      }
+      return price;
+    }
+    getMainPriceCurrency(){
+      return this.manifestDataManager.getMainCurrency();
+    }
+
+    unlockManifestByIndex(index, testWallet = null){
+      console.log(index);
+      return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
+    }
+    purchaseAssetsFromAvatar(){
+      console.warn("TODO!! STILL NEEDS TO DETECT DIFFERENT COLLECTIONS!!")
+      const assets = this.getPurchaseTraitsArray();
+      const purchaseTraits = {};
+      assets.forEach(asset => {
+        if (purchaseTraits[asset.traitGroup.trait]  == null)
+          purchaseTraits[asset.traitGroup.trait] =[];
+        purchaseTraits[asset.traitGroup.trait].push(asset.id)
+      }); 
+
+      const purchaseObjectDefinition = new OwnedNFTTraitIDs({ownedTraits:purchaseTraits})
+      console.log(purchaseObjectDefinition);
+      return new Promise((resolve, reject) => {
+        const {
+          depositAddress,
+          merkleTreeAddress,
+          collectionName,
+          
+        } = this.manifestDataManager.getMainSolanaPurchaseAssetsDefinition();
+        buySolanaPurchasableAssets(
+          depositAddress,
+          merkleTreeAddress,
+          collectionName,
+          this.getCurrentTotalPrice(),
+          purchaseObjectDefinition
+        )
+          .then(()=>{
+            console.log("enters");
+            this.manifestDataManager.unlockMainPurchasedAssets(purchaseObjectDefinition);
+            resolve();
+          })
+          .catch(e=>{
+            console.error(e)
+            reject();
+          })
+      });
+      // return promise
+    }
+    getPurchaseTraitsArray(){
+      const avatar = this.avatar;
+      const purchaseAssetsList = [];
+      for (const trait in avatar){
+        const traitInfo = avatar[trait].traitInfo;
+        if (traitInfo.locked === true && traitInfo.purchasable === true ){
+          purchaseAssetsList.push(traitInfo);
+        }
+      }
+      return purchaseAssetsList;
     }
 
     async _animationManagerSetup(paths, baseLocation, scale){

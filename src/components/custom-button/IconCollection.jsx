@@ -88,6 +88,10 @@ export const IconCollection = [
     file: './assets/icons/download.svg',
   },
   {
+    name: 'purchase',
+    file: './assets/icons/purchase.svg',
+  },
+  {
     name: 'classDropHunter',
     file: './assets/icons/class-drop-hunter.svg',
   },

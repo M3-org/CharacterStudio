@@ -31,6 +31,10 @@ export class CharacterManifestData{
         chainName,
         collectionLockID,
         dataSource,
+        solanaPurchaseAssets,
+        price,
+        currency,
+        purchasable,
         locked,
 
         assetsLocation,
@@ -68,12 +72,19 @@ export class CharacterManifestData{
       this.chainName = chainName;
       this.dataSource = dataSource;
       this.collectionLockID = collectionLockID;
+      this.solanaPurchaseAssets = createSolanaPurchaseCNFT (solanaPurchaseAssets);
       if (locked == null){
-        this.locked = collectionLockID != null;
+        this.locked = (collectionLockID != null || this.solanaPurchaseAssets != null);
       }
       else{
         this.locked = locked;
       }
+
+      console.log(this.solanaPurchaseAssets);
+
+      this.price = price;
+      this.currency = currency || "sol";
+      this.purchasable = purchasable;
 
       this.assetsLocation = assetsLocation;
       this.traitsDirectory = traitsDirectory;
@@ -149,12 +160,59 @@ export class CharacterManifestData{
       this.createModelTraits(traits, false);
       this.manifestRestrictions._init()
       
-
+      this.unlockPurchasedAssetsWithWallet();
+      // if (this.solanaPurchaseAssets){
+      //   this.walletCollections.getSolanaPurchasedAssets(this.solanaPurchaseAssets).then(owned=>{console.log("owned", owned)})
+      // }
       //this.unlockWalletOwnedTraits();
+    }
+
+    getCurrency(){
+      return this.currency;
+    }
+
+    getSolanaPurchaseAssets(){
+      return this.solanaPurchaseAssets;
     }
 
     isNFTLocked(){
       return this.locked;
+    }
+
+    unlockPurchasedAssetsWithWallet(testWallet){
+      if (this.solanaPurchaseAssets == null){
+        return Promise.resolve();
+      }
+      return new Promise((resolve)=>{
+        this.walletCollections
+          .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
+          .then(userOwnedTraits => {
+            this.unlockTraits(userOwnedTraits)
+            resolve()
+          })
+          .catch(err => {
+            console.log(err);
+            resolve();
+          });
+      }); 
+    }
+
+    unlockNFTAssetsWithWallet(testWallet = null){
+      if (this.collectionLockID == null){
+        return Promise.resolve();
+      }
+      else{
+        return new Promise((resolve)=>{
+          this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
+          .then(userOwnedTraits=>{
+            this.unlockTraits(userOwnedTraits)
+            resolve();
+          })
+          .catch(err=>{
+            resolve();
+          })
+        })
+      }
     }
 
     unlockWalletOwnedTraits(testWallet = null){
@@ -162,42 +220,18 @@ export class CharacterManifestData{
         console.log(`Already unlocked`);
         return Promise.resolve();
       }
-      else{
-        return new Promise((resolve)=>{
-          this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
-          .then(userOwnedTraits=>{
-            const ownedIDs = userOwnedTraits.ownedIDs || [];
-            const ownedTraits = userOwnedTraits.ownedTraits || {};
-
-            // unlock all that has this id
-            if (ownedIDs.length > 0){
-              this.textureTraits.forEach(groupTrait =>{
-                groupTrait.unlockTraits(ownedIDs);
-              })
-              this.decalTraits.forEach(groupTrait =>{
-                groupTrait.unlockTraits(ownedIDs);
-              })
-              this.colorTraits.forEach(groupTrait =>{
-                groupTrait.unlockTraits(ownedIDs);
-              })
-              this.modelTraits.forEach(groupTrait => {
-                groupTrait.unlockTraits(ownedIDs)
-              });
-            }
-
-            for (const trait in ownedTraits){
-              this.unlockTraits(trait, ownedTraits[trait]);
-            }
+      return new Promise((resolve) => {
+        Promise.all([this.unlockNFTAssetsWithWallet(testWallet),this.unlockPurchasedAssetsWithWallet(testWallet)])
+          .then(() => {
+            console.log("fini")
             resolve();
           })
-          .catch(err=>{
-            console.log(err);
-            // resolve anyway
-            resolve();
-          })
-        })
-        
-      }
+          .catch((err) => {
+            console.log("Error:", err);
+            resolve(); 
+          });
+      });
+      
     }
 
     getExportOptions(){
@@ -359,24 +393,44 @@ export class CharacterManifestData{
         return null;
       }
     }
-    unlockTraits(groupTraitID, traitIDs){
-      const textureGroup = this.getTextureGroup(groupTraitID)
-      if (textureGroup){
-        textureGroup.unlockTraits(traitIDs);
+    unlockTraits(userOwnedTraits){
+      const ownedIDs = userOwnedTraits.ownedIDs || [];
+      const ownedTraits = userOwnedTraits.ownedTraits || {};
+
+      if (ownedIDs.length > 0){
+        this.textureTraits.forEach(groupTrait =>{
+          groupTrait.unlockTraits(ownedIDs);
+        })
+        this.decalTraits.forEach(groupTrait =>{
+          groupTrait.unlockTraits(ownedIDs);
+        })
+        this.colorTraits.forEach(groupTrait =>{
+          groupTrait.unlockTraits(ownedIDs);
+        })
+        this.modelTraits.forEach(groupTrait => {
+          groupTrait.unlockTraits(ownedIDs)
+        });
       }
-      const decalGroup = this.getDecalGroup(groupTraitID)
-      if (decalGroup){
-        decalGroup.unlockTraits(traitIDs);
-      }
-      const colorGroup = this.getColorGroup(groupTraitID)
-      if (colorGroup){
-        colorGroup.unlockTraits(traitIDs);
-      }
-      const modelGroup = this.getModelGroup(groupTraitID);
-      if (modelGroup){
-        modelGroup.unlockTraits(traitIDs);
+      for (const trait in ownedTraits){
+        const textureGroup = this.getTextureGroup(trait)
+        if (textureGroup){
+          textureGroup.unlockTraits(ownedTraits[trait]);
+        }
+        const decalGroup = this.getDecalGroup(trait)
+        if (decalGroup){
+          decalGroup.unlockTraits(ownedTraits[trait]);
+        }
+        const colorGroup = this.getColorGroup(trait)
+        if (colorGroup){
+          colorGroup.unlockTraits(ownedTraits[trait]);
+        }
+        const modelGroup = this.getModelGroup(trait);
+        if (modelGroup){
+          modelGroup.unlockTraits(ownedTraits[trait]);
+        }
       }
     }
+
     getModelGroup(groupTraitID){
       return this.modelTraitsMap.get(groupTraitID);
     }
@@ -523,6 +577,8 @@ export class TraitModelsGroup{
   constructor(manifestData, options){
         const {
           locked,
+          price,
+          purchasable,
           trait,
           name,
           iconSvg,
@@ -535,6 +591,8 @@ export class TraitModelsGroup{
         this.collectionID = manifestData.collectionID;
         
         this.locked = locked == null ? manifestData.locked : locked;
+        this.price = price == null ? manifestData.price : price;
+        this.purchasable = purchasable == null ? manifestData.purchasable : purchasable;
        
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
@@ -616,15 +674,15 @@ export class TraitModelsGroup{
     }
 
     getRandomTrait(lockFilter = true){
-      const collection = this.getCollection(lockFilter);
+      const collection = this.getCollection(lockFilter, false);
       return collection.length > 0 ? 
         collection[Math.floor(Math.random() * collection.length)] :
         null;
     }
 
-    getCollection(lockFilter = true){
+    getCollection(lockFilter = true, getPurchasables = true){
       if (lockFilter){
-        const filteredCollection = this.collection.filter((trait)=>trait.locked === false)
+        const filteredCollection = this.collection.filter((trait)=>trait.locked === false || (trait.purchasable === true && trait.price != null && getPurchasables === true))
         return filteredCollection;
       }
       else{
@@ -909,7 +967,9 @@ export class ModelTrait{
   constructor(traitGroup, options){
       const {
           locked,
+          price,
           id,
+          purchasable,
           type = '',
           directory,
           name,
@@ -929,6 +989,8 @@ export class ModelTrait{
       this.collectionID = traitGroup.collectionID;
       
       this.locked = locked == null ? traitGroup.locked : locked;
+      this.price = price == null ? traitGroup.price : price;
+      this.purchasable = purchasable == null ? traitGroup.purchasable : purchasable;
 
       this.traitGroup = traitGroup;
       this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
@@ -1231,5 +1293,33 @@ class SelectedOption{
     this.traitColor = traitColor;
   }
 }
+
+
+
+class SolanaPurchaseAssets{
+  constructor(solanapurchaseAssetsDefinition){
+    const {
+      merkleTreeAddress,
+      depositAddress,
+      collectionName
+    } = solanapurchaseAssetsDefinition;
+
+    this.merkleTreeAddress = merkleTreeAddress;
+    this.collectionName = collectionName;
+    this.depositAddress = depositAddress;
+  }
+}
+
+function createSolanaPurchaseCNFT(solanapurchaseAssetsDefinition) {
+  if (solanapurchaseAssetsDefinition == null)
+    return null
+  if (!solanapurchaseAssetsDefinition?.merkleTreeAddress || !solanapurchaseAssetsDefinition?.collectionName  || !solanapurchaseAssetsDefinition?.depositAddress) {
+    console.warn("solanaPurchaseCNFT defined incomplete in manifest, missing either merkleTreeAddress or collectionName or depositAddress, setting as null", )
+    return null;
+  }
+  return new SolanaPurchaseAssets(solanapurchaseAssetsDefinition);
+
+}
+
 
     

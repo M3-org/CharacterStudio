@@ -20,8 +20,6 @@ export class OwnedNFTTraitIDs {
          * Array of IDs extracted from the data source.
          */
         this.ownedIDs = [];
-        console.log("eee");
-        console.log(metadataNft)
         switch (dataSource){
             case "name":
                 metadataNft.forEach(nft => {
@@ -48,7 +46,9 @@ export class OwnedNFTTraitIDs {
                 });
                 break;
             default:
-                console.log("unkkown data source",dataSource)
+                this.ownedTraits = metadataNft.ownedTraits || {};
+                this.ownedIDs = metadataNft.ownedIDs || [];
+                //console.log("unkown data source",dataSource)
                 break;
         }
     }

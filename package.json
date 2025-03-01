@@ -16,6 +16,10 @@
   "dependencies": {
     "@ethersproject/providers": "^5.5.1",
     "@metaplex-foundation/js": "^0.20.1",
+    "@metaplex-foundation/mpl-candy-machine": "^6.1.0",
+    "@metaplex-foundation/umi": "^1.0.0",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.0.0",
+    "@metaplex-foundation/umi-serializers": "^1.0.0",
     "@pixiv/three-vrm": "^3.1.4",
     "@react-spring/three": "^9.2.4",
     "@solana/web3.js": "^1.98.0",
@@ -26,6 +30,7 @@
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.1.9",
     "axios": "^1.6.0",
+    "bs58": "^6.0.0",
     "buffer": "^6.0.3",
     "ethers": "^5.7.0",
     "events": "^3.3.0",

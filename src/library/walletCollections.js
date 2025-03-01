@@ -1,4 +1,4 @@
-import { fetchOwnedNFTs, ownsCollection } from "./mint-utils";
+import { fetchOwnedNFTs, ownsCollection, fetchSolanaPurchasedAssets } from "./mint-utils";
 import { getAsArray } from "./utils";
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 import { connectWallet } from "./mint-utils";
@@ -11,6 +11,36 @@ export class WalletCollections {
      * Creates an instance of the WalletCollections class.
      */
     constructor() {}
+
+    /**
+     * Checks if a wallet purchased assets from specific collection
+     * 
+     * @param {Object} solanaPurchaseAssetsDefinition - Solanas purchase assets definition.
+     * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
+     * @returns {Promise<Object>} A promise resolving to an object containing owned assets
+     */
+    getSolanaPurchasedAssets(solanaPurchaseAssetsDefinition, testWallet){
+        console.log(solanaPurchaseAssetsDefinition);
+        const {
+            delegateAddress,
+            collectionName
+        } = solanaPurchaseAssetsDefinition;
+        
+        const walletPromise = testWallet
+            ? Promise.resolve(testWallet)
+            : connectWallet("solana");
+
+        return new Promise((resolve)=>{
+            walletPromise
+                .then(wallet => fetchSolanaPurchasedAssets(wallet, delegateAddress, collectionName).then(response=>{
+                    resolve(new OwnedNFTTraitIDs({ownedIDs:response.ownedIDs,ownedTraits:response.ownedTraits}));
+                }))
+                .catch(err=>{
+                    resolve(null);
+                })
+        });
+        
+    }
 
     /**
      * Checks if a wallet owns a specific NFT collection.
@@ -95,6 +125,11 @@ export class WalletCollections {
      * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedNFTTraitIDs object.
      */
     getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
+        if (collectionName == null || chainName == null || dataSource == null){
+            console.error("Missing parameter: collectionName, chainName or dataSource to fetch nft collection, skipping nft validation")
+            return Promise.resolve({});
+        }
+
         console.log("gets");
         if (dataSource == "name"){
             return this.getNftsFromCollection(collectionName, chainName, testWallet)
