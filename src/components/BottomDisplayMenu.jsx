@@ -1,9 +1,10 @@
 import React, {useEffect,useState,useContext} from "react"
 import styles from "./BottomDisplayMenu.module.css"
 import { SceneContext } from "../context/SceneContext"
-import { ViewContext } from "../context/ViewContext"
+import {useUndoHistory} from "../components/hooks/useHistory"
 import randomizeIcon from "../images/randomize-green.png"
 import wireframeIcon from "../images/wireframe.png"
+import undoIcon from "../images/undo.png"
 import solidIcon from "../images/solid.png"
 import mouseFollowIcon from "../images/eye.png"
 import mouseNoFollowIcon from "../images/no-eye.png"
@@ -21,6 +22,7 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
     lookAtManager,
     animationManager
   } = useContext(SceneContext);
+  const canUndo = useUndoHistory()
   const [hasMouseLook, setHasMouseLook] = useState(lookAtManager.userActivated);
   const [animationName, setAnimationName] = React.useState(animationManager?.getCurrentAnimationName() || "");
 
@@ -45,6 +47,11 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
   const handlePlaySpeed = (speed) =>{
     animationManager.play()
     animationManager.setSpeed(speed);
+  }
+  const handleUndo = () =>{
+    if(canUndo){
+      characterManager.history.undo();
+    }
   }
 
   const handleMouseLookEnable = () => {
@@ -132,6 +139,15 @@ export default function BottomDisplayMenu({loadedAnimationName, randomize}){
 
 
           <div className={styles["flexButtons"]}>
+          {canUndo && <div 
+                className={`${styles["optionButtons"]}`}
+                onClick={handleUndo}
+                title="Undo"
+            >
+            <img 
+                    src={undoIcon}
+                /> 
+            </div>}
             {randomize &&
               <div 
                 className={`${styles["optionButtons"]}`}
