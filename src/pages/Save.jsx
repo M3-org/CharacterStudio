@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 import styles from "./Save.module.css"
 import { ExportMenu } from "../components/ExportMenu"
-
+import { SceneContext } from "../context/SceneContext"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
@@ -9,6 +9,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import MergeOptions from "../components/MergeOptions"
 import FileDropComponent from "../components/FileDropComponent"
+import PurchaseMenu from "../components/PurchaseMenu"
 
 
 function Save() {
@@ -18,7 +19,16 @@ function Save() {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext);
+  const { characterManager } = React.useContext(SceneContext)
 
+  const [currentPrice, setCurrentPrice] = React.useState(0)
+  const [purchaseTraits, setPurchaseTraits] = React.useState([])
+  const [currency, setCurrency] = React.useState("")
+
+  React.useEffect(() => {
+    setCurrentPrice(characterManager.getCurrentTotalPrice());
+    setCurrency(characterManager.getMainPriceCurrency());
+  }, [])
 
   const back = () => {
     setViewMode(ViewMode.APPEARANCE)
@@ -28,11 +38,27 @@ function Save() {
     setViewMode(ViewMode.MINT)
     !isMute && playSound('backNextButton');
   }
+  const onPurchaseClick = async() =>{
+    //console.log(characterManager.getPurchaseTraitsArray());
+    console.log("click purch")
+    setPurchaseTraits(characterManager.getPurchaseTraitsArray())
+  }
   const handleFilesDrop = async(files) => {
     const file = files[0];
     if (file && file.name.toLowerCase().endsWith('.json')) {
     } 
   };
+  const onConfrimPurchase = () =>{
+    console.log("confirm purchase!!")
+    characterManager.purchaseAssetsFromAvatar()
+      .then(()=>{
+        setCurrentPrice(characterManager.getCurrentTotalPrice());
+        setPurchaseTraits([]);
+      })
+  }
+  const cancelPurchase = () =>{
+    setPurchaseTraits([]);
+  }
 
   return (
     <div className={styles.container}>
@@ -48,11 +74,24 @@ function Save() {
           className={styles.buttonLeft}
           onClick={back}
         />
+        {purchaseTraits.length > 0 && (
+          <PurchaseMenu
+            currentPrice = {currentPrice}
+            purchaseTraits = {purchaseTraits}
+            onConfrimPurchase = {onConfrimPurchase}
+            cancelPurchase = {cancelPurchase}
+            currency = {currency}
+            
+        />)}
+        
         <MergeOptions
           showCreateAtlas = {true}
           mergeMenuTitle = {"Download Options"}
         />
-        <ExportMenu />
+        <ExportMenu 
+          currentPrice = {currentPrice}
+          onPurchaseClick = {onPurchaseClick}
+        />
         
         <CustomButton
             theme="light"

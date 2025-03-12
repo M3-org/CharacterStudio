@@ -1,7 +1,4 @@
-.classdisabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
+
 
 .container {
   display: flex;
@@ -10,6 +7,29 @@
   align-items: center;
   flex-direction: column;
 }
+.refreshContainer {
+  position:absolute;
+  height: 100%;
+  display: flex;
+  text-align: center;
+  align-items: center;
+}
+.refreshButton,
+.refreshDisabled {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  bottom:290px;
+  cursor: pointer;
+  background: rgba(5, 11, 14, 1);
+  background-image: url('./ui/refresh.png');
+  background-size:     cover;                     
+  background-repeat:   no-repeat;
+  z-index: 12;
+}
+
+
+
 
 .classContainer {
   text-align: center;
@@ -34,6 +54,18 @@
   margin: 24px 8px 8px 8px;
   align-items: center;
   justify-content: center;
+}
+
+.classdisabled {
+  opacity: 0.5;
+  /* cursor: auto; */
+}
+.classdisabled:hover{
+  opacity: 1;
+}
+.refreshDisabled {
+  opacity: 0.5;
+  cursor: auto;
 }
 
 .classContainer .icon {
@@ -126,6 +158,7 @@
   height: auto;
   max-width: 2vw;
 }
+
 
 .classContainer .class:hover .name {
   color: #fcc000;

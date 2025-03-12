@@ -10,7 +10,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 import { connectWallet } from "../library/mint-utils"
-import { getOpenseaCollection } from "../library/mint-utils"
+// import { getOpenseaCollection } from "../library/mint-utils"
 
 function Wallet() {
   
@@ -29,11 +29,11 @@ function Wallet() {
   }, [])
 
   const fetchWalletNFTS = async()=>{
-    const address = await connectWallet()
-    getOpenseaCollection(address,'the-anata-nft').then((result)=>{
-      setWalletNFTs(result.nfts);
-      console.log(result.nfts);
-    })  
+    // const address = await connectWallet()
+    // getOpenseaCollection(address,'the-anata-nft').then((result)=>{
+    //   setWalletNFTs(result.nfts);
+    //   console.log(result.nfts);
+    // })  
   }
 
   const back = () => {
@@ -44,7 +44,7 @@ function Wallet() {
   const selectClass = async (index) => {
     setIsLoading(true)
     // Load manifest first
-    characterManager.loadManifest(manifest[index].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest, anifest.characters[index].name).then(()=>{
       setViewMode(ViewMode.APPEARANCE)
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{
@@ -56,10 +56,10 @@ function Wallet() {
 
   const appendManifest = () =>{
     console.log("ttt")
-    characterManager.loadManifest(manifest[0].manifest).then(()=>{
+    characterManager.loadManifest(manifest.characters[0].manifest, anifest.characters[index].name).then(()=>{
       // setViewMode(ViewMode.APPEARANCE)
       
-      characterManager.loadAppendManifest(manifest[1].manifest, true).then(()=>{
+      characterManager.loadAppendManifest(manifest.characters[1].manifest, true).then(()=>{
         console.log(characterManager.manifestData)
       })
       // When Manifest is Loaded, load initial traits from given manifest
