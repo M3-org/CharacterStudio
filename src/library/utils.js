@@ -7,10 +7,10 @@ import { CullHiddenFaces, DisposeCullMesh } from './cull-mesh.js';
 import { combine } from "./merge-geometry";
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { VRMHumanBoneName, VRMHumanBoneParentMap } from "@pixiv/three-vrm";
+import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
 export function getAsArray(target) {
-  if (target == null) return []
+  if (target == null || target == undefined) return []
   return Array.isArray(target) ? target : [target]
 }
 
