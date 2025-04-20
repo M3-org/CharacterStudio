@@ -1,4 +1,5 @@
 import * as THREE from "three"
+import EventEmitter from 'events'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
@@ -34,6 +35,11 @@ export class CharacterManager {
    * @type {ScreenshotManager}
    */
   screenshotManager
+
+  /**
+   * @type {History}
+   */
+  history
     constructor(options){
       this._start(options);
     }
@@ -64,7 +70,7 @@ export class CharacterManager {
       this.overlayedTextureManager = new OverlayedTextureManager(this)
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this.emotionManager = new EmotionManager();
-
+      this.history = new History(this)
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera;
 
@@ -695,21 +701,61 @@ export class CharacterManager {
      * @param {string} groupTraitID - The ID of the trait group.
      * @param {string} traitID - The ID of the specific trait.
      * @param {boolean} soloView - Should character display only new loaded trait?.
+     * @param {string} [textureId] - The ID of the texture to load.
+     * @param {boolean} [addHistory=true] - Should the trait be added to the history?
      * @returns {Promise<void>} A Promise that resolves if successful,
      *                         or rejects with an error message if not.
      */
-    loadTrait(groupTraitID, traitID, soloView = false) {
+    loadTrait(groupTraitID, traitID, soloView = false,textureId=undefined,addHistory = true) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestData) {
           try {
             // Retrieve the selected trait using manifest data
-            const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID);
+            const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID, textureId);
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
-              await this._loadTraits(getAsArray(selectedTrait),soloView);
+              await this._loadTraits(getAsArray(selectedTrait),soloView,addHistory);
               resolve();
+            }
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during trait retrieval
+            console.error("Error loading specific trait:", error.message);
+            reject(new Error("Failed to load specific trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, specific trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
+    /**
+     * 
+     * @param {string} groupTraitID 
+     * @param {string} traitID 
+     * @param {string} textureId 
+     * @param {boolean} [addHistory=true] 
+     * @returns 
+     */
+    loadTextureForTrait(groupTraitID, traitID, textureId,addHistory = true){
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestData) {
+          try {
+            // Retrieve the selected trait using manifest data
+            const selectedTrait = this.manifestData.getTraitOption(groupTraitID, traitID, textureId);
+
+            // override the model
+            
+            // If the trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTexturesForTraits(getAsArray(selectedTrait),addHistory);
+              resolve(true);
+
             }
           } catch (error) {
             // Reject the Promise with an error message if there's an error during trait retrieval
@@ -1090,6 +1136,7 @@ export class CharacterManager {
       if(blendshapeTraitId == null){
         // Deactivated the blendshape trait; dont do anything else
         delete this.avatar[traitGroupID].blendShapeTraitsInfo[blendshapeGroupId]
+        this.history.addHistory(this.avatar)
         return
       }
 
@@ -1103,7 +1150,7 @@ export class CharacterManager {
       this.toggleBinaryBlendShape(currentTrait.model, blendShape, true);
 
       this.avatar[traitGroupID].blendShapeTraitsInfo[blendShape.getGroupId()] = blendShape;
-
+      this.history.addHistory(this.avatar)
     }
     /**
      * 
@@ -1711,6 +1758,124 @@ class LoadedData{
         this.textures = textures;
         this.colors = colors;
     }
+}
+
+
+class History extends EventEmitter {
+
+  /**
+   * @type {Record<string,any>[]}
+   */
+	_history = []
+
+  /**
+   * @type {CharacterManager}
+   */
+  characterManager
+  
+	constructor(characterManager) {
+    super()
+    this.characterManager = characterManager
+  }
+
+	get current(){
+		return this.characterManager.avatar
+	}
+
+	get canUndo() {
+		return this._history.length > 1
+	}
+
+  get manifestData(){
+    return this.characterManager.manifestData
+  }
+
+  /**
+   * 
+   * @param {Record<string,any>} data 
+   */
+	addHistory(data) {
+		/**
+		 * Convert the avatar object to a record
+     * @type {Record<string,any>}
+		 */
+		const object = {}
+		Object.entries(data).forEach(([_, entry]) => {
+			object[_] = Object.assign({}, entry)
+			//@ts-ignore
+			delete object[_].vrm
+			//@ts-ignore
+			delete object[_].model
+		})
+
+		this._history.push(object)
+    this.emit("change",this.current)
+	}
+
+	async undo() {
+    if(this._history.length === 1) return
+		const data = this._history[this._history.length - 2]
+    this._history.pop()
+
+    const traits = this.manifestData.getGroupModelTraits().map((t)=>t.trait)
+    const addHistory = false
+		for(const key of traits){
+      const previtem = data[key]
+			const curr = this.current[key]
+
+      if(!curr && !previtem){
+				continue
+			}
+
+			if(!previtem){
+				this.characterManager.removeTrait(key, addHistory)
+				continue
+			}
+
+			/**
+			 * If the previous item is the same as the current item, we only need to change the texture (if needed)
+			 */
+			if(curr && previtem.traitInfo.id === curr.traitInfo.id){
+
+        /**
+         * Check if the texture is the same
+         */
+				if(previtem.textureInfo && previtem.textureInfo?.id !== curr.textureInfo?.id){
+					await this.characterManager.loadTextureForTrait(previtem.traitInfo.traitGroup.trait,previtem.traitInfo.id,previtem.textureInfo.id,addHistory)
+				}
+        /**
+         * Check if the blendshape keys are the same
+         */
+        const blendshapeKeys = new Set([...Object.keys(previtem.blendShapeTraitsInfo||{}),...Object.keys(curr.blendShapeTraitsInfo||{})])
+        for(const blendshapeKey of blendshapeKeys){
+          const blendshape = previtem.blendShapeTraitsInfo[blendshapeKey]
+          const currentBlendshape = curr.blendShapeTraitsInfo[blendshapeKey]
+          if(currentBlendshape && !blendshape){
+              this.characterManager.removeBlendShapeTrait(previtem.traitInfo.traitGroup.trait,currentBlendshape.getGroupId(),addHistory)
+          }else if((currentBlendshape && blendshape) && currentBlendshape.id !== blendshape.id){
+              this.characterManager.loadBlendShapeTrait(previtem.traitInfo.traitGroup.trait,blendshape.getGroupId(),blendshape.id,addHistory)
+          }
+        }
+      
+
+			/**
+			 * If the previous item is different from the current item, we need to load the previous item
+			 */
+			} else if(previtem) {
+				await this.characterManager.loadTrait(previtem.traitInfo.traitGroup.trait,previtem.traitInfo.id,undefined,previtem.textureInfo?.id,addHistory)
+
+        if(previtem.blendShapeTraitsInfo){
+          for(const blendshapeKey in previtem.blendShapeTraitsInfo){
+            const blendshape = previtem.blendShapeTraitsInfo[blendshapeKey]
+            if(!blendshape) continue
+            this.characterManager.loadBlendShapeTrait(previtem.traitInfo.traitGroup.trait,blendshape.getGroupId(),blendshape.id,addHistory)
+          }
+        }
+			}
+		}
+    return this.emit("change",this.current)
+	}
+	
 }
 
 
