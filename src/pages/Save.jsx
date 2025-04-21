@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 import styles from "./Save.module.css"
 import { ExportMenu } from "../components/ExportMenu"
 import { SceneContext } from "../context/SceneContext"
@@ -7,6 +7,7 @@ import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import MessageWindow from "../components/MessageWindow"
 import MergeOptions from "../components/MergeOptions"
 import FileDropComponent from "../components/FileDropComponent"
 import PurchaseMenu from "../components/PurchaseMenu"
@@ -20,6 +21,10 @@ function Save() {
   const { isMute } = React.useContext(AudioContext)
   const { setViewMode } = React.useContext(ViewContext);
   const { characterManager } = React.useContext(SceneContext)
+
+
+  const [confirmDialogWindow, setConfirmDialogWindow] = useState(false)
+  const [dialogMessage, setDialogMessage] = useState("")
 
   const [currentPrice, setCurrentPrice] = React.useState(0)
   const [purchaseTraits, setPurchaseTraits] = React.useState([])
@@ -48,12 +53,18 @@ function Save() {
     if (file && file.name.toLowerCase().endsWith('.json')) {
     } 
   };
-  const onConfrimPurchase = () =>{
+  const onConfirmPurchase = () =>{
     console.log("confirm purchase!!")
     characterManager.purchaseAssetsFromAvatar()
       .then(()=>{
         setCurrentPrice(characterManager.getCurrentTotalPrice());
         setPurchaseTraits([]);
+        setConfirmDialogWindow(true);
+        setDialogMessage("Purchase successful");
+      })
+      .catch((e)=>{
+        setConfirmDialogWindow(true);
+        setDialogMessage("An error occurred while purchasing assets. Please try again.");
       })
   }
   const cancelPurchase = () =>{
@@ -62,6 +73,7 @@ function Save() {
 
   return (
     <div className={styles.container}>
+      
       <div className={"sectionTitle"}>{t("pageTitles.saveCharacter")}</div>
       <div className={styles.buttonContainer}>
         <FileDropComponent 
@@ -78,7 +90,7 @@ function Save() {
           <PurchaseMenu
             currentPrice = {currentPrice}
             purchaseTraits = {purchaseTraits}
-            onConfrimPurchase = {onConfrimPurchase}
+            onConfirmPurchase = {onConfirmPurchase}
             cancelPurchase = {cancelPurchase}
             currency = {currency}
             
@@ -101,6 +113,13 @@ function Save() {
             onClick={mint}
         />
       </div>
+      <MessageWindow
+        cancelOption = {false}
+        confirmDialogText = {dialogMessage}
+        confirmDialogCallback = {[]}
+        confirmDialogWindow = {confirmDialogWindow}
+        setConfirmDialogWindow = {setConfirmDialogWindow}
+      />
     </div>
   )
 }

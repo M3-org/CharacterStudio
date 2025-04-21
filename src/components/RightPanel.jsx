@@ -43,7 +43,8 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
                 <div className={styles["optionsContainer"]}>
-                    <div
+                    {/* legacy connect wallet */}
+                    {/* <div
                         key={"wallet"}
                         onClick={()=>{
                             setSelectedOptionString("wallet"); 
@@ -56,7 +57,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                         icon={walletIcon}
                         rarity={selectedOption == "wallet" ? "mythic" : "none"}      
                         />
-                    </div>
+                    </div> */}
                     <div
                         key={"Information"}
                         onClick={()=>{setSelectedOptionString("Information")}}

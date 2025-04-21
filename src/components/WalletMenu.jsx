@@ -3,7 +3,7 @@ import styles from "./FloatingMenu.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 
-import { useLocation } from "react-router-dom";
+//import { useLocation } from "react-router-dom";
 import axios from "axios";
 //import { getUserCNFTs } from "./sola"
 
@@ -16,22 +16,22 @@ export default function WalletMenu({lockedManifests}){
 
 
     const [user, setUser] = React.useState(null);
-    const location = useLocation();
+    //const location = useLocation();
     
     // Extract token from URL query
-    const token = new URLSearchParams(location.search).get("token");
+    //const token = new URLSearchParams(location.search).get("token");
   
-    React.useEffect(() => {
-      if (token) {
-        console.log("token");
-        axios
-          .get("https://api.github.com/user", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((res) => setUser(res.data))
-          .catch((err) => console.error(err));
-      }
-    }, [token]);
+    // React.useEffect(() => {
+    //   if (token) {
+    //     console.log("token");
+    //     axios
+    //       .get("https://api.github.com/user", {
+    //         headers: { Authorization: `Bearer ${token}` },
+    //       })
+    //       .then((res) => setUser(res.data))
+    //       .catch((err) => console.error(err));
+    //   }
+    // }, [token]);
 
     React.useEffect(() => {
         if (user) {

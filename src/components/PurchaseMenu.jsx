@@ -4,7 +4,7 @@ import MenuTitle from "./MenuTitle"
 import { TokenBox } from "../components/token-box/TokenBox"
 import CustomButton from "./custom-button"
 
-export default function PurchaseMenu({purchaseTraits, currentPrice, onConfrimPurchase, cancelPurchase, currency}){    
+export default function PurchaseMenu({purchaseTraits, currentPrice, onConfirmPurchase, cancelPurchase, currency}){    
     return (
         <div>
             <div className={styles["InformationContainerPos"]}>
@@ -49,7 +49,7 @@ export default function PurchaseMenu({purchaseTraits, currentPrice, onConfrimPur
                                     text={'Buy Assets'}
                                     size={14}
                                     minWidth={60}
-                                    onClick={onConfrimPurchase}
+                                    onClick={onConfirmPurchase}
                                 />
                                 <CustomButton
                                     theme="light"

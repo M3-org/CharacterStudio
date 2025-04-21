@@ -11,6 +11,7 @@ const rpcKey = import.meta.env.VITE_HELIUS_KEY;
 const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${rpcKey}`
 
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
+const validation_server = import.meta.env.VITE_VALIDATION_SERVER_URL;
 
 const pinataApiKey = import.meta.env.VITE_PINATA_API_KEY
 const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
@@ -99,14 +100,20 @@ export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, colle
   
   return new Promise(async(resolve, reject) => {
     const { solana } = window;
+    console.log(window.solana)
+
     if (!solana || !solana.isPhantom) {
         alert("Please install Phantom Wallet!");
         reject();
     }
+    if (!validation_server) {
+      alert("VITE_VALIDATION_SERVER_URL not defined in .env");
+      reject();
+    }
     try{
       const solanaAddress = await window.solana.connect();
       const buyerPublicKey = solanaAddress.publicKey.toString();
-      const response = await fetch("http://localhost:3000/request-payment", {
+      const response = await fetch(`${validation_server}/request-payment`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -130,7 +137,8 @@ export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, colle
       }
     }
     catch(e){
-      console.error("Error requesting payment:", data.error);
+      //console.log(data);
+      console.error("Error requesting payment:", e.message);
       reject();
     }
     
