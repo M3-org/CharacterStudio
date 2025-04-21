@@ -61,8 +61,18 @@ export class LookAtManager {
     // }, 1000/60);
   }
   setActive(active){
-    console.log("is activating")
     this.userActivated = active;
+    if(!active){
+      // reset rotation of eyes
+      this.bonesInfo.forEach(boneInfo => {
+        if(boneInfo.leftEyeBone){
+          boneInfo.leftEyeBone.rotation.set(0,0,0)
+        }
+        if(boneInfo.rightEyeBone){
+          boneInfo.rightEyeBone.rotation.set(0,0,0)
+        }
+      })
+    }
   }
   setCamera(camera){
     this.camera = camera

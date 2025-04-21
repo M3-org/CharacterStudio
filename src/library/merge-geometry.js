@@ -631,18 +631,18 @@ export async function combine(model,avatar, options) {
                  * Only affects morphTargets from the Manifest
                  */
                 if(mergeAppliedMorphs){
-                    if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return;
+                    if(mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
 
-                    blendShapesFromManifest.forEach((key)=>{
-                        const influenceIndex = mesh.morphTargetDictionary[key];
-                        if(influenceIndex !== undefined && mesh.morphTargetInfluences[influenceIndex] > 0) {
-                            morphTargetsProcess.merge.add(key)
-                        }else{
-                            morphTargetsProcess.remove.add(key)
-                            return null
-                        }
-                    })
-
+                        blendShapesFromManifest.forEach((key)=>{
+                            const influenceIndex = mesh.morphTargetDictionary![key];
+                            if(influenceIndex !== undefined && mesh.morphTargetInfluences![influenceIndex] > 0) {
+                                morphTargetsProcess.merge.add(key)
+                            }else{
+                                morphTargetsProcess.remove.add(key)
+                                return null
+                            }
+                        })
+                    }
                 }
 
                 // remove vertices from culled faces from the mesh

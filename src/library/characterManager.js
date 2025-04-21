@@ -717,6 +717,21 @@ export class CharacterManager {
     }
 
     /**
+     * Checks Blendshape restrictions;
+     * @private
+     * @param {} groupTraitID 
+     */
+    _checkBlendshapeRestrictions(groupTraitID){
+      for( const trait in this.avatar){
+        const p = this.manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendshapeTraitAllowed(groupTraitID)
+        if(!p.allowed && p.blockingTrait){
+          console.warn(`Trait with name: Blendshapes of ${trait} is not allowed to be loaded with ${groupTraitID}`)
+          this.removeBlendShapeTrait(trait,null)
+        }
+      }
+    }
+
+    /**
      * Checks and removes blocking traits before loading a new trait.
      * @private
      * @param {string} groupTraitID - ID of the trait group
@@ -726,6 +741,8 @@ export class CharacterManager {
       const isAllowed = this._getTraitAllowedRules(groupTraitID,traitID)
 
       if(isAllowed[0].allowed){
+        // check if blendshape restrictions are met
+        this._checkBlendshapeRestrictions(groupTraitID)
         return
       }
       for(const rule of isAllowed){
@@ -1043,6 +1060,15 @@ export class CharacterManager {
       if(!currentTrait.blendShapeTraitsInfo){
         currentTrait.blendShapeTraitsInfo = {};
       }
+
+      if(!blendshapeGroupId){
+        for(const k in currentTrait.blendShapeTraitsInfo){
+          // Deactivate the current blendshape trait
+          this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[k], false);
+        }
+        return
+      }
+
       if(currentTrait.blendShapeTraitsInfo[blendshapeGroupId]){
         // Deactivate the current blendshape trait
         this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[blendshapeGroupId], false);
