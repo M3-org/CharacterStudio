@@ -1,0 +1,23 @@
+{
+  "id": "Developers/sdk",
+  "title": "SDK",
+  "description": "WIP",
+  "source": "@site/docs/Developers/sdk.md",
+  "sourceDirName": "Developers",
+  "slug": "/Developers/sdk",
+  "permalink": "/characterstudio-docs/docs/Developers/sdk",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/sdk.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Wallet",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/wallet"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Contexts/scene-context",
+  "title": "Scene Context",
+  "description": "Scene Context allows easy access to app managers and scene elements. All the logic to modify, edit, display, create spritesheet or lora for vrms rest within these managers, and using Scene Context is an easy way to fetch all the logic:",
+  "source": "@site/docs/Developers/Contexts/scene-context.md",
+  "sourceDirName": "Developers/Contexts",
+  "slug": "/Developers/Contexts/scene-context",
+  "permalink": "/characterstudio-docs/docs/Developers/Contexts/scene-context",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Contexts/scene-context.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Sprite Atlas Generator",
+    "permalink": "/characterstudio-docs/docs/Developers/Managers/sprite-atlas-generator"
+  },
+  "next": {
+    "title": "View Context",
+    "permalink": "/characterstudio-docs/docs/Developers/Contexts/view-context"
+  }
+}

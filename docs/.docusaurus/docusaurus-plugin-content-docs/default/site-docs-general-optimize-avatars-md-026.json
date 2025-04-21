@@ -1,0 +1,27 @@
+{
+  "id": "General/optimize-avatars",
+  "title": "Optimize avatars",
+  "description": "Optimizing VRM models by hand can be very tedious and time consuming. We have designed a simple drag and drop solution that can reduce the amount of draw calls and overall filesize of VRM avatars by:",
+  "source": "@site/docs/General/optimize-avatars.md",
+  "sourceDirName": "General",
+  "slug": "/General/optimize-avatars",
+  "permalink": "/characterstudio-docs/docs/General/optimize-avatars",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/General/optimize-avatars.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Create an Avatar",
+    "permalink": "/characterstudio-docs/docs/General/create-an-avatar"
+  },
+  "next": {
+    "title": "Getting Started with Manifest Files",
+    "permalink": "/characterstudio-docs/docs/Modders/getting-started"
+  }
+}

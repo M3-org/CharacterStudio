@@ -1,0 +1,8 @@
+{
+  "label": "Manifest Files",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Overview of manifest files and how they work so you can modify them to customize your app."
+  }
+}

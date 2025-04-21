@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Pages/save",
+  "title": "Save",
+  "description": "The Save component is a part of a React application that provides a user interface for saving a character. It includes buttons for going back, merging options, exporting, and minting. The component also interacts with several contexts to manage view modes, language, sound, and audio settings.",
+  "source": "@site/docs/Developers/Pages/save.md",
+  "sourceDirName": "Developers/Pages",
+  "slug": "/Developers/Pages/save",
+  "permalink": "/characterstudio-docs/docs/Developers/Pages/save",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Pages/save.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Mint",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/mint"
+  },
+  "next": {
+    "title": "Load",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/load"
+  }
+}

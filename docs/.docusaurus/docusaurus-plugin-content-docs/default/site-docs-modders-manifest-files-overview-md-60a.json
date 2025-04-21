@@ -1,0 +1,30 @@
+{
+  "id": "Modders/manifest-files/overview",
+  "title": "Overview",
+  "description": "The manifest files are essential if you want to mod Character Studio with your own assets and selection screens. They are found in various parts of the project, and basically are the main file other than art assets that you would need to modify to make an avatar builder program. For more info go to the full documentation page for any manifest in the sidebar.",
+  "source": "@site/docs/Modders/manifest-files/overview.md",
+  "sourceDirName": "Modders/manifest-files",
+  "slug": "/Modders/manifest-files/overview",
+  "permalink": "/characterstudio-docs/docs/Modders/manifest-files/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/manifest-files/overview.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Preparing Assets",
+    "permalink": "/characterstudio-docs/docs/Modders/process-avatars"
+  },
+  "next": {
+    "title": "Character Select",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/character-select"
+  }
+}

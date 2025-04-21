@@ -1,0 +1,27 @@
+{
+  "id": "Modders/process-avatars",
+  "title": "Preparing Assets",
+  "description": "After cloning and installing Character Studio, you will want to then copy your assets into the public folder and check the .env variable to ensure it's configured to the right location.",
+  "source": "@site/docs/Modders/process-avatars.md",
+  "sourceDirName": "Modders",
+  "slug": "/Modders/process-avatars",
+  "permalink": "/characterstudio-docs/docs/Modders/process-avatars",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/process-avatars.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Getting Started with Manifest Files",
+    "permalink": "/characterstudio-docs/docs/Modders/getting-started"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/overview"
+  }
+}

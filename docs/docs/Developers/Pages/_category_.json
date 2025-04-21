@@ -1,0 +1,8 @@
+{
+  "label": "Pages",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Overview of the various frontend comoponents and pages in the application."
+  }
+}

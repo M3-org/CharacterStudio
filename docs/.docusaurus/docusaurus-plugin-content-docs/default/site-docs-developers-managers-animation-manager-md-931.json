@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Managers/animation-manager",
+  "title": "Animation Manager",
+  "description": "Manages animations for a character, including loading, playing, and controlling animations.",
+  "source": "@site/docs/Developers/Managers/animation-manager.md",
+  "sourceDirName": "Developers/Managers",
+  "slug": "/Developers/Managers/animation-manager",
+  "permalink": "/characterstudio-docs/docs/Developers/Managers/animation-manager",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Managers/animation-manager.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Character Manager",
+    "permalink": "/characterstudio-docs/docs/Developers/Managers/character-manager"
+  },
+  "next": {
+    "title": "LookAt Manager",
+    "permalink": "/characterstudio-docs/docs/Developers/Managers/look-at-manager"
+  }
+}

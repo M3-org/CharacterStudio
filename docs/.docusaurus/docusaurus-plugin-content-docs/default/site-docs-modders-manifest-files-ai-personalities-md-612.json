@@ -1,0 +1,30 @@
+{
+  "id": "Modders/manifest-files/ai-personalities",
+  "title": "AI Personality",
+  "description": "This is an experimental feature for prepopulating and customizing personalities for VRM avatars for AI chatbot application use cases.",
+  "source": "@site/docs/Modders/manifest-files/ai-personalities.md",
+  "sourceDirName": "Modders/manifest-files",
+  "slug": "/Modders/manifest-files/ai-personalities",
+  "permalink": "/characterstudio-docs/docs/Modders/manifest-files/ai-personalities",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/manifest-files/ai-personalities.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "VRM to Thumbnails",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/vrm-to-thumbnails"
+  },
+  "next": {
+    "title": "Useful Scripts",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/generate-manifest-files"
+  }
+}
