@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Pages/batch-download",
+  "title": "Batch Download",
+  "description": "To Access this menu, go to Batch Download button, then select any other option than is not Manifest - Load by manifest",
+  "source": "@site/docs/Developers/Pages/batch-download.md",
+  "sourceDirName": "Developers/Pages",
+  "slug": "/Developers/Pages/batch-download",
+  "permalink": "/characterstudio-docs/docs/Developers/Pages/batch-download",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Pages/batch-download.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Claim",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/claim"
+  },
+  "next": {
+    "title": "Batch Manifest",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/batch-manifest"
+  }
+}

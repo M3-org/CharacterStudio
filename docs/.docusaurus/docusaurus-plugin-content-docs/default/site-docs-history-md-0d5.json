@@ -1,0 +1,30 @@
+{
+  "id": "history",
+  "title": "History",
+  "description": "This project stands on the shoulders of giants with years of history from open source hackers and web3 enthusiasts.",
+  "source": "@site/docs/history.md",
+  "sourceDirName": ".",
+  "slug": "/history",
+  "permalink": "/characterstudio-docs/docs/history",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/history.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Quickstart",
+    "permalink": "/characterstudio-docs/docs/quickstart"
+  },
+  "next": {
+    "title": "Create an Avatar",
+    "permalink": "/characterstudio-docs/docs/General/create-an-avatar"
+  }
+}

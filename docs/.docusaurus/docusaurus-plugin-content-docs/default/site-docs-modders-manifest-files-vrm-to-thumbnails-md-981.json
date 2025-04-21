@@ -1,0 +1,30 @@
+{
+  "id": "Modders/manifest-files/vrm-to-thumbnails",
+  "title": "VRM to Thumbnails",
+  "description": "The thumbnails generator allows you to create thumbnails with the assets that will be  loaded in each trait group.",
+  "source": "@site/docs/Modders/manifest-files/vrm-to-thumbnails.md",
+  "sourceDirName": "Modders/manifest-files",
+  "slug": "/Modders/manifest-files/vrm-to-thumbnails",
+  "permalink": "/characterstudio-docs/docs/Modders/manifest-files/vrm-to-thumbnails",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/manifest-files/vrm-to-thumbnails.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_position": 6
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "VRM to Spritesheet",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/vrm-to-spritesheet"
+  },
+  "next": {
+    "title": "AI Personality",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/ai-personalities"
+  }
+}

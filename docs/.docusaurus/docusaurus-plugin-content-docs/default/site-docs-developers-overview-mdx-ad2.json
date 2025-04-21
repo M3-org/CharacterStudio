@@ -1,0 +1,27 @@
+{
+  "id": "Developers/overview",
+  "title": "Overview",
+  "description": "Character Studio aims to give a quick setup to any character generator. Logic lies within Scripts and Managers that have been externalized to be reusable. The react app initializes these managers within a SceneContext to be quickly imported and accessed in any React Page or React Component.",
+  "source": "@site/docs/Developers/overview.mdx",
+  "sourceDirName": "Developers",
+  "slug": "/Developers/overview",
+  "permalink": "/characterstudio-docs/docs/Developers/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/overview.mdx",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Useful Scripts",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/generate-manifest-files"
+  },
+  "next": {
+    "title": "Character Manager",
+    "permalink": "/characterstudio-docs/docs/Developers/Managers/character-manager"
+  }
+}

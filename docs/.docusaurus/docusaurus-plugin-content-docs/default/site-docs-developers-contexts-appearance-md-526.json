@@ -1,0 +1,18 @@
+{
+  "id": "Developers/Contexts/appearance",
+  "title": "Appearance",
+  "description": "To Access this menu, go to Create Character menu button, then select any option displayed there.",
+  "source": "@site/docs/Developers/Contexts/appearance.md",
+  "sourceDirName": "Developers/Contexts",
+  "slug": "/Developers/Contexts/appearance",
+  "permalink": "/characterstudio-docs/docs/Developers/Contexts/appearance",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Contexts/appearance.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {}
+}

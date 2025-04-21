@@ -1,0 +1,27 @@
+{
+  "id": "Modders/manifest-files/character-animations",
+  "title": "Character animations",
+  "description": "There are 2 ways to add animations to characters:",
+  "source": "@site/docs/Modders/manifest-files/character-animations.md",
+  "sourceDirName": "Modders/manifest-files",
+  "slug": "/Modders/manifest-files/character-animations",
+  "permalink": "/characterstudio-docs/docs/Modders/manifest-files/character-animations",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/manifest-files/character-animations.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Character Traits",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/character-traits"
+  },
+  "next": {
+    "title": "VRM to LoRA data",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/vrm-to-lora"
+  }
+}

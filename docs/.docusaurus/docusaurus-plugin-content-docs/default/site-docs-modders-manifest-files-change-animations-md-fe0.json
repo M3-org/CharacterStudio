@@ -1,0 +1,27 @@
+{
+  "id": "Modders/manifest-files/change-animations",
+  "title": "Change animations",
+  "description": "The animation files are referenced via animationPath in the manifest.json file, here's an example (source):",
+  "source": "@site/docs/Modders/manifest-files/change-animations.md",
+  "sourceDirName": "Modders/manifest-files",
+  "slug": "/Modders/manifest-files/change-animations",
+  "permalink": "/characterstudio-docs/docs/Modders/manifest-files/change-animations",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Modders/manifest-files/change-animations.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Character Traits",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/character-traits"
+  },
+  "next": {
+    "title": "VRM to LoRA data",
+    "permalink": "/characterstudio-docs/docs/Modders/manifest-files/vrm-to-lora"
+  }
+}

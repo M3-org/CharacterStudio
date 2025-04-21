@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Pages/optimizer",
+  "title": "Optimizer",
+  "description": "You can access this page by going to Optimize Character menu button.",
+  "source": "@site/docs/Developers/Pages/optimizer.md",
+  "sourceDirName": "Developers/Pages",
+  "slug": "/Developers/Pages/optimizer",
+  "permalink": "/characterstudio-docs/docs/Developers/Pages/optimizer",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Pages/optimizer.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Batch Manifest",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/batch-manifest"
+  },
+  "next": {
+    "title": "Wallet",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/wallet"
+  }
+}

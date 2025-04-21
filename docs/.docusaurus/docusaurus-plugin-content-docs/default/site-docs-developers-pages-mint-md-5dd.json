@@ -1,0 +1,27 @@
+{
+  "id": "Developers/Pages/mint",
+  "title": "Mint",
+  "description": "(wip) The Mint Page is currently hidden, but should be accessed after user finished creating his character from the appearance menu.",
+  "source": "@site/docs/Developers/Pages/mint.md",
+  "sourceDirName": "Developers/Pages",
+  "slug": "/Developers/Pages/mint",
+  "permalink": "/characterstudio-docs/docs/Developers/Pages/mint",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/m3-org/characterstudio-docs/tree/main/docs/Developers/Pages/mint.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055,
+  "formattedLastUpdatedAt": "Oct 14, 2018",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "View",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/view"
+  },
+  "next": {
+    "title": "Save",
+    "permalink": "/characterstudio-docs/docs/Developers/Pages/save"
+  }
+}
