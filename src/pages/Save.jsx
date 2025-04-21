@@ -64,7 +64,7 @@ function Save() {
       })
       .catch((e)=>{
         setConfirmDialogWindow(true);
-        setDialogMessage("An error occurred while purchasing assets. Please try again.");
+        setDialogMessage("An error occurred when trying to purchase assets. Please try again.");
       })
   }
   const cancelPurchase = () =>{

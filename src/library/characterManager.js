@@ -722,9 +722,9 @@ export class CharacterManager {
      * @param {} groupTraitID 
      */
     _checkBlendshapeRestrictions(groupTraitID){
+      console.log("te4");
       for( const trait in this.avatar){
-        const p = this.manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendshapeTraitAllowed(groupTraitID)
-        if(!p.allowed && p.blockingTrait){
+        if (this.manifestDataManager.isGroupTraitRestrictedInAnyManifest(trait, groupTraitID)){
           console.warn(`Trait with name: Blendshapes of ${trait} is not allowed to be loaded with ${groupTraitID}`)
           this.removeBlendShapeTrait(trait,null)
         }
@@ -739,7 +739,6 @@ export class CharacterManager {
      */
     _checkRestrictionsBeforeLoad(groupTraitID,traitID){
       const isAllowed = this._getTraitAllowedRules(groupTraitID,traitID)
-
       if(isAllowed[0].allowed){
         // check if blendshape restrictions are met
         this._checkBlendshapeRestrictions(groupTraitID)

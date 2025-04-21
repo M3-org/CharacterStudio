@@ -92,6 +92,12 @@ export class ManifestDataManager{
         maxCullingDistance:manifest.maxCullingDistance != null ? manifest.maxCullingDistance : Infinity
       };
     }
+    
+    isGroupTraitRestrictedInAnyManifest(trait, groupTraitID){
+      for (const manifestData of this.manifestDataCollection){
+        const p = manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendsh
+      }
+    }
 
 
     setCustomManifest(){
