@@ -722,7 +722,6 @@ export class CharacterManager {
      * @param {} groupTraitID 
      */
     _checkBlendshapeRestrictions(groupTraitID){
-      console.log("te4");
       for( const trait in this.avatar){
         if (this.manifestDataManager.isGroupTraitRestrictedInAnyManifest(trait, groupTraitID)){
           console.warn(`Trait with name: Blendshapes of ${trait} is not allowed to be loaded with ${groupTraitID}`)
