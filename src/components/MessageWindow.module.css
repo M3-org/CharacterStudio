@@ -10,13 +10,11 @@
 
 .messageWindow{
   width:500px;
-  height:150px;
+  height:200px;
   margin: auto;
   display: flex;
   padding: 0 0 10px;
   background: rgb(4, 17, 22);
-  -webkit-clip-path: polygon(0 0, 100% 0, 95% 100%, 4% 100%);
-  clip-path: polygon(0 0, 100% 0, 95% 100%, 4% 100%);
   justify-content: space-around;
   align-items:center;
   flex-direction: column;
@@ -25,6 +23,8 @@
 .messageTitle{
   font-family: "TTSC-Bold";
   font-weight: 800;
+  text-align: center;
+  padding: 20px;
   text-transform: uppercase !important;
   line-height: 106%;
   color: #5eb086;

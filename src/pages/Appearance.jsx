@@ -19,6 +19,7 @@ import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
+import SaleIcon from "../images/sale-icon.png"
 
   /**
    * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
@@ -81,7 +82,6 @@ function Appearance() {
     setIsLoading(true);
     setJsonSelectionArray(null);
     characterManager.loadRandomTraits().then(() => {
-      console.log("success")
       if (selectedTraitGroup && selectedTraitGroup.trait != ""){
         setSelectedTrait(characterManager.getCurrentTraitData(selectedTraitGroup.trait));
       }
@@ -135,7 +135,8 @@ function Appearance() {
     }
   }
   const selectTrait = (trait) => {
-    if(trait.id === selectedTrait?.id){
+    console.log(trait);
+    if(trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID){
       if(trait.blendshapeTraits?.length>0){
         setTraitView(TraitPage.BLEND_SHAPE);
       }
@@ -145,8 +146,9 @@ function Appearance() {
 
     setIsPickingColor(false);
     setIsLoading(true);
-    characterManager.loadTrait(trait.traitGroup.trait, trait.id).then(()=>{
+    characterManager.loadTrait(trait.traitGroup.trait, trait.id, trait.collectionID).then(()=>{
       setIsLoading(false);
+      console.log(characterManager.getCurrentTotalPrice());
       if(trait.blendshapeTraits?.length>0){
         const selectedBlendshapeTrait = characterManager.getCurrentBlendShapeTraitData(trait.traitGroup.trait);
         setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
@@ -240,6 +242,7 @@ function Appearance() {
     if (selectedTraitGroup?.trait !== traitGroup.trait){
       setTraitView(TraitPage.TRAIT);
       setTraits(characterManager.getTraits(traitGroup.trait));
+
       setSelectedTraitGroup(traitGroup);
 
       const selectedT = characterManager.getCurrentTraitData(traitGroup.trait)
@@ -311,7 +314,6 @@ function Appearance() {
                     
                   />
                   <div className={styles["editorText"]}>{traitGroup.name}</div>
-                  
                 </div>
               ))
             }
@@ -388,16 +390,17 @@ function Appearance() {
                 )
               }
               {/* All buttons section */
-              traits.map((trait) => {
-                let active = trait.id === selectedTrait?.id
+              traits.map((trait, index) => {
+                let active = (trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID)
                 return (
                   <div
-                    key={trait.id}
+                    key={index}
                     className={`${styles["selectorButton"]}`}
-                    onClick={()=>{selectTrait(trait)}}
+                    onClick={()=>{selectTrait(trait); console.log(trait)}}
                   >
                     <TokenBox
                       size={56}
+                      iconOverlay={(trait.purchasable && trait.locked) ? SaleIcon:null}
                       icon={trait.fullThumbnail}
                       rarity={active ? "mythic" : "none"}      
                     />

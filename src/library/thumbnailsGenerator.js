@@ -126,6 +126,7 @@ export class ThumbnailGenerator {
                     for (let i=0; i < modelTraits.length;i++){
 
                         const traitId = modelTraits[i].id;
+                        const collectionID = modelTraits[i].collectionID;
                         let imgName = traitId;
 
                         if (modelTraits[i].fullDirectory != null){
@@ -133,7 +134,7 @@ export class ThumbnailGenerator {
                             const baseName = fullDir[fullDir.length - 1];
                             imgName = baseName.split('.')[0];
                         }
-                        await scope.characterManager.loadTrait(traitGroup, traitId,true);
+                        await scope.characterManager.loadTrait(traitGroup, traitId, collectionID,true);
 
                         if (thumbnailsCollection.length == 1 && modelTraits.length == 1){
                             singleSave = true;

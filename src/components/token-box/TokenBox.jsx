@@ -9,6 +9,7 @@ export const TokenBox = (props) => {
         active,
         onClick,
         level,
+        iconOverlay,
         icon,
         rarity,
         style
@@ -31,12 +32,19 @@ export const TokenBox = (props) => {
             <div
                 className={classnames(styles.frame, rarity && styles[rarity])}
             />
+
             <img 
                 src={imageError ? defaultIcon : icon}
                 className={styles.emptyIcon} 
                 style={style}
                 onError={handleImageError}
             />
+            {iconOverlay && (<img 
+                src={iconOverlay}
+                className={styles.emptyIcon} 
+                style={style}
+                //onError={handleImageError}
+            />)}
             {level && (
                 <div
                     className={classnames(

@@ -25,7 +25,9 @@ export default function MessageWindow(props) {
                     theme="light"
                     text="Cancel"
                     onClick= {()=>{
-                      confirmDialogCallback[0](false)
+                      if (confirmDialogCallback.length > 0){
+                        confirmDialogCallback[0](false)
+                      }
                       setConfirmDialogWindow(false)
                     }}
                   />
@@ -35,7 +37,9 @@ export default function MessageWindow(props) {
                       theme="light"
                       text="Continue"
                       onClick= {()=>{
-                        confirmDialogCallback[0](true)
+                        if (confirmDialogCallback.length > 0){
+                          confirmDialogCallback[0](true)
+                        }
                         setConfirmDialogWindow(false)
                       }}
                     /> 

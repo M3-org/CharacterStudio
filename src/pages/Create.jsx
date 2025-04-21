@@ -9,6 +9,8 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
+import { getAsArray } from "../library/utils"
+
 function Create() {
   
   // Translate hook
@@ -19,20 +21,12 @@ function Create() {
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
   const [ classes, setClasses ] = useState([]) 
-  
+
+
   useEffect(() => {
+
     if (manifest?.characters != null){
-      const manifestClasses = manifest.characters.map((c) => {
-        return {
-          name:c.name, 
-          image:c.portrait, 
-          description: c.description,
-          manifest: c.manifest,
-          icon:c.icon,
-          format:c.format,
-          disabled:false
-        }
-      })
+      const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
       setClasses(manifestClasses);
     }
   }, [manifest])
@@ -42,20 +36,47 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
+  const getCharacterManifests = (charactersArray) =>{
+      return charactersArray.map((c) => {
+        return {
+          name:c.name, 
+          portrait:c.portrait, 
+          description: c.description,
+          manifest: c.manifest,
+          icon:c.icon,
+          format:c.format,
+          manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
+        }
+      })
+  }
+
   const selectClass = async (index) => {
     setIsLoading(true)
-    // Load manifest first
-    characterManager.loadManifest(manifest.characters[index].manifest).then(()=>{
-      setViewMode(ViewMode.APPEARANCE)
-      // When Manifest is Loaded, load initial traits from given manifest
-      characterManager.loadInitialTraits().then(()=>{
-        setIsLoading(false)
+    const selectedClass = classes[index];
+
+    await characterManager.loadManifest(selectedClass.manifest,selectedClass.name);
+
+    setViewMode(ViewMode.APPEARANCE)
+    const promises = selectedClass.manifestAppend.map(manifestAppend => {
+      return new Promise((resolve)=>{
+        
+        characterManager.loadManifest(manifestAppend.manifest, manifestAppend.name).then(()=>{
+          resolve();
+        })
       })
+    });
+
+    await Promise.all(promises);
+    // When Manifest is Loaded, load initial traits from given manifest
+
+    characterManager.loadInitialTraits().then(()=>{
+      setIsLoading(false)
     })
     !isMute && playSound('classSelect');
 
   }
-  const hoverClass = () => {
+
+  const hoverSound = () => {
     !isMute && playSound('classMouseOver');
   }
   
@@ -64,6 +85,8 @@ function Create() {
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
       <div className={styles.vrmOptimizerButton}>
       </div>
+
+      
       <div className={styles.topLine} />
       
       <div className={styles.classContainer}>
@@ -77,20 +100,16 @@ function Create() {
                   : styles.classdisabled
               }
               onClick={
-                characterClass["disabled"]
-                  ? null
-                  : () => selectClass(i)
+                  () => selectClass(i)
               }
               onMouseOver={
-                characterClass["disabled"]
-                  ? null
-                  : () => hoverClass()
+                  () => hoverSound()
               }
             >
             <div
                 className={styles.classFrame}
                 style={{
-                  "backgroundImage": `url(${characterClass["image"]})`,
+                  "backgroundImage": `url(${characterClass["portrait"]})`,
                 }}
               >
                 <div className={styles.frameContainer}>
@@ -100,14 +119,6 @@ function Create() {
                   />
                 </div>
 
-                <div className={styles.lockedContainer}>
-                  {characterClass["disabled"] && (
-                    <img
-                      src={"./assets/icons/locked.svg"}
-                      className={styles.locked}
-                    />
-                  )}
-                </div>
               </div>
               
               <div className={styles.name}>{characterClass["name"]}</div>
