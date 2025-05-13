@@ -192,23 +192,10 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
       bakeObjects.push({ material, mesh, sibligs:[] });
     }
     else {
-      
-      if(bakeObject.mesh.morphTargetDictionary && Object.keys(bakeObject.mesh.morphTargetDictionary).length > 0){
-        /**
-         * For meshes with morph targets, merging the geometry will not work, it's broken at the moment.
-         * use sibling system where the meshes stay separate but share the same material
-         */
-          bakeObject.siblings.push(mesh);
-      }else{
-        // @TODO fix this
-        const { dest,destMorphToMerge} = mergeGeometry({
-          meshes: [bakeObject.mesh, mesh],
-          scale,
-        });
-        const geometry = convertMergedDataToGeometry(dest, destMorphToMerge,true,scale,true);
-        bakeObject.mesh.geometry = geometry;
+        // @IMPROVEMENT: Merge meshes with the same material instead of keeping them separate; BUT make sure you merge morph targets and handle VRM expression bind changes!!!
 
-      }
+        // In the meantime, we use the siblings system to keep track of the meshes that share the same material; This allows us to have shared materials for some meshes.
+          bakeObject.siblings.push(mesh);
     }
   })
 
