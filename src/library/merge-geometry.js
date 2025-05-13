@@ -692,40 +692,7 @@ export async function combine(model,avatar, options) {
             });
             const { dest, destMorphToMerge } = mergeGeometry({ meshes:skinnedMeshes, scale , morphTargetsProcess },isVrm0);
             console.log('destMorphToMerge',destMorphToMerge)
-            const geometry = new THREE.BufferGeometry();
-
-
-            for (let i = 0; i < dest.attributes.position.array.length; i+=3){
-                dest.attributes.position.array[i] *= -1
-                dest.attributes.position.array[i+2] *= -1
-            }
-            
-
-            geometry.attributes = dest.attributes;
-            geometry.morphAttributes = dest.morphAttributes;
-            geometry.morphTargetsRelative = true;
-            geometry.setIndex(dest.index);
-
-            const vertices = geometry.attributes.position.array;
-            for (let i = 0; i < vertices.length; i += 3) {
-                vertices[i] *= scale;
-                vertices[i + 1] *= scale;
-                vertices[i + 2] *= scale;
-
-                // Apply morph targets to the vertices
-                if(mergeAppliedMorphs){
-                    if(!destMorphToMerge.morphTargetInfluences)continue
-                    for (let j = 0; j < destMorphToMerge.morphTargetInfluences.length; j++) {
-                        const morphAttribute = destMorphToMerge.morphAttributes?.position[j];
-                        if (morphAttribute) {
-                            for (let k = 0; k < 3; k++) {
-                                vertices[i + k] += morphAttribute.array[i + k] * destMorphToMerge.morphTargetInfluences[j];
-                            }
-                        }
-                    }
-                }
-            }
-
+            const geometry = convertMergedDataToGeometry(dest,destMorphToMerge,mergeAppliedMorphs,scale, isVrm0);
 
             const mesh = new THREE.SkinnedMesh(geometry, material);
             mesh.name = "CombinedMesh_" + prop;
