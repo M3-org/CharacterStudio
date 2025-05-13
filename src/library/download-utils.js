@@ -566,29 +566,65 @@ function getRebindedVRMExpressionManager(avatarModel){
 
     }
 
+    /**
+     * Rebind the new blendshape to the expression manager
+     */
     for(const expression of expressionManager.expressions){
-      const blendshapeNames = getBlendshapeForVRMExpression(expression)
+      const blendshapeNames = getBlendshapeNameByBindsForVRMExpression(expression)
       const defaultBlendshape = blendshapeNames[0][0];
-      const oldBounds = expression._binds
+      
+      const oldBounds = (expression)._binds
+
+      if(!changedDictionaries.new[defaultBlendshape]) continue;
       const newBindIndex = changedDictionaries.new[defaultBlendshape].index
-      const binds = oldBounds.map((bind)=>{
-        return new VRMExpressionMorphTargetBind({
-          index:newBindIndex,
-          weight:bind.weight,
-          primitives:[child]
-        })
+      /**
+       * {
+          index:number,
+          weight:number,
+          primitives:THREE.SkinnedMesh[]
+        }[]
+       */
+      const jsonBinds = []
+      oldBounds.map((bind)=>{
+        let alreadyBound = jsonBinds.find((b)=>b.index == newBindIndex)
+        if(alreadyBound?.primitives.map((p)=>p.id).includes(child.id)){
+          // already bound, skip
+          return
+        }else if (alreadyBound){
+            alreadyBound.primitives.push(child)
+        }else{
+          jsonBinds.push({
+            index:newBindIndex,
+            weight:bind.weight,
+            primitives:[child]
+          })
+        }
+        
       })
-      //@ts-ignore
-      expression._binds = binds
+
+      const vrmBinds = jsonBinds.map((bind)=>{
+        return new VRMExpressionMorphTargetBind(bind)
+      })
+      
+      if(expression.userData.processed){
+         //@ts-ignore
+        expression._binds.push(...vrmBinds)
+      }else{
+        expression.userData.processed = true;
+        //@ts-ignore
+        expression._binds = vrmBinds
+      }
     }
 
   }
+
   return expressionManager
 }
 
-
-
-function getBlendshapeForVRMExpression(expression){
+/**
+ * Get list of blendshape Names for each mesh in each bind of the expression
+ */
+function getBlendshapeNameByBindsForVRMExpression(expression){
 
   const binds = expression._binds
   if(!binds) return []
