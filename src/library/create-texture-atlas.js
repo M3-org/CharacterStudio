@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { mergeGeometry,convertMergedDataToGeometry } from "./merge-geometry.js";
+import { mergeGeometry } from "./merge-geometry.js";
 import { MToonMaterial } from "@pixiv/three-vrm";
 import squaresplit from 'squaresplit';
 import {createContext} from "./utils.js";
