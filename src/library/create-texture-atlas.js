@@ -195,7 +195,9 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
         // @IMPROVEMENT: Merge meshes with the same material instead of keeping them separate; BUT make sure you merge morph targets and handle VRM expression bind changes!!!
 
         // In the meantime, we use the siblings system to keep track of the meshes that share the same material; This allows us to have shared materials for some meshes.
-          bakeObject.siblings.push(mesh);
+        console.log (bakeObject) ;
+        console.log (bakeObject.siblings) ;
+        bakeObject.siblings.push(mesh);
     }
   })
 
@@ -291,8 +293,11 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
       /**
        * We have siblings, add them to the bakeObjectsWithSameMaterial map
        */
+       console.log(bakeObject);
+        console.log(bakeObject.siblings);
       if (
-        bakeObject.siblings.length > 0
+       
+        bakeObject.siblings?.length > 0
       ){
         if(bakeObjectsWithSameMaterial.has(bakeObject.material)){
           bakeObjectsWithSameMaterial.get(bakeObject.material)?.push(...bakeObject.siblings,bakeObject.mesh);
@@ -392,7 +397,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   const textureImageDataRenderer = new TextureImageDataRenderer(ATLAS_SIZE_PX, ATLAS_SIZE_PX);
   Array.from(tileSize.keys()).forEach((mesh) => {
     const bakeObject = bakeObjects.find(
-      (bakeObject) => bakeObject.mesh === mesh || bakeObject.siblings.includes(mesh)
+      (bakeObject) => bakeObject.mesh === mesh || bakeObject.siblings?.includes(mesh)
     );
     const { material } = bakeObject;
     let min, max;
@@ -563,7 +568,7 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   const siblings = []
   
   bakeObjects.map((bakeObject) => {
-    bakeObject.siblings.forEach((sibling) => {
+    bakeObject.siblings?.forEach((sibling) => {
       const material = bakeObject.material;
       siblings.push({
         material,
