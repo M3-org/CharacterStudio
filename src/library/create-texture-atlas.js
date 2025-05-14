@@ -5,7 +5,6 @@ import squaresplit from 'squaresplit';
 import {createContext} from "./utils.js";
 import TextureImageDataRenderer from "./textureImageDataRenderer.js";
 
-
 function getTextureImage(material, textureName) {
 
   // material can come in arrays or single values, in case of ccoming in array take the first one
@@ -167,8 +166,9 @@ export const createTextureAtlasNode = async ({ meshes, atlasSize, mtoon, transpa
  * @param {boolean} params.transparentMaterial - Whether the material is transparent.
  * @param {boolean} params.transparentTexture - Whether the texture is transparent.
  * @param {boolean} params.twoSidedMaterial - Whether the material is two-sided.
+ * @param {number} params.scale - The scale factor for the meshes.
  */
-export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedMeshesInAtlas=false,meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial }) => {
+export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedMeshesInAtlas=false,meshes, atlasSize, mtoon, transparentMaterial, transparentTexture, twoSidedMaterial, scale=1}) => {
   const ATLAS_SIZE_PX = atlasSize;
   const IMAGE_NAMES = mtoon ? ["diffuse"] : ["diffuse", "orm", "normal"];// not using normal texture for now
   const bakeObjects = [];
@@ -187,17 +187,17 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
       vrmMaterial = material.clone();
     }
     // check if bakeObjects objects that contain the material property with value of mesh.material
-    let bakeObject = bakeObjects.find((bakeObject) => {
-      bakeObject.material === material;
-    });
+    let bakeObject = bakeObjects.find((bakeObject) => bakeObject.material === material);
     if (!bakeObject) {
-      bakeObjects.push({ material, mesh });
+      bakeObjects.push({ material, mesh, sibligs:[] });
     }
     else {
-      const { dest } = mergeGeometry({ meshes: [bakeObject.mesh, mesh] });
-      bakeObject.mesh.geometry = dest;
+        // @IMPROVEMENT: Merge meshes with the same material instead of keeping them separate; BUT make sure you merge morph targets and handle VRM expression bind changes!!!
+
+        // In the meantime, we use the siblings system to keep track of the meshes that share the same material; This allows us to have shared materials for some meshes.
+          bakeObject.siblings.push(mesh);
     }
-  });
+  })
 
   // create the canvas to draw textures
   //transparent: (name == "diffuse" && drawTransparent)
@@ -283,11 +283,24 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
             continue;
           }
         }
+        
         bakeObjectsWithSameMaterial.set(material,[bakeObject.mesh])
         return [bakeObject.mesh, 1];// assign small space
       }
     }
-    
+      /**
+       * We have siblings, add them to the bakeObjectsWithSameMaterial map
+       */
+      if (
+        bakeObject.siblings.length > 0
+      ){
+        if(bakeObjectsWithSameMaterial.has(bakeObject.material)){
+          bakeObjectsWithSameMaterial.get(bakeObject.material)?.push(...bakeObject.siblings,bakeObject.mesh);
+        }else{
+          bakeObjectsWithSameMaterial.set(bakeObject.material, [bakeObject.mesh,...bakeObject.siblings]);
+        }
+      }
+
     return [bakeObject.mesh, geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3];
   }).sort((a, b) => b[1] - a[1]);
   
@@ -378,7 +391,9 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
   let usesNormal = false;
   const textureImageDataRenderer = new TextureImageDataRenderer(ATLAS_SIZE_PX, ATLAS_SIZE_PX);
   Array.from(tileSize.keys()).forEach((mesh) => {
-    const bakeObject = bakeObjects.find((bakeObject) => bakeObject.mesh === mesh);
+    const bakeObject = bakeObjects.find(
+      (bakeObject) => bakeObject.mesh === mesh || bakeObject.siblings.includes(mesh)
+    );
     const { material } = bakeObject;
     let min, max;
     const uvMinMax = uvs.get(mesh);
@@ -540,6 +555,25 @@ export const createTextureAtlasBrowser = async ({ backColor, includeNonTexturedM
     if (material.normalMap != null)
       material.normalMap.name = material.name + "_normal";
   }
+
+
+  /**
+   * We're done creating the atlas, Remove siblings and bring them back into the bakeObject list
+   */
+  const siblings = []
+  
+  bakeObjects.map((bakeObject) => {
+    bakeObject.siblings.forEach((sibling) => {
+      const material = bakeObject.material;
+      siblings.push({
+        material,
+        mesh: sibling,
+        siblings: [],
+      })
+    })
+  });
+  bakeObjects.push(...siblings);
+
   // xxxreturn material with textures, dont return uvs nor textures
   return { bakeObjects, material };
 };
