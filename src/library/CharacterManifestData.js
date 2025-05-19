@@ -1,7 +1,8 @@
 import { getAsArray } from "./utils";
 import { ManifestRestrictions } from "./manifestRestrictions";
 import { WalletCollections } from "./walletCollections";
-
+import { createSolanaPriceCollection } from "./mint-utils";
+import { CollectionClient } from "./solana/CollectionPrices";
 
 
 /**
@@ -36,6 +37,7 @@ export class CharacterManifestData{
      */
     constructor(manifest, collectionID){
       const {
+        _priceCollectionAddress,
         chainName,
         collectionLockID,
         dataSource,
@@ -71,10 +73,13 @@ export class CharacterManifestData{
         downloadOptions = {}
       }= manifest;
 
+      this._priceCollectionAddress = _priceCollectionAddress;
+      this.rawManifest = manifest;
       this.collectionID = collectionID;
       // chainName:c.chainName || "ethereum",
       // dataSource:c.dataSource || "attributes"
       this.walletCollections = new WalletCollections();
+      this.collectionClient = null;
       
 
       this.chainName = chainName;
@@ -181,6 +186,180 @@ export class CharacterManifestData{
      */
     getCurrency(){
       return this.currency;
+    }
+
+    getCollectionClient(){
+      if (this.collectionClient == null){
+        this.collectionClient = new CollectionClient();
+      }
+      return this.collectionClient;
+    }
+    purchaseTraits(traitIndices){
+      // const collectionClient = this.getCollectionClient();
+      // collectionClient._getAppRoyaltyPublicKey(this._priceCollectionAddress);
+      // return;
+      
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          console.err("No _priceCollectionAddress in manifest was set, skipping");
+        }
+        else{
+          const collectionClient = this.getCollectionClient();
+          collectionClient.getPurchases(this._priceCollectionAddress);
+          //return;
+          try{
+            const collectionClient = this.getCollectionClient();
+            collectionClient.purchaseItems(this._priceCollectionAddress,traitIndices).then((tx)=>{
+              if (tx == ""){
+                reject('❌ Error updating Token');
+              }
+              else{
+                console.log('✅ Successful Updated, Transactions:', tx);
+                resolve();
+              }
+            })
+            .catch((e)=>{
+              reject(e);
+            })
+           
+          }
+          catch(e){
+            console.error('❌ Error:', e);
+            reject(e);
+          }
+        }
+      });
+    }
+
+    updateSolanaCollectionToken(tokenAddress = null){
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          console.err("No _priceCollectionAddress in manifest was set, skipping");
+        }
+        else{
+          try{
+            const collectionClient = this.getCollectionClient();
+            collectionClient.modifyPaymentToken(this._priceCollectionAddress,tokenAddress).then((tx)=>{
+              if (tx == ""){
+                reject('❌ Error updating Token');
+              }
+              else{
+                console.log('✅ Successful Updated, Transactions:', tx);
+                resolve();
+              }
+            })
+            .catch((e)=>{
+              reject(e);
+            })
+           
+          }
+          catch(e){
+            console.error('❌ Error:', e);
+            reject(e);
+          }
+        }
+      });
+    }
+
+    updateSolanaCollectionPrices(){
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          console.err("No _priceCollectionAddress in manifest was set, skipping");
+        }
+        else{
+          const prices = [];
+          this.modelTraits.forEach(groupTrait => {
+            groupTrait.collection.forEach(trait => {
+              const id = trait._id;
+              // Fill missing indices with 0 up to the current id
+              while (prices.length <= id) {
+                prices.push(0);
+              }
+              prices[id] = trait.price;
+            });
+          });
+          console.log(prices);
+
+          try{
+            const collectionClient = this.getCollectionClient();
+            collectionClient.modifyCollectionPrices(this._priceCollectionAddress,prices).then((tx)=>{
+              console.log('✅ Successful Updated, Transactions:', tx);
+              resolve();
+            })
+            .catch((e)=>{
+              reject(e);
+            })
+           
+          }
+          catch(e){
+            console.error('❌ Error:', e);
+            reject(e);
+          }
+        }
+      });
+      
+    }
+
+    createSolanaCollection(tokenAddress){
+      return new Promise((resolve, reject)=>{
+        const rawManifest = this.rawManifest;
+      
+        // Global top-level values
+        // const topPurchasable = rawManifest.purchasable !== undefined ?  rawManifest.purchasable : false;
+        const topPrice = typeof rawManifest.price === 'number' ? rawManifest.price : 0;
+
+        let idCounter = 0;
+        const pricesById = [];
+
+        if (Array.isArray(rawManifest.traits)) {
+            for (const trait of rawManifest.traits) {
+                //const groupPurchasable = trait.purchasable !== undefined ? trait.purchasable : topPurchasable; // default true
+                const groupPrice = typeof trait.price === 'number' ? trait.price : topPrice;
+                
+                if (Array.isArray(trait.collection)) {
+                    for (const item of trait.collection) {
+                        //const itemPurchasable = item.purchasable !== undefined ? item.purchasable : groupPurchasable;
+                        let price = item.price !== undefined ? item.price : groupPrice;
+                        // if (itemPurchasable === false) 
+                        //     price = 0;
+                        pricesById[idCounter] = price;
+                        item._id = idCounter++;
+                    }
+                }
+            }
+        }
+
+        console.log('pricesById:', pricesById);
+        try{
+          const collectionClient = this.getCollectionClient();
+          collectionClient.initializeCollection(pricesById,tokenAddress).then(collectionAddress=>{
+            if (collectionAddress != ""){
+              const finalManifest = {
+                  _priceCollectionAddress: collectionAddress,
+                  ...rawManifest
+              };
+              const blob = new Blob([JSON.stringify(finalManifest, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'updated-manifest.json';
+              a.click();
+
+              URL.revokeObjectURL(url);
+              resolve();
+            }
+          }).catch(e=>{
+            console.error('❌ Error:', e);
+            reject(e);
+          })
+        }
+        catch (e) {
+            console.error('❌ Error:', e);
+            reject(e);
+        }
+      }); 
+      
     }
 
     /**
@@ -1175,6 +1354,7 @@ export class ModelTrait{
           locked,
           price,
           id,
+          _id,
           purchasable,
           type = '',
           directory,
@@ -1201,6 +1381,7 @@ export class ModelTrait{
       this.traitGroup = traitGroup;
       this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
 
+      this._id = _id;
       this.id = id;
       this.directory = directory;
 

@@ -15,6 +15,7 @@ import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
 import Emotions from "./Emotions"
+import { createSolanaPriceCollection } from "../library/mint-utils"
 
 export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
     const {
@@ -31,6 +32,20 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             setSelectedOption("");
         }
     }
+    const updateManifest = async() => {
+
+        
+
+        //characterManager.manifestDataManager.mainManifestData.createSolanaCollection("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk");
+        //characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionPrices();
+        //characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionToken("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk");
+        characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionToken();
+    }
+    const purchaseTest = () => {
+        characterManager.manifestDataManager.mainManifestData.purchaseTraits([0,1]);
+    }
+
+
     return (
         <div>
             {selectedOption=="wallet" && <WalletMenu lockedManifests={lockedManifests} />}
@@ -107,7 +122,33 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                             icon={emotionIcon}
                             rarity={selectedOption == "EmotionManager" ? "mythic" : "none"}      
                             />
-                        </div>
+                    </div>
+                    <div
+                            key={"IDGen"}
+                            onClick={()=>{
+                                console.log("test");
+                                updateManifest();
+                            }}
+                        >
+                            <TokenBox
+                            size={56}
+                            icon={emotionIcon}
+                            rarity={selectedOption == "Test" ? "mythic" : "none"}      
+                            />
+                    </div>
+                                        <div
+                            key={"IDGen2"}
+                            onClick={()=>{
+                                console.log("purchase test");
+                                purchaseTest();
+                            }}
+                        >
+                            <TokenBox
+                            size={56}
+                            icon={emotionIcon}
+                            rarity={selectedOption == "Test" ? "mythic" : "none"}      
+                            />
+                    </div>
                     </div>    
                 </div>
 

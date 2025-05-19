@@ -16,6 +16,10 @@ import "./lib/localization/i18n"
 import App from "./App"
 import { LanguageProvider } from "./context/LanguageContext"
 
+import { Buffer } from "buffer"
+
+window.Buffer = Buffer;
+
 const getLibrary = (provider) => {
   const library = new Web3Provider(provider)
   library.pollingInterval = 12000
