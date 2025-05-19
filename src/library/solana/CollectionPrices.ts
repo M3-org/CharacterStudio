@@ -193,9 +193,7 @@ export class CollectionClient {
     }
   }
   async getPurchases(collectionAddress:string): Promise<boolean[]>{
-    console.log("gets purch");
     await this.connectWallet();
-    console.log("wallet connected");
     const collectionKey = new PublicKey(collectionAddress);
 
     const collectionPricesData = await this._getCollectionPricesData(collectionKey);
@@ -204,8 +202,6 @@ export class CollectionClient {
 
     const result:boolean[] = [];
 
-    console.log(collectionKey);
-    console.log(this.provider.wallet.publicKey);
     const purchasesData = await this._getUserPurchasedData(collectionKey,this.provider.wallet.publicKey);
     try{
       const purchases = await this.program.account.userPurchases.fetch(purchasesData);
@@ -214,7 +210,6 @@ export class CollectionClient {
       for (let i =0; i < size;i++){
         result[i] = values[i];
       }
-      console.log("purchases made:", result);
       return result;
     }
     catch{
@@ -222,7 +217,6 @@ export class CollectionClient {
       for (let i =0; i < size;i++){
         result[i] = false;
       }
-      console.log("no purchases made:", result);
       return result;
     }
   }
@@ -262,7 +256,7 @@ export class CollectionClient {
 
   async _purchaseWithLamports(collectionKey:PublicKey, itemIndices:number[], comissionWallet:PublicKey, comissionPercentage:number,collectionPricesData:PublicKey , collectionData:any): Promise<string>{
     console.log("purchase with lamports");
-     const royaltyKey = await this._getAppRoyaltyPublicKey();
+    const royaltyKey = await this._getAppRoyaltyPublicKey();
     const purchasesData = await this._getUserPurchasedData(collectionKey,this.provider.wallet.publicKey);
 
    
@@ -308,30 +302,21 @@ export class CollectionClient {
   }
 
   async _getAppRoyaltyPublicKey():Promise<PublicKey>{
-    //const collectionPricesData = await this._getCollectionPricesData(collectionAddressKey);
-    //const collectionData = await this.program.account.collectionPricesData.fetch(collectionPricesData);
     let royaltyPubkey = PublicKey.default;
+    const txSim = await this.program.methods
+        .getRoyaltyPubkey()
+        .simulate()
 
-    console.log(this.program);
-    console.log(this.program.methods);
-    // try{
-      const txSim = await this.program.methods
-          .getRoyaltyPubkey()
-          .simulate()
+      
+      const logs = txSim.raw.slice(-10); // recent logs
+      for (const log of logs) {
+        const match = log.match(/ROYALTY_PUBKEY: ([A-Za-z0-9]+)/);
+        if (match) {
+          royaltyPubkey = new PublicKey(match[1]);
+          console.log("Fetched Royalty Pubkey:", royaltyPubkey.toBase58());
+        }
+    }
 
-        
-        const logs = txSim.raw.slice(-10); // recent logs
-        for (const log of logs) {
-          const match = log.match(/ROYALTY_PUBKEY: ([A-Za-z0-9]+)/);
-          if (match) {
-            royaltyPubkey = new PublicKey(match[1]);
-            console.log("Fetched Royalty Pubkey:", royaltyPubkey.toBase58());
-          }
-      }
-    // }
-    // catch(e){
-    //   console.error(e);
-    // }
     return royaltyPubkey;
   }
 }
