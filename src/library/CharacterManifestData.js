@@ -74,6 +74,7 @@ export class CharacterManifestData{
       }= manifest;
 
       this._priceCollectionAddress = _priceCollectionAddress;
+      this._solanaTraitsArray = [];
       this.rawManifest = manifest;
       this.collectionID = collectionID;
       // chainName:c.chainName || "ethereum",
@@ -172,6 +173,8 @@ export class CharacterManifestData{
       this.modelTraitsMap = null;
       this.createModelTraits(traits, false);
       this.manifestRestrictions._init()
+
+      console.log(this._solanaTraitsArray);
       
       this.unlockPurchasedAssetsWithWallet();
       // if (this.solanaPurchaseAssets){
@@ -194,6 +197,22 @@ export class CharacterManifestData{
       }
       return this.collectionClient;
     }
+    getPurchases(){
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          reject("No _priceCollectionAddress in manifest was set, skipping")
+        }
+        else{
+          const collectionClient = this.getCollectionClient();
+          collectionClient.getPurchases(this._priceCollectionAddress).then((purchases)=>{
+            console.log(purchases);
+            resolve(purchases);
+          })
+          .catch(e=>{
+            reject(e);
+          })
+        }});
+    }
     purchaseTraits(traitIndices){
       // const collectionClient = this.getCollectionClient();
       // collectionClient._getAppRoyaltyPublicKey(this._priceCollectionAddress);
@@ -201,12 +220,9 @@ export class CharacterManifestData{
       
       return new Promise((resolve, reject)=>{
         if (this._priceCollectionAddress == null){
-          console.err("No _priceCollectionAddress in manifest was set, skipping");
+          reject("No _priceCollectionAddress in manifest was set, skipping")
         }
         else{
-          const collectionClient = this.getCollectionClient();
-          collectionClient.getPurchases(this._priceCollectionAddress);
-          //return;
           try{
             const collectionClient = this.getCollectionClient();
             collectionClient.purchaseItems(this._priceCollectionAddress,traitIndices).then((tx)=>{
@@ -384,21 +400,43 @@ export class CharacterManifestData{
      * @returns {Promise} Promise that resolves when assets are unlocked
      */
     unlockPurchasedAssetsWithWallet(testWallet){
-      if (this.solanaPurchaseAssets == null){
+      if (this._priceCollectionAddress == null){
         return Promise.resolve();
       }
       return new Promise((resolve)=>{
-        this.walletCollections
-          .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
-          .then(userOwnedTraits => {
-            this.unlockTraits(userOwnedTraits)
-            resolve()
-          })
-          .catch(err => {
-            console.log(err);
-            resolve();
-          });
+        this.getPurchases().then(purchases=>{
+          console.log(purchases,"!!");
+          this.unlockTraitsWithIndexID(purchases);
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+          resolve();
+        });
       }); 
+
+
+
+
+
+
+
+
+      // if (this.solanaPurchaseAssets == null){
+      //   return Promise.resolve();
+      // }
+      // return new Promise((resolve)=>{
+      //   this.walletCollections
+      //     .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
+      //     .then(userOwnedTraits => {
+      //       this.unlockTraits(userOwnedTraits)
+      //       resolve()
+      //     })
+      //     .catch(err => {
+      //       console.log(err);
+      //       resolve();
+      //     });
+      // }); 
     }
 
     /**
@@ -695,6 +733,9 @@ export class CharacterManifestData{
       else{
         return null;
       }
+    }
+    unlockTraitsWithIndexID(userOwnedTraitIds){
+
     }
     /**
      * Unlocks traits for a user
@@ -995,35 +1036,14 @@ export class TraitModelsGroup{
         
     }
 
-    appendCollection(modelTraitGroup, replaceExisting){
-      modelTraitGroup.collection.forEach(newModelTrait => {
-        const modelTrait = this.getTrait(newModelTrait.id)
-        if (modelTrait != null){
-          // replace only if requested ro replace
-          if (replaceExisting){
-            console.log(`Model with id ${newModelTrait.id} exists and will be replaced with new one`)
-            this.collectionMap.set(newModelTrait.id, newModelTrait)
-            const ind = this.collection.indexOf(modelTrait)
-            this.collection[ind] = newModelTrait;
-          }
-          else{
-            console.log(`Model with id ${newModelTrait.id} exists, skipping`)
-          }
-        }
-        else{
-          // create
-          this.collection.push(newModelTrait)
-          this.collectionMap.set(newModelTrait.id, newModelTrait);
-        }
-      });
-    }
-
     createCollection(itemCollection, replaceExisting = false){
       if (replaceExisting) this.collection = [];
 
       getAsArray(itemCollection).forEach(item => {
         this.collection.push(new ModelTrait(this, item))
+        if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
       });
+      console.log(this.solanaCollection);
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
@@ -1037,6 +1057,15 @@ export class TraitModelsGroup{
 
     unlockTraits(traitIDs){
       traitIDs.forEach(traitID => {
+        const trait = this.collectionMap.get(traitID);
+        if (trait != null){
+          trait.locked = false;
+        }
+      });
+    }
+
+    unlockTraitsWithIndexID(indices){
+      indices.forEach(index => {
         const trait = this.collectionMap.get(traitID);
         if (trait != null){
           trait.locked = false;
@@ -1104,33 +1133,12 @@ class TraitTexturesGroup{
     
   }
 
-  appendCollection(textureTraitGroup, replaceExisting){
-    textureTraitGroup.collection.forEach(newTextureTrait => {
-      const textureTrait = this.getTrait(newTextureTrait.id)
-      if (textureTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
-          const ind = this.collection.indexOf(textureTrait)
-          this.collection[ind] = newTextureTrait;
-        }
-        else{
-          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newTextureTrait)
-        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
-      }
-    });
-  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
       this.collection.push(new TextureTrait(this, item))
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1196,34 +1204,12 @@ export class DecalTextureGroup{
     
   }
 
-  appendCollection(decalTraitGroup, replaceExisting=false){
-    decalTraitGroup.collection.forEach(newTextureTrait => {
-      const textureTrait = this.getTrait(newTextureTrait.id)
-      if (textureTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
-          const ind = this.collection.indexOf(textureTrait)
-          this.collection[ind] = newTextureTrait;
-        }
-        else{
-          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newTextureTrait)
-        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
-      }
-    });
-  }
-
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
       this.collection.push(new DecalTrait(this, item))
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
     });
 
 
@@ -1270,33 +1256,12 @@ class TraitColorsGroup{
 
   }
 
-  appendCollection(colorTraitGroup, replaceExisting){
-    colorTraitGroup.collection.forEach(newColorTrait => {
-      const colorTrait = this.getTrait(newColorTrait.id)
-      if (colorTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Color with id ${newColorTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newColorTrait.id, newColorTrait)
-          const ind = this.collection.indexOf(colorTrait)
-          this.collection[ind] = newColorTrait;
-        }
-        else{
-          console.log(`Color with id ${newColorTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newColorTrait)
-        this.collectionMap.set(newColorTrait.id, newColorTrait);
-      }
-    });
-  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
       this.collection.push(new ColorTrait(this, item))
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1498,6 +1463,7 @@ export class BlendShapeGroup {
 
     getAsArray(itemCollection).forEach(item => {
       this.collection.push(new BlendShapeTrait(this, item))
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
@@ -1532,6 +1498,7 @@ export class BlendShapeTrait{
   constructor(parentGroup,options){
       const {
           id,
+          _id,
           name,
           fullThumbnail
       }= options;
@@ -1546,6 +1513,7 @@ export class BlendShapeTrait{
       this.parentGroup = parentGroup;
       this.collectionID = parentGroup.collectionID;
       this.id = id;
+      this._id = _id;
       this.fullThumbnail = fullThumbnail;
       this.name = name;
   }
@@ -1563,6 +1531,7 @@ class TextureTrait{
   constructor(traitGroup, options){
       const {
           id,
+          _id,
           directory,
           fullDirectory,
           name,
@@ -1572,6 +1541,7 @@ class TextureTrait{
       this.collectionID = traitGroup.collectionID;
 
       this.id = id;
+      this._id = _id;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1600,6 +1570,10 @@ export class DecalTrait extends TextureTrait{
    * @type {string}
    */
   id
+    /**
+   * @type {number}
+   */
+  _id
   /**
    * @type {string}
    */
@@ -1626,6 +1600,7 @@ export class DecalTrait extends TextureTrait{
       super(traitGroup,options);  
     const {
             id,
+            _id,
             directory,
             fullDirectory,
             name,
@@ -1634,6 +1609,7 @@ export class DecalTrait extends TextureTrait{
       this.traitGroup = traitGroup;
       this.collectionID = traitGroup.collectionID;
       this.id = id;
+      this._id = _id;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1661,6 +1637,7 @@ class ColorTrait{
     constructor(traitGroup, options){
         const {
             id,
+            _id,
             value,
             name,
         }= options;
@@ -1668,6 +1645,7 @@ class ColorTrait{
         this.traitGroup = traitGroup;
         this.collectionID = traitGroup.collectionID;
         this.id = id;
+        this._id = _id;
         this.name = name;
         this.value = value;
         
