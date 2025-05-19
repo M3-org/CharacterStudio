@@ -33,20 +33,25 @@ export class CollectionClient {
   constructor() {
     this.connection = new Connection(rpcUrl, 'confirmed');
     
-    const wallet = this.getWallet();
-    if (!wallet) {
-      throw new Error('Phantom wallet not found');
-    }
+    this.connectWallet().then(()=>{
+      const wallet = this.getWallet();
+      if (!wallet) {
+        throw new Error('Phantom wallet not found');
+      }
 
-    this.provider = new AnchorProvider(this.connection, wallet, {
-      commitment: 'confirmed',
-    });
-    this.program = new Program(idl as Idl, this.provider);
+      this.provider = new AnchorProvider(this.connection, wallet, {
+        commitment: 'confirmed',
+      });
+      this.program = new Program(idl as Idl, this.provider);
+      console.log(this.provider.wallet.publicKey.toBase58());
+    })
+    
   }
 
   getWallet(): Wallet | null {
     const provider = window.solana;
     if (provider?.isPhantom) {
+      console.log("asdasd");
       return {
         publicKey: provider.publicKey,
         signTransaction: provider.signTransaction.bind(provider),
@@ -60,7 +65,8 @@ export class CollectionClient {
   async connectWallet() {
     const provider = window.solana;
     if (!provider) throw new Error('Phantom not installed');
-    await provider.connect();
+    const response  = await provider.connect();
+    console.log(response.publicKey.toString());
   }
 
   async floatToIntTokenArray(prices: number[], paymentKey: PublicKey):Promise<number[]>{
@@ -187,6 +193,9 @@ export class CollectionClient {
     }
   }
   async getPurchases(collectionAddress:string): Promise<boolean[]>{
+    console.log("gets purch");
+    await this.connectWallet();
+    console.log("wallet connected");
     const collectionKey = new PublicKey(collectionAddress);
 
     const collectionPricesData = await this._getCollectionPricesData(collectionKey);
@@ -195,6 +204,8 @@ export class CollectionClient {
 
     const result:boolean[] = [];
 
+    console.log(collectionKey);
+    console.log(this.provider.wallet.publicKey);
     const purchasesData = await this._getUserPurchasedData(collectionKey,this.provider.wallet.publicKey);
     try{
       const purchases = await this.program.account.userPurchases.fetch(purchasesData);
