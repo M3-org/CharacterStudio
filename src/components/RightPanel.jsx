@@ -15,7 +15,7 @@ import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
 import Emotions from "./Emotions"
-import { createSolanaPriceCollection } from "../library/mint-utils"
+import CollectionCreation from "./CollectionCreation"
 
 export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
     const {
@@ -32,19 +32,6 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             setSelectedOption("");
         }
     }
-    const updateManifest = async() => {
-
-        
-
-        //characterManager.manifestDataManager.mainManifestData.createSolanaCollection("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk");
-        //characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionPrices();
-        //characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionToken("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk");
-        characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionToken();
-    }
-    const purchaseTest = () => {
-        characterManager.manifestDataManager.mainManifestData.purchaseTraits([0,1]);
-    }
-
 
     return (
         <div>
@@ -54,6 +41,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
             {selectedOption=="EmotionManager" && <Emotions />}
+            {selectedOption=="CollectionManager" && <CollectionCreation />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
@@ -124,29 +112,15 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                             />
                     </div>
                     <div
-                            key={"IDGen"}
+                            key={"Collections"}
                             onClick={()=>{
-                                console.log("test");
-                                updateManifest();
+                                setSelectedOptionString("CollectionManager")
                             }}
                         >
                             <TokenBox
                             size={56}
-                            icon={emotionIcon}
-                            rarity={selectedOption == "Test" ? "mythic" : "none"}      
-                            />
-                    </div>
-                                        <div
-                            key={"IDGen2"}
-                            onClick={()=>{
-                                console.log("purchase test");
-                                purchaseTest();
-                            }}
-                        >
-                            <TokenBox
-                            size={56}
-                            icon={emotionIcon}
-                            rarity={selectedOption == "Test" ? "mythic" : "none"}      
+                            icon={walletIcon}
+                            rarity={selectedOption == "CollectionManager" ? "mythic" : "none"}      
                             />
                     </div>
                     </div>    

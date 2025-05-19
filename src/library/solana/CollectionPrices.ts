@@ -43,7 +43,6 @@ export class CollectionClient {
         commitment: 'confirmed',
       });
       this.program = new Program(idl as Idl, this.provider);
-      console.log(this.provider.wallet.publicKey.toBase58());
     })
     
   }
@@ -51,7 +50,6 @@ export class CollectionClient {
   getWallet(): Wallet | null {
     const provider = window.solana;
     if (provider?.isPhantom) {
-      console.log("asdasd");
       return {
         publicKey: provider.publicKey,
         signTransaction: provider.signTransaction.bind(provider),
@@ -66,14 +64,12 @@ export class CollectionClient {
     const provider = window.solana;
     if (!provider) throw new Error('Phantom not installed');
     const response  = await provider.connect();
-    console.log(response.publicKey.toString());
   }
 
   async floatToIntTokenArray(prices: number[], paymentKey: PublicKey):Promise<number[]>{
     const finalPrices:number[] = []
     let decimals = 9; // lamport solana decimals
     if (paymentKey != PublicKey.default &&  paymentKey.toBase58() != "11111111111111111111111111111111"){
-      console.log("not defailt")
       const mintInfo = await getMint(this.connection, paymentKey, undefined, TOKEN_PROGRAM_ID);
       decimals = mintInfo.decimals;
     }
@@ -82,12 +78,11 @@ export class CollectionClient {
       finalPrices[i] = prices[i] * mult;
     }
 
-    console.log(finalPrices);
     return finalPrices;
   }
 
   async initializeCollection(prices: number[], paymentMint: string | null): Promise<string> {
-
+    await this.connectWallet();
     const collectionAddress = Keypair.generate().publicKey;
 
     const [collectionPricesData] = PublicKey.findProgramAddressSync(
@@ -122,6 +117,7 @@ export class CollectionClient {
   }
 
   async modifyCollectionPrices(collectionAddress:string, prices: number[]): Promise<string> {
+    await this.connectWallet();
     // const user = window.solana;
     // if (!user?.publicKey) throw new Error('Wallet not connected');
 
@@ -133,9 +129,8 @@ export class CollectionClient {
     );
 
     const collectionData = await this.program.account.collectionPricesData.fetch(collectionPricesData);
-    console.log(collectionData.paymentMint.toBase58())
     const finalPrices = await this.floatToIntTokenArray(prices, collectionData.paymentMint);
-
+    console.log(finalPrices);
     try{
     const tx = await this.program.methods
       .updatePrices(finalPrices.map((p) => new BN(p)))
@@ -154,6 +149,7 @@ export class CollectionClient {
   }
 
   async modifyPaymentToken(collectionAddress:string, paymentMint: string | null): Promise<string> {
+    await this.connectWallet();
     const collectionAddressKey = new PublicKey(collectionAddress);
     const [collectionPricesData] = await PublicKey.findProgramAddressSync(
       [Buffer.from("prices"), collectionAddressKey.toBuffer()],
@@ -313,7 +309,6 @@ export class CollectionClient {
         const match = log.match(/ROYALTY_PUBKEY: ([A-Za-z0-9]+)/);
         if (match) {
           royaltyPubkey = new PublicKey(match[1]);
-          console.log("Fetched Royalty Pubkey:", royaltyPubkey.toBase58());
         }
     }
 

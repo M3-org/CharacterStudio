@@ -172,8 +172,6 @@ export class CharacterManifestData{
       this.modelTraitsMap = null;
       this.createModelTraits(traits, false);
       this.manifestRestrictions._init()
-
-      console.log(this._solanaTraitsArray);
       
       this.unlockPurchasedAssetsWithWallet();
       // if (this.solanaPurchaseAssets){
@@ -204,7 +202,6 @@ export class CharacterManifestData{
         else{
           const collectionClient = this.getCollectionClient();
           collectionClient.getPurchases(this._priceCollectionAddress).then((purchases)=>{
-            console.log(purchases);
             resolve(purchases);
           })
           .catch(e=>{
@@ -298,8 +295,13 @@ export class CharacterManifestData{
           try{
             const collectionClient = this.getCollectionClient();
             collectionClient.modifyCollectionPrices(this._priceCollectionAddress,prices).then((tx)=>{
-              console.log('✅ Successful Updated, Transactions:', tx);
-              resolve();
+              if (tx == ""){
+                reject('❌ Error updating Prices');
+              }
+              else{
+                console.log('✅ Successful Updated, Transactions:', tx);
+                resolve();
+              }
             })
             .catch((e)=>{
               reject(e);
@@ -404,7 +406,6 @@ export class CharacterManifestData{
       }
       return new Promise((resolve)=>{
         this.getPurchases().then(purchases=>{
-          console.log(purchases,"!!");
           this.unlockTraitsWithIndexID(purchases);
           resolve();
         })
@@ -413,10 +414,6 @@ export class CharacterManifestData{
           resolve();
         });
       }); 
-
-
-
-
 
 
 
