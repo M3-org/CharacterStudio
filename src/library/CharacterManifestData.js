@@ -94,7 +94,6 @@ export class CharacterManifestData{
         this.locked = locked;
       }
 
-      console.log(this.solanaPurchaseAssets);
 
       this.price = price;
       this.currency = currency || "sol";
@@ -404,6 +403,7 @@ export class CharacterManifestData{
         return Promise.resolve();
       }
       return new Promise((resolve)=>{
+        console.log("ttttt");
         this.getPurchases().then(purchases=>{
           console.log(purchases,"!!");
           this.unlockTraitsWithIndexID(purchases);
@@ -735,7 +735,13 @@ export class CharacterManifestData{
       }
     }
     unlockTraitsWithIndexID(userOwnedTraitIds){
-
+      
+      for (let i = 0; i < userOwnedTraitIds.length;i++){
+        if (userOwnedTraitIds[i]){ // only unlock, does not locks
+          this._solanaTraitsArray[i].locked = false;
+        }
+      }
+      console.log(this._solanaTraitsArray);
     }
     /**
      * Unlocks traits for a user
@@ -1040,10 +1046,10 @@ export class TraitModelsGroup{
       if (replaceExisting) this.collection = [];
 
       getAsArray(itemCollection).forEach(item => {
-        this.collection.push(new ModelTrait(this, item))
-        if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
+        const modelTrait = new ModelTrait(this, item);
+        this.collection.push(modelTrait)
+        if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = modelTrait
       });
-      console.log(this.solanaCollection);
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
@@ -1057,15 +1063,6 @@ export class TraitModelsGroup{
 
     unlockTraits(traitIDs){
       traitIDs.forEach(traitID => {
-        const trait = this.collectionMap.get(traitID);
-        if (trait != null){
-          trait.locked = false;
-        }
-      });
-    }
-
-    unlockTraitsWithIndexID(indices){
-      indices.forEach(index => {
         const trait = this.collectionMap.get(traitID);
         if (trait != null){
           trait.locked = false;
@@ -1137,8 +1134,9 @@ class TraitTexturesGroup{
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new TextureTrait(this, item))
-      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
+      const textureTrait = new TextureTrait(this, item)
+      this.collection.push(textureTrait);
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = textureTrait;
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1208,8 +1206,9 @@ export class DecalTextureGroup{
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new DecalTrait(this, item))
-      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
+      const decalTrait = new DecalTrait(this, item);
+      this.collection.push(decalTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = decalTrait
     });
 
 
@@ -1260,8 +1259,9 @@ class TraitColorsGroup{
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new ColorTrait(this, item))
-      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
+      const colorTrait = new ColorTrait(this, item);
+      this.collection.push(colorTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = colorTrait
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1347,6 +1347,7 @@ export class ModelTrait{
       this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
 
       this._id = _id;
+      this._purchased = false;
       this.id = id;
       this.directory = directory;
 
@@ -1462,8 +1463,9 @@ export class BlendShapeGroup {
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new BlendShapeTrait(this, item))
-      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = item
+      const blendShapeTrait = new BlendShapeTrait(this, item);
+      this.collection.push(blendShapeTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = blendShapeTrait
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
@@ -1514,6 +1516,7 @@ export class BlendShapeTrait{
       this.collectionID = parentGroup.collectionID;
       this.id = id;
       this._id = _id;
+      this._purchased = _id;
       this.fullThumbnail = fullThumbnail;
       this.name = name;
   }
@@ -1542,6 +1545,7 @@ class TextureTrait{
 
       this.id = id;
       this._id = _id;
+      this._purchased = false;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1610,6 +1614,7 @@ export class DecalTrait extends TextureTrait{
       this.collectionID = traitGroup.collectionID;
       this.id = id;
       this._id = _id;
+      this._purchased = false;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1646,6 +1651,7 @@ class ColorTrait{
         this.collectionID = traitGroup.collectionID;
         this.id = id;
         this._id = _id;
+        this._purchased = false;
         this.name = name;
         this.value = value;
         
