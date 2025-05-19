@@ -403,7 +403,6 @@ export class CharacterManifestData{
         return Promise.resolve();
       }
       return new Promise((resolve)=>{
-        console.log("ttttt");
         this.getPurchases().then(purchases=>{
           console.log(purchases,"!!");
           this.unlockTraitsWithIndexID(purchases);
@@ -737,11 +736,8 @@ export class CharacterManifestData{
     unlockTraitsWithIndexID(userOwnedTraitIds){
       
       for (let i = 0; i < userOwnedTraitIds.length;i++){
-        if (userOwnedTraitIds[i]){ // only unlock, does not locks
-          this._solanaTraitsArray[i].locked = false;
-        }
+         this._solanaTraitsArray[i]._purchased = userOwnedTraitIds[i];
       }
-      console.log(this._solanaTraitsArray);
     }
     /**
      * Unlocks traits for a user
@@ -1093,7 +1089,7 @@ export class TraitModelsGroup{
 
     getCollection(lockFilter = true, getPurchasables = true){
       if (lockFilter){
-        const filteredCollection = this.collection.filter((trait)=>trait.locked === false || (trait.purchasable === true && trait.price != null && getPurchasables === true))
+        const filteredCollection = this.collection.filter((trait)=>trait.locked === false || trait._purchased === true || (trait.purchasable === true && trait.price != null && getPurchasables === true))
         return filteredCollection;
       }
       else{
