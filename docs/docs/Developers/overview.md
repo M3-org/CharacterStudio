@@ -1,5 +1,7 @@
 # Overview
 
+> **New to CharacterStudio?** Before diving into the technical overview, please make sure you've followed the [Quickstart Guide](../quickstart.md) to get your project set up and running.
+
 Character Studio aims to give a quick setup to any character generator. Logic lies within `Scripts` and `Managers` that have been externalized to be reusable. The react app initializes these managers within a [SceneContext](./Contexts/scene-context.md) to be quickly imported and accessed in any `React Page` or `React Component`.
 
 ![](/img/overview-schema.jpg)

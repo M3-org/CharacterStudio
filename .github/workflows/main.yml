@@ -23,6 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Get Assets
+        run: npm run get-assets
+
+      - name: Run Linters
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
