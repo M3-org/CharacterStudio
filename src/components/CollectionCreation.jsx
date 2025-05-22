@@ -21,11 +21,8 @@ export default function CollectionCreation(){
         //characterManager.manifestDataManager.mainManifestData.createSolanaCollection("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk");
     }
     const updatePrices = ()=>{
-        characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionPrices();
-    }
-    const updateToken = () =>{
-        //characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionToken("HLLFE1UNt2JsMF5DiszQmuuiW9M6ADpjgsJDJhBk4mWk")
-        console.log("todo, update token")
+        // characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionPrices();
+        characterManager.manifestDataManager.mainManifestData.updateSolanaCollectionPricesAndToken();
     }
 
     return (
@@ -58,23 +55,13 @@ export default function CollectionCreation(){
                         </div>
                         <br />
                         <div className={styles["traitInfoText"]}>
-                            If prices were updated on your manifest, use this button to update on chain.
+                            If prices or price collection pay token was updated on your manifest, use this button to update on chain.
                         </div>
                         <br />
                         <div 
                             className={styles["actionButton"]}
                             onClick={updatePrices}>
-                            <div> Update Prices </div>
-                        </div>
-                        <br />
-                        <div className={styles["traitInfoText"]}>
-                            You may also change payment token.
-                        </div>
-                        <br />
-                        <div 
-                            className={styles["actionButton"]}
-                            onClick={updateToken}>
-                            <div> Update Token </div>
+                            <div> Update Prices and Token </div>
                         </div>
                     </>)}
                 </div>

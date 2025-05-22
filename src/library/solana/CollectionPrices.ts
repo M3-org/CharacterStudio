@@ -13,7 +13,7 @@ import {
 } from '@solana/web3.js';
 import idl from './collection_prices.json'; // Your IDL JSON
 import { Buffer } from 'buffer';
-import { getMint, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getMint, TOKEN_PROGRAM_ID, getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 //import { IDL } from './idl-types'; // Optional: better typing
 
 const PROGRAM_ID = new PublicKey('2pSMcVgAmeidrymy7XbqLfi4GLuCtmDATHXEHPXQYjw3');
@@ -115,11 +115,8 @@ export class CollectionClient {
       return "";
     }
   }
-
-  async modifyCollectionPrices(collectionAddress:string, prices: number[]): Promise<string> {
+  async modifyCollectionPricesAndToken(collectionAddress:string, prices: number[], paymentMint: string | null): Promise<string>{
     await this.connectWallet();
-    // const user = window.solana;
-    // if (!user?.publicKey) throw new Error('Wallet not connected');
 
     const collectionAddressKey = new PublicKey(collectionAddress);
 
@@ -128,12 +125,12 @@ export class CollectionClient {
       PROGRAM_ID
     );
 
-    const collectionData = await this.program.account.collectionPricesData.fetch(collectionPricesData);
-    const finalPrices = await this.floatToIntTokenArray(prices, collectionData.paymentMint);
+    const paymentMintKey = paymentMint == null ? PublicKey.default : new PublicKey(paymentMint);
+    const finalPrices = await this.floatToIntTokenArray(prices, paymentMintKey);
     console.log(finalPrices);
     try{
     const tx = await this.program.methods
-      .updatePrices(finalPrices.map((p) => new BN(p)))
+      .updateCollectionPriceToken(finalPrices.map((p) => new BN(p)), paymentMintKey)
       .accounts({
         owner: this.provider.wallet.publicKey,
         collectionAddress,
@@ -146,48 +143,9 @@ export class CollectionClient {
       console.error('❌ Error:', e);
       return "";
     }
+    //update_collection_price_token
   }
 
-  async modifyPaymentToken(collectionAddress:string, paymentMint: string | null): Promise<string> {
-    await this.connectWallet();
-    const collectionAddressKey = new PublicKey(collectionAddress);
-    const [collectionPricesData] = await PublicKey.findProgramAddressSync(
-      [Buffer.from("prices"), collectionAddressKey.toBuffer()],
-      PROGRAM_ID
-    );
-    const collectionData = await this.program.account.collectionPricesData.fetch(collectionPricesData);
-
-    let paymentKey = PublicKey.default;
-    if (paymentMint != null){
-      paymentKey = new PublicKey(paymentMint);
-    }
-
-    if (paymentKey.toBase58()  == "11111111111111111111111111111111" && collectionData.paymentMint.toBase58() == "11111111111111111111111111111111"){
-      console.error('❌ Token already saved in Solana Lamports');
-      return "";
-    }
-
-    if (paymentKey.toBase58() == collectionData.paymentMint.toBase58()){
-      console.error('❌ Token already saved as requested save Token', paymentKey.toBase58(), collectionData.paymentMint.toBase58());
-      return "";
-    }
-
-    try{
-      const tx = await this.program.methods
-        .updatePaymentMint(paymentKey)
-        .accounts({
-          owner: this.provider.wallet.publicKey,
-          collectionAddress,
-          collectionPricesData
-        })
-        .rpc();
-      return tx;
-    }
-    catch(e){
-      console.error('❌ Error:', e);
-      return "";
-    }
-  }
   async getPurchases(collectionAddress:string): Promise<boolean[]>{
     await this.connectWallet();
     const collectionKey = new PublicKey(collectionAddress);
@@ -255,9 +213,6 @@ export class CollectionClient {
     const royaltyKey = await this._getAppRoyaltyPublicKey();
     const purchasesData = await this._getUserPurchasedData(collectionKey,this.provider.wallet.publicKey);
 
-   
-    
-
     const finalCommisionWallet = comissionWallet == PublicKey.default ? royaltyKey : comissionWallet;
 
     const tx = await this.program.methods
@@ -279,7 +234,48 @@ export class CollectionClient {
   }
   async _purchaseWithTokens(collectionKey:PublicKey, itemIndices:number[], comissionWallet:PublicKey, comissionPercentage:number,collectionPricesData:PublicKey, collectionData:any): Promise<string>{
     console.log("purchase with token");
-    return "";
+    const royaltyKey = await this._getAppRoyaltyPublicKey();
+
+    const [
+      purchasesData,
+      purchaserTokenAccount,
+      ownerTokenAccount,
+      royaltyTokenAccount,
+    ] = await Promise.all([
+      this._getUserPurchasedData(collectionKey,this.provider.wallet.publicKey),
+      getAssociatedTokenAddress(collectionData.paymentMint, this.provider.wallet.publicKey),
+      getAssociatedTokenAddress(collectionData.paymentMint, collectionData.owner),
+      getAssociatedTokenAddress(collectionData.paymentMint, royaltyKey)
+    ]);
+
+    const accountInfo = await getAccount(this.connection, purchaserTokenAccount);
+    console.log(accountInfo.amount.toString());
+    console.log(Number(collectionData.prices[0]));
+    let commissionTokenAccount = comissionWallet == PublicKey.default ? 
+      await getAssociatedTokenAddress(collectionData.paymentMint, royaltyKey):
+      ownerTokenAccount;
+
+    console.log(this.provider.wallet.publicKey);
+    //const finalCommisionWallet = comissionWallet == PublicKey.default ? royaltyKey : comissionWallet;
+    const tx = await this.program.methods
+      .tokenPurchase(itemIndices, comissionPercentage*100)
+      .accounts({
+        purchaseSigner: this.provider.wallet.publicKey,
+        collectionAddress: collectionKey,
+        collectionPricesData:collectionPricesData,
+        userPurchases: purchasesData,
+        owner:collectionData.owner,
+        purchaserTokenAccount,
+        ownerTokenAccount,
+        royaltyTokenAccount,
+        commissionTokenAccount,
+        tokenProgram:TOKEN_PROGRAM_ID,
+        systemProgram:SystemProgram.programId
+      })
+      .rpc();
+
+      console.log(tx);
+    return tx;
   }
   async _getCollectionPricesData(collectionAddressKey:PublicKey):Promise<PublicKey>{
     const [collectionPricesData] = await PublicKey.findProgramAddressSync(

@@ -205,7 +205,7 @@
       ],
       "accounts": [
         {
-          "name": "purchaser",
+          "name": "purchase_signer",
           "writable": true,
           "signer": true
         },
@@ -263,7 +263,7 @@
               },
               {
                 "kind": "account",
-                "path": "purchaser"
+                "path": "purchase_signer"
               }
             ]
           }
@@ -305,81 +305,22 @@
           }
         },
         {
-          "name": "commission_wallet",
-          "type": "pubkey"
-        },
-        {
           "name": "commission_bps",
           "type": "u16"
         }
       ]
     },
     {
-      "name": "update_payment_mint",
+      "name": "update_collection_price_token",
       "discriminator": [
-        103,
-        200,
-        100,
-        90,
-        226,
-        110,
-        233,
-        32
-      ],
-      "accounts": [
-        {
-          "name": "owner",
-          "writable": true,
-          "signer": true,
-          "relations": [
-            "collection_prices_data"
-          ]
-        },
-        {
-          "name": "collection_address"
-        },
-        {
-          "name": "collection_prices_data",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  105,
-                  99,
-                  101,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "collection_address"
-              }
-            ]
-          }
-        }
-      ],
-      "args": [
-        {
-          "name": "new_payment_mint",
-          "type": "pubkey"
-        }
-      ]
-    },
-    {
-      "name": "update_prices",
-      "discriminator": [
-        62,
-        161,
+        221,
         234,
-        136,
-        106,
-        26,
-        18,
-        160
+        154,
+        135,
+        179,
+        113,
+        176,
+        16
       ],
       "accounts": [
         {
@@ -423,6 +364,10 @@
           "type": {
             "vec": "u64"
           }
+        },
+        {
+          "name": "new_payment_mint",
+          "type": "pubkey"
         }
       ]
     }

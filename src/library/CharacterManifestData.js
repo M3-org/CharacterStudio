@@ -38,6 +38,7 @@ export class CharacterManifestData{
     constructor(manifest, collectionID){
       const {
         _priceCollectionAddress,
+        priceCollectionPayToken = null,
         chainName,
         collectionLockID,
         dataSource,
@@ -74,6 +75,7 @@ export class CharacterManifestData{
       }= manifest;
 
       this._priceCollectionAddress = _priceCollectionAddress;
+      this.priceCollectionPayToken = priceCollectionPayToken;
       this._solanaTraitsArray = [];
       this.rawManifest = manifest;
       this.collectionID = collectionID;
@@ -242,16 +244,29 @@ export class CharacterManifestData{
         }
       });
     }
-
-    updateSolanaCollectionToken(tokenAddress = null){
+    updateSolanaCollectionPricesAndToken(){
+      console.log("updating both, prices and token");
+      // grab the token from manifest
       return new Promise((resolve, reject)=>{
         if (this._priceCollectionAddress == null){
           console.err("No _priceCollectionAddress in manifest was set, skipping");
         }
         else{
+          const prices = [];
+          this.modelTraits.forEach(groupTrait => {
+            groupTrait.collection.forEach(trait => {
+              const id = trait._id;
+              // Fill missing indices with 0 up to the current id
+              while (prices.length <= id) {
+                prices.push(0);
+              }
+              prices[id] = trait.price;
+            });
+          });
+
           try{
             const collectionClient = this.getCollectionClient();
-            collectionClient.modifyPaymentToken(this._priceCollectionAddress,tokenAddress).then((tx)=>{
+            collectionClient.modifyCollectionPricesAndToken(this._priceCollectionAddress, prices, this.priceCollectionPayToken).then((tx)=>{
               if (tx == ""){
                 reject('❌ Error updating Token');
               }
@@ -273,51 +288,7 @@ export class CharacterManifestData{
       });
     }
 
-    updateSolanaCollectionPrices(){
-      return new Promise((resolve, reject)=>{
-        if (this._priceCollectionAddress == null){
-          console.err("No _priceCollectionAddress in manifest was set, skipping");
-        }
-        else{
-          const prices = [];
-          this.modelTraits.forEach(groupTrait => {
-            groupTrait.collection.forEach(trait => {
-              const id = trait._id;
-              // Fill missing indices with 0 up to the current id
-              while (prices.length <= id) {
-                prices.push(0);
-              }
-              prices[id] = trait.price;
-            });
-          });
-          console.log(prices);
-
-          try{
-            const collectionClient = this.getCollectionClient();
-            collectionClient.modifyCollectionPrices(this._priceCollectionAddress,prices).then((tx)=>{
-              if (tx == ""){
-                reject('❌ Error updating Prices');
-              }
-              else{
-                console.log('✅ Successful Updated, Transactions:', tx);
-                resolve();
-              }
-            })
-            .catch((e)=>{
-              reject(e);
-            })
-           
-          }
-          catch(e){
-            console.error('❌ Error:', e);
-            reject(e);
-          }
-        }
-      });
-      
-    }
-
-    createSolanaCollection(tokenAddress){
+    createSolanaCollection(){
       return new Promise((resolve, reject)=>{
         const rawManifest = this.rawManifest;
       
@@ -349,7 +320,7 @@ export class CharacterManifestData{
         console.log('pricesById:', pricesById);
         try{
           const collectionClient = this.getCollectionClient();
-          collectionClient.initializeCollection(pricesById,tokenAddress).then(collectionAddress=>{
+          collectionClient.initializeCollection(pricesById,this.priceCollectionPayToken).then(collectionAddress=>{
             if (collectionAddress != ""){
               const finalManifest = {
                   _priceCollectionAddress: collectionAddress,
