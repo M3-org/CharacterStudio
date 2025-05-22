@@ -14,6 +14,7 @@
     "get-assets": "cd public && git clone --depth 1 --branch main https://github.com/m3-org/loot-assets.git"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
     "@ethersproject/providers": "^5.5.1",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/mpl-candy-machine": "^6.1.0",

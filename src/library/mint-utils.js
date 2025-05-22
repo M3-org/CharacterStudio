@@ -5,10 +5,10 @@ import { SolanaManager } from "./solanaManager"
 import { Connection, Transaction } from "@solana/web3.js";
 // import { Connection, PublicKey } from '@solana/web3.js';
 // import { Metaplex } from '@metaplex-foundation/js';
-import axios from "axios"
+import axios from "axios";
+import { CollectionClient } from "./solana/CollectionPrices";
 
-const rpcKey = import.meta.env.VITE_HELIUS_KEY;
-const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${rpcKey}`
+const rpcUrl = import.meta.env.VITE_RPC_URL;
 
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
 const validation_server = import.meta.env.VITE_VALIDATION_SERVER_URL;
@@ -94,6 +94,27 @@ export function fetchSolanaPurchasedAssets(walletAddress, delegateAddress, colle
         reject(err);
       });
   });
+}
+
+export async function createSolanaPriceCollection(priceArray, paymentTokenAddress = null){
+  // if (window.Buffer == null)
+  //   window.Buffer = Buffer;
+  const collectionClient = new CollectionClient();
+  
+   try {
+    await collectionClient.connectWallet();
+    // console.log("conn");
+    const collectionAddress = await collectionClient.initializeCollection(
+      priceArray,paymentTokenAddress
+    );
+
+    
+    console.log('✅ Collection Address:', collectionAddress);
+
+    return collectionAddress;
+  } catch (e) {
+    console.error('❌ Error:', e);
+  }
 }
 
 export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, collectionName, amount, purchaseNFTs){

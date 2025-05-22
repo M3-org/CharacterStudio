@@ -400,7 +400,7 @@ function Appearance() {
                   >
                     <TokenBox
                       size={56}
-                      iconOverlay={(trait.purchasable && trait.locked) ? SaleIcon:null}
+                      iconOverlay={(trait.purchasable && (trait.locked && !trait._purchased)) ? SaleIcon:null}
                       icon={trait.fullThumbnail}
                       rarity={active ? "mythic" : "none"}      
                     />
