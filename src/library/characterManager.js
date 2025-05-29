@@ -958,7 +958,7 @@ export class CharacterManager {
      * @param {string} identifier - Identifier for the manifest
      */
     setManifest(manifest, identifier){
-      this.manifestDataManager.setManifest(manifest, identifier);
+      return this.manifestDataManager.setManifest(manifest, identifier);
     }
     loadManifest(url, identifier){
       return this.manifestDataManager.loadManifest(url, identifier);

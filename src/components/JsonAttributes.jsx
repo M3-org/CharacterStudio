@@ -14,6 +14,7 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
   const [currentAvatarKeys, setCurrentAvatarKeys] = React.useState([])
 
   const loadByManifest =(manifest)=>{
+    characterManager.removeCurrentManifest();
     characterManager.setManifest(manifest);
     characterManager.loadInitialTraits().then(()=>{
       setIsLoading(false);
@@ -90,8 +91,8 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
                 src={jsonSelectionArray[index].thumb || jsonSelectionArray[index].thumbnail}
                 alt="Selection Thumbnail"
                 style={{
-                  width: '280px',
-                  height: '460px',
+                  width: '256px',
+                  height: '256px',
                   display: 'block',
                   margin: '20px auto 20px',
                 }}
