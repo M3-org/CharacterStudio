@@ -119,6 +119,7 @@ function BatchManifest() {
       downloadLoaded(index)
     }
     else{
+      characterManager.removeCurrentManifest();
       await characterManager.setManifest(manifestSelectionArray[index]);
       setIsLoading(true);
       characterManager.loadInitialTraits().then(async()=>{

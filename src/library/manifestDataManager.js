@@ -1,5 +1,3 @@
-
-
 import { CharacterManifestData } from "./CharacterManifestData";
 import { getAsArray } from "./utils";
 
@@ -119,8 +117,8 @@ export class ManifestDataManager{
       if (identifier == null)
         identifier = "main";
       if (this.manifestDataByIdentifier[identifier] != null){
-        console.log(`Manifest with ID ${optionalIdentifier} has been already loaded.`)
-        return Promise.reject();
+        console.log(`Manifest with ID ${identifier} has been already loaded.`)
+        return Promise.reject(new Error(`Manifest with ID ${identifier} has been already loaded.`));
       }
       
       // remove in case character was loaded
@@ -152,8 +150,8 @@ export class ManifestDataManager{
         identifier = "main";
 
       if (this.manifestDataByIdentifier[identifier] != null){
-        console.log(`Manifest with ID ${optionalIdentifier} has been already loaded.`)
-        return Promise.reject();
+        console.log(`Manifest with ID ${identifier} has been already loaded.`)
+        return Promise.reject(new Error(`Manifest with ID ${identifier} has been already loaded.`));
       }
       return new Promise(async (resolve, reject) => {
         try{
