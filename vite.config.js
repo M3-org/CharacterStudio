@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import inject from '@rollup/plugin-inject';
 import react from '@vitejs/plugin-react-swc'
 
 // https://vitejs.dev/config/
@@ -12,5 +13,13 @@ export default defineConfig({
     alias: {
       buffer: 'buffer/'
     }
-  }
+  },
+   plugins: [
+    inject({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+  ],
+  define: {
+    global: 'window',
+  },
 })

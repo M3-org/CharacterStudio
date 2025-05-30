@@ -15,6 +15,7 @@ import LoraCreation from "./LoraCreation"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
 import Emotions from "./Emotions"
+import CollectionCreation from "./CollectionCreation"
 
 export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
     const {
@@ -31,6 +32,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             setSelectedOption("");
         }
     }
+
     return (
         <div>
             {selectedOption=="wallet" && <WalletMenu lockedManifests={lockedManifests} />}
@@ -39,6 +41,7 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
             {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
             {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
             {selectedOption=="EmotionManager" && <Emotions />}
+            {selectedOption=="CollectionManager" && <CollectionCreation />}
             <div className={styles["InformationContainerPos"]}>
                 <MenuTitle title="Tools" width={90} right={0}/>
                 <div className={styles["scrollContainer"]}>
@@ -107,7 +110,19 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
                             icon={emotionIcon}
                             rarity={selectedOption == "EmotionManager" ? "mythic" : "none"}      
                             />
-                        </div>
+                    </div>
+                    <div
+                            key={"Collections"}
+                            onClick={()=>{
+                                setSelectedOptionString("CollectionManager")
+                            }}
+                        >
+                            <TokenBox
+                            size={56}
+                            icon={walletIcon}
+                            rarity={selectedOption == "CollectionManager" ? "mythic" : "none"}      
+                            />
+                    </div>
                     </div>    
                 </div>
 
