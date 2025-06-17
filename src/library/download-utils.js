@@ -542,7 +542,8 @@ function getRebindedVRMExpressionManager(avatarModel){
           // Unregister the old expression
           expressionManager.unregisterExpression(expression)
           // remove all binds from the old expression
-          expression._binds = []
+          // commented out, subsequent downloads were having issues: binds were removed
+          // expression._binds = []
           // get weight from previous bind
           const weight = getPrevBoundWeight(prevBounds,blendShapeKeyEntryOld.index);
           // Create a new expression with the same name
