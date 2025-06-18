@@ -747,7 +747,8 @@ function getAllBlendShapeTraits(avatar){
  * @returns 
  */
 function getVRMBoundExpressionMorphs(avatar){
-    const expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>!!t).map((vrm) => vrm.expressionManager?.expressionMap);
+    console.warn("expression maps are currently only being take from the frist vrm found that contains blendshapes");
+    const expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>t?.expressionManager?.expressionMap?.aa?._binds.length > 0).map((vrm) => vrm.expressionManager?.expressionMap);
     /**
      * @type {Object.<string, {index:number, primitives:string[]}>}
      */
