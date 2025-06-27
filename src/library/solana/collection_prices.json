@@ -1,0 +1,534 @@
+{
+  "address": "2pSMcVgAmeidrymy7XbqLfi4GLuCtmDATHXEHPXQYjw3",
+  "metadata": {
+    "name": "collection_prices",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "get_royalty_pubkey",
+      "discriminator": [
+        124,
+        123,
+        3,
+        48,
+        188,
+        48,
+        247,
+        250
+      ],
+      "accounts": [],
+      "args": []
+    },
+    {
+      "name": "initialize_collection",
+      "discriminator": [
+        112,
+        62,
+        53,
+        139,
+        173,
+        152,
+        98,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collection_address"
+        },
+        {
+          "name": "collection_prices_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  105,
+                  99,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "prices",
+          "type": {
+            "vec": "u64"
+          }
+        },
+        {
+          "name": "payment_mint",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "lamports_purchase",
+      "discriminator": [
+        133,
+        87,
+        21,
+        62,
+        161,
+        230,
+        146,
+        219
+      ],
+      "accounts": [
+        {
+          "name": "purchaser",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collection_address"
+        },
+        {
+          "name": "collection_prices_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  105,
+                  99,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_purchases",
+          "docs": [
+            "Purchaser purchases PDA (init if needed)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              },
+              {
+                "kind": "account",
+                "path": "purchaser"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true
+        },
+        {
+          "name": "app_royalty",
+          "writable": true
+        },
+        {
+          "name": "commission_wallet",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "trait_indexes",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "commission_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "token_purchase",
+      "discriminator": [
+        177,
+        138,
+        216,
+        200,
+        157,
+        24,
+        160,
+        6
+      ],
+      "accounts": [
+        {
+          "name": "purchase_signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collection_address"
+        },
+        {
+          "name": "collection_prices_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  105,
+                  99,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_purchases",
+          "docs": [
+            "Purchaser purchases PDA (init if needed)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              },
+              {
+                "kind": "account",
+                "path": "purchase_signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true
+        },
+        {
+          "name": "purchaser_token_account",
+          "writable": true
+        },
+        {
+          "name": "owner_token_account",
+          "writable": true
+        },
+        {
+          "name": "royalty_token_account",
+          "writable": true
+        },
+        {
+          "name": "commission_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "trait_indexes",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "commission_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "update_collection_price_token",
+      "discriminator": [
+        221,
+        234,
+        154,
+        135,
+        179,
+        113,
+        176,
+        16
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "collection_prices_data"
+          ]
+        },
+        {
+          "name": "collection_address"
+        },
+        {
+          "name": "collection_prices_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  105,
+                  99,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collection_address"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_prices",
+          "type": {
+            "vec": "u64"
+          }
+        },
+        {
+          "name": "new_payment_mint",
+          "type": "pubkey"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "CollectionPricesData",
+      "discriminator": [
+        15,
+        104,
+        32,
+        64,
+        14,
+        185,
+        221,
+        204
+      ]
+    },
+    {
+      "name": "UserPurchases",
+      "discriminator": [
+        137,
+        56,
+        173,
+        154,
+        253,
+        53,
+        89,
+        8
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: only the owner can modify prices"
+    },
+    {
+      "code": 6001,
+      "name": "PriceLengthMismatch",
+      "msg": "New prices array length must match existing"
+    },
+    {
+      "code": 6002,
+      "name": "InsufficientFundsForRent",
+      "msg": "Wallet has insufficient funds to create Collection."
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTraitIndex",
+      "msg": "Trait index is out of bounds."
+    },
+    {
+      "code": 6004,
+      "name": "Overflow",
+      "msg": "Overflow during price calculation."
+    },
+    {
+      "code": 6005,
+      "name": "EmptyPriceList",
+      "msg": "Empty price list sent as parameter."
+    },
+    {
+      "code": 6006,
+      "name": "MissingTokenAccount",
+      "msg": "Missing Token Account."
+    },
+    {
+      "code": 6007,
+      "name": "MissingTokenProgram",
+      "msg": "Missing Token Program."
+    },
+    {
+      "code": 6008,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid Purchase Mint Token."
+    },
+    {
+      "code": 6009,
+      "name": "InvalidTokenOwner",
+      "msg": "Invalid Owner Mint Token."
+    },
+    {
+      "code": 6010,
+      "name": "ExpectedLamportsPayment",
+      "msg": "Expected Lamport Payment Call."
+    },
+    {
+      "code": 6011,
+      "name": "ExpectedTokenPayment",
+      "msg": "Expected Token Payment Call."
+    },
+    {
+      "code": 6012,
+      "name": "NoTraitsSelected",
+      "msg": "No Traits Were Selected to purchase."
+    },
+    {
+      "code": 6013,
+      "name": "InvalidOwner",
+      "msg": "Invalid Collection Owner."
+    },
+    {
+      "code": 6014,
+      "name": "InsufficientFunds",
+      "msg": "Purchase failed, Insufficient funds."
+    },
+    {
+      "code": 6015,
+      "name": "CommissionTooHigh",
+      "msg": "Comission too high, Set to max 70%."
+    },
+    {
+      "code": 6016,
+      "name": "InvalidRoyaltyAccount",
+      "msg": "Invalid royalty account provided."
+    }
+  ],
+  "types": [
+    {
+      "name": "CollectionPricesData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "size",
+            "type": "u16"
+          },
+          {
+            "name": "payment_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "prices",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserPurchases",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ]
+      }
+    }
+  ]
+}

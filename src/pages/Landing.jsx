@@ -6,7 +6,7 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
 
-import { connectWallet } from "../library/mint-utils"
+import { connectWallet, createSolanaPriceCollection } from "../library/mint-utils"
 
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
 
@@ -31,6 +31,9 @@ function Landing() {
     characterManager.loadOptimizerManifest();
     !isMute && playSound('backNextButton');
   }
+  const initializeCollection = async () => {
+    //createSolanaPriceCollection([1000,2000,3000,1000,2000,3000,1000,2000,3000,1000,2000,3000,1000,2000,3000,1000,2000,3000,1000,2000,3000,1000,2000,3000])
+  }
   const getWallet = async() => {
     const address = await connectWallet()
     if (address != "")setViewMode(ViewMode.WALLET)
@@ -53,6 +56,9 @@ function Landing() {
         </button>
         <button className={styles.button} onClick={optimizeCharacter}>
           <img src="./assets/media/btn_optimize_character.png" />
+        </button>
+        <button className={styles.button} onClick={initializeCollection}>
+          <img src="./assets/media/btn_tools.png" />
         </button>
         {
         // opensea_Key && opensea_Key != "" && <button className={styles.button} onClick={getWallet}>

@@ -1,7 +1,6 @@
 // import { createUmi } from '@metaplex-foundation/umi';
 // import { createCandyMachine } from '@metaplex-foundation/mpl-candy-machine';
-const rpcKey = import.meta.env.VITE_HELIUS_KEY;
-const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${rpcKey}`
+const rpcUrl = import.meta.env.VITE_RPC_URL;
 //import { } from '@metaplex-foundation/umi-bundle-defaults';
 // import { createNft, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 // import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';

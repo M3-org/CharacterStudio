@@ -1120,7 +1120,7 @@ export class CharacterManager {
       let price = 0;
       for (const trait in avatar){
         const traitInfo = avatar[trait].traitInfo;
-        if (traitInfo.locked === true && traitInfo.purchasable === true ){
+        if (traitInfo.locked === true && traitInfo.purchasable === true && traitInfo._purchased === false){
           price += traitInfo.price;
         }
       }
@@ -1151,40 +1151,25 @@ export class CharacterManager {
     purchaseAssetsFromAvatar(){
       console.warn("TODO!! STILL NEEDS TO DETECT DIFFERENT COLLECTIONS!!")
       const assets = this.getPurchaseTraitsArray();
-      const purchaseTraits = {};
+      const purchaseIDs = [];
       assets.forEach(asset => {
-        if (purchaseTraits[asset.traitGroup.trait]  == null)
-          purchaseTraits[asset.traitGroup.trait] =[];
-        purchaseTraits[asset.traitGroup.trait].push(asset.id)
+        purchaseIDs.push(asset._id);
       }); 
 
-      const purchaseObjectDefinition = new OwnedNFTTraitIDs({ownedTraits:purchaseTraits})
-      console.log(purchaseObjectDefinition);
+
       return new Promise((resolve, reject) => {
-        const {
-          depositAddress,
-          merkleTreeAddress,
-          collectionName,
-          
-        } = this.manifestDataManager.getMainSolanaPurchaseAssetsDefinition();
-        buySolanaPurchasableAssets(
-          depositAddress,
-          merkleTreeAddress,
-          collectionName,
-          this.getCurrentTotalPrice(),
-          purchaseObjectDefinition
-        )
-          .then(()=>{
-            console.log("enters");
-            this.manifestDataManager.unlockMainPurchasedAssets(purchaseObjectDefinition);
+        this.manifestDataManager.mainManifestData.purchaseTraits(purchaseIDs).then(()=>{
+          this.manifestDataManager.mainManifestData.unlockPurchasedAssetsWithWallet().then(()=>{
             resolve();
-          })
-          .catch(e=>{
+          }).catch(e=>{
             console.error(e)
             reject();
           })
+        }).catch(e=>{
+          console.error(e)
+          reject();
+        })
       });
-      // return promise
     }
     /**
      * Gets an array of purchasable traits.
@@ -1195,10 +1180,11 @@ export class CharacterManager {
       const purchaseAssetsList = [];
       for (const trait in avatar){
         const traitInfo = avatar[trait].traitInfo;
-        if (traitInfo.locked === true && traitInfo.purchasable === true ){
+        if (traitInfo.locked === true && traitInfo.purchasable === true && traitInfo._purchased === false){
           purchaseAssetsList.push(traitInfo);
         }
       }
+      console.log(purchaseAssetsList);
       return purchaseAssetsList;
     }
 

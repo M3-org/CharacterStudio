@@ -19,12 +19,6 @@ export class ManifestDataManager{
     getMainCurrency(){
       return this.mainManifestData.getCurrency();
     }
-    getMainSolanaPurchaseAssetsDefinition(){
-      return this.mainManifestData.getSolanaPurchaseAssets();
-    }
-    unlockMainPurchasedAssets(userOwnedTraits){
-      this.mainManifestData.unlockTraits(userOwnedTraits);
-    }
 
     getLoadedManifests(){
       return this.manifestDataCollection;

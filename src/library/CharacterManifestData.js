@@ -1,7 +1,8 @@
 import { getAsArray } from "./utils";
 import { ManifestRestrictions } from "./manifestRestrictions";
 import { WalletCollections } from "./walletCollections";
-
+import { createSolanaPriceCollection } from "./mint-utils";
+import { CollectionClient } from "./solana/CollectionPrices";
 
 
 /**
@@ -36,6 +37,8 @@ export class CharacterManifestData{
      */
     constructor(manifest, collectionID){
       const {
+        _priceCollectionAddress,
+        priceCollectionPayToken = null,
         chainName,
         collectionLockID,
         dataSource,
@@ -71,10 +74,15 @@ export class CharacterManifestData{
         downloadOptions = {}
       }= manifest;
 
+      this._priceCollectionAddress = _priceCollectionAddress;
+      this.priceCollectionPayToken = priceCollectionPayToken;
+      this._solanaTraitsArray = [];
+      this.rawManifest = manifest;
       this.collectionID = collectionID;
       // chainName:c.chainName || "ethereum",
       // dataSource:c.dataSource || "attributes"
       this.walletCollections = new WalletCollections();
+      this.collectionClient = null;
       
 
       this.chainName = chainName;
@@ -88,7 +96,6 @@ export class CharacterManifestData{
         this.locked = locked;
       }
 
-      console.log(this.solanaPurchaseAssets);
 
       this.price = price;
       this.currency = currency || "sol";
@@ -183,6 +190,166 @@ export class CharacterManifestData{
       return this.currency;
     }
 
+    getCollectionClient(){
+      if (this.collectionClient == null){
+        this.collectionClient = new CollectionClient();
+      }
+      return this.collectionClient;
+    }
+    getPurchases(){
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          reject("No _priceCollectionAddress in manifest was set, skipping")
+        }
+        else{
+          const collectionClient = this.getCollectionClient();
+          collectionClient.getPurchases(this._priceCollectionAddress).then((purchases)=>{
+            resolve(purchases);
+          })
+          .catch(e=>{
+            reject(e);
+          })
+        }});
+    }
+    purchaseTraits(traitIndices){
+      // const collectionClient = this.getCollectionClient();
+      // collectionClient._getAppRoyaltyPublicKey(this._priceCollectionAddress);
+      // return;
+      
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          reject("No _priceCollectionAddress in manifest was set, skipping")
+        }
+        else{
+          try{
+            const collectionClient = this.getCollectionClient();
+            collectionClient.purchaseItems(this._priceCollectionAddress,traitIndices).then((tx)=>{
+              if (tx == ""){
+                reject('❌ Error updating Token');
+              }
+              else{
+                console.log('✅ Successful Updated, Transactions:', tx);
+                resolve();
+              }
+            })
+            .catch((e)=>{
+              reject(e);
+            })
+           
+          }
+          catch(e){
+            console.error('❌ Error:', e);
+            reject(e);
+          }
+        }
+      });
+    }
+    updateSolanaCollectionPricesAndToken(){
+      console.log("updating both, prices and token");
+      // grab the token from manifest
+      return new Promise((resolve, reject)=>{
+        if (this._priceCollectionAddress == null){
+          console.err("No _priceCollectionAddress in manifest was set, skipping");
+        }
+        else{
+          const prices = [];
+          this.modelTraits.forEach(groupTrait => {
+            groupTrait.collection.forEach(trait => {
+              const id = trait._id;
+              // Fill missing indices with 0 up to the current id
+              while (prices.length <= id) {
+                prices.push(0);
+              }
+              prices[id] = trait.price;
+            });
+          });
+
+          try{
+            const collectionClient = this.getCollectionClient();
+            collectionClient.modifyCollectionPricesAndToken(this._priceCollectionAddress, prices, this.priceCollectionPayToken).then((tx)=>{
+              if (tx == ""){
+                reject('❌ Error updating Token');
+              }
+              else{
+                console.log('✅ Successful Updated, Transactions:', tx);
+                resolve();
+              }
+            })
+            .catch((e)=>{
+              reject(e);
+            })
+           
+          }
+          catch(e){
+            console.error('❌ Error:', e);
+            reject(e);
+          }
+        }
+      });
+    }
+
+    createSolanaCollection(){
+      return new Promise((resolve, reject)=>{
+        const rawManifest = this.rawManifest;
+      
+        // Global top-level values
+        // const topPurchasable = rawManifest.purchasable !== undefined ?  rawManifest.purchasable : false;
+        const topPrice = typeof rawManifest.price === 'number' ? rawManifest.price : 0;
+
+        let idCounter = 0;
+        const pricesById = [];
+
+        if (Array.isArray(rawManifest.traits)) {
+            for (const trait of rawManifest.traits) {
+                //const groupPurchasable = trait.purchasable !== undefined ? trait.purchasable : topPurchasable; // default true
+                const groupPrice = typeof trait.price === 'number' ? trait.price : topPrice;
+                
+                if (Array.isArray(trait.collection)) {
+                    for (const item of trait.collection) {
+                        //const itemPurchasable = item.purchasable !== undefined ? item.purchasable : groupPurchasable;
+                        let price = item.price !== undefined ? item.price : groupPrice;
+                        // if (itemPurchasable === false) 
+                        //     price = 0;
+                        pricesById[idCounter] = price;
+                        item._id = idCounter++;
+                    }
+                }
+            }
+        }
+
+        console.log('pricesById:', pricesById);
+        try{
+          const collectionClient = this.getCollectionClient();
+          collectionClient.initializeCollection(pricesById,this.priceCollectionPayToken).then(collectionAddress=>{
+            if (collectionAddress != ""){
+              const finalManifest = {
+                  _priceCollectionAddress: collectionAddress,
+                  ...rawManifest
+              };
+              const blob = new Blob([JSON.stringify(finalManifest, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'updated-manifest.json';
+              a.click();
+
+              URL.revokeObjectURL(url);
+              resolve();
+            }
+          }).catch(e=>{
+            console.error('❌ Error:', e);
+            reject(e);
+          })
+        }
+        catch (e) {
+            console.error('❌ Error:', e);
+            reject(e);
+        }
+      }); 
+      
+    }
+
     /**
      * Gets Solana purchase assets
      * @returns {Object|null} Solana purchase assets or null if not available
@@ -205,21 +372,38 @@ export class CharacterManifestData{
      * @returns {Promise} Promise that resolves when assets are unlocked
      */
     unlockPurchasedAssetsWithWallet(testWallet){
-      if (this.solanaPurchaseAssets == null){
+      if (this._priceCollectionAddress == null){
         return Promise.resolve();
       }
       return new Promise((resolve)=>{
-        this.walletCollections
-          .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
-          .then(userOwnedTraits => {
-            this.unlockTraits(userOwnedTraits)
-            resolve()
-          })
-          .catch(err => {
-            console.log(err);
-            resolve();
-          });
+        this.getPurchases().then(purchases=>{
+          this.unlockTraitsWithIndexID(purchases);
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+          resolve();
+        });
       }); 
+
+
+
+
+      // if (this.solanaPurchaseAssets == null){
+      //   return Promise.resolve();
+      // }
+      // return new Promise((resolve)=>{
+      //   this.walletCollections
+      //     .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
+      //     .then(userOwnedTraits => {
+      //       this.unlockTraits(userOwnedTraits)
+      //       resolve()
+      //     })
+      //     .catch(err => {
+      //       console.log(err);
+      //       resolve();
+      //     });
+      // }); 
     }
 
     /**
@@ -515,6 +699,12 @@ export class CharacterManifestData{
       }
       else{
         return null;
+      }
+    }
+    unlockTraitsWithIndexID(userOwnedTraitIds){
+      
+      for (let i = 0; i < userOwnedTraitIds.length;i++){
+         this._solanaTraitsArray[i]._purchased = userOwnedTraitIds[i];
       }
     }
     /**
@@ -816,34 +1006,13 @@ export class TraitModelsGroup{
         
     }
 
-    appendCollection(modelTraitGroup, replaceExisting){
-      modelTraitGroup.collection.forEach(newModelTrait => {
-        const modelTrait = this.getTrait(newModelTrait.id)
-        if (modelTrait != null){
-          // replace only if requested ro replace
-          if (replaceExisting){
-            console.log(`Model with id ${newModelTrait.id} exists and will be replaced with new one`)
-            this.collectionMap.set(newModelTrait.id, newModelTrait)
-            const ind = this.collection.indexOf(modelTrait)
-            this.collection[ind] = newModelTrait;
-          }
-          else{
-            console.log(`Model with id ${newModelTrait.id} exists, skipping`)
-          }
-        }
-        else{
-          // create
-          this.collection.push(newModelTrait)
-          this.collectionMap.set(newModelTrait.id, newModelTrait);
-        }
-      });
-    }
-
     createCollection(itemCollection, replaceExisting = false){
       if (replaceExisting) this.collection = [];
 
       getAsArray(itemCollection).forEach(item => {
-        this.collection.push(new ModelTrait(this, item))
+        const modelTrait = new ModelTrait(this, item);
+        this.collection.push(modelTrait)
+        if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = modelTrait
       });
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
@@ -888,7 +1057,7 @@ export class TraitModelsGroup{
 
     getCollection(lockFilter = true, getPurchasables = true){
       if (lockFilter){
-        const filteredCollection = this.collection.filter((trait)=>trait.locked === false || (trait.purchasable === true && trait.price != null && getPurchasables === true))
+        const filteredCollection = this.collection.filter((trait)=>trait.locked === false || trait._purchased === true || (trait.purchasable === true && trait.price != null && getPurchasables === true))
         return filteredCollection;
       }
       else{
@@ -925,33 +1094,13 @@ class TraitTexturesGroup{
     
   }
 
-  appendCollection(textureTraitGroup, replaceExisting){
-    textureTraitGroup.collection.forEach(newTextureTrait => {
-      const textureTrait = this.getTrait(newTextureTrait.id)
-      if (textureTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
-          const ind = this.collection.indexOf(textureTrait)
-          this.collection[ind] = newTextureTrait;
-        }
-        else{
-          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newTextureTrait)
-        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
-      }
-    });
-  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new TextureTrait(this, item))
+      const textureTrait = new TextureTrait(this, item)
+      this.collection.push(textureTrait);
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = textureTrait;
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1017,34 +1166,13 @@ export class DecalTextureGroup{
     
   }
 
-  appendCollection(decalTraitGroup, replaceExisting=false){
-    decalTraitGroup.collection.forEach(newTextureTrait => {
-      const textureTrait = this.getTrait(newTextureTrait.id)
-      if (textureTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Texture with id ${newTextureTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newTextureTrait.id, newTextureTrait)
-          const ind = this.collection.indexOf(textureTrait)
-          this.collection[ind] = newTextureTrait;
-        }
-        else{
-          console.log(`Texture with id ${newTextureTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newTextureTrait)
-        this.collectionMap.set(newTextureTrait.id, newTextureTrait);
-      }
-    });
-  }
-
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new DecalTrait(this, item))
+      const decalTrait = new DecalTrait(this, item);
+      this.collection.push(decalTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = decalTrait
     });
 
 
@@ -1091,33 +1219,13 @@ class TraitColorsGroup{
 
   }
 
-  appendCollection(colorTraitGroup, replaceExisting){
-    colorTraitGroup.collection.forEach(newColorTrait => {
-      const colorTrait = this.getTrait(newColorTrait.id)
-      if (colorTrait != null){
-        // replace only if requested ro replace
-        if (replaceExisting){
-          console.log(`Color with id ${newColorTrait.id} exists and will be replaced with new one`)
-          this.collectionMap.set(newColorTrait.id, newColorTrait)
-          const ind = this.collection.indexOf(colorTrait)
-          this.collection[ind] = newColorTrait;
-        }
-        else{
-          console.log(`Color with id ${newColorTrait.id} exists, skipping`)
-        }
-      }
-      else{
-        // create
-        this.collection.push(newColorTrait)
-        this.collectionMap.set(newColorTrait.id, newColorTrait);
-      }
-    });
-  }
   createCollection(itemCollection, replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new ColorTrait(this, item))
+      const colorTrait = new ColorTrait(this, item);
+      this.collection.push(colorTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = colorTrait
     });
 
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
@@ -1175,6 +1283,7 @@ export class ModelTrait{
           locked,
           price,
           id,
+          _id,
           purchasable,
           type = '',
           directory,
@@ -1201,6 +1310,8 @@ export class ModelTrait{
       this.traitGroup = traitGroup;
       this.decalMeshNameTargets = getAsArray(decalMeshNameTargets);
 
+      this._id = _id;
+      this._purchased = false;
       this.id = id;
       this.directory = directory;
 
@@ -1316,7 +1427,9 @@ export class BlendShapeGroup {
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
-      this.collection.push(new BlendShapeTrait(this, item))
+      const blendShapeTrait = new BlendShapeTrait(this, item);
+      this.collection.push(blendShapeTrait)
+      if (item._id != null) this.manifestData._solanaTraitsArray[item._id] = blendShapeTrait
     });
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
@@ -1351,6 +1464,7 @@ export class BlendShapeTrait{
   constructor(parentGroup,options){
       const {
           id,
+          _id,
           name,
           fullThumbnail
       }= options;
@@ -1365,6 +1479,8 @@ export class BlendShapeTrait{
       this.parentGroup = parentGroup;
       this.collectionID = parentGroup.collectionID;
       this.id = id;
+      this._id = _id;
+      this._purchased = _id;
       this.fullThumbnail = fullThumbnail;
       this.name = name;
   }
@@ -1382,6 +1498,7 @@ class TextureTrait{
   constructor(traitGroup, options){
       const {
           id,
+          _id,
           directory,
           fullDirectory,
           name,
@@ -1391,6 +1508,8 @@ class TextureTrait{
       this.collectionID = traitGroup.collectionID;
 
       this.id = id;
+      this._id = _id;
+      this._purchased = false;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1419,6 +1538,10 @@ export class DecalTrait extends TextureTrait{
    * @type {string}
    */
   id
+    /**
+   * @type {number}
+   */
+  _id
   /**
    * @type {string}
    */
@@ -1445,6 +1568,7 @@ export class DecalTrait extends TextureTrait{
       super(traitGroup,options);  
     const {
             id,
+            _id,
             directory,
             fullDirectory,
             name,
@@ -1453,6 +1577,8 @@ export class DecalTrait extends TextureTrait{
       this.traitGroup = traitGroup;
       this.collectionID = traitGroup.collectionID;
       this.id = id;
+      this._id = _id;
+      this._purchased = false;
       this.directory = directory;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
@@ -1480,6 +1606,7 @@ class ColorTrait{
     constructor(traitGroup, options){
         const {
             id,
+            _id,
             value,
             name,
         }= options;
@@ -1487,6 +1614,8 @@ class ColorTrait{
         this.traitGroup = traitGroup;
         this.collectionID = traitGroup.collectionID;
         this.id = id;
+        this._id = _id;
+        this._purchased = false;
         this.name = name;
         this.value = value;
         
