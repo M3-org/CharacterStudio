@@ -3,8 +3,7 @@ import styles from "./FloatingMenu.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
-import Dropdown from 'react-dropdown';
-import 'react-dropdown/style.css';
+import Select from 'react-select';
 
 export default function SpriteCreation({selectedTrait, selectedVRM}){
     const { manifest, spriteAtlasGenerator, sceneElements } = React.useContext(SceneContext)
@@ -50,11 +49,11 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
                     <div className={styles["traitInfoTitle"]}>
                         Sprite Manifests
                     </div>
-                    <Dropdown 
+                    <Select 
                         className={styles.dropdownControl}
                         options={options} 
                         onChange={onSelect} 
-                        placeholder="Select an option" />;
+                        placeholder="Select an option" />
                 
                     <div className={styles["traitInfoText"]}>
                         {description || ""}

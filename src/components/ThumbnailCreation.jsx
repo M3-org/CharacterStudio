@@ -3,8 +3,7 @@ import styles from "./FloatingMenu.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
-import Dropdown from 'react-dropdown';
-//import 'react-dropdown/style.css';
+import Select from 'react-select';
 
 const maxResolution = 4096;
 
@@ -174,7 +173,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                         <div className={styles["traitInfoTitle"] + ' ' + styles["centerAlign"]}>
                             Thumbnail Manifests
                         </div>
-                        <Dropdown 
+                        <Select 
                             className={styles.dropdownControl}
                             options={options} 
                             value={selection} 
@@ -246,7 +245,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             <div className={styles["traitInfoTitle"]} style={{ margin: '0px' }}>
                                 X
                             </div>
-                            <Dropdown 
+                            <Select 
                                 className={styles.dropdownControlSmall}
                                 options={xCamOpts} 
                                 onChange={(e)=>{
@@ -260,7 +259,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             <div className={styles["traitInfoTitle"]} style={{ margin: '0px' }}>
                                 Y
                             </div>
-                            <Dropdown 
+                            <Select 
                                 className={styles.dropdownControlSmall}
                                 options={yCamOpts} 
                                 onChange={(e)=>{
@@ -274,7 +273,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             <div className={styles["traitInfoTitle"]} style={{ margin: '0px' }}>
                                 Z
                             </div>
-                            <Dropdown 
+                            <Select 
                                 className={styles.dropdownControlSmall}
                                 options={zCamOpts} 
                                 onChange={(e)=>{
@@ -291,7 +290,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             <div className={styles["traitInfoTitle"]} style={{ margin: '0px' }}>
                                 Top
                             </div>
-                            <Dropdown 
+                            <Select 
                                 className={styles.dropdownControlSmall}
                                 options={bones} 
                                 onChange={(e)=>{
@@ -305,7 +304,7 @@ export default function ThumbnailCreation({selectedTrait, traitGroupName}){
                             <div className={styles["traitInfoTitle"]} style={{ margin: '0px' }}>
                                 Bottom
                             </div>
-                            <Dropdown 
+                            <Select 
                                 className={styles.dropdownControlSmall}
                                 options={bones} 
                                 onChange={(e)=>{
