@@ -84,7 +84,16 @@ export const sanitizers = {
    */
   sanitizeHtml: (input) => {
     if (!input || typeof input !== 'string') return ''
-    return input.replace(/<[^>]*>/g, '').trim()
+    
+    // Use iterative approach to prevent incomplete sanitization
+    let sanitized = input
+    let previous
+    do {
+      previous = sanitized
+      sanitized = sanitized.replace(/<[^>]*>/g, '')
+    } while (sanitized !== previous)
+    
+    return sanitized.trim()
   },
 
   /**

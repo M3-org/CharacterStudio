@@ -214,10 +214,15 @@ describe('Blockchain Security Tests', () => {
         allowedFields.forEach(field => {
           if (metadata[field]) {
             if (typeof metadata[field] === 'string') {
-              // Remove HTML tags and limit length
-              sanitized[field] = metadata[field]
-                .replace(/<[^>]*>/g, '')
-                .substring(0, 1000)
+              // Remove HTML tags iteratively to prevent incomplete sanitization
+              let clean = metadata[field]
+              let previous
+              do {
+                previous = clean
+                clean = clean.replace(/<[^>]*>/g, '')
+              } while (clean !== previous)
+              
+              sanitized[field] = clean.substring(0, 1000)
             } else if (field === 'attributes' && Array.isArray(metadata[field])) {
               sanitized[field] = metadata[field].slice(0, 20) // Limit attributes
             }
@@ -235,7 +240,7 @@ describe('Blockchain Security Tests', () => {
       }
 
       const sanitized = sanitizeMetadata(maliciousMetadata)
-      expect(sanitized.name).toBe('alert("xss")Test NFT') // Fixed expectation to match actual sanitization
+      expect(sanitized.name).toBe('alert("xss")Test NFT') // Script tags removed by iterative sanitization
       expect(sanitized.description).toBe('Valid description')
       expect(sanitized.maliciousField).toBeUndefined()
       expect(sanitized.attributes).toHaveLength(20)

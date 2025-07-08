@@ -10,7 +10,7 @@ export const mockThree = {
       this.rotation = { x: 0, y: 0, z: 0, set: vi.fn() }
       this.scale = { x: 1, y: 1, z: 1, set: vi.fn() }
       this.userData = {}
-      this.uuid = Math.random().toString(36).substr(2, 9)
+      this.uuid = crypto.getRandomValues(new Uint32Array(1))[0].toString(36)
     }
     
     add(child) {
@@ -95,7 +95,7 @@ export const mockThree = {
   Material: class MockMaterial {
     constructor() {
       this.type = 'Material'
-      this.uuid = Math.random().toString(36).substr(2, 9)
+      this.uuid = crypto.getRandomValues(new Uint32Array(1))[0].toString(36)
     }
     
     dispose() {
