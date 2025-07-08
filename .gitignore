@@ -286,3 +286,6 @@ fabric.properties
 =======
 lerna-debug.log
 .vscode
+
+# Docusaurus build output
+.docusaurus/
