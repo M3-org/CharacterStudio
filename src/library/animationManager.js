@@ -79,13 +79,17 @@ class AnimationControl {
       }
     } else{
       const cloneAnims = [];
-      animations.forEach(animation => {
-        cloneAnims.push(animation.clone());
-      });
-      animations = cloneAnims;
+      if (animations && Array.isArray(animations)) {
+        animations.forEach(animation => {
+          cloneAnims.push(animation.clone());
+        });
+        animations = cloneAnims;
+      } else {
+        animations = [];
+      }
     }
     // modify animations
-    if (mouseLookEnabled){
+    if (mouseLookEnabled && animations.length > 0 && animations[0]?.tracks){
       animations[0].tracks.map((track, index) => {
         if(track.name === "neck.quaternion" || track.name === "spine.quaternion"){
           animations[0].tracks.splice(index, 1)

@@ -153,7 +153,7 @@ export class LookAtManager {
   }
 
   _moveJoint(joint, degreeLimit){
-    const yMult = joint.userData.inverseLookAt === true ? 1:-1;
+    const yMult = joint.userData?.inverseLookAt === true ? 1:-1;
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight / 2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit);
