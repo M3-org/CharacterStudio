@@ -3,8 +3,7 @@ import styles from "./FloatingMenu.module.css"
 import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
-import Dropdown from 'react-dropdown';
-import 'react-dropdown/style.css';
+import Select from 'react-select';
 
 export default function LoraCreation({selectedTrait, selectedVRM}){
     const { manifest, loraDataGenerator, sceneElements } = React.useContext(SceneContext)
@@ -52,7 +51,7 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
                     <div className={styles["traitInfoTitle"]}>
                         Lora Manifests
                     </div>
-                    <Dropdown 
+                    <Select 
                         className={styles.dropdownControl}
                         options={options} 
                         onChange={onSelect} 

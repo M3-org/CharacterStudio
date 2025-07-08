@@ -4,7 +4,6 @@ import MenuTitle from "./MenuTitle"
 import { SceneContext } from "../context/SceneContext";
 import Slider from "./Slider";
 
-// import 'react-dropdown/style.css';
 
 export default function Emotions(){
 
