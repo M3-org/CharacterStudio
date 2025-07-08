@@ -106,8 +106,10 @@ class AnimationControl {
         action.timeScale = this.timeScale;
         this.actions.push(action);
       }
-      this.actions[0].weight = 0;
-      this.actions[0].play();
+      if (this.actions.length > 0 && this.actions[0]) {
+        this.actions[0].weight = 0;
+        this.actions[0].play();
+      }
     }
     else{
       this.actions.forEach(action => {
