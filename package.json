@@ -57,11 +57,15 @@
     "styled-components": "^5.3.1",
     "three": "^0.169.0",
     "three-mesh-bvh": "^0.8.2",
-    "use-sound": "^4.0.1",
+    "use-sound": "^5.0.0",
     "vite-plugin-mkcert": "^1.10.1",
     "vite-react-jsx": "1.1.2",
     "wrangler": "^4.23.0",
     "zustand": "^3.5.10"
+  },
+  "overrides": {
+    "@metaplex-foundation/umi": "^1.0.0",
+    "@metaplex-foundation/mpl-toolbox": "^0.9.4"
   },
   "devDependencies": {
     "@react-spring/three": "^10.0.1",

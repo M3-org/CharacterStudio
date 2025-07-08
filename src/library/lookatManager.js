@@ -153,7 +153,8 @@ export class LookAtManager {
   }
 
   _moveJoint(joint, degreeLimit){
-    const yMult = joint.userData.inverseLookAt === true ? 1:-1;
+    if (!joint) return;
+    const yMult = joint.userData?.inverseLookAt === true ? 1:-1;
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight / 2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit);
@@ -173,10 +174,10 @@ export class LookAtManager {
       cameraRotationThreshold && this.enabled && this.userActivated) {
 
         this.bonesInfo.forEach(boneInfo => {
-          this._moveJoint(boneInfo.neckBone, this.maxLookPercent.neck)
-          this._moveJoint(boneInfo.spineBone, this.maxLookPercent.spine)
-          this._moveJoint(boneInfo.leftEyeBone, this.maxLookPercent.left)
-          this._moveJoint(boneInfo.rightEyeBone, this.maxLookPercent.right)
+          if (boneInfo.neckBone) this._moveJoint(boneInfo.neckBone, this.maxLookPercent.neck)
+          if (boneInfo.spineBone) this._moveJoint(boneInfo.spineBone, this.maxLookPercent.spine)
+          if (boneInfo.leftEyeBone) this._moveJoint(boneInfo.leftEyeBone, this.maxLookPercent.left)
+          if (boneInfo.rightEyeBone) this._moveJoint(boneInfo.rightEyeBone, this.maxLookPercent.right)
         })
     }
   }
