@@ -806,14 +806,30 @@ function getVRMBoundExpressionMorphs(avatar,someMesh=undefined){
     return VRMBoundMorphs
   }
 
+  /**
+   * Merges the morph target influences from source meshes into the destination morph target dictionary.
+   * @param {*} param0 {
+    meshes: (THREE.SkinnedMesh|THREE.Mesh)[], 
+    sourceMorphTargetDictionaries: morphTargetDictionariesMap, 
+    destMorphTargetDictionary: Record<string, number>
+}
+   * @returns 
+   */
 function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, destMorphTargetDictionary }) {
     const destMorphTargetInfluences = [];
+
     Object.entries(destMorphTargetDictionary).map(([morphName, destIndex]) => {
         const mesh = meshes.find((mesh) => {
             // eslint-disable-next-line no-prototype-builtins
-            return sourceMorphTargetDictionaries.get(mesh).hasOwnProperty(morphName);
+            return sourceMorphTargetDictionaries.get(mesh)?.hasOwnProperty(morphName);
         });
+        if(!mesh?.morphTargetDictionary){
+            return []
+        }
         const sourceIndex = mesh.morphTargetDictionary[morphName];
+        if(!mesh.morphTargetInfluences){
+            return []
+        }
         destMorphTargetInfluences[destIndex] = mesh.morphTargetInfluences[sourceIndex];
         // TODO: Stop / reset animations so that animated morph influences return to their "at rest" values.
         // Maybe the "at rest" values should be baked into attributes (e.g. eye brow shapes) to allow more
