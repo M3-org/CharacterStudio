@@ -744,18 +744,29 @@ function getAllBlendShapeTraits(avatar){
 /**
  * 
  * @param {Object} avatar 
+ * @param {THREE.Mesh} [someMesh] - Optional mesh to filter the morphs for a specific mesh
  * @returns 
  */
-function getVRMBoundExpressionMorphs(avatar){
-    console.warn("expression maps are currently only being take from the frist vrm found that contains blendshapes");
-    const expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>t?.expressionManager?.expressionMap?.aa?._binds.length > 0).map((vrm) => vrm.expressionManager?.expressionMap);
+function getVRMBoundExpressionMorphs(avatar,someMesh=undefined){
+    let expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>!!t).map((vrm) => vrm.expressionManager?.expressionMap);
     /**
-     * @type {Object.<string, {index:number, primitives:string[]}>}
+     * Record<string,{
+        index:number,
+        expressionName:string,
+        primitives:number[]
+    }>
      */
     const VRMBoundMorphs = {};
-    /**
-     * @type {string[]}
-     */
+
+    const affectedMesh = someMesh;
+    if(affectedMesh){
+        let expressionMap = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>!!t).find((v)=>v.scene.getObjectByName(affectedMesh.name))?.expressionManager?.expressionMap;
+        if(expressionMap){
+            expressionMaps = [expressionMap]
+        }
+    }
+
+    // string[]
     let expressionNameDone = []
     // Iterate through maps of expressions of each VRM
     for(const expressionMap of expressionMaps){
@@ -766,28 +777,27 @@ function getVRMBoundExpressionMorphs(avatar){
             if(expressionNameDone.includes(expression.expressionName)) continue;
             expressionNameDone.push(expression.expressionName)
             // Get the bound Blendshape from the expression
-            /**
-             *type VRMExpressionMorphTargetBind from pixiv VRM but cjs wont export it?
-             * @type {Object[]}
-             */
+            //VRMExpressionMorphTargetBind[]
             const bounds = expression._binds
             if(!bounds || bounds.length == 0) continue;
             bounds.forEach((bound) => {
-                /**
-                 * @param {number} morphTargetIndex 
-                 * @returns {[string, number]}
-                 */
+
                 function getPrimitiveWithMorphTargetIndex(morphTargetIndex){
-                    const primitiveDictionaries = bound.primitives.map((p) => p.morphTargetDictionary).filter((d) => !!d);
+                    const primitives = affectedMesh? bound.primitives.filter((p) => p.name == affectedMesh.name) : bound.primitives;
+                    // Get the morph target dictionary for each primitive in the bound
+                    const primitiveDictionaries = primitives.map((p) => p.morphTargetDictionary).filter((d) => !!d);
+                    // Find the dictionary that contains the morph target index
                     const dictionary = primitiveDictionaries.find((dict) => Object.values(dict).includes(morphTargetIndex))
                     if(!dictionary) return;
-                    return Object.entries(dictionary).find(([, value]) => value == morphTargetIndex);
+                    // Return the key and index of the morph target in the dictionary
+                    return Object.entries(dictionary).find(([key, value]) => value == morphTargetIndex)
                 }
 
                 const primitiveKeyIndex = getPrimitiveWithMorphTargetIndex(bound.index);
                 if(!primitiveKeyIndex) return;
                 // Add the morph target and index to the VRMBoundMorphs object
                 VRMBoundMorphs[primitiveKeyIndex[0]] = {index:primitiveKeyIndex[1],
+                    expressionName:expression.expressionName,
                     primitives:bound.primitives.map((p) => p.id)
                 };
             })
@@ -796,14 +806,30 @@ function getVRMBoundExpressionMorphs(avatar){
     return VRMBoundMorphs
   }
 
+  /**
+   * Merges the morph target influences from source meshes into the destination morph target dictionary.
+   * @param {*} param0 {
+    meshes: (THREE.SkinnedMesh|THREE.Mesh)[], 
+    sourceMorphTargetDictionaries: morphTargetDictionariesMap, 
+    destMorphTargetDictionary: Record<string, number>
+}
+   * @returns 
+   */
 function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, destMorphTargetDictionary }) {
     const destMorphTargetInfluences = [];
+
     Object.entries(destMorphTargetDictionary).map(([morphName, destIndex]) => {
         const mesh = meshes.find((mesh) => {
             // eslint-disable-next-line no-prototype-builtins
-            return sourceMorphTargetDictionaries.get(mesh).hasOwnProperty(morphName);
+            return sourceMorphTargetDictionaries.get(mesh)?.hasOwnProperty(morphName);
         });
+        if(!mesh?.morphTargetDictionary){
+            return []
+        }
         const sourceIndex = mesh.morphTargetDictionary[morphName];
+        if(!mesh.morphTargetInfluences){
+            return []
+        }
         destMorphTargetInfluences[destIndex] = mesh.morphTargetInfluences[sourceIndex];
         // TODO: Stop / reset animations so that animated morph influences return to their "at rest" values.
         // Maybe the "at rest" values should be baked into attributes (e.g. eye brow shapes) to allow more
@@ -870,6 +896,12 @@ function mergeSourceMorphTargetDictionaries(params) {
     });
     return destMorphTargetDictionary;
 }
+/**
+ * 
+ * @param {object} param0 
+ * @param {*} isVrm0 
+ * @returns 
+ */
 function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
@@ -877,7 +909,9 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         Object.keys(sourceMorphAttributes).forEach((name) => propertyNameSet.add(name));
     });
     const propertyNames = Array.from(propertyNameSet);
-    // const morphNames = Object.keys(destMorphTargetDictionary);
+    /**
+     * Record<string,any[][]>
+     */
     const unmerged = {};
     propertyNames.forEach((propName) => {
         unmerged[propName] = [];
@@ -900,6 +934,9 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
             });
         });
     });
+    /**
+     * Record<string,THREE.BufferAttribute[]>
+     */
     const merged = {};
     propertyNames.forEach((propName) => {
         merged[propName] = [];
@@ -1156,11 +1193,7 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
     dest.attributes = mergeSourceAttributes({ sourceAttributes: source.attributes });
     const destMorphTargetDictionary = mergeSourceMorphTargetDictionaries({
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
-        morphTargetsProcess: {
-            remove:morphTargetsProcess?.remove||new Set(),
-            keep:morphTargetsProcess?.keep||new Set(),
-            merge:morphTargetsProcess?.merge || new Set()
-        }
+        morphTargetsProcess
     });
     dest.morphTargetDictionary = destMorphTargetDictionary;
     dest.morphAttributes = mergeSourceMorphAttributes({

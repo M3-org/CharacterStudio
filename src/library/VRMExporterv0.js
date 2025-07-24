@@ -1,32 +1,7 @@
-import { BufferAttribute, Euler, Vector3 } from "three";
+import { BufferAttribute, Vector3 } from "three";
 import { VRMExpressionPresetName } from "@pixiv/three-vrm";
-import { encodeToKTX2 } from 'ktx2-encoder';
-import { KtxDecoder } from "./ktx";
 import { KTXTools } from "./ktxtools";
 
-
-
-
-function ToOutputVRMMeta(vrmMeta, icon, outputImage) {
-    return {
-        allowedUserName: vrmMeta.allowedUserName,
-        author: vrmMeta.author,
-        commercialUssageName: vrmMeta.commercialUssageName,
-        contactInformation: vrmMeta.contactInformation,
-        licenseName: vrmMeta.licenseName,
-        otherLicenseUrl: vrmMeta.otherLicenseUrl,
-        otherPermissionUrl: vrmMeta.otherPermissionUrl,
-        reference: vrmMeta.reference,
-        sexualUssageName: vrmMeta.sexualUssageName,
-        texture: icon ? outputImage.length - 1 : undefined,
-        title: vrmMeta.title,
-        version: vrmMeta.version,
-        violentUssageName: vrmMeta.violentUssageName,
-    };
-}
-
-
-const debug = false;
 
 
 // WebGL(OpenGL)マクロ定数
@@ -44,13 +19,9 @@ var WEBGL_CONST;
     WEBGL_CONST[WEBGL_CONST["REPEAT"] = 10497] = "REPEAT";
 })(WEBGL_CONST || (WEBGL_CONST = {}));
 const BLENDSHAPE_PREFIX = "blend_";
-const MORPH_CONTROLLER_PREFIX = "BlendShapeController_";
+
 const SPRINGBONE_COLLIDER_NAME = "vrmColliderSphere";
-const EXPORTER_VERSION = "alpha-v1.0";
-const CHUNK_TYPE_JSON = "JSON";
-const CHUNK_TYPE_BIN = "BIN\x00";
-const GLTF_VERSION = 2;
-const HEADER_SIZE = 12;
+
 function convertMetaToVRM0(meta) {
     return {
         title: meta.name,
@@ -114,32 +85,33 @@ function getVRM0BoneName(name) {
     return name;
 }
 export default class VRMExporterv0 {
-        /**
+    /**
      * 
      * @param {*} vrm 
      * @param {*} avatar 
-     * @param {Object} screenshot 
+     * @param {*} screenshot 
      * @param {{
-        * bones:{
-        *   name:string, 
-        *   bone:Object3D, 
-        * }[]
-        * settings:VRMSpringBoneJointSettings,
-        * center:any,
-        * colliderGroups:VRMSpringBoneColliderGroup[],
-        * name:string
-        * }[] } springBoneGroups 
-        * @param {boolean} isktx2
-        * @param {number} scale 
-        * @param {*} onDone 
-        */
+     * bones:{
+     *   name:string, 
+     *  bone:Object3D, 
+     *}[]
+     * settings:VRMSpringBoneJointSettings,
+     *center:any,
+     *colliderGroups:VRMSpringBoneColliderGroup[],
+     * name:string}[]} springBoneGroups 
+     * @param {*} isktx2 
+     * @param {*} scale 
+     * @param {*} onDone 
+     */
     async parse(vrm, avatar, screenshot, springBoneGroups, isktx2, scale, onDone) {
         const vrmMeta = convertMetaToVRM0(vrm.meta);
         const humanoid = convertHumanoidToVRM0(vrm.humanoid);
+
         const materials = vrm.materials;
         //const expressionsPreset = {};
         //const expressionCustom = {};
         const blendShapeGroups = [];
+
         // to do, add support to spring bones
         //const springBone = vrm.springBoneManager;
         const exporterInfo = {
@@ -209,8 +181,8 @@ export default class VRMExporterv0 {
             });
         const images = [...mainImages, ...shadeImages, ...ormImages, ...normalImages].filter(element => element !== null);
         const outputImages = toOutputImages(images, icon, isktx2 ? "image/ktx2" : "image/png");
-        const outputSamplers = toOutputSamplers(outputImages);
-        const outputTextures = toOutputTextures(outputImages, isktx2);
+        const [samplerIndexes,outputSamplers] = toOutputSamplers(outputImages);
+        const outputTextures = toOutputTextures(outputImages,samplerIndexes, isktx2);
         const outputMaterials = toOutputMaterials(uniqueMaterials, images);
         const rootNode = avatar.children.filter((child) => child.children.length > 0 &&
             child.children[0].type === VRMObjectType.Bone)[0];
@@ -220,7 +192,9 @@ export default class VRMExporterv0 {
             const childNodeIndices = node.children
                 .filter((childNode) => childNode.name !== SPRINGBONE_COLLIDER_NAME)
                 .map((childNode) => nodeNames.indexOf(childNode.name));
-
+            if(node.name == "hips"){
+                node.position.y +=avatar.position.y
+            }
             return {
                 name: node.name,
                 rotation: [
@@ -239,7 +213,7 @@ export default class VRMExporterv0 {
             child.type === VRMObjectType.SkinnedMesh);
         const meshDatas = [];
 
-        meshes.forEach((object, meshindex) => {
+        meshes.forEach((object) => {
             const mesh = (object.type === VRMObjectType.Group
                 ? object.children[0]
                 : object);
@@ -248,7 +222,7 @@ export default class VRMExporterv0 {
             meshDatas.push(positionAttribute);
             const meshDataIndex = meshDatas.length - 1;
 
-            const normalArray = attributes.normal.array;
+            const normalArray = attributes.normal?.array||[];
             const normalizedArray = new Float32Array(normalArray.length);
 
             for (let i = 0; i < normalArray.length; i += 3) {
@@ -295,7 +269,6 @@ export default class VRMExporterv0 {
             }
 
             mesh.geometry.userData.targetNames = [];
-            
 
             const getMorphData = (attributeData, prop, meshDataType, baseAttribute) => {
                 const nonZeroIndices = [];
@@ -348,7 +321,6 @@ export default class VRMExporterv0 {
             };
 
             for (const prop in mesh.morphTargetDictionary) {
-
                 mesh.geometry.userData.targetNames.push(prop);
                 const morphIndex = mesh.morphTargetDictionary[prop];
                 const morphAttribute = mesh.geometry.morphAttributes;
@@ -361,38 +333,75 @@ export default class VRMExporterv0 {
             }
         });
 
-        console.warn("taking only mesh 0 for morph targets now");
+    
         for (const prop in vrm.expressionManager.expressionMap) {
             const expression = vrm.expressionManager.expressionMap[prop];
-            const morphTargetBinds = expression._binds.map(obj => ({ mesh: 0, index: obj.index, weight: obj.weight * 100 }))
+
+            /**
+             * @type {{
+             *                mesh: number,
+             *               index: number,
+             *              weight: number,
+             *               }[]}
+             */
+            const morphTargetBinds = expression._binds.map(obj => {
+
+                const primitiveMeshes = obj.primitives.map((o)=>meshes.find((m)=>m.name == o.name)).filter((m)=>!!m)
+                if(primitiveMeshes.length){
+                    return { mesh: meshes.indexOf(primitiveMeshes[0]), index: obj.index, weight: obj.weight * 100 }
+                }
+                return null
+            }).filter(obj => obj != null)
             //only add those that have connected binds
             if (morphTargetBinds.length > 0) {
+
                 let isPreset = false;
-                for (const presetName in VRMExpressionPresetName) {
-                    if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised") {
+                const groupExist = blendShapeGroups.find((g)=>g.name == prop)
+                const hasAllBinds = morphTargetBinds.every((b)=>{
+                    return !!groupExist?.binds.every((bind) => bind.mesh === b.mesh && bind.index === b.index)
+                })
+
+
+                if (groupExist && !hasAllBinds){
+
+                    // This is to handle the case where the group exists and has binds, but not all binds are present
+                    const differentTargetBinds = morphTargetBinds.filter((bind) => {
+                        return !groupExist.binds.every((existingBind) => existingBind.mesh.name === bind.mesh.name && existingBind.index === bind.index);
+                    })
+
+                    
+                    groupExist.binds.push(...differentTargetBinds)
+                }else{
+
+                    for (const presetName in VRMExpressionPresetName) {
+
+                        if (prop === VRMExpressionPresetName[presetName] && prop !== "surprised") {
+
+                            blendShapeGroups.push({
+                                name: prop,
+                                presetName: getVRM0BlendshapeName(prop),
+                                binds: morphTargetBinds,
+                                isBinary: expression.isBinary,
+                            })
+                            
+    
+                            isPreset = true;
+                            break;
+                        }
+                    }
+                    if (isPreset === false) {
                         blendShapeGroups.push({
                             name: prop,
-                            presetName: getVRM0BlendshapeName(prop),
+                            presetName: "unknown",
                             binds: morphTargetBinds,
                             isBinary: expression.isBinary,
                         })
-                        isPreset = true;
-                        break;
                     }
                 }
-                if (isPreset === false) {
-                    blendShapeGroups.push({
-                        name: prop,
-                        presetName: "unknown",
-                        binds: morphTargetBinds,
-                        isBinary: expression.isBinary,
-                    })
-                }
+
             }
-
-            // to do, material target binds, and texture transform binds
         }
-
+        
 
         // inverseBindMatrices length = 16(matrixの要素数) * 4バイト * ボーン数
         // TODO: とりあえず数合わせでrootNode以外のBoneのmatrixをいれた
@@ -403,7 +412,15 @@ export default class VRMExporterv0 {
             const inverseBindMatrices = new Float32Array(mesh.skeleton.boneInverses.map((boneInv) => boneInv.elements).flat());
             meshDatas.push(new MeshData(new BufferAttribute(inverseBindMatrices, 16), WEBGL_CONST.FLOAT, MeshDataType.BIND_MATRIX, AccessorsType.MAT4, mesh.name, mesh.name));
         });
-        outputAccessors.push(...meshDatas.map((meshData) => ({
+        outputAccessors.push(...meshDatas.map((meshData) => {
+            if(meshData.attribute.count == 0){
+                console.warn("MeshData with zero count found for mesh: " + meshData.meshName + ". This may cause issues in the export.");
+                console.warn("MeshData: ", meshData);
+            }
+            if(meshData.max && meshData.max[0] && meshData.max[0] == -Infinity){
+                console.warn("MeshData with max value of -Infinity found for mesh: " + meshData.meshName + ". This may cause issues in the export.");
+            }
+            return {
             // bufferView: -1,
             // commented out byteOffset as it'd except a bufferView property to be present in the accessors sparse causing an error
             // byteOffset: 0,
@@ -413,7 +430,8 @@ export default class VRMExporterv0 {
             min: meshData.min,
             normalized: false,
             type: meshData.accessorsType,
-        })));
+        }
+        }));
         const outputMeshes = toOutputMeshes(meshes, meshDatas, uniqueMaterialNames);
         // mesh
         meshes.forEach((group, index) => {
@@ -580,6 +598,7 @@ export default class VRMExporterv0 {
                 }
             }
         })
+
         // should be fetched from rootSpringBonesIndexes instead
         const colliderGroups = [];
 
@@ -606,7 +625,6 @@ export default class VRMExporterv0 {
                 colliderGroups.push(colliderGroup)
             }
         }
-        console.log("COLLIDER GROUPS", colliderGroups);
 
         const findBoneIndex = (boneName) => {
             for (let i = 0; i < nodes.length; i++) {
@@ -689,8 +707,7 @@ export default class VRMExporterv0 {
             }))
         );
 
-        /// continue until code finished assigning buffers
-
+ /// continue until code finished assigning buffers
         const meshDataBufferViewRelation = [];
         meshDatas.forEach((data, i) => {
             if (data.buffer) {
@@ -705,7 +722,7 @@ export default class VRMExporterv0 {
 
         if (icon)
             bufferViews.push({
-                buffer:  isktx2 ?  await imageBitmap2ktx2(icon.imageBitmap) : imageBitmap2png(icon.imageBitmap),
+                buffer:isktx2 ? await imageBitmap2ktx2(icon.imageBitmap) : imageBitmap2png(icon.imageBitmap),
                 type: MeshDataType.IMAGE,
             });
         let bufferOffset = 0;
@@ -785,6 +802,7 @@ export default class VRMExporterv0 {
         const outputScenes = toOutputScenes(avatar, outputNodes);
 
         fillVRMMissingMetaData(outputVrmMeta);
+
         const extensionsUsed = [              
             "KHR_materials_unlit",
             "KHR_texture_transform",
@@ -795,9 +813,6 @@ export default class VRMExporterv0 {
             extensionsUsed.push("KHR_texture_basisu");
         }
 
-        /**
-         * Check for bone count mismatch else the VRM will be broken
-         */
         for(const skin of outputSkins){
             const mats = outputAccessors.filter(acc => acc.type == "MAT4");
             for(let m of mats){
@@ -837,7 +852,7 @@ export default class VRMExporterv0 {
                     specVersion: "0.0"
                 },
             },
-            extensionsUsed: extensionsUsed,    
+            extensionsUsed: extensionsUsed,
             images: outputImages,
             materials: outputMaterials,
             meshes: outputMeshes,
@@ -847,7 +862,7 @@ export default class VRMExporterv0 {
             skins: outputSkins,
             textures: outputTextures,
         };
-        console.log("output", outputData);
+        console.log(outputData);
         const jsonChunk = new GlbChunk(parseString2Binary(JSON.stringify(outputData, undefined, 2)), "JSON");
         const binaryChunk = new GlbChunk(concatBinary(bufferViews.map((buf) => buf.buffer)), "BIN\x00");
         const fileData = concatBinary([jsonChunk.buffer, binaryChunk.buffer]);
@@ -874,165 +889,11 @@ function fillVRMMissingMetaData(vrmMeta) {
     vrmMeta.otherLicenseUrl = vrmMeta.otherLicenseUrl || "";
 }
 
-function radian2Degree(radian) {
-    return radian * (180 / Math.PI);
-}
 function getNodes(parentNode) {
     if (parentNode.children.length <= 0)
         return [parentNode];
     return [parentNode].concat(parentNode.children.map((child) => getNodes(child)).flat());
 }
-
-// async function imageBitmap2ktx2(image) {
-//     // Create ImageBitmap from the image
-//     const bitmap = await createImageBitmap(image);
-
-//     // Create a canvas and draw the ImageBitmap onto it
-//     const canvas = document.createElement('canvas');
-//     canvas.width = bitmap.width;
-//     canvas.height = bitmap.height;
-
-//     const ctx = canvas.getContext('bitmaprenderer');
-//     ctx.transferFromImageBitmap(bitmap);
-
-//     // Convert the canvas to a Blob
-//     const blob2 = await new Promise((res) => canvas.toBlob(res));
-
-//     // Encode the Blob to KTX2 format
-//     const ktx2Data = await encodeToKTX2(blob2,{
-//         mode: 'etc1s',  // Use ETC1S for better compression
-//         quality: 'low',  // Adjust based on acceptable quality loss
-//         compressionLevel: 1  // Lower values can increase compression
-//     });
-
-//     // Return the KTX2 data as an ArrayBuffer or Uint8Array
-//     return new Uint8Array(ktx2Data);
-// }
-
-  // Initialize the KTX decoder/compressor
-
-const ktxTools = new KTXTools();
-
-async function imageBitmap2ktx2(image) {
-    // Create ImageBitmap from the image
-  const bitmap = await createImageBitmap(image);
-
-  // Create a canvas and draw the ImageBitmap onto it
-  const canvas = document.createElement('canvas');
-  
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  
-
-  const ctx = canvas.getContext('2d');
-  
-  ctx.drawImage(bitmap, 0, 0);
-
-  // Get the image data as a Uint8Array (RGBA format)
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const pixelData = new Uint8Array(imageData.data.buffer);
-
-
-  
-
-  // Compress the image data to KTX2 format
-  // reference https://github.khronos.org/KTX-Software/ktxtools/ktx_create.html
-  const ktx2Data = await ktxTools.compress(pixelData, canvas.width, canvas.height, 4, {
-    //basisu_options: {
-        normalMap : false,
-
-        uastc: false, // Set to true for higher quality UASTC compression
-        qualityLevel: 50, // Adjust compression quality (0-100)
-        compressionLevel: 2,
-        /** Set the compression quality KTX2 - UASTC */
-        // compressionUASTC_Rdo: false,
-        // UASTC_supercmp_scheme: "Zstd",
-
-        // --uastc-quality <level>
-        uastcFlags: "DEFAULT", // "FASTEST", "FASTER", "DEFAULT", "SLOWER", "SLOWEST"
-
-        // --astc-quality <level>
-        // The quality level configures the quality-performance tradeoff for the compressor; more complete searches of the search space improve image quality at the expense of compression time
-        // fastest == 0, fast == 10, medium == 60, thorough == 98, exhaustive == 100, 
-        compressionUASTC_Rdo_Level: 18,
-
-        // --uastc-rdo
-        // Enable UASTC RDO post-processing.
-        uastcRDO: false,
-
-        // --uastc-rdo-l <lambda>
-        // Set UASTC RDO quality scalar (lambda) to lambda. Lower values yield higher quality/larger LZ compressed files, higher values yield lower quality/smaller LZ compressed files.
-        // A good range to try is [.25,10]. For normal maps a good range is [.25,.75]. The full 
-        // Range is [.001,10.0]. Default is 1.0.
-        uastcRDOQualityScalar: 1.0, 
-
-        // --uastc-rdo-d <dictsize>
-        // Set UASTC RDO dictionary size in bytes. Default is 4096. Lower values=faster, but give less compression. 
-        // Range is [64,65536]
-        uastcRDODictSize: 4096,
-
-        // --uastc-rdo-b <scale>
-        // Set UASTC RDO max smooth block error scale. Default is 10.0, 1.0 is disabled. Larger values suppress more artifacts (and allocate more bits) on smooth blocks.
-        // Range is [1.0,300.0]
-        uastcRDOMaxSmoothBlockErrorScale: 10.0,
-
-        // --uastc-rdo-s <deviation>
-        // Set UASTC RDO max smooth block standard deviation. Default is 18.0. Larger values expand the range of blocks considered smooth.
-        // Range is [.01,65536.0]
-        uastcRDOMaxSmoothBlockStdDev: 18.0,
-
-        // --uastc-rdo-f
-        uastcRDODontFavorSimplerModes: false,
-        
-
-        
-        /** Set the compression quality KTX2 - ETC1S */
-        // --clevel <level>
-        // ETC1S / BasisLZ compression level, an encoding speed vs. quality tradeoff. Range is [0,5], default is 1. Higher values are slower but give higher quality.
-        // ETC1SCompressionLevel: 2,
-
-        // --qlevel <level>
-        // ETC1S / BasisLZ quality level. 
-        //Range is [1,255]. Lower gives better compression/lower quality/faster. Higher gives less compression/higher quality/slower. 
-        //--qlevel automatically determines values for --max-endpoints, --max-selectors, --endpoint-rdo-threshold and --selector-rdo-threshold for the target quality level. Setting these options overrides the values determined by -qlevel which defaults to 128 if neither it nor --max-endpoints and --max-selectors have been set.
-        ETC1SQualityLevel: 128,
-
-        // --max-endpoints <arg>
-        // Manually set the maximum number of color endpoint clusters. 
-        // Range is [1,16128]. Default is 0, unset.
-        ETC1SmaxEndpoints: 0,
-
-        // --endpoint-rdo-threshold <arg>
-        // Set endpoint RDO quality threshold. 
-        // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
-        ETC1SEndpointRdoThreshold: 1.25,
-
-        // --max-selectors <arg>
-        // Manually set the maximum number of color selector clusters from [1,16128]. Default is 0, unset.
-        ETC1SMaxSelectors: 0,
-
-        // --selector-rdo-threshold <arg>
-        // Set selector RDO quality threshold. 
-        // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
-        ETC1SSelectorRdoThreshold: 1.25,
-
-        // --no-endpoint-rdo
-        // Disable endpoint rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do endpoint RDO.
-        ETC1SNoEndpointRdo: false,
-
-        // --no-selector-rdo
-        // Disable selector rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do selector RDO.
-        ETC1SNoSelectorRdo: false,
-    //},
-    supercmp_scheme: 'Zstd', // Optional: Enable supercompression Zstd, Zlib, BasisLZ, None
-
-    //compression_level: 18
-  });
-
-  return ktx2Data;
-}
-  
-
 function imageBitmap2png(image) {
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
@@ -1162,7 +1023,6 @@ const calculateMinMax = (valuesArray) => {
 
     return { max, min };
 }
-
 export class MeshData {
     constructor(attribute, valueType, type, accessorsType, meshName, name, sparseData) {
         this.attribute = attribute;
@@ -1196,7 +1056,6 @@ export class MeshData {
                 indices: parseBinary(indicesBufferAttribute, WEBGL_CONST.UNSIGNED_INT), // detect if use WEBGL_CONST.UNSIGNED_SHORT or WEBGL_CONST.UNSIGNED_INT
                 values: parseBinary(valuesBufferAttribute, WEBGL_CONST.FLOAT)
             }
-
             if (type === MeshDataType.POSITION || type === MeshDataType.BLEND_POSITION){
                 const {
                     min,
@@ -1218,10 +1077,8 @@ export class MeshData {
                 this.min = min;
             }
         }
-
     }
 }
-
 var MaterialType;
 (function (MaterialType) {
     MaterialType["MeshBasicMaterial"] = "MeshBasicMaterial";
@@ -1292,7 +1149,7 @@ const toOutputMeshes = (meshes, meshDatas, uniqueMaterialNames) => {
                         .indexOf(subMesh.name),
                     material: uniqueMaterialNames.indexOf(materialName),
                     mode: 4,
-                    targets: mesh.geometry.userData.targetNames
+                    targets: (mesh.geometry.userData.targetNames?.length||0) > 0
                         ? mesh.geometry.userData.targetNames.map((targetName) => {
                             const normalIndex = meshDatas
                                 .map((data) => data.type === MeshDataType.BLEND_NORMAL &&
@@ -1388,7 +1245,7 @@ const toOutputMaterials = (uniqueMaterials, images) => {
                 KHR_texture_transform: {
                     offset: [0, 0],
                     scale: [1, 1],
-                }
+                },
             },
             index: baseTxrIndex,
             texCoord: 0, // TODO:
@@ -1468,17 +1325,24 @@ const toOutputImages = (images, icon, mimeType) => {
         }));
 };
 const toOutputSamplers = (outputImages) => {
-    return outputImages.map(() => ({
+
+    let samplerIndex = []
+    const images =outputImages.map((val, index) => {
+        samplerIndex.push(index);
+        return {
         magFilter: WEBGL_CONST.LINEAR,
         minFilter: WEBGL_CONST.LINEAR,
         wrapS: WEBGL_CONST.REPEAT,
         wrapT: WEBGL_CONST.REPEAT, // TODO: だいたいこれだった
-    }));
+    }
+    });
+
+    return [samplerIndex,images];
 };
-const toOutputTextures = (outputImages, isktx2) => {
+const toOutputTextures = (outputImages,samplerIndexes, isktx2) => {
     if (isktx2){
         return outputImages.map((_, index) => ({
-            sampler: 0,
+            sampler: samplerIndexes[index],
             extensions: {
                 KHR_texture_basisu: {
                     source: index
@@ -1488,7 +1352,7 @@ const toOutputTextures = (outputImages, isktx2) => {
     }
     else{
         return outputImages.map((_, index) => ({
-            sampler: 0,
+            sampler: samplerIndexes[index],
             source: index, // TODO: 全パターンでindexなのか不明
         }));
     }
@@ -1506,56 +1370,126 @@ const toOutputScenes = (avatar, outputNodes) => {
         },
     ];
 };
-const toOutputSecondaryAnimation = (springBone, nodeNames) => {
-    return {
-        boneGroups: springBone.springBoneGroupList[0] &&
-            springBone.springBoneGroupList[0].length > 0
-            ? springBone.springBoneGroupList.map((group) => ({
-                bones: group.map((e) => nodeNames.indexOf(e.bone.name)),
-                center: group[0].center
-                    ? nodeNames.indexOf(group[0].center.name) // TODO: nullになっていて実際のデータはわからん
-                    : -1,
-                colliderGroups: springBone.colliderGroups.map((_, index) => index),
-                dragForce: group[0].dragForce,
-                gravityDir: {
-                    x: group[0].gravityDir.x,
-                    y: group[0].gravityDir.y,
-                    z: group[0].gravityDir.z, // TODO: それっぽいやつをいれた
-                },
-                gravityPower: group[0].gravityPower,
-                hitRadius: group[0].radius,
-                stiffiness: group[0].stiffnessForce, // TODO: それっぽいやつをいれた
-            }))
-            : [
-                {
-                    bones: [],
-                    center: -1,
-                    colliderGroups: [],
-                    dragForce: 0.4,
-                    gravityDir: {
-                        x: 0,
-                        y: -1,
-                        z: 0,
-                    },
-                    gravityPower: 0,
-                    hitRadius: 0.02,
-                    stiffiness: 1,
-                },
-            ],
-        colliderGroups: springBone.colliderGroups.map((group) => ({
-            colliders: [
-                {
-                    offset: {
-                        x: group.colliders[0].position.x,
-                        y: group.colliders[0].position.y,
-                        z: group.colliders[0].position.z,
-                    },
-                    radius: group.colliders[0].geometry.boundingSphere
-                        ? group.colliders[0].geometry.boundingSphere.radius
-                        : undefined,
-                },
-            ],
-            node: group.node,
-        })),
-    };
-};
+
+  // Initialize the KTX decoder/compressor
+
+  const ktxTools = new KTXTools();
+
+  async function imageBitmap2ktx2(image) {
+      // Create ImageBitmap from the image
+    const bitmap = await createImageBitmap(image);
+  
+    // Create a canvas and draw the ImageBitmap onto it
+    const canvas = document.createElement('canvas');
+  
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+  
+  
+    const ctx = canvas.getContext('2d');
+  
+    ctx.drawImage(bitmap, 0, 0);
+  
+    // Get the image data as a Uint8Array (RGBA format)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixelData = new Uint8Array(imageData.data.buffer);
+  
+  
+  
+  
+    // Compress the image data to KTX2 format
+    // reference https://github.khronos.org/KTX-Software/ktxtools/ktx_create.html
+    const ktx2Data = await ktxTools.compress(pixelData, canvas.width, canvas.height, 4, {
+      //basisu_options: {
+          normalMap : false,
+  
+          uastc: false, // Set to true for higher quality UASTC compression
+          qualityLevel: 50, // Adjust compression quality (0-100)
+          compressionLevel: 2,
+          /** Set the compression quality KTX2 - UASTC */
+          // compressionUASTC_Rdo: false,
+          // UASTC_supercmp_scheme: "Zstd",
+  
+          // --uastc-quality <level>
+          uastcFlags: "DEFAULT", // "FASTEST", "FASTER", "DEFAULT", "SLOWER", "SLOWEST"
+  
+          // --astc-quality <level>
+          // The quality level configures the quality-performance tradeoff for the compressor; more complete searches of the search space improve image quality at the expense of compression time
+          // fastest == 0, fast == 10, medium == 60, thorough == 98, exhaustive == 100, 
+          compressionUASTC_Rdo_Level: 18,
+  
+          // --uastc-rdo
+          // Enable UASTC RDO post-processing.
+          uastcRDO: false,
+  
+          // --uastc-rdo-l <lambda>
+          // Set UASTC RDO quality scalar (lambda) to lambda. Lower values yield higher quality/larger LZ compressed files, higher values yield lower quality/smaller LZ compressed files.
+          // A good range to try is [.25,10]. For normal maps a good range is [.25,.75]. The full 
+          // Range is [.001,10.0]. Default is 1.0.
+          uastcRDOQualityScalar: 1.0, 
+  
+          // --uastc-rdo-d <dictsize>
+          // Set UASTC RDO dictionary size in bytes. Default is 4096. Lower values=faster, but give less compression. 
+          // Range is [64,65536]
+          uastcRDODictSize: 4096,
+  
+          // --uastc-rdo-b <scale>
+          // Set UASTC RDO max smooth block error scale. Default is 10.0, 1.0 is disabled. Larger values suppress more artifacts (and allocate more bits) on smooth blocks.
+          // Range is [1.0,300.0]
+          uastcRDOMaxSmoothBlockErrorScale: 10.0,
+  
+          // --uastc-rdo-s <deviation>
+          // Set UASTC RDO max smooth block standard deviation. Default is 18.0. Larger values expand the range of blocks considered smooth.
+          // Range is [.01,65536.0]
+          uastcRDOMaxSmoothBlockStdDev: 18.0,
+  
+          // --uastc-rdo-f
+          uastcRDODontFavorSimplerModes: false,
+  
+  
+  
+          /** Set the compression quality KTX2 - ETC1S */
+          // --clevel <level>
+          // ETC1S / BasisLZ compression level, an encoding speed vs. quality tradeoff. Range is [0,5], default is 1. Higher values are slower but give higher quality.
+          // ETC1SCompressionLevel: 2,
+  
+          // --qlevel <level>
+          // ETC1S / BasisLZ quality level. 
+          //Range is [1,255]. Lower gives better compression/lower quality/faster. Higher gives less compression/higher quality/slower. 
+          //--qlevel automatically determines values for --max-endpoints, --max-selectors, --endpoint-rdo-threshold and --selector-rdo-threshold for the target quality level. Setting these options overrides the values determined by -qlevel which defaults to 128 if neither it nor --max-endpoints and --max-selectors have been set.
+          ETC1SQualityLevel: 128,
+  
+          // --max-endpoints <arg>
+          // Manually set the maximum number of color endpoint clusters. 
+          // Range is [1,16128]. Default is 0, unset.
+          ETC1SmaxEndpoints: 0,
+  
+          // --endpoint-rdo-threshold <arg>
+          // Set endpoint RDO quality threshold. 
+          // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
+          ETC1SEndpointRdoThreshold: 1.25,
+  
+          // --max-selectors <arg>
+          // Manually set the maximum number of color selector clusters from [1,16128]. Default is 0, unset.
+          ETC1SMaxSelectors: 0,
+  
+          // --selector-rdo-threshold <arg>
+          // Set selector RDO quality threshold. 
+          // The default is 1.25. Lower is higher quality but less quality per output bit (try [1.0,3.0]). This will override the value chosen by --qlevel.
+          ETC1SSelectorRdoThreshold: 1.25,
+  
+          // --no-endpoint-rdo
+          // Disable endpoint rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do endpoint RDO.
+          ETC1SNoEndpointRdo: false,
+  
+          // --no-selector-rdo
+          // Disable selector rate distortion optimizations. Slightly faster, less noisy output, but lower quality per output bit. Default is to do selector RDO.
+          ETC1SNoSelectorRdo: false,
+      //},
+      supercmp_scheme: 'Zstd', // Optional: Enable supercompression Zstd, Zlib, BasisLZ, None
+  
+      //compression_level: 18
+    });
+  
+    return ktx2Data;
+  }
