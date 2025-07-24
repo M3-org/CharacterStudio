@@ -471,6 +471,8 @@ function getRebindedVRMExpressionManager(avatarModel){
         oldExpressionManager.registerExpression(expression)
       }
   }
+
+  return oldExpressionManager;
   // Copy the old expression manager
   expressionManager.copy(oldExpressionManager);
   // Remove reference to the old expression manager
