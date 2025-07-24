@@ -870,6 +870,12 @@ function mergeSourceMorphTargetDictionaries(params) {
     });
     return destMorphTargetDictionary;
 }
+/**
+ * 
+ * @param {object} param0 
+ * @param {*} isVrm0 
+ * @returns 
+ */
 function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}) {
     const propertyNameSet = new Set(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
@@ -877,7 +883,9 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
         Object.keys(sourceMorphAttributes).forEach((name) => propertyNameSet.add(name));
     });
     const propertyNames = Array.from(propertyNameSet);
-    // const morphNames = Object.keys(destMorphTargetDictionary);
+    /**
+     * Record<string,any[][]>
+     */
     const unmerged = {};
     propertyNames.forEach((propName) => {
         unmerged[propName] = [];
@@ -900,6 +908,9 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
             });
         });
     });
+    /**
+     * Record<string,THREE.BufferAttribute[]>
+     */
     const merged = {};
     propertyNames.forEach((propName) => {
         merged[propName] = [];

@@ -452,17 +452,12 @@ function getVRMBaseData(avatar) {
   }
 }
 
-
 /**
  * Rebinds the BlendShapes to a new VRMExpressionManager. Used before exporting the VRM.
- * @param {THREE.Object3D} avatarModel - The avatar model.
  */
 function getRebindedVRMExpressionManager(avatarModel){
   const expressionManager = new VRMExpressionManager();
   // Get old expression manager or a new default one if it doesnt exist
-  /**
-   * @type {THREE.VRMExpressionManager|undefined}
-   */
   let oldExpressionManager = avatarModel.userData.expressionManagerToClone;
   if(!oldExpressionManager){
       oldExpressionManager = new VRMExpressionManager();
@@ -480,18 +475,17 @@ function getRebindedVRMExpressionManager(avatarModel){
     if(!child.isMesh && !child.isSkinnedMesh) continue;
 
     if(!child.morphTargetDictionary) continue
-
     /**
-     * @type {{
-     * new:{[key:string]:{
-     *   index:number,
-     *   primitives:number[]
-     *}},
-     * old:{[key:string]:{
-     *   index:number,
-     *   primitives:number[]
-     *}}
-     *}}
+     * bindMorphs: {
+      new:{[key:string]:{
+        index:number,
+        primitives:number[]
+    }},
+      old:{[key:string]:{
+        index:number,
+        primitives:number[]
+    }}
+    }
      */
     const changedDictionaries = child.userData.bindMorphs
 
@@ -504,28 +498,29 @@ function getRebindedVRMExpressionManager(avatarModel){
 
     /**
      * Get Weight from previous bind
-     * @param {Object[]} binds
-     * @param {number} indexToLookFor
      */
     const getPrevBoundWeight = (binds,indexToLookFor) => {
       return binds.find((bind) => bind.index == indexToLookFor)?.weight||0
     }
-
+    
     const VRMExpressionNames = Object.entries(VRMExpressionPresetName).flat()
     // List of expressions keys that can be removed
     const expressionsToUnBind = Object.keys(changedDictionaries.old).filter((key) => VRMExpressionNames.includes(key));
-
+    
     // Iterate through all old expressions
     for(const item of Object.keys(oldExpressionManager.expressionMap)){
       const expression = oldExpressionManager.expressionMap[item];
       if(!expression) continue 
+      /**
+       * _binds: VRMExpressionMorphTargetBind[];
+       */
       const prevBounds = expression._binds
       if(!prevBounds || prevBounds.length==0) {
         // No binds, remove the expression
         expressionManager.unregisterExpression(expression)
         continue
       }
-
+      
       // Go through all blendshapes bound to old expressions
       for(const morph of expressionsToUnBind){
         const blendShapeKeyEntry = changedDictionaries.new[morph] || changedDictionaries.new[morph.toLowerCase()]
@@ -542,8 +537,7 @@ function getRebindedVRMExpressionManager(avatarModel){
           // Unregister the old expression
           expressionManager.unregisterExpression(expression)
           // remove all binds from the old expression
-          // commented out, subsequent downloads were having issues: binds were removed
-          // expression._binds = []
+          ;expression._binds = []
           // get weight from previous bind
           const weight = getPrevBoundWeight(prevBounds,blendShapeKeyEntryOld.index);
           // Create a new expression with the same name
@@ -551,13 +545,11 @@ function getRebindedVRMExpressionManager(avatarModel){
           // Copy the old expression (no binds)
           newExpression.copy(expression)
           // Add the new bind
-          console.log('adding bind',expression.expressionName)
           newExpression.addBind(new VRMExpressionMorphTargetBind({
             index:blendShapeKeyEntry.index,
             weight:weight,
             primitives:meshes
           }))
-
           // Register the new expression
           expressionManager.registerExpression(newExpression)
         }else{
@@ -566,20 +558,19 @@ function getRebindedVRMExpressionManager(avatarModel){
       }
 
     }
-
+   
     /**
      * Rebind the new blendshape to the expression manager
      */
     for(const expression of expressionManager.expressions){
       const blendshapeNames = getBlendshapeNameByBindsForVRMExpression(expression)
       const defaultBlendshape = blendshapeNames[0][0];
-      
-      const oldBounds = (expression)._binds
 
+      const oldBounds = expression._binds
       if(!changedDictionaries.new[defaultBlendshape]) continue;
       const newBindIndex = changedDictionaries.new[defaultBlendshape].index
       /**
-       * {
+       * jsonBinds: {
           index:number,
           weight:number,
           primitives:THREE.SkinnedMesh[]
