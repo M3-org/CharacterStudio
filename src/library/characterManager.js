@@ -1343,7 +1343,7 @@ export class CharacterManager {
        * unregister the Blendshapes from the manifest -if any.
        * This is to avoid BlendshapeTraits being affected by the vrm.ExpressionManager
        */
-      this._unregisterMorphTargetsFromManifest(vrm, collectionID);
+      //this._unregisterMorphTargetsFromManifest(vrm, collectionID);
       
       if (this.manifestDataManager.isLipsyncTrait(traitID, collectionID))
         this.lipSync = new LipSync(vrm);

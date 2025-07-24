@@ -725,7 +725,7 @@ export async function combine(model,avatar, options) {
      * We need to re-link the new morphDictionary and the vrm ExpressioManager since indexes have changed
      * We clone an expression manager for easy maintenance;
      */
-    const expressionManagerToClone = Object.values(avatar).find((a)=>a?.vrm?.expressionManager)?.vrm.expressionManager;
+    const expressionManagerToClone = Object.values(avatar).find((a)=>a?.vrm?.expressionManager?.expressionMap?.aa?._binds.length > 0)?.vrm.expressionManager;
     // getAvatarData in utils.ts will take care of the rest
     group.userData.expressionManagerToClone = expressionManagerToClone
     group.add(newSkeleton.bones[0]);
