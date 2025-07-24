@@ -1193,11 +1193,7 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
     dest.attributes = mergeSourceAttributes({ sourceAttributes: source.attributes });
     const destMorphTargetDictionary = mergeSourceMorphTargetDictionaries({
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
-        morphTargetsProcess: {
-            remove:morphTargetsProcess?.remove||new Set(),
-            keep:morphTargetsProcess?.keep||new Set(),
-            merge:morphTargetsProcess?.merge || new Set()
-        }
+        morphTargetsProcess
     });
     dest.morphTargetDictionary = destMorphTargetDictionary;
     dest.morphAttributes = mergeSourceMorphAttributes({
