@@ -20,6 +20,7 @@ import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 import SaleIcon from "../images/sale-icon.png"
+import { BoneSelector } from "../components/BoneSelector"
 
   /**
    * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
@@ -71,6 +72,8 @@ function Appearance() {
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
+  const [selectingBone, setSelectingBone] = React.useState(false)
+  const [modelFile, setModelFile] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -115,7 +118,19 @@ function Appearance() {
       const path = URL.createObjectURL(file);
       characterManager.loadCustomTexture(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
+        URL.revokeObjectURL(path);
       })
+    }
+    else{
+      console.warn("Please select a group trait first.")
+    }
+  }
+  const handleModelDrop = (file) =>{
+    if (selectedTraitGroup != null && selectedTraitGroup.trait != ""){
+      console.log(selectedTraitGroup);
+      console.log("dropeed glb");
+      setSelectingBone(true);
+      setModelFile(file);
     }
     else{
       console.warn("Please select a group trait first.")
@@ -128,12 +143,14 @@ function Appearance() {
       const path = URL.createObjectURL(file);
       characterManager.loadCustomTrait(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
+        URL.revokeObjectURL(path);
       })
     }
     else{
       console.warn("Please select a group trait first.")
     }
   }
+
   const selectTrait = (trait) => {
     console.log(trait);
     if(trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID){
@@ -234,6 +251,9 @@ function Appearance() {
     if (file && file.name.toLowerCase().endsWith('.json')) {
       handleJsonDrop(files);
     } 
+    if (file && (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb') )) {
+      handleModelDrop(file);
+    }
   };
 
   const selectTraitGroup = (traitGroup) => {
@@ -284,6 +304,17 @@ function Appearance() {
     }
     input.click();
   }
+  const placeModelOnBone = async (boneName) => {
+    setSelectingBone(false);
+    setIsLoading(true);
+    const path = URL.createObjectURL(modelFile);
+    characterManager.loadCustomModelTrait(selectedTraitGroup.trait, path, boneName).then(()=>{
+      setIsLoading(false);
+      setModelFile(null)
+      URL.revokeObjectURL(path);
+    })
+
+  }
 
   return (
     <div className={styles.container}>
@@ -294,6 +325,9 @@ function Appearance() {
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
+      {selectingBone && <BoneSelector
+        onSelect={placeModelOnBone}  
+      />}
       {/* Main Menu section */}
       <div className={styles["sideMenu"]}>
         <MenuTitle title="Appearance" left={20}/>

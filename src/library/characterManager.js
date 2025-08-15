@@ -98,9 +98,10 @@ export class CharacterManager {
         this.manifestDataManager.loadManifest(manifestURL,manifestIdentifier).then(()=>{
           this.animationManager.setScale(this.manifestDataManager.getDisplayScale());
         })
-       
       }
       
+      this.baseSkeletonVRM = null
+
       this.avatar = {};       // Holds information of traits within the avatar
       this.storedAvatar = {}; // Holds information of an avatar previously stored
       this.traitLoadManager = new TraitLoadingManager();
@@ -302,9 +303,9 @@ export class CharacterManager {
     removeCurrentCharacter(){
       const clearTraitData = []
       for (const prop in this.avatar){
-        
         clearTraitData.push(new LoadedData({traitGroupID:prop, traitModel:null}))
       }
+       this.baseSkeletonVRM = null;
       clearTraitData.forEach(itemData => {
         this._addLoadedData(itemData)
       });
@@ -845,6 +846,35 @@ export class CharacterManager {
       });
     }
 
+    loadCustomModelTrait(groupTraitID, url, parentBoneName){
+      console.log(parentBoneName);
+      return new Promise(async (resolve, reject) => {
+        // Check if manifest data is available
+        if (this.manifestDataManager.hasExistingManifest()) {
+          try {
+            // Retrieve the selected custom trait using manifest data
+            const selectedTrait = this.manifestDataManager.getCustomTraitOption(groupTraitID, url);
+            console.log(selectedTrait);
+            // If the custom trait is found, load it into the avatar using the _loadTraits method
+            if (selectedTrait) {
+              await this._loadTraits(getAsArray(selectedTrait),false, parentBoneName);
+              resolve();
+            }
+
+          } catch (error) {
+            // Reject the Promise with an error message if there's an error during custom trait retrieval
+            console.error("Error loading custom trait:", error.message);
+            reject(new Error("Failed to load custom trait."));
+          }
+        } else {
+          // Manifest data is not available, log an error and reject the Promise
+          const errorMessage = "No manifest was loaded, custom trait cannot be loaded.";
+          console.error(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
     /**
      * Loads a custom texture for a trait group.
      * @param {string} groupTraitID - ID of the trait group
@@ -1019,8 +1049,10 @@ export class CharacterManager {
      * @param {Array} options - Array of trait options to load
      * @param {boolean} [fullAvatarReplace=false] - Whether to replace all existing traits
      */
-    async _loadTraits(options, fullAvatarReplace = false){
+    async _loadTraits(options, fullAvatarReplace = false, parentBoneName = null){
       console.log("loaded traits:", options)
+      await this._createBaseSkeleton(options);
+      console.log("parent bone name: ", parentBoneName)
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){
           // add null loaded options to existingt traits to remove them;
@@ -1035,9 +1067,10 @@ export class CharacterManager {
           });
         }
         loadedData.forEach(itemData => {
-          
-          this._addLoadedData(itemData)
+          this._addLoadedData(itemData, parentBoneName)
+          console.log("ttt2")
         });
+        console.log("ttt3")
         cullHiddenMeshes(this.avatar);
       })
     }
@@ -1220,6 +1253,13 @@ export class CharacterManager {
       }
     }
 
+    _createBoneSphere(radius){
+      const geometry = new THREE.SphereGeometry( radius, 32, 16 ); 
+      const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+      const sphere = new THREE.Mesh( geometry, material );
+      return sphere;
+    }
+
     /**
      * Gets a portrait screenshot texture.
      * @private
@@ -1319,16 +1359,16 @@ export class CharacterManager {
      * @param {Array} colors - Array of colors
      * @returns {Object} Set up VRM model
      */
-    _VRMBaseSetup(m, collectionID, item, traitID, textures, colors){
+    _VRMBaseSetup(m, collectionID, item, traitID, textures, colors, isSkeleton = false){
       let vrm = m.userData.vrm;
       if (m.userData.vrm == null){
-        console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
+        // console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
         return null;
       }
 
       addModelData(vrm, {isVRM0:vrm.meta?.metaVersion === '0'})
 
-      if (this.manifestDataManager.isColliderRequired(traitID)){
+      if (this.manifestDataManager.isColliderRequired(traitID) && !isSkeleton){
         saveVRMCollidersToUserData(m);
       }
       
@@ -1345,11 +1385,11 @@ export class CharacterManager {
        */
       //this._unregisterMorphTargetsFromManifest(vrm, collectionID);
       
-      if (this.manifestDataManager.isLipsyncTrait(traitID, collectionID))
+      if (this.manifestDataManager.isLipsyncTrait(traitID, collectionID) && !isSkeleton)
         this.lipSync = new LipSync(vrm);
 
-
-      this._modelBaseSetup(vrm, collectionID, item, traitID, textures, colors);
+      if (!isSkeleton)
+        this._modelBaseSetup(vrm, collectionID, item, traitID, textures, colors);
 
       // Rotate model 180 degrees
 
@@ -1595,14 +1635,20 @@ export class CharacterManager {
      * @private
      * @param {Object} model - Model to display
      */
-    _displayModel(model){
+    _displayModel(model, parentBoneName = null){
       if(model) {
         // call transition
         const m = model.scene;
         //m.visible = false;
         // add the now model to the current scene
+        const targetBone = parentBoneName != null ? this.baseSkeletonVRM.humanoid.humanBones[parentBoneName]?.node : null;
         
-        this.characterModel.attach(m)
+        if (targetBone != null){
+          targetBone.add(m)
+        }
+        else{
+          this.characterModel.attach(m)
+        }
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
 
@@ -1659,13 +1705,51 @@ export class CharacterManager {
       disposeVRM(vrm)
     }
 
+    async _createBaseSkeleton(traitOptions){
+      if (this.baseSkeletonVRM == null){
+        const mainAsset = traitOptions.find(obj => obj.traitModel?.traitGroup.trait === this.manifestDataManager.getMainTrait());
+        await this.traitLoadManager.loadTraitOptions(getAsArray(mainAsset)).then(loadedData=>{
+          this._addLoadedDataSkeleton(loadedData[0])
+        });
+      }
+    }
+    _addLoadedDataSkeleton(itemData){
+      const {
+        models
+      } = itemData;
+
+      let vrm = null;
+      models.map((m)=>{
+        if (m != null)
+          vrm = this._VRMBaseSetup(m, null, null, null,null, null, true);
+      })
+      this._positionModel(vrm)
+      this._applyManagers(vrm)
+      let targetSkinnedMesh = null;
+      vrm.scene.traverse((object) => {
+        if (object.isSkinnedMesh) { // Check if the object is a SkinnedMesh
+          targetSkinnedMesh = object;
+          // object.skeleton.bones.forEach((bn)=>{
+          //   const sphere = this._createBoneSphere(.05);
+          //   bn.add(sphere);
+          // })
+        }
+      });
+      if (targetSkinnedMesh != null ){
+        targetSkinnedMesh.parent.remove(targetSkinnedMesh);
+      }
+
+      this.characterModel.attach(vrm.scene)
+
+      this.baseSkeletonVRM = vrm;
+    }
 
     /**
      * Adds loaded data to the character.
      * @private
      * @param {Object} itemData - Data to add
      */
-    _addLoadedData(itemData){
+    _addLoadedData(itemData, parentBoneName){
       const {
           collectionID,
           traitGroupID,
@@ -1698,14 +1782,31 @@ export class CharacterManager {
       })
 
       // do nothing, an error happened
-      if (vrm == null)
-        return;
-
-      // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
-      if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
-        this._disposeTrait(this.avatar[traitGroupID].vrm)
-        // XXX restore effects
+      if (vrm == null){
+        // found model that is not vrmc
+        let gltfModel = models[0]
+        if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
+          this._disposeTrait(this.avatar[traitGroupID].vrm)
+        }
+        this._positionModel(gltfModel)
+        this._displayModel(gltfModel, parentBoneName) // probably attach to bone instead
+        this.avatar[traitGroupID] = {
+          traitInfo: traitModel,
+          textureInfo: textureTrait,
+          colorInfo: colorTrait,
+          name: traitModel.name,
+          model: gltfModel,
+          vrm: vrm
+        }
       }
+      else{
+        // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
+        if (this.avatar[traitGroupID] && this.avatar[traitGroupID].vrm) {
+          this._disposeTrait(this.avatar[traitGroupID].vrm)
+          // XXX restore effects
+        }
+      }
+      this._positionModel(vrm)
 
       this._positionModel(vrm)
     
