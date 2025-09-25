@@ -2,16 +2,18 @@ import * as THREE from "three";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { Buffer } from "buffer";
 import html2canvas from "html2canvas";
-import VRMExporter from "./VRMExporter";
+import VRMExporter from "./VRMExporter.js";
 import { CullHiddenFaces, DisposeCullMesh } from './cull-mesh.js';
-import { combine } from "./merge-geometry";
+import { combine } from "./merge-geometry.js";
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
 
-export function getAsArray(target) {
-  if (target == null || target == undefined) return []
-  return Array.isArray(target) ? target : [target]
+type AsArray<T> = T extends Array<infer U> ? U[] : T[];
+
+export function getAsArray<T>(target: T): AsArray<T> {
+  if (target == null || target == undefined) return [] as unknown as AsArray<T>
+  return (Array.isArray(target) ? target : [target]) as AsArray<T>
 }
 
 export function addChildAtFirst(parent, newChild) {

@@ -1,11 +1,14 @@
-import { Mesh, Triangle, BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial } from "three";
+import { Mesh, Triangle, BufferAttribute, BackSide, FrontSide, Raycaster, Vector3, Color, BufferGeometry,LineBasicMaterial,Line, MeshBasicMaterial, Scene, Intersection, SkinnedMesh, MeshStandardMaterial, TypedArray, NormalBufferAttributes, Object3D, Group } from "three";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast, SAH } from 'three-mesh-bvh';
 
 let origin = new Vector3();
 let direction = new Vector3();
-const intersections = [];
+const intersections:Intersection[] = [];
 
 const raycaster = new Raycaster();
+const debugNoHitMaterial = new LineBasicMaterial( {color:0xffff00 } );
+const debugHitMaterial = new LineBasicMaterial( {color:0xff0000 } );
+
 
 const distance = 0.03;
 const distanceAfter = 0.03;
@@ -13,21 +16,30 @@ const distanceAfter = 0.03;
 const frontMat = new MeshBasicMaterial({side:FrontSide})
 const backMat = new MeshBasicMaterial({side:BackSide})
 
-let mainScene;
+type SkinnedMeshWithMaterial = SkinnedMesh<BufferGeometry,MeshStandardMaterial>;
+type MeshWithMaterial = Mesh<BufferGeometry,MeshStandardMaterial>;
+
+let mainScene:Scene;
 
 BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
 
-const createFaceNormals = (geometry) => {
+const createFaceNormals = (geometry:BufferGeometry<NormalBufferAttributes>) => {
     const pos = geometry.attributes.position;
     const idx = geometry.index;
   
     const tri = new Triangle(); // for re-use
     const a = new Vector3(), b = new Vector3(), c = new Vector3(); // for re-use
   
-    const faceNormals = [];
+    const faceNormals:Vector3[] = [];
   
+    if(idx == null){
+        console.warn("No index buffer found. Skipping face normals calculation.");
+        geometry.userData.faceNormals = []
+        return;
+    }
+    
     //set foreach vertex
     for (let f = 0; f < (idx.array.length / 3); f++) {
       const idxBase = f * 3;
@@ -40,10 +52,10 @@ const createFaceNormals = (geometry) => {
     geometry.userData.faceNormals = faceNormals;
 }
 
-const createCloneCullMesh = (mesh) => {
+const createCloneCullMesh = (mesh:SkinnedMeshWithMaterial) => {
     // clone mesh
     const clonedGeometry = mesh.geometry.clone();
-    let clonedMaterial = [];
+    let clonedMaterial:MeshStandardMaterial|MeshStandardMaterial[] = [];
     if (Array.isArray(mesh.material)) {
         for(let i = 0; i < mesh.material.length; i++) {
             clonedMaterial.push(mesh.material[i].clone());
@@ -71,7 +83,7 @@ const createCloneCullMesh = (mesh) => {
     return clonedMesh;
 }
 
-const disposeMesh = (mesh) => {
+const disposeMesh = (mesh:SkinnedMesh|Mesh) => {
     if (mesh.isMesh){
       mesh.geometry.userData.faceNormals = null;
       mesh.geometry.dispose();
@@ -85,7 +97,7 @@ const disposeMesh = (mesh) => {
     }
   }
 
-export const DisposeCullMesh = (mesh) =>{
+export const DisposeCullMesh = (mesh:SkinnedMesh|Mesh) =>{
     if (mesh.userData.cullingClone) {
         disposeMesh(mesh.userData.cullingClone);
         mesh.userData.cullingClone = null;
@@ -106,7 +118,7 @@ export const DisposeCullMesh = (mesh) =>{
     }
 }
 
-export const CullHiddenFaces = async(meshes) => {
+export const CullHiddenFaces = async(meshes:(SkinnedMeshWithMaterial)[]) => {
     if (meshes == null){
         console.warn("Null parameter for meshes was provided. Skipping mesh culling.");
         return;
@@ -120,14 +132,16 @@ export const CullHiddenFaces = async(meshes) => {
         return;
     }
     // make a 2 dimensional array that will hold the layers
-    const meshData = [];
+    const meshData:{origMeshes:SkinnedMeshWithMaterial[], cloneMeshes:MeshWithMaterial[], posMeshes:MeshWithMaterial[], negMeshes:MeshWithMaterial[], scaleMeshes:SkinnedMeshWithMaterial[], positionMeshes:SkinnedMeshWithMaterial[]}[] = [];
     
-    mainScene = meshes[0].parent;
-    
+    mainScene = meshes[0].parent as Scene;
+    //@ts-ignore
     if (mainScene.lines != null){
+        //@ts-ignore
         mainScene.lines.forEach(line => {
             line.visible = false;
         });
+        //@ts-ignore
         mainScene.lines.length = 0;
     }
 
@@ -136,7 +150,7 @@ export const CullHiddenFaces = async(meshes) => {
         if (mesh.userData.cullLayer != null){
             //save original data if it hasnt been previously saved
             if (mesh.userData.origIndexBuffer == null)
-                mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
+                mesh.userData.origIndexBuffer = mesh.geometry.index?.clone() as BufferAttribute | null;
         
             // if it hasnt been previously created an array in this index value, create it
             if (meshData[mesh.userData.cullLayer] == null){
@@ -155,6 +169,7 @@ export const CullHiddenFaces = async(meshes) => {
             const cloneN = mesh.userData.cullingCloneN
 
             cloneP.material = frontMat;
+            cloneP.material.transparent = !!mesh.material.transparent;
             cloneN.userData.cancelMesh = cloneP;
             cloneN.material = backMat;
             cloneP.userData.maxCullDistance  = cloneN.userData.maxCullDistance = mesh.userData.maxCullDistance;
@@ -176,7 +191,7 @@ export const CullHiddenFaces = async(meshes) => {
         }
     }
     // this array will hold all possible mesh colliders
-    let hitArr = [];
+    let hitArr:MeshWithMaterial[] = [];
     // store in an array new indixes, chanbging them on the go, produces errors
     const geomsIndices = [];
     // go from top to bottom to increase array size of collide meshes
@@ -192,6 +207,7 @@ export const CullHiddenFaces = async(meshes) => {
                 const vertexData = cloneMesh.geometry.attributes.position.array;
                 const normalsData = cloneMesh.geometry.attributes.normal.array;
                 const faceNormals = cloneMesh.geometry.userData.faceNormals;
+  
                 geomsIndices.push({
                     geom: mesh.geometry,
                     index: getIndexBuffer(index,vertexData,normalsData, faceNormals, hitArr,mesh.userData.cullDistance/*,i === 0*/)
@@ -207,23 +223,22 @@ export const CullHiddenFaces = async(meshes) => {
     });
 }
 
-const getDistanceInOut = (distanceArr) => {
+const getDistanceInOut = (distanceArr:number|number[]) => {
     let distIn = distance;
     let distOut = distanceAfter;
 
     // distance set by the user in an array form (ditance far, distance after)
     if (distanceArr){
-        if (!isNaN(distanceArr)){   // is its a number
-            distIn = distanceArr;
-        }
-        else{
-            if (Array.isArray(distanceArr)){
-                if (!isNaN(distanceArr[0])){
-                    distIn = distanceArr[0];
-                }
-                if (!isNaN(distanceArr[1])){
-                    distOut =  distanceArr[1];
-                }
+        if (Array.isArray(distanceArr)){
+            if (!isNaN(distanceArr[0])){
+                distIn = distanceArr[0];
+            }
+            if (!isNaN(distanceArr[1])){
+                distOut =  distanceArr[1];
+            }
+        }else{
+            if (!isNaN(distanceArr)){
+                distIn = distanceArr;
             }
         }
     }
@@ -231,11 +246,11 @@ const getDistanceInOut = (distanceArr) => {
     return [distIn, distOut]
 }
 
-const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectModels, distanceArr, debug = false) =>{
+const getIndexBuffer = (index:number[], vertexData:TypedArray, normalsData:TypedArray, faceNormals:Vector3[], intersectModels:MeshWithMaterial[], distanceArr:number|number[], debug = false) =>{
 
     const indexCustomArr = [];
     const distArr = getDistanceInOut(distanceArr);
-    
+
     let distIn = distArr[0];
     let distOut = distArr[1];
 
@@ -249,7 +264,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
 
         const idxBase = i * 3;
         //if at least 1 vertex collides with nothing, it is visible
-        let intersectedDups = [];
+        let intersectedDups:Object3D[] = [];
         for (let j = 0; j < 3 ; j++){
             // reset intersections
             intersections.length = 0;
@@ -283,7 +298,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
             
             if (hitObjs.length === 0){
                 // no object is interfering with the view of this vertex, so its visible
-                //if (debug) DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xffff00,mainScene );
+                if ( debug) DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, debugNoHitMaterial,mainScene );
                 for (let k = 0; k < 3 ; k++){
                     indexCustomArr.push(index[idxBase+k])
                 }
@@ -296,7 +311,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                 if the raycast hits the mesh with the back face, it will hits with front face
                 this way we make sure only elements that are truly behind a single face geometry are hidden
                 */
-                const invHits = hitObjs.map(v => v.object)
+                const invHits:(Object3D|null)[] = hitObjs.map(v => v.object)
                 
                 // using for to update the modify and update the array
                 for (let i =0; i < invHits.length;i++){
@@ -305,6 +320,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                     if (o != null){
                         if (o.userData.cancelMesh){
                             const index = invHits.indexOf(o.userData.cancelMesh)
+
                             invHits[i] = null;
                             if (index != -1 && index < i){  //only remove previous hit elements
                                 invHits[index] = null;
@@ -338,8 +354,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                         if (intersectedDups.indexOf(v.object) !== -1){
                             return v.object;
                         }
-                    })
-                    intersectedDups = intersectedDups.filter(n=>n);
+                    }).filter(n=>!!n);
 
                     // check only hits that repeated across
                     if (j === 2){
@@ -351,7 +366,7 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
                     }
                 }
                 if (debug)
-                    DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, 0xff0000,mainScene );
+                    DebugRay(origin, direction.clone().multiplyScalar(-1) , raycaster.far, debugHitMaterial,mainScene );
             }
         }
     }
@@ -360,16 +375,16 @@ const getIndexBuffer = (index, vertexData, normalsData, faceNormals, intersectMo
     return new BufferAttribute(indexArr,1,false);
 }
 
-export const DisplayMeshIfVisible = async(mesh, traitModel) => {
+export const DisplayMeshIfVisible = async(mesh:Mesh, traitModel:Scene|Group) => {
 
     if (mesh.userData.origIndexBuffer == null)
-        mesh.userData.origIndexBuffer = mesh.geometry.index.clone();
+        mesh.userData.origIndexBuffer = mesh.geometry.index?.clone();
 
-    const traitMeshes = [];
+    const traitMeshes:Mesh[] = [];
     
     traitModel?.traverse((child)=>{
-        if (child.isMesh){
-            traitMeshes.push(child);
+        if ((child as Mesh).isMesh){
+            traitMeshes.push(child as Mesh);
         }
     });
 
@@ -385,7 +400,7 @@ export const DisplayMeshIfVisible = async(mesh, traitModel) => {
     let origin = new Vector3();
     let direction = new Vector3();
     
-    const intersections = [];
+    const intersections:Intersection[] = [];
     
     const indexCustomArr = [];
     for (let i =0; i < index.length;i+=3){
@@ -419,9 +434,9 @@ export const DisplayMeshIfVisible = async(mesh, traitModel) => {
     mesh.geometry.setIndex(buffer);
 }
 
-function DebugRay(origin, direction, length, color, scene){
-    if (scene.lines == null)
-        scene.lines = [];
+function DebugRay(origin:Vector3, direction:Vector3, length:number, material:LineBasicMaterial, scene:Scene){
+    if ((scene as any).lines == null)
+        (scene as any).lines = [];
 
     let endPoint = new Vector3();
     endPoint.addVectors ( origin, direction.clone().multiplyScalar( length ) );
@@ -435,10 +450,13 @@ function DebugRay(origin, direction, length, color, scene){
     cols.push(new Color(0x000000));
     cols.push(new Color(0xffffff)); 
 
-    let material = new LineBasicMaterial( {color:color } );
     var line = new Line( geometry, material );
 
-    line.renderOrder = 100;
+    
     scene.add( line );
-    scene.lines.push(line);
+    (scene as any).lines.push(line);
+    line.renderOrder = 100;
+    material.needsUpdate=false
+    line.matrixWorldNeedsUpdate=false
+    line.matrixAutoUpdate=false
 }

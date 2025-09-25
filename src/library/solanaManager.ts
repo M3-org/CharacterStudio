@@ -16,7 +16,7 @@ export class SolanaManager {
         
 
     }
-    async getUserCNFTs(ownerAddress, delegateAddress, collectionName) {
+    async getUserCNFTs(ownerAddress:string, delegateAddress:string, collectionName?:string) {
         const url = rpcUrl; 
         const requestBody = {
             jsonrpc: "2.0",
@@ -44,7 +44,7 @@ export class SolanaManager {
     
 
         const items = collectionName != null ? 
-            data.result.items.filter(asset => asset.content.metadata.name === collectionName):
+            data.result.items.filter((asset:any) => asset.content.metadata.name === collectionName):
             data.result.items;
 
         if (items.length == 0){

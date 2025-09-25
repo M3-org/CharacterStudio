@@ -1,9 +1,21 @@
-import { VRMExpressionPresetName } from "@pixiv/three-vrm";
+import { VRM, VRMExpressionPresetName } from "@pixiv/three-vrm";
 import { Clock } from "three";
 
 const SCREENSHOT_EYES_OPEN_THRESHOLD = 2;
 
 export class BlinkManager {
+  vrmBlinkers: VRM[];
+  mode: string;
+  clock: Clock;
+  closeTime: number;
+  openTime: number;
+  continuity: number;
+  randomness: number;
+  _eyeOpen: number;
+  _blinkCounter: number;
+  isTakingScreenShot: boolean;
+
+
   constructor(closeTime = 0.5, openTime = 0.5, continuity = 1, randomness = 5) {
     this.vrmBlinkers = [];
     this.mode = 'ready';
@@ -23,11 +35,11 @@ export class BlinkManager {
     this.update()
   }
 
-  addVRM(vrm){
+  addVRM(vrm:VRM){
     this.vrmBlinkers.push(vrm)
   }
 
-  removeVRM(vrm) {
+  removeVRM(vrm:VRM) {
     const index = this.vrmBlinkers.indexOf(vrm);
 
     if (index !== -1) {
@@ -86,8 +98,8 @@ export class BlinkManager {
 
   _updateBlinkers(){
     this.vrmBlinkers.forEach(vrm => {
-        vrm.expressionManager.setValue(VRMExpressionPresetName.Blink, 1 - this._eyeOpen)
-        vrm.expressionManager.update()
+        vrm.expressionManager?.setValue(VRMExpressionPresetName.Blink, 1 - this._eyeOpen)
+        vrm.expressionManager?.update()
     });
   }
 }

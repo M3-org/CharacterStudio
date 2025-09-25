@@ -1,12 +1,12 @@
 import * as THREE from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
 import { BlinkManager } from "./blinkManager";
 import { EmotionManager } from "./EmotionManager";
-import { VRMLoaderPlugin, VRMSpringBoneCollider } from "@pixiv/three-vrm";
+import { MToonMaterial, VRM, VRMLoaderPlugin, VRMSpringBoneCollider } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
-import { downloadGLB, downloadVRMWithAvatar } from "../library/download-utils"
+import { downloadGLB, downloadVRMWithAvatar } from "./download-utils"
 import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
 import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
@@ -16,6 +16,7 @@ import { ManifestDataManager } from "./manifestDataManager";
 import { WalletCollections } from "./walletCollections";
 import { buySolanaPurchasableAssets } from "./mint-utils"
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
+import { BlendShapeTrait, CharacterManifestData, ColorTrait, DecalTrait, DownloadOptionsManifest, ModelTrait, SelectedOption, TextureTrait } from "./CharacterManifestData";
 
 //import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 
@@ -23,7 +24,22 @@ import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 const localVector3 = new THREE.Vector3(); 
-
+export type CharacterManagerOptions= {
+  parentModel:THREE.Object3D|THREE.Scene,
+  renderCamera:THREE.Camera,
+  manifestURL?:string
+  manifestIdentifier?:string
+}
+export type avatarData = {
+  traitInfo: ModelTrait,
+  blendShapeTraitsInfo:Record<string,BlendShapeTrait>,
+  textureInfo?: TextureTrait,
+  colorInfo?: ColorTrait,
+  decalInfo?: DecalTrait[],
+  name: string,
+  model: THREE.Group,
+  vrm: VRM
+}
 
 /**
  * CharacterManager is a class that manages 3D character models, their traits, animations, and interactions.
@@ -33,32 +49,33 @@ const localVector3 = new THREE.Vector3();
  * @class CharacterManager
  */
 export class CharacterManager {
-  /**
-   * @type {EmotionManager}
-   */
-  emotionManager = null;
-  /**
-   * @type {AnimationManager}
-   */
-  animationManager = null;
-  /**
-   * @type {BlinkManager}
-   */
-  blinkManager
-  /**
-   * @type {ScreenshotManager}
-   */
-  screenshotManager
-    constructor(options){
-      this._start(options);
-    }
-    
-    /**
-     * Initializes the character manager with the provided options.
-     * @private
-     * @param {Object} options - Configuration options
-     */
-    async _start(options){
+  manifest:any
+  manifestData: CharacterManifestData = null!;
+  emotionManager:EmotionManager = null!
+  avatar:Record<string,avatarData> = {};// Holds information of traits within the avatar
+  storedAvatar:Record<string,avatarData> = {};// Holds information of an avatar previously stored
+  rootModel:THREE.Object3D = null!;
+  characterModel:THREE.Object3D = null!;
+  parentModel:THREE.Scene = null!;
+  lipSync:LipSync = null!;
+  lookAtManager:LookAtManager = null!;
+  animationManager:AnimationManager = null!;
+  overlayedTextureManager:OverlayedTextureManager = null!;
+  screenshotManager:ScreenshotManager = null!;
+  blinkManager:BlinkManager = null!;
+  renderCamera:THREE.Camera = null!;
+
+  traitLoadManager:TraitLoadingManager = null!;
+  vrmHelperRoot:THREE.Group = null!;
+  walletCollections?:WalletCollections = null!;
+  manifestDataManager:ManifestDataManager = null!;
+
+
+  constructor(options:CharacterManagerOptions){
+    this._start(options);
+  }
+  
+  async _start(options:CharacterManagerOptions){
       const{
         parentModel = null,
         renderCamera = null,
@@ -76,13 +93,13 @@ export class CharacterManager {
       // all data that will be downloaded
       this.characterModel = new THREE.Object3D();
 
-      this.parentModel = parentModel;
+      this.parentModel = parentModel! as any;
       if (parentModel){
         parentModel.add(this.rootModel);
       }
-      this.lipSync = null;
+      this.lipSync = null!;
 
-      this.lookAtManager = null;
+      this.lookAtManager = null!;
       this.animationManager = new AnimationManager();
       this.screenshotManager = new ScreenshotManager(this, parentModel || this.rootModel);
       this.overlayedTextureManager = new OverlayedTextureManager(this)
@@ -91,7 +108,7 @@ export class CharacterManager {
       this.walletCollections = new WalletCollections();
 
       this.rootModel.add(this.characterModel)
-      this.renderCamera = renderCamera;
+      this.renderCamera = renderCamera!;
 
       this.manifestDataManager = new ManifestDataManager();
       if (manifestURL){
@@ -117,7 +134,7 @@ export class CharacterManager {
      * This is useful when taking screenshots or calculating bone offsets.
      * @param {boolean} x - true to pause, false to unpause
      */
-    togglePauseSpringBoneAnimation(x){
+    togglePauseSpringBoneAnimation(x:boolean){
       for(const [_,trait] of Object.entries(this.avatar)){
         if(trait.vrm.springBoneManager){
             trait.vrm.springBoneManager.paused =x
@@ -129,13 +146,14 @@ export class CharacterManager {
      * Updates the character's state based on elapsed time.
      * @param {number} deltaTime - Time elapsed since last update
      */
-    update(deltaTime){
+    update(deltaTime:number){
       if (this.lookAtManager != null){
         this.lookAtManager.update();
       }
       if(this.avatar){
         for (const prop in this.avatar){
           if (this.avatar[prop]?.vrm != null){
+            //@ts-expect-error paused is defined
             if(this.avatar[prop].vrm.springBoneManager?.paused){
               return
             }
@@ -144,20 +162,19 @@ export class CharacterManager {
         }
       }
     }
-    unlockManifestByIndex(index, testWallet = null){
-      console.log(index);
+    unlockManifestByIndex(index:number, testWallet?:string){
       return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
     }
-    unlockManifestByIdentifier(identifier, testWallet = null){
+    unlockManifestByIdentifier(identifier:string, testWallet?:string){
       return this.manifestDataManager.unlockManifestByIdentifier(identifier, testWallet);
     }
-    isManifestByIndexLocked(index){
+    isManifestByIndexLocked(index:number){
       return this.manifestDataManager.isManifestByIndexNFTLocked(index);
     }
-    isManifestByIdentifierLocked(identifier){
+    isManifestByIdentifierLocked(identifier:string){
       return this.manifestDataManager.isManifestByIdentifierNFTLocked(identifier);
     }
-    getLoadedLockedManifests(isLocked){
+    getLoadedLockedManifests(isLocked:boolean){
       return this.manifestDataManager.getLoadedLockedManifests(isLocked);
     }
     getLoadedManifests(){
@@ -166,12 +183,8 @@ export class CharacterManager {
 
     /**
      * Adds look-at mouse behavior to the character.
-     * @param {number} screenPrecentage - Percentage of screen to consider for look-at behavior
-     * @param {string} canvasID - ID of the canvas element
-     * @param {THREE.Camera} camera - Camera used for look-at calculations
-     * @param {boolean} [enable=true] - Whether to enable the behavior immediately
      */
-    addLookAtMouse(screenPrecentage, canvasID, camera, enable = true){
+    addLookAtMouse(screenPrecentage:number, canvasID:string, camera:THREE.Camera){
       this.lookAtManager = new LookAtManager(screenPrecentage, canvasID, camera);
       this.lookAtManager.enabled = true;
       for (const prop in this.avatar){
@@ -181,7 +194,7 @@ export class CharacterManager {
       }
       //this.toggleCharacterLookAtMouse(enable)
     }
-    toggleCharacterLookAtMouse(enable){
+    toggleCharacterLookAtMouse(enable:boolean){
       if (this.lookAtManager != null){
         this.lookAtManager.setActive(enable);
         if (this.animationManager){
@@ -200,12 +213,12 @@ export class CharacterManager {
      * @param {number} [distance=1] - Distance from character for the screenshot
      * @param {number} [headHeightOffset=0] - Vertical offset for the head position
      */
-    savePortraitScreenshot(name, width, height, distance = 1, headHeightOffset = 0){
+    savePortraitScreenshot(name:string, width:number, height:number, distance:number = 1, headHeightOffset:number = 0){
       this.blinkManager.enableScreenshot();
 
       this.characterModel.traverse(o => {
-        if (o.isSkinnedMesh) {
-          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+        if ('isSkinnedMesh' in o && o.isSkinnedMesh) {
+          const headBone = (o as THREE.SkinnedMesh).skeleton.bones.filter(bone => bone.name === 'head')[0];
           headBone.getWorldPosition(localVector3);
         }
       });
@@ -218,7 +231,7 @@ export class CharacterManager {
     }
 
     // XXX just call raycast culling without sneding mouse position?
-    cameraRaycastCulling(mouseX, mouseY, removeFace = true){
+    cameraRaycastCulling(mouseX:number, mouseY:number, removeFace = true){
       if (this.renderCamera == null){
         console.warn("No camera was set in character manager. Please call setRenderCamera(camera) before calling this function")
         return;
@@ -226,10 +239,10 @@ export class CharacterManager {
       // #region restore/remove existing faces logic
       const setOriginalInidicesAndColliders = () => {
         this.characterModel.traverse((child)=>{
-          if (child.isMesh) {
+          if ((child as THREE.Mesh).isMesh) {
             if (child.userData.origIndexBuffer){
-              child.userData.clippedIndexGeometry = child.geometry.index.clone();
-              child.geometry.setIndex(child.userData.origIndexBuffer);
+              child.userData.clippedIndexGeometry = (child as THREE.Mesh).geometry.index?.clone();
+              (child as THREE.Mesh).geometry.setIndex(child.userData.origIndexBuffer);
             }
           }
         })
@@ -237,15 +250,15 @@ export class CharacterManager {
 
       const restoreCullIndicesAndColliders = () => {
         this.characterModel.traverse((child)=>{
-          if (child.isMesh) {
+          if ((child as THREE.Mesh).isMesh) {
             if (child.userData.origIndexBuffer){
-              child.geometry.setIndex(child.userData.clippedIndexGeometry);
+              (child as THREE.Mesh).geometry.setIndex(child.userData.clippedIndexGeometry);
             }
           }
         })
       }
 
-      const checkIndicesIndex = (array, indices) =>{
+      const checkIndicesIndex = (array:ArrayLike<number>, indices:ArrayLike<number>) =>{
         for (let i =0; i < array.length; i+=3){
           if (indices[0] != array[i]){
             continue
@@ -261,11 +274,14 @@ export class CharacterManager {
         return -1;
       }
   
-      const updateCullIndices = (intersection, removeFace) => {
+      const updateCullIndices = (intersection:THREE.Intersection, removeFace=false) => {
         const intersectedObject = intersection.object;
         const face = intersection.face;
+        if(!face){
+          return;
+        }
         const newIndices = [face.a,face.b,face.c];
-        const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array
+        const clipIndices = intersectedObject.userData?.clippedIndexGeometry?.array as ArrayLike<number>;
   
         
   
@@ -329,7 +345,7 @@ export class CharacterManager {
      * @param {Object} [exportOptions=null] - Additional export options
      * @returns {Promise<void>} Promise that resolves when download is complete
      */
-    downloadVRM(name, exportOptions = null) {
+    downloadVRM(name:string, exportOptions:Partial<DownloadOptionsManifest>|null = null,) {
       return new Promise(async (resolve, reject) => {
         if (this.canDownload()) {
           try {
@@ -346,8 +362,8 @@ export class CharacterManager {
             // Call the downloadVRMWithAvatar function with the required parameters
             await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
 
-            resolve();
-          } catch (error) {
+            resolve(undefined);
+          } catch (error:any) {
             // Handle any errors that occurred during the download process
             console.error("Error downloading VRM:", error.message);
             reject(new Error("Failed to download VRM."));
@@ -360,7 +376,7 @@ export class CharacterManager {
         }
       });
     }
-    downloadGLB(name, exportOptions = null){
+    downloadGLB(name:string, exportOptions:Partial<DownloadOptionsManifest>|null = null){
       console.log("XXX fix glb downloader");
       if (this.canDownload()){
         exportOptions = exportOptions || {}
@@ -376,7 +392,7 @@ export class CharacterManager {
      * @returns {Object} Object containing selected traits and their IDs
      */
     getAvatarSelection(){
-      var result = {};
+      const result:Record<string,{name:string,id:string}> = {};
       for (const prop in this.avatar) {
         result[prop] = {
           name:this.avatar[prop].name,
@@ -394,11 +410,11 @@ export class CharacterManager {
       let boneSet  = new Set();
       for (const prop in this.avatar) {
         this.avatar[prop].model.traverse((child)=>{
-          if (child.isMesh){
-            indexCount+= child.geometry.index.array.length;
+          if ((child as any).isMesh){
+            indexCount+= (child as THREE.Mesh).geometry.index?.array.length||0;
           }
-          if (child.isSkinnedMesh){
-            child.skeleton.bones.forEach(bone => {
+          if ((child as any).isSkinnedMesh){
+            (child as THREE.SkinnedMesh).skeleton.bones.forEach(bone => {
               boneSet.add(bone.name); // Add bone name to the Set
             });
           }
@@ -424,8 +440,8 @@ export class CharacterManager {
      * @param {string} identifier - Identifier of target manifest
      * @returns {Array} Array of blend shape traits
      */
-    getBlendShapeGroupTraits(traitGroupId, traitId, identifier){
-      this.manifestDataManager.getGroupBlendShapeTraits(traitGroupId, traitId, identifier);
+    getBlendShapeGroupTraits(traitGroupId:string, traitId:string, identifier?:string){
+      return this.manifestDataManager.getBlendShapeGroupTraits(traitGroupId, traitId, identifier);
     }
     /**
      * Checks if any manifest has NFT lock.
@@ -446,7 +462,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {boolean} Whether the trait group is required
      */
-    isTraitGroupRequired(groupTraitID) {
+    isTraitGroupRequired(groupTraitID:string) {
       return this.manifestDataManager.isTraitGroupRequired(groupTraitID);
     }
     
@@ -456,7 +472,7 @@ export class CharacterManager {
      * @param {string} identifier - Identifier of target manifest
      * @returns {Array} Array of traits for the specified group
      */
-    getTraits(groupTraitID, identifier){
+    getTraits(groupTraitID:string, identifier?:string){
       return this.manifestDataManager.getModelTraits(groupTraitID, identifier);
     }
 
@@ -465,7 +481,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {string} Current trait ID
      */
-    getCurrentTraitID(groupTraitID){
+    getCurrentTraitID(groupTraitID:string){
       return this.avatar[groupTraitID]?.traitInfo?.id;
     }
     /**
@@ -473,7 +489,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {Object} Current trait data
      */
-    getCurrentTraitData(groupTraitID){
+    getCurrentTraitData(groupTraitID:string){
       return this.avatar[groupTraitID]?.traitInfo;
     }
     /**
@@ -481,7 +497,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {Object} Current blend shape trait data
      */
-    getCurrentBlendShapeTraitData(groupTraitID){
+    getCurrentBlendShapeTraitData(groupTraitID:string){
       return this.avatar[groupTraitID]?.blendShapeTraitsInfo||{};
     }
     /**
@@ -489,14 +505,13 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {Object} Current trait VRM
      */
-    getCurrentTraitVRM(groupTraitID){
+    getCurrentTraitVRM(groupTraitID:string){
       return this.avatar[groupTraitID]?.vrm;
     }
     /**
      * Sets the parent model for the character.
-     * @param {THREE.Object3D} model - Parent model to set
      */
-    setParentModel(model){
+    setParentModel(model:THREE.Scene){
       model.add(this.rootModel);
       this.parentModel = model;
       if (this.screenshotManager)
@@ -504,16 +519,14 @@ export class CharacterManager {
     }
     /**
      * Sets the render camera for the character.
-     * @param {THREE.Camera} camera - Camera to set
      */
-    setRenderCamera(camera){
+    setRenderCamera(camera:THREE.Camera){
       this.renderCamera = camera;
     }
 
     
     /**
      * Loads random traits based on manifest data.
-     * @returns {Promise<void>} Promise that resolves when traits are loaded
      */
     loadRandomTraits() {
       return new Promise(async (resolve, reject) => {
@@ -1134,16 +1147,7 @@ export class CharacterManager {
       return this.manifestDataManager.getMainCurrency();
     }
 
-    /**
-     * Unlocks a manifest by index.
-     * @param {number} index - Index of the manifest to unlock
-     * @param {Object} [testWallet=null] - Test wallet to use
-     * @returns {Promise<void>} Promise that resolves when manifest is unlocked
-     */
-    unlockManifestByIndex(index, testWallet = null){
-      console.log(index);
-      return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
-    }
+
     /**
      * Purchases assets from the current avatar.
      * @returns {Promise<void>} Promise that resolves when purchase is complete
@@ -1735,7 +1739,12 @@ export class CharacterManager {
 
 // Class to load traits
 class TraitLoadingManager{
-    constructor(){
+    loadPercentager:number;
+    loadingManager:THREE.LoadingManager;
+    gltfLoader:GLTFLoader;
+    textureLoader:THREE.TextureLoader;
+    isLoading:boolean;
+    constructor( characterManager?:CharacterManager){
         // Main loading manager
         const loadingManager = new THREE.LoadingManager();
         loadingManager.onProgress = (url, loaded, total) => {
@@ -1759,21 +1768,21 @@ class TraitLoadingManager{
 
         this.isLoading = false;
     }
-    setLoadPercentage(value){
+    setLoadPercentage(value:number){
         this.loadPercentager = value;
     }
 
 
     // options as SelectedOptions class
     // Loads an array of trait options and returns a promise that resolves as an array of Loaded Data
-    loadTraitOptions(options) {
-        return new Promise((resolve) => {
+    loadTraitOptions(options:SelectedOption[]) {
+        return new Promise<LoadedData[]>((resolve) => {
             this.isLoading = true;
-            const resultData = [];
+            const resultData:LoadedData[] = [];
     
             const promises = options.map(async (option, index) => {
                 if (option == null) {
-                    resultData[index] = null;
+                    resultData[index] = null!;
                     return;
                 }
                 
@@ -1796,23 +1805,24 @@ class TraitLoadingManager{
                                   txt.flipY = false;
                                   txt.colorSpace = THREE.SRGBColorSpace;
                                   resolve(txt);
-                              },null,(err)=>{
+                              },undefined,(err)=>{
                                 console.error("error loading texture: ", err)
                                 resolve(null);
                               })
                           })
                   )
                 );
+                const models = loadedModels.filter((model) => model !== null) as GLTF[]
     
                 const loadedColors = getAsArray(option?.traitColor?.value).map((colorValue) => new THREE.Color(colorValue));
                 resultData[index] = new LoadedData({
                   collectionID: option?.traitModel.collectionID,
                   traitGroupID: option?.traitModel.traitGroup.trait,
                   traitModel: option?.traitModel,
-                  textureTrait: option?.traitTexture,
-                  colorTrait: option?.traitColor,
-                  models: loadedModels,
-                  textures: loadedTextures,
+                  textureTrait: option?.traitTexture||undefined,
+                  colorTrait: option?.traitColor||undefined,
+                  models,
+                  textures: loadedTextures.filter((model) => model !== null) as THREE.Texture[],
                   colors: loadedColors,
                 });
             });
@@ -1832,19 +1842,37 @@ class TraitLoadingManager{
     }
 }
 class LoadedData{
-    constructor(data){
-        const {
-            collectionID,
-            traitGroupID,
-            traitModel,
-            textureTrait,
-            colorTrait,
-            models,
-            textures,
-            colors
-        } = data;
+    collectionID?:string;
+    traitGroupID:string;
+    traitModel:ModelTrait|null;
+    textureTrait?:TextureTrait;
+    colorTrait?:ColorTrait;
+    models:GLTF[];
+    textures:THREE.Texture[];
+    colors:THREE.Color[];
 
-        this.collectionID = collectionID;
+
+    constructor(data:{
+      collectionID?: string,
+      traitGroupID: string,
+      traitModel: ModelTrait|null,
+      textureTrait?: TextureTrait,
+      colorTrait?: ColorTrait,
+      models?: GLTF[],
+      textures?: THREE.Texture[],
+      colors?: THREE.Color[]
+      ,
+  }){
+        const {
+          traitGroupID,
+          traitModel,
+          textureTrait,
+          colorTrait,
+          models,
+          textures,
+          colors,
+          collectionID,
+        } = data;
 
         // Option base data
         this.traitGroupID = traitGroupID;
@@ -1852,10 +1880,12 @@ class LoadedData{
         this.textureTrait = textureTrait;
         this.colorTrait = colorTrait;
 
+        this.collectionID = collectionID;
+
         // Option loaded data
-        this.models = models;
-        this.textures = textures;
-        this.colors = colors;
+        this.models = models||[];
+        this.textures = textures||[];
+        this.colors = colors||[];
     }
 }
 
@@ -1866,8 +1896,8 @@ class LoadedData{
  * @param {THREE.Texture} txt 
  * @returns 
  */
-function updateMaterialTexture(mat,txt){
-  if(mat.type === "Shadermaterial" && !mat.isMToonMaterial){
+function updateMaterialTexture(mat: THREE.MeshStandardMaterial | MToonMaterial, txt: THREE.Texture) {
+  if(mat.type === "Shadermaterial" && !(mat as MToonMaterial).isMToonMaterial){
     console.warn("XXX set material texture to shader material", mat)
     return 
   }

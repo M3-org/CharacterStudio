@@ -1,19 +1,22 @@
-import { CharacterManifestData } from "./CharacterManifestData";
+import { BlendShapeTrait, CharacterManifestData, manifestJson, ModelTrait, SelectedOption } from "./CharacterManifestData";
 import { getAsArray } from "./utils";
 
 export class ManifestDataManager{
+  mainManifestData:CharacterManifestData
+  manifestDataByIdentifier:Record<string,CharacterManifestData> = {}
+  manifestDataCollection:CharacterManifestData[]
+  defaultValues:{defaultCullingLayer?:number, defaultCullingDistance?:number[], maxCullingDistance?:number}
     constructor(){
-      this.mainManifestData = null;
+      this.mainManifestData = null!;
       this.manifestDataCollection = [];
-      this.manifestDataByIdentifier = {};
       this.defaultValues = {
         defaultCullingLayer:-1,
-        defaultCullingDistance:null,
+        defaultCullingDistance:undefined,
         maxCullingDistance:Infinity
       };
       
     }
-    getLoadedLockedManifests(isLocked){
+    getLoadedLockedManifests(isLocked:boolean){
       return this.manifestDataCollection.filter((manifestData)=>manifestData.locked == isLocked);
     }
     getMainCurrency(){
@@ -30,15 +33,15 @@ export class ManifestDataManager{
       return this.manifestDataCollection;
     }
 
-    getLoadedManifestByIdentifier(identifier){
+    getLoadedManifestByIdentifier(identifier:string){
       return this.manifestDataByIdentifier[identifier];
     }
-    getLoadedManifestByIndex(index){
+    getLoadedManifestByIndex(index:number){
       return this.manifestDataCollection[index];
     }
 
     
-    unlockManifestByIndex(index, testWallet = null){
+    unlockManifestByIndex(index:number, testWallet?:string){
       const manifestData = this.manifestDataCollection[index];
       if (manifestData != null)
         return manifestData.unlockWalletOwnedTraits(testWallet);
@@ -47,7 +50,7 @@ export class ManifestDataManager{
         return Promise.reject();
       }
     }
-    unlockManifestByIdentifier(identifier, testWallet = null){
+    unlockManifestByIdentifier(identifier:string, testWallet?:string){
       const manifestData = this.manifestDataByIdentifier[identifier];
       if (manifestData != null)
         return manifestData.unlockWalletOwnedTraits(testWallet);
@@ -58,15 +61,15 @@ export class ManifestDataManager{
         
     }
 
-    isManifestByIndexNFTLocked(index){
-      return  this.manifestDataCollection[index]?.isNFTLocked(testWallet);
+    isManifestByIndexNFTLocked(index:number){
+      return  this.manifestDataCollection[index]?.isNFTLocked();
     }
-    isManifestByIdentifierNFTLocked(identifier){
-      return  this.manifestDataByIdentifier[identifier]?.isNFTLocked(testWallet);
+    isManifestByIdentifierNFTLocked(identifier:string){
+      return  this.manifestDataByIdentifier[identifier]?.isNFTLocked();
     }
     
     clearManifests(){
-        this.mainManifestData = null;
+        this.mainManifestData = null!;
         this.manifestDataCollection = [];
         this.manifestDataByIdentifier = {};
     }
@@ -83,23 +86,27 @@ export class ManifestDataManager{
     }
 
     
-    setManifestDefaultValues(manifest){
+    setManifestDefaultValues(manifest:manifestJson|CharacterManifestData){
       this.defaultValues = {
-        defaultCullingLayer:manifest.defaultCullingLayer != null ? manifest.defaultCullingLayer : -1,
-        defaultCullingDistance:manifest.defaultCullingDistance != null ? manifest.defaultCullingDistance : null,
-        maxCullingDistance:manifest.maxCullingDistance != null ? manifest.maxCullingDistance : Infinity
+        defaultCullingLayer:!!manifest.defaultCullingLayer ? manifest.defaultCullingLayer : -1,
+        defaultCullingDistance:!!manifest.defaultCullingDistance ? manifest.defaultCullingDistance : undefined,
+        //@ts-ignore maxCullingDistance is missing in type - it is probably not necessary to add it there
+        maxCullingDistance:!!manifest.maxCullingDistance ? manifest.maxCullingDistance : Infinity
       };
     }
-    
-    isGroupTraitRestrictedInAnyManifest(trait, groupTraitID){
-      for (const manifestData of this.manifestDataCollection){
-        const p = manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendsh
-      }
+    /**
+     * This function was never implemented properly
+     */
+    isGroupTraitRestrictedInAnyManifest(trait:string){
+      // for (const manifestData of this.manifestDataCollection){
+      //   const p = manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendsha
+      // }
+      return undefined
     }
 
 
     setCustomManifest(){
-      const manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]};
+      const manifest = {colliderTraits:["CUSTOM"],traits:[{name:"Custom", trait:"CUSTOM", collection:[]}]} as unknown as manifestJson;
       this.setManifestDefaultValues(manifest);
       this.mainManifestData = new CharacterManifestData(manifest, "_custom");
       this.manifestDataCollection.push(this.mainManifestData);
@@ -113,7 +120,7 @@ export class ManifestDataManager{
        * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
        *                         or rejects with an error message if loading fails.
        */
-    loadManifest(url, identifier) {
+    loadManifest(url:string, identifier?:string) {
       if (identifier == null)
         identifier = "main";
       if (this.manifestDataByIdentifier[identifier] != null){
@@ -122,15 +129,14 @@ export class ManifestDataManager{
       }
       
       // remove in case character was loaded
-      return new Promise((resolve, reject) => {
+      return new Promise<void>(async (resolve, reject) => {
         try {
           // Fetch the manifest data asynchronously
-          this._fetchManifest(url).then(manifest=>{
-            this.setManifest(manifest, identifier).then(()=>{
-              resolve();
-            })
-          })
-        } catch (error) {
+          const manifest = await this._fetchManifest(url)
+          await this.setManifest(manifest, identifier)
+          resolve()
+          
+        } catch (error: any) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error loading manifest:", error.message);
           reject(new Error("Failed to load the manifest."));
@@ -145,15 +151,14 @@ export class ManifestDataManager{
        * @returns {Promise<void>} A Promise that resolves when the manifest is successfully loaded,
        *                         or rejects with an error message if loading fails.
        */
-    setManifest(manifest, identifier){
-      if (identifier == null)
-        identifier = "main";
+    setManifest(manifest: manifestJson, identifier?: string){
+      identifier = identifier || "main";
 
       if (this.manifestDataByIdentifier[identifier] != null){
         console.log(`Manifest with ID ${identifier} has been already loaded.`)
         return Promise.reject(new Error(`Manifest with ID ${identifier} has been already loaded.`));
       }
-      return new Promise(async (resolve, reject) => {
+      return new Promise<void>(async (resolve, reject) => {
         try{
           if (manifest) {
             // Create a CharacterManifestData instance based on the fetched manifest
@@ -187,7 +192,7 @@ export class ManifestDataManager{
             console.error(errorMessage);
             reject(new Error(errorMessage));
           }
-        } catch (error) {
+        } catch (error: any) {
           // Handle any errors that occurred during the asynchronous operations
           console.error("Error setting manifest:", error.message);
           reject(new Error("Failed to set the manifest."));
@@ -202,9 +207,9 @@ export class ManifestDataManager{
         return false;
     }
 
-    getTraitOption(groupTraitID, traitID, optionalIdentifier){
+    getTraitOption(groupTraitID: string, traitID: string, optionalIdentifier?: string){
       // Get from specified ID manifestData
-      if (optionalIdentifier != null){
+      if (optionalIdentifier){
         const manifestData = this.manifestDataByIdentifier[optionalIdentifier];
         if (manifestData != null){
           return manifestData.getTraitOption(groupTraitID, traitID);
@@ -216,7 +221,7 @@ export class ManifestDataManager{
       }
       // Get from all manifestData, the first found
       else{
-        let traitOption = null;
+        let traitOption:SelectedOption|null  = null;
         this.manifestDataCollection.forEach(manifestData => {
           if (traitOption == null)
             traitOption = manifestData.getTraitOption(groupTraitID, traitID);
@@ -225,11 +230,11 @@ export class ManifestDataManager{
       }
     }
   
-    getTraitOptionById(traitID, optionalIdentifier){
-      if (optionalIdentifier != null){
+    getTraitOptionById(traitID:string, optionalIdentifier?:string){
+      if (optionalIdentifier){
         const manifestData = this.manifestDataByIdentifier[optionalIdentifier];
-        if (manifestData != null){
-          return manifestData[identifier]?.getTraitOptionById(traitID);
+        if (manifestData){
+          return manifestData.getTraitOptionById(traitID);
         }
         else{
           console.warn(`No manifest data with name ${optionalIdentifier} was found.`)
@@ -237,7 +242,7 @@ export class ManifestDataManager{
         }
       }
       else{
-        traitOption = null
+        let traitOption:ModelTrait |undefined  = undefined;
         this.manifestDataCollection.forEach(manifestData => {
           if (traitOption == null)
             traitOption = manifestData.getTraitOptionById(traitID);
@@ -246,7 +251,7 @@ export class ManifestDataManager{
       }
     }
 
-    getTraitOptionsByType(traitType, optionalIdentifier){
+    getTraitOptionsByType(traitType:string, optionalIdentifier?:string){
       if (optionalIdentifier != null){
         const manifestData = this.manifestDataByIdentifier[optionalIdentifier];
         if (manifestData != null){
@@ -258,7 +263,7 @@ export class ManifestDataManager{
         }
       }
       else{
-        const fullCollection = [];
+        const fullCollection:ModelTrait[] = [];
         this.manifestDataCollection.forEach(manifestData => {
           fullCollection.push(...getAsArray(manifestData.getTraitOptionsByType(traitType)));
         });
@@ -266,8 +271,8 @@ export class ManifestDataManager{
       }
     }
   
-    getAllBlendShapeTraits(optionalIdentifier){
-      if (optionalIdentifier != null){
+    getAllBlendShapeTraits(optionalIdentifier?:string){
+      if (optionalIdentifier){
         const manifestData = this.manifestDataByIdentifier[optionalIdentifier];
         if (manifestData != null){
           return manifestData.getAllBlendShapeTraits();
@@ -278,7 +283,7 @@ export class ManifestDataManager{
         }
       }
       else{
-        const allBlendshapes = [];
+        const allBlendshapes:BlendShapeTrait[] = [];
         this.manifestDataCollection.forEach(manifestData => {
           allBlendshapes.push(...getAsArray(manifestData.getAllBlendShapeTraits()))
         });
@@ -286,7 +291,7 @@ export class ManifestDataManager{
       }
     }
   
-    isColliderRequired(traitID){
+    isColliderRequired(traitID:string){
       let result = false;
       this.manifestDataCollection.forEach(manifestData => {
         if (manifestData.isColliderRequired(traitID))
@@ -295,11 +300,11 @@ export class ManifestDataManager{
       return result;
     }
 
-    isLipsyncTrait(traitID, identifier){
-      if (identifier == null){
+    isLipsyncTrait(traitID:string, identifier?:string){
+      if (!identifier){
         console.log(`Identifier was not provided. Using main manifest`)
       }
-      const manifestData = identifier == null ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
+      const manifestData = !identifier ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
       if (manifestData != null){
         return manifestData.isLipsyncTrait(traitID);
       }
@@ -308,7 +313,7 @@ export class ManifestDataManager{
       }
     }
   
-    getCustomTraitOption(groupTraitID, url){
+    getCustomTraitOption(groupTraitID:string, url:string){
       return this.mainManifestData.getCustomTraitOption(groupTraitID, url);
     }
   
@@ -386,18 +391,17 @@ export class ManifestDataManager{
       return result;
     }
   
-    getModelTraits(groupTraitID, optionalIdentifier){
-      if (optionalIdentifier != null){
+    getModelTraits(groupTraitID:string, optionalIdentifier?:string){
+      if (optionalIdentifier){
         const manifestData = this.manifestDataByIdentifier[optionalIdentifier];
         if (manifestData != null){
-          return manifestData.getModelTraits(traitType);
+          return manifestData.getModelTraits(groupTraitID);
         }
         else{
           console.warn(`No manifest data with name ${optionalIdentifier} was found.`)
           return null;
         }
-      }
-      else{
+      } else{
         const result = [];
         for (const identifier in this.manifestDataByIdentifier){
           const manifestData = this.manifestDataByIdentifier[identifier];
@@ -406,7 +410,7 @@ export class ManifestDataManager{
         return result;
       }
     }
-    getRandomTrait(groupTraitID){
+    getRandomTrait(groupTraitID:string){
       // get random trait from all loaded manifest data
       const randomTraits = [];
       this.manifestDataCollection.forEach(manifestData => {
@@ -419,7 +423,7 @@ export class ManifestDataManager{
         randomTraits[Math.floor(Math.random() * randomTraits.length)] : 
         null;
     }
-    getRandomTraits(optionalGroupTraitIDs){
+    getRandomTraits(optionalGroupTraitIDs?:string[]){
       const selectedOptionsObject = {}
       this.manifestDataCollection.forEach(manifestData => {
         
@@ -533,13 +537,13 @@ export class ManifestDataManager{
       return result;
     }
   
-    getBlendShapeGroupTraits(traitGroupId, traitId, identifier){
-      if (identifier == null){
+    getBlendShapeGroupTraits(traitGroupId:string, traitId:string, identifier?:string){
+      if (!identifier){
         console.log(`Identifier was not provided. Using main manifest`)
       }
-      const manifestData = identifier == null ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
+      const manifestData = !identifier ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
 
-      return getAsArray(manifestData?.getModelTrait(traitGroupId, traitId)?.getGroupBlendShapeTraits());
+      return getAsArray(manifestData?.getModelTrait(traitGroupId, traitId)?.getGroupBlendShapeTraits()).filter(Boolean);
     }
   
     getExportOptions(){

@@ -4,27 +4,39 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { addModelData } from "./utils";
 import { getMixamoAnimation } from './loadMixamoAnimation';
 import { getAsArray, getFileNameWithoutExtension } from './utils';
+import { VRM, VRMHumanBone } from '@pixiv/three-vrm';
 
 // make a class that hold all the informarion
 const fbxLoader = new FBXLoader();
 const gltfLoader = new GLTFLoader();
 const interpolationTime = 0.2;
 
-const getRandomInt = (max) => {
+const getRandomInt = (max:number) => {
   return Math.floor(Math.random() * max);
 }
 
 class AnimationControl {
-  constructor(animationManager, scene, vrm, animations, curIdx, lastIdx, poseStart){
+  mixer:THREE.AnimationMixer;
+  actions:THREE.AnimationAction[] = [];
+  to:THREE.AnimationAction|null = null;
+  from:THREE.AnimationAction|null = null;
+  vrm:VRM | null = null;
+  animationManager:AnimationManager;
+  mixamoModel:THREE.Object3D = null!;
+  fadeOutActions:THREE.AnimationAction[]|null = null!;
+  newAnimationWeight:number;
+  neckBone:VRMHumanBone |undefined
+  spineBone:VRMHumanBone |undefined
+  timeScale:number;
+
+  animations:THREE.AnimationClip[] = [];
+
+  constructor(animationManager:AnimationManager, scene:THREE.Group | THREE.Object3D, vrm:VRM|null, animations:THREE.AnimationClip[]|null, curIdx:number, lastIdx:number, poseStart:boolean=false){
     this.mixer = new THREE.AnimationMixer(scene);
     this.actions = [];
-    this.to = null;
-    this.from = null;
     this.vrm = vrm;
     this.animationManager = animationManager;
-    this.mixamoModel = null;
 
-    this.fadeOutActions = null;
     this.newAnimationWeight = 1;
 
     this.neckBone = vrm?.humanoid?.humanBones?.neck;
@@ -54,18 +66,18 @@ class AnimationControl {
     }
   }
 
-  setTimeScale(timeScale){
+  setTimeScale(timeScale:number){
     this.timeScale = timeScale;
     this.actions.forEach(action => {
       action.timeScale = timeScale;
     });
   }
 
-  setMouseLookEnabled(mouseLookEnabled){
+  setMouseLookEnabled(mouseLookEnabled:boolean){
     this.setAnimations(this.animations, this.mixamoModel, mouseLookEnabled);
   }
 
-  setAnimations(animations, mixamoModel=null, mouseLookEnabled = null, quickChange = false){
+  setAnimations(animations:THREE.AnimationClip[], mixamoModel:THREE.Object3D|null = null, mouseLookEnabled:boolean|null = null, quickChange:boolean = false){
     mouseLookEnabled = mouseLookEnabled == null ? this.animationManager.mouseLookEnabled : mouseLookEnabled;
     this.animations = animations;
     //this.mixer.stopAllAction();
@@ -78,7 +90,7 @@ class AnimationControl {
         }
       }
     } else{
-      const cloneAnims = [];
+      const cloneAnims:THREE.AnimationClip[] = [];
       if (animations && Array.isArray(animations)) {
         animations.forEach(animation => {
           cloneAnims.push(animation.clone());
@@ -128,7 +140,7 @@ class AnimationControl {
     }
   }
 
-  update(weightIn,weightOut){
+  update(weightIn:number,weightOut:number){
     if (this.fadeOutActions != null){
       this.newAnimationWeight += 1/5;
       this.fadeOutActions.forEach(action => {
@@ -162,14 +174,18 @@ class AnimationControl {
 
   reset() {
     this.mixer.setTime(0);
-    this.to.paused = true;
+    if(this.to){
+      this.to.paused = true;
+    }
   }
 
   resume() {
-    this.to.paused = false;
+    if(this.to){
+      this.to.paused = false;
+    }
   }
 
-  setTime(time){
+  setTime(time:number){
     this.mixer.setTime(time);
   }
 
@@ -183,68 +199,75 @@ class AnimationControl {
 }
 
 export class AnimationManager{
+
+  animationPaths:string[] = [];
+  defaultAnimations:string[] = [];
+  lastAnimID:number = -1;
+  mainControl:AnimationControl|null = null;
+  animationControl:AnimationControl|null = null;
+  animations:THREE.AnimationClip[] = [];
+  paused:boolean = false;
+
+  scale:number = 1;
+
+  curLoadAnim:number = 0;
+  currentAnimationName:string = "";
+
+  weightIn:number = NaN; // note: can't set null, because of check `null < 1` will result `true`.
+  weightOut:number = NaN;
+
+  curAnimID:number = 0;
+  animationControls:AnimationControl[] = [];
+  started:boolean = false;
+  mouseLookEnabled:boolean = false;
+
+
+  mixamoModel:THREE.Object3D|THREE.Group = null!;
+  mixamoAnimations:THREE.AnimationClip[] = [];
+
+  currentClip:THREE.AnimationClip = null!;
+
   constructor (){
-    this.animationPaths = [];
-    this.defaultAnimations = [];
-    this.lastAnimID = null;
-    this.mainControl = null;
-    this.animationControl  = null;
-    this.animations = null;
-    this.paused = false;
-
-    this.scale = 1;
-
-    this.curLoadAnim = 0;
-    this.currentAnimationName = "";
-    
-    this.weightIn = NaN; // note: can't set null, because of check `null < 1` will result `true`.
-    this.weightOut = NaN;
-    this.lastAnimID = -1;
-    this.curAnimID = 0;
-    this.animationControls = [];
-    this.started = false;
-    this.mouseLookEnabled = false;
-
-    this.mixamoModel = null;
-    this.mixamoAnimations = null;
-
-    this.currentClip = null;
 
     setInterval(() => {
       this.update();
     }, 1000/30);
   }
 
-  enableMouseLook(enable){
+  enableMouseLook(enable:boolean){
     this.mouseLookEnabled = enable;
     this.animationControls.forEach(animControls => {
       animControls.setMouseLookEnabled(enable);
     });
   }
-  
-  setScale (scale){
+
+  setScale (scale:number){
     this.scale = scale;
   }
 
-  async loadAnimation(paths, isPose, poseTime = 0, isfbx = true, pathBase = "", name = ""){
+  async loadAnimation(paths:string|string[], isPose:boolean=false, poseTime = 0, isfbx = true, pathBase = "", name = ""){
     const path = pathBase + (pathBase != "" ? "/":"") + getAsArray(paths)[0];
     name = name == "" ? getFileNameWithoutExtension(path) : name;
     this.currentAnimationName = name;
     const loader = isfbx ? fbxLoader : gltfLoader;
     const animationModel = await loader.loadAsync(path);
     // if we have mixamo animations store the model
-    animationModel.scale.set(this.scale,this.scale,this.scale)
+    if('scale' in animationModel){
+      animationModel.scale.set(this.scale,this.scale,this.scale)
+    }else{
+      animationModel.scene.scale.set(this.scale,this.scale,this.scale)
+    }
     this._scaleOffsetHips(animationModel.animations);
     const clip = THREE.AnimationClip.findByName( animationModel.animations, 'mixamo.com' );
     
     if (clip != null){
-      this.mixamoModel = animationModel.clone();
+      this.mixamoModel = 'clone' in animationModel? animationModel.clone(): animationModel.scene.clone();
       this.mixamoAnimations =   animationModel.animations;
       this.currentClip = clip;
     }
     // if no mixamo animation is present, just save the animations
     else{
-      this.mixamoModel = null
+      this.mixamoModel = null!
       this.animations = animationModel.animations;
       this.currentClip = animationModel.animations[0];
     }
@@ -252,7 +275,7 @@ export class AnimationManager{
     if (this.mainControl == null){
       this.curAnimID = 0;
       this.lastAnimID = -1;
-      this.mainControl = new AnimationControl(this, animationModel, null, animationModel.animations, this.curAnimID, this.lastAnimID,isPose)
+      this.mainControl = new AnimationControl(this, animationModel as any, null, animationModel.animations, this.curAnimID, this.lastAnimID,isPose)
       this.animationControls.push(this.mainControl)
     }
 
@@ -284,7 +307,7 @@ export class AnimationManager{
     this.mainControl = null;
   }
 
-  storeAnimationPaths(pathArray, pathBase, addDefaultAnimationPaths = true){
+  storeAnimationPaths(pathArray:string|string[], pathBase:string, addDefaultAnimationPaths = true){
     const paths = getAsArray(pathArray);
     if (addDefaultAnimationPaths) {
         this.animationPaths = [...this.defaultAnimations, ...paths.map(path => `${pathBase}/${path}`)];
@@ -293,8 +316,8 @@ export class AnimationManager{
     }
   }
 
-  storeDefaultAnimationPaths(pathArray, pathBase){
-    const paths = getAsArray(pathArray);   
+  storeDefaultAnimationPaths(pathArray:string|string[], pathBase:string){
+    const paths = getAsArray(pathArray);
     this.defaultAnimations = paths.map(path => pathBase != "" ? `${pathBase}/${path}` : path);
     this.animationPaths = this.defaultAnimations;
   }
@@ -327,7 +350,7 @@ export class AnimationManager{
     }); 
   }
 
-  _scaleOffsetHips(animations){
+  _scaleOffsetHips(animations:THREE.AnimationClip[]){
     animations.forEach(anim => {
       for (let i =0; i < anim.tracks.length; i++){
         const track = anim.tracks[i];
@@ -343,12 +366,12 @@ export class AnimationManager{
     });
   }
 
-  addVRM(vrm){
-    if (vrm == null){
+  addVRM(vrm:VRM){
+    if (!vrm){
       console.error("Non Existing VRM was provided.")
       return;
     }
-    let animations = null;
+    let animations:THREE.AnimationClip[]|null = null!;
     if (this.mixamoModel != null){
       animations = [getMixamoAnimation(this.mixamoAnimations, this.mixamoModel.clone() ,vrm)]
       if (this.animations == null)
@@ -378,7 +401,7 @@ export class AnimationManager{
     // else this.play();
   }
 
-  removeVRM(vrmToRemove) {
+  removeVRM(vrmToRemove: VRM) {
     const index = this.animationControls.findIndex((control) => control.vrm === vrmToRemove);
 
     if (index !== -1) {
@@ -389,11 +412,17 @@ export class AnimationManager{
   }
   
   getFromActionTime(){
-    return this.mainControl.actions[this.lastAnimID].time;
+    if(!this.mainControl){
+      console.warn("#getFromActionTime: No main animation control available, returning 0.");
+    }
+    return this.mainControl?.actions[this.lastAnimID].time || 0 ;
   }
 
   getToActionTime(){
-    return this.mainControl ? this.mainControl.actions[this.curAnimID].time : 0.1;
+    if(!this.mainControl){
+      console.warn("#getToActionTime: No main animation control available, returning 0.1");
+    }
+    return this.mainControl?.actions[this.curAnimID].time || 0.1;
   }
 
   getWeightIn(){
@@ -404,7 +433,7 @@ export class AnimationManager{
     return this.weightOut;
   }
   
-  disposeAnimation(targetAnimControl){
+  disposeAnimation(targetAnimControl:AnimationControl){
     if (targetAnimControl != null){
       const ind = this.animationControls.indexOf(targetAnimControl);
       if (ind != -1)
@@ -418,10 +447,10 @@ export class AnimationManager{
     });
   }
 
-  animRandomizer(yieldTime){
+  animRandomizer(yieldTime:number){
     setTimeout(() => {
       this.lastAnimID = this.curAnimID;
-      this.curAnimID = getRandomInt(this.animations.length);
+      this.curAnimID = getRandomInt(this.animations?.length||0);
       if (this.curAnimID != this.lastAnimID){
         
         this.animationControls.forEach(animControl => {
@@ -450,17 +479,17 @@ export class AnimationManager{
   isPaused(){
     return this.paused;
   }
-  setTime(time){
+  setTime(time:number){
     if (this.mainControl){
       this.animationControls.forEach(animControl => {
         animControl.setTime(time);
       });
     }
   }
-  setFrame(frame){
+  setFrame(frame:number){
     this.setTime(frame * 30);
   }
-  setSpeed(speed){
+  setSpeed(speed:number){
     if (this.mainControl){
       this.animationControls.forEach(animControl => {
         animControl.setTimeScale(speed);

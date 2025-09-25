@@ -1,41 +1,25 @@
+import { CharacterManifestData, ModelTrait, TraitModelsGroup } from "./CharacterManifestData";
 import { getAsArray } from "./utils";
 
-/**
- * @typedef {import('./CharacterManifestData').CharacterManifestData} CharacterManifestData
- * @typedef {import('./CharacterManifestData').ModelTrait} ModelTrait
- * @typedef {import('./CharacterManifestData').TraitModelsGroup} TraitModelsGroup
- * */
 
 export class ManifestRestrictions {
 
-    /**
-     * @type {Record<string, {
-     *  restrictedTraits: string[];
-     *   restrictedTypes: string[];
-     *   restrictedBlendshapes: string[];
-     * }>;}
-     */
-    traitRestrictions
+    traitRestrictions: Record<string, {
+        restrictedTraits: string[];
+        restrictedTypes: string[];
+        restrictedBlendshapes: string[];
+    }>;
 
-    /**
-     * @type {Record<string, TraitRestriction>}
-     */
-    restrictionMaps = {};
+    restrictionMaps: Record<string, TraitRestriction> = {};
 
     /**
      * restrictions for specific trait items
      * example: { 'hat-blue-02': ['pants-blue-01', 'hat-blue-03'] }
-     * @type {Map<string, Set<string>>}
      */
-    itemRestrictions = new Map()
-
-    /**
-     * @type {CharacterManifestData}
-     */
-    manifestData
+    itemRestrictions: Map<string, Set<string>> = new Map()
     
-    constructor( manifestData) {
-        this.manifestData = manifestData;
+    constructor(public manifestData: CharacterManifestData) {
+
         this.traitRestrictions = manifestData.traitRestrictions || {}
         this._validateTraitRestrictions();
 
@@ -46,9 +30,7 @@ export class ManifestRestrictions {
         this.logRules()
     }
 
-
     logRules = () => {
-        const log = []
         for(const r in this.restrictionMaps){
             const restriction = this.restrictionMaps[r]
             restriction.restrictedTraits.size && console.log(`Trait: ${restriction.group.trait} is restrciting ${Array.from(restriction.restrictedTraits.values()).join(', ')}`)
@@ -56,26 +38,21 @@ export class ManifestRestrictions {
             restriction.restrictedBlendshapes.size && console.log(`Trait: ${restriction.group.trait} has blendshape restrictions on trait ${Array.from(restriction.restrictedBlendshapes.values()).join(', ')}`)
         }
         this.itemRestrictions.forEach((v,k)=>{
-            log.push(`Item ${k} is restricting item ${Array.from(v.values()).join(', ')}`)
+            console.log(`Item: ${k} is restricting ${Array.from(v.values()).join(', ')}`)
         })
-        console.log(log.join('\n'))
     }
 
-    /**
-     * @private
-     * Setup specific item restrictions
-     */ 
-    _setupSpecificItemRestrictions = () => {
+    private _setupSpecificItemRestrictions = () => {
         const all = this.manifestData.getAllTraitOptions()
         all.forEach((c)=>{
-            this.itemRestrictions.set(c.id, new Set())
+            this.itemRestrictions.set(c.id, new Set<string>())
         })
 
         for(const modelTrait of all){
             if(!modelTrait._restrictedItems || modelTrait._restrictedItems.length == 0) {
                 continue;
             }
-            const restrictedSpecificIds = new Set()
+            const restrictedSpecificIds = new Set<string>()
 
 
             /**
@@ -116,11 +93,7 @@ export class ManifestRestrictions {
 
     }
 
-    /**
-     * 
-     * @param {TraitModelsGroup} group 
-     */
-    createTraitRestriction = (group) => {
+    createTraitRestriction = (group: TraitModelsGroup) => {
         if (this.restrictionMaps[group.trait]) {
             return this.restrictionMaps[group.trait];
         }
@@ -134,10 +107,9 @@ export class ManifestRestrictions {
 
     /**
      * Given a list of traits, get the traits that are forbidden given the restrictions
-     * @param {string[]} traitGroups
      */
-    getForbiddenTraits = (traitGroups) => {
-        const disallowedTraits =new Set()
+    getForbiddenTraits = (traitGroups: string[]) => {
+        const disallowedTraits =new Set<string>()
         for(const traitId in this.restrictionMaps) {
             if(!traitGroups.includes(traitId)) {
                 continue
@@ -153,10 +125,9 @@ export class ManifestRestrictions {
 
     /**
      * Given a list of traits, get the types that are forbidden given the restrictions
-     * @param {string[]} traitGroups
      */
-    getForbiddenTypes = (traitGroups) => {
-        const disallowedTypes =new Set()
+    getForbiddenTypes = (traitGroups: string[]) => {
+        const disallowedTypes =new Set<string>()
         for(const traitId in this.restrictionMaps) {
             if(!traitGroups.includes(traitId)) {
                 continue
@@ -169,19 +140,12 @@ export class ManifestRestrictions {
         }
         return Array.from(disallowedTypes.values())
     }
-    /**
-     * @private
-     * Validate trait restrictions
-     */
-     _validateTraitRestrictions = () => {
-        /**
-         * @type {Record<string, {
-         *   restrictedTraits: string[];
-         *   restrictedTypes: string[];
-         * restrictedBlendshapes: string[];
-         *}>}
-         */
-        const traitRes = {}
+    private _validateTraitRestrictions = () => {
+        const traitRes: Record<string, {
+            restrictedTraits: string[];
+            restrictedTypes: string[];
+            restrictedBlendshapes: string[];
+        }> = {}
         if (this.traitRestrictions) {
             for (const prop in this.traitRestrictions) {
                 if (traitRes[prop] == null) {
@@ -194,7 +158,7 @@ export class ManifestRestrictions {
                     }else{
                         return null
                     }
-                }).filter((t) => !!t)
+                }).filter((t) => !!t) as string[];
                 traitRes[prop].restrictedTypes = getAsArray(this.traitRestrictions[prop].restrictedTypes).filter((t) => !!t);
                 traitRes[prop].restrictedBlendshapes = getAsArray(this.traitRestrictions[prop].restrictedBlendshapes).filter((t) => !!t);
             }
@@ -203,55 +167,13 @@ export class ManifestRestrictions {
     }
 }
 
-
-/**
- * @typedef {Object} TraitRestrictionResult
- * @property {boolean} allowed
- * @property {string} blockingTrait
- */
-/**
- * @typedef {Object} TypeRestrictionResult
- * @property {boolean} allowed
- * @property {string} blockingType
- */
-/**
- * @typedef {Object} blockingObject
- * @property {string} blockingTrait
- * @property {string} blockingType
- * @property {string} blockingItemId
- */
-/**
- * @typedef {Object} ItemRestrictionResult
- * @property {boolean} allowed
- * @property {blockingObject} blocking
- */
-
 export class TraitRestriction {
-    /**
-     * @type {TraitModelsGroup}
-     */
-    group;
-    /**
-     * @type {Set}
-     */
-    restrictedTraits
-    /**
-     * @type {Set}
-     */
-    restrictedTypes
+    group: TraitModelsGroup;
+    restrictedTraits: Set<string>
+    restrictedTypes: Set<string>
+    restrictedBlendshapes: Set<string>
 
-    /**
-     * @type {Set}
-     */
-    restrictedBlendshapes
-
-    /**
-     * 
-     * @param {ManifestRestrictions} manifestRestrictions 
-     * @param {TraitModelsGroup} group 
-     */
-    constructor(manifestRestrictions, group) {
-        this.manifestRestrictions = manifestRestrictions;
+    constructor(public manifestRestrictions: ManifestRestrictions, group: TraitModelsGroup) {
         this.group = group;
 
         this.restrictedTraits = new Set(this.manifestRestrictions.traitRestrictions[group.trait]?.restrictedTraits || []);
@@ -285,6 +207,7 @@ export class TraitRestriction {
                 this.restrictedTraits.add(traitKey);
             }
         }
+
     }
 
     get manifestData(){
@@ -297,27 +220,26 @@ export class TraitRestriction {
     /**
      * Check whether the trait ID is permitted for this trait restriction
      * true if the trait is not in the restrictedTraits list
-     * @type {string} traitId
-     * @returns {boolean}
      */
-    isTraitAllowed = (traitId) => {
+    isTraitAllowed = (traitId: string): boolean => {
         return !this.restrictedTraits.has(traitId);
     }
+
+    isBlendshapeOfTraitAllowed = (traitId: string): boolean => {
+        return !this.restrictedBlendshapes.has(traitId);
+    }
+
     /**
      * Check whether the type is permitted for this trait restriction
      * true if the type is not in the restrictedTypes list
-     * @type {string} typeName
-     * @returns {boolean}
      */
-    isTypeAllowed = (typeName) => {
+    isTypeAllowed = (typeName: string): boolean => {
         return !this.restrictedTypes.has(typeName);
     }
     /**
      * Check whether this trait restriction is allowed by target trait
-     * @param {string} targetTrait
-     * @returns {TraitRestrictionResult}
      */
-    isReverseTraitAllowed = (targetTrait) => {
+    isReverseTraitAllowed = (targetTrait: string): {allowed:boolean,blockingTrait?:string} => {
         const restriction = this.manifestRestrictions.restrictionMaps[targetTrait];
         if (restriction) {
             const isAllowed = restriction.isTraitAllowed(this.traitId)
@@ -326,13 +248,24 @@ export class TraitRestriction {
 
         return {allowed:true, blockingTrait: undefined};
     }
+
+    /**
+     * Check whether this trait restriction is allowed by target trait
+     */
+    isReverseBlendshapeTraitAllowed = (targetTrait: string): {allowed:boolean,blockingTrait?:string} => {
+        const restriction = this.manifestRestrictions.restrictionMaps[targetTrait];
+        if (restriction) {
+            const isAllowed = restriction.isBlendshapeOfTraitAllowed(this.traitId)
+            return {allowed:isAllowed, blockingTrait: isAllowed?undefined:this.traitId};
+        }
+
+        return {allowed:true, blockingTrait: undefined};
+    }
+
     /**
      * Check whether the type from this restriction is allowed by target trait
-     * @param {string} sourceType
-     * @param {string} targetTrait
-     * @returns {TypeRestrictionResult}
      */
-    isReverseTypeAllowed = (sourceType,targetTrait) => {
+    isReverseTypeAllowed = (sourceType:string,targetTrait: string): {allowed:boolean,blockingType?:string} => {
         if(!sourceType) return {allowed:true};
         const restriction = this.manifestRestrictions.restrictionMaps[targetTrait];
         if (restriction) {
@@ -342,13 +275,8 @@ export class TraitRestriction {
 
         return {allowed:true}
     }
-    /**
-     * Check whether the soruceItem allows the targetItem
-     * @param {string} sourceItemId
-     * @param {string} targetItemId
-     * @returns {boolean}
-     */
-    isItemAllowed = (sourceItemId, targetItemId) => {
+
+    isItemAllowed = (sourceItemId:string, targetItemId: string): boolean => {
         if(!sourceItemId) return true;
         const list = this.manifestRestrictions.itemRestrictions.get(sourceItemId)
         if (list) {
@@ -358,13 +286,7 @@ export class TraitRestriction {
         return true
     }
 
-    /**
-     * 
-     * @param {string} sourceItemId 
-     * @param {string} targetItemId 
-     * @returns {ItemRestrictionResult}
-     */ 
-    isReverseItemAllowed = (sourceItemId, targetItemId) => {
+    isReverseItemAllowed = (sourceItemId:string, targetItemId: string): {allowed:boolean, blockingItemId?:string} => {
         if(!sourceItemId) return {allowed:true, blockingItemId:undefined};
         const list = this.manifestRestrictions.itemRestrictions.get(targetItemId)
         if (list) {
@@ -374,15 +296,12 @@ export class TraitRestriction {
 
         return {allowed:true, blockingItemId:undefined}
     }
-    /**
-     * 
-     * @param {string} sourceType 
-     * @param {string} targetTrait 
-     * @param {string} sourceItemId 
-     * @param {string} targetItemId 
-     * @returns {ItemRestrictionResult}
-     */
-    isReverseAllowed = (sourceType,targetTrait,sourceItemId,targetItemId) => {
+
+    isReverseAllowed = (sourceType:string,targetTrait: string,sourceItemId:string,targetItemId:string): {allowed:boolean, blocking:{
+        blockingTrait?:string,
+        blockingType?:string,
+        blockingItemId?:string
+    }} => {
 
         const isReverseTraitAllowed = this.isReverseTraitAllowed(targetTrait)
         const isReverseTypeAllowed = this.isReverseTypeAllowed(sourceType,targetTrait)
@@ -393,29 +312,5 @@ export class TraitRestriction {
             blockingType:isReverseTypeAllowed.blockingType,
             blockingItemId:isReverseItemAllowed.blockingItemId
         }}
-    }
-
-    /**
-     * 
-     * @param {string} traitId 
-     * @returns 
-     */
-    isBlendshapeOfTraitAllowed = (traitId) => {
-        return !this.restrictedBlendshapes.has(traitId);
-    }
-    
-    /**
-     * Check whether this trait restriction is allowed by target trait
-     * @param {string} targetTrait
-     * @returns {TraitRestrictionResult}
-     */
-    isReverseBlendshapeTraitAllowed = (targetTrait) => {
-        const restriction = this.manifestRestrictions.restrictionMaps[targetTrait];
-        if (restriction) {
-            const isAllowed = restriction.isBlendshapeOfTraitAllowed(this.traitId)
-            return {allowed:isAllowed, blockingTrait: isAllowed?undefined:this.traitId};
-        }
-
-        return {allowed:true, blockingTrait: undefined};
     }
 }

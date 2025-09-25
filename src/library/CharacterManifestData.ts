@@ -1,40 +1,295 @@
 import { getAsArray } from "./utils";
-import { ManifestRestrictions } from "./manifestRestrictions";
+import { ManifestRestrictions, TraitRestriction } from "./manifestRestrictions";
 import { WalletCollections } from "./walletCollections";
+import { VRMMeta } from "@pixiv/three-vrm";
+import { Color } from "three";
 
 
+export type colorCollectionItem = {
+  name:string,
+  id:string,
+  value:string[]
+  locked?:boolean
+}
 
-/**
- * @typedef {import('./manifestRestrictions').TraitRestriction} TraitRestriction
- */
+export type colorCollection = {
+  trait:string,
+  collection:colorCollectionItem[]
+}
+export type OnActiveProps = {
+	texture?:{
+	  collectionId:string,
+	  textureId:string
+	},
+	blendshape?:{
+		targetTrait:string
+		blendshapeID:string
+	}
+}
 
-/**
- * @typedef {Object} TextureCollectionItem
- * @property {string} id - Unique identifier for the texture item
- * @property {string} name - Display name of the texture item
- * @property {string} directory - Directory path for the texture
- * @property {string} [fullDirectory] - Optional full directory path
- * @property {string} [thumbnail] - Optional thumbnail path
- */
 
-/**
- * @typedef {Object} TextureCollection
- * @property {string} trait - Trait identifier
- * @property {string} type - Type of texture collection
- * @property {TextureCollectionItem[]} collection - Array of texture items
- */
+export type BlendShapeTraitData ={
+  blendshapeId:string,
+  id:string,
+  name:string,
+  fullThumbnail?:string
+  unique?:boolean
+  onActive?:OnActiveProps
+}
 
+export type BlendShapeGroupModelTraitData = {
+  trait:string,
+  name:string,
+  copyTo?:{[trait:string]:string[]},
+  cameraTarget?:{
+    distance:number,
+    height:number
+  },
+  collection:BlendShapeTraitData[]
+}
+export type ModelTraitData = {
+  id:string,
+  name:string,
+  directory:string,
+  highPoly:string,
+  thumbnail:string,
+  meshTargets:string[],
+  /**
+   * The name of the mesh that will be used for layered textures Manager
+   */
+  decalMeshNameTargets:string[],
+  blendshapeTraits?:BlendShapeGroupModelTraitData[]
+  cullingIgnore:string[],
+  textureCollection:string
+  decalCollection:string,
+  isEmptyAsset?:boolean
+  thumbnailOverrides:string[]
+  cullingDistance?: number[]
+  cullingLayer?:number,
+  maxCullingDistance?:number,
+  /**
+   * Item specific restrictions; if the trait item is present, the item will be restricted
+   */
+  restrictedItems?:string[]
+  type?:string,
+  colorCollection:string,
+  fullThumbnail:string|string[],
+  fullDirectory?:string|string[]
+  onActive?:OnActiveProps
+
+  locked?:boolean
+  price?:number
+  purchasable?:boolean
+}
+
+export type ModelTraitCollectionData = {
+  trait:string,
+  name:string,
+  icon:string,
+  iconSvg:string,
+  type:string,
+  iconGradient:string,
+  cullingLayer:number,
+  cullingDistance:number[],
+  nudgeHips:boolean,
+  cameraTarget:{
+    distance:number,
+    height:number
+  },
+  required:boolean,
+  collection:ModelTraitData[]
+
+  locked?:boolean,
+  price?:number,
+  purchasable?:boolean,
+}
+
+export type DownloadOptionsManifest = {
+  vrmMeta:Partial<VRMMeta>,
+  scale:number,
+  mergeAppliedMorphs?:boolean,
+  mToonAtlasSize:number,
+  mToonAtlasSizeTransp:number,
+  stdAtlasSize:number,
+  createTextureAtlas:boolean,
+  optimized?:boolean,
+  stdAtlasSizeTransp:number,
+  exportStdAtlas:boolean,
+  exportMtoonAtlas:boolean,
+  screenshotFaceDistance:number,
+  screenshotFaceOffset:number[],
+  screenshotResolution:number[],
+  screenshotBackground:number[],
+  screenshotFOV:number
+  isVrm0?:boolean
+  ktxCompression?:boolean
+  
+  screenshot?:boolean
+  includeNonTexturedMeshesInAtlas?:boolean,
+  outputVRM0?:boolean
+  vrmName?:string
+  twoSidedMaterial?:boolean
+  transparentColor?:Color
+}
+
+export type manifestJson = {
+  assetsLocation:string;
+  traitsDirectory:string;
+  textureDirectory?:string;
+  decalTextureDirectory?:string;
+  thumbnailsDirectory:string;
+  traitIconsDirectorySvg:string;
+  animationPath:string[];
+  displayScale:number;
+  exportScale?:number;
+  requiredTraits:string[];
+  randomTraits:string[];
+  initialTraits:string[];
+  colliderTraits:string[];
+  lipSyncTraits:string[];
+  blinkerTraits:string[];
+  traitRestrictions:Record<string,{
+      restrictedTraits:string[],
+      restrictedTypes:string[],
+      restrictedBlendshapes:string[]
+  }>,
+  defaultCullingLayer:number;
+  defaultCullingDistance:number[];
+  offset:number[];
+  vrmMeta:Record<string,any>;
+  traits:ModelTraitCollectionData[];
+  textureCollections:TextureCollection[];
+  decalCollections:TextureCollection[];
+  colorCollections:colorCollection[];
+  canDownload:boolean;
+  downloadOptions?:DownloadOptionsManifest
+
+  chainName?:string;
+  collectionLockID?:string
+  dataSource?:any;
+  solanaPurchaseAssets?:any
+  price?:number
+  currency?:string
+  purchasable?:boolean
+  locked?:boolean
+}
+export type TextureCollectionItem = {
+  id:string,
+  name:string,
+  directory:string,
+  fullDirectory?:string,
+  thumbnail:string
+  locked?:boolean
+}
+
+export type TextureCollection = {
+  trait:string,
+  visible?:boolean
+  type: "texture"
+	colorCollections?: string|string[]
+  collection:TextureCollectionItem[]
+}
+export type DecalCollection = {
+  trait:string,
+  type: "texture"
+  colorCollections?: string|string[]
+  canBeStacked?:boolean
+  collection:TextureCollectionItem[]
+}
+
+export type LoraJsonDescription={
+  "name": string,
+  "description": string,
+  "manifest":string,
+  "icon": string
+}
+export type ClassCharacterJson = {
+  name:string,
+  description:string,
+  portrait: string,
+  baseUrl?: string,
+  loras?: string,
+  manifest:string,
+  icon: string,
+  format: "vrm"
+}
+
+export type GlobalManifestJson = {
+  characters:ClassCharacterJson[]
+  loras:LoraJsonDescription[]
+}
 /**
  * Main class for managing character manifest data and traits
  * @class CharacterManifestData
  */
 export class CharacterManifestData{
+
+    static polyMode:'low' | 'mid' = 'low'
+
+    // From manifest
+    assetsLocation:string;
+    traitsDirectory:string;
+    textureDirectory?:string;
+    decalTextureDirectory?:string;
+    thumbnailsDirectory:string;
+    traitIconsDirectorySvg:string;
+    animationPath:string[];
+    displayScale:number;
+    requiredTraits:string[];
+    randomTraits:string[];
+    initialTraits:string[];
+    colliderTraits:string[];
+    lipSyncTraits:string[];
+    blinkerTraits:string[];
+    traitRestrictions:manifestJson['traitRestrictions']
+    defaultCullingLayer:number;
+    defaultCullingDistance:number[]
+    offset:number[];
+    vrmMeta:Record<string,any> ={};
+    traits:ModelTraitCollectionData[] = [];
+    canDownload:boolean;
+    downloadOptions:Partial<DownloadOptionsManifest>;
+
+
+    walletCollections:WalletCollections;
+
+    // processed
+    /**
+     * list of Group trait IDs
+     */
+    allTraits:string[];
+    textureTraits:TraitTexturesGroup[];
+    textureTraitsMap:Map<string,TraitTexturesGroup> = new Map();
+
+    colorTraits:TraitColorsGroup[];
+    colorTraitsMap:Map<string,TraitColorsGroup> = new Map();
+
+    decalTraits:DecalTextureGroup[];
+    decalTraitsMap:Map<string,DecalTextureGroup> = new Map();
+
+    modelTraits:TraitModelsGroup[];
+    modelTraitsMap:Map<string,TraitModelsGroup> = new Map();
+    manifestRestrictions:ManifestRestrictions;
+
+    /**
+     * Blockchain stuff
+     */
+    collectionID?:string;
+    chainName?:"ethereum"|"polygon"|"solana" = "solana";
+    collectionLockID?:string
+    dataSource?:any;
+    solanaPurchaseAssets?:any
+    price:number = 0
+    currency?:string
+    purchasable?:boolean
+    locked?:boolean
+
     /**
      * Creates a new CharacterManifestData instance
      * @param {Object} manifest - The manifest data object
      * @param {string} collectionID - The collection identifier
      */
-    constructor(manifest, collectionID){
+    constructor(manifest:manifestJson, collectionID?:string){
       const {
         chainName,
         collectionLockID,
@@ -68,7 +323,7 @@ export class CharacterManifestData{
         decalCollections,
         colorCollections,
         canDownload = true,
-        downloadOptions = {}
+        downloadOptions ={} as DownloadOptionsManifest
       }= manifest;
 
       this.collectionID = collectionID;
@@ -77,7 +332,7 @@ export class CharacterManifestData{
       this.walletCollections = new WalletCollections();
       
 
-      this.chainName = chainName;
+      this.chainName = chainName as "ethereum"|"polygon"|"solana";
       this.dataSource = dataSource;
       this.collectionLockID = collectionLockID;
       this.solanaPurchaseAssets = createSolanaPurchaseCNFT (solanaPurchaseAssets);
@@ -90,7 +345,7 @@ export class CharacterManifestData{
 
       console.log(this.solanaPurchaseAssets);
 
-      this.price = price;
+      this.price = price||0;
       this.currency = currency || "sol";
       this.purchasable = purchasable;
 
@@ -152,19 +407,15 @@ export class CharacterManifestData{
 
       // create texture and color traits first
       this.textureTraits = [];
-      this.textureTraitsMap = null;
       this.createTextureTraits(textureCollections, false);
 
       this.decalTraits = [];
-      this.decalTraitsMap = null;
       this.createDecalTraits(decalCollections);
 
       this.colorTraits = [];
-      this.colorTraitsMap = null;
       this.createColorTraits(colorCollections, false);
 
       this.modelTraits = [];
-      this.modelTraitsMap = null;
       this.createModelTraits(traits, false);
       this.manifestRestrictions._init()
       
@@ -204,14 +455,14 @@ export class CharacterManifestData{
      * @param {Object} [testWallet] - Optional test wallet object
      * @returns {Promise} Promise that resolves when assets are unlocked
      */
-    unlockPurchasedAssetsWithWallet(testWallet){
+    unlockPurchasedAssetsWithWallet(testWallet?:string):Promise<void>{
       if (this.solanaPurchaseAssets == null){
         return Promise.resolve();
       }
       return new Promise((resolve)=>{
         this.walletCollections
           .getSolanaPurchasedAssets(this.solanaPurchaseAssets,testWallet)
-          .then(userOwnedTraits => {
+          .then((userOwnedTraits:any) => {
             this.unlockTraits(userOwnedTraits)
             resolve()
           })
@@ -227,13 +478,13 @@ export class CharacterManifestData{
      * @param {Object} [testWallet] - Optional test wallet object
      * @returns {Promise} Promise that resolves when assets are unlocked
      */
-    unlockNFTAssetsWithWallet(testWallet = null){
-      if (this.collectionLockID == null){
+    unlockNFTAssetsWithWallet(testWallet?:string):Promise<void>{
+      if (!this.collectionLockID){
         return Promise.resolve();
       }
       else{
         return new Promise((resolve)=>{
-          this.walletCollections.getTraitsFromCollection(this.collectionLockID, this.chainName, this.dataSource, testWallet)
+          this.walletCollections.getTraitsFromCollection(this.collectionLockID!, this.chainName, this.dataSource, testWallet)
           .then(userOwnedTraits=>{
             this.unlockTraits(userOwnedTraits)
             resolve();
@@ -250,7 +501,7 @@ export class CharacterManifestData{
      * @param {Object} [testWallet] - Optional test wallet object
      * @returns {Promise} Promise that resolves when traits are unlocked
      */
-    unlockWalletOwnedTraits(testWallet = null){
+    unlockWalletOwnedTraits(testWallet?:string):Promise<void>{
       if (this.locked == false){
         console.log(`Already unlocked`);
         return Promise.resolve();
@@ -305,7 +556,7 @@ export class CharacterManifestData{
      * @param {string} optionID - The option ID
      * @returns {Object|null} Trait option or null if not found
      */
-    getTraitOptionById(optionID){
+    getTraitOptionById(optionID:string){
       return this.getAllTraitOptions().find((option)=>option.id == optionID);
     }
     /**
@@ -313,7 +564,7 @@ export class CharacterManifestData{
      * @param {string} type - The trait type
      * @returns {Array} Array of trait options
      */
-    getTraitOptionsByType(type){
+    getTraitOptionsByType(type:string){
       return this.getAllTraitOptions().filter((option)=>option.type == type);
     }
     /**
@@ -336,7 +587,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {boolean} True if collider is required, false otherwise
      */
-    isColliderRequired(groupTraitID){
+    isColliderRequired(groupTraitID:string){
       if (this.colliderTraits.indexOf(groupTraitID) != -1)
         return true;
       return false;
@@ -346,7 +597,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {boolean} True if it's a lip sync trait, false otherwise
      */
-    isLipsyncTrait(groupTraitID){
+    isLipsyncTrait(groupTraitID:string){
       if (this.lipSyncTraits.indexOf(groupTraitID) != -1)
         return true;
       return false;
@@ -358,7 +609,7 @@ export class CharacterManifestData{
      * @param {Array} [ignoreGroupTraits] - Optional array of group traits to ignore
      * @returns {Promise<Array>} Promise that resolves to array of NFT trait options
      */
-    getNFTraitOptionsFromURL(url, ignoreGroupTraits){
+    getNFTraitOptionsFromURL(url:string, ignoreGroupTraits:string[]=[]){
       return new Promise(async (resolve) => {
         try{
           const nftTraits = await this._fetchJson(url);
@@ -378,12 +629,12 @@ export class CharacterManifestData{
      * @param {Array} [ignoreGroupTraits] - Optional array of group traits to ignore
      * @returns {Array|null} Array of NFT trait options or null if invalid
      */
-    getNFTraitOptionsFromObject(object, ignoreGroupTraits){
+    getNFTraitOptionsFromObject(object:Record<string,any>, ignoreGroupTraits:string[]=[]){
       const attributes = object.attributes;
       if (attributes){
-        ignoreGroupTraits = getAsArray(ignoreGroupTraits);
-        const selectedOptions = []
-        attributes.forEach(attribute => {
+        ignoreGroupTraits =ignoreGroupTraits? getAsArray(ignoreGroupTraits):[];
+        const selectedOptions:SelectedOption[] = []
+        attributes.forEach((attribute:any) => {
           if (ignoreGroupTraits.indexOf(attribute.trait_type) == -1){
             const traitSelectedOption = this.getTraitOption(attribute.trait_type, attribute.value);
             if (traitSelectedOption)
@@ -403,8 +654,8 @@ export class CharacterManifestData{
      * @param {Array} [optionalGroupTraitIDs] - Optional array of group trait IDs
      * @returns {Array} Array of random traits
      */
-    getRandomTraits(optionalGroupTraitIDs){
-      const selectedOptions = []
+    getRandomTraits(optionalGroupTraitIDs?:string[]){
+      const selectedOptions:SelectedOption[] = []
       const searchArray = optionalGroupTraitIDs || this.randomTraits;
       searchArray.forEach(groupTraitID => {
         const traitSelectedOption = this.getRandomTrait(groupTraitID);
@@ -419,14 +670,14 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {Object|null} Random trait or null if not found
      */
-    getRandomTrait(groupTraitID){
+    getRandomTrait(groupTraitID:string){
       // set to SelectedOption
       const traitModelsGroup = this.getModelGroup(groupTraitID);
       if (traitModelsGroup){
         const trait =  traitModelsGroup.getRandomTrait();
         if (trait){
-          const traitTexture = trait.targetTextureCollection?.getRandomTrait();
-          const traitColor = trait.targetColorCollection?.getRandomTrait();
+          const traitTexture = trait.targetTextureCollection?.getRandomTrait() || null;
+          const traitColor = trait.targetColorCollection?.getRandomTrait() || null;
           return new SelectedOption(trait,traitTexture, traitColor);
         }
         else{
@@ -447,7 +698,7 @@ export class CharacterManifestData{
      * @returns {Promise<Object>} Promise that resolves to the JSON data
      * @private
      */
-    async _fetchJson(location) {
+    async _fetchJson(location:string){
       const response = await fetch(location)
       const data = await response.json()
       return data
@@ -459,11 +710,11 @@ export class CharacterManifestData{
      * @param {string} traitID - The trait ID
      * @returns {Object|null} Trait option or null if not found
      */
-    getTraitOption(groupTraitID, traitID){
+    getTraitOption(groupTraitID:string, traitID:string){
       const trait = this.getModelTrait(groupTraitID, traitID);
       if (trait){
-        const traitTexture = trait.targetTextureCollection?.getRandomTrait();
-        const traitColor = trait.targetColorCollection?.getRandomTrait();
+        const traitTexture = trait.targetTextureCollection?.getRandomTrait()||null;
+        const traitColor = trait.targetColorCollection?.getRandomTrait()||null;
         return new SelectedOption(trait,traitTexture, traitColor);
       }
       return null;
@@ -475,7 +726,7 @@ export class CharacterManifestData{
      * @param {string} url - The custom URL
      * @returns {Object|null} Custom trait option or null if not found
      */
-    getCustomTraitOption(groupTraitID, url){
+    getCustomTraitOption(groupTraitID:string, url:string){
       const trait = this.getCustomModelTrait(groupTraitID, url);
       if (trait){
         return new SelectedOption(trait,null,null);
@@ -489,7 +740,7 @@ export class CharacterManifestData{
      * @param {string} url - The custom URL
      * @returns {Object|null} Custom model trait or null if not found
      */
-    getCustomModelTrait(groupTraitID, url){
+    getCustomModelTrait(groupTraitID:string, url:string){
       return this.getModelGroup(groupTraitID)?.getCustomTrait(url);
     }
 
@@ -500,7 +751,7 @@ export class CharacterManifestData{
      * @param {string} traitID - The trait ID
      * @returns {Object|null} Model trait or null if not found
      */
-    getModelTrait(groupTraitID, traitID){
+    getModelTrait(groupTraitID:string, traitID:string){
       return this.getModelGroup(groupTraitID)?.getTrait(traitID);
     }
     /**
@@ -508,7 +759,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {Array|null} Array of model traits or null if not found
      */
-    getModelTraits(groupTraitID){
+    getModelTraits(groupTraitID:string){
       const modelGroup = this.getModelGroup(groupTraitID);
       if (modelGroup){
         return modelGroup.getCollection();
@@ -521,7 +772,10 @@ export class CharacterManifestData{
      * Unlocks traits for a user
      * @param {Object} userOwnedTraits - Object containing user owned traits
      */
-    unlockTraits(userOwnedTraits){
+    unlockTraits(userOwnedTraits:{
+      ownedIDs?:string[],
+      ownedTraits?:Record<string,string[]>
+    }){
       const ownedIDs = userOwnedTraits.ownedIDs || [];
       const ownedTraits = userOwnedTraits.ownedTraits || {};
 
@@ -564,7 +818,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {Object|null} Model group or null if not found
      */
-    getModelGroup(groupTraitID){
+    getModelGroup(groupTraitID:string){
       return this.modelTraitsMap.get(groupTraitID);
     }
 
@@ -575,7 +829,7 @@ export class CharacterManifestData{
      * @param {string} traitID - The trait ID
      * @returns {Object|null} Texture trait or null if not found
      */
-    getTextureTrait(groupTraitID, traitID){
+    getTextureTrait(groupTraitID:string, traitID:string){
       return this.getTextureGroup(groupTraitID)?.getTrait(traitID);
     }
     /**
@@ -583,7 +837,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {Object|null} Texture group or null if not found
      */
-    getTextureGroup(groupTraitID){
+    getTextureGroup(groupTraitID:string){
       return this.textureTraitsMap.get(groupTraitID);
     }
 
@@ -594,7 +848,7 @@ export class CharacterManifestData{
      * @param {string} traitID - The trait ID
      * @returns {Object|null} Decal trait or null if not found
      */
-    getDecalTrait(groupTraitID, traitID){
+    getDecalTrait(groupTraitID:string, traitID:string){
       return this.getDecalGroup(groupTraitID)?.getTrait(traitID);
     }
     /**
@@ -602,7 +856,7 @@ export class CharacterManifestData{
      * @param {string} decalGroupTraitId - The decal group trait ID
      * @returns {Object|null} Decal group or null if not found
      */
-    getDecalGroup(decalGroupTraitId){
+    getDecalGroup(decalGroupTraitId:string){
       return this.decalTraitsMap.get(decalGroupTraitId);
     }
 
@@ -613,7 +867,7 @@ export class CharacterManifestData{
      * @param {string} traitID - The trait ID
      * @returns {Object|null} Color trait or null if not found
      */
-    getColorTrait(groupTraitID, traitID){
+    getColorTrait(groupTraitID:string, traitID:string){
       return this.getColorGroup(groupTraitID)?.getTrait(traitID);
     }
     /**
@@ -621,7 +875,7 @@ export class CharacterManifestData{
      * @param {string} groupTraitID - The group trait ID
      * @returns {Object|null} Color group or null if not found
      */
-    getColorGroup(groupTraitID){
+    getColorGroup(groupTraitID:string){
       return this.colorTraitsMap.get(groupTraitID);
     }
 
@@ -669,18 +923,6 @@ export class CharacterManifestData{
       return result;
     }
 
-    /**
-     * Gets decals directory
-     * @returns {string} The decals directory path
-     */
-    getDecalsDirectory(){
-      let result = (this.assetsLocation || "") + (this.decalDirectory || "");
-      if (!result.endsWith("/")&&!result.endsWith("\\"))
-        result += "/";
-      return result;
-    }
-    
-
 
     // Given an array of traits, saves an array of TraitModels
     /**
@@ -688,7 +930,7 @@ export class CharacterManifestData{
      * @param {Object} modelTraits - The model traits object
      * @param {boolean} [replaceExisting=false] - Whether to replace existing traits
      */
-    createModelTraits(modelTraits, replaceExisting = false){
+    createModelTraits(modelTraits:ModelTraitCollectionData[], replaceExisting = false){
       if (replaceExisting) this.modelTraits = [];
       let hasTraitWithDecals = false
       getAsArray(modelTraits).forEach(traitObject => {
@@ -719,7 +961,7 @@ export class CharacterManifestData{
      * @param {Object} textureTraits - The texture traits object
      * @param {boolean} [replaceExisting=false] - Whether to replace existing traits
      */
-    createTextureTraits(textureTraits, replaceExisting = false){
+    createTextureTraits(textureTraits:TextureCollection[], replaceExisting = false){
       if (replaceExisting) this.textureTraits = [];
 
       getAsArray(textureTraits).forEach(traitObject => {
@@ -737,10 +979,10 @@ export class CharacterManifestData{
      * @param {Object} decalTraitGroups - The decal trait groups object
      * @param {boolean} [replaceExisting=false] - Whether to replace existing traits
      */
-    createDecalTraits(decalTraitGroups, replaceExisting = false){
+    createDecalTraits(decalTraits:DecalCollection[], replaceExisting = false){
       if (replaceExisting) this.decalTraits = [];
 
-      getAsArray(decalTraitGroups).forEach(traitObject => {
+      getAsArray(decalTraits).forEach(traitObject => {
         this.decalTraits.push(new DecalTextureGroup(this, traitObject))
       });
 
@@ -752,7 +994,7 @@ export class CharacterManifestData{
      * @param {Object} colorTraits - The color traits object
      * @param {boolean} [replaceExisting=false] - Whether to replace existing traits
      */
-    createColorTraits(colorTraits, replaceExisting = false){
+    createColorTraits(colorTraits:colorCollection[], replaceExisting = false){
       if (replaceExisting) this.colorTraits = [];
 
       getAsArray(colorTraits).forEach(traitObject => {
@@ -767,20 +1009,26 @@ export class CharacterManifestData{
 
 // Must be created AFTER color collections and texture collections have been created
 export class TraitModelsGroup{
-  /** 
-   * @type {ModelTrait[]}
-  */
-  collection
-  /**
-   * @type {CharacterManifestData}
-   */
-  manifestData
-  /**
-   * @type {TraitRestriction|undefined}
-   */
-  restrictions
+  trait:string
+  name:string
+  iconSvg:string
+  fullIconSvg:string
+  isRequired:boolean
+  cameraTarget:{
+    distance:number,
+    height:number
+  }
+  cullingDistance:number[]
+  cullingLayer:number
+  nudgeHips:boolean = false
+  collection:ModelTrait[]
+  collectionMap:Map<string,ModelTrait> = new Map();
 
-  constructor(manifestData, options){
+  restrictions:TraitRestriction | undefined
+  locked:boolean = false
+  price:number = 0
+  purchasable:boolean = false
+  constructor(public manifestData:CharacterManifestData, options:ModelTraitCollectionData){
         const {
           locked,
           price,
@@ -794,11 +1042,10 @@ export class TraitModelsGroup{
           collection,
         } = options;
         this.manifestData = manifestData;
-        this.collectionID = manifestData.collectionID;
         
-        this.locked = locked == null ? manifestData.locked : locked;
-        this.price = price == null ? manifestData.price : price;
-        this.purchasable = purchasable == null ? manifestData.purchasable : purchasable;
+        this.locked = (locked ?? manifestData.locked)?? false;
+        this.price = price ?? manifestData.price ?? 0;
+        this.purchasable = purchasable ?? manifestData.purchasable ?? false;
        
         this.isRequired = manifestData.requiredTraits.indexOf(trait) !== -1;
         this.trait = trait;
@@ -811,12 +1058,16 @@ export class TraitModelsGroup{
         this.cullingLayer = cullingLayer;
         
         this.collection = [];
-        this.collectionMap = null;
         this.createCollection(collection);
         
     }
 
-    appendCollection(modelTraitGroup, replaceExisting){
+    get collectionID(){
+      return this.manifestData.collectionID;
+    }
+
+
+    appendCollection(modelTraitGroup:TraitModelsGroup, replaceExisting=false){
       modelTraitGroup.collection.forEach(newModelTrait => {
         const modelTrait = this.getTrait(newModelTrait.id)
         if (modelTrait != null){
@@ -839,7 +1090,7 @@ export class TraitModelsGroup{
       });
     }
 
-    createCollection(itemCollection, replaceExisting = false){
+    createCollection(itemCollection:ModelTraitData[], replaceExisting = false){
       if (replaceExisting) this.collection = [];
 
       getAsArray(itemCollection).forEach(item => {
@@ -848,15 +1099,15 @@ export class TraitModelsGroup{
       this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
     }
 
-    getCustomTrait(url){
-      return new ModelTrait(this, {directory:url, fullDirectory:url, collectionID:this.collectionID, id:"_custom", name:"Custom"})
+    getCustomTrait(url:string){
+      return new ModelTrait(this, {directory:url, fullDirectory:url, id:"_custom", name:"Custom"} as ModelTraitData)
     }
 
-    getTrait(traitID){
+    getTrait(traitID:string){
       return this.collectionMap.get(traitID);
     }
 
-    unlockTraits(traitIDs){
+    unlockTraits(traitIDs:string[]){
       traitIDs.forEach(traitID => {
         const trait = this.collectionMap.get(traitID);
         if (trait != null){
@@ -865,18 +1116,10 @@ export class TraitModelsGroup{
       });
     }
 
-    /**
-     * 
-     * @returns {DecalTrait[]}
-     */
+
     getAllDecals(){
       const decalGroup = this.collection.map(trait => trait.targetDecalCollection).flat();
       return decalGroup.map((c)=>c?.collection).flat().filter((c)=>!!c);
-    }
-
-    getTraitByIndex(lockFilter = true){
-      const collection = this.getCollection(lockFilter)
-      return collection[index];
     }
 
     getRandomTrait(lockFilter = true){
@@ -899,12 +1142,12 @@ export class TraitModelsGroup{
 
 }
 class TraitTexturesGroup{
-  /**
-   * 
-   * @param {CharacterManifestData} manifestData 
-   * @param {TextureCollection} options 
-   */
-  constructor(manifestData, options){
+  trait:string
+  visible?:boolean
+  collection:TextureTrait[]
+  colorCollections:string[] = []
+  collectionMap:Map<string,TextureTrait> = new Map();
+  constructor(public manifestData:CharacterManifestData, options:TextureCollection){
     const {
         trait,
         collection
@@ -916,16 +1159,18 @@ class TraitTexturesGroup{
       this.trait = trait;
     }
     this.manifestData = manifestData;
-    this.collectionID = manifestData.collectionID;
 
     this.collection = [];
-    this.collectionMap = null;
 
     this.createCollection(collection);
     
   }
 
-  appendCollection(textureTraitGroup, replaceExisting){
+  get collectionID(){
+    return this.manifestData.collectionID;
+  }
+
+  appendCollection(textureTraitGroup:TraitTexturesGroup, replaceExisting=false){
     textureTraitGroup.collection.forEach(newTextureTrait => {
       const textureTrait = this.getTrait(newTextureTrait.id)
       if (textureTrait != null){
@@ -947,7 +1192,7 @@ class TraitTexturesGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection:TextureCollectionItem[], replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
@@ -957,11 +1202,11 @@ class TraitTexturesGroup{
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
-  getTrait(traitID){
+  getTrait(traitID:string){
     return this.collectionMap.get(traitID);
   }
 
-  unlockTraits(traitIDs){
+  unlockTraits(traitIDs:string[]){
     traitIDs.forEach(traitID => {
       const trait = this.collectionMap.get(traitID);
       if (trait != null){
@@ -970,7 +1215,7 @@ class TraitTexturesGroup{
     });
   }
 
-  getTraitByIndex(index){
+  getTraitByIndex(index:number){
     return this.collection[index];
   }
 
@@ -981,30 +1226,18 @@ class TraitTexturesGroup{
   }
 }
 export class DecalTextureGroup{
-  /**
-   * @type {string}
-   */
-  trait
-  /**
-   * @type {DecalTrait[]}
-   */
-  collection
-  /**
-   * @type {Map<string,DecalTrait>}
-   */
-  collectionMap
-  /**
-   * 
-   * @param {CharacterManifestData} manifestData 
-   * @param {TextureCollection} options 
-   */
-  constructor(manifestData, options){
+  trait:string
+  collection:DecalTrait[]
+  collectionMap:Map<string,DecalTrait> = new Map();
+  canBeStacked:boolean = false
+  colorCollections:string[] = []
+  constructor(public manifestData:CharacterManifestData, options:DecalCollection){
     const {
         trait,
         collection
     }= options;
     this.manifestData = manifestData;
-    this.collectionID = manifestData.collectionID;
+
     if(!trait){
       console.warn("DecalTextureGroup is missing property trait")
       this.trait = "undefined"+Math.floor(Math.random()*10)
@@ -1012,12 +1245,15 @@ export class DecalTextureGroup{
       this.trait = trait;
     }
     this.collection = [];
-    this.collectionMap = null;
     this.createCollection(collection);
     
   }
 
-  appendCollection(decalTraitGroup, replaceExisting=false){
+  get collectionID(){
+    return this.manifestData.collectionID;
+  }
+
+  appendCollection(decalTraitGroup:DecalTextureGroup, replaceExisting=false){
     decalTraitGroup.collection.forEach(newTextureTrait => {
       const textureTrait = this.getTrait(newTextureTrait.id)
       if (textureTrait != null){
@@ -1040,7 +1276,7 @@ export class DecalTextureGroup{
     });
   }
 
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection:TextureCollectionItem[], replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
@@ -1051,11 +1287,11 @@ export class DecalTextureGroup{
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
-  getTrait(traitID){
+  getTrait(traitID:string){
     return this.collectionMap.get(traitID);
   }
 
-  unlockTraits(traitIDs){
+  unlockTraits(traitIDs:string[]){
     traitIDs.forEach(traitID => {
       const trait = this.collectionMap.get(traitID);
       if (trait != null){
@@ -1064,7 +1300,7 @@ export class DecalTextureGroup{
     });
   }
 
-  getTraitByIndex(index){
+  getTraitByIndex(index:number){
     return this.collection[index];
   }
 
@@ -1074,24 +1310,28 @@ export class DecalTextureGroup{
       null;
   }
 }
+
 class TraitColorsGroup{
-  constructor(manifestData, options){
+  trait:string
+  collection:ColorTrait[]
+  collectionMap:Map<string,ColorTrait> = new Map();
+  constructor(public manifestData:CharacterManifestData, options:colorCollection){
     const {
         trait,
         collection
     }= options;
     this.manifestData = manifestData;
-    this.collectionID = manifestData.collectionID;
     this.trait = trait;
 
     this.collection = [];
-    this.collectionMap = null;
-
     this.createCollection(collection);
-
   }
 
-  appendCollection(colorTraitGroup, replaceExisting){
+  get collectionID(){
+    return this.manifestData.collectionID;
+  }
+
+  appendCollection(colorTraitGroup:TraitColorsGroup, replaceExisting = false){
     colorTraitGroup.collection.forEach(newColorTrait => {
       const colorTrait = this.getTrait(newColorTrait.id)
       if (colorTrait != null){
@@ -1113,7 +1353,7 @@ class TraitColorsGroup{
       }
     });
   }
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection:colorCollectionItem[], replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
@@ -1123,11 +1363,11 @@ class TraitColorsGroup{
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
-  getTrait(traitID){
+  getTrait(traitID:string){
     return this.collectionMap.get(traitID);
   }
 
-  unlockTraits(traitIDs){
+  unlockTraits(traitIDs:string[]){
     traitIDs.forEach(traitID => {
       const trait = this.collectionMap.get(traitID);
       if (trait != null){
@@ -1136,7 +1376,7 @@ class TraitColorsGroup{
     });
   }
 
-  getTraitByIndex(index){
+  getTraitByIndex(index:number){
     return this.collection[index];
   }
 
@@ -1146,36 +1386,37 @@ class TraitColorsGroup{
       null;
   }
 }
-export class ModelTrait{
-  /**
-   * @type {string}
-   */
-  type
 
-  blendshapeTraits = [];
-  /**
-   * @type {string[]}
-   * */ 
-  decalMeshNameTargets=[]
-  /**
-   * @type {DecalTextureGroup | null}
-   */
-  targetDecalCollection=null
-  /**
-   * @type {TraitModelsGroup}
-   */
-  traitGroup
-  blendshapeTraitsMap = new Map();
-  /**
-   * @type {string[]}
-   */
-  _restrictedItems = []
-  constructor(traitGroup, options){
+export class ModelTrait{
+  id:string
+  type:string
+  directory:string
+  fullDirectory?:string|string[]
+  name:string
+  thumbnail:string
+  blendshapeTraits?:BlendShapeGroup[]
+  blendshapeTraitsMap:Map<string,BlendShapeGroup> = null!
+  fullThumbnail:string | string[]
+  cullHiddenMeshes:number[]
+  cullingLayer:number
+  cullingIgnore:string[] =[]
+  meshTargets:string[]=[]
+  decalMeshNameTargets:string[]=[]
+  targetTextureCollection:TraitTexturesGroup|null = null
+  targetDecalCollection:DecalTextureGroup |null = null
+  targetColorCollection:TraitColorsGroup|null
+  _restrictedItems:string[]
+
+  cullingDistance:number[]=[0,0]
+  maxCullingDistance:number=0
+
+  locked:boolean = false
+  price:number = 0
+  purchasable:boolean = false
+
+  constructor(public traitGroup:TraitModelsGroup, options:ModelTraitData){
       const {
-          locked,
-          price,
           id,
-          purchasable,
           type = '',
           directory,
           name,
@@ -1189,10 +1430,11 @@ export class ModelTrait{
           decalMeshNameTargets,
           fullDirectory,
           fullThumbnail,
-          restrictedItems
+          restrictedItems,
+          locked,
+          price,
+          purchasable,
       }= options;
-      this.manifestData = traitGroup.manifestData;
-      this.collectionID = traitGroup.collectionID;
       
       this.locked = locked == null ? traitGroup.locked : locked;
       this.price = price == null ? traitGroup.price : price;
@@ -1233,9 +1475,9 @@ export class ModelTrait{
       this.cullingDistance = cullingDistance || traitGroup.cullingDistance || traitGroup.manifestData.defaultCullingDistance || [0,0];
       this.type = type;
 
-      this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection) : null;
-      this.targetColorCollection = colorCollection ? traitGroup.manifestData.getColorGroup(colorCollection) : null;
-      this.targetDecalCollection = decalCollection ? traitGroup.manifestData.getDecalGroup(decalCollection) : null;
+      this.targetTextureCollection = textureCollection ? traitGroup.manifestData.getTextureGroup(textureCollection)||null : null;
+      this.targetColorCollection = colorCollection ? traitGroup.manifestData.getColorGroup(colorCollection)||null : null;
+      this.targetDecalCollection = decalCollection ? traitGroup.manifestData.getDecalGroup(decalCollection)||null : null;
 
       if(blendshapeTraits && Array.isArray(blendshapeTraits)){
 
@@ -1246,7 +1488,16 @@ export class ModelTrait{
         this.blendshapeTraitsMap = new Map(this.blendshapeTraits.map(item => [item.trait, item]));
       }
   }
-  isRestricted(targetModelTrait){
+
+  get collectionID(){
+    return this.traitGroup.collectionID;
+  }
+
+  get manifestData(){
+    return this.traitGroup.manifestData;
+  }
+
+  isRestricted(targetModelTrait:ModelTrait){
     if (targetModelTrait == null)
       return false;
     if(this.traitGroup.restrictions?.isTraitAllowed(targetModelTrait.traitGroup.trait)){
@@ -1266,7 +1517,7 @@ export class ModelTrait{
    * @param {string} traitGroupID 
    * @returns {BlendShapeTrait[]}
    */
-  getBlendShapes(traitGroupID){
+  getBlendShapes(traitGroupID:string){
     return this.blendshapeTraitsMap?.get(traitGroupID)?.collection
   }
 
@@ -1276,24 +1527,25 @@ export class ModelTrait{
    * @param {string} traitID 
    * @returns {BlendShapeTrait | undefined}
    */
-  getBlendShape(traitGroupID,traitID){
+  getBlendShape(traitGroupID:string,traitID:string){
     return this.blendshapeTraitsMap?.get(traitGroupID)?.getTrait(traitID);
   }
 }
 
 
 export class BlendShapeGroup {
-  trait
-  name
-  isBlendShapeGroup = true
-  collection=[]
-  cameraTarget=null
-  collectionMap= null
-  /**
-   * @param {ModelTrait} modelTrait 
-   * @param {BlendShapeGroupModelTraitData} options 
-   */
-  constructor( modelTrait, options){
+  trait:string
+  name:string
+  copyTo:{[trait:string]:string[]} = {}
+  isBlendShapeGroup:boolean = true
+  collection:BlendShapeTrait[] = []
+  cameraTarget:{
+    distance:number,
+    height:number
+  }
+  collectionMap:Map<string,BlendShapeTrait> = new Map();
+
+  constructor( public modelTrait:ModelTrait, options:BlendShapeGroupModelTraitData){
     const {
         trait,
         name,
@@ -1301,18 +1553,25 @@ export class BlendShapeGroup {
         cameraTarget = modelTrait.traitGroup.cameraTarget || { distance:3 , height:1 }
     }= options;
     this.modelTrait = modelTrait;
-    this.collectionID = modelTrait.collectionID;
     this.trait = trait;
     this.name = name;
 
     this.cameraTarget = cameraTarget;
     this.createCollection(collection);
   }
+  get manifestData(){
+    return this.modelTrait.manifestData;
+  }
+
+  get collectionID(){
+    return this.modelTrait.collectionID;
+  }
+
   /**
    * @param {BlendShapeTraitData[]} itemCollection 
    * @param {boolean} [replaceExisting] (default false)
    */
-  createCollection(itemCollection, replaceExisting = false){
+  createCollection(itemCollection:BlendShapeTraitData[], replaceExisting = false){
     if (replaceExisting) this.collection = [];
 
     getAsArray(itemCollection).forEach(item => {
@@ -1321,14 +1580,14 @@ export class BlendShapeGroup {
     this.collectionMap = new Map(this.collection.map(item => [item.id, item]));
   }
 
-  getTrait(traitID){
+  getTrait(traitID:string){
     return this.collectionMap.get(traitID);
   }
 
   /**
    * @param {number} index 
    */
-  getTraitByIndex(index){
+  getTraitByIndex(index:number){
     return this.collection[index];
   }
 
@@ -1340,58 +1599,67 @@ export class BlendShapeGroup {
 }
 
 export class BlendShapeTrait{
-  id
-  name
-  fullThumbnail=undefined
-  isBlendShape = true
-  /**
-   * @param {BlendShapeGroup} parentGroup 
-   * @param {BlendShapeTraitData} options 
-   */
-  constructor(parentGroup,options){
+  blendshapeId:string
+  id:string
+  name:string
+  fullThumbnail?:string
+  unique:boolean = false
+  isBlendShape:boolean = true
+
+  constructor(public parentGroup:BlendShapeGroup,options:BlendShapeTraitData){
       const {
           id,
           name,
-          fullThumbnail
+          blendshapeId,
+          fullThumbnail,
+          unique,
       }= options;
 
       if(!id){
         console.warn("BlendShapeTrait is missing id, parent trait: "+ parentGroup.trait)
       }
+      if(!blendshapeId){
+        console.warn("BlendShapeTrait is missing blendshapeId, parent trait: "+ parentGroup.trait)
+      }
       if(!name){
         console.warn("BlendShapeTrait is missing name, parent trait: "+ parentGroup.trait)
       }
 
-      this.parentGroup = parentGroup;
-      this.collectionID = parentGroup.collectionID;
+      this.blendshapeId = blendshapeId;
       this.id = id;
       this.fullThumbnail = fullThumbnail;
       this.name = name;
+      this.unique = unique ?? false;
   }
-
+  get isUnique(){
+    return this.unique;
+  }
   getGroupId(){
     return this.parentGroup.trait;
   }
 }
 
-class TextureTrait{
-  /**
-   * @param {TraitTexturesGroup} traitGroup 
-   * @param {TextureCollectionItem} options 
-   */
-  constructor(traitGroup, options){
+export class TextureTrait{
+  id:string
+  directory:string
+  fullDirectory?:string|string[]
+  name:string
+  thumbnail:string
+  fullThumbnail:string
+  locked?:boolean = false
+  constructor(public traitGroup:TraitTexturesGroup, options:TextureCollectionItem){
       const {
           id,
           directory,
           fullDirectory,
           name,
           thumbnail,
+          locked
       }= options;
       this.traitGroup = traitGroup;
-      this.collectionID = traitGroup.collectionID;
-
       this.id = id;
       this.directory = directory;
+      this.locked = locked ?? false;
       if (fullDirectory){
         this.fullDirectory = fullDirectory
       }
@@ -1413,35 +1681,19 @@ class TextureTrait{
       this.thumbnail = thumbnail;
       this.fullThumbnail = traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
   }
+
+  get collectionID(){
+    return this.traitGroup.collectionID;
+  }
 }
 export class DecalTrait extends TextureTrait{
-  /**
-   * @type {string}
-   */
-  id
-  /**
-   * @type {string}
-   */
-  directory
-  /**
-   * @type {string | undefined}
-   * */
-  fullDirectory
-  name
-  thumbnail
-  /**
-   * @type {string|undefined}
-   */
-  fullThumbnail
-  /**
-   * @type {TraitTexturesGroup}
-   */
-  traitGroup
-  /**
-   * @param {TraitTexturesGroup} traitGroup 
-   * @param {TextureCollectionItem} options 
-   */
-  constructor( traitGroup, options){
+  id:string
+  directory:string
+  fullDirectory?:string|string[]
+  name:string
+  thumbnail:string
+  fullThumbnail:string
+  constructor( public traitGroup:DecalTextureGroup, options:TextureCollectionItem){
       super(traitGroup,options);  
     const {
             id,
@@ -1451,7 +1703,6 @@ export class DecalTrait extends TextureTrait{
             thumbnail,
         }= options;
       this.traitGroup = traitGroup;
-      this.collectionID = traitGroup.collectionID;
       this.id = id;
       this.directory = directory;
       if (fullDirectory){
@@ -1475,35 +1726,53 @@ export class DecalTrait extends TextureTrait{
       this.thumbnail = thumbnail;
       this.fullThumbnail = traitGroup.manifestData.getThumbnailsDirectory() + thumbnail;
   }
+
+  get collectionID(){
+    return this.traitGroup.collectionID;
+  }
 }
-class ColorTrait{
-    constructor(traitGroup, options){
+
+export class ColorTrait{
+    id:string
+    value:string[]
+    name:string
+    locked?:boolean
+    constructor(public traitGroup:TraitColorsGroup, options:colorCollectionItem){
         const {
             id,
             value,
             name,
+            locked
         }= options;
 
         this.traitGroup = traitGroup;
-        this.collectionID = traitGroup.collectionID;
         this.id = id;
         this.name = name;
         this.value = value;
+        this.locked = locked ?? false;
         
     }
+
+    get collectionID(){
+      return this.traitGroup.collectionID;
+    }
 }
-class SelectedOption{
-  constructor(traitModel, traitTexture, traitColor){
-    this.traitModel = traitModel;
-    this.traitTexture = traitTexture;
-    this.traitColor = traitColor;
+export class SelectedOption{
+  constructor(public traitModel:ModelTrait,public traitTexture:TextureTrait|null ,public traitColor:ColorTrait|null){
+
   }
 }
 
 
-
 class SolanaPurchaseAssets{
-  constructor(solanapurchaseAssetsDefinition){
+  merkleTreeAddress:string
+  depositAddress:string
+  collectionName:string
+  constructor(solanapurchaseAssetsDefinition:{
+      merkleTreeAddress:string,
+      depositAddress:string,
+      collectionName:string
+  }){
     const {
       merkleTreeAddress,
       depositAddress,
@@ -1516,7 +1785,11 @@ class SolanaPurchaseAssets{
   }
 }
 
-function createSolanaPurchaseCNFT(solanapurchaseAssetsDefinition) {
+function createSolanaPurchaseCNFT(solanapurchaseAssetsDefinition:{
+    merkleTreeAddress:string,
+    depositAddress:string,
+    collectionName:string
+}) {
   if (solanapurchaseAssetsDefinition == null)
     return null
   if (!solanapurchaseAssetsDefinition?.merkleTreeAddress || !solanapurchaseAssetsDefinition?.collectionName  || !solanapurchaseAssetsDefinition?.depositAddress) {

@@ -1,4 +1,4 @@
-import { Group, MeshStandardMaterial, Color } from "three"
+import { Group, MeshStandardMaterial, Object3D,Color, Skeleton, SkinnedMesh } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
 import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
 import VRMExporter from "./VRMExporter"
@@ -7,9 +7,10 @@ import { findChildrenByType } from "./utils"
 import { VRMHumanBoneName, VRMExpression, VRMExpressionPresetName, VRMExpressionManager, VRMExpressionMorphTargetBind} from "@pixiv/three-vrm";
 import { doesMeshHaveMorphTargetBoundToManager } from './utils';
 import { GetMetadataFromAvatar } from "./vrmMetaUtils"
+import { avatarData } from "./characterManager"
 
 
-function cloneAvatarModel (model){
+function cloneAvatarModel (model:Object3D){
   
     const clone = model.clone()
     /*
@@ -19,7 +20,7 @@ function cloneAvatarModel (model){
       Especailly notics the change of `array` type, and lost of `count` property, will cause errors later.
       So have to reassign `userData.origIndexBuffer` after avatar clone.
     */
-    const origIndexBuffers = []
+    const origIndexBuffers:any[] = []
     model.traverse((child) => {
       if (child.userData.origIndexBuffer)
         origIndexBuffers.push(child.userData.origIndexBuffer)
@@ -30,27 +31,28 @@ function cloneAvatarModel (model){
     })
     return clone;
 }
-function getUnopotimizedGLB (model){
+function getUnopotimizedGLB (model:Object3D){
 
     const modelClone = cloneAvatarModel(model)
-    let skeleton
-    const skinnedMeshes = []
+    let skeleton:Skeleton = null!
+    const skinnedMeshes:SkinnedMesh[] = []
 
     modelClone.traverse((child) => {
-      if (!skeleton && child.isSkinnedMesh) {
-        skeleton = cloneSkeleton(child)
+      if (!skeleton && (child as any).isSkinnedMesh) {
+        skeleton = cloneSkeleton(child as SkinnedMesh)
       }
-      if (child.isSkinnedMesh) {
-        child.geometry = child.geometry.clone()
-        child.skeleton = skeleton
-        skinnedMeshes.push(child)
-        if (Array.isArray(child.material)) {
-          const materials = child.material
-          child.material = new MeshStandardMaterial()
-          child.material.map = materials[0].map
+      let c = child as SkinnedMesh
+      if (c.isSkinnedMesh) {
+        c.geometry = c.geometry.clone()
+        c.skeleton = skeleton
+        skinnedMeshes.push(c)
+        if (Array.isArray(c.material)) {
+          const materials = c.material
+          c.material = new MeshStandardMaterial();
+          (c.material as MeshStandardMaterial).map = (materials[0] as MeshStandardMaterial).map
         }
         if (child.userData.origIndexBuffer) {
-          child.geometry.setIndex(child.userData.origIndexBuffer)
+          c.geometry.setIndex(child.userData.origIndexBuffer)
         }
       }
     })
@@ -65,33 +67,22 @@ function getUnopotimizedGLB (model){
 }
 
 
-export async function getGLBBlobData(model, options){
+export async function getGLBBlobData(model:Group, options:Partial<DownloadOptionsManifest>={}){
   const {optimized = true} = options;
   const finalModel = await (optimized ? 
      getOptimizedGLB(model, options) :
      getUnopotimizedGLB(model))
   const glb = await parseGLB(finalModel);
-  return new Blob([glb], { type: 'model/gltf-binary' });
+  return new Blob([glb as any], { type: 'model/gltf-binary' });
 }
 
-export async function getVRMBlobData(model, avatar, options){
+export async function getVRMBlobData(model:Group, avatar, options){
   const finalModel = await getOptimizedGLB(model, options)
   const vrm = await parseVRM(finalModel, avatar, options);
   // save it as glb now
   return new Blob([vrm], { type: 'model/gltf-binary' });
 }
 
-// returns a promise with the parsed data
-async function getGLBData(model, options){
-  if (optimized){
-    const finalModel = await getOptimizedGLB(model, options)
-    return parseGLB(finalModel); 
-  }
-  else{
-    const finalModel = getUnopotimizedGLB(model)
-    return parseGLB(finalModel);
-  }
-} 
 
 /**
  * Downloads a VRM model with specified options.
@@ -121,7 +112,7 @@ export async function downloadVRM(model,vrmData,fileName, options){
     downloadVRMWithAvatar(model, avatar, fileName, options)
 }
 
-export function downloadVRMWithAvatar(model, avatar, fileName, options){
+export function downloadVRMWithAvatar(model:Object3D, avatar:Record<string, avatarData>, fileName:string, options:Partial<DownloadOptionsManifest>){
   return new Promise(async (resolve, reject) => {
     const downloadFileName = `${
       fileName && fileName !== "" ? fileName : "AvatarCreatorModel"

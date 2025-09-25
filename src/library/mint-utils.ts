@@ -74,17 +74,17 @@ async function getTokenPrice(){
 }
 
 
-export function ownsCollection (wallet, network, collection){
+export function ownsCollection (wallet:string, network:"solana"|"ethereum"|"polygon", collection:string): Promise<boolean>{
   return new Promise((resolve, reject) => {
-    fetchOwnedNFTs(wallet, network, collection).then(response=>{
+    fetchOwnedNFTs(wallet, network, collection).then((response:Record<string,any>)=>{
       resolve (response?.nfts?.length > 0);
-    }).catch(err=>{
+    }).catch((err:Error)=>{
       reject(err);
     })
   });
 }
 
-export function fetchSolanaPurchasedAssets(walletAddress, delegateAddress, collectionName){
+export function fetchSolanaPurchasedAssets(walletAddress:string, delegateAddress:string, collectionName:string){
   return new Promise((resolve, reject) => {
     manager.getUserCNFTs(walletAddress,delegateAddress,collectionName)
       .then(response=>{
@@ -190,7 +190,7 @@ async function signAndSendTransaction(base64Transaction) {
  */
 
 
-export function fetchOwnedNFTs (walletAddress, network, collection){
+export function fetchOwnedNFTs (walletAddress:string, network:"ethereum"|"polygon"|"solana", collection:string){
   switch (network.toLowerCase()) {
     case 'ethereum':{
       return fetchFromOpensea(walletAddress, "ethereum", collection);
@@ -269,19 +269,15 @@ const fetchFromMetaplex = (walletAddress, collection) =>{
 
 /**
  * Switches the active wallet to a specific blockchain and retrieves the wallet address.
- * 
- * @param {string} network - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
- * @param {string} wallet - The wallet name (`"metamask"`, `"phantom"` or `"solana"`).
- * @returns {Promise<string>} A promise resolving to the active wallet address, or an empty string on error.
  */
-export function connectWallet(network) {
+export function connectWallet(network:"ethereum"|"polygon"|"solana"="ethereum"): Promise<string> {
   console.log("connect wallet:", network);
   return new Promise(async (resolve, reject) => {
     try {
       switch (network.toLowerCase()) {
         case 'ethereum':
         case 'polygon': {
-          if (!window.ethereum) {
+          if ('ethereum' in window == false) {
             return reject(new Error('Ethereum wallet is not available.'));
           }
          
@@ -289,14 +285,14 @@ export function connectWallet(network) {
             ethereum: '0x1', // Ethereum Mainnet
             polygon: '0x89', // Polygon Mainnet
           };
-          const targetChain = network.toLowerCase() == ethereum ? chainIdMap.ethereum : chainIdMap.polygon;
+          const targetChain = network.toLowerCase() == 'ethereum' ? chainIdMap.ethereum : chainIdMap.polygon;
 
-          await window.ethereum.request({
+          await (window as any).ethereum.request({
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: targetChain }],
           })  
 
-          const accounts = await window.ethereum.request({
+          const accounts = await (window as any).ethereum.request({
             method: 'eth_requestAccounts',
           });
 
@@ -304,10 +300,10 @@ export function connectWallet(network) {
         }
 
         case 'solana': {
-          if (!window.solana || !window.solana.isPhantom) {
+          if ('solana' in window == false || !(window as any).solana.isPhantom) {
             return reject(new Error('Solana wallet (Phantom) is not available.'));
           }
-          const response = await window.solana.connect();
+          const response = await (window as any).solana.connect();
           return resolve(response.publicKey.toString());
         }
 

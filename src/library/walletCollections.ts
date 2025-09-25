@@ -3,6 +3,13 @@ import { getAsArray } from "./utils";
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 import { connectWallet } from "./mint-utils";
 
+export type SolanaPurchaseAssetsDefinitionType = {
+      merkleTreeAddress:string,
+      depositAddress:string,
+      delegateAddress:string,
+      collectionName:string
+  }
+
 /**
  * Handles wallet operations and NFT collection interactions.
  */
@@ -15,12 +22,9 @@ export class WalletCollections {
     /**
      * Checks if a wallet purchased assets from specific collection
      * 
-     * @param {Object} solanaPurchaseAssetsDefinition - Solanas purchase assets definition.
-     * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
-     * @returns {Promise<Object>} A promise resolving to an object containing owned assets
      */
-    getSolanaPurchasedAssets(solanaPurchaseAssetsDefinition, testWallet){
-        console.log(solanaPurchaseAssetsDefinition);
+    getSolanaPurchasedAssets(solanaPurchaseAssetsDefinition:SolanaPurchaseAssetsDefinitionType, testWallet?:string){
+
         const {
             delegateAddress,
             collectionName
@@ -32,8 +36,9 @@ export class WalletCollections {
 
         return new Promise((resolve)=>{
             walletPromise
-                .then(wallet => fetchSolanaPurchasedAssets(wallet, delegateAddress, collectionName).then(response=>{
-                    resolve(new OwnedNFTTraitIDs({ownedIDs:response.ownedIDs,ownedTraits:response.ownedTraits}));
+                .then(wallet => fetchSolanaPurchasedAssets(wallet, delegateAddress, collectionName).then((response)=>{
+                    //@ts-ignore TODO: FIX TYPES
+                    resolve(new OwnedNFTTraitIDs({ownedIDs:response?.ownedIDs||[],ownedTraits:response.ownedTraits},null));
                 }))
                 .catch(err=>{
                     resolve(null);
@@ -45,17 +50,15 @@ export class WalletCollections {
     /**
      * Checks if a wallet owns a specific NFT collection.
      * 
-     * @param {string} collectionName - The name of the NFT collection.
-     * @param {string} chainName - The blockchain name (`"ethereum"`, `"polygon"` or `"solana"`).
-     * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
-     * @returns {Promise<boolean>} A promise resolving to `true` if the wallet owns the collection, otherwise `false`.
      */
-    checkForOwnership(collectionName, chainName, testWallet) {
+    async checkForOwnership(collectionName:string, chainName:"ethereum"|"solana"|"polygon", testWallet?:string): Promise<boolean> {
         const walletPromise = testWallet
             ? Promise.resolve(testWallet)
             : connectWallet(chainName);
 
-        return walletPromise.then(wallet => ownsCollection(wallet, network, collectionName));
+        const wallet = await walletPromise
+
+        return await ownsCollection(wallet, chainName, collectionName)
     }
 
     /**
@@ -66,13 +69,14 @@ export class WalletCollections {
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
      * @returns {Promise<Array<Object>>} A promise resolving to an array of NFT objects.
      */
-    getNftsFromCollection(collectionName, chainName, testWallet) {
+    async getNftsFromCollection(collectionName:string, chainName:"ethereum"|"polygon"|"solana", testWallet?:string) {
         const walletPromise = testWallet
             ? Promise.resolve(testWallet)
             : connectWallet(chainName);
-        return walletPromise
-            .then(wallet => fetchOwnedNFTs(wallet, chainName, collectionName))
-            .then(collection => getAsArray(collection?.nfts));
+        const wallet = await walletPromise
+        const collection = await fetchOwnedNFTs(wallet, chainName, collectionName) as {nfts: Object[]};
+        
+        return getAsArray(collection?.nfts)
             
     }
 
@@ -84,14 +88,14 @@ export class WalletCollections {
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
      * @returns {Promise<Array<Object>>} A promise resolving to an array of metadata objects.
      */
-    getMetaFromCollection(collectionName, chainName, testWallet) {
+    getMetaFromCollection(collectionName:string, chainName:"ethereum"|"polygon"|"solana"="solana", testWallet?:string): Promise<Array<Object>> {
         return this.getNftsFromCollection(collectionName, chainName, testWallet)
             .then(ownedNfts => {
                 console.log(ownedNfts);
-                const getNftsMeta = nfts => {
-                    const nftsMeta = [];
+                const getNftsMeta = (nfts:any[]) => {
+                    const nftsMeta: any[] = [];
                     const promises = nfts.map(nft =>
-                        new Promise(resolve => {
+                        new Promise<void>(resolve => {
                             console.log(nft);
                             fetch(nft.metadata_url)
                                 .then(response => response.json())
@@ -102,7 +106,7 @@ export class WalletCollections {
                                 .catch(err => {
                                     console.warn("Error processing metadata:", nft.metadata_url);
                                     console.error(err);
-                                    resolve(); // Resolve even on failure to avoid halting
+                                    resolve();
                                 });
                         })
                     );
@@ -124,16 +128,15 @@ export class WalletCollections {
      * @param {string|null} testWallet - The wallet address to use, or `null` to use the active wallet.
      * @returns {Promise<OwnedTraitIDs>} A promise resolving to an OwnedNFTTraitIDs object.
      */
-    getTraitsFromCollection(collectionName, chainName, dataSource, testWallet) {
+    getTraitsFromCollection(collectionName:string, chainName:"ethereum"|"polygon"|"solana" = "solana", dataSource:string, testWallet?:string): Promise<OwnedNFTTraitIDs> {
         if (collectionName == null || chainName == null || dataSource == null){
             console.error("Missing parameter: collectionName, chainName or dataSource to fetch nft collection, skipping nft validation")
-            return Promise.resolve({});
+            return Promise.resolve({} as OwnedNFTTraitIDs);
         }
 
-        console.log("gets");
         if (dataSource == "name"){
             return this.getNftsFromCollection(collectionName, chainName, testWallet)
-                .then(nfts=> {console.log(nfts); return new OwnedNFTTraitIDs(nfts, dataSource)});
+                .then(nfts=> {return new OwnedNFTTraitIDs(nfts, dataSource)});
         }
         else{
             return this.getMetaFromCollection(collectionName, chainName, testWallet)

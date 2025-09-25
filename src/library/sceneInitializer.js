@@ -37,7 +37,7 @@ export function sceneInitializer(canvasId) {
 
 
     const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
-    characterManager.addLookAtMouse(80,canvasId, camera, true);
+    characterManager.addLookAtMouse(80,canvasId, camera);
    
     //"editor-scene"
     const canvasRef = document.getElementById(canvasId);

@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+      "useDefineForClassFields": true,
+      "target": "es2021",
+      "lib": ["es2021", "dom"],
+      "module": "ESNext",
+      "skipLibCheck": true,
+
+      /* Bundler mode */
+      "moduleResolution": "node",
+      "allowImportingTsExtensions": true,
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "allowJs": true,
+      "noEmit": true,
+      "jsx": "react-jsx",
+      "types": ["vite/client"],
+      "allowSyntheticDefaultImports": true,
+  
+      /* Linting */
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": true,
+  
+      /* Paths */
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"]
+      }
+    },
+    "include": ["src","vite.config.ts"],
+    "exclude": ["node_modules"]
+  }

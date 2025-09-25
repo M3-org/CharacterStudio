@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+import { Vector3 } from 'three';
 
 const localVector = new THREE.Vector3()
+type boneName = 'head' | 'neck' | 'chest' | 'hips' | 'spine' | 'leftUpperLeg' | 'leftLowerLeg' | 'leftFoot' | 'rightUpperLeg' | 'rightLowerLeg' | 'rightFoot'
 
 /**
  *  @typedef {import('@pixiv/three-vrm').VRM} VRM
@@ -11,34 +13,18 @@ const localVector = new THREE.Vector3()
  * Handles camera framing for different shot types.
  */
 export default class CameraFrameManager {
-    /**
-     * @typedef {import('three')} THREE
-     * @type {THREE.PerspectiveCamera}
-     */
-  camera = null;
-    /**
-     * @type {{min: number, max: number}}
-     */
-  frameOffset= {
+
+  frameOffset: { min: number; max: number; }= {
     min: 0.2,
     max: 0.2,
   };
-    /**
-     * @type {Record<string, {min: THREE.Vector3, max: THREE.Vector3} | null>}
-     */
-  boneOffsets
-    /**
-     * @type {THREE.Vector3}
-     * @private
-     * @readonly
-        */
-  cameraDir = new THREE.Vector3()
 
-  /**
-   * 
-   * @param {THREE.PerspectiveCamera} camera 
-   */
-  constructor(camera) {
+  boneOffsets: Record<boneName, { min: THREE.Vector3; max: THREE.Vector3; } | null>
+
+  cameraDir = new THREE.Vector3()
+  
+
+  constructor(public camera:THREE.PerspectiveCamera) {
     this.camera = camera|| new THREE.PerspectiveCamera()
 
 
@@ -57,13 +43,7 @@ export default class CameraFrameManager {
     }
   }
 
-  /**
-   * 
-   * @param {THREE.Vector3} cameraPosition 
-   * @param {THREE.Vector3} lookAtPosition 
-   * @param {number} fieldOfView 
-   */
-  setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30) {
+  setupCamera(cameraPosition: Vector3, lookAtPosition: Vector3, fieldOfView: number = 30) {
     this.camera.position.copy(cameraPosition)
     this.camera.lookAt(lookAtPosition)
     this.camera.fov = fieldOfView
@@ -73,25 +53,20 @@ export default class CameraFrameManager {
    * @param {THREE.Object3D} object
    * @param {number} minWeight 
    */
-  async calculateBoneOffsets(object, minWeight) {
+  async calculateBoneOffsets(object: THREE.Object3D, minWeight: number) {
     for (const boneName in this.boneOffsets) {
       // Use await to wait for the promise to resolve
-      const result = await this._getMinMaxOffsetByBone(object, boneName, minWeight)
+      const result = await this._getMinMaxOffsetByBone(object, boneName as boneName, minWeight)
       console.log('result', result)
       // Store the result in the boneOffsets property
-      this.boneOffsets[boneName] = result
+      this.boneOffsets[boneName as boneName] = result
     }
   }
 
-  /**
-   * @type {THREE.Object3D|null}
-   */
-  frameTarget = null
-  /**
-   * Sets the target for the frame() methods
-   * @param {THREE.Object3D|null} object 
-   */
-  setFrameTarget(object){
+
+  frameTarget: THREE.Object3D | null = null
+  
+  setFrameTarget(object:THREE.Object3D){
     this.frameTarget = object;
   }
 
@@ -118,7 +93,7 @@ export default class CameraFrameManager {
    * @param {boolean} minGetsMaxVertex 
    * @param {boolean} maxGetsMaxVertex 
    */
-  frameShot( minBoneName, maxBoneName, cameraPosition = null, minGetsMaxVertex = false, maxGetsMaxVertex = true) {
+  frameShot( minBoneName: boneName, maxBoneName: boneName, cameraPosition: Vector3 | null = null, minGetsMaxVertex: boolean = false, maxGetsMaxVertex: boolean = true) {
     if(!this.frameTarget){
         console.error("No target object provided, Call setFrameTarget() first;")
         return;
@@ -136,7 +111,7 @@ export default class CameraFrameManager {
    * 
    * @param {number} min 
    */
-  setBottomFrameOffset(min) {
+  setBottomFrameOffset(min:number) {
     this.frameOffset.min = min
   }
     /**
@@ -144,17 +119,13 @@ export default class CameraFrameManager {
      * @param {number} max
      *  
      * */
-  setTopFrameOffset(max) {
+  setTopFrameOffset(max:number) {
     this.frameOffset.max = max
   }
   /**
    *
-   * @param {THREE.Object3D} targetObject
-   * @param {string} boneName
-   * @param {boolean} getMax
-   * @returns
    */
-  _getBoneWorldPositionWithOffset(targetObject,boneName, getMax) {
+  _getBoneWorldPositionWithOffset(targetObject: THREE.Object3D,boneName: boneName, getMax: boolean) {
     const bone = this._getFirstBoneWithName( boneName,targetObject)
     if (!bone || !this.boneOffsets[boneName]) {
       console.error(`Bone with name '${boneName}' not found in the model.`)
@@ -168,12 +139,8 @@ export default class CameraFrameManager {
 
     return boneWorldPosition
   }
-  /**
-   * @param {string} boneName 
-   * @param {THREE.Object3D|undefined} targetObject
-   * @returns 
-   */
-  _getFirstBoneWithName(boneName,targetObject=undefined) {
+
+  _getFirstBoneWithName(boneName: boneName,targetObject: THREE.Object3D | undefined=undefined):THREE.Bone|null {
     /**
      * @type {Bone | null}
      */
@@ -181,7 +148,7 @@ export default class CameraFrameManager {
     const target= targetObject||this.frameTarget
     if(!target){
         console.error("_getFirstBoneWithName: No target object provided, Call setFrameTarget() first or provide a targetObject parameter;")
-        return;
+        return null;
     }
     target.traverse((child) => {
       if (child instanceof THREE.SkinnedMesh) {
@@ -208,9 +175,9 @@ export default class CameraFrameManager {
  * @param {number} minWeight 
  * @returns 
  */
-  async _getMinMaxOffsetByBone(parent, boneName, minWeight) {
+  async _getMinMaxOffsetByBone(parent: THREE.Object3D, boneName: boneName, minWeight: number) {
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise( async (resolve, reject) => {
+    return new Promise<{ min: Vector3, max: Vector3 }>( async (resolve, reject) => {
       // Ensure parent is valid
       if (!parent || !parent.traverse) {
         console.error('Invalid parent object provided.')
@@ -221,7 +188,7 @@ export default class CameraFrameManager {
       const minOffset = new THREE.Vector3(Infinity, Infinity, Infinity)
       const maxOffset = new THREE.Vector3(-Infinity, -Infinity, -Infinity)
 
-      const prevPos = []
+      const prevPos: any[] = []
       parent.traverse(async (child) => {
         if (child instanceof THREE.SkinnedMesh) {
           prevPos.push(this._saveBonesPos(child.skeleton))
@@ -230,7 +197,7 @@ export default class CameraFrameManager {
       })
       let prevPosCount = 0
 
-      const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+      const delay = (ms:number) => new Promise((res) => setTimeout(res, ms))
       await delay(10)
       // Traverse all children of the parent
       parent.traverse((child) => {
@@ -292,11 +259,11 @@ export default class CameraFrameManager {
    * @param {THREE.Skeleton} skeleton 
    * @returns 
    */
-  _saveBonesPos(skeleton) {
+  _saveBonesPos(skeleton: THREE.Skeleton) {
     /**
      * @type {{position: THREE.Vector3, rotation: THREE.Quaternion, scale: THREE.Vector3}[]}
      */
-    let savedPose = []
+    let savedPose: { position: THREE.Vector3; rotation: THREE.Euler; scale: THREE.Vector3; }[] = []
     skeleton.bones.forEach((bone) => {
       savedPose.push({
         position: bone.position.clone(),
@@ -307,7 +274,7 @@ export default class CameraFrameManager {
     return savedPose
   }
 
-  _restoreSavedPose(savedPose, skeleton) {
+  _restoreSavedPose(savedPose: { position: THREE.Vector3; rotation: THREE.Euler; scale: THREE.Vector3; }[], skeleton: THREE.Skeleton) {
     if (savedPose) {
       skeleton.bones.forEach((bone, index) => {
         bone.position.copy(savedPose[index].position)
@@ -323,7 +290,7 @@ export default class CameraFrameManager {
    * @param {THREE.Vector3} cameraPosition 
    * @param {number} fieldOfView 
    */
-  positionCameraBetweenPoints(vector1, vector2, cameraPosition, fieldOfView = 30) {
+  positionCameraBetweenPoints(vector1: THREE.Vector3, vector2: THREE.Vector3, cameraPosition: THREE.Vector3, fieldOfView: number = 30) {
     const boundingBox = new THREE.Box3()
     boundingBox.expandByPoint(vector1)
     boundingBox.expandByPoint(vector2)
@@ -358,7 +325,7 @@ export default class CameraFrameManager {
    * @param {number} playerCameraDistance 
    * @param {number} fieldOfView 
    */
-  setCamera(headPosition, playerCameraDistance, fieldOfView = 30) {
+  setCamera(headPosition: THREE.Vector3, playerCameraDistance: number, fieldOfView: number = 30) {
     this.camera.position.copy(headPosition)
     this.camera.fov = fieldOfView
     localVector.set(0, 0, -1)
@@ -373,7 +340,7 @@ export default class CameraFrameManager {
    * @param {string} shotName 
    * @param {THREE.Vector3} vectorCameraPosition 
    */
-  setCameraFrameWithName(shotName, vectorCameraPosition){
+  setCameraFrameWithName(shotName: string, vectorCameraPosition: THREE.Vector3){
     const shotNameLower = shotName.toLowerCase();
     switch (shotNameLower){
         case "fullshot":
@@ -398,17 +365,7 @@ export default class CameraFrameManager {
             this.frameShot("leftFoot", "head",vectorCameraPosition)
             break;
     }
-}
-
-  /**
-   * 
-   * @param {THREE.Camera} camera 
-   */
-  copyCamera(camera) {
-    this.camera.position.copy(camera.position)
-    this.camera.quaternion.copy(camera.quaternion)
-    if ('fov' in camera) {
-      this.camera.fov = camera.fov
-    }
   }
+
+
 }
