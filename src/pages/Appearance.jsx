@@ -21,6 +21,7 @@ import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 import SaleIcon from "../images/sale-icon.png"
 import { BoneSelector } from "../components/BoneSelector"
+import TransformInspector from "../components/TransformInspector"
 
   /**
    * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
@@ -40,6 +41,10 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
+    bonePicker,
+    attachToTransformControls,
+    detachTransformControls,
+    attachTransformTarget,
   } = React.useContext(SceneContext)
   
   const [traitView, setTraitView] = React.useState(TraitPage.TRAIT)
@@ -74,6 +79,8 @@ function Appearance() {
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
   const [selectingBone, setSelectingBone] = React.useState(false)
   const [modelFile, setModelFile] = React.useState(null)
+  const [modelUrl, setModelUrl] = React.useState(null)
+  const modelUrlRef = React.useRef(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -130,7 +137,20 @@ function Appearance() {
       console.log(selectedTraitGroup);
       console.log("dropeed glb");
       setSelectingBone(true);
+      // create and store object URL now to avoid stale state later
+      try{
+        const url = URL.createObjectURL(file);
+        setModelUrl(url);
+        modelUrlRef.current = url;
+      }catch(e){
+        console.error("Failed to create object URL", e)
+      }
       setModelFile(file);
+      if (bonePicker){
+        bonePicker.enable((boneName)=>{
+          placeModelOnBone(boneName)
+        })
+      }
     }
     else{
       console.warn("Please select a group trait first.")
@@ -307,11 +327,39 @@ function Appearance() {
   const placeModelOnBone = async (boneName) => {
     setSelectingBone(false);
     setIsLoading(true);
-    const path = URL.createObjectURL(modelFile);
-    characterManager.loadCustomModelTrait(selectedTraitGroup.trait, path, boneName).then(()=>{
+    const urlToUse = modelUrlRef.current || modelUrl;
+    if (!urlToUse){
+      console.warn("No model URL available for placement.");
+      setIsLoading(false);
+      return;
+    }
+    characterManager.loadCustomModelTrait(selectedTraitGroup.trait, urlToUse, boneName).then(()=>{
       setIsLoading(false);
       setModelFile(null)
-      URL.revokeObjectURL(path);
+      URL.revokeObjectURL(urlToUse);
+      setModelUrl(null);
+      modelUrlRef.current = null;
+      const entry = characterManager.avatar[selectedTraitGroup.trait];
+      // If entry.model is a GLTF (from non-VRM path) we attached its scene under the target bone
+      const node = entry?.model?.scene || entry?.model || null;
+      // If we attached to a bone, ensure we're manipulating the child just added
+      // i.e., the last child of the bone may be our model root
+      if (!node && characterManager.baseSkeletonVRM && boneName){
+        const bone = characterManager.baseSkeletonVRM.humanoid.humanBones[boneName]?.node
+        const last = bone && bone.children && bone.children[bone.children.length-1]
+        if (last) {
+          attachToTransformControls(last)
+          if (attachTransformTarget) attachTransformTarget(last)
+          return
+        }
+      }
+      if (attachToTransformControls && node){
+        // Attach the GLTF root for direct manipulation (defer one tick to ensure it is in scene graph)
+        requestAnimationFrame(()=>{
+          attachToTransformControls(node);
+          if (attachTransformTarget) attachTransformTarget(node)
+        })
+      }
     })
 
   }
@@ -325,9 +373,11 @@ function Appearance() {
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
-      {selectingBone && <BoneSelector
-        onSelect={placeModelOnBone}  
-      />}
+      {selectingBone && !bonePicker && (
+        <BoneSelector
+          onSelect={placeModelOnBone}
+        />
+      )}
       {/* Main Menu section */}
       <div className={styles["sideMenu"]}>
         <MenuTitle title="Appearance" left={20}/>
@@ -354,9 +404,10 @@ function Appearance() {
           </div>
         </div>
       </div>
+      <TransformInspector/>
 
-      {/* Option Selection section */
-      !!traits && selectedTraitGroup && (
+      {/* Option Selection section */}
+      { !!traits && selectedTraitGroup && (
         <div className={styles["selectorContainerPos"]}>
         
           <MenuTitle title={selectedTraitGroup.trait} width={130} left={20}/>
