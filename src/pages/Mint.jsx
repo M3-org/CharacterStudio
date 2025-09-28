@@ -35,7 +35,7 @@ function MintComponent() {
     setStatus("Please check your wallet")
     //const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
     const fullBio = {name:"XXXRestore"};//JSON.parse(fullBioStr)
-    const screenshot = null;// getFaceScreenshot(256,256,true);
+    const screenshot = undefined;// getFaceScreenshot(256,256,true);
     const result = await mintAsset(avatar,screenshot,model, fullBio.name)
     setStatus(result)
     setMinting(false)

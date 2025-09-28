@@ -3,23 +3,26 @@
  */
 export class OwnedNFTTraitIDs {
     /**
+     * @type {Object<string, Array<string>>}
+     * Object mapping trait names to arrays of trait IDs.
+     */
+    ownedTraits:Record<string,string[]> = {};
+    /**
+     * @type {Array<string>}
+     * Array of IDs extracted from the data source.
+     */
+    ownedIDs:string[] = [];
+    /**
      * Initializes an instance of the OwnedTraitIDs class.
      * 
      * @param {Array<Object>} metadataNft - Array of NFT metadata objects.
      * @param {string|null} dataSource - The source of the data (`"attributes"` or `"image"`).
      */
-    constructor(metadataNft, dataSource) {
-        /**
-         * @type {Object<string, Array<string>>}
-         * Object mapping trait names to arrays of trait IDs.
-         */
-        this.ownedTraits = {};
+    constructor(metadataNft:{
+        ownedTraits?:Record<string,string[]>,
+        ownedIDs?:string[]
+    }, dataSource:string|null = null) {
 
-        /**
-         * @type {Array<string>}
-         * Array of IDs extracted from the data source.
-         */
-        this.ownedIDs = [];
         switch (dataSource){
             case "name":
                 metadataNft.forEach(nft => {
@@ -58,7 +61,7 @@ export class OwnedNFTTraitIDs {
      * 
      * @param {string} traitID - The ID to add.
      */
-    addOwnedID(traitID) {
+    addOwnedID(traitID: string) {
         if (!this.ownedIDs.includes(traitID)) {
             this.ownedIDs.push(traitID);
         }
@@ -70,7 +73,7 @@ export class OwnedNFTTraitIDs {
      * @param {string} traitName - The name of the trait.
      * @param {string} traitID - The ID of the trait.
      */
-    addOwnedTrait(traitName, traitID) {
+    addOwnedTrait(traitName: string, traitID: string) {
         if (this.ownedTraits[traitName] == null) {
             this.ownedTraits[traitName] = [];
         }
@@ -85,7 +88,7 @@ export class OwnedNFTTraitIDs {
      * @param {string} traitName - The name of the trait to retrieve IDs for.
      * @returns {Array<string>} An array of trait IDs.
      */
-    getOwnedTraitIDs(traitName) {
+    getOwnedTraitIDs(traitName: string) {
         return [...(this.ownedTraits[traitName] || []), ...this.ownedIDs];
     }
 
@@ -94,7 +97,7 @@ export class OwnedNFTTraitIDs {
      * 
      * @returns {boolean} `true` if there are owned traits or IDs, otherwise `false`.
      */
-    ownTraits() {
+    ownTraits(): boolean {
         return (Object.keys(this.ownedTraits).length > 0 || this.ownedIDs.length > 0);
     }
 }

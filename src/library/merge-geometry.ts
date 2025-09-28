@@ -4,8 +4,11 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { findChildrenByType, getMeshesSortedByMaterialArray } from "./utils.js";
 import { createTextureAtlas } from "./create-texture-atlas.js";
 import { BufferAttribute } from "three";
+import { DownloadOptionsManifest } from "./CharacterManifestData.js";
+import { VRMExpression, VRMExpressionMorphTargetBind, VRMExpressionPresetName } from "@pixiv/three-vrm";
+import { avatarData } from "./characterManager.js";
 
-export function cloneSkeleton(skinnedMesh) {
+export function cloneSkeleton(skinnedMesh:THREE.SkinnedMesh) {
     const boneClones = new Map();
     for (const bone of skinnedMesh.skeleton.bones) {
         const clone = bone.clone(false);
@@ -81,7 +84,7 @@ export function cloneSkeleton(skinnedMesh) {
 //     return newSkeleton;
 // }
 
-function changeBoneHandedness(bone) {
+function changeBoneHandedness(bone:THREE.Bone) {
     console.log("isvrm0")
     // Clone the bone and apply handedness change
     const clone = bone.clone(false);
@@ -103,7 +106,7 @@ function changeBoneHandedness(bone) {
 
     return clone;
 }
-function createMergedSkeleton(meshes, scale){
+function createMergedSkeleton(meshes:(THREE.Mesh | THREE.SkinnedMesh)[], scale:number){
     /* user should be careful with naming convetions in custom bone names out from humanoids vrm definition,
     for example ones that come from head (to add hair movement), should start with vrm's connected bone 
     followed by the number of the bone in reference to the base bone (head > head_hair_00 > head_hair_01),
@@ -116,7 +119,7 @@ function createMergedSkeleton(meshes, scale){
 
     let index = 0;
     meshes.forEach(mesh => {
-        if (mesh.skeleton){
+        if ('skeleton' in mesh && mesh.skeleton){
             // Create a new skeleton by cloning the source skeleton
             var clonedSkeleton = cloneSkeleton(mesh);
             // take all bones as they come
@@ -160,8 +163,8 @@ function createMergedSkeleton(meshes, scale){
         }
     });
 
-    const finalBones = [];
-    const finalBoneInverses = [];
+    const finalBones:THREE.Bone[] = [];
+    const finalBoneInverses:THREE.Matrix4[] = [];
     let boneClonesArr =[ ...boneClones.values() ];
     boneClonesArr.forEach(bnClone => {
         finalBones.push(bnClone.bone)
@@ -184,41 +187,43 @@ function createMergedSkeleton(meshes, scale){
     });
     return newSkeleton
 }
-function getUpdatedSkinIndex(newSkeleton, mesh){
-    if (!mesh.skeleton)
-        return
+function getUpdatedSkinIndex(newSkeleton:THREE.Skeleton, mesh:THREE.SkinnedMesh){
+    if (!mesh.skeleton){
+        console.warn("No skeleton found in mesh ", mesh);
+        throw new Error("No skeleton found in mesh ");}
+        
     const newBonesIndex = new Map();
     // compare this skeleton and make a map with the current index pointing the new index
-    if (mesh.skeleton){
-        mesh.skeleton.bones.forEach((bone, index) => {
-            const filterByName = newSkeleton.bones.filter (newBone=>newBone.name === bone.name)
-            const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
-            newBonesIndex.set(index, newIndex)
-        });
-        
-        const newSkinIndexArr = [];
 
-        const skinIndices = mesh.geometry.attributes.skinIndex.array;
-        for (let i =0; i < skinIndices.length;i++){
-            
-            newSkinIndexArr[i] = newBonesIndex.get(skinIndices[i])
-        }
-        
-        const indexTypedArray = new Uint16Array(newSkinIndexArr);
+    mesh.skeleton.bones.forEach((bone, index) => {
+        const filterByName = newSkeleton.bones.filter (newBone=>newBone.name === bone.name)
+        const newIndex = filterByName.length > 0 ? newSkeleton.bones.indexOf(filterByName[0]):-1
+        newBonesIndex.set(index, newIndex)
+    });
+    
+    const newSkinIndexArr = [];
 
-        return new THREE.BufferAttribute(indexTypedArray,4,false);
+    const skinIndices = mesh.geometry.attributes.skinIndex.array;
+    for (let i =0; i < skinIndices.length;i++){
         
+        newSkinIndexArr[i] = newBonesIndex.get(skinIndices[i])
     }
+    
+    const indexTypedArray = new Uint16Array(newSkinIndexArr);
+
+    return new THREE.BufferAttribute(indexTypedArray,4,false);
+    
+
 }
 
 // returns an ordered array with non duplicated indices
-function getOrderedNonDupArray(arr){
+function getOrderedNonDupArray<T>(arr:Array<T>): Array<T>{
     const sortedArr = [...arr];
     sortedArr.sort()
     return sortedArr.filter((item,index) => sortedArr.indexOf(item) === index);
 }
 
-function getTypedArrayType(someTypedArray) {
+function getTypedArrayType(someTypedArray:Int8Array|Uint8Array|Uint8ClampedArray|Int16Array|Uint16Array|Int32Array|Uint32Array|Float32Array|Float64Array|BigInt64Array|BigUint64Array) {
     const typedArrayTypes = [
       Int8Array,
       Uint8Array,
@@ -236,7 +241,7 @@ function getTypedArrayType(someTypedArray) {
     return checked.length && checked[0] || null;
   }
 
-function removeUnusedAttributes(attribute,arrayMatch){
+function removeUnusedAttributes(attribute:any,arrayMatch:any){
     //const attr = mesh.geometry.getAttribute(attributeName)
     const newArr = []
     for (let i =0 ; i < arrayMatch.length ;i++){
@@ -245,12 +250,12 @@ function removeUnusedAttributes(attribute,arrayMatch){
             newArr[ind+j] = attribute.array[arrayMatch[i]*attribute.itemSize+j] // yes [i]*3 and not [ind]*3
         }
     }
-    const type = getTypedArrayType(attribute.array);
-    const typedArr = new type(newArr);
-    return new BufferAttribute(typedArr,attribute.itemSize,attribute.normalized)
+    const ArrayType = getTypedArrayType(attribute.array)!;
+    const typedArr = new ArrayType(newArr);
+    return new BufferAttribute(typedArr as any,attribute.itemSize,attribute.normalized)
 }
 
-function remapBoneIndices(geometry, oldSkeleton, newSkeleton){
+function remapBoneIndices(geometry:THREE.BufferGeometry, oldSkeleton:THREE.Skeleton, newSkeleton:THREE.Skeleton){
 
     // Iterate through the vertices of the geometry
     for (let i = 0; i < geometry.attributes.skinIndex.array.length; i += 4) {
@@ -281,7 +286,7 @@ function remapBoneIndices(geometry, oldSkeleton, newSkeleton){
     geometry.attributes.skinIndex.needsUpdate = true;
 }
 
-function mapOldBoneIndexToNew(oldBoneIndex, oldSkeleton, newSkeleton) {
+function mapOldBoneIndexToNew(oldBoneIndex:number, oldSkeleton:THREE.Skeleton, newSkeleton:THREE.Skeleton) {
     // Find the old bone using the oldBoneIndex
     const oldBone = oldSkeleton.bones[oldBoneIndex];
   
@@ -298,19 +303,26 @@ function mapOldBoneIndexToNew(oldBoneIndex, oldSkeleton, newSkeleton) {
     }
   }
 
-export async function combineNoAtlas(model,avatar, options) {
+type sourceMorphAttributesMap = Map<THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>|THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>, {
+    [name: string]: (THREE.BufferAttribute | THREE.InterleavedBufferAttribute)[];
+}>
+type morphTargetDictionariesMap = Map<THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>|THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>, {
+    [key: string]: number;
+}>
+
+export async function combineNoAtlas(model:THREE.Object3D,avatar:Record<string,avatarData>, options: Partial<Pick<DownloadOptionsManifest,'scale'|'isVrm0'|'mergeAppliedMorphs'>>) {
     
-    const { scale, isVrm0, mergeAppliedMorphs } = options
+    const { scale=1, isVrm0, mergeAppliedMorphs } = options
 
-    const clonedMeshes = [];
-    const material = [];
+    const clonedMeshes:THREE.SkinnedMesh[] = [];
+    const material:THREE.Material[] = [];
 
-    const meshes = findChildrenByType(model, "SkinnedMesh");
+    const meshes = findChildrenByType(model, "SkinnedMesh") as THREE.SkinnedMesh[];
     // Get VRM-bound morphTargets so we don't remove or merge them.
     const VRMBoundMorphs = getVRMBoundExpressionMorphs(avatar)
-    const blendShapesFromManifest = getAllBlendShapeTraits(avatar).map((trait) => trait.id);
+    const blendShapesFromManifest = getAllBlendShapeTraits(avatar).map((trait) => trait.blendshapeId)
 
-    meshes.forEach(originalMesh => {
+    meshes.forEach((originalMesh) => {
         const clonedMesh = originalMesh.clone(); // Clone the original mesh
         clonedMeshes.push(clonedMesh); // Add the cloned mesh to the array
         if (Array.isArray(originalMesh.material)) {
@@ -328,7 +340,7 @@ export async function combineNoAtlas(model,avatar, options) {
     clonedMeshes.forEach(mesh => {
         const geometry = new THREE.BufferGeometry();
         
-        const attributes = {}
+        const attributes:Record<string,THREE.BufferAttribute | THREE.InterleavedBufferAttribute> = {} as any
         for (const attributeName in mesh.geometry.attributes) {
             const attribute = mesh.geometry.attributes[attributeName];
             attributes[attributeName] = attribute.clone();
@@ -338,9 +350,9 @@ export async function combineNoAtlas(model,avatar, options) {
          * If merge has content, we remove all other morphTargets
          */
         const morphTargetsProcess = {
-            merge:new Set(),
-            keep:new Set(VRMBoundMorphs),
-            remove: new Set()
+            merge:new Set<string>(),
+            keep:new Set<string>(Object.keys(VRMBoundMorphs)),
+            remove: new Set<string>()
         }
         /**
          * Whether we want to merge morphtargets to the final result.
@@ -350,8 +362,8 @@ export async function combineNoAtlas(model,avatar, options) {
             if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return;
 
             blendShapesFromManifest.forEach((key)=>{
-                const influenceIndex = mesh.morphTargetDictionary[key];
-                if(influenceIndex !== undefined && mesh.morphTargetInfluences[influenceIndex] > 0) {
+                const influenceIndex = mesh.morphTargetDictionary![key];
+                if(influenceIndex !== undefined && mesh.morphTargetInfluences![influenceIndex] > 0) {
                     morphTargetsProcess.merge.add(key)
                 }else{
                     morphTargetsProcess.remove.add(key)
@@ -361,9 +373,12 @@ export async function combineNoAtlas(model,avatar, options) {
 
         }
 
+
         if (mesh.userData?.isVRM0){
             for (let i = 0; i < attributes["position"].array.length; i+=3){
+                //@ts-ignore
                 attributes["position"].array[i] *= -1
+                //@ts-ignore
                 attributes["position"].array[i+2] *= -1
             }
         }
@@ -375,17 +390,20 @@ export async function combineNoAtlas(model,avatar, options) {
             morphTargetInfluences: new Map(meshes.map((m) => [m, m.morphTargetInfluences || []])),
             //animationClips: mesh.animations, //disable for now cuz no animations.
             index: null,
-            animations: {}
+            animations: {},
+            morphAttributes: {} as any
         };
-
         //console.log(mesh.geometry.morphAttributes);
+ 
         const { dest, destMorphToMerge} = mergeGeometry({ meshes:[mesh], scale , morphTargetsProcess },isVrm0)
 
 
         // change vertex positions if is vrm0
         if (isVrm0){
             for (let i = 0; i < source.attributes.position.array.length; i+=3){
+                //@ts-ignore
                 source.attributes.position.array[i] *= -1
+                //@ts-ignore
                 source.attributes.position.array[i+2] *= -1
             }
         }
@@ -394,8 +412,8 @@ export async function combineNoAtlas(model,avatar, options) {
         source.morphAttributes = dest.morphAttributes;
         geometry.morphTargetsRelative = true;
 
-        const baseIndArr = mesh.geometry.index.array;
-        const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
+        const baseIndArr = mesh.geometry.index?.array||[];
+        const offsetIndexArr = getOrderedNonDupArray((mesh.geometry.index?.array|| []) as number[]);
 
         const indArrange = []
 
@@ -415,17 +433,21 @@ export async function combineNoAtlas(model,avatar, options) {
         
         // update morph attributes indices to match new offsetIndexArr
         for (const att in geometry.morphAttributes){
-            const attribute = geometry.morphAttributes[att];
-            for (let i =0; i < attribute.length ;i++){
-                attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+            const attribute = geometry.morphAttributes[att as keyof typeof geometry.morphAttributes];
+            for (let i =0; i < attribute!.length ;i++){
+                attribute![i] = removeUnusedAttributes(attribute![i],offsetIndexArr)
             }
         }
     
         const vertices = geometry.attributes.position.array;
         for (let i = 0; i < vertices.length; i += 3) {
+            //@ts-ignore
             vertices[i] *= scale;
+            //@ts-ignore
             vertices[i + 1] *= scale;
+            //@ts-ignore
             vertices[i + 2] *= scale;
+
             // Apply morph targets to the vertices
             if(mergeAppliedMorphs){
                 if(!destMorphToMerge.morphTargetInfluences)return
@@ -460,8 +482,9 @@ export async function combineNoAtlas(model,avatar, options) {
     return group;
 }
 
-function cloneMeshAndSaveSkinInfo(mesh){
-    const boneName = mesh.parent.name;
+function cloneMeshAndSaveSkinInfo(mesh:THREE.Mesh){
+    const boneName = mesh.parent?.name;
+    if(!boneName) throw new Error("cloneMeshAndSaveSkinInfo: Bone name not found");
     const originalGlobalPosition = new THREE.Vector3();
     const originalGlobalScale = new THREE.Vector3();
     mesh.getWorldPosition(originalGlobalPosition);
@@ -481,7 +504,7 @@ function cloneMeshAndSaveSkinInfo(mesh){
     return mesh;
 }
 
-function createSkinnedMeshFromMesh(baseSkeleton, mesh){
+function createSkinnedMeshFromMesh(baseSkeleton:THREE.Skeleton, mesh:THREE.Mesh){
     const skinnedMesh = new THREE.SkinnedMesh(mesh.geometry, mesh.material);
 
     // Clone the existing skeleton and find the bone by name
@@ -511,9 +534,11 @@ function createSkinnedMeshFromMesh(baseSkeleton, mesh){
         // first set rotation
         vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
         vertex.applyMatrix4(globalRotationMatrix);
-
+        //@ts-ignore
         vertices[i] = (vrm0Mult * globalScale.x *vertex.x) + globalPosition.x;
+        //@ts-ignore
         vertices[i+1] =  (globalScale.y * vertex.y) + globalPosition.y;    // no negative vrm0 multiply here
+        //@ts-ignore
         vertices[i+2] = (vrm0Mult * globalScale.z * vertex.z) + globalPosition.z;
         boneIndices.push(boneIndex, 0, 0, 0);
         weights.push(1.0, 0, 0, 0);
@@ -529,14 +554,9 @@ function createSkinnedMeshFromMesh(baseSkeleton, mesh){
 
     return skinnedMesh;
 }
-/**
- * 
- * @param {THREE.Object3D} model 
- * @param {Object} avatar 
- * @param {Object} [options] 
- * @returns 
- */
-export async function combine(model,avatar, options) {
+
+export async function combine(model:THREE.Object3D, avatar:Record<string,avatarData>,options: Partial<DownloadOptionsManifest> = {
+}) {
 
     let {
         transparentColor = new THREE.Color(1,1,1),
@@ -546,22 +566,22 @@ export async function combine(model,avatar, options) {
         stdAtlasSizeTransp = 4096,
         includeNonTexturedMeshesInAtlas = false,
         exportMtoonAtlas = false, 
+        mergeAppliedMorphs= false,
         exportStdAtlas = true,
-        mergeAppliedMorphs = false,
         isVrm0 = false,
         scale = 1,
         twoSidedMaterial = false,
     } = options;
 
     // convert meshes to skinned meshes first
-    const cloneNonSkinnedMeshes = findChildrenByType(model, ["Mesh"]);
+    const cloneNonSkinnedMeshes = findChildrenByType(model, ["Mesh"]) as THREE.Mesh[]; 
     for (let i =0; i < cloneNonSkinnedMeshes.length;i++){
         cloneNonSkinnedMeshes[i] = cloneMeshAndSaveSkinInfo(cloneNonSkinnedMeshes[i]);
     }
 
-    const cloneSkinnedMeshes = findChildrenByType(model, ["SkinnedMesh"]);
+    const cloneSkinnedMeshes = findChildrenByType(model, ["SkinnedMesh"]) as THREE.SkinnedMesh[];
 
-    const allMeshes = [...cloneNonSkinnedMeshes, ...cloneSkinnedMeshes];
+    const allMeshes = [...cloneNonSkinnedMeshes, ...cloneSkinnedMeshes] as (THREE.SkinnedMesh | THREE.Mesh)[];
 
     // make sure to have at least 1 atlas set
     if (exportMtoonAtlas == false && exportStdAtlas == false) exportMtoonAtlas = true;
@@ -598,44 +618,47 @@ export async function combine(model,avatar, options) {
     
     // Get VRM-bound morphTargets so we don't remove or merge them.
     const VRMBoundMorphs = getVRMBoundExpressionMorphs(avatar)
-    const blendShapesFromManifest = getAllBlendShapeTraits(avatar).map((trait) => trait.id);
+    const blendShapesFromManifest = getAllBlendShapeTraits(avatar).map((trait) => trait.blendshapeId)
 
     for (const prop in meshArrayData){
-        const meshData = meshArrayData[prop];
+        const meshData = meshArrayData[prop as keyof typeof meshArrayData];
         const arr = meshData.meshArray;
         if (arr.length > 0)
         {        
             const { bakeObjects, material } = 
-                await createTextureAtlas({ transparentColor, atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, includeNonTexturedMeshesInAtlas, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency, twoSidedMaterial:twoSidedMaterial});
+                await createTextureAtlas({ transparentColor, includeNonTexturedMeshesInAtlas,atlasSize:meshData.size, meshes: arr, mtoon:meshData.isMtoon, transparentMaterial:meshData.transparentMaterial, transparentTexture:requiresTransparency, twoSidedMaterial:twoSidedMaterial, scale});
                 const meshes = bakeObjects.map((bakeObject) => bakeObject.mesh);
 
-            const skinnedMeshes = [];
+            const skinnedMeshes:THREE.SkinnedMesh[] = [];
             /**
              * Object to keep track of morphTargets we want merged vs morphTargets we want to keep as blendshapes;
              * If merge has content, we remove all other morphTargets
              */
             const morphTargetsProcess = {
-                merge:new Set(),
-                keep:new Set(Object.keys(VRMBoundMorphs)),
-                remove: new Set()
+                merge:new Set<string>(),
+                keep:new Set<string>(Object.keys(VRMBoundMorphs)),
+                remove: new Set<string>()
             }
-            meshes.forEach((mesh) => {
 
-                if (mesh.type == "Mesh"){
-                    mesh = createSkinnedMeshFromMesh(newSkeleton, mesh)
+            meshes.forEach((_mesh) => {
+
+                if (_mesh.type == "Mesh"){
+                    _mesh = createSkinnedMeshFromMesh(newSkeleton, _mesh)
                 }
-            
+                // type cast
+                const mesh = _mesh as THREE.SkinnedMesh;
                 skinnedMeshes.push(mesh)
+
                 /**
                  * Whether we want to merge morphtargets to the final result.
                  * Only affects morphTargets from the Manifest
                  */
                 if(mergeAppliedMorphs){
-                    if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return;
+                    if(!_mesh.morphTargetDictionary || !_mesh.morphTargetInfluences) return;
 
                     blendShapesFromManifest.forEach((key)=>{
-                        const influenceIndex = mesh.morphTargetDictionary[key];
-                        if(influenceIndex !== undefined && mesh.morphTargetInfluences[influenceIndex] > 0) {
+                        const influenceIndex = _mesh.morphTargetDictionary![key];
+                        if(influenceIndex !== undefined && _mesh.morphTargetInfluences![influenceIndex] > 0) {
                             morphTargetsProcess.merge.add(key)
                         }else{
                             morphTargetsProcess.remove.add(key)
@@ -647,9 +670,12 @@ export async function combine(model,avatar, options) {
 
                 // remove vertices from culled faces from the mesh
                 const geometry = mesh.geometry;
+                if(!geometry.index) {
+                    console.warn("No index array found in geometry ", mesh);
+                }
 
-                const baseIndArr = geometry.index.array
-                const offsetIndexArr = getOrderedNonDupArray(mesh.geometry.index.array);
+                const baseIndArr = geometry.index?.array || []
+                const offsetIndexArr = getOrderedNonDupArray((mesh.geometry.index?.array || []) as number[]);
 
                 const indArrange = []
                 for (let i =0 ; i < baseIndArr.length ;i++){
@@ -666,9 +692,9 @@ export async function combine(model,avatar, options) {
                 
                 // update morph attributes indices to match new offsetIndexArr
                 for (const att in geometry.morphAttributes){
-                    const attribute = geometry.morphAttributes[att];
-                    for (let i =0; i < attribute.length ;i++){
-                        attribute[i] = removeUnusedAttributes(attribute[i],offsetIndexArr)
+                    const attribute = geometry.morphAttributes[att as keyof typeof geometry.morphAttributes];
+                    for (let i =0; i < attribute!.length ;i++){
+                        attribute![i] = removeUnusedAttributes(attribute![i],offsetIndexArr)
                     }
                 }
 
@@ -678,8 +704,9 @@ export async function combine(model,avatar, options) {
                 }
 
                 // update mesh skeleton indices
-                if (mesh.skeleton != null)
+                if (mesh.skeleton != null){
                     mesh.geometry.setAttribute("skinIndex", getUpdatedSkinIndex(newSkeleton, mesh))
+                }
                     
                 // Exlude the currently "activated" morph attributes before merging.
                 // The BufferAttributes are not lost; they remain in `mesh.geometry.morphAttributes`
@@ -690,9 +717,49 @@ export async function combine(model,avatar, options) {
                 }
 
             });
-            const { dest, destMorphToMerge } = mergeGeometry({ meshes:skinnedMeshes, scale , morphTargetsProcess },isVrm0);
+            const { dest, destMorphToMerge} = mergeGeometry({ meshes:skinnedMeshes, scale , morphTargetsProcess },isVrm0);
             console.log('destMorphToMerge',destMorphToMerge)
-            const geometry = convertMergedDataToGeometry(dest,destMorphToMerge,mergeAppliedMorphs,scale, isVrm0);
+            const geometry = new THREE.BufferGeometry();
+
+            // modify all merged vertices to reflect vrm0 format
+            if (isVrm0){
+                for (let i = 0; i < dest.attributes.position.array.length; i+=3){
+                    //@ts-ignore
+                    dest.attributes.position.array[i] *= -1
+                    //@ts-ignore
+                    dest.attributes.position.array[i+2] *= -1
+                }
+            }
+
+            geometry.attributes = dest.attributes;
+            geometry.morphAttributes = dest.morphAttributes;
+            geometry.morphTargetsRelative = true;
+            geometry.setIndex(dest.index);
+
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                //@ts-ignore
+                vertices[i] *= scale;
+                //@ts-ignore
+                vertices[i + 1] *= scale;
+                //@ts-ignore
+                vertices[i + 2] *= scale;
+
+                // Apply morph targets to the vertices
+                if(mergeAppliedMorphs){
+                    if(!destMorphToMerge.morphTargetInfluences)continue
+                    for (let j = 0; j < destMorphToMerge.morphTargetInfluences.length; j++) {
+                        const morphAttribute = destMorphToMerge.morphAttributes?.position[j];
+                        if (morphAttribute) {
+                            for (let k = 0; k < 3; k++) {
+                                //@ts-ignore
+                                vertices[i + k] += morphAttribute.array[i + k] * destMorphToMerge.morphTargetInfluences[j];
+                            }
+                        }
+                    }
+                }
+            }
+
 
             const mesh = new THREE.SkinnedMesh(geometry, material);
             mesh.name = "CombinedMesh_" + prop;
@@ -704,13 +771,12 @@ export async function combine(model,avatar, options) {
             //group.animations = dest.animations;
             group.add(mesh);
            
-
             mesh.userData.bindMorphs = {
                 old:VRMBoundMorphs,
                 new:{}
             }
             Object.keys(VRMBoundMorphs).forEach((VRMMorphName) => {
-                const index = mesh.morphTargetDictionary[VRMMorphName];
+                const index = mesh.morphTargetDictionary![VRMMorphName];
                 if(index !== undefined){
                     mesh.userData.bindMorphs.new[VRMMorphName] = {
                         index:index,
@@ -718,6 +784,7 @@ export async function combine(model,avatar, options) {
                     };
                 }
             });
+            console.log('mesh.userData.bindMorphs',mesh.userData.bindMorphs)
             group.userData.atlasMaterial.push(material);      
         }
     }
@@ -725,38 +792,26 @@ export async function combine(model,avatar, options) {
      * We need to re-link the new morphDictionary and the vrm ExpressioManager since indexes have changed
      * We clone an expression manager for easy maintenance;
      */
-    const expressionManagerToClone = Object.values(avatar).find((a)=>a?.vrm?.expressionManager?.expressionMap?.aa?._binds.length > 0)?.vrm.expressionManager;
+    const expressionManagerToClone = Object.values(avatar).find((a)=>(a?.vrm?.expressionManager?.expressionMap?.aa as any)?._binds.length > 0)?.vrm.expressionManager;
     // getAvatarData in utils.ts will take care of the rest
     group.userData.expressionManagerToClone = expressionManagerToClone
     group.add(newSkeleton.bones[0]);
     return group;
 }
 
-/**
- * 
- * @param {Object} avatar 
- * @returns {Array} Array of blendshapeTraits
- */
-function getAllBlendShapeTraits(avatar){
+
+function getAllBlendShapeTraits(avatar:Record<string,avatarData>){
     const blendShapes = Object.values(avatar).filter((a)=>a)[0]?.traitInfo.manifestData.getAllBlendShapeTraits() || [];
-    return blendShapes;
+    return blendShapes
 }
-/**
- * 
- * @param {Object} avatar 
- * @returns 
- */
-function getVRMBoundExpressionMorphs(avatar){
-    console.warn("expression maps are currently only being take from the frist vrm found that contains blendshapes");
-    const expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>t?.expressionManager?.expressionMap?.aa?._binds.length > 0).map((vrm) => vrm.expressionManager?.expressionMap);
-    /**
-     * @type {Object.<string, {index:number, primitives:string[]}>}
-     */
-    const VRMBoundMorphs = {};
-    /**
-     * @type {string[]}
-     */
-    let expressionNameDone = []
+
+function getVRMBoundExpressionMorphs(avatar:Record<string,avatarData>){
+    const expressionMaps = Object.values(avatar).map((t)=>t?.vrm).filter((t)=>(t?.expressionManager?.expressionMap?.aa as any)?._binds.length > 0).map((vrm) => vrm.expressionManager?.expressionMap);
+    const VRMBoundMorphs:Record<string,{
+        index:number,
+        primitives:number[]
+    }> = {};
+    let expressionNameDone:string[] = []
     // Iterate through maps of expressions of each VRM
     for(const expressionMap of expressionMaps){
         if(!expressionMap) continue;
@@ -766,22 +821,15 @@ function getVRMBoundExpressionMorphs(avatar){
             if(expressionNameDone.includes(expression.expressionName)) continue;
             expressionNameDone.push(expression.expressionName)
             // Get the bound Blendshape from the expression
-            /**
-             *type VRMExpressionMorphTargetBind from pixiv VRM but cjs wont export it?
-             * @type {Object[]}
-             */
-            const bounds = expression._binds
+            const bounds = (expression as any)._binds as unknown as VRMExpressionMorphTargetBind[]
             if(!bounds || bounds.length == 0) continue;
             bounds.forEach((bound) => {
-                /**
-                 * @param {number} morphTargetIndex 
-                 * @returns {[string, number]}
-                 */
-                function getPrimitiveWithMorphTargetIndex(morphTargetIndex){
+
+                function getPrimitiveWithMorphTargetIndex(morphTargetIndex:number){
                     const primitiveDictionaries = bound.primitives.map((p) => p.morphTargetDictionary).filter((d) => !!d);
-                    const dictionary = primitiveDictionaries.find((dict) => Object.values(dict).includes(morphTargetIndex))
+                    const dictionary = primitiveDictionaries.find((dict) => Object.values(dict!).includes(morphTargetIndex))
                     if(!dictionary) return;
-                    return Object.entries(dictionary).find(([, value]) => value == morphTargetIndex);
+                    return Object.entries(dictionary!).find(([key, value]) => value == morphTargetIndex) as [string, number];
                 }
 
                 const primitiveKeyIndex = getPrimitiveWithMorphTargetIndex(bound.index);
@@ -795,15 +843,26 @@ function getVRMBoundExpressionMorphs(avatar){
     }
     return VRMBoundMorphs
   }
+  
 
-function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, destMorphTargetDictionary }) {
-    const destMorphTargetInfluences = [];
+function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, destMorphTargetDictionary }:{
+    meshes: (THREE.SkinnedMesh|THREE.Mesh)[], 
+    sourceMorphTargetDictionaries: morphTargetDictionariesMap, 
+    destMorphTargetDictionary: Record<string, number>
+}) {
+    const destMorphTargetInfluences:any[] = [];
     Object.entries(destMorphTargetDictionary).map(([morphName, destIndex]) => {
         const mesh = meshes.find((mesh) => {
             // eslint-disable-next-line no-prototype-builtins
-            return sourceMorphTargetDictionaries.get(mesh).hasOwnProperty(morphName);
+            return sourceMorphTargetDictionaries.get(mesh)?.hasOwnProperty(morphName);
         });
+        if(!mesh?.morphTargetDictionary){
+            return []
+        }
         const sourceIndex = mesh.morphTargetDictionary[morphName];
+        if(!mesh.morphTargetInfluences){
+            return []
+        }
         destMorphTargetInfluences[destIndex] = mesh.morphTargetInfluences[sourceIndex];
         // TODO: Stop / reset animations so that animated morph influences return to their "at rest" values.
         // Maybe the "at rest" values should be baked into attributes (e.g. eye brow shapes) to allow more
@@ -821,31 +880,33 @@ function mergeMorphTargetInfluences({ meshes, sourceMorphTargetDictionaries, des
 //     }
 //     return findSceneGroup(object3D.parent);
 // }
-function mergeSourceAttributes({ sourceAttributes }) {
-    const propertyNames = new Set(); // e.g. ["normal", "position", "skinIndex", "skinWeight", "tangent", "uv", "uv2"]
+function mergeSourceAttributes({ sourceAttributes }:{
+    sourceAttributes: sourceAttributeMap
+}) {
+    const propertyNames = new Set<string>(); // e.g. ["normal", "position", "skinIndex", "skinWeight", "tangent", "uv", "uv2"]
     const allSourceAttributes = Array.from(sourceAttributes.values());
     allSourceAttributes.forEach((sourceAttributes) => {
         Object.keys(sourceAttributes).forEach((name) => propertyNames.add(name));
     });
-    const destAttributes = {};
-    Array.from(propertyNames.keys()).map((name) => {
-        destAttributes[name] = BufferGeometryUtils.mergeAttributes(allSourceAttributes.map((sourceAttributes) => sourceAttributes[name]).flat().filter((attr) => attr !== undefined));
+    const destAttributes:Record<string,THREE.BufferAttribute> = {};
+    Array.from(propertyNames.keys()).map((name:any) => {
+        destAttributes[name] = BufferGeometryUtils.mergeAttributes(allSourceAttributes.map((sourceAttributes) => sourceAttributes[name]).flat().filter((attr) => attr !== undefined) as BufferAttribute[]);
     });
     return destAttributes;
 }
 /**
  * 
- * @param params {{
-    sourceMorphTargetDictionaries: Object
+ * @param param0 {Object} if removeAllMorphTargets is true, all morph targets will be removed (apart from VRM bound morphs)
+ * @returns 
+ */
+function mergeSourceMorphTargetDictionaries({ sourceMorphTargetDictionaries,morphTargetsProcess }:{
+    sourceMorphTargetDictionaries: morphTargetDictionariesMap
     morphTargetsProcess?:{
         merge:Set<string>,
         keep:Set<string>,
         remove:Set<string>
-    }}
- * @returns 
- */
-function mergeSourceMorphTargetDictionaries(params) {
-    const { sourceMorphTargetDictionaries,morphTargetsProcess } = params;
+    }
+}) {
     const morphNames = new Set(); // e.g. ["MouthFlap", "Blink", "Eye Narrow", "Eye Rotation"]
     const allSourceDictionaries = Array.from(sourceMorphTargetDictionaries.values());
     allSourceDictionaries.forEach((dictionary) => {
@@ -861,38 +922,47 @@ function mergeSourceMorphTargetDictionaries(params) {
                     morphNames.add(name)
                 }
             }
-
+            
         });
     });
-    const destMorphTargetDictionary = {};
+    const destMorphTargetDictionary:Record<string,any> = {};
     Array.from(morphNames.keys()).map((name, i) => {
-        destMorphTargetDictionary[name] = i;
+        destMorphTargetDictionary[name as string] = i;
     });
     return destMorphTargetDictionary;
 }
-function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}) {
-    const propertyNameSet = new Set(); // e.g. ["position", "normal"]
+function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sourceMorphAttributes, destMorphTargetDictionary, scale}:
+    {
+        meshes: (THREE.SkinnedMesh|THREE.Mesh)[]
+        , sourceMorphTargetDictionaries: morphTargetDictionariesMap
+        , sourceMorphAttributes: sourceMorphAttributesMap
+        , destMorphTargetDictionary: Record<string, number>
+        , scale: number
+    }
+    , isVrm0 = false) {
+    const propertyNameSet = new Set<string>(); // e.g. ["position", "normal"]
     const allSourceMorphAttributes = Array.from(sourceMorphAttributes.values());
     allSourceMorphAttributes.forEach((sourceMorphAttributes) => {
         Object.keys(sourceMorphAttributes).forEach((name) => propertyNameSet.add(name));
     });
     const propertyNames = Array.from(propertyNameSet);
     // const morphNames = Object.keys(destMorphTargetDictionary);
-    const unmerged = {};
+    const unmerged:Record<string,any[][]> = {};
     propertyNames.forEach((propName) => {
-        unmerged[propName] = [];
+        unmerged[propName] = [] as any;
         Object.entries(destMorphTargetDictionary).forEach(([morphName, destMorphIndex]) => {
             unmerged[propName][destMorphIndex] = [];
             meshes.forEach((mesh) => {
                 let bufferAttribute;
-                const morphTargetDictionary = sourceMorphTargetDictionaries.get(mesh);
+                const morphTargetDictionary = sourceMorphTargetDictionaries.get(mesh)!;
                 // eslint-disable-next-line no-prototype-builtins
-                if (morphTargetDictionary.hasOwnProperty(morphName) && mesh.geometry.morphAttributes[propName]) {
+                if (morphTargetDictionary.hasOwnProperty(morphName) && mesh.geometry.morphAttributes[propName as keyof typeof mesh.geometry.morphAttributes]) {
                     const sourceMorphIndex = morphTargetDictionary[morphName];
-                    bufferAttribute = mesh.geometry.morphAttributes[propName][sourceMorphIndex];
+                    bufferAttribute = mesh.geometry.morphAttributes[propName  as keyof typeof mesh.geometry.morphAttributes]?.[sourceMorphIndex];
                 }
                 else {
-                    const attribute = mesh.geometry.attributes[propName];
+                    const attribute = mesh.geometry.attributes[propName] as THREE.BufferAttribute;
+                    //@ts-ignore
                     const array = new attribute.array.constructor(new Array(attribute.array.length).fill(0));
                     bufferAttribute = new THREE.BufferAttribute(array, attribute.itemSize, attribute.normalized);
                 }
@@ -900,28 +970,32 @@ function mergeSourceMorphAttributes({ meshes, sourceMorphTargetDictionaries, sou
             });
         });
     });
-    const merged = {};
+    const merged:Record<string,THREE.BufferAttribute[]> = {};
     propertyNames.forEach((propName) => {
         merged[propName] = [];
         for (let i =0; i < Object.entries(destMorphTargetDictionary).length ; i++){
             merged[propName][i] = BufferGeometryUtils.mergeAttributes(unmerged[propName][i]);
             const buffArr = merged[propName][i].array;
             for (let j = 0; j < buffArr.length; j+=3){
+                //@ts-ignore
                 buffArr[j] *= scale;
+                //@ts-ignore
                 buffArr[j+1] *= scale;
+                //@ts-ignore
                 buffArr[j+2] *= scale;
             }
         }
     });
     return merged;
 }
-function mergeSourceIndices({ meshes }) {
+function mergeSourceIndices({ meshes }: { meshes: (THREE.SkinnedMesh|THREE.Mesh)[] }) {
     var indexOffset = 0;
-    var mergedIndex = [];
+    var mergedIndex:number[] = [];
     meshes.forEach((mesh) => {
         const index = mesh.geometry.index;
-        for (var j = 0; j < index.count; ++j) {
-            mergedIndex.push(index.getX(j) + indexOffset);
+        // if(!index) return;
+        for (var j = 0; j < (index?.count||0); ++j) {
+            mergedIndex.push((index?.getX(j)||0) + indexOffset);
         }
         indexOffset += mesh.geometry.attributes.position.count;
     });
@@ -1101,23 +1175,20 @@ function mergeSourceIndices({ meshes }) {
 //     return animationClips.map((clip) => new THREE.AnimationClip(clip.name, clip.duration, clip.tracks.map((track) => remapKeyframeTrack({ track, sourceMorphTargetDictionaries, meshes, destMorphTargetDictionary })), clip.blendMode));
 // }
 
+type sourceAttributeMap = Map<THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>|THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>, {
+    [name: string]: THREE.BufferAttribute | THREE.InterleavedBufferAttribute;
+}>
 
-/**
- * 
- * @param {{
- *   meshes: (THREE.SkinnedMesh | THREE.Mesh)[],
- *   scale: number,
- *   morphTargetsProcess?:{
- *       merge:Set<string>,
- *       keep:Set<string>,
- *       remove:Set<string>
- *   }
- *}} param0 parameters
- * @param {boolean} isVrm0 
- * @returns 
- */
-export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = false) {
-
+export function mergeGeometry({ meshes, scale, morphTargetsProcess }:{
+    meshes: (THREE.SkinnedMesh | THREE.Mesh)[],
+    scale: number,
+    morphTargetsProcess?:{
+        merge:Set<string>,
+        keep:Set<string>,
+        remove:Set<string>
+    }
+}, isVrm0 = false) {
+    console.log("morphTargetsProcess ",morphTargetsProcess);
     // eslint-disable-next-line no-unused-vars
     let uvcount = 0;
     meshes.forEach(mesh => {
@@ -1126,7 +1197,9 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
         // validation for each mesh! if the mesh itself is VRM0 move the vertices
         if (mesh.userData?.isVRM0){
             for (let i = 0; i < mesh.geometry.attributes.position.array.length; i+=3){
+                //@ts-ignore
                 mesh.geometry.attributes.position.array[i] *= -1
+                //@ts-ignore
                 mesh.geometry.attributes.position.array[i+2] *= -1
             }
         }
@@ -1139,12 +1212,19 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
         morphTargetInfluences: new Map(meshes.map((m) => [m, m.morphTargetInfluences || []])),
         // animationClips: new Map(meshes.map((m) => [m, findSceneGroup(m).animations])), //disable for now cuz no animations.
     };
-    const dest = {
-        attributes: null,
-        morphTargetDictionary: null,
-        morphAttributes: null,
-        morphTargetInfluences: null,
-        index: null,
+    const dest:{
+        attributes: Record<string,THREE.BufferAttribute>,
+        morphTargetDictionary: Record<string, number>,
+        morphAttributes: Record<string, THREE.BufferAttribute[]>,
+        morphTargetInfluences: number[],
+        index: number[],
+        animations: {}
+    } = {
+        attributes: null!,
+        morphTargetDictionary: null!,
+        morphAttributes: null!,
+        morphTargetInfluences: null!,
+        index: null!,
         animations: {}
     };
 
@@ -1153,14 +1233,11 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
      */
 
     // The morphs that we want merged should be removed from the blendshapes
-    dest.attributes = mergeSourceAttributes({ sourceAttributes: source.attributes });
+    dest.attributes = mergeSourceAttributes({ sourceAttributes: source.attributes});
+
     const destMorphTargetDictionary = mergeSourceMorphTargetDictionaries({
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
-        morphTargetsProcess: {
-            remove:morphTargetsProcess?.remove||new Set(),
-            keep:morphTargetsProcess?.keep||new Set(),
-            merge:morphTargetsProcess?.merge || new Set()
-        }
+        morphTargetsProcess
     });
     dest.morphTargetDictionary = destMorphTargetDictionary;
     dest.morphAttributes = mergeSourceMorphAttributes({
@@ -1169,41 +1246,42 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         destMorphTargetDictionary,
         scale,
-    });
+    },isVrm0);
     dest.morphTargetInfluences = mergeMorphTargetInfluences({
         meshes,
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
-        destMorphTargetDictionary,
+        destMorphTargetDictionary
     });
     dest.index = mergeSourceIndices({ meshes });
-
-
+    
     /**
      *  Step Two, generate a new Dictionary for the morphs and influences that we want to merge 
      */
-    /**
-     * @type {{
-     * morphAttributes: Record<string, THREE.BufferAttribute[]>,
-     * morphTargetDictionaries: Object,
-     * morphTargetInfluences: number[]
-     * }}
-     */
-    const destMorphToMerge= {
+    
+    const destMorphToMerge :{
+        morphAttributes: Record<string, THREE.BufferAttribute[]>,
+        morphTargetDictionaries: Record<string,any>
+        morphTargetInfluences: number[]
+    }= {
         morphAttributes: {},
         morphTargetDictionaries: {},
-        morphTargetInfluences: null,
+        morphTargetInfluences: null!,
     }
 
-    let keep = new Set(morphTargetsProcess?.keep||[])
+    /**
+     * This part can be confusing;
+     * We go through this process to generate indexes as if the morphs were not merged to trick the mergeSourceMorphAttributes function
+     */
+    let keep = new Set<string>(morphTargetsProcess?.keep||[])
     morphTargetsProcess?.merge.forEach((key)=>{
         keep.add(key)
     })
     const destMorphTargetDictionary2 = mergeSourceMorphTargetDictionaries({
         sourceMorphTargetDictionaries: source.morphTargetDictionaries,
         morphTargetsProcess:{
-            remove:new Set(),
+            remove:new Set<string>(),
             keep:keep,
-            merge: new Set()
+            merge: new Set<string>()
         }
     });
 
@@ -1222,8 +1300,7 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
     });
     destMorphToMerge.morphTargetInfluences  = destMorphTargetInfluences
     destMorphToMerge.morphTargetDictionaries = destMorphTargetDictionary2;
-
-
+    
     //disable for now cuz no animations.
     // dest.animations = remapAnimationClips({
     //   meshes,
@@ -1233,62 +1310,5 @@ export function mergeGeometry({ meshes, scale, morphTargetsProcess }, isVrm0 = f
     //   destMorphTargetDictionary,
     // });
     dest.animations = {};
-
-    return { source, dest, destMorphToMerge};
-}
-
-/**
- * 
- * @param {ReturnType<typeof mergeGeometry>['dest']} dest 
- * @param {ReturnType<typeof mergeGeometry>['destMorphToMerge']} destMorphToMerge 
- * @param {boolean} mergeAppliedMorphs 
- * @param {number} scale 
- * @param {boolean} isVrm0 
- * @returns 
- */
-
-export function convertMergedDataToGeometry(dest,destMorphToMerge,mergeAppliedMorphs, scale, isVrm0 = false){
-
-    const geometry = new THREE.BufferGeometry();
-
-    // modify all merged vertices to reflect vrm0 format
-    if (isVrm0){
-        for (let i = 0; i < dest.attributes.position.array.length; i+=3){
-            //@ts-ignore
-            dest.attributes.position.array[i] *= -1
-            //@ts-ignore
-            dest.attributes.position.array[i+2] *= -1
-        }
-    }
-
-    geometry.attributes = dest.attributes;
-    geometry.morphAttributes = dest.morphAttributes;
-    geometry.morphTargetsRelative = true;
-    geometry.setIndex(dest.index);
-
-    const vertices = geometry.attributes.position.array;
-    for (let i = 0; i < vertices.length; i += 3) {
-        //@ts-ignore
-        vertices[i] *= scale;
-        //@ts-ignore
-        vertices[i + 1] *= scale;
-        //@ts-ignore
-        vertices[i + 2] *= scale;
-
-        // Apply morph targets to the vertices
-        if(mergeAppliedMorphs){
-            if(!destMorphToMerge.morphTargetInfluences)continue
-            for (let j = 0; j < destMorphToMerge.morphTargetInfluences.length; j++) {
-                const morphAttribute = destMorphToMerge.morphAttributes?.position[j];
-                if (morphAttribute) {
-                    for (let k = 0; k < 3; k++) {
-                        //@ts-ignore
-                        vertices[i + k] += morphAttribute.array[i + k] * destMorphToMerge.morphTargetInfluences[j];
-                    }
-                }
-            }
-        }
-    }
-
-    return geometry;
+    return { source, dest, destMorphToMerge };
 }

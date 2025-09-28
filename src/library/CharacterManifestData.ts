@@ -124,7 +124,7 @@ export type DownloadOptionsManifest = {
   isVrm0?:boolean
   ktxCompression?:boolean
   
-  screenshot?:boolean
+  screenshot?:{image:any}
   includeNonTexturedMeshesInAtlas?:boolean,
   outputVRM0?:boolean
   vrmName?:string
@@ -267,7 +267,7 @@ export class CharacterManifestData{
     decalTraits:DecalTextureGroup[];
     decalTraitsMap:Map<string,DecalTextureGroup> = new Map();
 
-    modelTraits:TraitModelsGroup[];
+    modelTraits:TraitModelsGroup[] = [];
     modelTraitsMap:Map<string,TraitModelsGroup> = new Map();
     manifestRestrictions:ManifestRestrictions;
 
@@ -574,7 +574,9 @@ export class CharacterManifestData{
     getAllTraitOptions(){
       return this.modelTraits.map((trait)=>trait?.getCollection()).flat();
     }
-
+    getAllBlendShapeTraitGroups(){
+      return this.modelTraits.map(traitGroup => traitGroup.getCollection()).flat().map((c)=>c.blendshapeTraits).flat().filter((c)=>!!c);
+    }
     /**
      * Gets all blend shape traits
      * @returns {Array} Array of blend shape traits
@@ -632,7 +634,7 @@ export class CharacterManifestData{
     getNFTraitOptionsFromObject(object:Record<string,any>, ignoreGroupTraits:string[]=[]){
       const attributes = object.attributes;
       if (attributes){
-        ignoreGroupTraits =ignoreGroupTraits? getAsArray(ignoreGroupTraits):[];
+        ignoreGroupTraits =ignoreGroupTraits.length? getAsArray(ignoreGroupTraits):[];
         const selectedOptions:SelectedOption[] = []
         attributes.forEach((attribute:any) => {
           if (ignoreGroupTraits.indexOf(attribute.trait_type) == -1){

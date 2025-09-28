@@ -4,21 +4,30 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { RenderPixelatedPass } from "./shaders/RenderPixelatedPass";
 import { PixelatePass } from "./shaders/PixelatePass"
+import { CharacterManager } from "./characterManager";
 import CameraFrameManager from "./cameraFrameManager";
-/**
- * @typedef {import("./cameraFrameManager.js").default} CameraFrameManager
- */
+
 const screenshotSize = 4096;
 
+export type Shots = 'fullshot'|'cowboyshot'|'closeup'|'mediumcloseup'|'mediumshot'|'mediumcloseupshot'|'closeupshot';
+
+const localVector = new THREE.Vector3();
+
 class PixelRenderer{
-  constructor(scene,camera, pixelSize ){
+  domElement:HTMLCanvasElement;
+  _renderPixelPass:RenderPixelatedPass;
+  _pixelPass:PixelatePass;
+
+  renderer:THREE.WebGLRenderer;
+  composer:EffectComposer;
+  
+  constructor(public scene:THREE.Scene|THREE.Object3D,public camera:THREE.Camera, public pixelSize:number ){
     const pixelRenderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
       antialias: false,
       alpha: true,
     })
     
-    this.pixelSize = pixelSize;
     this.domElement = pixelRenderer.domElement;
 
     const screenshotResolution = new THREE.Vector2(screenshotSize,screenshotSize);
@@ -34,19 +43,21 @@ class PixelRenderer{
     renderResolution.y |= 0
 
     const composer = new EffectComposer( pixelRenderer )
-    composer.addPass( new RenderPass( scene, camera ) )
+    composer.addPass( new RenderPass( scene as THREE.Scene, camera ) )
 
     this._renderPixelPass = new RenderPixelatedPass( renderResolution, scene, camera )
     this._pixelPass = new PixelatePass( renderResolution )
 
     
     composer.addPass( this._renderPixelPass )
+    // let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
+    // composer.addPass( bloomPass )
     composer.addPass( this._pixelPass )
     
     this.renderer = pixelRenderer;
     this.composer = composer;
   }
-  setSize(width, height){
+  setSize(width:number, height:number){
     const screenshotResolution = new THREE.Vector2(width,height);
     let renderResolution = screenshotResolution.clone().divideScalar( this.pixelSize )
     renderResolution.x |= 0
@@ -56,7 +67,7 @@ class PixelRenderer{
     this._renderPixelPass.setResolution(renderResolution);
     this._pixelPass.setResolution(renderResolution);
   }
-  setPixelSize(pixelSize){
+  setPixelSize(pixelSize:number){
     this.pixelSize = pixelSize;
   }
   render(){
@@ -65,31 +76,42 @@ class PixelRenderer{
 }
 
 export class ScreenshotManager {
-/**
- * @typedef {import("./cameraFrameManager.js").default} CameraFrameManager
- * @type {CameraFrameManager}
- */
-  cameraFrameManager
 
-  constructor(characterManager, scene) {
+  renderer:THREE.WebGLRenderer;
+
+  textureLoader:THREE.TextureLoader;
+  sceneBackground:THREE.Color | THREE.Texture;
+  sceneBackgroundAlpha:number;
+  frameOffset:{min:number,max:number};
+  usesBackgroundImage:boolean;
+  backgroundMaterial:THREE.MeshBasicMaterial;
+  backgroundPlane:THREE.Mesh;
+  pixelRenderer:PixelRenderer;
+
+  cameraFrameManager: CameraFrameManager;
+
+  constructor(public characterManager:CharacterManager, public scene:THREE.Scene) {
     this.renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
       antialias: true,
       alpha:true
     });
     this.renderer.setClearAlpha(0);
-    this.renderer.premultipliedAlpha = false;
-    this.scene = scene;
-    this.characterManager = characterManager;
+    (this.renderer as any).premultipliedAlpha = false;
+
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.renderer.setSize(screenshotSize, screenshotSize);
 
     const camera = new THREE.PerspectiveCamera( 30, 1, 0.1, 1000 );
+    camera.frustumCulled = false;
     this.textureLoader = new THREE.TextureLoader();
     this.sceneBackground = new THREE.Color(0.1,0.1,0.1);
     this.sceneBackgroundAlpha = 1;
-
+    this.frameOffset = {
+      min:0.2,
+      max:0.2,
+    }
     this.usesBackgroundImage = false;
 
     this.backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
@@ -99,72 +121,25 @@ export class ScreenshotManager {
     this.backgroundPlane = plane;
 
     this.pixelRenderer = new PixelRenderer(scene, camera, 20);
-
     this.cameraFrameManager = new CameraFrameManager(camera);
     this.cameraFrameManager.setFrameTarget(this.characterManager.characterModel);
+
+
   }
-  setScene(scene){
-    this.scene = scene;
-  }
+
   get camera(){
     return this.cameraFrameManager.camera
   }
 
-  /**
-   * 
-   * @param {*} cameraPosition 
-   * @param {*} lookAtPosition 
-   * @param {*} fieldOfView 
-   */
-  setupCamera(cameraPosition, lookAtPosition, fieldOfView = 30){
-    this.cameraFrameManager.setupCamera(cameraPosition, lookAtPosition, fieldOfView)
-
+  setScene(scene:THREE.Scene){
+    this.scene = scene;
   }
 
-  /**
-   * @dev currently unused; @todo remove?
-   */
-  _getCharacterMinMax(){
-    let minY = Number.POSITIVE_INFINITY;
-    let maxY = Number.NEGATIVE_INFINITY;
-
-    this.characterManager.characterModel.traverse((o) => {
-      if (o.geometry) {
-        o.geometry.computeBoundingBox();
-        
-        // If boundingBox is available
-        if (o.geometry.boundingBox) {
-            o.geometry.boundingBox.applyMatrix4(o.matrixWorld);
-
-            if (o.geometry.boundingBox.min.y < minY)
-              minY = o.geometry.boundingBox.min.y
-
-            if (o.geometry.boundingBox.max.y > maxY)
-              maxY = o.geometry.boundingBox.max.y
-        }
-      }
-    });
-    return {minY, maxY}
+  setupCamera(cameraPosition:THREE.Vector3, lookAtPosition:THREE.Vector3, fieldOfView = 30){
+    this.camera.position.copy(cameraPosition);
+    this.camera.lookAt(lookAtPosition)
+    this.camera.fov = fieldOfView;
   }
-
-
-  /**
-   * @dev UNUSED anywhere, maybe @todo remove?
-   * @param {string} boneName 
-   * @param {THREE.Object3D|undefined} targetObject
-   * @returns 
-   */
-  _getBoneWorldPosition(boneName,targetObject=undefined){
-    const bone = this.cameraFrameManager._getFirstBoneWithName(boneName,targetObject);
-    if (bone != null){
-      return new THREE.Vector3().setFromMatrixPosition(bone.matrixWorld);
-    }
-    else{
-      console.warn(`Bone with name '${boneName}' not found in one of the skinned meshes.`);
-      return new THREE.Vector3(0,0,0);
-    }
-  }
-
 
   /**
    * Sets the background using either color or image.
@@ -172,7 +147,7 @@ export class ScreenshotManager {
    * @param {Array|string} background - If an array, assumed to be RGB values [r, g, b].
    *                                    If a string, assumed to be a URL for the background image.
    */
-  setBackground(background){
+  setBackground(background:string|number[]){
     if (Array.isArray(background)){
       const alpha = background[3] == null ? 1 : background[3];
 
@@ -183,7 +158,8 @@ export class ScreenshotManager {
     }
   }
 
-  setBackgroundColor(r,g,b,a){
+  setBackgroundColor(r:number,g:number,b:number,a:number){
+    //@ts-ignore FIX THIS
     const color = new THREE.Color(r,g,b,a);
     this.sceneBackground = color
     if (a == null) a = 1;
@@ -194,8 +170,8 @@ export class ScreenshotManager {
     this.usesBackgroundImage = false;
   }
 
-  setBackgroundImage(url){
-    // eslint-disable-next-line no-async-promise-executor
+  texureLoader:THREE.TextureLoader = new THREE.TextureLoader();
+  setBackgroundImage(url:string){
     return new Promise(async (resolve, reject) => {
       try{
         const backgroundTexture = await this.texureLoader.load(url);
@@ -204,7 +180,7 @@ export class ScreenshotManager {
           this.sceneBackground = backgroundTexture;
           this.usesBackgroundImage = true;
           this.sceneBackgroundAlpha = 1;
-          resolve();
+          resolve(true);
         }
       }
       catch(error){
@@ -240,13 +216,13 @@ export class ScreenshotManager {
       this.scene.remove(this.backgroundPlane);
     }
   }
-  getImageData(width, height, pixelSize = null){
-    return this._createImage(width, height, pixelSize).split("base64,")[1];
+  getImageData(width: number, height: number, pixelSize = null, trimmed = false){
+    return this._createImage(width, height, pixelSize, trimmed)
   }
 
-  _createImage(width, height, pixelSize = null){
-    const aspectRatio = width / height;
 
+  _createImage(width:number, height:number, pixelSize:number|null = null, base64Trimmed = false){
+    const aspectRatio = width / height;
     if (typeof pixelSize === 'number'){
       this.pixelRenderer.setPixelSize(pixelSize);
     }
@@ -262,6 +238,10 @@ export class ScreenshotManager {
       this._setBackground();
       renderer.render(this.scene, this.camera);
       let imgData = renderer.domElement.toDataURL(strMime);
+      if(base64Trimmed){
+        // trim the base64 part of the string
+        imgData = imgData.replace(/^data:image\/\w+;base64,/, "")
+      }
       this._restoreBackground();
       return  imgData
     } catch (e) {
@@ -269,35 +249,39 @@ export class ScreenshotManager {
       return null;
     }
   }
-  savePixelScreenshot(imageName,width, height, pixelSize){
+  savePixelScreenshot(imageName:string,width:number, height:number, pixelSize:number){
     this.pixelRenderer.setPixelSize(pixelSize);
     this.pixelRenderer.setSize(width,height);
-    const imgData =  this._createImage(width, height, true)
+    const imgData =  this._createImage(width, height, null)
+    if(!imgData) throw new Error("savePixelScreenshot: Error creating image");
     const strDownloadMime = "image/octet-stream";
     const strMime = "image/png";
     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName + ".png");
   }
-  saveScreenshot(imageName,width, height){
+  saveScreenshot(imageName:string,width:number, height:number){
     const imgData =  this._createImage(width, height)
+    if(!imgData) throw new Error("saveScreenshot: Error creating image");
     const strDownloadMime = "image/octet-stream";
     const strMime = "image/png";
     this.saveFile(imgData.replace(strMime, strDownloadMime), imageName + ".png");
   }
 
-  getScreenshotImage(width, height){
+  getScreenshotImage(width:number, height:number){
     const imgData = this._createImage(width, height);
+    if(!imgData) throw new Error("getScreenshotImage: Error creating image");
     const img = new Image();
     img.src = imgData;
     return img;
   }
-  getScreenshotTexture(width, height){
+  getScreenshotTexture(width:number, height:number){
     const img = this.getScreenshotImage(width,height)
     const texture = new THREE.Texture(img);
     texture.needsUpdate = true;
     return texture;
   }
-  getScreenshotBlob(width, height){
+  getScreenshotBlob(width:number, height:number){
     const imgData = this._createImage(width, height)
+    if(!imgData) throw new Error("getScreenshotBlob: Error creating image");
     const base64Data = Buffer.from(
       imgData.replace(/^data:image\/\w+;base64,/, ""),
       "base64"
@@ -305,7 +289,7 @@ export class ScreenshotManager {
     const blob = new Blob([base64Data], { type: "image/jpeg" }); 
     return blob; 
   }
-  saveFile (strData, filename) {
+  saveFile (strData:string, filename:string) {
     const link = document.createElement('a');
     if (typeof link.download === 'string') {
       document.body.appendChild(link); //Firefox requires the link to be in the body
@@ -315,6 +299,10 @@ export class ScreenshotManager {
       document.body.removeChild(link); //remove the link when done
     } else {
       const win = window.open(strData, "_blank");
+      if(!win){
+        console.error("Error opening new window");
+        return;
+      }
       win.document.write("<title>" + filename + "</title><img src='" + strData + "'/>");
     }
   }

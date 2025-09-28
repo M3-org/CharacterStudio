@@ -5,9 +5,10 @@ import html2canvas from "html2canvas";
 import VRMExporter from "./VRMExporter.js";
 import { CullHiddenFaces, DisposeCullMesh } from './cull-mesh.js';
 import { combine } from "./merge-geometry.js";
-import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+import { MToonMaterial, VRM, VRMExpressionBind, VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { VRMHumanBoneName } from "@pixiv/three-vrm";
+import { avatarData } from "./characterManager.js";
 
 type AsArray<T> = T extends Array<infer U> ? U[] : T[];
 
@@ -16,7 +17,7 @@ export function getAsArray<T>(target: T): AsArray<T> {
   return (Array.isArray(target) ? target : [target]) as AsArray<T>
 }
 
-export function addChildAtFirst(parent, newChild) {
+export function addChildAtFirst(parent:THREE.Group, newChild:THREE.Object3D) {
   // Store the current children of the parent
   let currentChildren = parent.children.slice();
 
@@ -30,7 +31,7 @@ export function addChildAtFirst(parent, newChild) {
   currentChildren.forEach(child => parent.add(child));
 }
 
-export async function setTextureToChildMeshes(scene, url){
+export async function setTextureToChildMeshes(scene:THREE.Group, url:string){
   const textureLoader = new THREE.TextureLoader();
 
   // Load the image as a texture
@@ -61,28 +62,28 @@ export async function setTextureToChildMeshes(scene, url){
   });
 }
 
-export function getFileNameWithoutExtension(filePath) {
+export function getFileNameWithoutExtension(filePath: string) {
   // Get the base file name without the extension
   const baseFileName = filePath.replace(/^.*[\\/]/, '').split('.').slice(0, -1).join('.');
 
   return baseFileName;
 }
 
-export function getRandomObjectKey (obj) {
+export function getRandomObjectKey (obj:Record<string,any>) {
   const arr = Object.keys(obj);
   return obj[arr[Math.floor(Math.random() * arr.length)]];
 }
-export function getRandomArrayValue (arr){
+export function getRandomArrayValue (arr:any[]){
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export async function loadModel(file, onProgress) {
+export async function loadModel(file:string, onProgress: (progress: ProgressEvent) => void = () => {}) {
   const gltfLoader = new GLTFLoader()
   gltfLoader.register((parser) => {
     return new VRMLoaderPlugin(parser)
   })
   return gltfLoader.loadAsync(file, onProgress).then((model) => {
-    const vrm = model.userData.vrm
+    const vrm = model.userData.vrm as VRM
     renameVRMBones(vrm)
 
     vrm.scene?.traverse((child) => {
@@ -92,30 +93,32 @@ export async function loadModel(file, onProgress) {
   })
 }
 
-export const cullHiddenMeshes = (avatar) => {
-  const models = []
+export const cullHiddenMeshes = (avatar:Record<string,avatarData>) => {
+  const models:(THREE.Mesh|THREE.SkinnedMesh)[] = []
   for (const property in avatar) {
-    const vrm = avatar[property].vrm
+    const typedProperty = property as keyof typeof avatar
+    const vrm = avatar[typedProperty]?.vrm as VRM
     if (vrm) {
-      const cullLayer = vrm.data.cullingLayer
+      const cullLayer = (vrm as any).data.cullingLayer
+      if( vrm.scene.visible === false) continue
       if (cullLayer >= 0) { 
-        vrm.data.cullingMeshes.map((mesh)=>{
+        (vrm as any).data.cullingMeshes.map((mesh:THREE.Mesh)=>{
           mesh.userData.cullLayer = cullLayer
-          mesh.userData.cullDistance = vrm.data.cullingDistance
-          mesh.userData.maxCullDistance = vrm.data.maxCullingDistance
+          mesh.userData.cullDistance = (vrm as any).data.cullingDistance
+          mesh.userData.maxCullDistance = (vrm as any).data.maxCullingDistance
           models.push(mesh)
         })
       }
     }
   }
-  CullHiddenFaces(models)
+  CullHiddenFaces(models as any[])
 }
 
-export function getMeshesSortedByMaterialArray(meshes){
-  const stdMesh = [];
-  const stdTranspMesh = [];
-  const mToonMesh = [];
-  const mToonTranspMesh = [];
+export function getMeshesSortedByMaterialArray(meshes:(THREE.Mesh | THREE.SkinnedMesh)[]){
+  const stdMesh:(THREE.SkinnedMesh | THREE.Mesh)[] = [];
+  const stdTranspMesh:(THREE.SkinnedMesh | THREE.Mesh)[] = [];
+  const mToonMesh:(THREE.SkinnedMesh | THREE.Mesh)[] = [];
+  const mToonTranspMesh:(THREE.SkinnedMesh | THREE.Mesh)[] = [];
   let requiresTransparency = false;
 
   meshes.forEach(mesh => {
@@ -129,7 +132,7 @@ export function getMeshesSortedByMaterialArray(meshes){
         }
         else{
           mToonMesh.push(mesh);
-          if (mat.uniforms.alphaTest?.value != 0)
+          if ((mat as MToonMaterial).uniforms.alphaTest?.value != 0)
             requiresTransparency = true
         }
     }
@@ -148,24 +151,25 @@ export function getMeshesSortedByMaterialArray(meshes){
   return {stdMesh, stdTranspMesh, mToonMesh, mToonTranspMesh, requiresTransparency}
 }
 
-export function getMaterialsSortedByArray (meshes){
-  const stdMats = [];
-  const stdCutoutpMats = [];
-  const stdTranspMats = [];
-  const mToonMats = [];
-  const mToonCutoutMats = [];
-  const mToonTranspMats = [];
+export function getMaterialsSortedByArray (meshes:THREE.Mesh[] | THREE.SkinnedMesh[]){
+  const stdMats:THREE.Material[] = [];
+  const stdCutoutpMats:THREE.Material[] = [];
+  const stdTranspMats:THREE.Material[] = [];
+  const mToonMats:THREE.ShaderMaterial[] = [];
+  const mToonCutoutMats:THREE.ShaderMaterial[] = [];
+  const mToonTranspMats:THREE.ShaderMaterial[] = [];
 
   meshes.forEach(mesh => {
     const mats = getAsArray(mesh.material);
     mats.forEach(mat => {
       if (mat.type == "ShaderMaterial"){
+        const typedMat = mat as THREE.ShaderMaterial;
           if (mat.transparent == true)
-            mToonTranspMats.push(mat);
-          else if (mat.uniforms.alphaTest.value != 0)
-            mToonCutoutMats.push(mat);
+            mToonTranspMats.push(typedMat);
+          else if (typedMat.uniforms?.alphaTest.value != 0)
+            mToonCutoutMats.push(typedMat);
           else
-            mToonMats.push(mat);
+            mToonMats.push(typedMat);
       }
       else{
           if (mat.transparent == true)
@@ -182,16 +186,11 @@ export function getMaterialsSortedByArray (meshes){
 
   return { stdMats, stdCutoutpMats, stdTranspMats , mToonMats, mToonCutoutMats , mToonTranspMats }
 }
+
 /**
  * @dev UNUSED ? To delete?
- * @param {import("three/examples/jsm/Addons.js").GLTF} modelScene 
- * @param {Object} avatar
- * @param {string} [format] 
- * @param {THREE.Color} [skinColor] 
- * @param {number} [scale] 
- * @returns 
- */
-export async function getModelFromScene(modelScene,avatar, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
+ * */
+export async function getModelFromScene(modelScene:any,avatar:Record<string,avatarData>, format = 'glb', skinColor = new THREE.Color(1, 1, 1), scale = 1) {
   if (format && format === 'glb') {
     const exporter = new GLTFExporter();
     const options = {
@@ -200,29 +199,32 @@ export async function getModelFromScene(modelScene,avatar, format = 'glb', skinC
       truncateDrawRange: true,
       binary: true,
       forcePowerOfTwoTextures: false,
-      maxTextureSize: 1024 || Infinity
+      maxTextureSize: 1024 
     };
 
     const avatarCombined = await combine(modelScene,avatar,{ transparentColor: skinColor, scale:scale });
 
     const glb = await new Promise((resolve) => exporter.parse(avatarCombined, resolve, (error) => console.error("Error getting model", error), options));
-    return new Blob([glb], { type: 'model/gltf-binary' });
+    return new Blob([glb as any], { type: 'model/gltf-binary' });
   } else if (format && format === 'vrm') {
     const exporter = new VRMExporter();
     const vrm = await new Promise((resolve) => exporter.parse(modelScene, resolve));
-    return new Blob([vrm], { type: 'model/gltf-binary' });
+    return new Blob([vrm  as any], { type: 'model/gltf-binary' });
   } else {
     return console.error("Invalid format");
   }
 }
 
-export async function getScreenShot(elementId, delay = 0) {
+export async function getScreenShot(elementId:string, delay = 0) {
   await new Promise(resolve => setTimeout(resolve, delay));
   return await getScreenShotByElementId(elementId);
 }
 
-export async function getCroppedScreenshot(elementId, posX, posY, width, height, debug = false){
+
+export async function getCroppedScreenshot(elementId:string, posX:number, posY:number, width:number, height:number, debug = false){
   const snapShotElement = document.getElementById(elementId);
+  if(!snapShotElement) throw new Error("Element not found: "+ elementId);
+  
   return await html2canvas(snapShotElement).then(async function (canvas) {
 
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
@@ -235,7 +237,7 @@ export async function getCroppedScreenshot(elementId, posX, posY, width, height,
     let image = new Image();
     image.src = dataURL;
 
-    await tempctx.drawImage(canvas, posX, posY, width, height, 0,0, width, height)
+    await tempctx?.drawImage(canvas, posX, posY, width, height, 0,0, width, height)
 
     var newdataurl = tempcanvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
@@ -259,9 +261,10 @@ export async function getCroppedScreenshot(elementId, posX, posY, width, height,
   });
 }
 
-async function getScreenShotByElementId(id) {
+async function getScreenShotByElementId(id:string) {
 
   const snapShotElement = document.getElementById(id);
+  if(!snapShotElement) throw new Error("Element not found: "+ id);
   return await html2canvas(snapShotElement).then(async function (canvas) {
 
     var dataURL = canvas.toDataURL("image/jpeg", 1.0);
@@ -279,7 +282,7 @@ async function getScreenShotByElementId(id) {
     image.src = dataURL;
 
     //const ctx = canvas.getContext("2d")
-    await tempctx.drawImage(canvas, 500, 100, 256, 256, 0,0, 256, 256)
+    await tempctx?.drawImage(canvas, 500, 100, 256, 256, 0,0, 256, 256)
 
     var newdataurl = tempcanvas.toDataURL("image/jpeg", 1.0);
     const base64Data = Buffer.from(
@@ -301,18 +304,21 @@ async function getScreenShotByElementId(id) {
   });
 }
 
-export async function getSkinColor(scene, targets) {
+
+export async function getSkinColor(scene:THREE.Group, targets:string[]) {
   for (const target of targets) {
     const object = scene.getObjectByName(target);
     if (object != null) {
-      if (object.isGroup) {
+      if ('isGroup' in object && object.isGroup) {
         const child = object.children[0];
+        //@ts-ignore
         const mat = child.material.length ? child.material[0] : child.material;
         if (mat.uniforms != null) {
           return mat.uniforms.litFactor.value;
         }
       }
       else {
+        //@ts-ignore
         const mat = object.material.length ? object.material[0] : object.material;
         if (mat.uniforms != null) {
           return mat.uniforms.litFactor.value;
@@ -322,45 +328,50 @@ export async function getSkinColor(scene, targets) {
   }
 }
 
-export async function setMaterialColor(scene, value, target) {
+export async function setMaterialColor(scene:THREE.Scene, value:number, target:string) {
   const object = scene.getObjectByName(target);
+  if(!object) return console.error("Object not found, target: ", target);
   const randColor = value;
   const skinShade = new THREE.Color(randColor).convertLinearToSRGB();
-  const mat = object.material.length ? object.material[0] : object.material;
+  if(!(object as any).material){
+    console.error("Material not found in object: ", object);
+    return;
+  }
+  const mat = (object as any).material.length ? (object as any).material[0] : (object as any).material;
   mat.uniforms.litFactor.value.set(skinShade);
   const hslSkin = { h: 0, s: 0, l: 0 };
   skinShade.getHSL(hslSkin);
 }
 
 //make sure to remove this data when downloading, as this data is only required while in edit mode
-export function addModelData(model, data) {
-  if (model.data == null)
-    model.data = data;
+export function addModelData(model:VRM, data:Record<string,any>) {
+  if ((model as any).data == null)
+    (model as any).data = data;
 
   else
-    model.data = { ...model.data, ...data };
+  (model as any).data = { ...(model as any).data, ...data };
 }
-function getModelProperty(model, property) {
-  if (model.data == null)
+function getModelProperty(model:THREE.Object3D, property:string) {
+  if ((model as any).data == null)
     return;
 
-  return model.data[property];
+  return (model as any).data[property];
 }
 
-function disposeData(vrm){
+function disposeData(vrm:THREE.Object3D){
   // const animationControl = (getModelProperty(vrm, "animationControl"));
   // if (animationControl)
   //   animationControl.dispose();
   const cullingMeshes = (getModelProperty(vrm, "cullingMeshes"))
   if (cullingMeshes){
-    cullingMeshes.forEach(mesh => {
+    cullingMeshes.forEach((mesh:THREE.Mesh) => {
       DisposeCullMesh(mesh);
     });
-    vrm.data.cullingMeshes = null;
+    (vrm as any).data.cullingMeshes = null;
   }
 }
 
-export function getAtlasSize(value){
+export function getAtlasSize(value:number){
   switch (value){
     case 1:
       return 128;
@@ -383,7 +394,7 @@ export function getAtlasSize(value){
   }
 }
 
-function disposeMesh(mesh){
+function disposeMesh(mesh:THREE.Mesh){
   if (mesh.isMesh){
     mesh.geometry.userData.faceNormals = null;
     
@@ -397,20 +408,21 @@ function disposeMesh(mesh){
   }
 }
 
-export function disposeVRM(vrm) {
-  const model = vrm.scene;
-  disposeData(vrm)
 
-  model.traverse((o) => {
-    if (o.material) {
-      disposeMaterial(o.material);
+export function disposeVRM(vrm:VRM) {
+  const model = (vrm as any).scene;
+  disposeData(vrm as unknown as THREE.Object3D)
+
+  model.traverse((o:THREE.Mesh|THREE.Group) => {
+    if ('material' in o && !!o.material) {
+      disposeMaterial(o.material as THREE.MeshStandardMaterial);
     }
 
 
-    if (o.geometry) {
+    if ('geometry' in o && !!o.geometry) {
       DisposeCullMesh(o);
       o.geometry.dispose();
-      o.geometry.disposeBoundsTree();
+      'disposeBoundsTree' in o.geometry && (o.geometry as any).disposeBoundsTree();
     }
   });
   
@@ -423,10 +435,10 @@ export function disposeVRM(vrm) {
 
   if (vrm.expressionManager){
     vrm.expressionManager.expressions.forEach(expression => {
-      if (expression._binds){
-        expression._binds.forEach(bind => {
-          if (bind.primitives){
-            bind.primitives.forEach(primitive => {
+      if ((expression as any)._binds){
+        (expression as any)._binds.forEach((bind:VRMExpressionBind) => {
+          if ('primitives' in bind && (bind as any).primitives){
+            (bind.primitives as any[]).forEach((primitive:any) => {
               primitive.geometry.dispose();
               if (primitive.material)disposeMaterial(primitive.material);
             });
@@ -436,12 +448,12 @@ export function disposeVRM(vrm) {
     });
   }
   for (const prop in vrm){
-    vrm[prop] = null;
+    (vrm as any)[prop] = null;
   }
 }
 
-export const disposeMaterial = (material) =>{
-  if (material.length){
+export const disposeMaterial = (material:THREE.MeshStandardMaterial|THREE.MeshStandardMaterial[]) =>{
+  if ('length' in material){
     for (let i = 0; i < material.length; ++i) {
       disposeMaterial(material[i]);
     }
@@ -449,7 +461,7 @@ export const disposeMaterial = (material) =>{
   else{
     if (material.map?.dispose)material.map.dispose();
     if (material.normalMap?.dispose)material.normalMap.dispose();
-    if (material.ormMap?.dispose)material.ormMap.dispose();
+    if ((material as any).ormMap?.dispose)(material as any).ormMap.dispose();
     if (material.aoMap?.dispose)material.aoMap.dispose();
     if (material.roughnessMap?.dispose)material.roughnessMap.dispose();
     if (material.metalnessMap?.dispose)material.metalnessMap.dispose();
@@ -457,7 +469,7 @@ export const disposeMaterial = (material) =>{
   }
 }
 
-export const saveTextFile = (textContent, filename) => {
+export const saveTextFile = (textContent:string, filename:string) => {
   const blob = new Blob([textContent], { type: 'text/plain' });
   const link = document.createElement('a');
   link.href = window.URL.createObjectURL(blob);
@@ -467,7 +479,7 @@ export const saveTextFile = (textContent, filename) => {
   document.body.removeChild(link);
 }
 
-export const getVectorCameraPosition = (cameraPosition) => {
+export const getVectorCameraPosition = (cameraPosition:number[]|string) => {
 
   let x,y,z = 0
   if (Array.isArray(cameraPosition)){
@@ -476,7 +488,7 @@ export const getVectorCameraPosition = (cameraPosition) => {
       z = cameraPosition[2]||0;
       
   }
-  else if (typeof cameraPosition === 'string' || cameraPosition instanceof String){
+  else if (typeof cameraPosition === 'string'){
       
       const positionString = cameraPosition.split('-');
       positionString.forEach(pos => {
@@ -513,7 +525,7 @@ export const getVectorCameraPosition = (cameraPosition) => {
   return new THREE.Vector3(x,y,z);
 }
 
-export const createBoneDirection = (skinMesh) => {
+export const createBoneDirection = (skinMesh:THREE.SkinnedMesh) => {
   const geometry = skinMesh.geometry;
 
   const pos = geometry.attributes.position.array;
@@ -633,24 +645,26 @@ export const getUniqueId = () => {
   return uniqueId;
 }
 
-export const renameVRMBones = (vrm) => {
+export const renameVRMBones = (vrm:VRM) => {
   const bones = vrm.humanoid.humanBones;
-
+  if(!bones['hips'].node.parent) throw new Error("Hips bone has no parent, make sure to define a parent bone for the hips bone");
+  
   bones['hips'].node.parent.name = "rootBone";
   // // if user didnt define upprChest bone just make sure its not included
   if (bones['upperChest'] == null){
     // just check if the parent bone of 'neck' is 'chest', this would mean upperChest doesnt exist, 
     // but if its not, it means there is an intermediate bone, which should be upperChest, make sure to define it iof thats the case
+    //@ts-ignore
     if (bones['neck'].node.parent != bones['chest']){
       // sometimes the user defines the upperchest bone as the chest bone, make sure this is not the case
-      if (bones['neck'].node.parent != bones['chest'].node) {
-        bones['upperChest'] = {node:bones['neck'].node.parent}
+      if (bones['neck']?.node.parent != bones['chest']!.node) {
+        bones['upperChest'] = {node:bones['neck']!.node.parent!}
       }
       // if its the case, reassign bones
       else{
         if (bones['upperChest'] != null ){
-          bones['upperChest'] = {node:bones['neck'].node.parent}
-          bones['chest'] = {node:bones['neck'].node.parent.parent}
+          bones['upperChest'] = {node:bones['neck']!.node.parent}
+          bones['chest'] = {node:bones['neck']!.node.parent.parent!}
         }
       }
     }
@@ -663,7 +677,7 @@ export const renameVRMBones = (vrm) => {
       bones['leftUpperArm'].node.parent != bones['neck']?.node  &&
       bones['leftUpperArm'].node.parent != bones['head']?.node ){
     }{
-      bones['leftShoulder'] = {node:bones['leftUpperArm'].node.parent}
+      bones['leftShoulder'] = {node:bones['leftUpperArm'].node.parent!}
     }
   }
 
@@ -674,7 +688,7 @@ export const renameVRMBones = (vrm) => {
       bones['rightUpperArm'].node.parent != bones['neck']?.node  &&
       bones['rightUpperArm'].node.parent != bones['head']?.node ){
     }{
-      bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent}
+      bones['rightShoulder'] = {node:bones['rightUpperArm'].node.parent!}
     }
   }
   // fix for when user set the root bone as hips bone instead of hips
@@ -689,8 +703,8 @@ export const renameVRMBones = (vrm) => {
 
   for (let boneName in VRMHumanBoneName) {
     boneName = boneName.charAt(0).toLowerCase() + boneName.slice(1)
-    if (bones[boneName]?.node){
-      bones[boneName].node.name = boneName;
+    if (bones[boneName as VRMHumanBoneName]?.node){
+      bones[boneName as VRMHumanBoneName]!.node.name = boneName;
     }
     else{
       // bones[boneName] = {
@@ -729,47 +743,52 @@ export const renameVRMBones = (vrm) => {
 
 };
 
-export function findChild({ candidates, predicate }) {
+export function findChild({ candidates, predicate }:{candidates:THREE.Object3D[], predicate:(o:THREE.Object3D)=>boolean}) {
     if (!candidates.length) {
         return null;
     }
     const candidate = candidates.shift();
+    if(!candidate){
+      return null
+    }
     if (predicate(candidate))
         return candidate;
     candidates = candidates.concat(candidate.children);
     return findChild({ candidates, predicate });
 }
-export function findChildByName(root, name) {
+export function findChildByName(root:THREE.Object3D, name:string) {
     return findChild({
         candidates: [root],
         predicate: (o) => o.name === name,
     });
 }
-export function findChildByType(root, type) {
+export function findChildByType(root:THREE.Object3D, type:string) {
     return findChild({
         candidates: [root],
         predicate: (o) => o.type === type,
     });
 }
-function findChildren({ candidates, predicate, results = [] }) {
+function findChildren({ candidates, predicate, results = [] }:{candidates:THREE.Object3D[], predicate:(o:THREE.Object3D)=>boolean, results?:THREE.Object3D[]}) {
     if (!candidates.length) {
         return results;
     }
     const candidate = candidates.shift();
+    if(!candidate){
+      return results
+    }
     if (predicate(candidate)) {
         results.push(candidate);
     }
     candidates = candidates.concat(candidate.children);
     return findChildren({ candidates, predicate, results });
 }
-export function findChildrenByType(root, types) {
+export function findChildrenByType(root:THREE.Object3D, types:string|string[]) {
   
   return findChildren({
     candidates: [root],
     predicate: (o) => getAsArray(types).includes(o.type),
   });
 }
-
 
 
 
@@ -800,7 +819,7 @@ export function findChildrenByType(root, types) {
 
 // }
 
-function traverseWithDepth({ object3D, depth = 0, callback, result }) {
+function traverseWithDepth({ object3D, depth = 0, callback, result }:{ object3D: THREE.Object3D, depth?: number, callback: (object3D: THREE.Object3D|THREE.SkinnedMesh|THREE.Bone, depth: number) => string, result: string[] } ){
     result.push(callback(object3D, depth));
     const children = object3D.children;
     for (let i = 0; i < children.length; i++) {
@@ -810,14 +829,15 @@ function traverseWithDepth({ object3D, depth = 0, callback, result }) {
 }
 const describe = (function () {
     const prefix = "  ";
-    return function describe(object3D, indentation) {
+    return function describe(object3D:THREE.Object3D|THREE.SkinnedMesh|THREE.Bone, indentation:number) {
+
         const description = `${object3D.type} | ${object3D.name} | ${JSON.stringify(object3D.userData)}`;
         let firstBone = "";
         if (object3D.type === "SkinnedMesh") {
             firstBone = "\n"
                 .concat(prefix.repeat(indentation))
                 .concat("First bone id: ")
-                .concat(object3D.skeleton.bones[0].uuid);
+                .concat((object3D as THREE.SkinnedMesh).skeleton.bones[0].uuid);
         }
         let boneId = "";
         if (object3D.type === "Bone") {
@@ -826,7 +846,7 @@ const describe = (function () {
         return prefix.repeat(indentation).concat(description).concat(firstBone).concat(boneId);
     };
 })();
-export function describeObject3D(root) {
+export function describeObject3D(root:THREE.Object3D|THREE.SkinnedMesh|THREE.Bone) {
     return traverseWithDepth({ object3D: root, callback: describe, result: [] }).join("\n");
 }
 
@@ -840,22 +860,32 @@ export function describeObject3D(root) {
  *}}} oldDictionary 
  * @returns 
  */
-export function doesMeshHaveMorphTargetBoundToManager(mesh, oldDictionary){
-  if(!mesh.morphTargetDictionary) return false
-
-  for(const key of Object.keys(mesh.morphTargetDictionary)){
-    if(oldDictionary[key]){
-      return true
-    }
+export function doesMeshHaveMorphTargetBoundToManager(
+  mesh: THREE.Mesh,
+  oldDictionary: {
+    [key: string]: {
+      index: number;
+      primitives: number[];
+    };
   }
-  return false
+  ) {
+    if (!mesh.morphTargetDictionary) return false;
+
+    for (const key of Object.keys(mesh.morphTargetDictionary)) {
+      if (oldDictionary[key]) {
+        return true;
+      }
+    }
+  return false;
 }
 
-export function createContext({ width, height, transparent }) {
+
+export function createContext({ width, height, transparent }:{width:number, height:number, transparent:boolean}) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
+  if(!context) throw new Error("Could not create 2d context");
   context.fillStyle = "white";
   if (transparent) 
     context.globalAlpha = 0;

@@ -66,6 +66,17 @@ const customUniforms = {
 
 
 export class EffectManager extends EventTarget{
+  cameraDir: THREE.Vector3;
+  frameRate: number;
+  initParticle: boolean;
+  transitionEffectType: 'normal';
+  transitionTime: number;
+
+  particleEffect: ParticleEffect = null!;
+
+  scene: THREE.Scene = null!;
+  camera: THREE.Camera = null!;
+  
   constructor () {
     super();
     this.cameraDir = new THREE.Vector3();
@@ -73,13 +84,13 @@ export class EffectManager extends EventTarget{
 
     this.initParticle = false;
 
-    this.transitionEffectType = null;
+    this.transitionEffectType = null!;
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
 
     this.update();
   }
 
-  setCustomShader(material) {
+  setCustomShader(material:THREE.ShaderMaterial) {
     if (material.vertexShader){
     material.vertexShader = material.vertexShader.replace(
       `varying vec3 vViewPosition;`,
@@ -278,10 +289,10 @@ export class EffectManager extends EventTarget{
     }
   }
 
-  setTransitionEffect = (type) => {
+  setTransitionEffect = (type:'normal') => {
     this.transitionEffectType = type;
   }
-  getTransitionEffect = (type) => {
+  getTransitionEffect = (type:'normal') => {
     return this.transitionEffectType === type;
   }
 
@@ -307,7 +318,7 @@ export class EffectManager extends EventTarget{
     this.transitionTime = TRANSITION_TIME_OF_SWITCH_ITEM;
   }
 
-  setParticle(scene, camera) {
+  setParticle(scene:THREE.Scene, camera:THREE.Camera) {
     this.particleEffect = new ParticleEffect(scene, camera, globalUniforms);
   }
 

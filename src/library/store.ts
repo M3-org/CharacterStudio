@@ -1,14 +1,14 @@
-import { Storage } from './Storage.js'
+import { Storage } from './Storage'
 
 let storeObject = new Storage();
 
 // Storage API
-const localStorageAdapter = object => ({
-  get( target, name ) {
+const localStorageAdapter = (object: Storage) => ({
+  get( name: string ) {
     return object.getItem( String( name ))
   },
 
-  set( target, name, value ) {
+  set( name: string, value: any ) {
     object.setItem( String( name ), value )
     return true
   },
@@ -16,7 +16,7 @@ const localStorageAdapter = object => ({
 
 // Use Storage API adapter
 const store = ( object = storeObject ) => {
-  return new Proxy({}, localStorageAdapter( object ))
+  return new Proxy({}, localStorageAdapter( object ) as any)
 }
 
 export const local = store();

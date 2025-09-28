@@ -1,18 +1,22 @@
 
+import { VRM0Meta, VRM1Meta, VRMMeta } from "@pixiv/three-vrm";
 import { getAsArray } from "./utils"
+import { avatarData } from "./characterManager";
 
-export function GetMetadataFromAvatar(avatar, customMeta, vrmName){
 
-    const meta0Values = [];
-    const meta1Values = [];
+
+export function GetMetadataFromAvatar(avatar:Record<string, avatarData>, customMeta:Partial<VRMMeta>|null, vrmName:string){
+
+    const meta0Values:(Partial<VRM0Meta>&{metaVersion:"0"})[] = [];
+    const meta1Values:(Partial<VRM1Meta>&{metaVersion:"1"})[] = [];
 
     for (const prop in avatar){
         if (avatar[prop]?.vrm?.meta != null){
-            if (avatar[prop].vrm.meta.authors != null){
+            if ('authors' in avatar[prop].vrm.meta && avatar[prop].vrm.meta.authors !=null){
                 meta1Values.push(avatar[prop].vrm.meta)
             }
             else{
-                meta0Values.push(avatar[prop].vrm.meta)
+                meta0Values.push(avatar[prop].vrm.meta as VRM0Meta)
             }
         } 
     }
@@ -20,7 +24,7 @@ export function GetMetadataFromAvatar(avatar, customMeta, vrmName){
     // if only 1 model is provided save the name of the model instead
     if (meta0Values.length + meta1Values.length == 1){
         if (meta0Values.length == 1){
-            if (meta0Values[0].title != null){
+            if ('title' in meta0Values[0] && meta0Values[0].title != null){
                 vrmName = meta0Values[0].title;
             }
         }else{
@@ -31,58 +35,59 @@ export function GetMetadataFromAvatar(avatar, customMeta, vrmName){
     }
     if (customMeta != null){
         // vrm 1 uses "authors instead of author"
-        if (customMeta.authors != null){
-            meta1Values.push(customMeta);
+        if ('authors' in customMeta && customMeta.authors != null){
+            meta1Values.push(customMeta as VRM1Meta);
         }
         else{
-            meta0Values.push(customMeta);
+            meta0Values.push(customMeta as VRM0Meta);
         }
     }
 
     const vrm1MetaFromMeta0 =  GetMeta0DataAsMeta1(meta0Values);
     const fullMergedMetadata = GetFullMeta1Data(vrm1MetaFromMeta0, meta1Values);
 
-    fullMergedMetadata.licenseUrl = "https://vrm.dev/licenses/1.0/";
-    fullMergedMetadata.name = vrmName;
+    fullMergedMetadata.otherLicenseUrl = "https://vrm.dev/licenses/1.0/";
+    (fullMergedMetadata as any as VRM1Meta).licenseUrl = "https://vrm.dev/licenses/1.0/";
+    (fullMergedMetadata as any as VRM1Meta).name = vrmName;
 
     return fullMergedMetadata;
 }
 
-function GetFullMeta1Data(meta0ValuesMerged, meta1Values){
+function GetFullMeta1Data(vrm1MetaFromMeta0:VRM1Meta &{otherPermissionUrl:string[]}, meta1Values:Partial<VRM1Meta>[]){
 
     let {
         authors = [],
-        otherLicenseUrl = [],
-        contactInformation = [],
+        otherLicenseUrl = '',
+        contactInformation = '',
         references = [],
         allowExcessivelyViolentUsage = undefined,
         allowExcessivelySexualUsage = undefined,
         commercialUsage = undefined,
-        copyrightInformation = "",
         avatarPermission = undefined,
         otherPermissionUrl = [],
-    } = meta0ValuesMerged;
+    } = vrm1MetaFromMeta0;
+    let copyrightInformation:(keyof typeof LicenseType) | undefined = vrm1MetaFromMeta0.copyrightInformation || '' as any
     let allowAntisocialOrHateUsage = undefined;
     let allowPoliticalOrReligiousUsage = undefined;
     let allowRedistribution = undefined;
     let creditNotation = "unnecessary";
     
-    let modification = undefined;
-    let thirdPartyLicenses = [];
+    let modification:keyof typeof ModificationType | undefined = undefined;
+    let thirdPartyLicenses:string[] = [];
 
     meta1Values.forEach(meta => {
         // vrm 0
-        authors = authors.concat(getAsArray(meta.authors));
-        otherLicenseUrl = otherLicenseUrl.concat(getAsArray(meta.otherLicenseUrl));
-        contactInformation = contactInformation.concat(getAsArray(meta.contactInformation));
-        references = references.concat(getAsArray(meta.references));
-        otherPermissionUrl = otherPermissionUrl.concat(getAsArray(meta.otherPermissionUrl));
+        authors = authors.concat(getAsArray(meta.authors||''));
+        otherLicenseUrl = otherLicenseUrl.concat(meta.otherLicenseUrl||'');
+        contactInformation = contactInformation.concat(meta.contactInformation||'');
+        references = references.concat(getAsArray(meta.references||''));
+        otherPermissionUrl = otherPermissionUrl.concat(getAsArray((meta as {otherPermissionUrl:string[]}).otherPermissionUrl||[]));
         if (meta.allowExcessivelyViolentUsage === false)
             allowExcessivelyViolentUsage = false;
         if (meta.allowExcessivelySexualUsage === false)
             allowExcessivelySexualUsage = false;      
         commercialUsage  = getMostRestrictiveValue(CommercialUsageType,commercialUsage,meta.commercialUsage);
-        copyrightInformation = getMostRestrictiveValue(LicenseType,copyrightInformation,meta.copyrightInformation);
+        copyrightInformation = getMostRestrictiveValue(LicenseType,copyrightInformation,meta.copyrightInformation as keyof typeof LicenseType);
         avatarPermission = getMostRestrictiveValue(AvatarPermissionType, avatarPermission, meta.avatarPermission)
         
 
@@ -95,7 +100,7 @@ function GetFullMeta1Data(meta0ValuesMerged, meta1Values){
             allowRedistribution = allowRedistribution = false;
         if (meta.creditNotation === "required")
             creditNotation = "required";
-        thirdPartyLicenses = thirdPartyLicenses.concat(getAsArray(meta.thirdPartyLicenses))
+        thirdPartyLicenses = thirdPartyLicenses.concat(getAsArray(meta.thirdPartyLicenses||''))
         modification = getMostRestrictiveValue(ModificationType, modification, meta.modification)
     });
 
@@ -131,25 +136,25 @@ function GetFullMeta1Data(meta0ValuesMerged, meta1Values){
 
 }
 
-function GetMeta0DataAsMeta1(meta0Values){
-    let author = [];
-    let contactInformation = [];
-    let reference = [];
-    let otherPermissionUrl = [];
-    let otherLicenseUrl = [];
-    let allowedUsername = undefined;
-    let violentUssageName = undefined;
-    let sexualUssageName = undefined;
-    let commercialUssageName = undefined;
-    let licenseName = undefined;
+function GetMeta0DataAsMeta1(meta0Values:VRM0Meta[]):VRM1Meta & {otherPermissionUrl:string[]}{
+    let author:string[] = [];
+    let contactInformation:string[] = [];
+    let reference:string[] = [];
+    let otherPermissionUrl:string[] = [];
+    let otherLicenseUrl:string[] = [];
+    let allowedUsername:keyof typeof UsernameType|undefined = undefined;
+    let violentUssageName:keyof typeof AllowType|undefined = undefined;
+    let sexualUssageName:keyof typeof AllowType|undefined = undefined;
+    let commercialUssageName:keyof typeof AllowType|undefined = undefined;
+    let licenseName:keyof typeof LicenseType|undefined = undefined;
 
     meta0Values.forEach(meta => {
-        author = author.concat(getAsArray(meta.author));
-        contactInformation = contactInformation.concat(getAsArray(meta.contactInformation));
-        reference = reference.concat(getAsArray(meta.reference));
-        otherPermissionUrl = otherPermissionUrl.concat(getAsArray(meta.otherPermissionUrl));
-        otherLicenseUrl = otherLicenseUrl.concat(getAsArray(meta.otherLicenseUrl));
-        allowedUsername = getMostRestrictiveValue(UsernameType, allowedUsername, meta.allowedUsername);
+        author = author.concat(getAsArray(meta.author || ''));
+        contactInformation = contactInformation.concat(getAsArray(meta.contactInformation || ''));
+        reference = reference.concat(getAsArray(meta.reference || ''));
+        otherPermissionUrl = otherPermissionUrl.concat(getAsArray(meta.otherPermissionUrl || ''));
+        otherLicenseUrl = otherLicenseUrl.concat(getAsArray(meta.otherLicenseUrl || ''));
+        allowedUsername = getMostRestrictiveValue(UsernameType, allowedUsername, meta.allowedUserName);
         violentUssageName = getMostRestrictiveValue(AllowType, violentUssageName, meta.violentUssageName);
         sexualUssageName = getMostRestrictiveValue(AllowType, sexualUssageName,meta.sexualUssageName);
         commercialUssageName = getMostRestrictiveValue(AllowType, commercialUssageName, meta.commercialUssageName);
@@ -168,68 +173,88 @@ function GetMeta0DataAsMeta1(meta0Values){
     return {
         //name:title,
         authors:authorFilter,
-        otherLicenseUrl:otherLicenseUrlFilter,
-        contactInformation:contactInformationFilter,
+        otherLicenseUrl:otherLicenseUrlFilter.flat().join(", "),
+        contactInformation:contactInformationFilter.flat().join(", "),
         references:referenceFilter,
         allowExcessivelyViolentUsage:violentUssageName === "Allow",
         allowExcessivelySexualUsage:sexualUssageName  === "Allow",
         commercialUsage:commercialUssageName === "Allow" ? "personalProfit" : "personalNonProfit",
         copyrightInformation: licenseName,
         avatarPermission:getAvatarPermissionFromMeta0(allowedUsername),
-        otherPermissionUrl:otherPermissionUrlFilter,     
+        //@ts-ignore ignore me
+        otherPermissionUrl:otherPermissionUrlFilter.flat().join(", "), 
     }
 
 }
 
-function getAvatarPermissionFromMeta0(allowedUsername){
-    if (allowedUsername == "OnlyAuthor"){
+function getAvatarPermissionFromMeta0(allowedUserName:keyof typeof UsernameType|undefined):keyof typeof AvatarPermissionType|undefined{
+    if (allowedUserName == "OnlyAuthor"){
         return "onlyAuthor";
     }
-    if (allowedUsername == "ExplicitlyLicensedPerson"){
+    if (allowedUserName == "ExplicitlyLicensedPerson"){
         return "onlySeparatelyLicensedPerson";
     }
-    if (allowedUsername == "Everyone"){
+    if (allowedUserName == "Everyone"){
         return "everyone";
     }
 }
 
-const ModificationType = {
-    prohibited:0,
-    allowModification:1,
-    allowModificationRedistribution:2
-}
-const CommercialUsageType = {
-    personalNonProfit:0,
-    personalProfit:1,
-    corporation:2
-}
-const AvatarPermissionType = {
-    onlyAuthor: 0,
-    onlySeparatelyLicensedPerson: 1,
-    everyone: 2,
-};
-const UsernameType = {
-    OnlyAuthor: 0,
-    ExplicitlyLicensedPerson: 1,
-    Everyone: 2,
-};
-const AllowType = {
-    Disallow: 0,
-    Allow: 1,
-};
-const LicenseType = {
-    Redistribution_Prohibited: 0,
-    Other: 1,
-    CC_BY_NC_ND: 2,
-    CC_BY_ND: 3,
-    CC_BY_NC_SA: 4,
-    CC_BY_SA: 5,
-    CC_BY_NC: 6,
-    CC_BY: 7,
-    CC0: 8,
-};
+/**
+ * ENUM ModificationType
+ */
+export const ModificationType = {
+    prohibited: 'prohibited',
+    allowModification: 'allowModification',
+    allowModificationRedistribution: 'allowModificationRedistribution'
+} as const;
+/**
+ * ENUM CommercialUsageType
+ */
+export const CommercialUsageType = {
+    personalNonProfit: 'personalNonProfit',
+    personalProfit: 'personalProfit',
+    corporation: 'corporation'
+} as const;
+/**
+ * ENUM AvatarPermissionType
+ */
+export const AvatarPermissionType = {
+    onlyAuthor: 'onlyAuthor',
+    onlySeparatelyLicensedPerson: 'onlySeparatelyLicensedPerson',
+    everyone: 'everyone',
+} as const;
+/**
+ * ENUM UsernameType
+ */
+export const UsernameType = {
+    OnlyAuthor: 'OnlyAuthor',
+    ExplicitlyLicensedPerson: 'ExplicitlyLicensedPerson',
+    Everyone: 'Everyone',
+} as const;
+/**
+ * ENUM AllowType
+ */
+export const AllowType = {
+    Disallow: 'Disallow',
+    Allow: 'Allow',
+} as const;
+/**
+ * ENUM LicenseType
+ */
+export const LicenseType = {
+    Redistribution_Prohibited: 'Redistribution_Prohibited',
+    Other: 'Other',
+    CC_BY_NC_ND: 'CC_BY_NC_ND',
+    CC_BY_ND: 'CC_BY_ND',
+    CC_BY_NC_SA: 'CC_BY_NC_SA',
+    CC_BY_SA: 'CC_BY_SA',
+    CC_BY_NC: 'CC_BY_NC',
+    CC_BY: 'CC_BY',
+    CC0: 'CC0',
+} as const;
+export type LicenseValueTypeEnums = typeof LicenseType|typeof AllowType|typeof UsernameType| typeof AvatarPermissionType|typeof CommercialUsageType|typeof ModificationType
 
-function getMostRestrictiveValue(enumType, currentValue, newValue) {
+function getMostRestrictiveValue<T extends LicenseValueTypeEnums>(enumType:T, currentValue?:keyof T, newValue?:keyof T) {
     // Ensure that both values exist in the provided enum
     if (currentValue === undefined){
         return newValue;

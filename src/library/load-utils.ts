@@ -1,21 +1,16 @@
-import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
-import {  GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRM, VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+import {  GLTF, GLTFLoader, GLTFReference } from "three/examples/jsm/loaders/GLTFLoader"
 import { getAsArray, renameVRMBones,getUniqueId } from "../library/utils"
 import { findChildByName } from '../library/utils';
-import { PropertyBinding,SkinnedMesh } from 'three';
+import { Mesh, Object3D, PropertyBinding,Scene,SkinnedMesh } from 'three';
 
-/**
- * @param {string} baseURL base of a path or URL
- * @param {string} relativeURL next path
- * @returns 
- */
-export function combineURLs(baseURL, relativeURL) {
+export function combineURLs(baseURL:string, relativeURL:string) {
   return relativeURL && baseURL
     ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
     : baseURL ? baseURL: relativeURL;
 }
 
-export const loadVRM = async(url) => {
+export const loadVRM = async(url:string) => {
     const gltfLoader = new GLTFLoader()
     gltfLoader.crossOrigin = 'anonymous';
     gltfLoader.register((parser) => {
@@ -26,11 +21,11 @@ export const loadVRM = async(url) => {
     if (vrm.userData?.vrmMeta?.metaVersion === '0'){
       vrm.scene.rotation.y = Math.PI;
       vrm.scene.traverse((child)=>{
-        if (child.isMesh) {
+        if ((child as Mesh).isMesh) {
           child.userData.isVRM0 = true;
-          if (child.isSkinnedMesh){
-            for (let i =0; i < child.skeleton.bones.length;i++){
-              child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+          if ((child as SkinnedMesh).isSkinnedMesh){
+            for (let i =0; i < (child as SkinnedMesh).skeleton.bones.length;i++){
+              (child as SkinnedMesh).skeleton.bones[i].userData.vrm0RestPosition = { ... (child as SkinnedMesh).skeleton.bones[i].position }
             }
           }
         }
@@ -38,10 +33,8 @@ export const loadVRM = async(url) => {
     }
     return vrm;
 }
-/**
- * @param {GLTF} gltf 
- */
-export const renameMorphTargets = (gltf) => {
+
+export const renameMorphTargets = (gltf:GLTF) => {
   const json = gltf.parser.json
   const meshesJson = json.meshes;
   const associations = gltf.parser.associations
@@ -50,27 +43,27 @@ export const renameMorphTargets = (gltf) => {
     if(child instanceof SkinnedMesh){
       if(child.morphTargetDictionary){
         let hasEditedMorphs = false
-        const associationValues = associations.get(child)
+        const associationValues = associations.get(child) as GLTFReference & {primitives?:number};
         if(typeof associationValues == 'undefined') return;
 
-        const meshIndex = associationValues.meshes||0;
-        const primitivesIndex = associationValues.primitives||0;
+        const meshIndex = associationValues!.meshes||0;
+        const primitivesIndex = associationValues!.primitives||0;
         const meshJson = meshesJson[meshIndex]
 
         const primitives = meshJson?.primitives[primitivesIndex]
+
         if(primitives?.extras?.targetNames){
           const targetNames = primitives.extras.targetNames;
           for (let i = 0; i < targetNames.length; i++){
             // console.log('assigning morphTargetDictionary',targetNames[i])
-            child.morphTargetDictionary[targetNames[i]] = i;
+            child.morphTargetDictionary![targetNames[i]] = i;
             hasEditedMorphs = true;
           }
         }
 
         if(hasEditedMorphs){
-          // remove all morph target keys that are numbers
           for(const key in child.morphTargetDictionary){
-            if(!isNaN(parseInt(key))){
+            if (!isNaN(Number.parseInt(key)) && /^\d+$/.test(key)) {
               delete child.morphTargetDictionary[key]
             }
           }
@@ -78,10 +71,9 @@ export const renameMorphTargets = (gltf) => {
       }
     }
   })
-
 }
-export const addVRMToScene = (vrm, scene) => {
-  const vrmData = vrm.userData.vrm;
+export const addVRMToScene = (vrm:VRM, scene:Scene) => {
+  const vrmData = (vrm as any).userData.vrm;
   renameVRMBones(vrmData);
 
   if (vrm && scene){
@@ -89,7 +81,7 @@ export const addVRMToScene = (vrm, scene) => {
   }
 }
 
-export const saveVRMCollidersToUserData = (gltf) => {
+export const saveVRMCollidersToUserData = (gltf:GLTF) => {
   if (gltf.parser.json.extensions?.VRM){
     saveVRM0Colliders(gltf);
   }
@@ -101,36 +93,38 @@ export const saveVRMCollidersToUserData = (gltf) => {
   }
 }
 
-const saveVRM0Colliders = (gltf) => {
+const saveVRM0Colliders = (gltf:GLTF) => {
   const json = gltf.parser.json
   const scene = gltf.scene;
   const nodes = json.nodes;
   const colliderGroups = json.extensions?.VRM?.secondaryAnimation?.colliderGroups;
 
-  const namesUsed = [];
-  const objectSceneNames = nodes.map((node) => uniqueNames(node.name, namesUsed));
+  const namesUsed:any = [];
+  const objectSceneNames = nodes.map((node:any) => uniqueNames(node.name, namesUsed));
 
   if (colliderGroups != null){
-    colliderGroups.forEach(colliderGroup => {
+    colliderGroups.forEach((colliderGroup:Record<string,any>) => {
       const nodeName = objectSceneNames[colliderGroup.node]
       const nodeObject = findChildByName(scene, nodeName);
       if (nodeObject != null){
         const colliders = colliderGroup.colliders;
         
         // match to be like vrm 1
-        nodeObject.userData.VRMcolliders = colliders.map((collider) => (
+        nodeObject.userData.VRMcolliders = colliders.map((collider:any) => (
           {sphere:{
             radius:collider.radius,
             offset:[collider.offset.x,collider.offset.y, collider.offset.z]
           }}));
       }
       // add a unique id so we dont duplicat them later when merging different colliders
-      nodeObject.userData.VRMcollidersID = getUniqueId();
+      if(nodeObject){
+        nodeObject.userData.VRMcollidersID = getUniqueId();
+      }
     });
   }
 }
 
-const saveVRM1Colliders = (gltf) => {
+const saveVRM1Colliders = (gltf:GLTF) => {
   const json = gltf.parser.json
   const scene = gltf.scene
   const nodes = json.nodes;
@@ -138,15 +132,15 @@ const saveVRM1Colliders = (gltf) => {
   const colliders = json.extensions?.VRMC_springBone?.colliders;
   // save to vrm data
 
-  const namesUsed = [];
-  const objectSceneNames = nodes.map((node) => uniqueNames(node.name, namesUsed));
+  const namesUsed:string[] = [];
+  const objectSceneNames = nodes.map((node:any) => uniqueNames(node.name, namesUsed));
 
   if (colliderGroups != null){
 
-    colliderGroups.forEach(colliderGroup => {
+    colliderGroups.forEach((colliderGroup:any) => {
       const collidersIndices = getAsArray(colliderGroup.colliders);
       let currentNodeIndex = -1;
-      let currentNode = null;
+      let currentNode:any|null = null;
       collidersIndices.forEach(index => {
         if (currentNodeIndex != colliders[index].node){
           currentNodeIndex = colliders[index].node;
@@ -179,8 +173,8 @@ const saveVRM1Colliders = (gltf) => {
  * @param {VRM} vrm 
  * @returns {Array<THREE.Object3D>} an array of objects with the shape of the colliders
  */
-export const getNodesWithColliders = (vrm)=>{
-  const nodes = [];
+export const getNodesWithColliders = (vrm:VRM)=>{
+  const nodes:Object3D[] = [];
   vrm.scene.traverse((child)=>{
     if (child.userData?.VRMcolliders && child.userData.VRMcolliders.length > 0){
       nodes.push(child);
@@ -190,7 +184,7 @@ export const getNodesWithColliders = (vrm)=>{
 }
 
 // code from gltf loader, follows the same process of renaming
-const uniqueNames = (originalName, namesUsed) => {
+const uniqueNames = (originalName:string, namesUsed:Record<string,any>) => {
   const sanitizedName = PropertyBinding.sanitizeNodeName(originalName || '');
   if (sanitizedName in namesUsed) {
       return sanitizedName + '_' + (++namesUsed[sanitizedName]);

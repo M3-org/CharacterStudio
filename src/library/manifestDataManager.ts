@@ -1,4 +1,4 @@
-import { BlendShapeTrait, CharacterManifestData, manifestJson, ModelTrait, SelectedOption } from "./CharacterManifestData";
+import { BlendShapeTrait, CharacterManifestData, manifestJson, ModelTrait, SelectedOption, TraitModelsGroup } from "./CharacterManifestData";
 import { getAsArray } from "./utils";
 
 export class ManifestDataManager{
@@ -25,7 +25,10 @@ export class ManifestDataManager{
     getMainSolanaPurchaseAssetsDefinition(){
       return this.mainManifestData.getSolanaPurchaseAssets();
     }
-    unlockMainPurchasedAssets(userOwnedTraits){
+    unlockMainPurchasedAssets(userOwnedTraits:{
+      ownedIDs?:string[],
+      ownedTraits?:Record<string,string[]>
+    }){
       this.mainManifestData.unlockTraits(userOwnedTraits);
     }
 
@@ -97,7 +100,7 @@ export class ManifestDataManager{
     /**
      * This function was never implemented properly
      */
-    isGroupTraitRestrictedInAnyManifest(trait:string){
+    isGroupTraitRestrictedInAnyManifest(trait:string, groupTraitID:string){
       // for (const manifestData of this.manifestDataCollection){
       //   const p = manifestData.manifestRestrictions.restrictionMaps[trait]?.isReverseBlendsha
       // }
@@ -259,7 +262,7 @@ export class ManifestDataManager{
         }
         else{
           console.warn(`No manifest data with name ${optionalIdentifier} was found.`)
-          return null;
+          return [];
         }
       }
       else{
@@ -317,13 +320,13 @@ export class ManifestDataManager{
       return this.mainManifestData.getCustomTraitOption(groupTraitID, url);
     }
   
-    getNFTraitOptionsFromURL(url, ignoreGroupTraits, identifier){
-      if (identifier == null){
+    getNFTraitOptionsFromURL(url:string, ignoreGroupTraits:string[]=[], identifier?:string){
+      if (!identifier){
         console.log(`Identifier was not provided. Using main manifest`)
       }
 
-      const manifestData = identifier == null ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
-      if (manifestData == null){
+      const manifestData = !identifier ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
+      if (!manifestData){
         console.log(`No manifest with identifier: ${identifier}  was previously loaded.`)
         return Promise.resolve();
       }
@@ -340,7 +343,8 @@ export class ManifestDataManager{
         });
         }
     }
-    getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits, identifier){
+
+    getNFTraitOptionsFromObject(NFTObject:Record<string,any>, ignoreGroupTraits:string[]=[], identifier?:string){
       if (identifier == null){
         console.log(`Identifier was not provided. Using main manifest`)
       }
@@ -359,7 +363,7 @@ export class ManifestDataManager{
       return result;
     }
 
-    containsModelGroupWithID(groupTraitID){
+    containsModelGroupWithID(groupTraitID:string){
       let result = false;
       this.manifestDataCollection.forEach(manifestData => {
         if (manifestData.getModelGroup(groupTraitID) != null){
@@ -370,7 +374,7 @@ export class ManifestDataManager{
     }
   
     // returns the full group of the manifest with chosen identifier
-    getModelGroup(groupTraitID, identifier){
+    getModelGroup(groupTraitID:string, identifier?:string){
       if (identifier == null){
         console.log(`Identifier was not provided. Using main manifest`)
       }
@@ -380,7 +384,7 @@ export class ManifestDataManager{
     }
   
     // only for the main manifest
-    isTraitGroupRequired(groupTraitID){
+    isTraitGroupRequired(groupTraitID:string){
       let result = false;
       const groupTrait = this.mainManifestData.getModelGroup(groupTraitID);
 
@@ -412,7 +416,7 @@ export class ManifestDataManager{
     }
     getRandomTrait(groupTraitID:string){
       // get random trait from all loaded manifest data
-      const randomTraits = [];
+      const randomTraits:SelectedOption[] = [];
       this.manifestDataCollection.forEach(manifestData => {
         const trait = manifestData.getRandomTrait(groupTraitID);
         if (trait != null){
@@ -424,7 +428,7 @@ export class ManifestDataManager{
         null;
     }
     getRandomTraits(optionalGroupTraitIDs?:string[]){
-      const selectedOptionsObject = {}
+      const selectedOptionsObject:Record<string,SelectedOption> = {}
       this.manifestDataCollection.forEach(manifestData => {
         
         const searchArray = optionalGroupTraitIDs || manifestData.randomTraits;
@@ -452,7 +456,7 @@ export class ManifestDataManager{
       return this.mainManifestData.getInitialTraits();
     }
     getSelectionForAllTraits(){
-      const selectedOptionsObject = {}
+      const selectedOptionsObject:Record<string,SelectedOption> = {}
       this.manifestDataCollection.forEach(manifestData => {
         
         const searchArray = manifestData.allTraits;
@@ -490,7 +494,7 @@ export class ManifestDataManager{
       }
       else{
         if (nonRepeatingGroups == true){
-          const mergedTraitModelGroups = {};
+          const mergedTraitModelGroups:Record<string,TraitModelsGroup> = {};
   
           this.manifestDataCollection.forEach(manifestData => {
             manifestData.getGroupModelTraits().forEach(group => {
@@ -505,9 +509,9 @@ export class ManifestDataManager{
           return resultArray;
         }
         else{
-          const resultArray = []
+          const resultArray:TraitModelsGroup[] = [];
           this.manifestDataCollection.forEach(manifestData => {
-            resultArray.push(getAsArray(...manifestData.getGroupModelTraits()));
+            resultArray.push(...manifestData.getGroupModelTraits());
           });
           return resultArray;
         }
@@ -515,7 +519,7 @@ export class ManifestDataManager{
     }
   
 
-    isManifestNFTLocked(identifier){
+    isManifestNFTLocked(identifier?:string){
       if (identifier == null){
         console.log(`Identifier was not provided. Using main manifest`)
       }
@@ -552,7 +556,7 @@ export class ManifestDataManager{
     }
 
     // filtering will only work now when multiple options are selected
-    _filterTraitOptions(selectedOptions){
+    _filterTraitOptions(selectedOptions:SelectedOption[]){
       const finalOptions = []
       const filteredOptions = []
       for (let i = 0 ; i < selectedOptions.length ; i++){
@@ -575,8 +579,8 @@ export class ManifestDataManager{
       }
       return finalOptions;
     }
-    _fetchManifest(location) {
-      return new Promise((resolve,reject)=>{
+    _fetchManifest(location:string) {
+      return new Promise<manifestJson>((resolve,reject)=>{
         fetch(location)
           .then(response=>{
             response.json().then((data)=>{

@@ -56,6 +56,7 @@
     "squaresplit": "^1.0.2",
     "styled-components": "^5.3.1",
     "three": "^0.169.0",
+    "three-custom-shader-material": "^6.3.7",
     "three-mesh-bvh": "^0.8.2",
     "use-sound": "^5.0.0",
     "vite-plugin-dts": "^4.5.4",

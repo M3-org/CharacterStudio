@@ -1,9 +1,30 @@
+import { VRM } from '@pixiv/three-vrm';
 import * as THREE from 'three'
 
 const localVector = new THREE.Vector3();
 
 export class LookAtManager {
-  constructor (screenViewPercentage, canvasID, camera){
+
+  bonesInfo: {
+    vrm: VRM,
+    neckBone: THREE.Object3D,
+    spineBone: THREE.Object3D,
+    leftEyeBone: THREE.Object3D|null,
+    rightEyeBone: THREE.Object3D|null,
+  }[];
+  curMousePos: {x:number, y:number}
+  hotzoneSection: {xStart:number, xEnd:number, yStart:number, yEnd:number}
+  enabled: boolean;
+  userActivated: boolean;
+  lookInterest: number;
+  hasInterest: boolean;
+  interestSpeed: number;
+  onCanvas: boolean;
+  camera: THREE.Camera;
+  maxLookPercent: {neck:{maxy:number, miny:number, maxx:number, minx:number}, spine:{maxy:number, miny:number, maxx:number, minx:number}, left:{maxy:number, miny:number, maxx:number, minx:number}, right:{maxy:number, miny:number, maxx:number, minx:number}};
+
+
+  constructor (screenViewPercentage:number, canvasID:string, camera:THREE.Camera){
     // this.neckBones = []
     // this.spineBones = []
     // this.leftEyeBones = []
@@ -11,7 +32,7 @@ export class LookAtManager {
 
     this.bonesInfo = [];
 
-    this.curMousePos = new THREE.Vector2()
+    this.curMousePos = {x:0, y:0}
 
     this.hotzoneSection  = getHotzoneSection()
     this.enabled = false;
@@ -60,7 +81,8 @@ export class LookAtManager {
     //   this.update();
     // }, 1000/60);
   }
-  setActive(active){
+  setActive(active:boolean){
+    console.log("is activating")
     this.userActivated = active;
     if(!active){
       // reset rotation of eyes
@@ -74,16 +96,16 @@ export class LookAtManager {
       })
     }
   }
-  setCamera(camera){
+  setCamera(camera:THREE.Camera){
     this.camera = camera
   }
 
-  addVRM(vrm){
-    const isVRM0 = vrm.data.isVRM0 || false;
+  addVRM(vrm:VRM){
+    const isVRM0 = (vrm as any).data.isVRM0 || false;
     const bones = vrm.humanoid.humanBones // if vrm0 location of bones is dfferent
 
     if (!isVRM0){
-      bones.neck.node.userData.inverseLookAt = true;
+      bones.neck!.node.userData.inverseLookAt = true;
       bones.spine.node.userData.inverseLookAt = true;
       if (bones.leftEye)
         bones.leftEye.node.userData.inverseLookAt = true;
@@ -93,7 +115,7 @@ export class LookAtManager {
 
     const vrmInfo = {
       vrm: vrm,
-      neckBone: bones.neck.node,
+      neckBone: bones.neck!.node,
       spineBone: bones.spine.node,
       leftEyeBone: bones.leftEye ? bones.leftEye.node : null,
       rightEyeBone: bones.rightEye ? bones.rightEye.node : null,
@@ -102,7 +124,7 @@ export class LookAtManager {
     this.bonesInfo.push(vrmInfo);
   }
 
-  removeVRM(vrm) {
+  removeVRM(vrm:VRM) {
     const vrmInfoToRemove = this.bonesInfo.find((vrmInfo) => vrmInfo.vrm === vrm);
 
     if (vrmInfoToRemove) {
@@ -111,7 +133,12 @@ export class LookAtManager {
     }
   }
 
-  _getMouseDegrees (x, y, degreeLimit){
+  _getMouseDegrees (x:number, y:number, degreeLimit:{
+    maxy: number;
+    miny: number;
+    maxx: number;
+    minx: number;
+}){
     let dx = 0,
       dy = 0,
       xdiff,
@@ -148,13 +175,17 @@ export class LookAtManager {
     return { x: dx, y: dy }
   }
 
-  lerp(a, b, t) {
+  lerp(a:number, b:number, t:number) {
     return (1 - t) * a + t * b;
   }
 
-  _moveJoint(joint, degreeLimit){
-    if (!joint) return;
-    const yMult = joint.userData?.inverseLookAt === true ? 1:-1;
+  _moveJoint(joint:THREE.Object3D, degreeLimit:{
+    maxy: number;
+    miny: number;
+    maxx: number;
+    minx: number;
+}){
+    const yMult = joint.userData.inverseLookAt === true ? 1:-1;
     if (Object.keys(joint).length !== 0) {
       const ymodifier = (this.camera.position.y - 1.8) * window.innerHeight / 2;
       let degrees = this._getMouseDegrees(this.curMousePos.x, this.curMousePos.y - ymodifier, degreeLimit);
@@ -174,10 +205,14 @@ export class LookAtManager {
       cameraRotationThreshold && this.enabled && this.userActivated) {
 
         this.bonesInfo.forEach(boneInfo => {
-          if (boneInfo.neckBone) this._moveJoint(boneInfo.neckBone, this.maxLookPercent.neck)
-          if (boneInfo.spineBone) this._moveJoint(boneInfo.spineBone, this.maxLookPercent.spine)
-          if (boneInfo.leftEyeBone) this._moveJoint(boneInfo.leftEyeBone, this.maxLookPercent.left)
-          if (boneInfo.rightEyeBone) this._moveJoint(boneInfo.rightEyeBone, this.maxLookPercent.right)
+          this._moveJoint(boneInfo.neckBone, this.maxLookPercent.neck)
+          this._moveJoint(boneInfo.spineBone, this.maxLookPercent.spine)
+          if(boneInfo.leftEyeBone){
+            this._moveJoint(boneInfo.leftEyeBone, this.maxLookPercent.left)
+          }
+          if(boneInfo.rightEyeBone){
+            this._moveJoint(boneInfo.rightEyeBone, this.maxLookPercent.right)
+          }
         })
     }
   }

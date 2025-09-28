@@ -3,10 +3,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CharacterManager } from "./characterManager";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
+import { getDataURL } from "./getDataURLOverride";
 
-export function sceneInitializer(canvasId) {
+export function sceneInitializer(canvasId:string) {
+    THREE.ImageUtils.getDataURL = getDataURL
     const scene = new THREE.Scene()
-
     
     new RGBELoader().load("./hdr/studio_small_09_2k.hdr", (hdr_) => {
         hdr_.mapping = THREE.EquirectangularReflectionMapping;
@@ -36,11 +37,15 @@ export function sceneInitializer(canvasId) {
     camera.position.set(0, 1.3, 2);
 
 
-    const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
+    const characterManager = new CharacterManager({parentModel: scene, renderCamera:camera})
     characterManager.addLookAtMouse(80,canvasId, camera);
    
     //"editor-scene"
-    const canvasRef = document.getElementById(canvasId);
+    const canvasRef = document.getElementById(canvasId) as HTMLCanvasElement;
+    if(!canvasRef) throw new Error("Canvas not found");
+
+    const context = canvasRef.getContext("webgl2", { alpha: true })!;
+    if(!context) throw new Error("WebGL2 not supported");
     const renderer = new THREE.WebGLRenderer({
         canvas: canvasRef,
         antialias: true,
@@ -84,7 +89,7 @@ export function sceneInitializer(canvasId) {
 
     animate();
 
-    const handleMouseClick = (event) => {
+    const handleMouseClick = (event:MouseEvent) => {
         const isCtrlPressed = event.ctrlKey;
         const rect = canvasRef.getBoundingClientRect();
         const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;

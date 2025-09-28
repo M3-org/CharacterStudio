@@ -4,7 +4,7 @@ import { AnimationManager } from "./animationManager"
 import { ScreenshotManager } from "./screenshotManager";
 import { BlinkManager } from "./blinkManager";
 import { EmotionManager } from "./EmotionManager";
-import { MToonMaterial, VRM, VRMLoaderPlugin, VRMSpringBoneCollider } from "@pixiv/three-vrm";
+import { MToonMaterial, VRM, VRMLoaderPlugin, VRMSpringBoneCollider, VRMSpringBoneColliderGroup } from "@pixiv/three-vrm";
 import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
 import { downloadGLB, downloadVRMWithAvatar } from "./download-utils"
 import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
@@ -16,7 +16,7 @@ import { ManifestDataManager } from "./manifestDataManager";
 import { WalletCollections } from "./walletCollections";
 import { buySolanaPurchasableAssets } from "./mint-utils"
 import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
-import { BlendShapeTrait, CharacterManifestData, ColorTrait, DecalTrait, DownloadOptionsManifest, ModelTrait, SelectedOption, TextureTrait } from "./CharacterManifestData";
+import { BlendShapeTrait, CharacterManifestData, ColorTrait, DecalTrait, DownloadOptionsManifest, manifestJson, ModelTrait, SelectedOption, TextureTrait, TraitModelsGroup } from "./CharacterManifestData";
 
 //import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 
@@ -77,10 +77,10 @@ export class CharacterManager {
   
   async _start(options:CharacterManagerOptions){
       const{
-        parentModel = null,
-        renderCamera = null,
-        manifestURL = null,
-        manifestIdentifier = null
+        parentModel,
+        renderCamera,
+        manifestURL,
+        manifestIdentifier
       }= options;
 
      
@@ -101,7 +101,10 @@ export class CharacterManager {
 
       this.lookAtManager = null!;
       this.animationManager = new AnimationManager();
-      this.screenshotManager = new ScreenshotManager(this, parentModel || this.rootModel);
+		this.screenshotManager = new ScreenshotManager(
+			this,
+			(parentModel || this.rootModel) as THREE.Scene,
+		)
       this.overlayedTextureManager = new OverlayedTextureManager(this)
       this.blinkManager = new BlinkManager(0.1, 0.1, 0.5, 5)
       this.emotionManager = new EmotionManager();
@@ -137,6 +140,7 @@ export class CharacterManager {
     togglePauseSpringBoneAnimation(x:boolean){
       for(const [_,trait] of Object.entries(this.avatar)){
         if(trait.vrm.springBoneManager){
+          //@ts-expect-error paused is defined
             trait.vrm.springBoneManager.paused =x
         }
       }
@@ -232,7 +236,7 @@ export class CharacterManager {
 
     // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX:number, mouseY:number, removeFace = true){
-      if (this.renderCamera == null){
+      if (!this.renderCamera){
         console.warn("No camera was set in character manager. Please call setRenderCamera(camera) before calling this function")
         return;
       }
@@ -354,7 +358,7 @@ export class CharacterManager {
             const manifestOptions = this.manifestDataManager.getExportOptions();
             console.log(manifestOptions);
             const finalOptions = { ...manifestOptions, ...exportOptions };
-            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions);
+            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions) as Record<string,any>;
 
             // Log the final export options
             console.log(finalOptions);
@@ -533,7 +537,7 @@ export class CharacterManager {
         if (this.manifestDataManager.hasExistingManifest()) {
           const randomTraits = this.manifestDataManager.getRandomTraits();
           await this._loadTraits(randomTraits);
-          resolve(); // Resolve the promise with the result
+          resolve(true); // Resolve the promise with the result
         } else {
           const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
           console.error(errorMessage);
@@ -546,12 +550,14 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @returns {Promise<void>} Promise that resolves when trait is loaded
      */
-    loadRandomTrait(groupTraitID) {
+    loadRandomTrait(groupTraitID: string) {
       return new Promise(async (resolve, reject) => {
         if (this.manifestDataManager.hasExistingManifest()) {
           const randomTrait = this.manifestDataManager.getRandomTrait(groupTraitID);
-          await this._loadTraits(getAsArray(randomTrait));
-          resolve(); // Resolve the promise with the result
+          if(randomTrait){
+            await this._loadTraits(getAsArray(randomTrait));
+          }
+          resolve(true); // Resolve the promise with the result
         } else {
           const errorMessage = "No manifest was loaded, random traits cannot be loaded.";
           console.error(errorMessage);
@@ -563,25 +569,25 @@ export class CharacterManager {
     /**
      * Loads traits from an NFT using the specified URL.
      * @param {string} url - URL of the NFT
-     * @param {string} [identifier=null] - Identifier for the manifest
+     * @param {string} [collectionIdentifier=undefined] - Identifier for the manifest
      * @param {boolean} [fullAvatarReplace=true] - Whether to replace all existing traits
-     * @param {Array<string>} [ignoreGroupTraits=null] - Trait groups to ignore
+     * @param {Array<string>} [ignoreGroupTraits=[]] - Trait groups to ignore
      * @returns {Promise<void>} Promise that resolves when traits are loaded
      */
-    loadTraitsFromNFT(url, identifier = null, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFT(url:string, collectionIdentifier = undefined, fullAvatarReplace = true, ignoreGroupTraits = []) {
       // XXX should identifier be taken from nft group or passed by user?
       return new Promise(async (resolve, reject) => {
         try {
           // Check if manifest data is available
           if (this.manifestDataManager.hasExistingManifest()) {
             // Retrieve traits from the NFT using the manifest data
-            const traits = await this.manifestDataManager.getNFTraitOptionsFromURL(url, ignoreGroupTraits, identifier);
+            const traits = await this.manifestDataManager.getNFTraitOptionsFromURL(url, ignoreGroupTraits, collectionIdentifier);
 
             // Load traits using the _loadTraits method
-            await this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits || [], fullAvatarReplace);
 
             // Resolve the Promise (without a value, as you mentioned it's not needed)
-            resolve();
+            resolve(true);
           } else {
             // Manifest data is not available, log an error and reject the Promise
             const errorMessage = "No manifest was loaded, NFT traits cannot be loaded.";
@@ -598,25 +604,25 @@ export class CharacterManager {
     /**
      * Loads traits from an NFT object.
      * @param {Object} NFTObject - NFT object containing trait information
-     * @param {string} [identifier=null] - Identifier for the manifest
+     * @param {string} [collectionIdentifier=undefined] - Identifier for the manifest
      * @param {boolean} [fullAvatarReplace=true] - Whether to replace all existing traits
      * @param {Array<string>} [ignoreGroupTraits=null] - Trait groups to ignore
      * @returns {Promise<void>} Promise that resolves when traits are loaded
      */
-    loadTraitsFromNFTObject(NFTObject, identifier = null, fullAvatarReplace = true, ignoreGroupTraits = null) {
+    loadTraitsFromNFTObject(NFTObject:Record<string,any>, collectionIdentifier = undefined, fullAvatarReplace = true, ignoreGroupTraits = []) {
       // XXX should identifier be taken from nft group or passed by user?
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve traits from the NFT object using manifest data
-            const traits = this.manifestDataManager.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits, identifier);
+            const traits = this.manifestDataManager.getNFTraitOptionsFromObject(NFTObject, ignoreGroupTraits, collectionIdentifier);
 
             // Load traits into the avatar using the _loadTraits method
-            await this._loadTraits(traits, fullAvatarReplace);
+            await this._loadTraits(traits || [], fullAvatarReplace);
 
-            resolve();
-          } catch (error) {
+            resolve(true);
+          } catch (error:any) {
             // Reject the Promise with an error message if there's an error during trait retrieval
             console.error("Error loading traits from NFT object:", error.message);
             reject(new Error("Failed to load traits from NFT object."));
@@ -634,7 +640,7 @@ export class CharacterManager {
      * Loads initial traits based on manifest data.
      * @returns {Promise<void>} Promise that resolves when traits are loaded
      */
-    loadInitialTraits() {
+    loadInitialTraits(): Promise<void> {
       return new Promise(async(resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
@@ -653,7 +659,7 @@ export class CharacterManager {
 
     /**
      * Loads all traits based on manifest data.
-     * @returns {Promise<void>} Promise that resolves when traits are loaded
+     * @returns Promise that resolves when traits are loaded
      */
     loadAllTraits() {
       return new Promise(async(resolve, reject) => {
@@ -662,7 +668,7 @@ export class CharacterManager {
           // Load initial traits using the _loadTraits method
           await this._loadTraits(this.manifestDataManager.getSelectionForAllTraits());
 
-          resolve();
+          resolve(true);
         } else {
           // Manifest data is not available, log an error and reject the Promise
           const errorMessage = "No manifest was loaded, initial traits cannot be loaded.";
@@ -677,7 +683,7 @@ export class CharacterManager {
      * @param {string} blendshapeGroupId - ID of the blend shape group
      * @param {string|null} blendshapeTraitId - ID of the blend shape trait
      */
-    loadBlendShapeTrait(traitGroupID, blendshapeGroupId, blendshapeTraitId){
+    loadBlendShapeTrait(traitGroupID:string, blendshapeGroupId:string,blendshapeTraitId:string|null){
       const currentTrait = this.avatar[traitGroupID];
       if(!currentTrait){
         console.warn(`Trait with name: ${traitGroupID} was not found or not selected.`)
@@ -696,10 +702,8 @@ export class CharacterManager {
     }
     /**
      * Removes a blend shape trait.
-     * @param {string} groupTraitID - ID of the trait group
-     * @param {string} blendShapeGroupId - ID of the blend shape group
      */
-    removeBlendShapeTrait(groupTraitID, blendShapeGroupId){
+    removeBlendShapeTrait(groupTraitID:string, blendShapeGroupId:string|null){
       const currentTrait = this.avatar[groupTraitID];
       if (currentTrait){
         this._loadBlendShapeTrait(groupTraitID,blendShapeGroupId,null);
@@ -717,7 +721,7 @@ export class CharacterManager {
      * @param {string} traitID - ID of the trait
      * @returns {Array<Object>} Array of rule results
      */
-    _getTraitAllowedRules(traitGroupID,traitID){
+    _getTraitAllowedRules(traitGroupID:string,traitID:string){
     const isAllowAggregated = []
       for( const trait in this.avatar){
         const object = this.avatar[trait];
@@ -732,9 +736,8 @@ export class CharacterManager {
     /**
      * Checks Blendshape restrictions;
      * @private
-     * @param {} groupTraitID 
      */
-    _checkBlendshapeRestrictions(groupTraitID){
+    private _checkBlendshapeRestrictions(groupTraitID:string){
       for( const trait in this.avatar){
         if (this.manifestDataManager.isGroupTraitRestrictedInAnyManifest(trait, groupTraitID)){
           console.warn(`Trait with name: Blendshapes of ${trait} is not allowed to be loaded with ${groupTraitID}`)
@@ -749,7 +752,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @param {string} traitID - ID of the trait
      */
-    _checkRestrictionsBeforeLoad(groupTraitID,traitID){
+    _checkRestrictionsBeforeLoad(groupTraitID:string,traitID:string){
       const isAllowed = this._getTraitAllowedRules(groupTraitID,traitID)
       if(isAllowed[0].allowed){
         // check if blendshape restrictions are met
@@ -792,25 +795,25 @@ export class CharacterManager {
      * Loads a specific trait based on group and trait IDs.
      * @param {string} groupTraitID - ID of the trait group
      * @param {string} traitID - ID of the trait
-     * @param {string} identifierID - Identifier for the manifest
+     * @param {string} collectionIdentifier - Identifier for the manifest
      * @param {boolean} [soloView=false] - Whether to display only the new trait
      * @returns {Promise<void>} Promise that resolves when trait is loaded
      */
-    loadTrait(groupTraitID, traitID, identifierID, soloView = false) {
+    loadTrait(groupTraitID:string, traitID:string, collectionIdentifier?:string, soloView = false) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
           try {
             // Retrieve the selected trait using manifest data
-            const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID, identifierID);
+            const selectedTrait = this.manifestDataManager.getTraitOption(groupTraitID, traitID, collectionIdentifier);
             this._checkRestrictionsBeforeLoad(groupTraitID,traitID)
             console.log(selectedTrait);
             // If the trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait),soloView);
-              resolve();
+              resolve(true);
             }
-          } catch (error) {
+          } catch (error:any) {
             // Reject the Promise with an error message if there's an error during trait retrieval
             console.error("Error loading specific trait:", error.message);
             reject(new Error("Failed to load specific trait."));
@@ -830,7 +833,7 @@ export class CharacterManager {
      * @param {string} url - URL of the custom trait
      * @returns {Promise<void>} Promise that resolves when trait is loaded
      */
-    loadCustomTrait(groupTraitID, url) {
+    loadCustomTrait(groupTraitID:string, url:string) {
       return new Promise(async (resolve, reject) => {
         // Check if manifest data is available
         if (this.manifestDataManager.hasExistingManifest()) {
@@ -841,10 +844,10 @@ export class CharacterManager {
             // If the custom trait is found, load it into the avatar using the _loadTraits method
             if (selectedTrait) {
               await this._loadTraits(getAsArray(selectedTrait));
-              resolve();
+              resolve(true);
             }
 
-          } catch (error) {
+          } catch (error:any) {
             // Reject the Promise with an error message if there's an error during custom trait retrieval
             console.error("Error loading custom trait:", error.message);
             reject(new Error("Failed to load custom trait."));
@@ -864,7 +867,7 @@ export class CharacterManager {
      * @param {string} url - URL of the custom texture
      * @returns {Promise<void>} Promise that resolves when texture is loaded
      */
-    loadCustomTexture(groupTraitID, url) {
+    loadCustomTexture(groupTraitID:string, url:string) {
       return new Promise(async (resolve, reject) => {
         const model = this.avatar[groupTraitID]?.model;
 
@@ -873,7 +876,7 @@ export class CharacterManager {
           await setTextureToChildMeshes(model, url);
 
           // Resolve the Promise (without a value, as you mentioned it's not needed)
-          resolve();
+          resolve(true);
         } else {
           // Group trait not found, log a warning and reject the Promise
           const errorMessage = "No Group Trait with name " + groupTraitID + " was found.";
@@ -889,7 +892,7 @@ export class CharacterManager {
      * @param {string} hexColor - Hexadecimal color value
      * @throws {Error} If the trait group is not found
      */
-    setTraitColor(groupTraitID, hexColor) {
+    setTraitColor(groupTraitID:string, hexColor:string) {
       const model = this.avatar[groupTraitID]?.model;
       if (model) {
         try {
@@ -897,29 +900,39 @@ export class CharacterManager {
           const color = new THREE.Color(hexColor);
 
           // Set the color to child meshes of the model
-          model.traverse((mesh) => {
+          model.traverse((_mesh) => {
+            let mesh = _mesh as THREE.Mesh
             if (mesh.isMesh) {
-              if (mesh.material.type === "MeshStandardMaterial") {
+              if ((mesh.material as THREE.MeshStandardMaterial).type === "MeshStandardMaterial") {
                 if (Array.isArray(mesh.material)) {
                   mesh.material.forEach((mat) => {
-                    mat.color = color;
+                    (mat as THREE.MeshStandardMaterial).color = color;
                     //mat.emissive = color;
                   });
                 } else {
-                  mesh.material.color = color;
+                  (mesh.material as THREE.MeshStandardMaterial).color = color;
                   //mesh.material.emissive = color;
                 }
               } else {
-                mesh.material[0].uniforms.litFactor.value = color;
-                mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color(
-                  color.r * 0.8,
-                  color.g * 0.8,
-                  color.b * 0.8
-                );
+                if (Array.isArray(mesh.material)) {
+                  (mesh.material[0] as THREE.ShaderMaterial).uniforms.litFactor.value = color;
+                  (mesh.material[0] as THREE.ShaderMaterial).uniforms.shadeColorFactor.value = new THREE.Color(
+                    color.r * 0.8,
+                    color.g * 0.8,
+                    color.b * 0.8
+                  );
+                } else {
+                  (mesh.material as THREE.ShaderMaterial).uniforms.litFactor.value = color;
+                  (mesh.material as THREE.ShaderMaterial).uniforms.shadeColorFactor.value = new THREE.Color(
+                    color.r * 0.8,
+                    color.g * 0.8,
+                    color.b * 0.8
+                  );
+                }
               }
             }
           });
-        } catch (error) {
+        } catch (error:any) {
           console.error("Error setting trait color:", error.message);
           throw new Error("Failed to set trait color.");
         }
@@ -937,7 +950,7 @@ export class CharacterManager {
      * @param {string} groupTraitID - ID of the trait group
      * @param {boolean} [forceRemove=false] - Whether to force removal of required traits
      */
-    removeTrait(groupTraitID, forceRemove = false){
+    removeTrait(groupTraitID:string, forceRemove = false){
       if (this.isTraitGroupRequired(groupTraitID) && !forceRemove){
         console.warn(`No trait with name: ${ groupTraitID } is not removable.`)
         return;
@@ -968,12 +981,12 @@ export class CharacterManager {
     /**
      * Sets the manifest for the character.
      * @param {Object} manifest - Manifest object
-     * @param {string} identifier - Identifier for the manifest
+     * @param {string|undefined} identifier - Identifier for the manifest
      */
-    setManifest(manifest, identifier){
+    setManifest(manifest: manifestJson, identifier?: string){
       return this.manifestDataManager.setManifest(manifest, identifier);
     }
-    loadManifest(url, identifier){
+    loadManifest(url:string, identifier?:string){
       return this.manifestDataManager.loadManifest(url, identifier);
     }
     /**
@@ -989,7 +1002,7 @@ export class CharacterManager {
      * @param {string} url - URL of the optimized character
      * @returns {Promise<void>} Promise that resolves when character is loaded
      */
-    loadOptimizerCharacter(url) {
+    loadOptimizerCharacter(url:string) {
       return this.loadCustomTrait("CUSTOM", url);
     }
     
@@ -997,12 +1010,16 @@ export class CharacterManager {
      * Displays only the target trait and removes all others.
      * @param {string|Array<string>} groupTraitID - ID(s) of the trait(s) to display
      */
-    async soloTargetGroupTrait(groupTraitID){
+    async soloTargetGroupTrait(groupTraitID:string | string[]){
       const groupTraitIDArray = getAsArray(groupTraitID) 
-      const options = [];
+      const options:SelectedOption[] = [];
       for (const trait in this.avatar){
         if (groupTraitIDArray.includes(trait)){
-          options.push(this.manifestDataManager.getTraitOption(trait, this.avatar[trait].traitInfo.id));
+          const option = this.manifestDataManager.getTraitOption(trait, this.avatar[trait].traitInfo.id)
+          if(option){
+            options.push(option);
+          }
+          options.push();
         }
       }
       await this._loadTraits(options,true);
@@ -1018,9 +1035,12 @@ export class CharacterManager {
      * Loads a previously stored avatar.
      */
     async loadStoredAvatar(){
-      const options = [];
+      const options:SelectedOption[] = [];
       for (const trait in this.storedAvatar){
-        options.push(this.manifestDataManager.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id));
+        const option = this.manifestDataManager.getTraitOption(trait, this.storedAvatar[trait].traitInfo.id)
+        if(option){
+          options.push(option);
+        }
         // TO DO, ALSO GET COLOR TRAITS AND TEXTURE TRAITS
       }
       this._loadTraits(options,true);
@@ -1032,7 +1052,7 @@ export class CharacterManager {
      * @param {Array} options - Array of trait options to load
      * @param {boolean} [fullAvatarReplace=false] - Whether to replace all existing traits
      */
-    async _loadTraits(options, fullAvatarReplace = false){
+    async _loadTraits(options:SelectedOption[], fullAvatarReplace = false){
       console.log("loaded traits:", options)
       await this.traitLoadManager.loadTraitOptions(getAsArray(options)).then(loadedData=>{
         if (fullAvatarReplace){
@@ -1057,71 +1077,92 @@ export class CharacterManager {
 
     /**
      * Loads a blend shape trait.
-     * @private
-     * @param {string} traitGroupID - ID of the trait group
-     * @param {string} blendshapeGroupId - ID of the blend shape group
-     * @param {string|null} blendshapeTraitId - ID of the blend shape trait
-     */
-    async _loadBlendShapeTrait(traitGroupID, blendshapeGroupId, blendshapeTraitId){
+    */
+       private async _loadBlendShapeTrait(traitGroupID:string, blendshapeGroupId:string|null,blendshapeTraitId:string|null){
       const currentTrait = this.avatar[traitGroupID];
       if(!currentTrait){
         console.warn(`Trait with name: ${traitGroupID} was not found or not selected.`)
         return;
       }
+      const group = this.manifestData.getAllBlendShapeTraitGroups().find((t)=>t.trait === blendshapeGroupId);
+      const copiedBlendshapes = group?.copyTo || {}
+      const allTraits = []
+
+      Array.from(Object.keys(copiedBlendshapes)).forEach((traitGroupId_)=>{
+        const other = this.avatar[traitGroupId_]
+        if(!other) return
+        if(!copiedBlendshapes[traitGroupId_].includes(other.traitInfo.id)){
+          return
+        }
+        if(!other.blendShapeTraitsInfo){
+          other.blendShapeTraitsInfo = {}
+        }
+        allTraits.push(other)
+      })
+
+      allTraits.push(currentTrait)
+
       if(!currentTrait.blendShapeTraitsInfo){
         currentTrait.blendShapeTraitsInfo = {};
       }
 
       if(!blendshapeGroupId){
-        for(const k in currentTrait.blendShapeTraitsInfo){
-          // Deactivate the current blendshape trait
-          this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[k], false);
+        allTraits.forEach((_trait)=>{
+          for(const k in _trait.blendShapeTraitsInfo){
+            // Deactivate the current blendshape trait
+            this.toggleBinaryBlendShape(_trait.model, _trait.blendShapeTraitsInfo[k], false);
+          }
+        })
+        return
+      }
+
+
+      // Deactivate the current blendshape trait
+      allTraits.forEach((_trait)=>{
+        if(_trait.blendShapeTraitsInfo[blendshapeGroupId]){
+          this.toggleBinaryBlendShape(_trait.model, _trait.blendShapeTraitsInfo[blendshapeGroupId], false);
         }
-        return
-      }
+      })
+  
 
-      if(currentTrait.blendShapeTraitsInfo[blendshapeGroupId]){
-        // Deactivate the current blendshape trait
-        this.toggleBinaryBlendShape(currentTrait.model, currentTrait.blendShapeTraitsInfo[blendshapeGroupId], false);
-      }
+
       if(blendshapeTraitId == null){
-        // Deactivated the blendshape trait; dont do anything else
-        delete this.avatar[traitGroupID].blendShapeTraitsInfo[blendshapeGroupId]
+        allTraits.forEach((_trait)=>{
+          // Deactivated the blendshape trait; dont do anything else
+          delete this.avatar[_trait.traitInfo.traitGroup.trait].blendShapeTraitsInfo[blendshapeGroupId]
+        })
         return
       }
 
-      const blendShape = currentTrait.traitInfo.getBlendShape(blendshapeGroupId, blendshapeTraitId);
-      if(!blendShape){
-        console.warn(`Blendshape with name: ${blendshapeTraitId} was not found.`)
-        return;
-      }
-
-      // Apply blendshape to the model
-      this.toggleBinaryBlendShape(currentTrait.model, blendShape, true);
-
-      this.avatar[traitGroupID].blendShapeTraitsInfo[blendShape.getGroupId()] = blendShape;
-
+      // Activate all blendshapes
+      allTraits.forEach((_trait)=>{
+        const blendShape = _trait.traitInfo.getBlendShape(blendshapeGroupId, blendshapeTraitId);
+        if(!blendShape){
+          console.warn(`Blendshape with name: ${blendshapeTraitId} was not found. on ${_trait.traitInfo.name}(id:${_trait.traitInfo.id})`)
+          return;
+        }
+  
+        // Apply blendshape to the model
+        this.toggleBinaryBlendShape(_trait.model, blendShape, true);
+  
+        this.avatar[_trait.traitInfo.traitGroup.trait].blendShapeTraitsInfo[blendShape.getGroupId()] = blendShape;
+      })
     }
     /**
      * Toggles a binary blend shape on a model.
      * @private
-     * @param {THREE.Object3D} model - Model to modify
-     * @param {Object} blendshape - Blend shape to toggle
-     * @param {boolean} enable - Whether to enable or disable the blend shape
-     */
-    toggleBinaryBlendShape = (model,blendshape,enable)=>{
+    * */
+    private toggleBinaryBlendShape = (model:THREE.Object3D,blendshape:BlendShapeTrait |{blendshapeId:string},enable:boolean)=>{
       model.traverse((child)=>{
-        if(child.isMesh || child.isSkinnedMesh){
-
-          const mesh = child;
+        if((child as any).isMesh || (child as any).isSkinnedMesh){
+          const mesh = child as THREE.Mesh;
           if(!mesh.morphTargetDictionary || !mesh.morphTargetInfluences) return
-          const blendShapeIndex = mesh.morphTargetDictionary[blendshape.id];
+          const blendShapeIndex = mesh.morphTargetDictionary[blendshape.blendshapeId];
           if (blendShapeIndex != undefined){
             mesh.morphTargetInfluences[blendShapeIndex] = enable?1:0;
           }
         }
       })
-
     }
 
     /**
@@ -1152,17 +1193,17 @@ export class CharacterManager {
      * Purchases assets from the current avatar.
      * @returns {Promise<void>} Promise that resolves when purchase is complete
      */
-    purchaseAssetsFromAvatar(){
+    purchaseAssetsFromAvatar():Promise<void>{
       console.warn("TODO!! STILL NEEDS TO DETECT DIFFERENT COLLECTIONS!!")
       const assets = this.getPurchaseTraitsArray();
-      const purchaseTraits = {};
-      assets.forEach(asset => {
-        if (purchaseTraits[asset.traitGroup.trait]  == null)
+      const purchaseTraits:Record<string,string[]> = {};
+      assets.forEach((asset) => {
+        if (!purchaseTraits[asset.traitGroup.trait])
           purchaseTraits[asset.traitGroup.trait] =[];
         purchaseTraits[asset.traitGroup.trait].push(asset.id)
       }); 
 
-      const purchaseObjectDefinition = new OwnedNFTTraitIDs({ownedTraits:purchaseTraits})
+      const purchaseObjectDefinition = new OwnedNFTTraitIDs({ownedTraits:purchaseTraits},null)
       console.log(purchaseObjectDefinition);
       return new Promise((resolve, reject) => {
         const {
@@ -1213,7 +1254,11 @@ export class CharacterManager {
      * @param {string} baseLocation - Base location for animations
      * @param {number} scale - Scale for animations
      */
-    async _animationManagerSetup(paths, baseLocation, scale){
+    private async _animationManagerSetup(
+      paths: string | string[],
+      baseLocation: string,
+      scale: number,
+    ) {
       const animationPaths = getAsArray(paths);
       if (this.animationManager){
         this.animationManager.setScale(scale);
@@ -1226,17 +1271,13 @@ export class CharacterManager {
 
     /**
      * Gets a portrait screenshot texture.
-     * @private
-     * @param {boolean} getBlob - Whether to get the screenshot as a blob
-     * @param {Object} options - Screenshot options
-     * @returns {Object} Screenshot texture or blob
-     */
-    _getPortaitScreenshotTexture(getBlob, options){
+      */
+    _getPortaitScreenshotTexture(getBlob:boolean, options:Pick<DownloadOptionsManifest,'screenshotBackground'|'screenshotFOV'|'screenshotFaceDistance'|'screenshotFaceOffset'|'screenshotResolution'>){
       this.blinkManager.enableScreenshot();
 
       this.characterModel.traverse(o => {
-        if (o.isSkinnedMesh) {
-          const headBone = o.skeleton.bones.filter(bone => bone.name === 'head')[0];
+        if ('isSkinnedMesh' in o && o.isSkinnedMesh) {
+          const headBone = (o as THREE.SkinnedMesh).skeleton.bones.filter(bone => bone.name === 'head')[0];
           headBone.getWorldPosition(localVector3);
         }
       });
@@ -1250,15 +1291,15 @@ export class CharacterManager {
         screenshotBackground,
         screenshotFOV,
       } = options
-      const width = screenshotResolution[0];
-      const height = screenshotResolution[1];
+      const width = screenshotResolution![0];
+      const height = screenshotResolution![1];
 
-      localVector3.x += screenshotFaceOffset[0];
-      localVector3.y += screenshotFaceOffset[1];
-      localVector3.z += screenshotFaceOffset[2];
+      localVector3.x += screenshotFaceOffset![0];
+      localVector3.y += screenshotFaceOffset![1];
+      localVector3.z += screenshotFaceOffset![2];
       
-      this.screenshotManager.setBackground(screenshotBackground);
-      this.screenshotManager.cameraFrameManager.setCamera(localVector3, screenshotFaceDistance, screenshotFOV);
+      this.screenshotManager.setBackground(screenshotBackground!);
+      this.screenshotManager.cameraFrameManager.setCamera(localVector3, screenshotFaceDistance!, screenshotFOV);
       const screenshot = getBlob ? 
         this.screenshotManager.getScreenshotBlob(width, height):
         this.screenshotManager.getScreenshotTexture(width, height);
@@ -1267,15 +1308,12 @@ export class CharacterManager {
       this.blinkManager.disableScreenshot();
       return screenshot;
     }
-
     /**
      * Sets up wireframe material for a mesh.
-     * @private
-     * @param {THREE.Mesh} mesh - Mesh to set up
      */
-    _setupWireframeMaterial(mesh){
+    _setupWireframeMaterial(mesh:THREE.Mesh){
       // Set Wireframe material with random colors for each material the object has
-      mesh.origMat = mesh.material;
+      (mesh as any).origMat = mesh.material;
 
       const getRandomColor = ()  => {
         const minRGBValue = 0.1; // Minimum RGB value to ensure colorful colors
@@ -1291,10 +1329,10 @@ export class CharacterManager {
         wireframeLinewidth:0.2
                 } );
 
-      const origMat = mesh.material;
-      mesh.setDebugMode = (debug) => { 
+
+      (mesh as any).setDebugMode = (debug:boolean) => { 
         if (debug){
-          if (mesh.material.length){
+          if ('length' in mesh.material && mesh.material.length){
             mesh.material[0] = debugMat;
             mesh.material[1] = debugMat;
           }
@@ -1303,7 +1341,8 @@ export class CharacterManager {
           }
         }
         else{
-          mesh.material = origMat;
+          //@ts-ignore
+          mesh.material = mesh.origMat;
         }
       }
 
@@ -1316,15 +1355,15 @@ export class CharacterManager {
      * Sets up the VRM model basic setup.
      * @private
      * @param {Object} m - VRM model
-     * @param {string} collectionID - Collection ID
      * @param {Object} item - Item data
      * @param {string} traitID - Trait ID
      * @param {Array} textures - Array of textures
      * @param {Array} colors - Array of colors
+     * @param {string|undefined} collectionIdentifier - Collection ID
      * @returns {Object} Set up VRM model
      */
-    _VRMBaseSetup(m, collectionID, item, traitID, textures, colors){
-      let vrm = m.userData.vrm;
+    _VRMBaseSetup(m:GLTF, item:ModelTrait, traitID:string, textures:THREE.Texture[], colors:THREE.Color[], collectionIdentifier?:string,){
+      let vrm = m.userData.vrm as VRM;
       if (m.userData.vrm == null){
         console.error("No valid VRM was provided for " + traitID + " trait, skipping file.")
         return null;
@@ -1349,11 +1388,11 @@ export class CharacterManager {
        */
       //this._unregisterMorphTargetsFromManifest(vrm, collectionID);
       
-      if (this.manifestDataManager.isLipsyncTrait(traitID, collectionID))
+      if (this.manifestDataManager.isLipsyncTrait(traitID, collectionIdentifier))
         this.lipSync = new LipSync(vrm);
 
 
-      this._modelBaseSetup(vrm, collectionID, item, traitID, textures, colors);
+      this._modelBaseSetup(vrm, item, traitID, textures, colors, collectionIdentifier);
 
       // Rotate model 180 degrees
 
@@ -1365,14 +1404,14 @@ export class CharacterManager {
           addChildAtFirst(vrm.scene, dummyRotate)
           dummyRotate.add(vrm.humanoid.humanBones.hips.node);
         }
-        vrm.humanoid.humanBones.hips.node.parent.rotateY(3.14159);
+        vrm.humanoid.humanBones.hips.node.parent?.rotateY(3.14159);
         //VRMUtils.rotateVRM0( vrm );
         
 
         vrm.scene.traverse((child) => {
-          if (child.isSkinnedMesh) {
-            for (let i =0; i < child.skeleton.bones.length;i++){
-              child.skeleton.bones[i].userData.vrm0RestPosition = { ... child.skeleton.bones[i].position }
+          if ('isSkinnedMesh' in child && child.isSkinnedMesh) {
+            for (let i =0; i < (child as THREE.SkinnedMesh).skeleton.bones.length;i++){
+              (child as THREE.SkinnedMesh).skeleton.bones[i].userData.vrm0RestPosition = { ... (child as THREE.SkinnedMesh).skeleton.bones[i].position }
             }
             child.userData.isVRM0 = true;
           }
@@ -1391,15 +1430,14 @@ export class CharacterManager {
      * @private
      * @param {Object} vrm - VRM model
      */
-     _applySpringBoneColliders(vrm) {
+     _applySpringBoneColliders(vrm:VRM){
       /**
        * method to add collider groups to the joints of the new VRM
-       * @param {import('@pixiv/three-vrm').VRMSpringBoneColliderGroup[]} colliderGroups
        */
-      function addToJoints(colliderGroups) {
-        vrm.springBoneManager.joints.forEach((joint) => {
+      function addToJoints(colliderGroups: VRMSpringBoneColliderGroup[]) {
+        vrm.springBoneManager!.joints.forEach((joint) => {
           for (const group of colliderGroups) {
-  
+
             const joinGroup = joint.colliderGroups.find((cg)=>cg.name == group.name) 
             if(joinGroup){
               if(group.colliders.length != joinGroup.colliders.length){
@@ -1412,22 +1450,22 @@ export class CharacterManager {
           }
         })
       }
-  
+
       const getColliders = ()=>{
-        const colliderGroups = [] 
+        const colliderGroups:VRMSpringBoneColliderGroup[] = [] 
         Object.entries(this.avatar).map(([_, entry]) => {
           // get nodes with colliders
           const nodes = getNodesWithColliders(entry.vrm)
           if (nodes.length === 0) return
-  
+
           // For each node with colliders info
           nodes.forEach((node) => {
-  
+
             if (!vrm.springBoneManager) {
               return
             }
-  
-            const colliderGroup = {
+
+            const colliderGroup: VRMSpringBoneColliderGroup = {
               colliders: [],
               name: node.name,
             }
@@ -1453,7 +1491,7 @@ export class CharacterManager {
         })
         return colliderGroups
       }
-  
+
       const groups = getColliders()
       addToJoints(groups)
     }
@@ -1464,14 +1502,14 @@ export class CharacterManager {
      * @param {Object} vrm - VRM model
      * @param {string} identifier - Manifest identifier
      */
-    _unregisterMorphTargetsFromManifest(vrm, identifier){
-      const manifestBlendShapes = this.manifestDataManager.getAllBlendShapeTraits(identifier)
+    private _unregisterMorphTargetsFromManifest(vrm:VRM){
+      const manifestBlendShapes = this.manifestData.getAllBlendShapeTraits()
       const expressions = vrm.expressionManager?.expressions
       if(manifestBlendShapes.length == 0) return
       if(!expressions) return
       const expressionToRemove = []
       for(const expression of expressions){
-        if(manifestBlendShapes.map((b)=>b.id).includes(expression.expressionName)){
+        if(manifestBlendShapes.map((b)=>b.blendshapeId).includes(expression.expressionName)){
           expressionToRemove.push(expression)
         }
       }
@@ -1485,39 +1523,40 @@ export class CharacterManager {
      * Sets up the base model.
      * @private
      * @param {Object} model - Model to set up
-     * @param {string} collectionID - Collection ID
+     * @param {string|undefined} collectionIdentifier - Collection ID
      * @param {Object} item - Item data
      * @param {string} traitID - Trait ID
      * @param {Array} textures - Array of textures
      * @param {Array} colors - Array of colors
      */
-    _modelBaseSetup(model, collectionID, item, traitID, textures, colors){
+     _modelBaseSetup(model:VRM, item:ModelTrait, traitID:string, textures:THREE.Texture[], colors:THREE.Color[], collectionIdentifier?:string){
 
-      const meshTargets = [];
+      const meshTargets:(THREE.Mesh|THREE.SkinnedMesh)[] = [];
       const cullingIgnore = getAsArray(item.cullingIgnore)
-      const cullingMeshes = [];
+      const cullingMeshes:THREE.Mesh[] = [];
+
 
       // Mesh target setup section
       // XXX Separate from this part
       if (item.meshTargets){
         getAsArray(item.meshTargets).map((target) => {
-          const mesh = model.scene.getObjectByName ( target )
+          const mesh = model.scene.getObjectByName ( target ) as THREE.Mesh
           if (mesh?.isMesh) meshTargets.push(mesh);
         })
       }
 
       model.scene.traverse((child) => {
-        
+        const isMesh = ((child as THREE.Mesh).isMesh || (child as THREE.SkinnedMesh).isSkinnedMesh)
         // mesh target setup secondary swection
-        if (!item.meshTargets && child.isMesh) meshTargets.push(child);
+        if ((!item.meshTargets || item.meshTargets?.length==0) && isMesh) meshTargets.push(child as THREE.Mesh|THREE.SkinnedMesh);
 
         // basic setup
         child.frustumCulled = false
-        if (child.isMesh) {
+        if (isMesh) {
 
           // XXX Setup MToonMaterial for shader
 
-          this._setupWireframeMaterial(child);
+          this._setupWireframeMaterial(child as THREE.Mesh);
 
           // if (child.material.length){
           //   effectManager.setCustomShader(child.material[0]);
@@ -1529,14 +1568,14 @@ export class CharacterManager {
 
           // if a mesh is found in name to be ignored, dont add it to target cull meshes
           if (cullingIgnore.indexOf(child.name) === -1)
-            cullingMeshes.push(child)
+            cullingMeshes.push(child as THREE.Mesh)
           
         }
       })
 
       const defaultValues = this.manifestDataManager.getDefaultValues();
 
-      const traitGroup = this.manifestDataManager.getModelGroup(traitID, collectionID);
+      const traitGroup = this.manifestDataManager.getModelGroup(traitID, collectionIdentifier) as TraitModelsGroup;
       // culling layers setup section
       addModelData(model, {
         cullingLayer: 
@@ -1547,10 +1586,11 @@ export class CharacterManager {
           item.cullingDistance != null ? item.cullingDistance: 
           traitGroup?.cullingDistance != null ? traitGroup?.cullingDistance:
           defaultValues.defaultCullingDistance != null ? defaultValues.defaultCullingDistance: null,
-        maxCullingDistance:
-          item.maxCullingDistance != null ? item.maxCullingDistance: 
-          traitGroup?.maxCullingDistance != null ? traitGroup?.maxCullingDistance:
-          defaultValues.maxCullingDistance != null ? defaultValues.maxCullingDistance: Infinity,
+          //@dev note: maxCullingDistance is not used for now
+        // maxCullingDistance:
+        //   item.maxCullingDistance != null ? item.maxCullingDistance: 
+        //   trait.maxCullingDistance != null ? trait.maxCullingDistance:
+        //   templateInfo.maxCullingDistance != null ? templateInfo.maxCullingDistance: Infinity,
         cullingMeshes
       })  
 
@@ -1564,15 +1604,21 @@ export class CharacterManager {
 
             // mesh.material can be an array (two MToonMaterials)
             getAsArray(mesh.material).map((mat) => {
-              updateMaterialTexture(mat, txt)
+              updateMaterialTexture(mat as THREE.MeshStandardMaterial || MToonMaterial, txt)
             })
           }
         }
         if (colors){
           const col = colors[index] || colors[0]
           if (col != null){
-            mesh.material[0].uniforms.litFactor.value = col
-            mesh.material[0].uniforms.shadeColorFactor.value = new THREE.Color( col.r*0.8, col.g*0.8, col.b*0.8 )
+            let m = mesh.material as THREE.ShaderMaterial | THREE.ShaderMaterial[]
+            if (Array.isArray(m)) {
+              m[0].uniforms.litFactor.value = col
+              m[0].uniforms.shadeColorFactor.value = new THREE.Color( col.r*0.8, col.g*0.8, col.b*0.8 )
+            } else {
+              m.uniforms.litFactor.value = col
+              m.uniforms.shadeColorFactor.value = new THREE.Color( col.r*0.8, col.g*0.8, col.b*0.8 )
+            }
           }
         }
       })
@@ -1582,7 +1628,7 @@ export class CharacterManager {
      * @private
      * @param {Object} vrm - VRM model
      */
-    _applyManagers(vrm){
+    _applyManagers(vrm:VRM){
   
         this.blinkManager.addVRM(vrm)
         this.emotionManager.addVRM(vrm)
@@ -1599,7 +1645,7 @@ export class CharacterManager {
      * @private
      * @param {Object} model - Model to display
      */
-    _displayModel(model){
+    _displayModel(model: VRM){
       if(model) {
         // call transition
         const m = model.scene;
@@ -1635,7 +1681,7 @@ export class CharacterManager {
      * @private
      * @param {Object} model - Model to position
      */
-    _positionModel(model){
+    _positionModel(model: VRM){
       const scale = this.manifestDataManager.getDisplayScale();
         model.scene.scale.set(scale,scale,scale);
 
@@ -1650,7 +1696,7 @@ export class CharacterManager {
      * @private
      * @param {Object} vrm - VRM model to dispose
      */
-    _disposeTrait(vrm){
+    _disposeTrait(vrm: VRM){
       this.blinkManager.removeVRM(vrm)
       this.emotionManager.removeVRM(vrm)
       
@@ -1669,7 +1715,7 @@ export class CharacterManager {
      * @private
      * @param {Object} itemData - Data to add
      */
-    _addLoadedData(itemData){
+    _addLoadedData(itemData: LoadedData){
       const {
           collectionID,
           traitGroupID,
@@ -1693,11 +1739,11 @@ export class CharacterManager {
           return;
       }
 
-      let vrm = null;
+    let vrm:VRM = null!;
 
       models.map((m)=>{
           if (m != null)
-            vrm = this._VRMBaseSetup(m, collectionID, traitModel, traitGroupID, textures, colors);
+            vrm = this._VRMBaseSetup(m, traitModel, traitGroupID, textures, colors, collectionID) as VRM;
 
       })
 
