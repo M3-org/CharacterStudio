@@ -1,29 +1,32 @@
+import { ModelTrait } from "@/library/CharacterManifestData"
+import { VRM } from "@pixiv/three-vrm"
 import React from "react"
-import { SceneContext } from "../context/SceneContext"
-import styles from "./RightPanel.module.css"
-import MenuTitle from "./MenuTitle"
-import traitsIcon from "../images/t-shirt.png"
-import walletIcon from "../images/wallet.png"
-import genSpriteIcon from "../images/users.png"
+import { TokenBox } from "../components/token-box/TokenBox"
 import emotionIcon from "../images/emotion.png"
 import genLoraIcon from "../images/paste.png"
 import genThumbIcon from "../images/portraits.png"
-import { TokenBox } from "../components/token-box/TokenBox"
-import WalletMenu from "./WalletMenu"
-import TraitInformation from "../components/TraitInformation"
+import traitsIcon from "../images/t-shirt.png"
+import genSpriteIcon from "../images/users.png"
+import Emotions from "./Emotions"
 import LoraCreation from "./LoraCreation"
+import MenuTitle from "./MenuTitle"
+import styles from "./RightPanel.module.css"
 import SpriteCreation from "./SpriteCreation"
 import ThumbnailCreation from "./ThumbnailCreation"
-import Emotions from "./Emotions"
+import TraitInformation from "./TraitInformation"
+import WalletMenu from "./WalletMenu"
 
-export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}){
-    const {
-        characterManager,
-    } = React.useContext(SceneContext)
+export default function RightPanel({selectedTrait, selectedVRM, traitGroupName}:{
+    selectedTrait:ModelTrait|null,
+    selectedVRM:VRM|null,
+    traitGroupName?:string|null
+}){
+
 
     const [selectedOption, setSelectedOption] = React.useState("")
-    const [lockedManifests, setLockedManifests] = React.useState("")
-    const setSelectedOptionString = (option) => {
+    // Unused TODO: FIX THIS
+    const [lockedManifests, setLockedManifests] = React.useState<{ collectionLockID: string }[]>([])
+    const setSelectedOptionString = (option:string) => {
         if (option != selectedOption){
             setSelectedOption(option);
         }
@@ -35,8 +38,8 @@ export default function RightPanel({selectedTrait, selectedVRM, traitGroupName})
         <div>
             {selectedOption=="wallet" && <WalletMenu lockedManifests={lockedManifests} />}
             {selectedOption=="Information" && <TraitInformation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
-            {selectedOption=="LoraCreation" && <LoraCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
-            {selectedOption=="SpriteCreation" && <SpriteCreation selectedTrait={selectedTrait} selectedVRM={selectedVRM} />}
+            {selectedOption=="LoraCreation" && <LoraCreation />}
+            {selectedOption=="SpriteCreation" && <SpriteCreation  />}
             {selectedOption=="ThumbnailCreation" && <ThumbnailCreation selectedTrait={selectedTrait} traitGroupName={traitGroupName} />}
             {selectedOption=="EmotionManager" && <Emotions />}
             <div className={styles["InformationContainerPos"]}>

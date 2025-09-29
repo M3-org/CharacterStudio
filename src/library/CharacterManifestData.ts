@@ -1,8 +1,8 @@
-import { getAsArray } from "./utils";
-import { ManifestRestrictions, TraitRestriction } from "./manifestRestrictions";
-import { WalletCollections } from "./walletCollections";
 import { VRMMeta } from "@pixiv/three-vrm";
 import { Color } from "three";
+import { ManifestRestrictions, TraitRestriction } from "./manifestRestrictions";
+import { getAsArray } from "./utils";
+import { WalletCollections } from "./walletCollections";
 
 
 export type colorCollectionItem = {
@@ -216,6 +216,14 @@ export type ClassCharacterJson = {
   format?: "vrm"
 }
 
+export type SpriteJson={ 
+    "name": string,
+    "description"?: string
+    "manifest": string
+    "icon"?: string
+  }
+export type ThumbnailJson = SpriteJson
+
 export type GlobalManifestJson = {
   characters:ClassCharacterJson[]
   loras:LoraJsonDescription[]
@@ -225,12 +233,8 @@ export type GlobalManifestJson = {
       "location":string
       "icon"?: string
     }[],
-  sprites:{ 
-    "name": string,
-    "description"?: string
-    "manifest": string
-    "icon"?: string
-  }[]
+  sprites?:SpriteJson[]
+  thumbnails?:ThumbnailJson[]
 }
 /**
  * Main class for managing character manifest data and traits

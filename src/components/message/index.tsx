@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react"
 import styles from "./Message.module.css"
 
-export const Message = (props) => {
+export const Message = (props:{
+  timestamp:number,
+  name:string,
+  message?:string,
+  type?:string,
+  color?:string,
+  err?:boolean
+}) => {
   const { timestamp, name, message, type, color, err } = props
   let date = new Date(timestamp)
   const hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();

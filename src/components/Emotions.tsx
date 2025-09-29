@@ -1,7 +1,8 @@
-import React, { useEffect } from "react"
-import styles from "./Emotions.module.css"
-import MenuTitle from "./MenuTitle"
+import { EmotionValues } from "@/library/EmotionManager";
+import React, { useEffect } from "react";
 import { SceneContext } from "../context/SceneContext";
+import styles from "./Emotions.module.css";
+import MenuTitle from "./MenuTitle";
 import Slider from "./Slider";
 
 
@@ -18,7 +19,7 @@ export default function Emotions(){
         moveCamera({ targetY:1.8, distance:2})
     }, [])
 
-    const playEmotion = (emotion)=>{
+    const playEmotion = (emotion:EmotionValues)=>{
         characterManager.emotionManager.playEmotion(emotion,undefined,isConstant,intensity)
     }
 

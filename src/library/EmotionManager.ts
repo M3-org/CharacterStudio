@@ -3,7 +3,7 @@ import { Clock } from "three";
 
 
 type EmotionKeys = keyof typeof VRMExpressionPresetName
-type EmotionValues = typeof VRMExpressionPresetName[EmotionKeys]
+export type EmotionValues = typeof VRMExpressionPresetName[EmotionKeys]
 
 export class EmotionManager {
 

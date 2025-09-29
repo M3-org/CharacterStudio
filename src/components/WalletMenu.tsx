@@ -1,13 +1,16 @@
-import React, { useContext } from "react"
-import styles from "./FloatingMenu.module.css"
-import MenuTitle from "./MenuTitle"
+import React, { useContext } from "react";
 import { SceneContext } from "../context/SceneContext";
+import styles from "./FloatingMenu.module.css";
+import MenuTitle from "./MenuTitle";
 
 //import { useLocation } from "react-router-dom";
-import axios from "axios";
 //import { getUserCNFTs } from "./sola"
 
-export default function WalletMenu({lockedManifests}){
+export default function WalletMenu({lockedManifests}:{
+    lockedManifests:{
+        collectionLockID:string
+    }[]
+}){
     const {
         characterManager,
     } = useContext(SceneContext);
@@ -15,7 +18,11 @@ export default function WalletMenu({lockedManifests}){
 
 
 
-    const [user, setUser] = React.useState(null);
+    const [user, setUser] = React.useState<{
+        name:string;
+        avatar_url:string;
+        public_repos:number;
+    } | null>(null);
     //const location = useLocation();
     
     // Extract token from URL query
@@ -41,7 +48,7 @@ export default function WalletMenu({lockedManifests}){
         }
       }, [user]);
 
-    const unlockManifest = (index) => {
+    const unlockManifest = (index:number) => {
         const addressTest = "0x2333FCc3833D2E951Ce8e821235Ed3B729141996";
         characterManager.unlockManifestByIndex(index, index === 1 ? addressTest : null)
     };

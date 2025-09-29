@@ -4,21 +4,25 @@ import CustomButton from "./custom-button"
 
 import { getAtlasSize } from "../library/utils"
 
-import styles from "./ExportMenu.module.css"
-import { local } from "../library/store"
+import { DownloadOptionsManifest } from "@/library/CharacterManifestData"
 import { LanguageContext } from "../context/LanguageContext"
+import { local } from "../library/store"
+import styles from "./ExportMenu.module.css"
 
 const defaultName = "Anon"
 
-export const ExportMenu = ({currentPrice, onPurchaseClick}) => {
+export const ExportMenu = ({currentPrice, onPurchaseClick}:{
+  currentPrice:number,
+  onPurchaseClick:()=>void
+}) => {
 
   // Translate hook
   const { t } = useContext(LanguageContext);
   const [name] = React.useState(localStorage.getItem("name") || defaultName)
-  const { model, characterManager } = useContext(SceneContext)
+  const { characterManager } = useContext(SceneContext)
 
 
-  const getOptions = () =>{
+  const getOptions = (): Partial<DownloadOptionsManifest>=>{
     const currentOption = local["mergeOptions_sel_option"] || 0;
     const createTextureAtlas = local["mergeOptions_create_atlas"] == null ? true:local["mergeOptions_create_atlas"] 
     return {
@@ -34,7 +38,7 @@ export const ExportMenu = ({currentPrice, onPurchaseClick}) => {
     }
   }
 
-  const downloadVRM = (version) =>{
+  const downloadVRM = (version:number) =>{
     const options = getOptions();
     /**
      * Blindly assume the whole avatar is VRM0 if the first vrm is VRM0

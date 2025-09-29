@@ -1,18 +1,30 @@
-import React, { useContext, useState, useEffect } from "react"
-import styles from "./FloatingMenu.module.css"
-import MenuTitle from "./MenuTitle"
-import { SceneContext } from "../context/SceneContext";
-import Slider from "./Slider";
+import { LoraJsonDescription } from "@/library/CharacterManifestData";
+import React, { useMemo, useState } from "react";
 import Select from 'react-select';
+import { SceneContext } from "../context/SceneContext";
+import styles from "./FloatingMenu.module.css";
+import MenuTitle from "./MenuTitle";
 
-export default function LoraCreation({selectedTrait, selectedVRM}){
+export default function LoraCreation(){
     const { manifest, loraDataGenerator, sceneElements } = React.useContext(SceneContext)
 
-    const [ options, setOptions ] = useState([]) 
-    //const [ description, setDescription ] = useState("");
-    const [ targetLora, setTargetLora ] = useState(null);
+    const options = useMemo(()=>{
+        return manifest?.loras?.map((c,i) => {
+            return {
+                value:i, 
+                ...c,
+                label:c.name
+            }
+          }) || []
+    },[manifest])
 
-    const onSelect = (sel) =>{
+    //const [ description, setDescription ] = useState("");
+    const [ targetLora, setTargetLora ] = useState<LoraJsonDescription | null>(null);
+
+    const onSelect = (sel: (LoraJsonDescription & { value: number }) | null) =>{
+        if (!sel){
+            return
+        }
         if (manifest?.loras != null){
             //setDescription(manifest.loras[sel.value].description)
             setTargetLora(manifest.loras[sel.value]);
@@ -23,25 +35,13 @@ export default function LoraCreation({selectedTrait, selectedVRM}){
 
     const createLoraData = async() =>{
         const parentScene = sceneElements.parent;
+        if (parentScene == null || targetLora == null) return;
         parentScene.remove(sceneElements);
         await loraDataGenerator.createLoraData(targetLora);
         parentScene.add(sceneElements);
       }
 
 
-    useEffect(() => {
-    if (manifest?.loras != null){
-        const loraManifestOptions = manifest.loras.map((c,i) => {
-            return {
-                value:i, 
-                label:c.name, 
-                description: c.description,
-                manifest: c.manifest,
-            }
-          })
-          setOptions(loraManifestOptions);
-    }
-    }, [manifest])
     return (
         
         <div>

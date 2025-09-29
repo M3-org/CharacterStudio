@@ -1,19 +1,38 @@
-import React, {useEffect,useState,useContext} from "react"
-import styles from "./JsonAttributes.module.css"
+import { AvatarSelection } from "@/library/characterManager"
+import { manifestJson } from "@/library/CharacterManifestData"
+import React, { useContext, useEffect, useState } from "react"
 import { SceneContext } from "../context/SceneContext"
-import MenuTitle from "./MenuTitle"
 import { ViewContext } from "../context/ViewContext"
+import styles from "./JsonAttributes.module.css"
+import MenuTitle from "./MenuTitle"
 
-export default function JsonAttributes({jsonSelectionArray, byManifest = false}){
+type AvatarJsonWithAttributes = {
+      name?:string,
+      manifestName:string,
+      thumbnail?:string,
+      thumb?:string,
+      attributes:{ trait_type: string; value: string }[],
+      // Remove or narrow the index signature if needed
+      // [key: string]: { name: string; id:string }
+    }
+
+export type JsonAttributesProps = AvatarJsonWithAttributes & {
+  [key: string]: { name: string; id:string }
+}
+
+export default function JsonAttributes({jsonSelectionArray, byManifest = false}:{
+  jsonSelectionArray:JsonAttributesProps[] | null,
+  byManifest?:boolean
+}){
   const { isLoading, setIsLoading } = React.useContext(ViewContext)
   const {
     characterManager
   } = useContext(SceneContext);
   const [index, setIndex] = useState(0);
-  const [currentAvatar, setCurrentAvatar] = React.useState({})
-  const [currentAvatarKeys, setCurrentAvatarKeys] = React.useState([])
+  const [currentAvatar, setCurrentAvatar] = React.useState<AvatarSelection>({})
+  const [currentAvatarKeys, setCurrentAvatarKeys] = React.useState<string[]>([])
 
-  const loadByManifest =(manifest)=>{
+  const loadByManifest =(manifest:manifestJson)=>{
     characterManager.removeCurrentManifest();
     characterManager.setManifest(manifest);
     characterManager.loadInitialTraits().then(()=>{
@@ -28,44 +47,48 @@ export default function JsonAttributes({jsonSelectionArray, byManifest = false})
     }
   }, [isLoading])
 
-  const loadByTraitData = (nftObject) => {
+  const loadByTraitData = (nftObject: JsonAttributesProps) => {
     characterManager.loadTraitsFromNFTObject(nftObject).then(()=>{
       setIsLoading(false);
     })
   }
 
   const nextJson = async () => {
+    if (!jsonSelectionArray) return;
     if (!isLoading){
       setIsLoading(true);
       if (index >= jsonSelectionArray.length -1){
-        byManifest ? loadByManifest(jsonSelectionArray[0]) : loadByTraitData(jsonSelectionArray[0]);
+        byManifest ? loadByManifest(jsonSelectionArray[0] as any) : loadByTraitData(jsonSelectionArray[0]);
         setIndex(0);
       }
       else{
         const newIndex = index + 1;
-        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex]);
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex] as any) : loadByTraitData(jsonSelectionArray[newIndex]);
         setIndex(newIndex);
       }
     }
   }
   const prevJson = async () => {
+    if (!jsonSelectionArray) return;
     if (!isLoading){
       setIsLoading(true);
       if (index <= 0){
-        byManifest ? loadByManifest(jsonSelectionArray[jsonSelectionArray.length-1])  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
+        byManifest ? loadByManifest(jsonSelectionArray[jsonSelectionArray.length-1] as any)  : loadByTraitData(jsonSelectionArray[jsonSelectionArray.length-1]);
           
         setIndex(jsonSelectionArray.length -1);
       }
       else{
         const newIndex = index-1;
-        byManifest ? loadByManifest(jsonSelectionArray[newIndex]) : loadByTraitData(jsonSelectionArray[newIndex])
+        byManifest ? loadByManifest(jsonSelectionArray[newIndex] as any) : loadByTraitData(jsonSelectionArray[newIndex])
         setIndex(newIndex);
       }
     }
   }
+
+  if(!jsonSelectionArray) return (<></>)
   
   return (
-      jsonSelectionArray?.length > 0 ? (
+      jsonSelectionArray.length > 0 ? (
         <div className={styles["InformationContainerPos"]}>
           <MenuTitle title="Trait Selection" width={180} right={20} />
           <div className={styles["scrollContainer"]}>

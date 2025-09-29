@@ -1,10 +1,13 @@
-import React, { useContext, useState, useEffect } from "react"
-import styles from "./FloatingMenu.module.css"
-import MenuTitle from "./MenuTitle"
+import React, { useContext, useEffect, useState } from "react";
 import { SceneContext } from "../context/SceneContext";
+import styles from "./FloatingMenu.module.css";
+import MenuTitle from "./MenuTitle";
 import Slider from "./Slider";
 
-export default function TraitInformation({selectedTrait, selectedVRM}){
+export default function TraitInformation({selectedTrait, selectedVRM}:{
+    selectedTrait:any,
+    selectedVRM:any
+}){
     const {
         animationManager,
         characterManager,
@@ -24,27 +27,33 @@ export default function TraitInformation({selectedTrait, selectedVRM}){
 
     
 
-    const handleCullOutChange = (event) => {
-        setCullOutDistance(event.target.value);
+    const handleCullOutChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const num = parseFloat(event.target.value);
+        if (isNaN(num)) return;
+        setCullOutDistance(num);
         if ( selectedVRM?.data){
-            selectedVRM.data.cullingDistance[0] = event.target.value;
+            selectedVRM.data.cullingDistance[0] = num;
         }
         
     };
 
-    const handleCullInChange = (event) => {
-        setCullInDistance(event.target.value);
+    const handleCullInChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const num = parseFloat(event.target.value);
+        if (isNaN(num)) return;
+        setCullInDistance(num);
         if ( selectedVRM?.data){
-            selectedVRM.data.cullingDistance[1] = event.target.value;
+            selectedVRM.data.cullingDistance[1] = num;
         }
        
     };
 
 
-    const handleCullLayerChange = (event) => {
+    const handleCullLayerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (selectedVRM?.data){
-            setCullLayer(event.target.value);
-            selectedVRM.data.cullingLayer = event.target.value;
+            const num = parseFloat(event.target.value);
+            if (isNaN(num)) return;
+            setCullLayer(num);
+            selectedVRM.data.cullingLayer = num;
         }
     };
 

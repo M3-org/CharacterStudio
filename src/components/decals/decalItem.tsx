@@ -1,8 +1,11 @@
-import React from 'react';
-import styles from "../../pages/Appearance.module.css"
-import {TokenBox} from '../token-box';
+import styles from "../../pages/Appearance.module.css";
+import { TokenBox } from '../token-box';
 
-const DecalItem = ({active,src,select})=>{
+const DecalItem = ({active,src,select}:{
+    active:boolean,
+    src:string|null|undefined,
+    select:()=>void
+})=>{
   
     return (
       <div

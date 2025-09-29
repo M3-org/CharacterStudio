@@ -1,14 +1,18 @@
+import { TraitModelsGroup } from "@/library/CharacterManifestData";
 import React from "react";
-import styles from "../../pages/Appearance.module.css";
+import { SceneContext } from "../../context/SceneContext";
 import cancel from '../../images/cancel.png';
-import {SceneContext} from "../../context/SceneContext";
+import { combineURLs } from "../../library/load-utils";
+import styles from "../../pages/Appearance.module.css";
 import CustomButton from "../custom-button";
-import {combineURLs} from "../../library/load-utils";
 import DecalItem from "./decalItem";
 
-const DecalGridView = ({selectedTraitGroup,onBack})=>{
+const DecalGridView = ({selectedTraitGroup,onBack}:{
+    selectedTraitGroup:TraitModelsGroup,
+    onBack:()=>void
+})=>{
     const {decalManager,characterManager} = React.useContext(SceneContext);
-    const [selectedDecals, setSelectedDecals] = React.useState([]);
+    const [selectedDecals, setSelectedDecals] = React.useState<string[]>([]);
   
     const decals = selectedTraitGroup.getAllDecals();
     React.useEffect(()=>{

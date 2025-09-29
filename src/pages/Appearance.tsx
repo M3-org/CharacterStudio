@@ -1,27 +1,27 @@
-import React, { useContext } from "react"
-import styles from "./Appearance.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext.js"
-import { SceneContext } from "../context/SceneContext.js"
-import CustomButton from "../components/custom-button/index.jsx"
-import { LanguageContext } from "../context/LanguageContext.jsx"
-import { SoundContext } from "../context/SoundContext.js"
-import { AudioContext } from "../context/AudioContext.jsx"
-import FileDropComponent from "../components/FileDropComponent.jsx"
-import { getFileNameWithoutExtension } from "../library/utils.js"
-import MenuTitle from "../components/MenuTitle.jsx"
-import BottomDisplayMenu from "../components/BottomDisplayMenu.jsx"
-import decalPicker from "../images/sticker.png"
-import { TokenBox } from "../components/token-box/TokenBox.jsx"
-import JsonAttributes from "../components/JsonAttributes.jsx"
-import cancel from "../images/cancel.png"
-import DecalGridView from "../components/decals/decalGrid.jsx"
-import randomizeIcon from "../images/randomize.png"
-import colorPicker from "../images/color-palette.png"
-import { ChromePicker   } from 'react-color'
-import RightPanel from "../components/RightPanel.jsx"
-import SaleIcon from "../images/sale-icon.png"
 import { BlendShapeGroup, BlendShapeTrait, ModelTrait, TraitModelsGroup } from "@/library/CharacterManifestData.js"
 import { VRM } from "@pixiv/three-vrm"
+import React, { useContext } from "react"
+import { ChromePicker } from 'react-color'
+import BottomDisplayMenu from "../components/BottomDisplayMenu.jsx"
+import CustomButton from "../components/custom-button/index.jsx"
+import DecalGridView from "../components/decals/decalGrid.js"
+import FileDropComponent from "../components/FileDropComponent.js"
+import JsonAttributes, { JsonAttributesProps } from "../components/JsonAttributes.js"
+import MenuTitle from "../components/MenuTitle.jsx"
+import RightPanel from "../components/RightPanel.jsx"
+import { TokenBox } from "../components/token-box/TokenBox.jsx"
+import { AudioContext } from "../context/AudioContext.jsx"
+import { LanguageContext } from "../context/LanguageContext.jsx"
+import { SceneContext } from "../context/SceneContext.js"
+import { SoundContext } from "../context/SoundContext.js"
+import { ViewContext, ViewMode } from "../context/ViewContext.js"
+import cancel from "../images/cancel.png"
+import colorPicker from "../images/color-palette.png"
+import randomizeIcon from "../images/randomize.png"
+import SaleIcon from "../images/sale-icon.png"
+import decalPicker from "../images/sticker.png"
+import { getFileNameWithoutExtension } from "../library/utils.js"
+import styles from "./Appearance.module.css"
 
 
 export enum TraitPage {
@@ -55,7 +55,7 @@ function Appearance() {
     toggleDebugMode(false);
   }
 
-  const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
+  const [jsonSelectionArray, setJsonSelectionArray] = React.useState<JsonAttributesProps[]|null>(null)
   const [traits, setTraits] = React.useState<ModelTrait[]| null>(null)
 
   const [selectedTraitGroup, setSelectedTraitGroup] = React.useState<TraitModelsGroup|null>(null)
@@ -170,7 +170,13 @@ function Appearance() {
   const handleJsonDrop = (files: FileList) => {
     setIsPickingColor(false);
     const filesArray = Array.from(files);
-    const jsonDataArray:any[] = [];
+    const jsonDataArray:{
+      name?:string,
+      manifestName:string,
+      thumbnail?:string,
+      thumb?:string,
+      attributes:{ trait_type: string; value: string }[]
+    }[] = [];
     const processFile = (file: File) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {

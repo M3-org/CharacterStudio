@@ -1,8 +1,8 @@
-import React, {useContext} from "react"
+import { useContext } from "react"
 
 import styles from './LoadingOverlay.module.css'
 
-import {ViewContext} from "../context/ViewContext"
+import { ViewContext } from "../context/ViewContext"
 export default function LoadingOverlayCircularStatic({
   title = "LOADING"
 }) {

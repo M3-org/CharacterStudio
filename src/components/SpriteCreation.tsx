@@ -1,18 +1,19 @@
-import React, { useContext, useState, useEffect } from "react"
-import styles from "./FloatingMenu.module.css"
-import MenuTitle from "./MenuTitle"
-import { SceneContext } from "../context/SceneContext";
-import Slider from "./Slider";
+import { SpriteJson } from "@/library/CharacterManifestData";
+import React, { useEffect, useState } from "react";
 import Select from 'react-select';
+import { SceneContext } from "../context/SceneContext";
+import styles from "./FloatingMenu.module.css";
+import MenuTitle from "./MenuTitle";
 
-export default function SpriteCreation({selectedTrait, selectedVRM}){
+export default function SpriteCreation(){
     const { manifest, spriteAtlasGenerator, sceneElements } = React.useContext(SceneContext)
 
-    const [ options, setOptions ] = useState([]) 
-    const [ description, setDescription ] = useState("");
-    const [ spriteObject, setSpriteObject ] = useState(null);
+    const [ options, setOptions ] = useState<(SpriteJson&{value:number})[]>([]) 
+    const [ description, setDescription ] = useState<string|undefined>("");
+    const [ spriteObject, setSpriteObject ] = useState<SpriteJson | null>(null);
 
-    const onSelect = (sel) =>{
+    const onSelect = (sel:(SpriteJson & { value: number }) | null) =>{
+        if(!sel) return;
         if (manifest?.sprites != null){
             setDescription(manifest.sprites[sel.value].description)
             setSpriteObject(manifest.sprites[sel.value]);
@@ -21,8 +22,13 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
 
     const createSpritesData = async() =>{
         const parentScene = sceneElements.parent;
+
+        if(!parentScene) {
+            console.error("Parent scene not found");
+            return;
+        };
         parentScene.remove(sceneElements);
-        await spriteAtlasGenerator.createSpriteAtlas(spriteObject);
+        await spriteAtlasGenerator.createSpriteAtlas(spriteObject?.manifest||"");
         parentScene.add(sceneElements);
       }
 
@@ -32,9 +38,8 @@ export default function SpriteCreation({selectedTrait, selectedVRM}){
         const manifestOptions = manifest.sprites.map((c,i) => {
             return {
                 value:i, 
-                label:c.name, 
-                description: c.description,
-                manifest: c.manifest,
+                ...c,
+                label: c.name
             }
           })
           setOptions(manifestOptions);

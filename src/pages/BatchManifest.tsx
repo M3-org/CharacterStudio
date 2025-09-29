@@ -1,22 +1,22 @@
 import React, { useContext, useState } from "react"
-import styles from "./Optimizer.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
-import { SceneContext } from "../context/SceneContext"
-import CustomButton from "../components/custom-button"
-import { LanguageContext } from "../context/LanguageContext"
-import { SoundContext } from "../context/SoundContext"
-import { AudioContext } from "../context/AudioContext"
-import FileDropComponent from "../components/FileDropComponent"
-import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import { getFileNameWithoutExtension, getAtlasSize } from "../library/utils"
 import { Object3D } from "three"
+import BottomDisplayMenu from "../components/BottomDisplayMenu"
+import CustomButton from "../components/custom-button"
+import FileDropComponent from "../components/FileDropComponent"
+import { AudioContext } from "../context/AudioContext"
+import { LanguageContext } from "../context/LanguageContext"
+import { SceneContext } from "../context/SceneContext"
+import { SoundContext } from "../context/SoundContext"
+import { ViewContext, ViewMode } from "../context/ViewContext"
+import { getAtlasSize, getFileNameWithoutExtension } from "../library/utils"
+import styles from "./Optimizer.module.css"
 
+import { manifestJson } from "@/library/CharacterManifestData"
 import JsonAttributes from "../components/JsonAttributes"
-import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
+import ModelInformation from "../components/ModelInformation"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
-import { GlobalManifestJson, manifestJson } from "@/library/CharacterManifestData"
 
 function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -90,9 +90,9 @@ function BatchManifest() {
 
       const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
       if (downloadSprites === true){
-        const promises = manifest.sprites.map(async sprite => {
+        const promises = manifest.sprites?.map(async sprite => {
           return spriteAtlasGenerator.createSpriteAtlas(sprite.manifest, downloadZip);
-        });
+        })||[];
     
         await Promise.all(promises);
       }

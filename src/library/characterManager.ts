@@ -40,6 +40,10 @@ export type avatarData = {
   vrm: VRM
 }
 
+export type AvatarSelection ={
+  [key: string]: { name: string; id:string }
+}
+
 /**
  * CharacterManager is a class that manages 3D character models, their traits, animations, and interactions.
  * It handles loading, displaying, and manipulating character models with various features like
@@ -165,7 +169,7 @@ export class CharacterManager {
         }
       }
     }
-    unlockManifestByIndex(index:number, testWallet?:string){
+    unlockManifestByIndex(index:number, testWallet?:string|null){
       return this.manifestDataManager.unlockManifestByIndex(index, testWallet);
     }
     unlockManifestByIdentifier(identifier:string, testWallet?:string){
@@ -398,10 +402,10 @@ export class CharacterManager {
     }
     /**
      * Gets the current avatar selection.
-     * @returns {Object} Object containing selected traits and their IDs
+     * @returns {AvatarSelection} Object containing selected traits and their IDs
      */
     getAvatarSelection(){
-      const result:Record<string,{name:string,id:string}> = {};
+      const result:AvatarSelection = {};
       for (const prop in this.avatar) {
         result[prop] = {
           name:this.avatar[prop].name,

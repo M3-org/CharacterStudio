@@ -1,10 +1,16 @@
-import React from "react"
-import styles from "./PurchaseMenu.module.css"
-import MenuTitle from "./MenuTitle"
+import { ModelTrait } from "@/library/CharacterManifestData"
 import { TokenBox } from "../components/token-box/TokenBox"
 import CustomButton from "./custom-button"
+import MenuTitle from "./MenuTitle"
+import styles from "./PurchaseMenu.module.css"
 
-export default function PurchaseMenu({purchaseTraits, currentPrice, onConfirmPurchase, cancelPurchase, currency}){    
+export default function PurchaseMenu({purchaseTraits, currentPrice, onConfirmPurchase, cancelPurchase, currency}:{
+    purchaseTraits:ModelTrait[],
+    currentPrice:number,
+    onConfirmPurchase:()=>void,
+    cancelPurchase:()=>void,
+    currency:string
+}){    
     return (
         <div>
             <div className={styles["InformationContainerPos"]}>

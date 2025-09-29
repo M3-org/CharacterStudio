@@ -1,5 +1,4 @@
-import React, { useContext } from "react"
-import { useTranslation, Trans } from "react-i18next"
+import { useTranslation } from "react-i18next"
 import styles from "./LanguageSwitch.module.css"
 
 const lngs = {
@@ -12,6 +11,7 @@ const lngs = {
 }
 
 export default function LanguageSwitch() {
+  //@ts-ignore ??? Broken types
   const { t, i18n } = useTranslation()
   return (
     <div className={styles.languageSwitchWrap}>
@@ -21,7 +21,7 @@ export default function LanguageSwitch() {
       >
         {Object.keys(lngs).map((lng) => (
           <option key={lng} value={lng}>
-            {lngs[lng].nativeName}
+            {(lngs as any)[lng].nativeName}
           </option>
         ))}
       </select>
