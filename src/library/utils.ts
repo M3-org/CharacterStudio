@@ -782,12 +782,12 @@ function findChildren({ candidates, predicate, results = [] }:{candidates:THREE.
     candidates = candidates.concat(candidate.children);
     return findChildren({ candidates, predicate, results });
 }
-export function findChildrenByType(root:THREE.Object3D, types:string|string[]) {
+export function findChildrenByType<T extends THREE.Object3D | THREE.SkinnedMesh | THREE.Mesh>(root:THREE.Object3D, types:string|string[]) {
   
   return findChildren({
     candidates: [root],
     predicate: (o) => getAsArray(types).includes(o.type),
-  });
+  }) as T[];
 }
 
 

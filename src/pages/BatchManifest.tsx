@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useState } from "react"
 import styles from "./Optimizer.module.css"
 import { ViewMode, ViewContext } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
@@ -8,14 +8,15 @@ import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
+import { getFileNameWithoutExtension, getAtlasSize } from "../library/utils"
+import { Object3D } from "three"
 
 import JsonAttributes from "../components/JsonAttributes"
 import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
-import { connectWallet } from "../library/mint-utils"
+import { GlobalManifestJson, manifestJson } from "@/library/CharacterManifestData"
 
 function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -28,15 +29,15 @@ function BatchManifest() {
     spriteAtlasGenerator,
     sceneElements
   } = React.useContext(SceneContext)
-  
-  const [model, setModel] = useState(null);
-  const [nameVRM, setNameVRM] = useState("");
+
+  const [model, setModel] = useState<Object3D | null>(null);
+  const [nameVRM, setNameVRM] = useState<string>("");
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
-  const [manifestSelectionArray, setManifestSelectionArray] = React.useState(null)
+  const [manifestSelectionArray, setManifestSelectionArray] = React.useState<any[]>(null!)
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const back = () => {
@@ -63,7 +64,7 @@ function BatchManifest() {
     }
   }
 
-  const downloadLoaded = (index) =>{
+  const downloadLoaded = (index:number) =>{
     const downloadName = manifestSelectionArray[index].manifestName;
 
     const saveData = async()=>{
@@ -77,7 +78,7 @@ function BatchManifest() {
       }
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
-      parentScene.remove(sceneElements);
+      parentScene?.remove(sceneElements);
       const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
       if (downloadLora === true) {
         const promises = manifest.loras.map(async lora => {
@@ -90,7 +91,7 @@ function BatchManifest() {
       const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
       if (downloadSprites === true){
         const promises = manifest.sprites.map(async sprite => {
-          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+          return spriteAtlasGenerator.createSpriteAtlas(sprite.manifest, downloadZip);
         });
     
         await Promise.all(promises);
@@ -100,7 +101,7 @@ function BatchManifest() {
         downloadZip.saveZip(manifestSelectionArray[index].manifestName);
       }
       
-      parentScene.add(sceneElements);
+      parentScene?.add(sceneElements);
       if (index < manifestSelectionArray.length-1 ){
         console.log("downloaded " + downloadName)
         downloadVRMWithIndex(index + 1)
@@ -111,7 +112,7 @@ function BatchManifest() {
     saveData(); 
   }
 
-  const downloadVRMWithIndex= async(index)=>{
+  const downloadVRMWithIndex= async(index:number)=>{
     if (index == 0){
       console.log(manifest.loras[0]);
       
@@ -123,7 +124,7 @@ function BatchManifest() {
       setIsLoading(true);
       characterManager.loadInitialTraits().then(async()=>{
         
-        const delay = ms => new Promise(res => setTimeout(res, ms));        
+        const delay = (ms:number) => new Promise(res => setTimeout(res, ms));        
         await delay(1);
         downloadLoaded(index);
       })
@@ -138,7 +139,7 @@ function BatchManifest() {
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleAnimationDrop = async (file) => {
+  const handleAnimationDrop = async (file:File) => {
     const curCharacter = characterManager.getCurrentCharacterModel();
     if (curCharacter){
       const animName = getFileNameWithoutExtension(file.name);
@@ -154,7 +155,7 @@ function BatchManifest() {
     }
   }
 
-  const handleVRMDrop = async (file) =>{
+  const handleVRMDrop = async (file:File) =>{
     const url = URL.createObjectURL(file);
     await characterManager.loadOptimizerCharacter(url);
     URL.revokeObjectURL(url);
@@ -165,10 +166,10 @@ function BatchManifest() {
     setModel(characterManager.getCurrentCharacterModel());
   }
 
-  const handleJsonDrop = (files) => {
+  const handleJsonDrop = (files:FileList) => {
     const filesArray = Array.from(files);
-    const manifestDataArray = [];
-    const processFile = (file) => {
+    const manifestDataArray:manifestJson[] = [];
+    const processFile = (file:File) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
           const reader = new FileReader();
@@ -179,18 +180,17 @@ function BatchManifest() {
           const manifestName =  file.name.replace(/\.[^/.]+$/, "")
           reader.onload = function (e) {
             try {
-              const jsonContent = JSON.parse(e.target.result);
+              const jsonContent = JSON.parse((e.target?.result||'{}') as string) as manifestJson;
 
-              const thumbLocation = jsonContent.thumbnail;
+              // const thumbLocation = jsonContent.thumbnail;
+              //@ts-ignore ????
               jsonContent.manifestName = manifestName;
               // XXX Anata hack to display nft thumbs
               // jsonContent.thumb = thumbLocation;
 
               manifestDataArray.push(jsonContent);
 
-              
-
-              resolve(); // Resolve the promise when processing is complete
+              resolve(true); // Resolve the promise when processing is complete
             } catch (error) {
               console.error("Error parsing the JSON file:", error);
               reject(error);
@@ -222,7 +222,7 @@ function BatchManifest() {
   }
 
 
-  const handleFilesDrop = async(files) => {
+  const handleFilesDrop = async(files:FileList) => {
     const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {

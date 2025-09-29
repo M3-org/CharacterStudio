@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
 import styles from "./Create.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
+import { ViewMode, ViewContext, useViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
 import { useContext } from "react"
 
 import { SceneContext } from "../context/SceneContext"
-import { SoundContext } from "../context/SoundContext"
+import { SoundContext, useSoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
 import { connectWallet } from "../library/mint-utils"
@@ -17,8 +17,8 @@ function Wallet() {
   // Translate hook
   const {t} = useContext(LanguageContext);
 
-  const { setViewMode, setIsLoading, isLoading } = React.useContext(ViewContext)
-  const { playSound } = React.useContext(SoundContext)
+  const { setViewMode, setIsLoading, isLoading } = useViewContext()
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
   const [ classes, setClasses ] = useState([]) 
@@ -41,10 +41,10 @@ function Wallet() {
     !isMute && playSound('backNextButton');
   }
 
-  const selectClass = async (index) => {
+  const selectClass = async (index:number) => {
     setIsLoading(true)
     // Load manifest first
-    characterManager.loadManifest(manifest.characters[index].manifest, anifest.characters[index].name).then(()=>{
+    characterManager.loadManifest(manifest.characters[index].manifest, manifest.characters[index].name).then(()=>{
       setViewMode(ViewMode.APPEARANCE)
       // When Manifest is Loaded, load initial traits from given manifest
       characterManager.loadInitialTraits().then(()=>{
@@ -56,12 +56,12 @@ function Wallet() {
 
   const appendManifest = () =>{
     console.log("ttt")
-    characterManager.loadManifest(manifest.characters[0].manifest, anifest.characters[index].name).then(()=>{
-      // setViewMode(ViewMode.APPEARANCE)
-      
-      characterManager.loadAppendManifest(manifest.characters[1].manifest, true).then(()=>{
-        console.log(characterManager.manifestData)
-      })
+    characterManager.loadManifest(manifest.characters[0].manifest, manifest.characters[0].name).then(()=>{
+
+      //@TODO: loadAppendManifest is undefined.
+      // characterManager.loadAppendManifest(manifest.characters[1].manifest, true).then(()=>{
+      //   console.log(characterManager.manifestData)
+      // })
       // When Manifest is Loaded, load initial traits from given manifest
       // characterManager.loadInitialTraits().then(()=>{
       //   setIsLoading(false)

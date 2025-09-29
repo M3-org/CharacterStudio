@@ -1,15 +1,14 @@
+import { VRMExpression, VRMExpressionManager, VRMExpressionMorphTargetBind, VRMExpressionPresetName, VRMHumanBoneName, VRMMeta, VRMSpringBoneColliderGroup, VRMSpringBoneJointSettings } from "@pixiv/three-vrm"
 import * as THREE from "three"
-import { Group, MeshStandardMaterial, Object3D,Color, Skeleton, SkinnedMesh } from "three"
+import { Group, MeshStandardMaterial, Object3D, Skeleton, SkinnedMesh } from "three"
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
-import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
-import VRMExporter from "./VRMExporter"
-import VRMExporterv0 from "./VRMExporterv0"
-import { findChildrenByType } from "./utils"
-import { VRMHumanBoneName, VRMExpression, VRMExpressionPresetName, VRMExpressionManager, VRMExpressionMorphTargetBind, VRMMeta, VRMSpringBoneJointSettings, VRMSpringBoneColliderGroup} from "@pixiv/three-vrm";
-import { doesMeshHaveMorphTargetBoundToManager } from './utils';
-import { CommercialUsageType, GetMetadataFromAvatar } from "./vrmMetaUtils"
 import { avatarData } from "./characterManager"
 import { DownloadOptionsManifest } from "./CharacterManifestData"
+import { cloneSkeleton, combine, combineNoAtlas } from "./merge-geometry"
+import { doesMeshHaveMorphTargetBoundToManager, findChildrenByType } from "./utils"
+import VRMExporter from "./VRMExporter"
+import VRMExporterv0 from "./VRMExporterv0"
+import { CommercialUsageType, GetMetadataFromAvatar } from "./vrmMetaUtils"
 
 
 function cloneAvatarModel (model:Object3D){
@@ -109,7 +108,7 @@ function getOptimizedGLB(model:THREE.Object3D, avatar:Record<string,avatarData>,
 }
 
 
-export async function downloadGLB(model:Object3D, fileName = "", options:Partial<DownloadOptionsManifest>={}){
+export async function downloadGLB(model:Object3D, avatar:Record<string, avatarData>, fileName = "", options:Partial<DownloadOptionsManifest>={}){
   const downloadFileName = `${
     fileName && fileName !== "" ? fileName : "AvatarCreatorModel"
   }`
@@ -117,7 +116,7 @@ export async function downloadGLB(model:Object3D, fileName = "", options:Partial
   const {optimized = true} = options;
 
   const finalModel = optimized ?
-    await getOptimizedGLB(model, options):
+    await getOptimizedGLB(model, avatar, options):
     getUnopotimizedGLB(model)
 
   parseGLB(finalModel)

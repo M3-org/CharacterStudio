@@ -1,11 +1,14 @@
-import { BigNumber, ethers } from "ethers"
-import { getVRMBlobData } from "./download-utils"
-import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract"
-import { SolanaManager } from "./solanaManager"
 import { Connection, Transaction } from "@solana/web3.js";
+import { BigNumber, ethers } from "ethers";
+import { CharacterContract, EternalProxyContract, webaverseGenesisAddress } from "../components/Contract";
+import { getVRMBlobData } from "./download-utils";
+import { SolanaManager } from "./solanaManager";
 // import { Connection, PublicKey } from '@solana/web3.js';
 // import { Metaplex } from '@metaplex-foundation/js';
-import axios from "axios"
+import axios from "axios";
+import { Group } from "three";
+import { avatarData } from "./characterManager";
+import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
 
 const rpcKey = import.meta.env.VITE_HELIUS_KEY;
 const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${rpcKey}`
@@ -18,7 +21,7 @@ const pinataSecretApiKey = import.meta.env.VITE_PINATA_API_SECRET
 
 //const mintCost = 0.01
 const chainId = "0x89";
-let tokenPrice;
+let tokenPrice:BigNumber|null = null;
 
 const manager = new SolanaManager();
 console.log(manager);
@@ -30,7 +33,7 @@ console.log(manager);
 
 
 
-async function getContract(address) {
+async function getContract(address:string) {
   const contractAddress = address; // Loot NFT contract address
   const tokenId = 1; // Replace with the desired token ID
 
@@ -64,7 +67,7 @@ async function getContract(address) {
 
 
 async function getTokenPrice(){
-  if (tokenPrice != null)
+  if (typeof tokenPrice != 'undefined' && tokenPrice != null)
     return tokenPrice
   const defaultProvider = new ethers.providers.StaticJsonRpcProvider('https://polygon-rpc.com/')
   const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, defaultProvider)
@@ -96,11 +99,10 @@ export function fetchSolanaPurchasedAssets(walletAddress:string, delegateAddress
   });
 }
 
-export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, collectionName, amount, purchaseNFTs){
+export function buySolanaPurchasableAssets(merchantPublicKey:string, treeAddress:string, collectionName:string, amount:number, purchaseNFTs:OwnedNFTTraitIDs){
   
   return new Promise(async(resolve, reject) => {
-    const { solana } = window;
-    console.log(window.solana)
+    const { solana } = (window as any);
 
     if (!solana || !solana.isPhantom) {
         alert("Please install Phantom Wallet!");
@@ -111,7 +113,7 @@ export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, colle
       reject();
     }
     try{
-      const solanaAddress = await window.solana.connect();
+      const solanaAddress = await (window as any).solana.connect();
       const buyerPublicKey = solanaAddress.publicKey.toString();
       const response = await fetch(`${validation_server}/request-payment`, {
         method: "POST",
@@ -129,14 +131,14 @@ export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, colle
           reject();
         }
         else{
-          resolve();
+          resolve(signature);
         }
       } else {
         console.error("Error requesting payment:", data.error);
         reject();
       }
     }
-    catch(e){
+    catch(e:any){
       //console.log(data);
       console.error("Error requesting payment:", e.message);
       reject();
@@ -146,11 +148,11 @@ export function buySolanaPurchasableAssets(merchantPublicKey, treeAddress, colle
   });
 }
 
-async function signAndSendTransaction(base64Transaction) {
-  const { solana } = window;
+async function signAndSendTransaction(base64Transaction: string): Promise<string | null> {
+  const { solana } = (window as any);
   if (!solana || !solana.isPhantom) {
       alert("Please install Phantom Wallet!");
-      return;
+      return null;
   }
 
   try {
@@ -168,16 +170,15 @@ async function signAndSendTransaction(base64Transaction) {
 
       console.log("✅ Transaction Signature:", signature);
       return signature;
-  } catch (error) {
+  } catch (error:any) {
       console.error("❌ Transaction failed:", error);
       if (error.logs) {
           console.error("🔍 Transaction logs:", error.logs);
       } else if (error.signature) {
           // Manually fetch logs from the blockchain
           console.log("Fetching logs for signature:", error.signature);
-          const logs = await connection.getTransaction(error.signature, { commitment: "confirmed" });
-          console.error("🔍 Transaction logs:", logs?.meta?.logMessages);
       }
+      return null;
   }
 }
 
@@ -190,7 +191,7 @@ async function signAndSendTransaction(base64Transaction) {
  */
 
 
-export function fetchOwnedNFTs (walletAddress:string, network:"ethereum"|"polygon"|"solana", collection:string){
+export function fetchOwnedNFTs (walletAddress:string, network:"ethereum"|"polygon"|"solana", collection:string): Promise<any> {
   switch (network.toLowerCase()) {
     case 'ethereum':{
       return fetchFromOpensea(walletAddress, "ethereum", collection);
@@ -201,7 +202,7 @@ export function fetchOwnedNFTs (walletAddress:string, network:"ethereum"|"polygo
     case 'solana':{
       console.warn("solana work in progress");
       return Promise.resolve(false);
-      return fetchFromMetaplex(walletAddress, collection);
+      // return fetchFromMetaplex(walletAddress, collection);
     }
     default:{
       console.log("Unsupported Netwrok: " + walletAddress)
@@ -211,12 +212,12 @@ export function fetchOwnedNFTs (walletAddress:string, network:"ethereum"|"polygo
 }
 
 
-const fetchFromOpensea = (walletAddress, chain, collection) => {
+const fetchFromOpensea = (walletAddress:string, chain:"ethereum"|"polygon"|"matic"|"solana", collection:string): Promise<any> => {
   if (opensea_Key == null){
     console.error("No opensea key was provided. Cant fetch user's owned nft's");
-    return;
+    return Promise.resolve(null); 
   }
-  const options = {
+  const options = { 
     method: 'GET',
     headers: { accept: 'application/json', 'x-api-key': opensea_Key },
   };
@@ -246,7 +247,7 @@ const fetchFromOpensea = (walletAddress, chain, collection) => {
 }
 
 
-const fetchFromMetaplex = (walletAddress, collection) =>{
+const fetchFromMetaplex = (walletAddress:string, collection:string) =>{
   console.log("work in progress");
   // return new Promise((resolve, reject) => {
   //   const connection = new Connection('https://api.mainnet-beta.solana.com'); // Mainnet endpoint
@@ -380,17 +381,17 @@ export function connectWallet(network:"ethereum"|"polygon"|"solana"="ethereum"):
 // }
 
 // ready to test
-async function saveFileToPinata(fileData, fileName) {
+async function saveFileToPinata(fileData: Blob, fileName: string) {
     if (!fileData) return console.warn("Error saving to pinata: No file data")
         const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`
     let data = new FormData()
 
     data.append("file", fileData, fileName)
     let resultOfUpload = await axios.post(url, data, {
-        maxContentLength: "Infinity", //this is needed to prevent axios from erroring out with large files
-        maxBodyLength: "Infinity", //this is needed to prevent axios from erroring out with large files
+        maxContentLength: Infinity, //this is needed to prevent axios from erroring out with large files
+        maxBodyLength: Infinity, //this is needed to prevent axios from erroring out with large files
         headers: {
-        "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+        "Content-Type": `multipart/form-data; boundary=${(data as any)._boundary}`,
         pinata_api_key: pinataApiKey,
         pinata_secret_api_key: pinataSecretApiKey,
         },
@@ -398,8 +399,8 @@ async function saveFileToPinata(fileData, fileName) {
     return resultOfUpload.data
 }
 
-const getAvatarTraits = (avatar) => {
-  let metadataTraits = []
+const getAvatarTraits = (avatar: Record<string, avatarData>) => {
+  let metadataTraits: Array<{ trait_type: string; value: string }> = []
   Object.keys(avatar).map((trait) => {
     if (Object.keys(avatar[trait]).length !== 0) {
       metadataTraits.push({
@@ -411,7 +412,7 @@ const getAvatarTraits = (avatar) => {
   return metadataTraits
 }
 
-export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
+export async function mintAsset(avatar: Record<string,avatarData>, screenshot:Blob|undefined, model:Group, name:string, needCheckOT?:boolean) {
     if (!avatar)
         throw new Error("No avatar was provided")
     if (!screenshot)
@@ -446,7 +447,10 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
           return 'Failed to upload screenshot';
           //throw new Error('failed to upload screenshot');
         })()
-        const glb = await getVRMBlobData(model,avatar,4096,true)
+        const glb = await getVRMBlobData(model,avatar,{
+          stdAtlasSize:4096,
+          mToonAtlasSize:4096,
+        })
         let glbHash;
         if (glb) {
             let glbName = "AvatarGlb_" + Date.now() + ".glb";
@@ -490,7 +494,7 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
         let price = await getTokenPrice()
 
         const signer = new ethers.providers.Web3Provider(
-          window.ethereum,
+          (window as any).ethereum,
         ).getSigner()
         const contract = new ethers.Contract(CharacterContract.address, CharacterContract.abi, signer)
         try {
@@ -512,7 +516,7 @@ export async function mintAsset(avatar, screenshot, model, name, needCheckOT){
     }
 }
 
-const checkOT = async (address) => {
+const checkOT = async (address:string) => {
     if(address) {
       const address = '0x6e58309CD851A5B124E3A56768a42d12f3B6D104'
       const ethersigner = ethers.getDefaultProvider("mainnet", {

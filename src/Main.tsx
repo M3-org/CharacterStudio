@@ -1,4 +1,4 @@
-import { Web3Provider } from "@ethersproject/providers"
+import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from "@ethersproject/providers"
 import { Web3ReactProvider } from "@web3-react/core"
 import React, { Suspense } from "react"
 import ReactDOM from "react-dom/client"
@@ -16,13 +16,13 @@ import "./lib/localization/i18n"
 import App from "./App"
 import { LanguageProvider } from "./context/LanguageContext"
 
-const getLibrary = (provider) => {
+const getLibrary = (provider:ExternalProvider | JsonRpcFetchFunc) => {
   const library = new Web3Provider(provider)
   library.pollingInterval = 12000
   return library
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
       <AccountProvider>

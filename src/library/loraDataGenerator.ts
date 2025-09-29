@@ -1,15 +1,19 @@
 
+import { AnimationManager } from "./animationManager";
+import { BlinkManager } from "./blinkManager";
+import { CharacterManager } from "./characterManager";
+import { ScreenshotManager } from "./screenshotManager";
 import { getVectorCameraPosition } from "./utils";
 import { ZipManager } from "./zipManager";
 
 export class LoraDataGenerator {
-    /**
-     * @typedef {import('./screenshotManager').ScreenshotManager} ScreenshotManager
-     * @type {ScreenshotManager}
-     */
-    screenshotManager
 
-    constructor(characterManager){
+    screenshotManager:ScreenshotManager
+    blinkManager:BlinkManager
+    animationManager:AnimationManager
+
+    temptime:number
+    constructor(public characterManager:CharacterManager,public zipManager?:ZipManager) {
         this.characterManager = characterManager;
         this.screenshotManager = characterManager.screenshotManager;
         this.blinkManager = characterManager.blinkManager;
@@ -22,7 +26,12 @@ export class LoraDataGenerator {
         return (Object.values(this.characterManager.avatar).map((vrm)=>vrm.vrm))
     }
 
-    async createLoraData(loraObject, exsitingZipFile = null, zipName = ""){
+    async createLoraData(loraObject:{
+      "name": string
+      "description"?: string,
+      "manifest": string,
+      "icon": string
+    }, exsitingZipFile:ZipManager|null = null, zipName = ""){
         const manifestURL = loraObject.manifest;
         const loraFolderName = loraObject.name ? "loraData/" + loraObject.name : "loraData";
         const manifest = await this._fetchManifest(manifestURL);
@@ -77,7 +86,7 @@ export class LoraDataGenerator {
                         const vectorCameraPosition = getVectorCameraPosition(cameraPosition);
                         scope.screenshotManager.cameraFrameManager.setCameraFrameWithName(cameraFrame,vectorCameraPosition);
 
-                        const imgData = scope.screenshotManager.getImageData(width, height, false);
+                        const imgData = scope.screenshotManager.getImageData(width, height, null);
                         // add lora data folder?
                         zip.addData(imgData,saveName, "png", loraFolderName);
                         zip.addData("anata" + " " + description + " " + backgroundDescription,saveName, "txt", loraFolderName)
@@ -99,7 +108,7 @@ export class LoraDataGenerator {
         this.blinkManager.disableScreenshot();
     }
 
-    async _fetchManifest(location) {
+    async _fetchManifest(location:string) {
         const response = await fetch(location)
         const data = await response.json()
         return data

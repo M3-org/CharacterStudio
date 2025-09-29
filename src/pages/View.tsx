@@ -1,15 +1,15 @@
 import React, { useContext } from "react"
-import styles from "./View.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
+import { ViewMode, useViewContext } from "../context/ViewContext"
+import styles from "./View.module.css"
 
-import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { useSoundContext } from "../context/SoundContext"
 
 function View() {
-  const { setViewMode } = React.useContext(ViewContext)
-  const { playSound } = React.useContext(SoundContext)
+  const { setViewMode } = useViewContext()
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
 
   const back = () => {

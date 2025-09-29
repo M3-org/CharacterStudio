@@ -9,9 +9,7 @@ import { SceneContext } from "../context/SceneContext"
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 
-import { getAsArray } from "../library/utils"
-
-function Create() {
+function Claim() {
   
   // Translate hook
   const {t} = useContext(LanguageContext);
@@ -20,13 +18,29 @@ function Create() {
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
   const { manifest, characterManager } = React.useContext(SceneContext)
-  const [ classes, setClasses ] = useState([]) 
-
-
+  const [ classes, setClasses ] = useState<{
+          name:string, 
+          image?:string, 
+          description?:string,
+          manifest:string,
+          icon?:string,
+          format?:string,
+          disabled?:boolean
+        }[]>([]) 
+  
   useEffect(() => {
-
     if (manifest?.characters != null){
-      const manifestClasses = getCharacterManifests(getAsArray(manifest.characters));
+      const manifestClasses = manifest.characters.map((c) => {
+        return {
+          name:c.name, 
+          image:c.portrait, 
+          description: c.description,
+          manifest: c.manifest,
+          icon:c.icon,
+          format:c.format,
+          disabled:false
+        }
+      })
       setClasses(manifestClasses);
     }
   }, [manifest])
@@ -36,47 +50,23 @@ function Create() {
     !isMute && playSound('backNextButton');
   }
 
-  const getCharacterManifests = (charactersArray) =>{
-      return charactersArray.map((c) => {
-        return {
-          name:c.name, 
-          portrait:c.portrait, 
-          description: c.description,
-          manifest: c.manifest,
-          icon:c.icon,
-          format:c.format,
-          manifestAppend: getCharacterManifests(getAsArray(c.manifestAppend)),
-        }
-      })
-  }
-
-  const selectClass = async (index) => {
+  const selectClass = async (index:number) => {
     setIsLoading(true)
-    const selectedClass = classes[index];
-
-    await characterManager.loadManifest(selectedClass.manifest,selectedClass.name);
-
-    setViewMode(ViewMode.APPEARANCE)
-    const promises = selectedClass.manifestAppend.map(manifestAppend => {
-      return new Promise((resolve)=>{
-        
-        characterManager.loadManifest(manifestAppend.manifest, manifestAppend.name).then(()=>{
-          resolve();
-        })
+    // Load manifest first
+    characterManager.loadManifest(manifest.characters[index].manifest, manifest.characters[index].name).then(()=>{
+      setViewMode(ViewMode.BATCHDOWNLOAD)
+      // When Manifest is Loaded, load initial traits from given manifest
+      characterManager.loadInitialTraits().then(()=>{
+        setIsLoading(false)
       })
-    });
-
-    await Promise.all(promises);
-    // When Manifest is Loaded, load initial traits from given manifest
-
-    characterManager.loadInitialTraits().then(()=>{
-      setIsLoading(false)
     })
     !isMute && playSound('classSelect');
 
   }
-
-  const hoverSound = () => {
+  const selectByManifest = () => {
+    setViewMode(ViewMode.BATCHMANIFEST)
+  }
+  const hoverClass = () => {
     !isMute && playSound('classMouseOver');
   }
   
@@ -85,8 +75,6 @@ function Create() {
       <div className={"sectionTitle"}>{t('pageTitles.chooseClass')}</div>
       <div className={styles.vrmOptimizerButton}>
       </div>
-
-      
       <div className={styles.topLine} />
       
       <div className={styles.classContainer}>
@@ -100,16 +88,20 @@ function Create() {
                   : styles.classdisabled
               }
               onClick={
-                  () => selectClass(i)
+                characterClass["disabled"]
+                  ? undefined
+                  : () => selectClass(i)
               }
               onMouseOver={
-                  () => hoverSound()
+                characterClass["disabled"]
+                  ? undefined
+                  : () => hoverClass()
               }
             >
             <div
                 className={styles.classFrame}
                 style={{
-                  "backgroundImage": `url(${characterClass["portrait"]})`,
+                  "backgroundImage": `url(${characterClass["image"]})`,
                 }}
               >
                 <div className={styles.frameContainer}>
@@ -119,6 +111,14 @@ function Create() {
                   />
                 </div>
 
+                <div className={styles.lockedContainer}>
+                  {characterClass["disabled"] && (
+                    <img
+                      src={"./assets/icons/locked.svg"}
+                      className={styles.locked}
+                    />
+                  )}
+                </div>
               </div>
               
               <div className={styles.name}>{characterClass["name"]}</div>
@@ -128,6 +128,29 @@ function Create() {
             </div>
           )
         })}
+        <div
+              key={"manifest-load"}
+              className={styles.class}
+              onClick={() => selectByManifest()}
+              onMouseOver={() => hoverClass()}
+            >
+            <div
+                className={styles.classFrame}
+                style={{"backgroundImage": `url(./assets/media/disabled.png)`}}
+              >
+                <div className={styles.frameContainer}>
+                  <img
+                    src={"./assets/backgrounds/class-frame.svg"}
+                    className={styles.frame}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.name}>{"Manifest"}</div>
+              <div className={styles.description}>
+                {"Load by manifest"}
+              </div>
+            </div>
       </div>
 
       <div className={styles.bottomLine} />
@@ -144,4 +167,4 @@ function Create() {
   )
 }
 
-export default Create
+export default Claim

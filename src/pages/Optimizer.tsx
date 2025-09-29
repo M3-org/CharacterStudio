@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react"
 import styles from "./Optimizer.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
+import { ViewMode, useViewContext } from "../context/ViewContext"
 import { SceneContext } from "../context/SceneContext"
 import CustomButton from "../components/custom-button"
 import { LanguageContext } from "../context/LanguageContext"
-import { SoundContext } from "../context/SoundContext"
+import { useSoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import FileDropComponent from "../components/FileDropComponent"
 import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
@@ -13,12 +13,13 @@ import MergeOptions from "../components/MergeOptions"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
+import { Object3D } from "three"
 
 function Optimizer() {
   const { 
     isLoading, 
     setViewMode 
-  } = React.useContext(ViewContext)
+  } = useViewContext()
   const {
     manifest,
     characterManager,
@@ -27,16 +28,16 @@ function Optimizer() {
     loraDataGenerator,
     spriteAtlasGenerator
   } = React.useContext(SceneContext)
-  const { playSound } = React.useContext(SoundContext)
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
   
-  const [model, setModel] = useState(null);
-  const [nameVRM, setNameVRM] = useState("");
+  const [model, setModel] = useState<Object3D|null>(null);
+  const [nameVRM, setNameVRM] = useState<string>("");
+  
+  const [vrmFiles, setVRMFiles] = useState<File[]>([]);
+  const [vrmIndex, setVRMIndex] = useState<number>(0);
 
-  const [vrmFiles, setVRMFiles] = useState([]);
-  const [vrmIndex, setVRMIndex] = useState(0);
-
-  const [loadedAnimationName, setLoadedAnimationName] = React.useState("T-Pose");
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState<string>("T-Pose");
 
   const back = () => {
     !isMute && playSound('backNextButton');
@@ -75,9 +76,10 @@ function Optimizer() {
     }
   }
 
-  const download = async (saveName) => {
-    if (typeof saveName != "string" )
+  const download = async (saveName:string) => {
+    if (typeof saveName != "string" ){
       saveName = nameVRM;
+    }
     const saveData = async () => {
       const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
       if (downloadVRMImage) {
@@ -90,12 +92,11 @@ function Optimizer() {
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
       
-      parentScene.remove(sceneElements);
-      const isVRM0 = characterManager.getCurrentOptimizerCharacterModel().data?.isVRM0;
+      parentScene?.remove(sceneElements);
       
       const downloadLora = local["mergeOptions_download_lora"] == null ? true : local["mergeOptions_download_lora"];
       if (downloadLora === true) {
-        const promises = manifest.loras.map(async (lora) => {
+        const promises = manifest!.loras.map(async (lora) => {
           return loraDataGenerator.createLoraData(lora, downloadZip);
         });
   
@@ -103,8 +104,8 @@ function Optimizer() {
       }
       const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
       if (downloadSprites === true) {
-        const promises = manifest.sprites.map(async (sprite) => {
-          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
+        const promises = manifest!.sprites.map(async (sprite) => {
+          return spriteAtlasGenerator.createSpriteAtlas(sprite.manifest, downloadZip);
         });
   
         await Promise.all(promises);
@@ -113,7 +114,7 @@ function Optimizer() {
       if (downloadLora === true || downloadSprites === true) {
         downloadZip.saveZip(saveName);
       }
-      parentScene.add(sceneElements);
+      parentScene?.add(sceneElements);
     };
   
     await saveData();
@@ -122,7 +123,7 @@ function Optimizer() {
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleAnimationDrop = async (file) => {
+  const handleAnimationDrop = async (file:File) => {
     const curVRM = characterManager.getCurrentOptimizerCharacterModel();
     if (curVRM){
       const animName = getFileNameWithoutExtension(file.name);
@@ -160,7 +161,7 @@ function Optimizer() {
     }
   }
 
-  const loadVRMModel = async (file)=>{
+  const loadVRMModel = async (file:File)=>{
     const url = URL.createObjectURL(file);
     await characterManager.loadOptimizerCharacter(url);
     URL.revokeObjectURL(url);
@@ -168,10 +169,10 @@ function Optimizer() {
     const name = getFileNameWithoutExtension(file.name);
     setNameVRM (name);
 
-    setModel({...characterManager.getCurrentCharacterModel()});
+    setModel({...characterManager.getCurrentCharacterModel()} as Object3D);
   }
 
-  const handleVRMDrop = async (files) =>{
+  const handleVRMDrop = async (files:File[]) =>{
     
     loadVRMModel(files[0]);
     const newVRMFiles = [];
@@ -185,7 +186,7 @@ function Optimizer() {
     setVRMIndex(0);
   }
 
-  const handleFilesDrop = async(files) => {
+  const handleFilesDrop = async(files:File[]) => {
     console.log("dropped file");
     const file = files[0];
     // Check if the file has the .fbx extension
@@ -235,7 +236,7 @@ function Optimizer() {
           className={styles.buttonCenter}
           onClick={debugMode}
         /> */}
-        {(vrmFiles?.length > 1 != "")&&(
+        {(vrmFiles?.length > 1)&&(
           <CustomButton
           theme="light"
           text="Download All"
@@ -243,7 +244,7 @@ function Optimizer() {
           className={styles.buttonRight}
           onClick={downloadAll}
         />)}   
-        {(model != "")&&(
+        {!!model&&(
           <CustomButton
           theme="light"
           text="Download"

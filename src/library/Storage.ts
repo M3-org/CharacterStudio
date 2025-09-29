@@ -3,8 +3,8 @@
  * https://github.com/soulofmischief/proxy.js/blob/master/Storage.js
  */
 
-export class Storage {
-  private data: { [key: string]: string } = {};
+export class Storage<T extends Partial<Record<string, any>> = any> {
+  private data: T = {} as T;
 
   constructor() {
     if (typeof localStorage !== 'undefined') {
@@ -19,9 +19,9 @@ export class Storage {
     return keys[index] || null;
   }
 
-  getItem(key: string): any {
-    const value = this.data[key];
-    if (value === undefined) {
+  getItem(key: keyof T): T[keyof T] | null {
+    const value = this.data[key] as string;
+    if (!value) {
       return null;
     }
     
@@ -29,27 +29,27 @@ export class Storage {
       return JSON.parse(value);
     } catch (e) {
       // not json, return as string
-      return value;
+      return value  as  T[keyof T]
     }
   }
 
-  setItem(key: string, val: any, setLocal: boolean = true): string {
+  setItem(key: keyof T, val: T[keyof T], setLocal: boolean = true): string {
     const stVal: string = typeof val === 'string' ? val : JSON.stringify(val);
     
     if (setLocal && typeof localStorage !== 'undefined') {
-      localStorage.setItem(key, stVal);
+      localStorage.setItem(String(key), stVal);
     }
     
-    this.data[key] = stVal;
-    return stVal;
+    (this.data as any)[key] = stVal;
+    return stVal as string;
   }
 
-  removeItem(key: string): void {
+  removeItem(key: keyof T): void {
     delete this.data[key];
   }
 
   clear(): void {
-    this.data = {};
+    this.data = {} as T;
   }
 
   get length(): number {

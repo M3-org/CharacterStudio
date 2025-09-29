@@ -13,7 +13,7 @@ import { LookAtManager } from "@/library/lookatManager"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 export type SceneContextType = {
-  manifest: GlobalManifestJson | null,
+  manifest: GlobalManifestJson,
   setManifest: (manifest:GlobalManifestJson) => void,
   scene: Scene,
   decalManager: OverlayedTextureManager,
@@ -23,7 +23,7 @@ export type SceneContextType = {
   spriteAtlasGenerator: SpriteAtlasGenerator,
   showEnvironmentModels: (display:boolean) => void,
   debugMode: boolean,
-  toggleDebugMode: (isDebug:boolean) => void,
+  toggleDebugMode: (isDebug?:boolean) => void,
   animationManager: AnimationManager,
   lookAtManager: LookAtManager,
   camera: Camera,
@@ -49,7 +49,7 @@ export const SceneContext = createContext({
   thumbnailsGenerator: null!,
   showEnvironmentModels: (display:boolean) => {},
   debugMode: false,
-  toggleDebugMode: (isDebug:boolean) => {},
+  toggleDebugMode: (isDebug?:boolean) => {},
   animationManager: null!,
   lookAtManager: null!,
   camera: null!,

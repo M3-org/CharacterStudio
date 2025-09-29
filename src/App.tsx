@@ -21,6 +21,7 @@ import Mint from "./pages/Mint"
 import Optimizer from "./pages/Optimizer"
 import Save from "./pages/Save"
 import Wallet from "./pages/Wallet"
+import { GlobalManifestJson } from "./library/CharacterManifestData"
 
 // dynamically import the manifest
 const assetImportPath = import.meta.env.VITE_ASSET_PATH + "/manifest.json"
@@ -33,7 +34,7 @@ const centerCameraPositionOther = new THREE.Vector3(
   1.1512971720174363,
   2.2612065299409223,
 ) // note: get from `moveCamera({ targetY: 0.8, distance: 3.2 })`
-async function fetchManifest(location) {
+async function fetchManifest(location:string) {
   try {
     const response = await fetch(location);
     
@@ -43,7 +44,7 @@ async function fetchManifest(location) {
     
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error:any) {
     console.error(`Error fetching manifest: ${error.message}`);
     return [];
   }
@@ -61,7 +62,10 @@ async function fetchAll() {
 }
 
 const fetchData = () => {
-  let status, result
+  let status:'success'|'error', result:{
+    initialManifest: GlobalManifestJson|null;
+    effectManager: EffectManager;
+}
 
   const manifestPromise = fetchAll()
   // const modelPromise = fetchModel()
@@ -133,22 +137,13 @@ export default function App() {
   }
 
   const [confirmDialogWindow, setConfirmDialogWindow] = useState(false)
-  const [confirmDialogText, setConfirmDialogText] = useState("")
-  const [confirmDialogCallback, setConfirmDialogCallback] = useState([])
-
-  const confirmDialog = (msg, callback) => {
-    setConfirmDialogText(msg)
-    setConfirmDialogWindow(true)
-    setConfirmDialogCallback([callback])
-  }
-
+  const [confirmDialogText] = useState("")
+  const [confirmDialogCallback] = useState<(()=>void)[]>([])
   // map current app mode to a page
   const pages = {
     [ViewMode.LANDING]: <Landing />,
     [ViewMode.APPEARANCE]: (
-      <Appearance
-        confirmDialog={confirmDialog}
-      />
+      <Appearance />
     ),
     [ViewMode.OPTIMIZER]:<Optimizer/>,
     [ViewMode.CREATE]: <Create />,
@@ -163,12 +158,12 @@ export default function App() {
 
   let lastTap = 0
   useEffect(() => {
-    const handleTap = (e) => {
+    const handleTap = (e:TouchEvent | MouseEvent) => {
       const now = new Date().getTime()
       const timesince = now - lastTap
       if (timesince < 300 && timesince > 10) {
         const tgt = e.target
-        if (tgt.id == "editor-scene") setHideUi(!hideUi)
+        if ((tgt as any)?.id == "editor-scene") setHideUi(!hideUi)
       }
       lastTap = now
     }
@@ -198,7 +193,7 @@ export default function App() {
   }, [viewMode, lookAtManager])
 
   useEffect(() => {
-    setManifest(initialManifest)
+    setManifest(initialManifest!)
   }, [initialManifest])
 
   // Translate hook

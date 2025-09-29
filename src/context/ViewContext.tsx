@@ -64,3 +64,6 @@ export const ViewProvider = ({children}:{children?:React.ReactNode}) => {
     </ViewContext.Provider>
   )
 }
+
+
+export const useViewContext = () => React.useContext(ViewContext)

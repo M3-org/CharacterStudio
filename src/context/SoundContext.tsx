@@ -43,3 +43,5 @@ export const SoundProvider = ({children}:{children?:React.ReactNode}) => {
     </SoundContext.Provider>
   )
 }
+
+export const useSoundContext = () => React.useContext(SoundContext)

@@ -1,12 +1,20 @@
 import React from 'react';
 import styles from './Slider.module.css'; // Import CSS for styling
 
-export default function Slider ({ title, value, min, max, onChange, step, stepBox }) {
+export default function Slider ({ title, value, min, max, onChange, step, stepBox }:{
+  title?: string,
+  value?: number,
+  min?: number,
+  max?: number,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  step?: number,
+  stepBox?: number
+}) {
   
   return (
     <>
     <div className={styles["infoContainer"]}>   
-    {title}
+    {title || ''}
     {stepBox &&
         <input
           type="number"

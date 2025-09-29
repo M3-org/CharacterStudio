@@ -1,16 +1,21 @@
 import React from "react"
 import styles from "./MessageWindow.module.css"
-import CustomButton from "../components/custom-button"
+import CustomButton from "./custom-button"
 
-export default function MessageWindow(props) {
-    const {
-      cancelOption = true,
-      confirmDialogText,
-      confirmDialogWindow,
-      setConfirmDialogWindow,
-      confirmDialogCallback
+export default function MessageWindow({
+  cancelOption = true,
+  confirmDialogText,
+  confirmDialogWindow,
+  setConfirmDialogWindow,
+  confirmDialogCallback
+}:{
+    cancelOption?:boolean,
+    confirmDialogText:string,
+    confirmDialogWindow:boolean,
+    setConfirmDialogWindow:React.Dispatch<React.SetStateAction<boolean>>,
+    confirmDialogCallback:((result:boolean)=>void)[]
+}) {
 
-    } = props
     
     return (
       confirmDialogWindow?(

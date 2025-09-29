@@ -1,11 +1,15 @@
 import React, { useState } from "react"
 import styles from "./MergeOptions.module.css"
-import MenuTitle from "../components/MenuTitle"
-import Slider from "../components/Slider"
+import MenuTitle from "./MenuTitle"
+import Slider from "./Slider"
 import { local } from "../library/store"
 import { getAtlasSize } from "../library/utils"
 
-function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
+function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}:{
+  showDropToDownload?:boolean,
+  showCreateAtlas?:boolean,
+  mergeMenuTitle?:string
+}) {
 
   
   const [atlasStd, setAtlasStd] = useState(local["mergeOptions_atlas_std_size"] || 6);
@@ -29,42 +33,42 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
   const [downloadLora, setDownloadLora] = useState(local["mergeOptions_download_lora"] == null ?  true : local["mergeOptions_download_lora"])
   const [downloadSprites, setDownloadSprites] = useState(local["mergeOptions_download_sprites"] == null ?  true : local["mergeOptions_download_sprites"])
 
-  const handleDropDownloadEnable = (event) => {
+  const handleDropDownloadEnable = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadOnDrop(event.target.checked);
     local["mergeOptions_drop_download"] = event.target.checked;
   }
 
-  const handleTwoSidedMaterialEnable = (event) => {
+  const handleTwoSidedMaterialEnable = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTwoSidedMaterial(event.target.checked);
     local["mergeOptions_two_sided_mat"] = event.target.checked;
   }
 
-  const handleKtxCompressionEnable = (event) => {
+  const handleKtxCompressionEnable = (event: React.ChangeEvent<HTMLInputElement>) => {
     setKtxCompression(event.target.checked);
     local["merge_options_ktx_compression"] = event.target.checked;
   }
 
-  const handleCreateAtlas = (event) => {
+  const handleCreateAtlas = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCreateAtlas(event.target.checked)
     local["mergeOptions_create_atlas"] = event.target.checked;
   }
 
-  const handleDownloadVRM = (event) => {
+  const handleDownloadVRM = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadVRM(event.target.checked)
     local["mergeOptions_download_vrm"] = event.target.checked;
   }
 
-  const handleDownloadVRMPreview = (event) => {
+  const handleDownloadVRMPreview = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadVRMPreview(event.target.checked)
     local["mergeOptions_download_vrm_preview"] = event.target.checked;
   }
 
-  const handleDownloadLora = (event) => {
+  const handleDownloadLora = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadLora(event.target.checked)
     local["mergeOptions_download_lora"] = event.target.checked;
   }
 
-  const handleDownloadSprite = (event) => {
+  const handleDownloadSprite = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDownloadSprites(event.target.checked)
     local["mergeOptions_download_sprites"] = event.target.checked;
   }
@@ -91,14 +95,14 @@ function MergeOptions({showDropToDownload, showCreateAtlas, mergeMenuTitle}) {
     local["mergeOptions_sel_option"] = cur;
   }
 
-  const handleChangeAtlasSize = async (event, type) => {
+  const handleChangeAtlasSize = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
     let val = parseInt(event.target.value);
     if (val > 8)
       val = 8;
     else if (val < 0)
       val = 0;
 
-    const setAtlasSize = (size) => {
+    const setAtlasSize = (size:number) => {
       switch (type){
         case 'standard opaque':
           // save to user prefs

@@ -1,38 +1,39 @@
+import { ModelTrait } from "@/library/CharacterManifestData"
 import React, { useContext, useState } from "react"
-import styles from "./Save.module.css"
-import { ExportMenu } from "../components/ExportMenu"
-import { SceneContext } from "../context/SceneContext"
-import { ViewMode, ViewContext } from "../context/ViewContext"
 import CustomButton from "../components/custom-button"
-import { LanguageContext } from "../context/LanguageContext"
-import { SoundContext } from "../context/SoundContext"
-import { AudioContext } from "../context/AudioContext"
-import MessageWindow from "../components/MessageWindow"
-import MergeOptions from "../components/MergeOptions"
+import { ExportMenu } from "../components/ExportMenu"
 import FileDropComponent from "../components/FileDropComponent"
+import MergeOptions from "../components/MergeOptions"
+import MessageWindow from "../components/MessageWindow"
 import PurchaseMenu from "../components/PurchaseMenu"
+import { AudioContext } from "../context/AudioContext"
+import { LanguageContext } from "../context/LanguageContext"
+import { SceneContext } from "../context/SceneContext"
+import { useSoundContext } from "../context/SoundContext"
+import { ViewMode, useViewContext } from "../context/ViewContext"
+import styles from "./Save.module.css"
 
 
 function Save() {
 
   // Translate hook
   const { t } = useContext(LanguageContext);
-  const { playSound } = React.useContext(SoundContext)
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
-  const { setViewMode } = React.useContext(ViewContext);
+  const { setViewMode } = useViewContext()
   const { characterManager } = React.useContext(SceneContext)
 
 
-  const [confirmDialogWindow, setConfirmDialogWindow] = useState(false)
-  const [dialogMessage, setDialogMessage] = useState("")
+  const [confirmDialogWindow, setConfirmDialogWindow] = useState<boolean>(false)
+  const [dialogMessage, setDialogMessage] = useState<string>("")
 
-  const [currentPrice, setCurrentPrice] = React.useState(0)
-  const [purchaseTraits, setPurchaseTraits] = React.useState([])
-  const [currency, setCurrency] = React.useState("")
+  const [currentPrice, setCurrentPrice] = React.useState<number>(0)
+  const [purchaseTraits, setPurchaseTraits] = React.useState<ModelTrait[]>([])
+  const [currency, setCurrency] = React.useState<string>("")
 
   React.useEffect(() => {
     setCurrentPrice(characterManager.getCurrentTotalPrice());
-    setCurrency(characterManager.getMainPriceCurrency());
+    setCurrency(characterManager.getMainPriceCurrency()||'');
   }, [])
 
   const back = () => {
@@ -48,7 +49,7 @@ function Save() {
     console.log("click purch")
     setPurchaseTraits(characterManager.getPurchaseTraitsArray())
   }
-  const handleFilesDrop = async(files) => {
+  const handleFilesDrop = async(files:FileList) => {
     const file = files[0];
     if (file && file.name.toLowerCase().endsWith('.json')) {
     } 

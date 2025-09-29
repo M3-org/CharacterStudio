@@ -5,6 +5,9 @@
 		}
 	],
 	"settings": {
-		"editor.formatOnSave": false
+		"editor.formatOnSave": false,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": "explicit"
+		}
 	}
 }

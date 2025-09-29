@@ -1,8 +1,8 @@
 import React from "react"
 import styles from "./Landing.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
+import { ViewMode, useViewContext } from "../context/ViewContext"
 
-import { SoundContext } from "../context/SoundContext"
+import { useSoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
 import { SceneContext } from "../context/SceneContext"
 
@@ -11,8 +11,8 @@ import { connectWallet } from "../library/mint-utils"
 const opensea_Key = import.meta.env.VITE_OPENSEA_KEY;
 
 function Landing() {
-  const { setViewMode } = React.useContext(ViewContext)
-  const { playSound } = React.useContext(SoundContext)
+  const { setViewMode } = useViewContext()
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
   const { characterManager } = React.useContext(SceneContext)
 

@@ -20,7 +20,7 @@ export class SpriteAtlasGenerator {
         this.animationManager = this.characterManager.animationManager;
     }
 
-    async createSpriteAtlas(manifestURL:string, exsitingZipFile = null, zipName = ""){
+    async createSpriteAtlas(manifestURL:string, exsitingZipFile:ZipManager|null = null, zipName = ""){
         const spriteFolderName = "spriteData";
         const manifest = await this._fetchManifest(manifestURL);
         const {

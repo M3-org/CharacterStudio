@@ -2,6 +2,8 @@ import React from "react"
 
 import styles from "./Background.module.css"
 import { SceneContext } from "../context/SceneContext"
+
+
 export default function Background() {
   const {
     debugMode,

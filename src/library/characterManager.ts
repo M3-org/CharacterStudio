@@ -1,22 +1,21 @@
-import * as THREE from "three"
-import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { AnimationManager } from "./animationManager"
-import { ScreenshotManager } from "./screenshotManager";
-import { BlinkManager } from "./blinkManager";
-import { EmotionManager } from "./EmotionManager";
 import { MToonMaterial, VRM, VRMLoaderPlugin, VRMSpringBoneCollider, VRMSpringBoneColliderGroup } from "@pixiv/three-vrm";
-import { getAsArray, disposeVRM, renameVRMBones, addModelData } from "./utils";
-import { downloadGLB, downloadVRMWithAvatar } from "./download-utils"
-import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} from "./load-utils";
-import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
-import { LipSync } from "./lipsync";
-import { LookAtManager } from "./lookatManager";
-import OverlayedTextureManager from "./OverlayTextureManager";
-import { ManifestDataManager } from "./manifestDataManager";
-import { WalletCollections } from "./walletCollections";
-import { buySolanaPurchasableAssets } from "./mint-utils"
-import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
+import * as THREE from "three";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { AnimationManager } from "./animationManager";
+import { BlinkManager } from "./blinkManager";
 import { BlendShapeTrait, CharacterManifestData, ColorTrait, DecalTrait, DownloadOptionsManifest, manifestJson, ModelTrait, SelectedOption, TextureTrait, TraitModelsGroup } from "./CharacterManifestData";
+import { downloadGLB, downloadVRMWithAvatar } from "./download-utils";
+import { EmotionManager } from "./EmotionManager";
+import { LipSync } from "./lipsync";
+import { getNodesWithColliders, renameMorphTargets, saveVRMCollidersToUserData } from "./load-utils";
+import { LookAtManager } from "./lookatManager";
+import { ManifestDataManager } from "./manifestDataManager";
+import { buySolanaPurchasableAssets } from "./mint-utils";
+import OverlayedTextureManager from "./OverlayTextureManager";
+import { OwnedNFTTraitIDs } from "./ownedNFTTraitIDs";
+import { ScreenshotManager } from "./screenshotManager";
+import { addChildAtFirst, addModelData, cullHiddenMeshes, disposeVRM, getAsArray, renameVRMBones, setTextureToChildMeshes } from "./utils";
+import { WalletCollections } from "./walletCollections";
 
 //import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 
@@ -391,7 +390,7 @@ export class CharacterManager {
       if (this.canDownload()){
         exportOptions = exportOptions || {}
         const finalOptions = {...this.manifestDataManager.getExportOptions(), ...exportOptions};
-        downloadGLB(this.characterModel, name, finalOptions);
+        downloadGLB(this.characterModel, this.avatar, name, finalOptions);
       }
       else{
         console.error("Download not supported");

@@ -4,31 +4,39 @@ import MenuTitle from "./MenuTitle"
 import { findChildrenByType } from "../library/utils";
 import { getMaterialsSortedByArray } from "../library/utils";
 import { SceneContext } from "../context/SceneContext"
+import { Mesh, Object3D, SkinnedMesh } from "three";
 
-export default function ModelInformation({model, name, files, index, nextVrm, previousVrm}){
+export default function ModelInformation({model, name, files, index, nextVrm, previousVrm}:{
+    model:Object3D | null,
+    name?:string,
+    files?:File[] | null,
+    index?:number,
+    nextVrm?:()=>void,
+    previousVrm?:()=>void
+}){
     const {
         characterManager
       } = React.useContext(SceneContext)
 
-    const [meshQty, setMeshQty] = useState(0);
-    const [skinnedMeshQty, setSkinnedMeshQty] = useState(0);
+    const [meshQty, setMeshQty] = useState<number>(0);
+    const [skinnedMeshQty, setSkinnedMeshQty] = useState<number>(0);
 
-    const [standardMaterialQty, setStandardMaterialQty] = useState(0);
-    const [standardTranspMaterialQty, setStandardTranspMaterialQty] = useState(0);
-    const [standardCutoutMaterialQty, setStandardCutoutMaterialQty] = useState(0);
-    
-    const [vrmMaterialQty, setVrmMaterialQty] = useState(0);
-    const [vrmTranspMaterialQty, setVrmTranspMaterialQty] = useState(0);
-    const [vrmCutoutMaterialQty, setVrmCutoutMaterialQty] = useState(0);
+    const [standardMaterialQty, setStandardMaterialQty] = useState<number>(0);
+    const [standardTranspMaterialQty, setStandardTranspMaterialQty] = useState<number>(0);
+    const [standardCutoutMaterialQty, setStandardCutoutMaterialQty] = useState<number>(0);
 
-    const [trianglesCount, setTrianglesCount] = useState(0);
-    const [bonesCount, setBonesCount] = useState(0);
+    const [vrmMaterialQty, setVrmMaterialQty] = useState<number>(0);
+    const [vrmTranspMaterialQty, setVrmTranspMaterialQty] = useState<number>(0);
+    const [vrmCutoutMaterialQty, setVrmCutoutMaterialQty] = useState<number>(0);
+
+    const [trianglesCount, setTrianglesCount] = useState<number>(0);
+    const [bonesCount, setBonesCount] = useState<number>(0);
 
 
     useEffect(() => {
         if (model != null){
-            const meshes = findChildrenByType(model,"Mesh");
-            const skinnedMesh = findChildrenByType(model,"SkinnedMesh");
+            const meshes = findChildrenByType<Mesh>(model,"Mesh");
+            const skinnedMesh = findChildrenByType<SkinnedMesh>(model,"SkinnedMesh");
             setMeshQty(meshes.length)
             setSkinnedMeshQty(skinnedMesh.length)
             const allMeshes =  meshes.concat(skinnedMesh);
@@ -62,10 +70,10 @@ export default function ModelInformation({model, name, files, index, nextVrm, pr
                     <div className={styles["flexSelect"]}>
 
 
-                        {files?.length > 1 ? <div // add left arrow only when array is greater than 1
+                        {(files?.length || 0) > 1 ? <div // add left arrow only when array is greater than 1
                             className={`${styles["arrow-button"]} ${styles["left-button"]}`}
                             onClick={previousVrm}
-                        />:<></>}
+                        /> : <></>}
 
 
                         {(name) && (
@@ -85,10 +93,10 @@ export default function ModelInformation({model, name, files, index, nextVrm, pr
                         )}
 
 
-                        {files?.length > 1 ? <div //add right arrow only when array is greater than 1
+                        {(files?.length || 0) > 1 ? <div //add right arrow only when array is greater than 1
                             className={`${styles["arrow-button"]} ${styles["right-button"]}`}
                             onClick={nextVrm}
-                        />:<></>}
+                        /> : <></>}
                     </div>
                     <div className={styles["traitInfoTitle"]}>
                         Geometry info:

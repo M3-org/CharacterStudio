@@ -2,11 +2,12 @@ import JSZip from 'jszip';
 
 
 export class ZipManager{
+    zipContainer: Record<string, { data: any, name: string, extension: string }[]>;
     constructor() {
         this.zipContainer = {};
     }
 
-    addData(data, dataName, extension, zipFolder = ""){
+    addData(data:any, dataName:string, extension:string, zipFolder = ""){
 
         if (zipFolder == "") zipFolder = "_";
             
@@ -19,7 +20,7 @@ export class ZipManager{
     }
 
     // Function to save the image array as a zip folder
-    saveZip(zipName, reset = true) {
+    saveZip(zipName:string, reset = true) {
         const zipContainer = this.zipContainer;
         const zip = new JSZip();
         // zip.file(filename + ".txt", textContent);
@@ -33,7 +34,7 @@ export class ZipManager{
             }
             else{
                 const folder = zip.folder(prop);
-                
+                if(!folder) continue;
                 
                 zipContainer[prop].forEach((data, index) => {
                     const base64 = data.extension != "txt" ? true : false;
@@ -56,23 +57,26 @@ export class ZipManager{
        
     }
 
-    _saveZipFile(strData, filename) {
+    _saveZipFile(strData: string|Blob, filename: string) {
         const blob = new Blob([strData], { type: "application/zip" });
-        if (typeof window.navigator.msSaveBlob !== 'undefined') {
-        // For IE and Edge
-        window.navigator.msSaveBlob(blob, filename);
+        if (typeof (window.navigator as any).msSaveBlob !== 'undefined') {
+            // For IE and Edge
+            ;(window.navigator as any).msSaveBlob(blob, filename);
         } else {
-        const link = document.createElement('a');
-        if (typeof link.download === 'string') {
-            document.body.appendChild(link); // Firefox requires the link to be in the body
-            link.download = filename;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            document.body.removeChild(link); // Remove the link when done
-        } else {
-            const win = window.open(strData, "_blank");
-            win.document.write("<title>" + filename + "</title><img src='" + strData + "'/>");
-        }
+            const link = document.createElement('a');
+            if (typeof link.download === 'string') {
+                document.body.appendChild(link); // Firefox requires the link to be in the body
+                link.download = filename;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                document.body.removeChild(link); // Remove the link when done
+            } else {
+                if(typeof strData != "string"){
+                    strData = URL.createObjectURL(strData);
+                }
+                const win = window.open(strData, "_blank");
+                win?.document.write("<title>" + filename + "</title><img src='" + strData + "'/>");
+            }
         }
     }
 }

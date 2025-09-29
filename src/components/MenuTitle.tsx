@@ -2,7 +2,7 @@ import styles from "./MenuTitle.module.css"
 
 
 export default function MenuTitle({title, width, left, right}:{
-    title: string|null,
+    title?: string,
     width?: number,
     left?: number,
     right?: number

@@ -206,12 +206,14 @@ export type LoraJsonDescription={
 export type ClassCharacterJson = {
   name:string,
   description:string,
-  portrait: string,
+  portrait?: string,
   baseUrl?: string,
   loras?: string,
   manifest:string,
-  icon: string,
-  format: "vrm"
+  manifestAppend?:Array<ClassCharacterJson>,
+  icon?: string,
+  disabled?: boolean,
+  format?: "vrm"
 }
 
 export type GlobalManifestJson = {
@@ -222,7 +224,13 @@ export type GlobalManifestJson = {
       "description"?:string
       "location":string
       "icon"?: string
-    }[]
+    }[],
+  sprites:{ 
+    "name": string,
+    "description"?: string
+    "manifest": string
+    "icon"?: string
+  }[]
 }
 /**
  * Main class for managing character manifest data and traits

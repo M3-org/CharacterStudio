@@ -7,10 +7,11 @@ import { ViewContext, ViewMode } from '../context/ViewContext';
 
 import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { ClassCharacterJson } from '@/library/CharacterManifestData';
 
 function Load() {
     const { account, library, activate } = useWeb3React();
-    const [characters, setCharacters] = useState([]);
+    const [characters, setCharacters] = useState<ClassCharacterJson[]>([]);
     const { setViewMode } = React.useContext(ViewContext);
     const { playSound } = React.useContext(SoundContext)
     const { isMute } = React.useContext(AudioContext)
@@ -28,7 +29,7 @@ function Load() {
                 'function tokenURI(uint256 tokenId) external view returns (string)',
             ];
             const contract = new ethers.Contract(contractAddress, abi, library);
-            contract.balanceOf(account).then((balance) => {
+            contract.balanceOf(account).then((balance:bigint) => {
                 const promises = [];
                 for (let i = 0; i < balance; i++) {
                     promises.push(contract.tokenOfOwnerByIndex(account, i));
@@ -38,7 +39,7 @@ function Load() {
                         return contract.tokenURI(tokenId);
                     });
                     Promise.all(tokenURIs).then((values) => {
-                        setCharacters(values);
+                        setCharacters(values as ClassCharacterJson[]);
                     });
                 });
             });
@@ -49,7 +50,7 @@ function Load() {
         activate(injectedConnector)
     }
 
-    const loadCharacter = (character) => {
+    const loadCharacter = () => {
         !isMute && playSound('backNextButton');
         setViewMode(ViewMode.APPEARANCE)
     }
@@ -76,7 +77,7 @@ function Load() {
                         <div
                             key={i}
                                 className={styles.character}
-                                    onClick={()=> {loadCharacter(character)}}
+                                    onClick={()=> {loadCharacter()}}
                                     >
                             {JSON.stringify(character)}
                         </div>

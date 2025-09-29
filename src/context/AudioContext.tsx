@@ -1,16 +1,31 @@
 import React, {useState, createContext} from 'react';
-export const AudioContext = createContext();
 import bgm from "../../public/sound/background/cc_bgm_balanced.wav"
 
-export const AudioProvider = ({ children }) => {
+export const AudioContext = createContext<{
+    isMute: boolean;
+    setMute: (mute: boolean) => void;
+    enableAudio: () => void;
+    disableAudio: () => void;
+}>({
+    isMute: false,
+    setMute: () => {},
+    enableAudio: () => {},
+    disableAudio: () => {},
+})
+
+export const AudioProvider = ({ children }: React.PropsWithChildren<{}>) => {
     const [isMute, setMute] = useState(false);
-    const audioRef = React.useRef(null);
+    const audioRef = React.useRef<HTMLAudioElement>(null);
 
     const enableAudio = () => {
         setMute(false)
         // append the background music to the body and play, using html
         // audio element
         const audio = audioRef.current;
+        if(!audio) {
+            console.warn("Audio element not found")
+            return
+        }
         audio.src = bgm
         audio.loop = true
         audio.volume = 0.0
@@ -31,6 +46,10 @@ export const AudioProvider = ({ children }) => {
     const disableAudio = () => {
         setMute(true)
         const audio = audioRef.current;
+        if(!audio) {
+            console.warn("Audio element not found")
+            return
+        }
         // pause audio
         audio.pause()
     }

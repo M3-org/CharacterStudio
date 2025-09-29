@@ -1,34 +1,28 @@
 import React from "react"
-import styles from "./Mint.module.scss"
-import { ViewMode, ViewContext } from "../context/ViewContext"
-import { SceneContext } from "../context/SceneContext"
+import { Group } from "three"
 import CustomButton from "../components/custom-button"
-import { SoundContext } from "../context/SoundContext"
 import { AudioContext } from "../context/AudioContext"
+import { SceneContext } from "../context/SceneContext"
+import { useSoundContext } from "../context/SoundContext"
+import { ViewMode, useViewContext } from "../context/ViewContext"
 import { mintAsset } from "../library/mint-utils"
+import styles from "./Mint.module.scss"
 
 function MintComponent() {
-  const { model, avatar } = React.useContext(SceneContext)
-  const { setViewMode } = React.useContext(ViewContext)
-  const { playSound } = React.useContext(SoundContext)
+  const { characterManager } = React.useContext(SceneContext)
+  const { setViewMode } = useViewContext()
+  const { playSound } = useSoundContext()
   const { isMute } = React.useContext(AudioContext)
 
-  const [status, setStatus] = React.useState("")
-  const [minting, setMinting]= React.useState(false)
+  const [status, setStatus] = React.useState<string>("")
+  const [minting, setMinting]= React.useState<boolean>(false)
 
   const back = () => {
     setViewMode(ViewMode.SAVE)
     !isMute && playSound('backNextButton');
   }
 
-  function MenuTitle() {
-    return (
-      <div className={styles["mainTitleWrap"]}>
-        <div className={styles["topLine"]} />
-        <div className={styles["mainTitle"]}>Mint</div>
-      </div>
-    )
-  }
+ 
   async function Mint(){
     !isMute && playSound('backNextButton');
     setMinting(true)
@@ -36,11 +30,17 @@ function MintComponent() {
     //const fullBioStr = localStorage.getItem(`${templateInfo.id}_fulBio`)
     const fullBio = {name:"XXXRestore"};//JSON.parse(fullBioStr)
     const screenshot = undefined;// getFaceScreenshot(256,256,true);
-    const result = await mintAsset(avatar,screenshot,model, fullBio.name)
-    setStatus(result)
+    const result = await mintAsset(avatar,screenshot, characterManager.characterModel as Group, fullBio.name)
+    setStatus(result || '')
     setMinting(false)
     console.log(result);
   }
+
+  if(!characterManager){
+    return <div></div>
+  }
+
+  const {characterModel:model, avatar} = characterManager
 
   return (
     <div className={styles.container}>
@@ -93,3 +93,12 @@ function MintComponent() {
 }
 
 export default MintComponent
+
+ function MenuTitle() {
+    return (
+      <div className={styles["mainTitleWrap"]}>
+        <div className={styles["topLine"]} />
+        <div className={styles["mainTitle"]}>Mint</div>
+      </div>
+    )
+  }
