@@ -113,7 +113,7 @@ export class CharacterManager {
       this.rootModel.add(this.characterModel)
       this.renderCamera = renderCamera!;
 
-      this.manifestDataManager = new ManifestDataManager();
+      this.manifestDataManager = new ManifestDataManager(this);
       if (manifestURL){
         this.manifestDataManager.loadManifest(manifestURL,manifestIdentifier).then(()=>{
           this.animationManager.setScale(this.manifestDataManager.getDisplayScale());
@@ -357,14 +357,20 @@ export class CharacterManager {
             exportOptions = exportOptions || {};
             const manifestOptions = this.manifestDataManager.getExportOptions();
             console.log(manifestOptions);
-            const finalOptions = { ...manifestOptions, ...exportOptions };
-            finalOptions.screenshot = this._getPortaitScreenshotTexture(false, finalOptions) as Record<string,any>;
+            const finalOptions = { 
+              ...manifestOptions, 
+              ...exportOptions,
+              screenshot:this._getPortaitScreenshotTexture(false, {
+                ...manifestOptions, 
+                ...exportOptions} as any)
+              };
+
 
             // Log the final export options
             console.log(finalOptions);
 
             // Call the downloadVRMWithAvatar function with the required parameters
-            await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions);
+            await downloadVRMWithAvatar(this.characterModel, this.avatar, name, finalOptions as any);
 
             resolve(undefined);
           } catch (error:any) {
@@ -1254,11 +1260,12 @@ export class CharacterManager {
      * @param {string} baseLocation - Base location for animations
      * @param {number} scale - Scale for animations
      */
-    private async _animationManagerSetup(
+    async _animationManagerSetup(
       paths: string | string[],
       baseLocation: string,
       scale: number,
     ) {
+      console.log("Setting up animation manager with paths:", paths, "baseLocation:", baseLocation, "scale:", scale);
       const animationPaths = getAsArray(paths);
       if (this.animationManager){
         this.animationManager.setScale(scale);
@@ -1835,7 +1842,7 @@ class TraitLoadingManager{
                 const loadedModels = await Promise.all(
                     getAsArray(option?.traitModel?.fullDirectory).map(async (modelDir) => {
                         try {
-                            return await this.gltfLoader.loadAsync(modelDir)
+                            return await this.gltfLoader.loadAsync(modelDir!)
                         } catch (error) {
                             console.error(`Error loading modelsss ${modelDir}:`, error);
                             return null;
@@ -1847,7 +1854,7 @@ class TraitLoadingManager{
                   getAsArray(option?.traitTexture?.fullDirectory).map(
                       (textureDir) =>
                           new Promise((resolve) => {
-                              this.textureLoader.load(textureDir, (txt) => {
+                              this.textureLoader.load(textureDir!, (txt) => {
                                   txt.flipY = false;
                                   txt.colorSpace = THREE.SRGBColorSpace;
                                   resolve(txt);

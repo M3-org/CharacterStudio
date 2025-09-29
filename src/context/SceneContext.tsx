@@ -1,43 +1,83 @@
-import React, { createContext, useEffect, useState } from "react"
-
+import  { createContext, useEffect, useState } from "react"
+import { Camera, Object3D, Scene } from "three"
 import gsap from "gsap"
 import { sceneInitializer } from "../library/sceneInitializer"
 import { LoraDataGenerator } from "../library/loraDataGenerator"
 import { SpriteAtlasGenerator } from "../library/spriteAtlasGenerator"
 import { ThumbnailGenerator } from "../library/thumbnailsGenerator"
+import { GlobalManifestJson, manifestJson } from "@/library/CharacterManifestData"
+import { CharacterManager } from "@/library/characterManager"
+import OverlayedTextureManager from "@/library/OverlayTextureManager"
+import { AnimationManager } from "@/library/animationManager"
+import { LookAtManager } from "@/library/lookatManager"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+
+export type SceneContextType = {
+  manifest: GlobalManifestJson | null,
+  setManifest: (manifest:GlobalManifestJson) => void,
+  scene: Scene,
+  decalManager: OverlayedTextureManager,
+  characterManager: CharacterManager,
+  thumbnailsGenerator: ThumbnailGenerator,
+  loraDataGenerator: LoraDataGenerator,
+  spriteAtlasGenerator: SpriteAtlasGenerator,
+  showEnvironmentModels: (display:boolean) => void,
+  debugMode: boolean,
+  toggleDebugMode: (isDebug:boolean) => void,
+  animationManager: AnimationManager,
+  lookAtManager: LookAtManager,
+  camera: Camera,
+  moveCamera: (value:{
+    // left half center
+    targetX?: number,
+    targetY?: number,
+    targetZ?: number,
+    distance?: number,
+  }) => void,
+  controls: OrbitControls,
+  sceneElements: Object3D,
+}
 
 export const SceneContext = createContext({
-    /**
- * @typedef {import('../library/characterManager').CharacterManager} CharacterManager
- * @type {CharacterManager}
- */
-  characterManager: null,
-  /**
-   * @typedef {Object} MoveCameraParam
-   * @property {number} targetX
-   * @property {number} targetY
-   * @property {number} targetZ
-   * @property {number} distance
-   * @param {MoveCameraParam} _value
-   */
-  // eslint-disable-next-line no-unused-vars
-  moveCamera: (_value) => {},
-})
+  manifest: null!,
+  setManifest: (manifest:GlobalManifestJson) => {},
+  scene: null!,
+  characterManager: null!,
+  decalManager: null!,
+  spriteAtlasGenerator: null!,
+  loraDataGenerator: null!,
+  thumbnailsGenerator: null!,
+  showEnvironmentModels: (display:boolean) => {},
+  debugMode: false,
+  toggleDebugMode: (isDebug:boolean) => {},
+  animationManager: null!,
+  lookAtManager: null!,
+  camera: null!,
+  moveCamera: (value:{
+    // left half center
+    targetX?: number,
+    targetY?: number,
+    targetZ?: number,
+    distance?: number,
+  }) => {},
+  controls: null!,
+  sceneElements: null!,
+} as SceneContextType)
 
-export const SceneProvider = (props) => {
-  const [characterManager, setCharacterManager] = useState(null)
-  const [loraDataGenerator, setLoraDataGenerator] = useState(null)
-  const [spriteAtlasGenerator, setSpriteAtlasGenerator] = useState(null)
-  const [decalManager, setDecalManager] = useState(null)
-  const [thumbnailsGenerator, setThumbnailsGenerator] = useState(null)
-  const [sceneElements, setSceneElements] = useState(null)
-  const [animationManager, setAnimationManager] = useState(null)
-  const [lookAtManager, setLookAtManager] = useState(null)
-  const [scene, setScene] = useState(null)
-  const [camera, setCamera] = useState(null)
-  const [controls, setControls] = useState(null)
+export const SceneProvider = ({children}:{children?:React.ReactNode}) => {
+  const [characterManager, setCharacterManager] = useState<CharacterManager>(null!)
+  const [spriteAtlasGenerator, setSpriteAtlasGenerator] = useState<SpriteAtlasGenerator>(null!)
+  const [thumbnailsGenerator, setThumbnailsGenerator] = useState<ThumbnailGenerator>(null!)
+  const [decalManager, setDecalManager] = useState<OverlayedTextureManager>(null!)
+  const [loraDataGenerator, setLoraDataGenerator] = useState<LoraDataGenerator>(null!)
+  const [sceneElements, setSceneElements] = useState<Object3D>(null!)
+  const [animationManager, setAnimationManager] = useState<AnimationManager>(null!)
+  const [lookAtManager, setLookAtManager] = useState<LookAtManager>(null!)
+  const [scene, setScene] = useState<Scene>(null!)
+  const [camera, setCamera] = useState<Camera>(null!)
+  const [controls, setControls] = useState<OrbitControls>(null!)
 
-  const [manifest, setManifest] = useState(null)
+  const [manifest, setManifest] = useState<GlobalManifestJson>(null!)
   const [debugMode, setDebugMode] = useState(false);
 
   let loaded = false
@@ -69,15 +109,15 @@ export const SceneProvider = (props) => {
   },[])
 
 
-  const toggleDebugMode = (isDebug) => {
+  const toggleDebugMode = (isDebug?: boolean) => {
     if (isDebug == null)
       isDebug = !debugMode;
 
     setDebugMode(isDebug);
     scene.traverse((child) => {
-      if (child.isMesh) {
-        if (child.setDebugMode){
-          child.setDebugMode(isDebug);
+      if ('isMesh' in child && child.isMesh) {
+        if ((child as any).setDebugMode){
+          (child as any).setDebugMode(isDebug);
         }
       }
     });
@@ -91,7 +131,7 @@ export const SceneProvider = (props) => {
     }
   }, [manifest])
 
-  const showEnvironmentModels = (display) => {
+  const showEnvironmentModels = (display?: boolean) => {
 
     if (display){
         scene.add(sceneElements);
@@ -102,7 +142,13 @@ export const SceneProvider = (props) => {
 
   }
 
-  const moveCamera = (value) => {
+  const moveCamera = (value:{
+    // left half center
+    targetX?: number,
+    targetY?: number,
+    targetZ?: number,
+    distance?: number,
+  }) => {
     if (!controls) return
     gsap.to(controls.target, {
       x: value.targetX ?? 0,
@@ -164,7 +210,7 @@ export const SceneProvider = (props) => {
         sceneElements,
       }}
     >
-      {props.children}
+      {children}
     </SceneContext.Provider>
   )
 }

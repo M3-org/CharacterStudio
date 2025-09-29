@@ -59,10 +59,11 @@ class AnimationControl {
         this.to.weight = animationManager.getWeightIn();
         this.from.weight = animationManager.getWeightOut();
       }
-
-      this.actions[curIdx].reset();
-      this.actions[curIdx].time = animationManager.getToActionTime();
-      this.actions[curIdx].play();
+      if(this.actions[curIdx]){
+        this.actions[curIdx].reset();
+        this.actions[curIdx].time = animationManager.getToActionTime();
+        this.actions[curIdx].play();
+      }
     }
   }
 
@@ -385,7 +386,7 @@ export class AnimationManager{
     //this.animationControls.push({ vrm: vrm, animationControl: animationControl });
 
     //addModelData(vrm , {animationControl});
-    if (this.started === false && animations){
+    if (this.started === false && animations?.length){
       this.started = true;
       this.animRandomizer(animations[this.curAnimID].duration);
     }
@@ -465,7 +466,7 @@ export class AnimationManager{
           animControl.to.reset();
         })
       }
-      this.animRandomizer(this.animations[this.curAnimID].duration - interpolationTime);
+      this.animRandomizer((this.animations[this.curAnimID]?.duration||(yieldTime * 1000)) - interpolationTime);
     }, (yieldTime * 1000));
   }
 

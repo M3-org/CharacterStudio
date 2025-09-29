@@ -1,8 +1,12 @@
-import React from "react"
 import styles from "./MenuTitle.module.css"
 
 
-export default   function MenuTitle({title, width, left, right}) {
+export default function MenuTitle({title, width, left, right}:{
+    title: string|null,
+    width?: number,
+    left?: number,
+    right?: number
+}) {
     const titleStyle = {
         width: width ? `${width}px` : null, // Use the provided width if available
         left:  left ?  `${left}px` : null,

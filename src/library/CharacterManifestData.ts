@@ -217,6 +217,12 @@ export type ClassCharacterJson = {
 export type GlobalManifestJson = {
   characters:ClassCharacterJson[]
   loras:LoraJsonDescription[]
+  defaultAnimations?:{
+      "name": string,
+      "description"?:string
+      "location":string
+      "icon"?: string
+    }[]
 }
 /**
  * Main class for managing character manifest data and traits

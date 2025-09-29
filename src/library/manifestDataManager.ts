@@ -1,3 +1,4 @@
+import { CharacterManager } from "./characterManager";
 import { BlendShapeTrait, CharacterManifestData, manifestJson, ModelTrait, SelectedOption, TraitModelsGroup } from "./CharacterManifestData";
 import { getAsArray } from "./utils";
 
@@ -6,7 +7,7 @@ export class ManifestDataManager{
   manifestDataByIdentifier:Record<string,CharacterManifestData> = {}
   manifestDataCollection:CharacterManifestData[]
   defaultValues:{defaultCullingLayer?:number, defaultCullingDistance?:number[], maxCullingDistance?:number}
-    constructor(){
+    constructor(public characterManager:CharacterManager){
       this.mainManifestData = null!;
       this.manifestDataCollection = [];
       this.defaultValues = {
@@ -146,6 +147,7 @@ export class ManifestDataManager{
         }
       });
     }
+    
     /**
        * Sets an existing manifest data for the character.
        *
@@ -176,18 +178,20 @@ export class ManifestDataManager{
           
             // If an animation manager is available, set it up
             // XXX
-            // if (this.animationManager) {
-            //   try{
-            //     await this._animationManagerSetup(
-            //       this.manifest.animationPath,
-            //       this.manifest.assetsLocation,
-            //       this.manifestData.displayScale
-            //     );
-            //   }
-            //   catch(err){
-            //     console.error("Error loading animations: " + err)
-            //   }
-            // }
+            if (this.characterManager.animationManager) {
+              console.log(this.characterManager)
+              console.log(this.mainManifestData)
+              try{
+                await this.characterManager._animationManagerSetup(
+                  this.mainManifestData.animationPath,
+                  this.mainManifestData.assetsLocation,
+                  this.mainManifestData.displayScale
+                );
+              }
+              catch(err){
+                console.error("Error loading animations: " + err)
+              }
+            }
             resolve();
           } else {
             // The manifest could not be fetched, reject the Promise with an error message
@@ -409,7 +413,7 @@ export class ManifestDataManager{
         const result = [];
         for (const identifier in this.manifestDataByIdentifier){
           const manifestData = this.manifestDataByIdentifier[identifier];
-          result.push(...getAsArray(manifestData.getModelTraits(groupTraitID)))
+          result.push(...getAsArray(manifestData.getModelTraits(groupTraitID) || []))
         }
         return result;
       }
@@ -547,7 +551,7 @@ export class ManifestDataManager{
       }
       const manifestData = !identifier ? this.mainManifestData : this.manifestDataByIdentifier[identifier];
 
-      return getAsArray(manifestData?.getModelTrait(traitGroupId, traitId)?.getGroupBlendShapeTraits()).filter(Boolean);
+      return getAsArray(manifestData?.getModelTrait(traitGroupId, traitId)?.getGroupBlendShapeTraits()||[]).filter(Boolean);
     }
   
     getExportOptions(){

@@ -1,36 +1,35 @@
 import React, { useContext } from "react"
 import styles from "./Appearance.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
-import { SceneContext } from "../context/SceneContext"
-import CustomButton from "../components/custom-button"
-import { LanguageContext } from "../context/LanguageContext"
-import { SoundContext } from "../context/SoundContext"
-import { AudioContext } from "../context/AudioContext"
-import FileDropComponent from "../components/FileDropComponent"
-import { getFileNameWithoutExtension } from "../library/utils"
-import MenuTitle from "../components/MenuTitle"
-import BottomDisplayMenu from "../components/BottomDisplayMenu"
+import { ViewMode, ViewContext } from "../context/ViewContext.js"
+import { SceneContext } from "../context/SceneContext.js"
+import CustomButton from "../components/custom-button/index.jsx"
+import { LanguageContext } from "../context/LanguageContext.jsx"
+import { SoundContext } from "../context/SoundContext.js"
+import { AudioContext } from "../context/AudioContext.jsx"
+import FileDropComponent from "../components/FileDropComponent.jsx"
+import { getFileNameWithoutExtension } from "../library/utils.js"
+import MenuTitle from "../components/MenuTitle.jsx"
+import BottomDisplayMenu from "../components/BottomDisplayMenu.jsx"
 import decalPicker from "../images/sticker.png"
-import { TokenBox } from "../components/token-box/TokenBox"
-import JsonAttributes from "../components/JsonAttributes"
+import { TokenBox } from "../components/token-box/TokenBox.jsx"
+import JsonAttributes from "../components/JsonAttributes.jsx"
 import cancel from "../images/cancel.png"
-import DecalGridView from "../components/decals/decalGrid"
+import DecalGridView from "../components/decals/decalGrid.jsx"
 import randomizeIcon from "../images/randomize.png"
 import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
-import RightPanel from "../components/RightPanel"
+import RightPanel from "../components/RightPanel.jsx"
 import SaleIcon from "../images/sale-icon.png"
+import { BlendShapeGroup, BlendShapeTrait, ModelTrait, TraitModelsGroup } from "@/library/CharacterManifestData.js"
+import { VRM } from "@pixiv/three-vrm"
 
-  /**
-   * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
-   * @typedef {import("../library/CharacterManifestData.js").ModelTrait} ModelTrait
-  */
 
-export const TraitPage ={
-  TRAIT:0,
-  BLEND_SHAPE:1,
-  DECAL:2
+export enum TraitPage {
+  TRAIT,
+  BLEND_SHAPE,
+  DECAL
 }
+
 
 function Appearance() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
@@ -40,8 +39,8 @@ function Appearance() {
     animationManager,
     moveCamera,
   } = React.useContext(SceneContext)
-  
-  const [traitView, setTraitView] = React.useState(TraitPage.TRAIT)
+
+  const [traitView, setTraitView] = React.useState<TraitPage>(TraitPage.TRAIT)
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
@@ -57,20 +56,16 @@ function Appearance() {
   }
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
-  const [traits, setTraits] = React.useState(null)
-  /**
-  * @type {[TraitModelsGroup, React.Dispatch<TraitModelsGroup>]} state
-  */
-  const [selectedTraitGroup, setSelectedTraitGroup] = React.useState(null)
-  /**
-   * @type {[ModelTrait|null, React.Dispatch<ModelTrait|null>]} state
-   */
-  const [selectedTrait, setSelectedTrait] = React.useState(null)
-  const [selectedBlendshapeTraits, setSelectedBlendshapeTraits] = React.useState({})
-  const [selectedVRM, setSelectedVRM] = React.useState(null)
-  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
-  const [isPickingColor, setIsPickingColor] = React.useState(false)
-  const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
+  const [traits, setTraits] = React.useState<ModelTrait[]| null>(null)
+
+  const [selectedTraitGroup, setSelectedTraitGroup] = React.useState<TraitModelsGroup|null>(null)
+
+  const [selectedTrait, setSelectedTrait] = React.useState<ModelTrait|null>(null)
+  const [selectedBlendshapeTraits, setSelectedBlendshapeTraits] = React.useState<Record<string, string>>({})
+  const [selectedVRM, setSelectedVRM] = React.useState<VRM|null>(null)
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState<string>("");
+  const [isPickingColor, setIsPickingColor] = React.useState<boolean>(false)
+  const [colorPicked, setColorPicked] = React.useState<{ background: string }>({ background: '#ffffff' })
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -93,22 +88,23 @@ function Appearance() {
     });
   }
 
-  const handleColorChange = (color) => {
+  const handleColorChange = (color: { hex: string }) => {
     setColorPicked({ background: color.hex });
   }
-  const handleChangeComplete = (color) =>{
+  const handleChangeComplete = (color: { hex: string }) =>{
+    if(!selectedTraitGroup) return;
     setColorPicked({ background: color.hex });
-    characterManager.setTraitColor(selectedTraitGroup?.trait, color.hex);
+    characterManager.setTraitColor(selectedTraitGroup.trait, color.hex);
   } 
 
-  const handleAnimationDrop = async (file) => {
+  const handleAnimationDrop = async (file: File) => {
     const animName = getFileNameWithoutExtension(file.name);
     const path = URL.createObjectURL(file);
     await animationManager.loadAnimation(path,false,0, true, "", animName);
     setLoadedAnimationName(animationManager.getCurrentAnimationName());
   }
 
-  const handleImageDrop = (file) => {
+  const handleImageDrop = (file: File) => {
     setIsPickingColor(false);
     if (selectedTraitGroup && selectedTraitGroup.trait != ""){
       setIsLoading(true);
@@ -121,7 +117,7 @@ function Appearance() {
       console.warn("Please select a group trait first.")
     }
   }
-  const handleVRMDrop = (file) =>{
+  const handleVRMDrop = (file: File) =>{
     setIsPickingColor(false);
     if (selectedTraitGroup && selectedTraitGroup.trait != ""){
       setIsLoading(true);
@@ -134,10 +130,10 @@ function Appearance() {
       console.warn("Please select a group trait first.")
     }
   }
-  const selectTrait = (trait) => {
+  const selectTrait = (trait: ModelTrait) => {
     console.log(trait);
     if(trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID){
-      if(trait.blendshapeTraits?.length>0){
+      if((trait.blendshapeTraits || []).length>0){
         setTraitView(TraitPage.BLEND_SHAPE);
       }
       // We already selected this trait, do nothing
@@ -149,20 +145,20 @@ function Appearance() {
     characterManager.loadTrait(trait.traitGroup.trait, trait.id, trait.collectionID).then(()=>{
       setIsLoading(false);
       console.log(characterManager.getCurrentTotalPrice());
-      if(trait.blendshapeTraits?.length>0){
+      if((trait.blendshapeTraits || []).length>0){
         const selectedBlendshapeTrait = characterManager.getCurrentBlendShapeTraitData(trait.traitGroup.trait);
-        setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
+        setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTrait).reduce<Record<string,string>>((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
         setTraitView(TraitPage.BLEND_SHAPE);
       }
       setSelectedTrait(trait);
     })
   }
-  const removeTrait = (traitGroupName) =>{
+  const removeTrait = (traitGroupName: string) =>{
     setIsPickingColor(false);
     characterManager.removeTrait(traitGroupName);
     setSelectedTrait(null);
   }
-  const randomTrait = (traitGroupName) =>{
+  const randomTrait = (traitGroupName: string) =>{
     setIsPickingColor(false);
     setIsLoading(true);
     characterManager.loadRandomTrait(traitGroupName).then(()=>{
@@ -171,11 +167,11 @@ function Appearance() {
     })
     // set selected trait
   }
-  const handleJsonDrop = (files) => {
+  const handleJsonDrop = (files: FileList) => {
     setIsPickingColor(false);
     const filesArray = Array.from(files);
-    const jsonDataArray = [];
-    const processFile = (file) => {
+    const jsonDataArray:any[] = [];
+    const processFile = (file: File) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
           const reader = new FileReader();
@@ -186,12 +182,12 @@ function Appearance() {
           console.log(thumbLocation)
           reader.onload = function (e) {
             try {
-              const jsonContent = JSON.parse(e.target.result);
+              const jsonContent = JSON.parse((e.target?.result||'{}') as string);
               // XXX Anata hack to display nft thumbs
               jsonContent.thumb = thumbLocation;
               jsonDataArray.push(jsonContent);
 
-              resolve(); // Resolve the promise when processing is complete
+              resolve(true); // Resolve the promise when processing is complete
             } catch (error) {
               console.error("Error parsing the JSON file:", error);
               reject(error);
@@ -207,7 +203,7 @@ function Appearance() {
     .then(() => {
       if (jsonDataArray.length > 0){
         // This code will run after all files are processed
-        setJsonSelectionArray(jsonDataArray);
+        setJsonSelectionArray(jsonDataArray as any);
         setIsLoading(true);
         characterManager.loadTraitsFromNFTObject(jsonDataArray[0]).then(()=>{
           setIsLoading(false);
@@ -219,7 +215,7 @@ function Appearance() {
     });
   }
 
-  const handleFilesDrop = async(files) => {
+  const handleFilesDrop = async(files: FileList) => {
     const file = files[0];
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
@@ -236,12 +232,12 @@ function Appearance() {
     } 
   };
 
-  const selectTraitGroup = (traitGroup) => {
+  const selectTraitGroup = (traitGroup:TraitModelsGroup) => {
     !isMute && playSound('optionClick');
     setIsPickingColor(false);
     if (selectedTraitGroup?.trait !== traitGroup.trait){
       setTraitView(TraitPage.TRAIT);
-      setTraits(characterManager.getTraits(traitGroup.trait));
+      setTraits(characterManager.getTraits(traitGroup.trait) || [] );
 
       setSelectedTraitGroup(traitGroup);
 
@@ -249,7 +245,7 @@ function Appearance() {
       const selectedBlendshapeTraits = characterManager.getCurrentBlendShapeTraitData(traitGroup.trait);
 
       setSelectedTrait(selectedT);
-      setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTraits).reduce((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
+      setSelectedBlendshapeTraits(Object.entries(selectedBlendshapeTraits).reduce<Record<string,string>>((acc,[key,value])=>{acc[key]=value.id;return acc},{}))
 
       setSelectedVRM(characterManager.getCurrentTraitVRM(traitGroup.trait))
       moveCamera({ targetY: traitGroup.cameraTarget.height, distance: traitGroup.cameraTarget.distance})
@@ -272,8 +268,9 @@ function Appearance() {
     if(!selectedTraitGroup){
       return console.error("Please select a trait group first")
     }
-    input.onchange = e => { 
-      var file = e.target.files[0]; 
+    input.onchange = e => {
+      //@ts-expect-error files exists
+      var file = e.target?.files[0]; 
       if (file.name.endsWith(".vrm")){
         const url = URL.createObjectURL(file);
         setIsLoading(true);
@@ -376,7 +373,6 @@ function Appearance() {
                   <div
                     key={"no-trait"}
                     className={`${styles["selectorButton"]}`}
-                    icon={cancel}
                     onClick={() => {removeTrait(selectedTraitGroup.trait)}}
                   >
                     <TokenBox
@@ -474,29 +470,21 @@ function Appearance() {
 
 export default Appearance
 
-/**
- * @param {{selectedTrait:ModelTrait|null,selectedBlendShapeTrait:Record<string,string>,onBack:()=>void,setSelectedBlendshapeTrait:(x:Record<string,string>)=>void}} param0 
- */
-const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSelectedBlendshapeTrait})=>{
+
+const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSelectedBlendshapeTrait}:{selectedTrait:ModelTrait|null,selectedBlendShapeTrait:Record<string,string>,onBack:()=>void,setSelectedBlendshapeTrait:(x:Record<string,string>)=>void})=>{
+
   const {characterManager,moveCamera} = React.useContext(SceneContext);
 
   const groups = characterManager.getBlendShapeGroupTraits(selectedTrait?.traitGroup.trait||"",selectedTrait?.id||"");
 
-  /**
-   *
-   * @param {string} traitGroup
-   * @param {import('../library/CharacterManifestData').BlendShapeGroup} blendShapeGroupTrait 
-    */
-  const removeBlendShapeTrait = (traitGroup,blendShapeGroupTrait)=>{
+  const removeBlendShapeTrait = (traitGroup:string,blendShapeGroupTrait:BlendShapeGroup)=>{
     characterManager.removeBlendShapeTrait(traitGroup,blendShapeGroupTrait.trait);
     const blendShapeTraitCopy = {...selectedBlendShapeTrait};
     delete blendShapeTraitCopy[blendShapeGroupTrait.trait]
     setSelectedBlendshapeTrait(blendShapeTraitCopy);
   }
-  /**
-   * @param {import('../library/CharacterManifestData').BlendShapeTrait} newBlendShape 
-   */
-  const selectBlendShapeTrait = (newBlendShape)=>{
+  
+  const selectBlendShapeTrait = (newBlendShape:BlendShapeTrait)=>{
     const parent = newBlendShape.parentGroup;
     characterManager.loadBlendShapeTrait(selectedTrait?.traitGroup.trait||"",parent.trait||"",newBlendShape?.id||'');
     moveCamera({ targetY: parent.cameraTarget.height, distance: parent.cameraTarget.distance})
@@ -523,7 +511,7 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
                     src={cancel}
                     active={!selectedBlendShapeTrait[group.trait]}
                     blendshapeID="cancel"
-                    select={()=>removeBlendShapeTrait(selectedTrait.traitGroup.trait,group)}
+                    select={()=>removeBlendShapeTrait(selectedTrait!.traitGroup.trait,group)}
                     />
                 {group.collection.map((blendShapeTrait)=>{
                   let active = blendShapeTrait.id === selectedBlendShapeTrait[group.trait]
@@ -540,10 +528,7 @@ const BlendShapeTraitView = ({selectedTrait,onBack,selectedBlendShapeTrait,setSe
   )
 }
 
-/**
- * @param {{active:boolean,blendshapeID:string,src:string,select:()=>void}} param0 
- */
-const BlendShapeItem = ({active,blendshapeID,src,select})=>{
+const BlendShapeItem = ({active,blendshapeID,src,select}:{active:boolean,blendshapeID:string,src:string,select:()=>void})=>{
 
   return (
     <div
