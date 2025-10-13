@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import { CharacterManager } from "./characterManager";
+import { BonePicker } from "./bonePicker";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 
@@ -37,6 +39,7 @@ export function sceneInitializer(canvasId) {
 
 
     const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
+    const bonePicker = new BonePicker(characterManager, camera);
     characterManager.addLookAtMouse(80,canvasId, camera, true);
    
     //"editor-scene"
@@ -51,6 +54,33 @@ export function sceneInitializer(canvasId) {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 1;
     controls.maxDistance = 4;
+    const transformControls = new TransformControls(camera, renderer.domElement);
+    transformControls.enabled = true;
+    transformControls.setSpace('local');
+    transformControls.setSize(2.0);
+    transformControls.setMode('translate');
+    transformControls.addEventListener('dragging-changed', function (event) {
+        controls.enabled = !event.value;
+    });
+    // Add gizmo to scene to render handles
+    scene.add(transformControls);
+
+    const attachToTransformControls = (object3d) => {
+        transformControls.detach();
+        if (object3d && object3d.isObject3D) {
+            transformControls.attach(object3d);
+            transformControls.visible = true;
+        }
+    }
+    const detachTransformControls = () => {
+        if (transformControls.object){
+            const axes = transformControls.object.getObjectByName('__gizmoAxes');
+            if (axes && axes.parent) axes.parent.remove(axes);
+        }
+        transformControls.detach();
+        transformControls.visible = false;
+    };
+
     controls.maxPolarAngle = Math.PI / 2;
     controls.enablePan = true;
     controls.target = new THREE.Vector3(0, 1, 0);
@@ -72,11 +102,20 @@ export function sceneInitializer(canvasId) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const clock = new THREE.Clock();
+    const ensureGizmoTarget = () => {
+        if (characterManager.getLastAttachedObject){
+            const target = characterManager.getLastAttachedObject();
+            if (target && transformControls.object !== target) {
+                attachToTransformControls(target);
+            }
+        }
+    }
     const animate = () => {
         requestAnimationFrame(animate);
         const delta = clock.getDelta();
         controls.target.clamp(minPan, maxPan);
         controls?.update();
+        ensureGizmoTarget();
         characterManager.update(delta);
         renderer.render(scene, camera);
     };
@@ -84,12 +123,21 @@ export function sceneInitializer(canvasId) {
 
     animate();
 
-    const handleMouseClick = (event) => {
-        const isCtrlPressed = event.ctrlKey;
+    const handleMouseMove = (event) => {
         const rect = canvasRef.getBoundingClientRect();
         const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        characterManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
+        bonePicker.handleHover(mousex, mousey);
+    }
+
+    const handleMouseClick = (event) => {
+        const rect = canvasRef.getBoundingClientRect();
+        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        // If gizmo is being interacted with, ignore clicks for bone selection
+        if (!transformControls.dragging) {
+            bonePicker.handleClick(mousex, mousey);
+        }
     };
 
 
@@ -105,6 +153,7 @@ export function sceneInitializer(canvasId) {
     fetchScene();
 
     
+    canvasRef.addEventListener("mousemove", handleMouseMove);
     canvasRef.addEventListener("click", handleMouseClick);
 
     return {
@@ -112,7 +161,12 @@ export function sceneInitializer(canvasId) {
         camera,
         controls,
         characterManager,
+        bonePicker,
+        transformControls,
+        attachToTransformControls,
+        detachTransformControls,
         sceneElements,
         clock
     };
 }
+

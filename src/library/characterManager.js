@@ -111,6 +111,55 @@ export class CharacterManager {
       helperRoot.renderOrder = 10000;
       this.rootModel.add(helperRoot)
       this.vrmHelperRoot = helperRoot;
+
+      // When false, clicks on the canvas will not trigger culling
+      this.clickCullingEnabled = true;
+
+      /** @type {THREE.Object3D|null} */
+      this.lastAttachedObject = null;
+      /** @type {string|null} */
+      this.lastAttachedBoneName = null;
+    }
+
+    setClickCullingEnabled(enabled){
+      this.clickCullingEnabled = !!enabled;
+    }
+
+    /**
+     * Returns the most recently attached THREE.Object3D for external tools (gizmos) to target.
+     */
+    getLastAttachedObject(){
+      return this.lastAttachedObject;
+    }
+    getLastAttachedBoneName(){
+      return this.lastAttachedBoneName;
+    }
+    /**
+     * Returns a list of available humanoid bone names.
+     */
+    getHumanoidBoneNames(){
+      const bones = this.baseSkeletonVRM?.humanoid?.humanBones || {};
+      return Object.keys(bones);
+    }
+    /**
+     * Reparent the gizmo handle (and child model) under a different bone.
+     * @param {string} boneName
+     */
+    reparentLastAttachedToBone(boneName){
+      const handle = this.lastAttachedObject;
+      if (!handle) return;
+      const targetBone = this.baseSkeletonVRM?.humanoid?.humanBones?.[boneName]?.node;
+      if (!targetBone) return;
+      // Preserve world matrix of the handle while moving under new bone
+      handle.updateMatrixWorld(true);
+      const world = new THREE.Matrix4().copy(handle.matrixWorld);
+      const boneWorldInv = new THREE.Matrix4().copy(targetBone.matrixWorld).invert();
+      const local = new THREE.Matrix4().multiplyMatrices(boneWorldInv, world);
+      targetBone.add(handle);
+      handle.matrixAutoUpdate = false;
+      handle.matrix.copy(local);
+      handle.matrix.decompose(handle.position, handle.quaternion, handle.scale);
+      handle.updateMatrixWorld(true);
     }
 
     /**
@@ -220,6 +269,9 @@ export class CharacterManager {
 
     // XXX just call raycast culling without sneding mouse position?
     cameraRaycastCulling(mouseX, mouseY, removeFace = true){
+      if (this.clickCullingEnabled === false){
+        return;
+      }
       if (this.renderCamera == null){
         console.warn("No camera was set in character manager. Please call setRenderCamera(camera) before calling this function")
         return;
@@ -1639,15 +1691,46 @@ export class CharacterManager {
       if(model) {
         // call transition
         const m = model.scene;
+        if (m) {
+          m.matrixAutoUpdate = true;
+          m.updateMatrixWorld(true);
+        }
         //m.visible = false;
         // add the now model to the current scene
         const targetBone = parentBoneName != null ? this.baseSkeletonVRM.humanoid.humanBones[parentBoneName]?.node : null;
         
         if (targetBone != null){
-          targetBone.add(m)
+          // Attach to the selected bone at its origin (snap new item to the bone)
+          const handle = new THREE.Object3D();
+          handle.name = "__gizmoHandle";
+          handle.position.set(0,0,0);
+          handle.quaternion.set(0,0,0,1);
+          handle.scale.set(1,1,1);
+          targetBone.add(handle);
+          // Place model at handle origin
+          m.position.set(0,0,0);
+          m.rotation.set(0,0,0);
+          m.updateMatrixWorld(true);
+          handle.add(m);
+          this.lastAttachedObject = handle;
+          this.lastAttachedBoneName = parentBoneName;
         }
         else{
-          this.characterModel.attach(m)
+          // No bone: create handle that preserves current world transform relative to character root
+          m.updateMatrixWorld(true);
+          const handle = new THREE.Object3D();
+          handle.name = "__gizmoHandle";
+          this.characterModel.add(handle);
+          const mWorld = new THREE.Matrix4().copy(m.matrixWorld);
+          const rootWorldInv = new THREE.Matrix4().copy(this.characterModel.matrixWorld).invert();
+          const handleLocal = new THREE.Matrix4().multiplyMatrices(rootWorldInv, mWorld);
+          handle.matrixAutoUpdate = false;
+          handle.matrix.copy(handleLocal);
+          handle.matrix.decompose(handle.position, handle.quaternion, handle.scale);
+          if (handle.attach && m.isObject3D) handle.attach(m); else handle.add(m);
+          m.updateMatrixWorld(true);
+          this.lastAttachedObject = handle;
+          this.lastAttachedBoneName = null;
         }
         //animationManager.update(); // note: update animation to prevent some frames of T pose at start.
 
@@ -1798,6 +1881,8 @@ export class CharacterManager {
           model: gltfModel,
           vrm: vrm
         }
+        // GLTF path is handled above; skip VRM-only logic below
+        return;
       }
       else{
         // If there was a previous loaded model, remove it (maybe also remove loaded textures?)
@@ -1806,13 +1891,11 @@ export class CharacterManager {
           // XXX restore effects
         }
       }
-      this._positionModel(vrm)
-
-      this._positionModel(vrm)
-    
-      this._displayModel(vrm)
-        
-      this._applyManagers(vrm)
+      if (vrm) {
+        this._positionModel(vrm)
+        this._displayModel(vrm)
+        this._applyManagers(vrm)
+      }
 
       if(this.overlayedTextureManager){
         if(traitModel.targetDecalCollection){
