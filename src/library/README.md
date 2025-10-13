@@ -6,7 +6,7 @@ This directory contains various utility scripts for the Character Studio applica
 
 - **`CharacterManifestData.js`**: Manages character manifest data.
 - **`EmotionManager.js`**: Handles character emotions and expressions.
-- **`OverlayTextureManager.js`**: Manages overlay textures for characters.
+- **`OverlayTextureManager.ts`**: Manages overlay textures for characters.
 - **`Storage.js`**: Provides utility functions for browser storage.
 - **`VRMExporter.js`**: Exports character models in VRM format.
 - **`VRMExporterv0.js`**: Exports character models in VRM format (version 0).

@@ -6,7 +6,7 @@ import { VRMRigMapMixamo } from './VRMRigMapMixamo.js';
  *
  * @param {string} url A url of mixamo animation data
  * @param {VRM} vrm A target VRM
- * @returns {Promise<THREE.AnimationClip>} The converted AnimationClip
+ * @returns {THREE.AnimationClip} The converted AnimationClip
  */
 export function getMixamoAnimation( animations, model, vrm ) {
     const clip = THREE.AnimationClip.findByName( animations, 'mixamo.com' ); // extract the AnimationClip

@@ -1,48 +1,51 @@
-import React, { useContext, useEffect, useState } from "react"
-import styles from "./Optimizer.module.css"
-import { ViewMode, ViewContext } from "../context/ViewContext"
-import { SceneContext } from "../context/SceneContext"
-import CustomButton from "../components/custom-button"
-import { LanguageContext } from "../context/LanguageContext"
-import { SoundContext } from "../context/SoundContext"
-import { AudioContext } from "../context/AudioContext"
-import FileDropComponent from "../components/FileDropComponent"
+import React, { useContext, useState } from "react"
+import { Object3D } from "three"
 import BottomDisplayMenu from "../components/BottomDisplayMenu"
-import { getFileNameWithoutExtension, disposeVRM, getAtlasSize } from "../library/utils"
-import { loadVRM, addVRMToScene } from "../library/load-utils"
+import CustomButton from "../components/custom-button"
+import FileDropComponent from "../components/FileDropComponent"
+import { AudioContext } from "../context/AudioContext"
+import { LanguageContext } from "../context/LanguageContext"
+import { SceneContext } from "../context/SceneContext"
+import { SoundContext } from "../context/SoundContext"
+import { ViewContext, ViewMode } from "../context/ViewContext"
+import { getAtlasSize, getFileNameWithoutExtension } from "../library/utils"
+import styles from "./Optimizer.module.css"
+
+import { manifestJson } from "@/library/CharacterManifestData"
 import JsonAttributes from "../components/JsonAttributes"
-import ModelInformation from "../components/ModelInformation"
 import MergeOptions from "../components/MergeOptions"
+import ModelInformation from "../components/ModelInformation"
 import { local } from "../library/store"
 import { ZipManager } from "../library/zipManager"
 
-function BatchDownload() {
+function BatchManifest() {
   const { isLoading, setViewMode, setIsLoading } = React.useContext(ViewContext)
   const {
     manifest,
-    toggleDebugMode,
     characterManager,
     animationManager,
+    toggleDebugMode,
     loraDataGenerator,
     spriteAtlasGenerator,
     sceneElements
   } = React.useContext(SceneContext)
-  
-  const [model, setModel] = useState(null);
-  const [nameVRM, setNameVRM] = useState("");
-  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
+
+  const [model, setModel] = useState<Object3D | null>(null);
+  const [nameVRM, setNameVRM] = useState<string>("");
 
   const { playSound } = React.useContext(SoundContext)
   const { isMute } = React.useContext(AudioContext)
 
   const [jsonSelectionArray, setJsonSelectionArray] = React.useState(null)
+  const [manifestSelectionArray, setManifestSelectionArray] = React.useState<any[]>(null!)
+  const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
 
   const back = () => {
     !isMute && playSound('backNextButton');
     characterManager.removeCurrentCharacter();
     characterManager.removeCurrentManifest();
     toggleDebugMode(false);
-    setViewMode(ViewMode.LANDING);
+    setViewMode(ViewMode.LANDING)
   }
 
   const getOptions = () =>{
@@ -60,18 +63,22 @@ function BatchDownload() {
       twoSidedMaterial: (local["mergeOptions_two_sided_mat"] || false)
     }
   }
-  const downloadVRMWithIndex = (index, downloadLora = false) =>{
-    console.log(downloadLora)
+
+  const downloadLoaded = (index:number) =>{
+    const downloadName = manifestSelectionArray[index].manifestName;
+
     const saveData = async()=>{
-      await characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]);
+      const downloadVRMImage = local["mergeOptions_download_vrm_preview"] == null ? true : local["mergeOptions_download_vrm_preview"];
+      if (downloadVRMImage){
+        characterManager.savePortraitScreenshot(downloadName, 512,1024,1.5,-0.1);
+      }
       const downloadVRM = local["mergeOptions_download_vrm"] == null ? true :  local["mergeOptions_download_vrm"];
       if (downloadVRM){
-        await  characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions());
+        await  characterManager.downloadVRM(downloadName, getOptions());
       }
-
       const downloadZip = new ZipManager();
       const parentScene = sceneElements.parent;
-      parentScene.remove(sceneElements);
+      parentScene?.remove(sceneElements);
       const downloadLora = local["mergeOptions_download_lora"] == null ? true :  local["mergeOptions_download_lora"];
       if (downloadLora === true) {
         const promises = manifest.loras.map(async lora => {
@@ -83,60 +90,62 @@ function BatchDownload() {
 
       const downloadSprites = local["mergeOptions_download_sprites"] == null ? true : local["mergeOptions_download_sprites"];
       if (downloadSprites === true){
-        const promises = manifest.sprites.map(async sprite => {
-          return spriteAtlasGenerator.createSpriteAtlas(sprite, downloadZip);
-        });
+        const promises = manifest.sprites?.map(async sprite => {
+          return spriteAtlasGenerator.createSpriteAtlas(sprite.manifest, downloadZip);
+        })||[];
     
         await Promise.all(promises);
       }
 
       if(downloadLora === true || downloadSprites === true){
-        downloadZip.saveZip(jsonSelectionArray[index].name);
+        downloadZip.saveZip(manifestSelectionArray[index].manifestName);
       }
       
-      parentScene.add(sceneElements);
-
-      if (index < jsonSelectionArray.length-1 )
+      parentScene?.add(sceneElements);
+      if (index < manifestSelectionArray.length-1 ){
+        console.log("downloaded " + downloadName)
         downloadVRMWithIndex(index + 1)
-      else{
-        setIsLoading(false);
       }
+      else
+        setIsLoading(false);
     }
-    saveData();
-    // characterManager.loadTraitsFromNFTObject(jsonSelectionArray[index]).then(async()=>{
-    //   if (downloadLora == true){
-    //     const parentScene = sceneElements.parent;
-    //     parentScene.remove(sceneElements);
+    saveData(); 
+  }
 
-    //     await loraDataGenerator.createLoraData(manifest.loras[0], null, jsonSelectionArray[index].name);
-    //     parentScene.add(sceneElements);
-    //   }
-    //   characterManager.downloadVRM(jsonSelectionArray[index].name, getOptions()).then( ()=>{
-
-    //     if (index < jsonSelectionArray.length-1 )
-    //       downloadVRMWithIndex(index + 1)
-    //     else{
-    //       setIsLoading(false);
-    //     }
-    //   })
-    // })
+  const downloadVRMWithIndex= async(index:number)=>{
+    if (index == 0){
+      console.log(manifest.loras[0]);
+      
+      downloadLoaded(index)
+    }
+    else{
+      characterManager.removeCurrentManifest();
+      await characterManager.setManifest(manifestSelectionArray[index]);
+      setIsLoading(true);
+      characterManager.loadInitialTraits().then(async()=>{
+        
+        const delay = (ms:number) => new Promise(res => setTimeout(res, ms));        
+        await delay(1);
+        downloadLoaded(index);
+      })
+    }
   }
 
   const download = () => {
     setIsLoading(true);
-    downloadVRMWithIndex(0, true);
+    downloadVRMWithIndex(0);
   }
 
   // Translate hook
   const { t } = useContext(LanguageContext)
 
-  const handleAnimationDrop = async (file) => {
+  const handleAnimationDrop = async (file:File) => {
     const curCharacter = characterManager.getCurrentCharacterModel();
     if (curCharacter){
       const animName = getFileNameWithoutExtension(file.name);
       const url = URL.createObjectURL(file);
 
-      await animationManager.loadAnimation(url, false, 0, true, "", animName);
+      await animationManager.loadAnimation(url,false,0, true, "", animName);
       setLoadedAnimationName(animationManager.getCurrentAnimationName());
 
       URL.revokeObjectURL(url);
@@ -146,7 +155,7 @@ function BatchDownload() {
     }
   }
 
-  const handleVRMDrop = async (file) =>{
+  const handleVRMDrop = async (file:File) =>{
     const url = URL.createObjectURL(file);
     await characterManager.loadOptimizerCharacter(url);
     URL.revokeObjectURL(url);
@@ -157,26 +166,31 @@ function BatchDownload() {
     setModel(characterManager.getCurrentCharacterModel());
   }
 
-  const handleJsonDrop = (files) => {
+  const handleJsonDrop = (files:FileList) => {
     const filesArray = Array.from(files);
-    const jsonDataArray = [];
-    const processFile = (file) => {
+    const manifestDataArray:manifestJson[] = [];
+    const processFile = (file:File) => {
       return new Promise((resolve, reject) => {
         if (file && file.name.toLowerCase().endsWith('.json')) {
           const reader = new FileReader();
-
+         
           // XXX Anata hack to display nft thumbs
-          const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
-
-          //console.log(thumbLocation)
+          // const thumbLocation = `${characterManager.manifestData?.getAssetsDirectory()}/anata/_thumbnails/t_${file.name.split('_')[0]}.jpg`;
+          
+          const manifestName =  file.name.replace(/\.[^/.]+$/, "")
           reader.onload = function (e) {
             try {
-              const jsonContent = JSON.parse(e.target.result);
-              // XXX Anata hack to display nft thumbs
-              jsonContent.thumb = thumbLocation;
-              jsonDataArray.push(jsonContent);
+              const jsonContent = JSON.parse((e.target?.result||'{}') as string) as manifestJson;
 
-              resolve(); // Resolve the promise when processing is complete
+              // const thumbLocation = jsonContent.thumbnail;
+              //@ts-ignore ????
+              jsonContent.manifestName = manifestName;
+              // XXX Anata hack to display nft thumbs
+              // jsonContent.thumb = thumbLocation;
+
+              manifestDataArray.push(jsonContent);
+
+              resolve(true); // Resolve the promise when processing is complete
             } catch (error) {
               console.error("Error parsing the JSON file:", error);
               reject(error);
@@ -190,11 +204,14 @@ function BatchDownload() {
     // Use Promise.all to wait for all promises to resolve
     Promise.all(filesArray.map(processFile))
     .then(() => {
-      if (jsonDataArray.length > 0){
-        // This code will run after all files are processed
-        setJsonSelectionArray(jsonDataArray);
+      if (manifestDataArray.length > 0){
+        /// XXX create new function assign manifest
+        //characterManager.animationManager = null;
+        setManifestSelectionArray(manifestDataArray);
+        characterManager.setManifest(manifestDataArray[0]);
+        
         setIsLoading(true);
-        characterManager.loadTraitsFromNFTObject(jsonDataArray[0]).then(()=>{
+        characterManager.loadInitialTraits().then(()=>{
           setIsLoading(false);
         })
       }
@@ -205,12 +222,10 @@ function BatchDownload() {
   }
 
 
-  const handleFilesDrop = async(files) => {
+  const handleFilesDrop = async(files:FileList) => {
     const file = files[0];
-    console.log("anim")
     // Check if the file has the .fbx extension
     if (file && file.name.toLowerCase().endsWith('.fbx')) {
-      console.log("anim2")
       handleAnimationDrop(file);
     } 
     if (file && file.name.toLowerCase().endsWith('.vrm')) {
@@ -220,7 +235,6 @@ function BatchDownload() {
       handleJsonDrop(files);
     } 
   };
-
   
 
   return (
@@ -228,7 +242,7 @@ function BatchDownload() {
       <div className={`loadingIndicator ${isLoading ? "active" : ""}`}>
         <img className={"rotate"} src="ui/loading.svg" />
       </div>
-      <div className={"sectionTitle"}>Batch Download</div>
+      <div className={"sectionTitle"}>NFT Characters</div>
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
@@ -240,8 +254,8 @@ function BatchDownload() {
       <ModelInformation
         model={model}
       />
-      <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
-      <BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>
+      <JsonAttributes jsonSelectionArray={manifestSelectionArray} byManifest={true}/>
+      {(manifestSelectionArray?.length > 0) && (<BottomDisplayMenu loadedAnimationName={loadedAnimationName}/>)}
       <div className={styles.buttonContainer}>
         <CustomButton
           theme="light"
@@ -250,14 +264,8 @@ function BatchDownload() {
           className={styles.buttonLeft}
           onClick={back}
         />
-        {/* <CustomButton
-          theme="light"
-          text={"debug"}
-          size={14}
-          className={styles.buttonCenter}
-          onClick={debugMode}
-        /> */}
-        {(jsonSelectionArray?.length == 1)&&(
+        
+        {(manifestSelectionArray?.length == 1)&&(
           <CustomButton
           theme="light"
           text="Download"
@@ -265,7 +273,7 @@ function BatchDownload() {
           className={styles.buttonRight}
           onClick={download}
         />)}
-        {(jsonSelectionArray?.length > 1)&&(
+        {(manifestSelectionArray?.length > 1)&&(
           <CustomButton
           theme="light"
           text="Download All"
@@ -278,4 +286,4 @@ function BatchDownload() {
   )
 }
 
-export default BatchDownload
+export default BatchManifest

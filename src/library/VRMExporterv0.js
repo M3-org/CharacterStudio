@@ -118,7 +118,7 @@ export default class VRMExporterv0 {
      * 
      * @param {*} vrm 
      * @param {*} avatar 
-     * @param {Object} screenshot 
+     * @param {{image:any}|undefined} screenshot 
      * @param {{
         * bones:{
         *   name:string, 
