@@ -42,8 +42,9 @@ function Appearance() {
     animationManager,
     moveCamera,
     bonePicker,
-    attachToTransformControls,
-    detachTransformControls,
+    transformControls,
+    // attachToTransformControls,
+    // detachTransformControls,
     attachTransformTarget,
   } = React.useContext(SceneContext)
   
@@ -132,7 +133,7 @@ function Appearance() {
       console.warn("Please select a group trait first.")
     }
   }
-  const handleModelDrop = (file) =>{
+  const handleGLBDrop = (file) =>{
     if (selectedTraitGroup != null && selectedTraitGroup.trait != ""){
       console.log(selectedTraitGroup);
       console.log("dropeed glb");
@@ -272,7 +273,7 @@ function Appearance() {
       handleJsonDrop(files);
     } 
     if (file && (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb') )) {
-      handleModelDrop(file);
+      handleGLBDrop(file);
     }
   };
 
@@ -348,15 +349,15 @@ function Appearance() {
         const bone = characterManager.baseSkeletonVRM.humanoid.humanBones[boneName]?.node
         const last = bone && bone.children && bone.children[bone.children.length-1]
         if (last) {
-          attachToTransformControls(last)
+          transformControls.attachToTransformControls(last)
           if (attachTransformTarget) attachTransformTarget(last)
           return
         }
       }
-      if (attachToTransformControls && node){
+      if (transformControls.attachToTransformControls && node){
         // Attach the GLTF root for direct manipulation (defer one tick to ensure it is in scene graph)
         requestAnimationFrame(()=>{
-          attachToTransformControls(node);
+          transformControls.attachToTransformControls(node);
           if (attachTransformTarget) attachTransformTarget(node)
         })
       }

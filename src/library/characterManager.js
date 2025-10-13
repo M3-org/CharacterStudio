@@ -11,6 +11,7 @@ import { getNodesWithColliders, saveVRMCollidersToUserData, renameMorphTargets} 
 import { cullHiddenMeshes, setTextureToChildMeshes, addChildAtFirst } from "./utils";
 import { LipSync } from "./lipsync";
 import { LookAtManager } from "./lookatManager";
+import { BonePicker} from "./bonePicker";
 import OverlayedTextureManager from "./OverlayTextureManager";
 import { ManifestDataManager } from "./manifestDataManager";
 import { WalletCollections } from "./walletCollections";
@@ -49,6 +50,12 @@ export class CharacterManager {
    * @type {ScreenshotManager}
    */
   screenshotManager
+
+  /**
+   * @type {BonePicker}
+   */
+  bonePicker
+
     constructor(options){
       this._start(options);
     }
@@ -231,6 +238,12 @@ export class CharacterManager {
       }
       //this.toggleCharacterLookAtMouse(enable)
     }
+
+    addBonePicker(canvasID){
+      this.bonePicker = new BonePicker(this, canvasID, this.camera);
+      this.bonePicker.toggleAllowBonePicking(true);
+    }
+
     toggleCharacterLookAtMouse(enable){
       if (this.lookAtManager != null){
         this.lookAtManager.setActive(enable);

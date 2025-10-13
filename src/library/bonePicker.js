@@ -8,12 +8,20 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
  */
 export class BonePicker {
   /**
+   * Whether the instance is enabled;
+   * @type {boolean}
+   * defaults to false
+   */
+  _allowBonePicking = false
+
+  /**
    * @param {import('./characterManager').CharacterManager} characterManager
    * @param {THREE.Camera} camera
    */
-  constructor(characterManager, camera) {
+  constructor(characterManager, canvasID, camera) {
     this.characterManager = characterManager;
     this.camera = camera;
+    this.canvasID = canvasID;
 
     /** @type {Array<THREE.Mesh>} */
     this.markers = [];
@@ -35,12 +43,7 @@ export class BonePicker {
     this.hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc00, depthTest: false });
 
     this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
-    this._onResize = () => {
-      this.resolution.set(window.innerWidth, window.innerHeight);
-      this.boneLines.forEach((ln) => {
-        if (ln.material && ln.material.resolution) ln.material.resolution.copy(this.resolution);
-      })
-    }
+
 
     this.majorBones = new Set([
       "hips","spine","chest","upperChest","neck","head",
@@ -50,12 +53,85 @@ export class BonePicker {
       "leftFoot","rightFoot"
     ]);
 
-    this._escListener = (e) => {
+  }
+  /**
+   * 
+   * @param {boolean} enabled Optional
+   */
+  toggleAllowBonePicking(enabled=undefined){
+    this._allowBonePicking = enabled !== undefined ? enabled : !this._allowBonePicking;
+    if (this._allowBonePicking){
+      this._addListeners();
+    } else {
+      this._removeListeners();
+      this.disable();
+    }
+  }
+
+  _escListener = (e) => {
       if (e.key === "Escape") {
         this.disable();
       }
     }
+
+  _onResize = () => {
+      this.resolution.set(window.innerWidth, window.innerHeight);
+      this.boneLines.forEach((ln) => {
+        if (ln.material && ln.material.resolution) ln.material.resolution.copy(this.resolution);
+      })
+    }
+
+  setTransformControls(transformControlHelper){
+    this.transformControls = transformControlHelper;
   }
+
+      
+  _handleMouseMove = (event) => {
+      const canvasRef = document.getElementById(this.canvasID)
+      if(!canvasRef) return;
+
+      const rect = canvasRef.getBoundingClientRect();
+      const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      this.handleHover(mousex, mousey);
+  }
+
+  _handleMouseClick = (event) => {
+      const canvasRef = document.getElementById(this.canvasID)
+      if(!canvasRef) return;
+
+      const rect = canvasRef.getBoundingClientRect();
+      const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      // If gizmo is being interacted with, ignore clicks for bone selection
+      if (this.transformControls && !this.transformControls.transform.dragging) {
+          this.handleClick(mousex, mousey);
+      }
+  };
+
+  _addListeners(){
+    const canvasRef = document.getElementById(this.canvasID)
+    if(canvasRef) {
+      canvasRef.addEventListener("mousemove", this._handleMouseMove);
+      canvasRef.addEventListener("click", this._handleMouseClick);
+    }
+  }
+
+  _removeListeners(){
+    const canvasRef = document.getElementById(this.canvasID)
+    if(canvasRef) {
+      canvasRef.removeEventListener("click", this._handleMouseClick);
+      canvasRef.removeEventListener("mousemove", this._handleMouseMove);
+    }
+  }
+
+  dispose(){
+    this._removeListeners();
+    this.disable();
+    this.transformControls = null;
+  }
+
+
 
   /**
    * Create markers on all humanoid bones of the base skeleton.

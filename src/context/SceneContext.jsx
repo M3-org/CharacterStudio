@@ -38,8 +38,6 @@ export const SceneProvider = (props) => {
   const [controls, setControls] = useState(null)
   const [bonePicker, setBonePicker] = useState(null)
   const [transformControlsObj, setTransformControlsObj] = useState(null)
-  const [attachToTransformControlsFn, setAttachToTransformControlsFn] = useState(null)
-  const [detachTransformControlsFn, setDetachTransformControlsFn] = useState(null)
   const [transformMode, setTransformMode] = useState('translate')
   const [transformSnap, setTransformSnap] = useState({ t: 0.05, r: 5, s: 0.05 })
   const [transformTarget, setTransformTarget] = useState(null)
@@ -56,15 +54,13 @@ export const SceneProvider = (props) => {
     loaded = true;
 
     const init = sceneInitializer("editor-scene");
-    const { scene, camera, controls, characterManager, sceneElements } = init;
-    setBonePicker(init.bonePicker);
-    setTransformControlsObj(init.transformControls);
-    setAttachToTransformControlsFn(() => init.attachToTransformControls);
-    setDetachTransformControlsFn(() => init.detachTransformControls);
+    const { scene, camera, controls, characterManager, sceneElements, transformControls } = init;
+    setTransformControlsObj(transformControls);
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
     setSceneElements(sceneElements);
+    setBonePicker(characterManager.bonePicker);
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setDecalManager(characterManager.overlayedTextureManager)
@@ -73,20 +69,21 @@ export const SceneProvider = (props) => {
     setSpriteAtlasGenerator(new SpriteAtlasGenerator(characterManager))
     setThumbnailsGenerator(new ThumbnailGenerator(characterManager))
   },[])
+  
   useEffect(()=>{
     if (!transformControlsObj) return
     // apply mode
-    transformControlsObj.setMode(transformMode)
+    transformControlsObj.transform.setMode(transformMode)
     // apply snaps
-    transformControlsObj.setTranslationSnap(transformSnap.t || null)
-    transformControlsObj.setRotationSnap(transformSnap.r ? (transformSnap.r * Math.PI / 180) : null)
-    transformControlsObj.setScaleSnap(transformSnap.s || null)
+    transformControlsObj.transform.setTranslationSnap(transformSnap.t || null)
+    transformControlsObj.transform.setRotationSnap(transformSnap.r ? (transformSnap.r * Math.PI / 180) : null)
+    transformControlsObj.transform.setScaleSnap(transformSnap.s || null)
   },[transformControlsObj, transformMode, transformSnap])
 
   // Keyboard shortcuts W/E/R like Blender
   useEffect(()=>{
     const onKey = (e) => {
-      if (!transformControlsObj) return
+      if (!transformControlsObj?.transform) return
       if (e.key === 'w' || e.key === 'W') setTransformMode('translate')
       if (e.key === 'e' || e.key === 'E') setTransformMode('rotate')
       if (e.key === 'r' || e.key === 'R') setTransformMode('scale')
@@ -98,12 +95,12 @@ export const SceneProvider = (props) => {
   const attachTransformTarget = (obj) => {
     setTransformTarget(obj)
     if (characterManager?.setClickCullingEnabled) characterManager.setClickCullingEnabled(false)
-    if (attachToTransformControlsFn) attachToTransformControlsFn(obj)
+    if (transformControlsObj.attachToTransformControlsFn) transformControlsObj.attachToTransformControlsFn(obj)
   }
   const detachTransformTarget = () => {
     setTransformTarget(null)
     if (characterManager?.setClickCullingEnabled) characterManager.setClickCullingEnabled(true)
-    if (detachTransformControlsFn) detachTransformControlsFn()
+    if (transformControlsObj.detachTransformControlsFn) transformControlsObj.detachTransformControlsFn()
   }
 
   // Direct manipulation helpers (used by bottom panel toolbar)
@@ -230,8 +227,6 @@ export const SceneProvider = (props) => {
         sceneElements,
         bonePicker,
         transformControls: transformControlsObj,
-        attachToTransformControls: attachToTransformControlsFn,
-        detachTransformControls: detachTransformControlsFn,
         transformMode,
         setTransformMode,
         transformSnap,
