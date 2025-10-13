@@ -32,7 +32,7 @@
     "@docusaurus/theme-search-algolia": "^3.8.1",
     "@mdx-js/react": "^3.0.0",
     "axios": "^0.30.0",
-    "brace-expansion": "^1.1.12",
+    "brace-expansion": "^4.0.1",
     "braces": "^3.0.3",
     "clsx": "^2.0.0",
     "cross-spawn": "^7.0.6",
