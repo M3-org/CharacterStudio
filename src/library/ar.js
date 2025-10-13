@@ -56,7 +56,6 @@ export const arScenePipelineModule = (scene) => {
 
     if (intersects.length == 1 && intersects[0].object == surface) {
       scene.position.set(intersects[0].point.x, 0, intersects[0].point.z);
-    } else {
     }
   }
 
