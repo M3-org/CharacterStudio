@@ -79,7 +79,6 @@ function Appearance() {
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
   const [selectingBone, setSelectingBone] = React.useState(false)
-  const [modelFile, setModelFile] = React.useState(null)
   const [modelUrl, setModelUrl] = React.useState(null)
   const modelUrlRef = React.useRef(null)
 
@@ -146,7 +145,6 @@ function Appearance() {
       }catch(e){
         console.error("Failed to create object URL", e)
       }
-      setModelFile(file);
       if (bonePicker){
         bonePicker.enable((boneName)=>{
           placeModelOnBone(boneName)
@@ -336,7 +334,6 @@ function Appearance() {
     }
     characterManager.loadCustomModelTrait(selectedTraitGroup.trait, urlToUse, boneName).then(()=>{
       setIsLoading(false);
-      setModelFile(null)
       URL.revokeObjectURL(urlToUse);
       setModelUrl(null);
       modelUrlRef.current = null;
