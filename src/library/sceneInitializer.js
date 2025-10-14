@@ -53,10 +53,9 @@ export function sceneInitializer(canvasId) {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 1;
     controls.maxDistance = 4;
-    const transformControls = new TransformControlHelper(camera,controls, renderer.domElement);
-    characterManager.addBonePicker(canvasId);
+    const transformControls = new TransformControlHelper(controls,camera, renderer.domElement);
+    characterManager.addBonePicker(canvasId,camera);
     characterManager.bonePicker.setTransformControls(transformControls);
-    console.log("transformControls", transformControls)
     // Add gizmo to scene to render handles
     scene.add(transformControls.transform);
 

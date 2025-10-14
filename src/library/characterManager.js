@@ -239,8 +239,8 @@ export class CharacterManager {
       //this.toggleCharacterLookAtMouse(enable)
     }
 
-    addBonePicker(canvasID){
-      this.bonePicker = new BonePicker(this, canvasID, this.camera);
+    addBonePicker(canvasID,camera){
+      this.bonePicker = new BonePicker(this, canvasID, camera);
       this.bonePicker.toggleAllowBonePicking(true);
     }
 
