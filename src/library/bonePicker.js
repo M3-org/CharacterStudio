@@ -206,7 +206,6 @@ export class BonePicker {
   handleHover=(mouseX, mouseY) => {
     if (!this.isActive) return;
     this.mouse.set(mouseX, mouseY);
-    console.log("raycast", this.mouse,this.camera)
     this.raycaster.setFromCamera(this.mouse, this.camera);
     // keep lines in sync (cheap: ~20 bones)
     this._updateBoneLinesPositions();
