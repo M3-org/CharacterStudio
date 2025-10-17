@@ -1,8 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+import TransformControlHelper from "./transformControlHelper";
 import { CharacterManager } from "./characterManager";
-import { BonePicker } from "./bonePicker";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 
@@ -39,8 +38,8 @@ export function sceneInitializer(canvasId) {
 
 
     const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
-    const bonePicker = new BonePicker(characterManager, camera);
     characterManager.addLookAtMouse(80,canvasId, camera, true);
+
    
     //"editor-scene"
     const canvasRef = document.getElementById(canvasId);
@@ -54,32 +53,12 @@ export function sceneInitializer(canvasId) {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 1;
     controls.maxDistance = 4;
-    const transformControls = new TransformControls(camera, renderer.domElement);
-    transformControls.enabled = true;
-    transformControls.setSpace('local');
-    transformControls.setSize(2.0);
-    transformControls.setMode('translate');
-    transformControls.addEventListener('dragging-changed', function (event) {
-        controls.enabled = !event.value;
-    });
+    const transformControls = new TransformControlHelper(controls,camera, renderer.domElement);
+    characterManager.addBonePicker(canvasId,camera);
+    characterManager.bonePicker.setTransformControls(transformControls);
     // Add gizmo to scene to render handles
-    scene.add(transformControls);
+    scene.add(transformControls.transform);
 
-    const attachToTransformControls = (object3d) => {
-        transformControls.detach();
-        if (object3d && object3d.isObject3D) {
-            transformControls.attach(object3d);
-            transformControls.visible = true;
-        }
-    }
-    const detachTransformControls = () => {
-        if (transformControls.object){
-            const axes = transformControls.object.getObjectByName('__gizmoAxes');
-            if (axes && axes.parent) axes.parent.remove(axes);
-        }
-        transformControls.detach();
-        transformControls.visible = false;
-    };
 
     controls.maxPolarAngle = Math.PI / 2;
     controls.enablePan = true;
@@ -106,7 +85,7 @@ export function sceneInitializer(canvasId) {
         if (characterManager.getLastAttachedObject){
             const target = characterManager.getLastAttachedObject();
             if (target && transformControls.object !== target) {
-                attachToTransformControls(target);
+                transformControls.attachToTransformControls(target);
             }
         }
     }
@@ -123,23 +102,6 @@ export function sceneInitializer(canvasId) {
 
     animate();
 
-    const handleMouseMove = (event) => {
-        const rect = canvasRef.getBoundingClientRect();
-        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        bonePicker.handleHover(mousex, mousey);
-    }
-
-    const handleMouseClick = (event) => {
-        const rect = canvasRef.getBoundingClientRect();
-        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        // If gizmo is being interacted with, ignore clicks for bone selection
-        if (!transformControls.dragging) {
-            bonePicker.handleClick(mousex, mousey);
-        }
-    };
-
 
     async function fetchScene() {
         // // load environment
@@ -152,19 +114,12 @@ export function sceneInitializer(canvasId) {
     }
     fetchScene();
 
-    
-    canvasRef.addEventListener("mousemove", handleMouseMove);
-    canvasRef.addEventListener("click", handleMouseClick);
-
     return {
         scene,
         camera,
         controls,
         characterManager,
-        bonePicker,
         transformControls,
-        attachToTransformControls,
-        detachTransformControls,
         sceneElements,
         clock
     };
