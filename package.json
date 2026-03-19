@@ -100,7 +100,7 @@
     "eslint-plugin-no-inline-styles": "^1.0.5",
     "eslint-plugin-react": "^7.31.11",
     "gh-pages": "^6.1.1",
-    "jsdom": "^26.1.0",
+    "jsdom": "^29.0.0",
     "prettier": "^2.3.2",
     "rollup-plugin-inject": "^3.0.2",
     "sass": "^1.98.0",
