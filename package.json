@@ -52,7 +52,7 @@
     "react-select": "^5.10.2",
     "react-i18next": "^12.1.5",
     "sepia-speechrecognition-polyfill": "^1.0.0",
-    "short-uuid": "^4.2.0",
+    "short-uuid": "^6.0.3",
     "squaresplit": "^1.0.2",
     "styled-components": "^5.3.1",
     "three": "^0.183.2",
