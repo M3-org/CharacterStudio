@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import TransformControlHelper from "./transformControlHelper";
 import { CharacterManager } from "./characterManager";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -38,6 +39,7 @@ export function sceneInitializer(canvasId) {
 
     const characterManager = new CharacterManager({parentModel: scene, createAnimationManager : true, renderCamera:camera})
     characterManager.addLookAtMouse(80,canvasId, camera, true);
+
    
     //"editor-scene"
     const canvasRef = document.getElementById(canvasId);
@@ -51,6 +53,13 @@ export function sceneInitializer(canvasId) {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 1;
     controls.maxDistance = 4;
+    const transformControls = new TransformControlHelper(controls,camera, renderer.domElement);
+    characterManager.addBonePicker(canvasId,camera);
+    characterManager.bonePicker.setTransformControls(transformControls);
+    // Add gizmo to scene to render handles
+    scene.add(transformControls.transform);
+
+
     controls.maxPolarAngle = Math.PI / 2;
     controls.enablePan = true;
     controls.target = new THREE.Vector3(0, 1, 0);
@@ -72,25 +81,26 @@ export function sceneInitializer(canvasId) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const clock = new THREE.Clock();
+    const ensureGizmoTarget = () => {
+        if (characterManager.getLastAttachedObject){
+            const target = characterManager.getLastAttachedObject();
+            if (target && transformControls.object !== target) {
+                transformControls.attachToTransformControls(target);
+            }
+        }
+    }
     const animate = () => {
         requestAnimationFrame(animate);
         const delta = clock.getDelta();
         controls.target.clamp(minPan, maxPan);
         controls?.update();
+        ensureGizmoTarget();
         characterManager.update(delta);
         renderer.render(scene, camera);
     };
 
 
     animate();
-
-    const handleMouseClick = (event) => {
-        const isCtrlPressed = event.ctrlKey;
-        const rect = canvasRef.getBoundingClientRect();
-        const mousex = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        const mousey = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        characterManager.cameraRaycastCulling(mousex,mousey,isCtrlPressed);
-    };
 
 
     async function fetchScene() {
@@ -104,15 +114,14 @@ export function sceneInitializer(canvasId) {
     }
     fetchScene();
 
-    
-    canvasRef.addEventListener("click", handleMouseClick);
-
     return {
         scene,
         camera,
         controls,
         characterManager,
+        transformControls,
         sceneElements,
         clock
     };
 }
+

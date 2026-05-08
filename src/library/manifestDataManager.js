@@ -311,6 +311,9 @@ export class ManifestDataManager{
     getCustomTraitOption(groupTraitID, url){
       return this.mainManifestData.getCustomTraitOption(groupTraitID, url);
     }
+    getMainTrait(){
+      return this.mainManifestData.mainTrait;
+    }
   
     getNFTraitOptionsFromURL(url, ignoreGroupTraits, identifier){
       if (identifier == null){

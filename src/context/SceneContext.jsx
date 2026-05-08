@@ -36,6 +36,11 @@ export const SceneProvider = (props) => {
   const [scene, setScene] = useState(null)
   const [camera, setCamera] = useState(null)
   const [controls, setControls] = useState(null)
+  const [bonePicker, setBonePicker] = useState(null)
+  const [transformControlsObj, setTransformControlsObj] = useState(null)
+  const [transformMode, setTransformMode] = useState('translate')
+  const [transformSnap, setTransformSnap] = useState({ t: 0.05, r: 5, s: 0.05 })
+  const [transformTarget, setTransformTarget] = useState(null)
 
   const [manifest, setManifest] = useState(null)
   const [debugMode, setDebugMode] = useState(false);
@@ -48,17 +53,14 @@ export const SceneProvider = (props) => {
     setIsLoaded(true)
     loaded = true;
 
-    const {
-      scene,
-      camera,
-      controls,
-      characterManager,
-      sceneElements
-    } = sceneInitializer("editor-scene");
+    const init = sceneInitializer("editor-scene");
+    const { scene, camera, controls, characterManager, sceneElements, transformControls } = init;
+    setTransformControlsObj(transformControls);
     setCamera(camera);
     setScene(scene);
     setCharacterManager(characterManager);
     setSceneElements(sceneElements);
+    setBonePicker(characterManager.bonePicker);
     setAnimationManager(characterManager.animationManager)
     setLookAtManager(characterManager.lookAtManager)
     setDecalManager(characterManager.overlayedTextureManager)
@@ -67,6 +69,67 @@ export const SceneProvider = (props) => {
     setSpriteAtlasGenerator(new SpriteAtlasGenerator(characterManager))
     setThumbnailsGenerator(new ThumbnailGenerator(characterManager))
   },[])
+  
+  useEffect(()=>{
+    if (!transformControlsObj) return
+    // apply mode
+    transformControlsObj.transform.setMode(transformMode)
+    // apply snaps
+    transformControlsObj.transform.setTranslationSnap(transformSnap.t || null)
+    transformControlsObj.transform.setRotationSnap(transformSnap.r ? (transformSnap.r * Math.PI / 180) : null)
+    transformControlsObj.transform.setScaleSnap(transformSnap.s || null)
+  },[transformControlsObj, transformMode, transformSnap])
+
+  // Keyboard shortcuts W/E/R like Blender
+  useEffect(()=>{
+    const onKey = (e) => {
+      if (!transformControlsObj?.transform) return
+      if (e.key === 'w' || e.key === 'W') setTransformMode('translate')
+      if (e.key === 'e' || e.key === 'E') setTransformMode('rotate')
+      if (e.key === 'r' || e.key === 'R') setTransformMode('scale')
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [transformControlsObj])
+
+  const attachTransformTarget = (obj) => {
+    setTransformTarget(obj)
+    if (characterManager?.setClickCullingEnabled) characterManager.setClickCullingEnabled(false)
+    if (transformControlsObj.attachToTransformControlsFn) transformControlsObj.attachToTransformControlsFn(obj)
+  }
+  const detachTransformTarget = () => {
+    setTransformTarget(null)
+    if (characterManager?.setClickCullingEnabled) characterManager.setClickCullingEnabled(true)
+    if (transformControlsObj.detachTransformControlsFn) transformControlsObj.detachTransformControlsFn()
+  }
+
+  // Direct manipulation helpers (used by bottom panel toolbar)
+  const applyTranslateDelta = (dx, dy, dz) => {
+    if (!transformTarget) return
+    transformTarget.position.x += dx || 0
+    transformTarget.position.y += dy || 0
+    transformTarget.position.z += dz || 0
+    transformTarget.updateMatrixWorld(true)
+  }
+  const applyRotateDelta = (rxDeg, ryDeg, rzDeg) => {
+    if (!transformTarget) return
+    const rx = (rxDeg || 0) * Math.PI / 180
+    const ry = (ryDeg || 0) * Math.PI / 180
+    const rz = (rzDeg || 0) * Math.PI / 180
+    transformTarget.rotation.x += rx
+    transformTarget.rotation.y += ry
+    transformTarget.rotation.z += rz
+    transformTarget.updateMatrixWorld(true)
+  }
+  const applyScaleDelta = (sx, sy, sz) => {
+    if (!transformTarget) return
+    const clamp = (v) => Math.max(0.001, v)
+    transformTarget.scale.x = clamp(transformTarget.scale.x + (sx || 0))
+    transformTarget.scale.y = clamp(transformTarget.scale.y + (sy || 0))
+    transformTarget.scale.z = clamp(transformTarget.scale.z + (sz || 0))
+    transformTarget.updateMatrixWorld(true)
+  }
+
 
 
   const toggleDebugMode = (isDebug) => {
@@ -162,6 +225,39 @@ export const SceneProvider = (props) => {
         moveCamera,
         controls,
         sceneElements,
+        bonePicker,
+        transformControls: transformControlsObj,
+        transformMode,
+        setTransformMode,
+        transformSnap,
+        setTransformSnap,
+        transformTarget,
+        attachTransformTarget,
+        detachTransformTarget,
+        applyTranslateDelta,
+        applyRotateDelta,
+        applyScaleDelta,
+        getBoneNames: () => characterManager?.getHumanoidBoneNames?.() || [],
+        reparentToBone: (name) => characterManager?.reparentLastAttachedToBone?.(name),
+        getAttachedBoneName: () => characterManager?.getLastAttachedBoneName?.() || null,
+        copyTransform: () => {
+          const o = transformTarget; if (!o) return null;
+          return { p: o.position.toArray(), q: o.quaternion.toArray(), s: o.scale.toArray() }
+        },
+        pasteTransform: (t) => {
+          if (!transformTarget || !t) return;
+          const THREE_ = window.THREE || null;
+          if (t.p) transformTarget.position.set(t.p[0],t.p[1],t.p[2]);
+          if (t.q && THREE_) transformTarget.quaternion.set(t.q[0],t.q[1],t.q[2],t.q[3]);
+          if (t.s) transformTarget.scale.set(t.s[0],t.s[1],t.s[2]);
+          transformTarget.updateMatrixWorld(true);
+        },
+        resetToBoneOrigin: () => {
+          const handle = transformTarget; if (!handle) return;
+          handle.position.set(0,0,0);
+          handle.quaternion.set(0,0,0,1);
+          handle.updateMatrixWorld(true);
+        }
       }}
     >
       {props.children}

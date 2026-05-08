@@ -53,6 +53,7 @@ export class CharacterManifestData{
         exportScale,
         displayScale,
         initialTraits,
+        mainTrait,
         requiredTraits,
         randomTraits,
         colliderTraits,
@@ -104,6 +105,7 @@ export class CharacterManifestData{
       this.requiredTraits = getAsArray(requiredTraits);
       this.randomTraits = getAsArray(randomTraits);
       this.initialTraits = initialTraits || [...new Set(this.requiredTraits.concat(this.randomTraits))];
+      this.mainTrait = mainTrait || this.requiredTraits[0] || traits[0].trait;
       this.colliderTraits = getAsArray(colliderTraits);
       this.lipSyncTraits = getAsArray(lipSyncTraits);   
       this.blinkerTraits = getAsArray(blinkerTraits);   
