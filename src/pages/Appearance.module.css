@@ -215,3 +215,63 @@
   display: flex;
   color: white;
 }
+
+.hoverPreview {
+  position: fixed;
+  left: 454px;
+  top: 98px;
+  width: 184px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: rgba(5, 11, 14, 0.92);
+  border: 1px solid rgba(8, 234, 160, 0.7);
+  color: #ffffff;
+  z-index: 1300;
+  pointer-events: none;
+  backdrop-filter: blur(22.5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.hoverPreviewImage {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin: 0 auto 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hoverPreviewTitle {
+  font-family: "TTSC-Bold";
+  font-size: 13px;
+  line-height: 1.2;
+  text-transform: capitalize;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.hoverPreviewRows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hoverPreviewRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.hoverPreviewRow span {
+  color: #9eabb8;
+  text-transform: uppercase;
+}
+
+.hoverPreviewRow strong {
+  color: #d1d7df;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
