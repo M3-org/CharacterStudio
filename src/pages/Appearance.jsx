@@ -71,6 +71,7 @@ function Appearance() {
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
+  const [hoveredItem, setHoveredItem] = React.useState(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -263,6 +264,41 @@ function Appearance() {
     }
   }
 
+  const showTraitGroupTooltip = (traitGroup) => {
+    setHoveredItem({
+      title: traitGroup.name || traitGroup.trait,
+      image: traitGroup.fullIconSvg,
+      rows: [
+        ["Type", "Trait group"],
+        ["Trait", traitGroup.trait],
+        ["Options", `${traitGroup.collection?.length || 0}`],
+        ["Required", traitGroup.isRequired ? "Yes" : "No"],
+      ],
+    })
+  }
+
+  const showTraitTooltip = (trait, active) => {
+    setHoveredItem({
+      title: trait.name || trait.id,
+      image: trait.fullThumbnail,
+      rows: [
+        ["Trait", trait.traitGroup?.trait || ""],
+        ["ID", trait.id],
+        ["Collection", trait.collectionID],
+        ["Status", trait.locked ? "Locked" : "Available"],
+        ["Selected", active ? "Yes" : "No"],
+      ],
+    })
+  }
+
+  const showActionTooltip = (title, image, rows = []) => {
+    setHoveredItem({ title, image, rows })
+  }
+
+  const hideTooltip = () => {
+    setHoveredItem(null)
+  }
+
 
   const uploadTrait = () =>{
     setIsPickingColor(false);
@@ -304,6 +340,12 @@ function Appearance() {
               characterManager.getGroupTraits().map((traitGroup, index) => (
                 <div key={"options_" + index} 
                 className={styles["editorButton"]}
+                onMouseEnter={() => showTraitGroupTooltip(traitGroup)}
+                onMouseLeave={hideTooltip}
+                onFocus={() => showTraitGroupTooltip(traitGroup)}
+                onBlur={hideTooltip}
+                tabIndex={0}
+                aria-label={`${traitGroup.name || traitGroup.trait} trait group`}
                 onClick={() => {
                   selectTraitGroup(traitGroup)
                 }}>
@@ -362,6 +404,12 @@ function Appearance() {
                 <div
                   key={"randomize-trait"}
                   className={`${styles["selectorButton"]}`}
+                  onMouseEnter={() => showActionTooltip("Randomize", randomizeIcon, [["Trait", selectedTraitGroup.trait]])}
+                  onMouseLeave={hideTooltip}
+                  onFocus={() => showActionTooltip("Randomize", randomizeIcon, [["Trait", selectedTraitGroup.trait]])}
+                  onBlur={hideTooltip}
+                  tabIndex={0}
+                  aria-label={`Randomize ${selectedTraitGroup.trait}`}
                   onClick={() => {randomTrait(selectedTraitGroup.trait)}}
                 >
                   <TokenBox
@@ -377,6 +425,12 @@ function Appearance() {
                     key={"no-trait"}
                     className={`${styles["selectorButton"]}`}
                     icon={cancel}
+                    onMouseEnter={() => showActionTooltip("None", cancel, [["Trait", selectedTraitGroup.trait], ["Selected", selectedTrait == null ? "Yes" : "No"]])}
+                    onMouseLeave={hideTooltip}
+                    onFocus={() => showActionTooltip("None", cancel, [["Trait", selectedTraitGroup.trait], ["Selected", selectedTrait == null ? "Yes" : "No"]])}
+                    onBlur={hideTooltip}
+                    tabIndex={0}
+                    aria-label={`Remove ${selectedTraitGroup.trait}`}
                     onClick={() => {removeTrait(selectedTraitGroup.trait)}}
                   >
                     <TokenBox
@@ -396,6 +450,12 @@ function Appearance() {
                   <div
                     key={index}
                     className={`${styles["selectorButton"]}`}
+                    onMouseEnter={() => showTraitTooltip(trait, active)}
+                    onMouseLeave={hideTooltip}
+                    onFocus={() => showTraitTooltip(trait, active)}
+                    onBlur={hideTooltip}
+                    tabIndex={0}
+                    aria-label={trait.name || trait.id}
                     onClick={()=>{selectTrait(trait); console.log(trait)}}
                   >
                     <TokenBox
@@ -430,6 +490,7 @@ function Appearance() {
       <JsonAttributes jsonSelectionArray={jsonSelectionArray}/>
       
       <RightPanel selectedTrait={selectedTrait} selectedVRM={selectedVRM} traitGroupName={selectedTraitGroup?.trait||""}/>
+      <HoverPreview item={hoveredItem}/>
 
       <BottomDisplayMenu loadedAnimationName={loadedAnimationName} randomize={randomize}/>
       <div className={styles.buttonContainer}>
@@ -473,6 +534,27 @@ function Appearance() {
 }
 
 export default Appearance
+
+const HoverPreview = ({item}) => {
+  if (!item) return null
+
+  return (
+    <div className={styles.hoverPreview} role="tooltip">
+      {item.image && <img className={styles.hoverPreviewImage} src={item.image} alt="" />}
+      <div className={styles.hoverPreviewTitle}>{item.title}</div>
+      {item.rows?.length > 0 && (
+        <div className={styles.hoverPreviewRows}>
+          {item.rows.map(([label, value]) => (
+            <div className={styles.hoverPreviewRow} key={`${label}_${value}`}>
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 /**
  * @param {{selectedTrait:ModelTrait|null,selectedBlendShapeTrait:Record<string,string>,onBack:()=>void,setSelectedBlendshapeTrait:(x:Record<string,string>)=>void}} param0 
