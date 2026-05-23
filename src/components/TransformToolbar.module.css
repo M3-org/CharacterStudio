@@ -1,0 +1,104 @@
+.toolbar{
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(5,11,14,0.8);
+  backdrop-filter: blur(22.5px);
+  z-index: 1001;
+}
+.group{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dpad{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.row{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.arrow{
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  font-size: 16px;
+}
+.center{
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.12);
+}
+.compact{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.seg{
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:8px;
+  overflow:hidden;
+}
+.segBtn{
+  padding:6px 10px;
+  color:#fff;
+  background:rgba(255,255,255,0.06);
+  border:none;
+  cursor:pointer;
+}
+.segBtn + .segBtn{ border-left:1px solid rgba(255,255,255,0.14); }
+.btn{
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+.active{
+  background: rgba(0,194,255,0.25);
+  border-color: rgba(0,194,255,0.6);
+}
+.label{
+  color: #ddd;
+  font-size: 12px;
+}
+.input{
+  width: 64px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+.inputSmall{
+  width: 56px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+

@@ -20,6 +20,8 @@ import colorPicker from "../images/color-palette.png"
 import { ChromePicker   } from 'react-color'
 import RightPanel from "../components/RightPanel"
 import SaleIcon from "../images/sale-icon.png"
+import { BoneSelector } from "../components/BoneSelector"
+import TransformInspector from "../components/TransformInspector"
 
   /**
    * @typedef {import("../library/CharacterManifestData.js").TraitModelsGroup} TraitModelsGroup
@@ -39,6 +41,11 @@ function Appearance() {
     characterManager,
     animationManager,
     moveCamera,
+    bonePicker,
+    transformControls,
+    // attachToTransformControls,
+    // detachTransformControls,
+    attachTransformTarget,
   } = React.useContext(SceneContext)
   
   const [traitView, setTraitView] = React.useState(TraitPage.TRAIT)
@@ -71,6 +78,9 @@ function Appearance() {
   const [loadedAnimationName, setLoadedAnimationName] = React.useState("");
   const [isPickingColor, setIsPickingColor] = React.useState(false)
   const [colorPicked, setColorPicked] = React.useState({ background: '#ffffff' })
+  const [selectingBone, setSelectingBone] = React.useState(false)
+  const [modelUrl, setModelUrl] = React.useState(null)
+  const modelUrlRef = React.useRef(null)
 
   const next = () => {
     !isMute && playSound('backNextButton');
@@ -115,7 +125,31 @@ function Appearance() {
       const path = URL.createObjectURL(file);
       characterManager.loadCustomTexture(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
+        URL.revokeObjectURL(path);
       })
+    }
+    else{
+      console.warn("Please select a group trait first.")
+    }
+  }
+  const handleGLBDrop = (file) =>{
+    if (selectedTraitGroup != null && selectedTraitGroup.trait != ""){
+      console.log(selectedTraitGroup);
+      console.log("dropeed glb");
+      setSelectingBone(true);
+      // create and store object URL now to avoid stale state later
+      try{
+        const url = URL.createObjectURL(file);
+        setModelUrl(url);
+        modelUrlRef.current = url;
+      }catch(e){
+        console.error("Failed to create object URL", e)
+      }
+      if (bonePicker){
+        bonePicker.enable((boneName)=>{
+          placeModelOnBone(boneName)
+        })
+      }
     }
     else{
       console.warn("Please select a group trait first.")
@@ -128,12 +162,14 @@ function Appearance() {
       const path = URL.createObjectURL(file);
       characterManager.loadCustomTrait(selectedTraitGroup.trait, path).then(()=>{
         setIsLoading(false);
+        URL.revokeObjectURL(path);
       })
     }
     else{
       console.warn("Please select a group trait first.")
     }
   }
+
   const selectTrait = (trait) => {
     console.log(trait);
     if(trait.id === selectedTrait?.id && trait.collectionID === selectedTrait?.collectionID){
@@ -234,6 +270,9 @@ function Appearance() {
     if (file && file.name.toLowerCase().endsWith('.json')) {
       handleJsonDrop(files);
     } 
+    if (file && (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb') )) {
+      handleGLBDrop(file);
+    }
   };
 
   const selectTraitGroup = (traitGroup) => {
@@ -284,6 +323,44 @@ function Appearance() {
     }
     input.click();
   }
+  const placeModelOnBone = async (boneName) => {
+    setSelectingBone(false);
+    setIsLoading(true);
+    const urlToUse = modelUrlRef.current || modelUrl;
+    if (!urlToUse){
+      console.warn("No model URL available for placement.");
+      setIsLoading(false);
+      return;
+    }
+    characterManager.loadCustomModelTrait(selectedTraitGroup.trait, urlToUse, boneName).then(()=>{
+      setIsLoading(false);
+      URL.revokeObjectURL(urlToUse);
+      setModelUrl(null);
+      modelUrlRef.current = null;
+      const entry = characterManager.avatar[selectedTraitGroup.trait];
+      // If entry.model is a GLTF (from non-VRM path) we attached its scene under the target bone
+      const node = entry?.model?.scene || entry?.model || null;
+      // If we attached to a bone, ensure we're manipulating the child just added
+      // i.e., the last child of the bone may be our model root
+      if (!node && characterManager.baseSkeletonVRM && boneName){
+        const bone = characterManager.baseSkeletonVRM.humanoid.humanBones[boneName]?.node
+        const last = bone && bone.children && bone.children[bone.children.length-1]
+        if (last) {
+          transformControls.attachToTransformControls(last)
+          if (attachTransformTarget) attachTransformTarget(last)
+          return
+        }
+      }
+      if (transformControls.attachToTransformControls && node){
+        // Attach the GLTF root for direct manipulation (defer one tick to ensure it is in scene graph)
+        requestAnimationFrame(()=>{
+          transformControls.attachToTransformControls(node);
+          if (attachTransformTarget) attachTransformTarget(node)
+        })
+      }
+    })
+
+  }
 
   return (
     <div className={styles.container}>
@@ -294,6 +371,11 @@ function Appearance() {
       <FileDropComponent 
          onFilesDrop={handleFilesDrop}
       />
+      {selectingBone && !bonePicker && (
+        <BoneSelector
+          onSelect={placeModelOnBone}
+        />
+      )}
       {/* Main Menu section */}
       <div className={styles["sideMenu"]}>
         <MenuTitle title="Appearance" left={20}/>
@@ -320,9 +402,10 @@ function Appearance() {
           </div>
         </div>
       </div>
+      <TransformInspector/>
 
-      {/* Option Selection section */
-      !!traits && selectedTraitGroup && (
+      {/* Option Selection section */}
+      { !!traits && selectedTraitGroup && (
         <div className={styles["selectorContainerPos"]}>
         
           <MenuTitle title={selectedTraitGroup.trait} width={130} left={20}/>
