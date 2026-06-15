@@ -9,6 +9,7 @@ import { EffectManager } from "./library/effectManager"
 import MessageWindow from "./components/MessageWindow"
 
 import Background from "./components/Background"
+import BrandBar from "./components/BrandBar"
 
 import Appearance from "./pages/Appearance"
 import BatchDownload from "./pages/BatchDownload"
@@ -206,8 +207,8 @@ export default function App() {
 
   return (
     <Fragment>
-      
-      <div className="generalTitle">Character Studio</div>
+
+      <BrandBar />
 
       {/* <LanguageSwitch /> */}
       <MessageWindow

@@ -2,16 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="src/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="HandheldFriendly" content="true" />
-    <title>Character Studio</title>
+    <meta name="theme-color" content="#0d0d0d" />
 
+    <title>GCS — Grudge Character Studio · HYDRA</title>
+    <meta name="description" content="Create, customize, and export 3D VRM characters for Grudge Studio games. HYDRA-powered character creator with full NFT minting and Grudge account integration." />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="GCS — Grudge Character Studio" />
+    <meta property="og:description" content="Build your character for the Grudge Studio universe. 3D VRM customization, NFT minting, and full Grudge account sync." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://character.grudge-studio.com/" />
+    <meta property="og:image" content="https://character.grudge-studio.com/assets/og-gcs.jpg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GCS — Grudge Character Studio" />
+    <meta name="twitter:description" content="Build your character for the Grudge Studio universe." />
+    <meta name="twitter:image" content="https://character.grudge-studio.com/assets/og-gcs.jpg" />
+
+    <!-- Fonts: Space Grotesk (Hydra display) + Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   </head>
   <body>
     <canvas id="editor-scene" style="position: fixed; top: 0; left: 0;" width="100%" height="100%"></canvas>
-    <div id="root" style="overflow: hidden">
-    </div>
+    <div id="root" style="overflow: hidden"></div>
 
     <link rel="stylesheet" href="public/style.css" />
     <script src="ktx2/libktx.js"></script>

@@ -1,89 +1,69 @@
 {
-  "characters":[
+  "characters": [
     {
-      "name": "Anata",
-      "description": "Female",
-      "portrait": "./assets/portraitImages/female.jpg",
-      "manifest":"https://m3-org.github.io/loot-assets/anata/female/manifest.json",
-      "format": "vrm"
+      "name": "Human",
+      "description": "Balanced fighter, versatile in all roles.",
+      "portrait": "https://assets.grudge-studio.com/portraits/human.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/human.json",
+      "format": "glb",
+      "raceId": "human",
+      "faction": "crusade"
     },
     {
-      "name": "Anata",
-      "description": "Male",
-      "portrait": "./assets/portraitImages/male.jpg",
-      "manifest":"./loot-assets/anata/male/manifest.json",
-      "format": "vrm"
+      "name": "Barbarian",
+      "description": "Brutal berserker, raw power and fury.",
+      "portrait": "https://assets.grudge-studio.com/portraits/barbarian.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/barbarian.json",
+      "format": "glb",
+      "raceId": "barbarian",
+      "faction": "crusade"
     },
     {
-      "name": "ON1FORCE",
-      "description": "Demon",
-      "portrait": "./assets/portraitImages/0n1.jpg",
-      "manifest":"https://m3-org.github.io/loot-assets/0N1/manifest.json",
-      "format": "vrm"
+      "name": "Elf",
+      "description": "Agile marksman, master of precision.",
+      "portrait": "https://assets.grudge-studio.com/portraits/elf.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/elf.json",
+      "format": "glb",
+      "raceId": "elf",
+      "faction": "fabled"
     },
     {
-      "name": "TUBBY CAT",
-      "description": "Cute",
-      "portrait": "./assets/portraitImages/tubby.jpg",
-      "manifest":"https://m3-org.github.io/loot-assets/tubbycats/manifest.json",
-      "format": "vrm"
+      "name": "Dwarf",
+      "description": "Stout defender, unbreakable resolve.",
+      "portrait": "https://assets.grudge-studio.com/portraits/dwarf.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/dwarf.json",
+      "format": "glb",
+      "raceId": "dwarf",
+      "faction": "crusade"
+    },
+    {
+      "name": "Orc",
+      "description": "Savage warrior, strength through rage.",
+      "portrait": "https://assets.grudge-studio.com/portraits/orc.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/orc.json",
+      "format": "glb",
+      "raceId": "orc",
+      "faction": "legion"
+    },
+    {
+      "name": "Undead",
+      "description": "Risen skeleton, relentless and fearless.",
+      "portrait": "https://assets.grudge-studio.com/portraits/undead.jpg",
+      "manifest": "https://assets.grudge-studio.com/manifests/undead.json",
+      "format": "glb",
+      "raceId": "undead",
+      "faction": "legion"
     }
   ],
-  "loras":[
-    {
-      "name": "SDXL Lora 728",
-      "description": "Poses and camera positions to create Lora for SDXL 726 x 726",
-      "manifest":"./lora-assets/manifest.json",
-      "icon": "|"
-    }
+  "classes": [
+    { "id": "warrior", "name": "Warrior", "icon": "⚔️", "defaultWeapon": "unarmed" },
+    { "id": "mage", "name": "Mage", "icon": "🔮", "defaultWeapon": "unarmed" },
+    { "id": "ranger", "name": "Ranger", "icon": "🏹", "defaultWeapon": "unarmed" },
+    { "id": "worg", "name": "Worge", "icon": "🐺", "defaultWeapon": "unarmed" }
   ],
-  "sprites":[
-    {
-      "name": "Multiple Animations",
-      "description": "Multiple definitions for different animations converted to sprites.",
-      "manifest":"./sprite-atlas-assets/manifest.json",
-      "icon": "|"
-    }
-    
-  ],
-  "thumbnails":[
-    {
-      "name": "Clothing Thumbnail",
-      "description": "Create thumbnails for Clothing",
-      "manifest":"./thumbnail-assets/manifest.json",
-      "icon": "|"
-    },
-    {
-      "name": "Clothing Thumbnail2",
-      "description": "Create thumbnails for Clothing",
-      "manifest":"./thumbnail-assets/manifest.json",
-      "icon": "|"
-    }
-  ],
-  "defaultAnimations":[
-    {
-      "name": "T-Pose",
-      "description": "T-Pose",
-      "location":"./animations/T-Pose.fbx",
-      "icon": "|"
-    },
-    {
-      "name": "Dancing",
-      "description": "Basic Dance Animation",
-      "location":"./animations/Dancing.fbx",
-      "icon": "|"
-    },
-    {
-      "name": "Walking",
-      "description": "Basic Walk Animation",
-      "location":"./animations/Walking.fbx",
-      "icon": "|"
-    },
-    {
-      "name": "Waving",
-      "description": "Basic Waving Animation",
-      "location":"./animations/Waving.fbx",
-      "icon": "|"
-    }
+  "defaultAnimations": [
+    { "name": "Idle", "description": "Standing idle", "location": "https://assets.grudge-studio.com/models/animations/sword-shield/sword and shield idle.glb" },
+    { "name": "Walk", "description": "Walking forward", "location": "https://assets.grudge-studio.com/models/animations/sword-shield/sword and shield run.glb" },
+    { "name": "Attack", "description": "Basic attack", "location": "https://assets.grudge-studio.com/models/animations/sword-shield/sword and shield attack.glb" }
   ]
 }

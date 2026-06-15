@@ -1,10 +1,9 @@
 {
-  "name": "@m3-org/characterstudio",
-  "version": "0.5.0",
-  "homepage": "https://m3-org.github.io/CharacterStudio",
+  "name": "@grudge-studio/gcs",
+  "version": "1.0.0",
+  "description": "GCS — Grudge Character Studio. HYDRA-powered 3D VRM character creator for the Grudge Studio ecosystem.",
+  "homepage": "https://character.grudge-studio.com",
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
